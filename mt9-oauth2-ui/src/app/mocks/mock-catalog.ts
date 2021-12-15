@@ -1,0 +1,1 @@
+export const mockCatalog = { "id": 835573777981440, "name": "裙子", "parentId": 835573655822336, "attributes": ["835658702675968:裙", "835658045743104:下装"], "catalogType": "FRONTEND" }

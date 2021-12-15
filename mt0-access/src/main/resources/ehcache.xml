@@ -1,0 +1,28 @@
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xmlns:jsr107="http://www.ehcache.org/v3/jsr107"
+        xsi:schemaLocation="
+            http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd
+            http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
+
+    <cache alias="userRegion" uses-template="myDefaults" />
+    <cache alias="systemRoleRegion" uses-template="myDefaults" />
+    <cache alias="roleGroupRegion" uses-template="myDefaults" />
+    <cache alias="pendingUserRegion" uses-template="myDefaults" />
+    <cache alias="endpointRegion" uses-template="myDefaults" />
+    <cache alias="corsProfileRegion" uses-template="myDefaults" />
+    <cache alias="clientRegion" uses-template="myDefaults" />
+    <cache alias="cacheProfileRegion" uses-template="myDefaults" />
+    <cache alias="clientResourceRegion" uses-template="myDefaults" />
+
+    <cache-template name="myDefaults">
+        <expiry>
+            <ttl unit="seconds">10</ttl>
+        </expiry>
+        <resources>
+            <heap unit="entries">200</heap>
+            <offheap unit="MB">10</offheap>
+        </resources>
+    </cache-template>
+
+</config>

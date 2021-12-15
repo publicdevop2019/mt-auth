@@ -1,0 +1,8 @@
+    <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close</mat-icon>
+    <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+    <lib-factory *ngIf="manualSelect" [formId]="formIdAttrValue" [formInfo]="formInfoAttrValue"></lib-factory>
+    <button mat-raised-button color="primary" *ngIf="aggregate" class="app-btn"
+        (click)="update()">{{'UPDATE'|translate}}</button>
+    <button mat-raised-button color="primary" class="app-btn"
+        (click)="create()"
+        *ngIf="!aggregate">{{'CREATE'|translate}}</button>

@@ -1,0 +1,14 @@
+<mat-tree [dataSource]="treeDataSource" [treeControl]="treeControl">
+    <mat-tree-node *matTreeNodeDef="let node" matTreeNodePadding>
+        <button mat-icon-button disabled></button>
+        <span (click)="emitLeafNodeClick(node.id)">{{node.name}}</span>
+    </mat-tree-node>
+    <mat-tree-node *matTreeNodeDef="let node;when: hasChild" matTreeNodePadding>
+        <button mat-icon-button matTreeNodeToggle [attr.aria-label]="'toggle ' + node.name">
+            <mat-icon class="mat-icon-rtl-mirror">
+                {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
+            </mat-icon>
+        </button>
+        <span (click)="emitBranchNodeClick(node.id)">{{node.name}}</span>
+    </mat-tree-node>
+</mat-tree>

@@ -1,0 +1,14 @@
+<div style="display: flex;flex-direction: row;justify-content: space-between;align-items: baseline;">
+    <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
+    </mat-icon>
+</div>
+<h3>{{'ORDER_DETAIL'|translate}}</h3>
+<lib-factory [formId]="formIdOrder" [formInfo]="formInfoOrder"></lib-factory>
+<h3>{{'PRODUCT_LIST_DETAILS'|translate}}</h3>
+<lib-factory [formId]="formIdProduct" [formInfo]="formInfoProduct"></lib-factory>
+<h3>{{'ORDER_ADDRESS'|translate}}</h3>
+<lib-factory [formId]="formIdAddress" [formInfo]="formInfoAddress"></lib-factory>
+<h3>{{'ORDER_TASK'|translate}}</h3>
+<div class="marker-boarder">
+    <lib-factory  [formId]="formIdTask" [formInfo]="formInfoTask"></lib-factory>
+</div>

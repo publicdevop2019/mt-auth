@@ -1,0 +1,20 @@
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showEditIcon()"
+    (mouseleave)="hideEditIcon()">
+    <mat-chip-list aria-label="chip list selection" *ngIf="inputValue">
+        <mat-chip>
+            {{inputValue&&inputValue.label|translate}}
+        </mat-chip>
+    </mat-chip-list>
+    <button mat-icon-button [matMenuTriggerFor]="menu" (click)="lockEditIcon=true">
+        <mat-icon [ngStyle]="{'visibility':lockEditIcon || displayEdit}" [color]="'primary'"
+            style="padding-right: 8px;cursor: pointer;">edit
+        </mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" (closed)="lockEditIcon=false">
+        <ng-template matMenuContent>
+            <button *ngFor="let e of list" mat-menu-item (click)="doUpdate(e)">
+                {{e.label|translate}}
+            </button>
+        </ng-template>
+    </mat-menu>
+</div>

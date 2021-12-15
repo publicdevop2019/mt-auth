@@ -1,0 +1,66 @@
+manytree:
+  mt0:
+    name: access
+  url:
+    eureka:
+    endpoint: endpoints/proxy
+  domain-name: duoshu.org
+mt:
+  url:
+    support:
+      mq:
+server:
+  port: 8111
+spring:
+  application:
+    name: proxy
+  zipkin:
+    baseUrl: http://localhost:9411/
+  sleuth:
+    sampler:
+      probability: 1.0
+  cloud:
+    gateway:
+      httpclient:
+        connect-timeout: 10000
+        response-timeout: 15s
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: .well-known/jwks.json
+  redis:
+    port:
+    database: 0
+    host:
+    password:
+    pool:
+      max-active: 8
+      max-wait: -1
+      max-idle: 8
+      min-idle: 0
+    timeout: 30000
+ribbon:
+  ReadTimeout: 15000
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 35000
+logging:
+  level:
+    org:
+      springframework:
+        web: INFO
+        security: INFO
+    com:
+      netflix: INFO
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${EUREKA_URI:${manytree.url.eureka}}
+  instance:
+    preferIpAddress: true
+    ip-address:

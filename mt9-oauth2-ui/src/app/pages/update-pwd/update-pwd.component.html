@@ -1,0 +1,8 @@
+<div class="example-container">
+    <app-back-button></app-back-button>
+    <form>
+        <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+    </form>
+    <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+        (click)="updatePwd()">{{'UPDATE_PASSWORD'|translate}}</button>
+</div>

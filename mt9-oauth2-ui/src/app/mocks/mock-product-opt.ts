@@ -1,0 +1,1 @@
+export const mockProductOpt={"data":[{"id":838612359340032,"changeId":"133bb1f0-f16d-11ea-9f5b-1fe093b88703","entityType":"Product","operationType":"PATCH_BY_ID","query":"id:835605166055424"}],"totalItemCount":1}

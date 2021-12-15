@@ -1,0 +1,59 @@
+<h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'API_CACHE_DASHBOARD' |translate}}<button
+    mat-fab color="primary" (click)="openBottomSheet()">{{'ADD'|translate}}</button></h2>
+<app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
+</app-search>
+<div class="mat-elevation-z8">
+<div class="table-container">
+    <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> {{'ID'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.id"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="description">
+            <th mat-header-cell *matHeaderCellDef> {{'DESCRIPTION'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-editable-field [inputValue]="row.description"
+                    (newValue)="doPatch(row.id,$event,'description')">
+                </app-editable-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef> {{'NAME'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
+                </app-editable-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="edit">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{'EDIT'|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+                <mat-icon (click)="openBottomSheet(row.id)" [color]="'primary'">edit</mat-icon>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="clone">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{'CLONE'|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon" style="padding-right: 14px !important; ">
+                <mat-icon (click)="doClone(row.id)" [color]="'primary'">file_copy</mat-icon>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="delete">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{'DELETE'|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+                <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>
+
+<mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
+    [pageSize]="pageSize" (page)="pageHandler($event)">
+</mat-paginator>
+</div>

@@ -1,0 +1,1 @@
+export const mockBizAttributeOpt={"data":[{"id":838612383457280,"changeId":"2eb64d50-f16d-11ea-9f5b-1fe093b88703","entityType":"BizAttribute","operationType":"PATCH_BY_ID","query":"id:835602958278656"}],"totalItemCount":1}

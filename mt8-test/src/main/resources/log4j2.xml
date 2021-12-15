@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Properties>
+        <Property name="location">./logs</Property>
+        <Property name="name">SystemTest</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile name="fileLogger" fileName="${location}/${name}.log"
+                     filePattern="${location}/archived/${name}-%d{yyyy-MM-dd}.%i.log" immediateFlush="false">
+            <PatternLayout>
+                <pattern>%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} - %msg%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+        </RollingFile>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout
+                    pattern="%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="com.hw" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Root level="error" additivity="false" includeLocation="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Root>
+    </Loggers>
+</Configuration>

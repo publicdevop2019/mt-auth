@@ -1,0 +1,125 @@
+<div style="display: flex;flex-direction: row;justify-content: space-between;align-items: baseline;">
+    <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
+    </mat-icon>
+</div>
+<h1 style="display: flex;flex-direction: row; align-items: center;">
+    <div>ID:{{taskBottomSheet.from.id}}</div>
+    <button  *ngIf="taskBottomSheet.from.cancelable" (click)="doCancel(taskBottomSheet.from.id)" mat-raised-button  color="warn" style="margin-left: 24px;">
+        <span style="font-size: 16px;">{{'CANCEL'|translate}}</span>
+    </button>
+</h1>
+<h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'LTX_LIST' |translate}}</h2>
+
+<div class="table-container">
+    <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{'NAME'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.name | translate"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>{{'STATUS'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <div>{{row.status|translate}}</div>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="emptyOpt">
+            <th mat-header-cell *matHeaderCellDef>{{'EMPTY_OPT'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <ng-container *ngIf="row.status!=='SUCCESS'">
+                    N/A
+                </ng-container>
+                <ng-container *ngIf="row.status==='SUCCESS'">
+                    <mat-icon *ngIf="row.emptyOpt" [color]="'primary'">
+                        check_circle_outline
+                    </mat-icon>
+                    <mat-icon *ngIf="row.emptyOpt===false" [color]="'primary'">cancel
+                    </mat-icon>
+                </ng-container>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="retry">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{'RETRY'|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+                <ng-container *ngIf="taskBottomSheet.from.retryable">
+                    <ng-container *ngIf="row.status!=='PENDING'">
+                        <mat-icon (click)="retry(row.id)" [color]="'primary'">redo</mat-icon>
+                    </ng-container>
+                </ng-container>
+                <ng-container *ngIf="!taskBottomSheet.from.retryable">
+                    N/A
+                </ng-container>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>
+<h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'RELATED_EVENTS' |translate}}</h2>
+<div class="table-container">
+    <table mat-table [dataSource]="eventDataSource">
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>{{'ID'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.id"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>{{'NAME'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.name|translate"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="belongsTo">
+            <th mat-header-cell *matHeaderCellDef>{{'BELONGS_TO'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.serviceName|translate"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="internal">
+            <th mat-header-cell *matHeaderCellDef> {{'INTERNAL'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <mat-icon *ngIf="row.internal" [color]="'primary'">
+                    check_circle_outline
+                </mat-icon>
+                <mat-icon *ngIf="row.internal===false" [color]="'primary'">cancel
+                </mat-icon>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="timestamp">
+            <th mat-header-cell *matHeaderCellDef>{{'CREATE_AT'|translate}}</th>
+            <td mat-cell *matCellDef="let row">
+                {{row.timestamp|date:'M/d/yy, h:mm:ss a'}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="eventBody">
+            <th mat-header-cell *matHeaderCellDef>{{'DETAILS'|translate}}</th>
+            <td mat-cell *matCellDef="let row">
+                <mat-icon (click)="launchOverlay(origin,row)" #origin [color]="'primary'">
+                    remove_red_eye</mat-icon>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="retry">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{'RETRY'|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+                <ng-container *ngIf="taskBottomSheet.from.retryable">
+                    <mat-icon (click)="doRetry(row)" [color]="'primary'">redo</mat-icon>
+                </ng-container>
+                <ng-container *ngIf="!taskBottomSheet.from.retryable">
+                    N/A
+                </ng-container>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="eventDisplayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: eventDisplayedColumns;"></tr>
+    </table>
+</div>

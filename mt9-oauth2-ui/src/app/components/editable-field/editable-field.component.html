@@ -1,0 +1,13 @@
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showEditIcon()"
+    (mouseleave)="hideEditIcon()">
+    <div *ngIf="!editView">{{(inputValue!==undefined && inputValue!==null)?inputValue:''}}</div>
+    <div *ngIf="editView" style="display: flex;flex-direction: row;width: 100%;">
+        <input #inputField [value]="(inputValue!==undefined && inputValue!==null)?inputValue:''" style="flex: 1;">
+        <mat-icon [color]="'primary'" (click)="doUpdate(inputField.value)" style="cursor: pointer;">check_circle_outline
+        </mat-icon>
+        <mat-icon [color]="'error'" (click)="doCancel()" style="cursor: pointer;">cancel</mat-icon>
+    </div>
+    <mat-icon *ngIf="!editView" [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doEdit()"
+        style="padding-right: 8px;cursor: pointer;">edit
+    </mat-icon>
+</div>

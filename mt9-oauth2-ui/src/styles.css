@@ -1,0 +1,101 @@
+/* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+body { 
+    font-family: Roboto, Arial, sans-serif;
+    margin: 0;
+  }
+.centered{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+.nav-back{
+  text-align: left !important;
+  padding-left: 0px !important;
+  margin-bottom: 10px !important;
+  margin-top: 10px !important;
+}
+.mat-expansion-panel {
+  border-radius: 0px !important;
+}
+.mat-stepper-horizontal, .mat-stepper-vertical {
+  background-color: #fafafa;
+}
+/* start of table */
+table {
+  width: 100%;
+}
+.mat-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+.table-container {
+  overflow: auto; 
+}
+td, th {
+  padding-right: 10px;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 8px !important;
+}
+/* end of table */
+
+.mat-bottom-sheet-container-medium {
+  min-width: auto !important;
+  max-width: none !important;
+  width: 96vw;
+  height: 80vh !important;
+}
+
+.mat-bottom-sheet-container-large {
+  min-width: auto !important;
+  max-width: none !important;
+  width: 96vw;
+  height: 80vh !important;
+}
+
+.mat-bottom-sheet-container-xlarge {
+  min-width: auto !important;
+  max-width: none !important;
+  width: 96vw;
+  height: 80vh !important;
+}
+.mat-bottom-sheet-container {
+  min-width: 96vw;
+}
+.flex-row-space-between{
+  display: flex; 
+  flex-direction: row;
+  justify-content: space-between;
+}
+.fix-height{
+  height: 80vh !important;
+}
+.app-btn{
+  width: 100%;
+}
+.table-icon{
+  width: 25px;
+  cursor: pointer;
+}
+th.mat-sort-header-sorted {
+  color: black;
+}
+.mat-chip-list-wrapper {
+  flex-wrap: nowrap !important;
+  display: block !important;
+  margin: 0px !important;
+}
+.mat-menu-panel {
+  max-height: 250px !important;
+}
+.mat-form-field-infix {
+  width: auto !important;
+}
+.marker-boarder .form-body {
+  margin-bottom: 24px !important;
+  border-left: 2px solid #673ab7 !important;
+}

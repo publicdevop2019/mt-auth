@@ -1,0 +1,1 @@
+export const mockBizFilterOpt={"data":[{"id":838612388175872,"changeId":"33d6dcf0-f16d-11ea-9f5b-1fe093b88703","entityType":"BizFilter","operationType":"PATCH_BY_ID","query":"id:836347697848320"}],"totalItemCount":1}

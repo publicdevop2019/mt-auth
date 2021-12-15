@@ -1,0 +1,11 @@
+<mat-dialog-content>
+  <h3>{{'RESOLVE_CONFIRM_MSG'|translate}}</h3>
+  <mat-form-field appearance="fill">
+    <mat-label>{{'PLEASE_ENTER_RESOLVE_REASON'|translate}}</mat-label>
+    <textarea matInput #reasonRef></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions style="justify-content: space-around;">
+  <button mat-dialog-close (click)="cancelClick()" mat-button >{{'CANCEL'|translate}}</button>
+  <button [mat-dialog-close]="reasonRef.value" mat-button color="error">{{'CONFIRM'|translate}}</button>
+</mat-dialog-actions>

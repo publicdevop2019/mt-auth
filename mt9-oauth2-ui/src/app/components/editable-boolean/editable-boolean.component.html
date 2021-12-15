@@ -1,0 +1,31 @@
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showEditIcon()"
+    (mouseleave)="hideEditIcon()">
+    <mat-icon *ngIf="inputValue" [color]="'primary'">
+        check_circle_outline
+    </mat-icon>
+    <mat-icon *ngIf="inputValue===false" [color]="'primary'">cancel
+    </mat-icon>
+    <mat-icon *ngIf="inputValue===undefined" [color]="'accent'">block
+    </mat-icon>
+    <button mat-icon-button [matMenuTriggerFor]="menu" (click)="lockEditIcon=true">
+        <mat-icon [ngStyle]="{'visibility':lockEditIcon || displayEdit}" [color]="'primary'"
+            style="padding-right: 8px;cursor: pointer;">edit
+        </mat-icon>
+    </button>
+    <mat-menu #menu="matMenu" (closed)="lockEditIcon=false">
+        <button mat-menu-item (click)="doUpdate(false)">
+            <mat-icon [color]="'warn'">cancel
+            </mat-icon>
+        </button>
+        <button mat-menu-item (click)="doUpdate(true)">
+            <mat-icon [color]="'primary'">
+                check_circle_outline
+            </mat-icon>
+        </button>
+        <button mat-menu-item  *ngIf="allowNull" (click)="doUpdate(undefined)">
+            <mat-icon [color]="'accent'">
+                block
+            </mat-icon>
+        </button>
+    </mat-menu>
+</div>

@@ -1,0 +1,11 @@
+{
+    "/proxy/*": {
+      "target": "http://localhost:8111/",
+      "secure": false,
+      "changeOrigin": true,
+      "pathRewrite": {
+        "^/proxy/": ""
+      },
+      "logLevel": "info"
+    }
+  }

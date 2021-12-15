@@ -1,0 +1,1 @@
+export const mockBizClientOpt={"data":[{"id":838612077248512,"changeId":"d2737c80-f16b-11ea-ac38-694816a57e94","entityType":"BizClient","operationType":"PATCH_BY_ID","query":"id:838330249904138"},{"id":838612285915136,"changeId":"bfeddbe0-f16c-11ea-b3c3-57376e477f77","entityType":"BizClient","operationType":"PATCH_BY_ID","query":"id:838330249904133"}],"totalItemCount":2}

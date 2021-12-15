@@ -1,0 +1,313 @@
+import { LayoutModule } from '@angular/cdk/layout';
+import { OverlayModule } from '@angular/cdk/overlay';
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { NgModule } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatOptionModule } from '@angular/material/core';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatListModule } from '@angular/material/list';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatRadioModule } from '@angular/material/radio';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatSortModule } from '@angular/material/sort';
+import { MatStepperModule } from '@angular/material/stepper';
+import { MatTableModule } from '@angular/material/table';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatTreeModule } from '@angular/material/tree';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
+import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
+import { FormInfoService, MtFormBuilderModule } from 'mt-form-builder';
+import 'mt-wc-product';
+import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { CustomLoader } from './clazz/locale/custom-loader';
+import { enUS } from './clazz/locale/en-US';
+import { zhHans } from './clazz/locale/zh-Hans';
+import { BackButtonComponent } from './components/back-button/back-button.component';
+import { CopyFieldComponent } from './components/copy-field/copy-field.component';
+import { EditableBooleanComponent } from './components/editable-boolean/editable-boolean.component';
+import { EditableFieldComponent } from './components/editable-field/editable-field.component';
+import { EditableInputMultiComponent } from './components/editable-input-multi/editable-input-multi.component';
+import { EditableSelectMultiComponent } from './components/editable-select-multi/editable-select-multi.component';
+import { EditableSelectSingleComponent } from './components/editable-select-single/editable-select-single.component';
+import { LazyImageComponent } from './components/lazy-image/lazy-image.component';
+import { MsgBoxComponent } from './components/msg-box/msg-box.component';
+import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { ObjectDetailComponent } from './components/object-detail/object-detail.component';
+import { OperationConfirmDialogComponent } from './components/operation-confirm-dialog/operation-confirm-dialog.component';
+import { PreviewOutletComponent } from './components/preview-outlet/preview-outlet.component';
+import { ProgressSpinnerComponent } from './components/progress-spinner/progress-spinner.component';
+import { SummaryCommentComponent } from './modules/bbs/pages/summary-comment/summary-comment.component';
+import { SummaryDislikeComponent } from './modules/bbs/pages/summary-dislike/summary-dislike.component';
+import { SummaryLikeComponent } from './modules/bbs/pages/summary-like/summary-like.component';
+import { SummaryNotInterestedComponent } from './modules/bbs/pages/summary-not-interested/summary-not-interested.component';
+import { SummaryPostComponent } from './modules/bbs/pages/summary-post/summary-post.component';
+import { SummaryReportComponent } from './modules/bbs/pages/summary-report/summary-report.component';
+import { CatalogTreeComponent } from './modules/mall/components/catalog-tree/catalog-tree.component';
+import { AttributeComponent } from './modules/mall/pages/attribute/attribute.component';
+import { CatalogComponent } from './modules/mall/pages/catalog/catalog.component';
+import { FilterComponent } from './modules/mall/pages/filter/filter.component';
+import { OrderComponent } from './modules/mall/pages/order/order.component';
+import { ProductComponent } from './modules/mall/pages/product/product.component';
+import { SummaryAttributeComponent } from './modules/mall/pages/summary-attribute/summary-attribute.component';
+import { SummaryCatalogComponent } from './modules/mall/pages/summary-catalog/summary-catalog.component';
+import { SummaryFilterComponent } from './modules/mall/pages/summary-filter/summary-filter.component';
+import { SummaryOrderComponent } from './modules/mall/pages/summary-order/summary-order.component';
+import { SummaryProductComponent } from './modules/mall/pages/summary-product/summary-product.component';
+import { SummarySkuComponent } from './modules/mall/pages/summary-sku/summary-sku.component';
+import { SummaryTaskComponent } from './modules/mall/pages/summary-task/summary-task.component';
+import { ClientComponent } from './modules/my-apps/pages/client/client.component';
+import { EndpointComponent } from './modules/my-apps/pages/endpoint/endpoint.component';
+import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/summary-client.component';
+import { SummaryEndpointComponent } from './modules/my-apps/pages/summary-endpoint/summary-endpoint.component';
+import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
+import { ResourceOwnerComponent } from './modules/my-users/pages/resource-owner/resource-owner.component';
+import { SummaryResourceOwnerComponent } from './modules/my-users/pages/summary-resource-owner/summary-resource-owner.component';
+import { AuthorizeComponent } from './pages/authorize/authorize.component';
+import { LoginComponent } from './pages/login/login.component';
+import { OperationHistoryComponent } from './pages/operation-history/operation-history.component';
+import { SettingComponent } from './pages/setting/setting.component';
+import { UpdatePwdComponent } from './pages/update-pwd/update-pwd.component';
+import { AuthService } from './services/auth.service';
+import { ClientService } from './services/client.service';
+import { DeleteConfirmHttpInterceptor } from './services/interceptors/delete-confirm.interceptor';
+import { DeviceService } from './services/device.service';
+import { EndpointService } from './services/endpoint.service';
+import { HttpProxyService } from './services/http-proxy.service';
+import { CustomHttpInterceptor } from './services/interceptors/http.interceptor';
+import { LoadingInterceptor } from './services/interceptors/loading.interceptor';
+import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
+import { ResourceOwnerService } from './services/resource-owner.service';
+import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
+import { EditablePageSelectSingleComponent } from './components/editable-page-select-single/editable-page-select-single.component';
+import { EditablePageSelectMultiComponent } from './components/editable-page-select-multi/editable-page-select-multi.component';
+import { CacheControlComponent } from './pages/cache-control/cache-control.component';
+import { MessageCenterComponent } from './modules/my-apps/pages/message-center/message-center.component';
+import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
+import { MessageCenterMallComponent } from './modules/mall/pages/message-center-mall/message-center-mall.component';
+import { DynamicCatalogTreeComponent } from './modules/mall/components/dynamic-catalog-tree/dynamic-catalog-tree.component';
+import { DynamicCatalogNodeComponent } from './modules/mall/components/dynamic-catalog-tree/dynamic-catalog-node/dynamic-catalog-node.component';
+import { TreeNodeDirective } from './modules/mall/directive/tree-node.directive';
+import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
+import { SummaryStoredEventComponent } from './modules/mall/pages/summary-stored-event/summary-stored-event.component';
+import { CardNotificationComponent } from './components/card-notification/card-notification.component';
+import { TaskComponent } from './modules/mall/pages/task/task.component';
+import { ResolveConfirmDialogComponent } from './modules/mall/components/resolve-confirm-dialog/resolve-confirm-dialog.component';
+import { SearchComponent } from './components/search/search.component';
+import { SearchAttributeComponent } from './components/search-attribute/search-attribute.component';
+import { SummaryRoleComponent } from './modules/my-apps/pages/summary-role/summary-role.component';
+import { RoleService } from './services/role.service';
+import { RoleComponent } from './modules/my-apps/pages/role/role.component';
+import { CorsComponent } from './modules/my-apps/pages/cors/cors.component';
+import { SummaryCorsComponent } from './modules/my-apps/pages/summary-cors/summary-cors.component';
+import { SummaryCacheComponent } from './modules/my-apps/pages/summary-cache/summary-cache.component';
+import { CacheComponent } from './modules/my-apps/pages/cache/cache.component';
+import { SummaryStoredEventAccessComponent } from './modules/my-apps/pages/summary-stored-event-access/summary-stored-event-access.component';
+import { BatchUpdateCorsComponent } from './modules/my-apps/components/batch-update-cors/batch-update-cors.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    LoginComponent,
+    ClientComponent,
+    ResourceOwnerComponent,
+    SummaryClientComponent,
+    SummaryResourceOwnerComponent,
+    NavBarComponent,
+    ProgressSpinnerComponent,
+    MsgBoxComponent,
+    AuthorizeComponent,
+    SummaryEndpointComponent,
+    EndpointComponent,
+    SummaryProductComponent,
+    SummaryCatalogComponent,
+    CatalogComponent,
+    ProductComponent,
+    SummaryOrderComponent,
+    OrderComponent,
+    SummaryPostComponent,
+    SummaryCommentComponent,
+    SummaryLikeComponent,
+    SummaryDislikeComponent,
+    SummaryNotInterestedComponent,
+    SummaryReportComponent,
+    BackButtonComponent,
+    SummaryAttributeComponent,
+    AttributeComponent,
+    CatalogTreeComponent,
+    UpdatePwdComponent,
+    OperationConfirmDialogComponent,
+    SummaryFilterComponent,
+    FilterComponent,
+    SettingComponent,
+    EditableFieldComponent,
+    CopyFieldComponent,
+    LazyImageComponent,
+    PreviewOutletComponent,
+    EditableSelectMultiComponent,
+    EditableBooleanComponent,
+    EditableSelectSingleComponent,
+    EditableInputMultiComponent,
+    OperationHistoryComponent,
+    SummaryRevokeTokenComponent,
+    SummarySkuComponent,
+    SummaryTaskComponent,
+    ObjectDetailComponent,
+    EditablePageSelectSingleComponent,
+    EditablePageSelectMultiComponent,
+    CacheControlComponent,
+    MessageCenterComponent,
+    MessageCenterMallComponent,
+    DynamicCatalogTreeComponent,
+    DynamicCatalogNodeComponent,
+    TreeNodeDirective,
+    SummaryStoredEventComponent,
+    CardNotificationComponent,
+    TaskComponent,
+    ResolveConfirmDialogComponent,
+    SearchComponent,
+    SearchAttributeComponent,
+    SummaryRoleComponent,
+    RoleComponent,
+    CorsComponent,
+    SummaryCorsComponent,
+    SummaryCacheComponent,
+    CacheComponent,
+    SummaryStoredEventAccessComponent,
+    BatchUpdateCorsComponent
+  ],
+  imports: [
+    BrowserAnimationsModule,
+    BrowserModule,
+    AppRoutingModule,
+    FormsModule,
+    HttpClientModule,
+    ReactiveFormsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatIconModule,
+    MatButtonModule,
+    MatSelectModule,
+    MatOptionModule,
+    MatCheckboxModule,
+    MatRadioModule,
+    MatExpansionModule,
+    MatCardModule,
+    MatPaginatorModule,
+    MatMenuModule,
+    MatTableModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatListModule,
+    MatSlideToggleModule,
+    MatProgressSpinnerModule,
+    MatDialogModule,
+    MatSnackBarModule,
+    MatTreeModule,
+    MatStepperModule,
+    MatBottomSheetModule,
+    LayoutModule,
+    MatChipsModule,
+    MatSortModule,
+    MatAutocompleteModule,
+    MtFormBuilderModule,
+    OverlayModule,
+    MatBadgeModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useClass: CustomLoader
+      }
+    }),
+  ],
+  entryComponents: [
+    MsgBoxComponent,
+    CatalogComponent,
+    AttributeComponent,
+    ProductComponent,
+    ClientComponent,
+    EndpointComponent,
+    ResourceOwnerComponent,
+    OperationConfirmDialogComponent,
+    FilterComponent,
+    ObjectDetailComponent,
+    RoleComponent,
+    CorsComponent,
+    BatchUpdateCorsComponent,
+    CatalogTreeComponent,
+    SearchAttributeComponent,
+    CacheComponent],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: SameRequestHttpInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: DeleteConfirmHttpInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CustomHttpInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: LoadingInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: RequestIdHttpInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CsrfInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: OfflineInterceptor,
+      multi: true
+    },
+    HttpProxyService, ClientService, ResourceOwnerService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService, RoleService],
+  bootstrap: [AppComponent]
+})
+export class AppModule {
+  constructor(private translate: TranslateService, private fis: FormInfoService) {
+    let lang = this.translate.currentLang
+    if (lang === 'zhHans')
+      this.fis.i18nLabel = zhHans
+    if (lang === 'enUS')
+      this.fis.i18nLabel = enUS
+    this.translate.onLangChange.subscribe((e) => {
+      if (e.lang === 'zhHans')
+        this.fis.i18nLabel = zhHans
+      if (e.lang === 'enUS')
+        this.fis.i18nLabel = enUS
+    })
+  }
+}

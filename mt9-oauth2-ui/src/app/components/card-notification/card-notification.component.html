@@ -1,0 +1,24 @@
+<section style="height: 48px; width: 248px; overflow: hidden;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>{{time |date:'short'}}</div>
+        <div>{{name | translate}}</div>
+    </div>
+    <div *ngIf="template==='order'" style="display: flex; justify-content: space-between; align-items: center;">
+        <div >{{"ORDER_ID"|translate}}</div>
+        <div>
+            {{orderId}}
+        </div>
+    </div>
+    <div *ngIf="template==='sku'" style="display: flex; justify-content: space-between; align-items: center;">
+        <div >{{"SKU_ID"|translate}}</div>
+        <div>
+            {{skuId}}
+        </div>
+    </div>
+    <div *ngIf="template==='dtxFailed'" style="display: flex; justify-content: space-between; align-items: center;">
+        <div >{{"DTX_ID"|translate}}</div>
+        <div>
+            {{dtxId}}
+        </div>
+    </div>
+</section>

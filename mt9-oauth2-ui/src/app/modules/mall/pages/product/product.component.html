@@ -1,0 +1,50 @@
+<div style="display: flex;flex-direction: row;justify-content: space-between;align-items: baseline;">
+    <button mat-raised-button color="primary" *ngIf="productBottomSheet.context==='edit'" style="margin-top: 10px;"
+        (click)="update()">{{'UPDATE'|translate}}</button>
+    <button mat-raised-button color="primary" style="margin-bottom: 10px;"
+        (click)="create()"
+        *ngIf="productBottomSheet.context==='new' || productBottomSheet.context==='clone'">{{'CREATE'|translate}}</button>
+    <mat-slide-toggle style="margin-left: 24px;" [color]="'accent'" [checked]="'false'" (change)="doPreview()">
+        {{'PREVIEW' | translate}}
+    </mat-slide-toggle>
+    <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
+    </mat-icon>
+</div>
+<div *ngIf="previewFlag">
+    <app-preview-outlet [productDetai]="parseProductForm()"></app-preview-outlet>
+</div>
+<ng-container *ngIf="!previewFlag">
+    <mat-horizontal-stepper #stepper>
+        <mat-step>
+            <ng-template matStepLabel>{{'ADD_PRODUCT_DETAIL' | translate}}</ng-template>
+            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            <h3>{{'PRODUCT_IMAGE_URLS'|translate}}</h3>
+            <lib-factory [formId]="imageFormId" [formInfo]="imageFormInfo"></lib-factory>
+            <ng-container *ngIf="hasSku">
+                <h3>{{'PRODUCT_ATTR_SALE_IMAGE_URLS'|translate}}</h3>
+                <lib-factory *ngIf="attrList" [formId]="imageAttrSaleFormId" [formInfo]="imageAttrSaleFormInfo">
+                </lib-factory>
+            </ng-container>
+            <h3>{{'PRODUCT_OPTION(S)'|translate}}</h3>
+            <lib-factory [formId]="optionFormId" [formInfo]="optionFormInfo"></lib-factory>
+        </mat-step>
+        <mat-step *ngIf="hasSku">
+            <ng-template matStepLabel>{{'ADD_SALES_ATTRIBUTES' | translate}}</ng-template>
+            <ng-container *ngIf="attrList">
+                <lib-factory [formId]="attrSalesFormId" [formInfo]="attrSalesFormInfo"></lib-factory>
+            </ng-container>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>{{'ADD_PRODUCT_ATTRIBUTES' | translate}}</ng-template>
+            <ng-container *ngIf="attrList">
+                <lib-factory [formId]="attrProdFormId" [formInfo]="attrProdFormInfo"></lib-factory>
+            </ng-container>
+        </mat-step>
+        <mat-step>
+            <ng-template matStepLabel>{{'ADD_GENERAL_ATTRIBUTES' | translate}}</ng-template>
+            <ng-container *ngIf="attrList">
+                <lib-factory [formId]="attrGeneralFormId" [formInfo]="attrGeneralFormInfo"></lib-factory>
+            </ng-container>
+        </mat-step>
+    </mat-horizontal-stepper>
+</ng-container>

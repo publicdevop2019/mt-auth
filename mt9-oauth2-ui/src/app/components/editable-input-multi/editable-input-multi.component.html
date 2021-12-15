@@ -1,0 +1,30 @@
+<div (mouseenter)="showEditIcon()" (mouseleave)="hideEditIcon()"
+    style="display: flex;flex-wrap: nowrap;align-items: center;">
+    <ng-container *ngIf="!editView">
+        <mat-chip-list #chipList aria-label="chip list selection">
+            <mat-chip *ngFor="let e of inputOptions">
+                {{e}}
+            </mat-chip>
+        </mat-chip-list>
+    </ng-container>
+    <div *ngIf="editView">
+        <mat-form-field class="example-chip-list">
+            <mat-chip-list #chipList aria-label="chip list selection">
+                <mat-chip *ngFor="let e of inputOptionsNext" [selectable]="true" [removable]="true">
+                    {{e}}
+                    <mat-icon matChipRemove (click)="remove(e)">cancel</mat-icon>
+                </mat-chip>
+                <input [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" #userInput
+                    [matChipInputAddOnBlur]="true" (matChipInputTokenEnd)="add($event)">
+            </mat-chip-list>
+        </mat-form-field>
+    </div>
+    <ng-container *ngIf="editView">
+        <mat-icon [color]="'primary'" (click)="doUpdate()" style="cursor: pointer;">check_circle_outline
+        </mat-icon>
+        <mat-icon [color]="'error'" (click)="doCancel()" style="cursor: pointer;">cancel</mat-icon>
+    </ng-container>
+    <mat-icon *ngIf="!editView" [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doEdit()"
+        style="padding-right: 8px;cursor: pointer;">edit
+    </mat-icon>
+</div>

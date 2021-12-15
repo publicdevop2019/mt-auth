@@ -1,0 +1,50 @@
+<h2 class="flex-row-space-between">{{'CACHE_DASHBOARD' |translate}}</h2>
+<div style="display: flex;justify-content: space-between; margin-bottom: 24px;">
+    <button mat-raised-button (click)="sendReloadRequest()" color="primary">
+        {{'RELOAD_PROXY_CACHE'| translate}}
+    </button>
+    <button mat-raised-button (click)="checkStatus()" color="primary">
+        {{'CHECK_CACHE_STATUS'| translate}}
+    </button>
+</div>
+<div class="table-container">
+    <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="instance">
+            <th mat-header-cell *matHeaderCellDef > {{'INSTANCE_NAME'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <ng-container *ngIf="row.name==='HOST'">
+                    {{row.name|translate}}
+                </ng-container>
+                <ng-container *ngIf="row.name!=='HOST'">
+                    {{'PROXY_NAME'|translate}}{{row.name}}
+                </ng-container>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="value">
+            <th mat-header-cell *matHeaderCellDef > {{'PROXY_VALUE'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                {{row.value}}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="result">
+            <th mat-header-cell *matHeaderCellDef > {{'CHECK_RESULT'|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <ng-container *ngIf="row.name!=='HOST'">
+                    <mat-icon *ngIf="getResult(row.value)" [color]="'primary'">
+                        check_circle_outline
+                    </mat-icon>
+                    <mat-icon *ngIf="!getResult(row.value)" [color]="'primary'">cancel
+                    </mat-icon>
+                </ng-container>
+                <ng-container *ngIf="row.name==='HOST'">
+                    N/A
+                </ng-container>
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>

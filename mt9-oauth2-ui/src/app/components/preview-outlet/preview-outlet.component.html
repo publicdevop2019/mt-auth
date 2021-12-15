@@ -1,0 +1,19 @@
+<div style="display: flex;flex-direction: row;margin-top: 12px;">
+    <mat-form-field style="margin-right: 24px;">
+        <mat-label>{{"SCREEN_WIDTH"|translate}}</mat-label>
+        <input matInput #screenW value="375">
+    </mat-form-field>
+    <mat-form-field style="margin-right: 24px;">
+        <mat-label>{{"SCREEN_HEIGHT"|translate}}</mat-label>
+        <input matInput #screenH value="812">
+    </mat-form-field>
+    <mat-slide-toggle #modeToggle style="margin-left: 24px;" [color]="'accent'" [checked]="'false'">
+        {{'DARK_MODE' | translate}}
+    </mat-slide-toggle>
+</div>
+<div style="display: flex;justify-content: center;">
+    <div #productView style="border:1px solid rgba(0,0,0,.87); overflow: auto; "
+        [ngClass]="{'dark-theme':modeToggle.checked}"
+        [ngStyle]="{'width.px':screenW.value,'height.px':screenH.value, 'background-color':modeToggle.checked?'#424242':'#fafafa','color':modeToggle.checked?'white':'rgba(0,0,0,.87)'}">
+    </div>
+</div>

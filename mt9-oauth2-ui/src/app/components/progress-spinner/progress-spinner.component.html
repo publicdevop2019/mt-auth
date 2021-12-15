@@ -1,0 +1,11 @@
+<div class="spinner">
+    <!-- trap requires two elements -->
+    <a tabindex=0 class="loader"></a>
+    <a tabindex=0 (blur)="trap()" #spinner></a>
+    <mat-progress-spinner
+        class="example-margin"
+        [color]="'primary'"
+        [mode]="'indeterminate'"
+        >
+    </mat-progress-spinner>
+</div>

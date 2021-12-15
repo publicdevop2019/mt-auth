@@ -1,0 +1,16 @@
+
+.img-animation{
+    transition: opacity 0.8s ease-in-out;
+    object-fit: cover;
+}
+.icon-frame{
+    width: 48px;
+    height:  48px;
+}
+:host{
+  display: flex;   
+  justify-content: center;
+  overflow: hidden;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}

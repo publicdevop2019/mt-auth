@@ -1,0 +1,21 @@
+server:
+  port: 8761
+eureka:
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+spring:
+  application:
+    name: eureka-svc
+  cloud:
+    inetutils:
+      ignoredInterfaces:
+        - docker
+        - eth.*
+        - lo
+      preferredNetworks:
+        - 10.0.0
+#logging:
+#  level:
+#    com:
+#      netflix: DEBUG

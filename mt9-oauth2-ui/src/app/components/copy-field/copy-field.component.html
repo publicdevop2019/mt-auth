@@ -1,0 +1,7 @@
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showIcon()"
+    (mouseleave)="hideIcon()">
+    <div>{{(inputValue!==undefined || inputValue!==null) ?inputValue:''}}</div>
+    <mat-icon [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doCopy()"
+        style="padding-right: 8px;cursor: pointer;">content_copy
+    </mat-icon>
+</div>

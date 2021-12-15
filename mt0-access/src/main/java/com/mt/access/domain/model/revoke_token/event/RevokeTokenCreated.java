@@ -1,0 +1,15 @@
+package com.mt.access.domain.model.revoke_token.event;
+
+import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.access.domain.model.revoke_token.RevokeTokenId;
+
+public class RevokeTokenCreated extends DomainEvent {
+    public static final String name = "REVOKE_TOKEN_CREATED";
+    public static final String REVOKE_TOKEN = "revoke_token_created";
+
+    public RevokeTokenCreated(RevokeTokenId revokeTokenId) {
+        super(revokeTokenId);
+        setTopic(REVOKE_TOKEN);
+        setName(name);
+    }
+}
