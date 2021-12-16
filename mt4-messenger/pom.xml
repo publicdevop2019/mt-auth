@@ -9,10 +9,10 @@
     <packaging>jar</packaging>
 
     <parent>
-        <groupId>com.hw</groupId>
-        <artifactId>config-center</artifactId>
-        <version>0.0.0a</version>
-        <relativePath>../mt-common/shared/parent-pom.xml</relativePath>
+        <groupId>com.mt</groupId>
+        <artifactId>parent-pom</artifactId>
+        <version>1.0.0</version>
+        <relativePath>../common/parent-pom.xml</relativePath>
     </parent>
 
     <dependencies>

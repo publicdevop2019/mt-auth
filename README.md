@@ -13,7 +13,7 @@
 </p>
 
 # 项目特点
-- 基于 spring-security-oauth2-autoconfigure
+- 基于spring-security-oauth2-autoconfigure
 - JWT不对称钥匙验证, mt1-proxy启动自动获取公匙
 - 开放第三方 authorize code API
 - 支持 client credential, password, authorization, refresh token 流程
