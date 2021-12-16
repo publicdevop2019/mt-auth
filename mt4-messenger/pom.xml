@@ -12,7 +12,7 @@
         <groupId>com.hw</groupId>
         <artifactId>config-center</artifactId>
         <version>0.0.0a</version>
-        <relativePath>./shared/parent-pom.xml</relativePath>
+        <relativePath>../mt-common/shared/parent-pom.xml</relativePath>
     </parent>
 
     <dependencies>
