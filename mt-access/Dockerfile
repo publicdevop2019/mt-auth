@@ -1,10 +1,10 @@
 FROM maven:3.6.0-jdk-11 AS maven
 
-COPY ./src ./src
+COPY ./src ./temp/src
 
-COPY ./pom.xml ./pom.xml
+COPY ./pom.xml ./temp/pom.xml
 
-COPY ../common/parent-pom.xml ../common/parent-pom.xml
+COPY ../common/parent-pom.xml ./common/parent-pom.xml
 
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
