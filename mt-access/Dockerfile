@@ -1,15 +1,18 @@
 FROM maven:3.6.0-jdk-11 AS maven
 
-COPY ./src ./temp/src
+COPY ./mt-access/src ./mt-access/src
 
-COPY ./pom.xml ./temp/pom.xml
+COPY ./mt-access/pom.xml ./mt-access/pom.xml
 
-COPY ../common/parent-pom.xml ./common/parent-pom.xml
+COPY ./common/parent-pom.xml ./common/parent-pom.xml
+
+WORKDIR "/mt-access"
 
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
 
 ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+
 
 RUN mvn package
 
