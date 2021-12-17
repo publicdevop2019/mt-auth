@@ -1,5 +1,5 @@
 {
-  "name": "oauth2-ui",
+  "name": "mt-ui",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -9,10 +9,10 @@
     "build:demo": "ng build --configuration demo",
     "build:prod": "ng build --configuration production",
     "package": "npm run build:prod && npm run update:analytics && npm run update:version && npm run update:timestamp && npm run cleanup",
-    "update:analytics": "sed -i.bak 's#<!-- analytics -->#<script async src=\"https://www\\.googletagmanager\\.com/gtag/js?id=UA-179477519-2\" ><\\/script> <script> window\\.dataLayer = window\\.dataLayer || []; function gtag(){dataLayer\\.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-179477519-2'); <\\/script>#g' ./dist/oauth2-ui/index.html",
-    "update:version": "sed -i.bak \"s/version/$(npm pkg get version)/g\" ./dist/oauth2-ui/index.html",
-    "update:timestamp": "sed -i.bak \"s/timestamp/$(date -u)/g\" ./dist/oauth2-ui/index.html",
-    "cleanup": "rm ./dist/oauth2-ui/index.html.bak",
+    "update:analytics": "sed -i.bak 's#<!-- analytics -->#<script async src=\"https://www\\.googletagmanager\\.com/gtag/js?id=UA-179477519-2\" ><\\/script> <script> window\\.dataLayer = window\\.dataLayer || []; function gtag(){dataLayer\\.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-179477519-2'); <\\/script>#g' ./dist/index.html",
+    "update:version": "sed -i.bak \"s/version/$(npm pkg get version)/g\" ./dist/index.html",
+    "update:timestamp": "sed -i.bak \"s/timestamp/$(date -u)/g\" ./dist/index.html",
+    "cleanup": "rm ./dist/index.html.bak",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
