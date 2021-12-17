@@ -1,11 +1,11 @@
 <p align="center" >
-    多树Auth
+    多树AUTH / MT-AUTH
 </p>
 <p align="center">
-  <strong>应用，用户，API管理中心</strong>
+  <strong>用户，应用，API管理中心</strong>
 </p>
 <p align="center">
-  简体中文 | <a href="https://github.com/publicdevop2019/mt-auth/blob/master/README.en-US.md">English</a>
+  MT-AUTH是一款基于Spring Boot, OAuth2，与事件驱动的角色的权限管理(RBAC)系统，通过集成Spring Cloud Gateway实现了API鉴权，缓存，跨域，CSRF防护，特殊字符过滤等常用功能
 </p>
 
 <p align="center">
@@ -13,20 +13,24 @@
 </p>
 
 # 项目特点
-- 基于spring-security-oauth2-autoconfigure
-- JWT不对称钥匙验证, mt1-proxy启动自动获取公匙
-- 开放第三方 authorize code API
-- 支持 client credential, password, authorization, refresh token 流程
-- 忘记密码重置, 注册码注册用户
-- JWT (与 mt1-proxy一起使用) 主动以及被动回收
-- 异步日志以及优雅关机
-- 缓存
-- 统一API鉴权
-- JWT (与 mt1-proxy一起使用) 主动以及被动回收
-- 错误响应覆盖(主要用于生产环境中)
-- 与Eureka一起来实现动态反向代理
-- 统一请求，响应日志记录（logbook）?
-- Gzip
-- 缓存
-- ETag缓存
+- 基于事件的系统架构
+- 应用，API与用户管理  
+- JWT不对称钥匙
+- 支持OAuth2 
+- 支持websocket
+- 密码重置, 注册码注册用户
+- 已签发JWT回收
+- 异步日志
+- API层面缓存，跨域，CSRF防护，GZip，隐藏系统错误返回信息等
+- 请求日志记录
 
+# 技术栈
+| 模块                       |编号                                     | 概述                                  | 技术栈                                  |  
+|:---------------------------|:---------------------------------------|:--------------------------------------|:--------------------------------------|
+| mt-access      |0| 用户,应用与API管理 |Spring Boot, JWT, OAuth2, Redis, RabbitMQ
+| mt-proxy        |1 | API网关   |Spring Boot, Spring Cloud Gateway, Redis, RabbitMQ
+| mt-ui |9| 管理前端UI |Angular
+| mt-registry|11 | 服务注册与发现  |Spring Cloud Eureka
+| mt-notification|4 | 邮件与WebSocket  |Spring Boot, RabbitMQ
+| mt-common |无| 通用Utility  |Spring Boot
+| mt-integration-test|8 | 集成测试 |Spring Boot Test
