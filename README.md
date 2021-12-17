@@ -5,7 +5,7 @@
   <strong>用户，应用，API管理中心</strong>
 </p>
 <p align="center">
-  MT-AUTH是一款基于Spring Boot, OAuth2，与事件驱动的角色的权限管理(RBAC)系统，通过集成Spring Cloud Gateway实现了API鉴权，缓存，跨域，CSRF防护，特殊字符过滤等常用功能
+  MT-AUTH是一款基于Spring Boot, OAuth2与事件驱动的角色的权限管理(RBAC)系统，通过集成Spring Cloud Gateway实现了API鉴权，缓存，跨域，CSRF防护，特殊字符过滤等常用功能
 </p>
 
 <p align="center">
