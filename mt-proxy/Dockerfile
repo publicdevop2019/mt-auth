@@ -1,10 +1,12 @@
 FROM maven:3.6.3-jdk-11 AS maven
 
-COPY ./src ./src
+COPY ./mt-proxy/src ./mt-proxy/src
 
-COPY ./pom.xml ./pom.xml
+COPY ./mt-proxy/pom.xml ./mt-proxy/pom.xml
 
-COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
+COPY ./common/parent-pom.xml ./common/parent-pom.xml
+
+WORKDIR "/mt-proxy"
 
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
@@ -30,7 +32,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY --from=maven ./target/Proxy.jar ./
+COPY --from=maven ./mt-proxy/target/Proxy.jar ./
 
 EXPOSE 8111
 

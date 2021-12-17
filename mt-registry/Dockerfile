@@ -1,10 +1,12 @@
 FROM maven:3.6.0-jdk-11 AS maven
 
-COPY ./src ./src
+COPY ./mt-registry/src ./mt-registry/src
 
-COPY ./pom.xml ./pom.xml
+COPY ./mt-registry/pom.xml ./mt-registry/pom.xml
 
-COPY ./shared/parent-pom.xml ./shared/parent-pom.xml
+COPY ./common/parent-pom.xml ./common/parent-pom.xml
+
+WORKDIR "/mt-registry"
 
 # build all dependencies for offline use
 RUN mvn dependency:go-offline -B
@@ -30,7 +32,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY --from=maven ./target/Eureka.jar ./
+COPY --from=maven ./mt-registry/target/Registry.jar ./
 
 EXPOSE 8761
 
