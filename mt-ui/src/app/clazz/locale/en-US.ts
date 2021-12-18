@@ -8,7 +8,7 @@ export const enUS = {
     "CONFIRM_YOUR_PASSWORD": "Confirm your password",
     "LOGIN": "Login",
     "CHANGE_PASSWORD": "Change password",
-    "FORGET_PASSWORD": "Forget　password ?",
+    "FORGET_PASSWORD": "Forget password ?",
     "GO_BACK_TO_LOGIN": "Go back to login",
     "ENTER_YOUR_EMAIL": "Enter your email",
     "CURRENT_LANG": "中文",
@@ -177,7 +177,7 @@ export const enUS = {
     "OPT_CONFIRM_MSG": "Please confirm this operation",
     "CANCEL": "Cancel",
     "CONFIRM": "Confirm",
-    "DOCUMENT_TITLE": "MT Admin",
+    "DOCUMENT_TITLE": "MT Auth",
     "OPERATION_SUCCESS_TOKEN": "Operation success, token has been revoked",
     "OPERATION_SUCCESS_LOGIN": "Operation success, please login again",
     "OPERATION_SUCCESS": "Operation success",
@@ -633,4 +633,5 @@ export const enUS = {
     "WIP": "Work in progress",
     "SELECT_ROLE": "Select role",
     "BATCH_ROLE": "Batch update role",
+    "GO_BACK": "Go Back",
 }

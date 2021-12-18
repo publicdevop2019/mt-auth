@@ -18,6 +18,7 @@ import * as UUID from 'uuid/v1';
 export class LoginComponent implements OnInit {
   nextUrl: string = '/dashboard';
   forgetPwd: boolean = false;
+  isRegister: boolean = false;
   emailErrorMsg: string = undefined;
   activationCodeErrorMsg: string = undefined;
   tokenErrorMsg: string = undefined;

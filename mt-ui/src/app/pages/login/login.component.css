@@ -10,11 +10,11 @@
 .example-container2 {
   display: flex;
   flex-direction: column;
-  max-width: 50%;
+  max-width: 30%;
   margin: auto
   }
   @media only screen and (max-width: 600px) {
-    .mobileView {
+    .mobile-view {
       max-width: 90%;
     }
   }

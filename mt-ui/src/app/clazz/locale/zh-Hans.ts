@@ -640,4 +640,5 @@ export const zhHans = {
     "WIP": "正在执行",
     "SELECT_ROLE": "选择角色",
     "BATCH_ROLE": "角色",
+    "GO_BACK": "返回",
 }
