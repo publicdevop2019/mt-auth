@@ -42,21 +42,6 @@
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-expansion-panel (opened)="openedHandler('user_nav')" (closed)="closedHander('user_nav')"
-                [expanded]="navExpand('user_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'USER_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuUser">
-                        <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display| translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-
-            </mat-expansion-panel>
             <mat-expansion-panel (opened)="openedHandler('mall_nav')" (closed)="closedHander('mall_nav')"
                 [expanded]="navExpand('mall_nav')">
                 <mat-expansion-panel-header>
@@ -72,21 +57,6 @@
                 </mat-nav-list>
 
             </mat-expansion-panel>
-            <!-- <mat-expansion-panel (opened)="openedHandler('bbs_nav')" (closed)="closedHander('bbs_nav')"
-                [expanded]="navExpand('bbs_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'BBS_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuBbs">
-                        <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display | translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-
-            </mat-expansion-panel> -->
             <mat-expansion-panel (opened)="openedHandler('opt_nav')" (closed)="closedHander('opt_nav')"
                 [expanded]="navExpand('opt_nav')">
                 <mat-expansion-panel-header>

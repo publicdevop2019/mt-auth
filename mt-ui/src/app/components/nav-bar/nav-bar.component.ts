@@ -34,6 +34,20 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
+      link: 'api-profiles',
+      display: 'SECURITY_PROFILE_DASHBOARD',
+      icon: 'mediation',
+      params: {
+      },
+    },
+    {
+      link: 'resource-owners',
+      display: 'RESOURCE_OWNER_DASHBOARD',
+      icon: 'perm_identity',
+      params: {
+      },
+    },
+    {
       link: 'role-profiles',
       display: 'ROLE_DASHBOARD',
       icon: 'person',
@@ -51,13 +65,6 @@ export class NavBarComponent implements OnInit {
       link: 'cors-profiles',
       display: 'CORS_DASHBOARD',
       icon: 'share',
-      params: {
-      },
-    },
-    {
-      link: 'api-profiles',
-      display: 'SECURITY_PROFILE_DASHBOARD',
-      icon: 'mediation',
       params: {
       },
     },
@@ -86,15 +93,6 @@ export class NavBarComponent implements OnInit {
       link: 'message-center',
       display: 'MESSAGE_DASHBOARD',
       icon: 'message',
-      params: {
-      },
-    },
-  ];
-  menuUser: INavElement[] = [
-    {
-      link: 'resource-owners',
-      display: 'RESOURCE_OWNER_DASHBOARD',
-      icon: 'perm_identity',
       params: {
       },
     },
@@ -186,57 +184,6 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-  ];
-  menuBbs: INavElement[] = [
-    {
-      link: 'posts',
-      display: 'POSTS',
-      icon: 'post_add',
-      params: {
-
-      },
-    },
-    {
-      link: 'comments',
-      display: 'COMMENTS',
-      icon: 'mode_comment',
-      params: {
-
-      },
-    },
-    {
-      link: 'reports',
-      display: 'REPORTS',
-      icon: 'block',
-      params: {
-
-      },
-    },
-    {
-      link: 'likess',
-      display: 'LIKES',
-      icon: 'thumb_up',
-      params: {
-
-      },
-    },
-    {
-      link: 'dislikes',
-      display: 'DISLIKES',
-      icon: 'thumb_down',
-      params: {
-        state: 'create',
-      },
-    },
-    {
-      link: 'notInterested',
-      display: 'NOT_INTERESTED',
-      icon: 'label_off',
-      params: {
-
-      },
-    },
-
   ];
   menuOpt: INavElement[] =[
     {
