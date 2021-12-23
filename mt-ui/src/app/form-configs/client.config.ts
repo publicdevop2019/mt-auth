@@ -36,12 +36,22 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
+            "type": "text",
+            "display": true,
+            "label": "ENTER_PATH",
+            "key": "path",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
+        },
+        {
             "type": "checkbox",
             "display": true,
             "label": "",
             "key": "hasSecret",
             "position": {
-                "row": "3",
+                "row": "4",
                 "column": "0"
             },
             "options": [
@@ -54,7 +64,7 @@ export const FORM_CONFIG: IForm = {
             "label": "ENTER_CLIENT_SECRET",
             "key": "clientSecret",
             "position": {
-                "row": "4",
+                "row": "5",
                 "column": "0"
             },
             required:true,
@@ -65,7 +75,7 @@ export const FORM_CONFIG: IForm = {
             "label": "SELECT_A_GRANT＿TYPE",
             "key": "grantType",
             "position": {
-                "row": "5",
+                "row": "6",
                 "column": "0"
             },
             "options": GRANT_TYPE_LIST,
@@ -77,7 +87,7 @@ export const FORM_CONFIG: IForm = {
             "label": "ENTER_REDIRECT_URI",
             "key": "registeredRedirectUri",
             "position": {
-                "row": "6",
+                "row": "7",
                 "column": "0"
             },
             required:true,
@@ -88,7 +98,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "refreshToken",
             "position": {
-                "row": "7",
+                "row": "8",
                 "column": "0"
             },
             "options": [
@@ -101,7 +111,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "resourceIndicator",
             "position": {
-                "row": "8",
+                "row": "9",
                 "column": "0"
             },
             "options": [
@@ -114,7 +124,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "autoApprove",
             "position": {
-                "row": "9",
+                "row": "10",
                 "column": "0"
             },
             "options": [
@@ -128,7 +138,7 @@ export const FORM_CONFIG: IForm = {
             "key": "authority",
             "multiple": true,
             "position": {
-                "row": "10",
+                "row": "11",
                 "column": "0"
             },
             "options": [],
@@ -141,7 +151,7 @@ export const FORM_CONFIG: IForm = {
             "multiple": true,
             "key": "scope",
             "position": {
-                "row": "11",
+                "row": "12",
                 "column": "0"
             },
             "options": [],
@@ -154,7 +164,7 @@ export const FORM_CONFIG: IForm = {
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",
             "position": {
-                "row": "12",
+                "row": "13",
                 "column": "0"
             },
             "options": [
@@ -166,7 +176,7 @@ export const FORM_CONFIG: IForm = {
             "label": "ACCESS_TOKEN_VALIDITY_SECONDS",
             "key": "accessTokenValiditySeconds",
             "position": {
-                "row": "13",
+                "row": "14",
                 "column": "0"
             },
             required:true,
@@ -177,7 +187,7 @@ export const FORM_CONFIG: IForm = {
             "label": "REFRESH_TOKEN_VALIDITY_SECONDS",
             "key": "refreshTokenValiditySeconds",
             "position": {
-                "row": "14",
+                "row": "15",
                 "column": "0"
             },
             required:true,

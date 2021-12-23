@@ -22,7 +22,7 @@ import * as UUID from 'uuid/v1';
   templateUrl: './client.component.html',
   styleUrls: ['./client.component.css']
 })
-export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy, OnInit{
+export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy, OnInit {
   hide = true;
   disabled = false;
   disabled2 = false;
@@ -63,72 +63,73 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       if (this.aggregate) {
 
         const var0: Observable<any>[] = [];
-        if (this.aggregate.resourceIds&&this.aggregate.resourceIds.length>0) {
+        if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
           var0.push(this.clientService.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
         }
-        if (this.aggregate.scopeEnums&&this.aggregate.scopeEnums.length>0) {
+        if (this.aggregate.scopeEnums && this.aggregate.scopeEnums.length > 0) {
           var0.push(this.roleSvc.readEntityByQuery(0, this.aggregate.scopeEnums.length, 'id:' + this.aggregate.scopeEnums.join('.')))
         }
-        if (this.aggregate.grantedAuthorities&&this.aggregate.grantedAuthorities.length>0) {
+        if (this.aggregate.grantedAuthorities && this.aggregate.grantedAuthorities.length > 0) {
           var0.push(this.roleSvc.readEntityByQuery(0, this.aggregate.grantedAuthorities.length, 'id:' + this.aggregate.grantedAuthorities.join('.')))
         }
         combineLatest(var0).pipe(take(1))
-        .subscribe(next => {
-          let count=-1;
-          if (this.aggregate.resourceIds&&this.aggregate.resourceIds.length>0) {
-            count++;
-            this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-          }
-          if (this.aggregate.scopeEnums&&this.aggregate.scopeEnums.length>0) {
-            count++;
-            this.formInfo.inputs.find(e => e.key === 'scope').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-          }
-          if (this.aggregate.grantedAuthorities&&this.aggregate.grantedAuthorities.length>0) {
-            count++;
-            this.formInfo.inputs.find(e => e.key === 'authority').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-          }
-          const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
-          this.fis.formGroupCollection[this.formId].patchValue({
-            id: this.aggregate.id,
-            hasSecret: this.aggregate.hasSecret,
-            clientSecret: this.aggregate.hasSecret ? '*****' : '',
-            name: this.aggregate.name,
-            description: this.aggregate.description,
-            grantType: grantType,
-            registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
-            refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
-            resourceIndicator: this.aggregate.resourceIndicator,
-            autoApprove: this.aggregate.autoApprove,
-            authority: this.aggregate.grantedAuthorities,
-            scope: this.aggregate.scopeEnums.map(e => e.toString()),
-            accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
-            refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
-            resourceId: this.aggregate.resourceIds,
-          });
-          this.cdr.markForCheck()
-        })
+          .subscribe(next => {
+            let count = -1;
+            if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
+              count++;
+              this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+            }
+            if (this.aggregate.scopeEnums && this.aggregate.scopeEnums.length > 0) {
+              count++;
+              this.formInfo.inputs.find(e => e.key === 'scope').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+            }
+            if (this.aggregate.grantedAuthorities && this.aggregate.grantedAuthorities.length > 0) {
+              count++;
+              this.formInfo.inputs.find(e => e.key === 'authority').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+            }
+            const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
+            this.fis.formGroupCollection[this.formId].patchValue({
+              id: this.aggregate.id,
+              hasSecret: this.aggregate.hasSecret,
+              path: this.aggregate.path ? this.aggregate.path : '',
+              clientSecret: this.aggregate.hasSecret ? '*****' : '',
+              name: this.aggregate.name,
+              description: this.aggregate.description,
+              grantType: grantType,
+              registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
+              refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
+              resourceIndicator: this.aggregate.resourceIndicator,
+              autoApprove: this.aggregate.autoApprove,
+              authority: this.aggregate.grantedAuthorities,
+              scope: this.aggregate.scopeEnums.map(e => e.toString()),
+              accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
+              refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
+              resourceId: this.aggregate.resourceIds,
+            });
+            this.cdr.markForCheck()
+          })
       };
     })
   }
   ngOnInit(): void {
   }
-  getResourceIds(){
+  getResourceIds() {
     return {
-      readByQuery:(num: number, size: number, query?: string, by?: string, order?: string, header?: {})=>{
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IClient>(this.clientService.entityRepo, this.clientService.role, num, size, "resourceIndicator:1", by, order, header)
       }
     } as IQueryProvider
   }
-  getClientRoles(){
+  getClientRoles() {
     return {
-      readByQuery:(num: number, size: number, query?: string, by?: string, order?: string, header?: {})=>{
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IClient>(this.roleSvc.entityRepo, this.roleSvc.role, num, size, "type:CLIENT", by, order, header)
       }
     } as IQueryProvider
   }
-  getClientScope(){
+  getClientScope() {
     return {
-      readByQuery:(num: number, size: number, query?: string, by?: string, order?: string, header?: {})=>{
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IClient>(this.roleSvc.entityRepo, this.roleSvc.role, num, size, "type:USER", by, order, header)
       }
     } as IQueryProvider
@@ -155,6 +156,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
+      path: formGroup.get('path').value ? formGroup.get('path').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       hasSecret: formGroup.get('hasSecret').value ? true : false,
       clientSecret: formGroup.get('clientSecret').value == '*****' ? '' : formGroup.get('clientSecret').value,

@@ -8,6 +8,6 @@ export const GRANT_TYPE_LIST_EXT = [
     { label: 'REFRESH_TOKEN', value: "REFRESH_TOKEN" },
 ]
 export const RESOURCE_CLIENT_ROLE_LIST = [
-    { label: 'ROLE_BACKEND', value: "ROLE_BACKEND" },
-    { label: 'ROLE_FIRST_PARTY', value: "ROLE_FIRST_PARTY" },
+    { label: 'ROLE_BACKEND', value: "0R8G09CBKU0X" },
+    { label: 'ROLE_FIRST_PARTY', value: "0R8G09A7Q60W" },
 ]

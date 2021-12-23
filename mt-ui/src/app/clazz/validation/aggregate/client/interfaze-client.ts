@@ -13,6 +13,7 @@ export enum grantTypeEnums {
   }
   export interface IClient extends IIdName{
     name: string;
+    path?: string;
     id: string;
     clientSecret?: string;
     description?: string;

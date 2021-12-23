@@ -641,4 +641,5 @@ export const zhHans = {
     "SELECT_ROLE": "选择角色",
     "BATCH_ROLE": "角色",
     "GO_BACK": "返回",
+    "CLIENT_PATH_CHANGED": "客户端Path变更",
 }

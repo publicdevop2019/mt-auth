@@ -634,4 +634,5 @@ export const enUS = {
     "SELECT_ROLE": "Select role",
     "BATCH_ROLE": "Batch update role",
     "GO_BACK": "Go Back",
+    "CLIENT_PATH_CHANGED": "Client path changed",
 }
