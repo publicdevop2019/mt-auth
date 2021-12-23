@@ -16,6 +16,7 @@ import reactor.core.publisher.Mono;
 
 import java.net.URI;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -27,6 +28,12 @@ public class SCGRouteService implements ApplicationEventPublisherAware {
     private RouteDefinitionWriter routeDefinitionWriter;
 
     public void refreshRoutes(Set<RegisteredApplication> registeredApplicationSet) {
+        Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).map(e -> e.getId()).collect(Collectors.toSet());
+        collect.forEach(e -> {
+            routeDefinitionWriter.delete(Mono.just(e)).subscribe(null, (error) -> {
+                log.debug("ignore not found ex when delete routes");
+            });
+        });
         registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).forEach(e -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(e.getId());
