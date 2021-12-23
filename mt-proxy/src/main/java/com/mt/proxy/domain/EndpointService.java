@@ -1,6 +1,5 @@
 package com.mt.proxy.domain;
 
-import com.mt.proxy.infrastructure.CheckSumService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -9,11 +8,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 
 import javax.annotation.Nullable;
-import java.io.Serializable;
 import java.text.ParseException;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -56,7 +53,7 @@ public class EndpointService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadAllEndpoints() {
-        cached = DomainRegistry.retrieveEndpointService().loadAllEndpoints();
+        cached = DomainRegistry.getRetrieveEndpointService().loadAllEndpoints();
         csrfService.refresh(cached);
         corsService.refresh(cached);
         cacheService.refresh(cached);
@@ -72,7 +69,7 @@ public class EndpointService {
                 log.debug("return 403 due to empty auth info");
                 return false;
             }
-            if (!DomainRegistry.jwtService().verify(authHeader.replace("Bearer ", ""))) {
+            if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
                 log.debug("return 403 due to jwt failed for verification");
                 return false;
             } else {
@@ -106,7 +103,7 @@ public class EndpointService {
     private boolean checkAccessByRole(String requestURI, String method, String authHeader, boolean websocket) throws ParseException {
         //check endpoint url, method first then check resourceId and security rule
         String jwtRaw = authHeader.replace("Bearer ", "");
-        Set<String> resourceIds = DomainRegistry.jwtService().getResourceIds(jwtRaw);
+        Set<String> resourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
 
         //fetch security profile
         if (resourceIds == null || resourceIds.isEmpty()) {
@@ -142,6 +139,6 @@ public class EndpointService {
         //sort before generate check sum
         SortedSet<Endpoint> objects = new TreeSet<>();
         cached.stream().sorted().forEach(objects::add);
-        return DomainRegistry.checkSumService().getChecksum(objects);
+        return DomainRegistry.getCheckSumService().getChecksum(objects);
     }
 }

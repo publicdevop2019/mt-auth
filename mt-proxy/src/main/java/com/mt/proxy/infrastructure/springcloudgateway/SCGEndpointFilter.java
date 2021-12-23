@@ -47,7 +47,7 @@ public class SCGEndpointFilter implements GlobalFilter, Ordered {
         boolean allow;
         try {
             //noinspection ConstantConditions
-            allow = DomainRegistry.endpointService().checkAccess(
+            allow = DomainRegistry.getEndpointService().checkAccess(
                     request.getPath().toString(),
                     request.getMethod().name(),
                     authHeader, webSocket);

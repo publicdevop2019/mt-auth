@@ -14,6 +14,8 @@ public class ClientRepresentation {
 
     protected String name;
 
+    protected String path;
+
     protected String description;
 
     protected Set<GrantType> grantTypeEnums;
@@ -42,6 +44,7 @@ public class ClientRepresentation {
     public ClientRepresentation(Client client) {
         id = client.getClientId().getDomainId();
         name = client.getName();
+        path = client.getPath();
         description = client.getDescription();
         grantTypeEnums = client.getGrantTypes();
         grantedAuthorities = client.getRoles().stream().map(DomainId::getDomainId).collect(Collectors.toSet());

@@ -67,7 +67,6 @@ public class Client extends Auditable {
     private ClientId clientId;
     @Getter
     private String name;
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     private String path;
     @Getter
@@ -125,6 +124,19 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientCreated(clientId));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+    }
+
+    private void setPath(String path) {
+        if (this.path == null && path == null) {
+            return;
+        } else if (this.path == null || path == null) {
+            DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+        } else {
+            if (!path.equals(this.path)) {
+                DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+            }
+        }
+        this.path = path;
     }
 
     private void setGrantTypes(Set<GrantType> grantTypes) {
@@ -290,6 +302,7 @@ public class Client extends Auditable {
     public int accessTokenValiditySeconds() {
         return tokenDetail.getAccessTokenValiditySeconds();
     }
+
     public int refreshTokenValiditySeconds() {
         return tokenDetail.getRefreshTokenValiditySeconds();
     }

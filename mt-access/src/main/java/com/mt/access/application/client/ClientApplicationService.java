@@ -89,8 +89,8 @@ public class ClientApplicationService implements ClientDetailsService {
                 Client client = optionalClient.get();
                 client.replace(
                         command.getName(),
-                        command.getPath(),
                         command.getClientSecret(),
+                        command.getPath(),
                         command.getDescription(),
                         command.isResourceIndicator(),
                         command.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
@@ -140,8 +140,8 @@ public class ClientApplicationService implements ClientDetailsService {
                 ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
                 original.replace(
                         afterPatch.getName(),
-                        afterPatch.getPath(),
                         null,
+                        afterPatch.getPath(),
                         afterPatch.getDescription(),
                         afterPatch.isResourceIndicator(),
                         afterPatch.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),

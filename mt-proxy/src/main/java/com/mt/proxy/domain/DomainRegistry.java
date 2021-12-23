@@ -1,42 +1,37 @@
 package com.mt.proxy.domain;
 
 import com.mt.proxy.infrastructure.CheckSumService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 @Service
 public class DomainRegistry {
+    @Getter
     private static RevokeTokenRepository revokeTokenRepository;
+    @Getter
     private static RevokeTokenService revokeTokenService;
+    @Getter
     private static RetrieveEndpointService retrieveEndpointService;
+    @Getter
+    private static RetrieveRegisterApplicationService retrieveRegisterApplicationService;
+    @Getter
     private static JwtService jwtService;
+    @Getter
     private static CheckSumService checkSumService;
+    @Getter
+    private static ProxyCacheService proxyCacheService;
+    @Getter
     private static RetrieveJwtPublicKeyService retrieveJwtPublicKeyService;
-
-    public static JwtService jwtService() {
-        return jwtService;
+    @Getter
+    private static EndpointService endpointService;
+    @Autowired
+    public void setRetrieveRegisterApplicationService(RetrieveRegisterApplicationService retrieveRegisterApplicationService) {
+        DomainRegistry.retrieveRegisterApplicationService = retrieveRegisterApplicationService;
     }
-
-    public static RetrieveEndpointService retrieveEndpointService() {
-        return retrieveEndpointService;
+    @Autowired
+    public void setProxyCacheService(ProxyCacheService proxyCacheService) {
+        DomainRegistry.proxyCacheService = proxyCacheService;
     }
-
-    public static RevokeTokenRepository revokeTokenRepository() {
-        return revokeTokenRepository;
-    }
-
-    public static RevokeTokenService revokeTokenService() {
-        return revokeTokenService;
-    }
-    public static CheckSumService checkSumService() {
-        return checkSumService;
-    }
-
-    public static RetrieveJwtPublicKeyService retrieveJwtPublicKeyService() {
-        return retrieveJwtPublicKeyService;
-    }
-
-
     @Autowired
     public void setRetrieveJwtPublicKeyService(RetrieveJwtPublicKeyService retrieveJwtPublicKeyService) {
         DomainRegistry.retrieveJwtPublicKeyService = retrieveJwtPublicKeyService;
@@ -64,12 +59,6 @@ public class DomainRegistry {
     @Autowired
     public void setJwtService(JwtService jwtService) {
         DomainRegistry.jwtService = jwtService;
-    }
-
-    private static EndpointService endpointService;
-
-    public static EndpointService endpointService() {
-        return endpointService;
     }
 
 

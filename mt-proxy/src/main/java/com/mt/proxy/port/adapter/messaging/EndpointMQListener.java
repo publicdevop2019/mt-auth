@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
@@ -27,9 +26,10 @@ public class EndpointMQListener {
             channel.queueBind(queueName, "mt_global_exchange", "access.external.started_access");
             channel.queueBind(queueName, "mt_global_exchange", "access.external.endpoint_reload_requested");
             channel.queueBind(queueName, "mt_global_exchange", "access.external.endpoint_collection_modified");
+            channel.queueBind(queueName, "mt_global_exchange", "access.external.client_path_changed");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 log.debug("start refresh cached endpoints");
-                DomainRegistry.endpointService().loadAllEndpoints();
+                DomainRegistry.getProxyCacheService().reloadProxyCache();
                 log.debug("cached endpoints refreshed");
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {

@@ -42,7 +42,7 @@ public class JwtService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadKeys() {
-        JWKSet jwkSet = DomainRegistry.retrieveJwtPublicKeyService().loadKeys();
+        JWKSet jwkSet = DomainRegistry.getRetrieveJwtPublicKeyService().loadKeys();
         JWK jwk = jwkSet.getKeys().get(0);
         try {
             publicKey = jwk.toRSAKey().toRSAPublicKey();

@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;
+import java.util.Objects;
 
 @Embeddable
 @NoArgsConstructor
@@ -27,4 +28,16 @@ public class TokenDetail implements Serializable {
         this.refreshTokenValiditySeconds = refreshTokenValiditySeconds;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TokenDetail that = (TokenDetail) o;
+        return Objects.equals(accessTokenValiditySeconds, that.accessTokenValiditySeconds) && Objects.equals(refreshTokenValiditySeconds, that.refreshTokenValiditySeconds);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accessTokenValiditySeconds, refreshTokenValiditySeconds);
+    }
 }

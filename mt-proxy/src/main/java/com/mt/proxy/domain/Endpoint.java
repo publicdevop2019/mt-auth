@@ -34,7 +34,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         if (secured && roleId == null) {
             return false;
         }
-        Set<String> roles = DomainRegistry.jwtService().getRoles(jwtRaw);
+        Set<String> roles = DomainRegistry.getJwtService().getRoles(jwtRaw);
         return roles.contains(roleId);
     }
 

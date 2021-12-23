@@ -1,6 +1,7 @@
 package com.mt.proxy.port.adapter.http;
 
 import com.mt.proxy.domain.JwtService;
+import com.mt.proxy.domain.RetrieveJwtPublicKeyService;
 import com.netflix.discovery.EurekaClient;
 import com.nimbusds.jose.jwk.JWKSet;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,7 @@ import java.util.Properties;
 
 @Component
 @Slf4j
-public class HttpJwtPublicKeyAdapter implements JwtPublicKeyAdapter {
+public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyService {
     @Autowired
     private RestTemplate restTemplate;
 
@@ -32,7 +33,7 @@ public class HttpJwtPublicKeyAdapter implements JwtPublicKeyAdapter {
     private JwtService jwtService;
 
     @Override
-    public JWKSet fetchKeys() {
+    public JWKSet loadKeys() {
         ResponseEntity<String> exchange = restTemplate.exchange(jwtService.resolveAccessUrl(), HttpMethod.GET, null, String.class);
             try {
                 return JWKSet.parse(exchange.getBody());
@@ -41,6 +42,7 @@ public class HttpJwtPublicKeyAdapter implements JwtPublicKeyAdapter {
                 throw new UnableRetrieveJwkException();
             }
     }
+
     private static class UnableRetrieveJwkException extends RuntimeException {
     }
 }

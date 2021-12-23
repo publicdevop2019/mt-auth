@@ -71,7 +71,7 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
         } else {
             ServerHttpResponse response = exchange.getResponse();
             try {
-                if (!DomainRegistry.revokeTokenService().checkAccess(authHeader, request.getPath().toString(), null)) {
+                if (!DomainRegistry.getRevokeTokenService().checkAccess(authHeader, request.getPath().toString(), null)) {
                     response.setStatusCode(HttpStatus.UNAUTHORIZED);
                     return response.setComplete();
                 }
@@ -109,7 +109,7 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
             try {
                 MultiPartStringParser multiPartStringParser = new MultiPartStringParser(body);
                 Map<String, String> parameters = multiPartStringParser.getParameters();
-                if (!DomainRegistry.revokeTokenService().checkAccess(authHeader, requestURI, parameters)) {
+                if (!DomainRegistry.getRevokeTokenService().checkAccess(authHeader, requestURI, parameters)) {
                     gatewayContext.setShouldBlock(true);
                 }
             } catch (Exception e) {

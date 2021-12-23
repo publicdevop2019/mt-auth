@@ -21,9 +21,9 @@ public class RevokeTokenService {
             } else {
                 jwtRaw = requestBody.get("refresh_token");
             }
-            Long issueAt = DomainRegistry.jwtService().getIssueAt(jwtRaw);
-            String userId = DomainRegistry.jwtService().getUserId(jwtRaw);
-            String clientId = DomainRegistry.jwtService().getClientId(jwtRaw);
+            Long issueAt = DomainRegistry.getJwtService().getIssueAt(jwtRaw);
+            String userId = DomainRegistry.getJwtService().getUserId(jwtRaw);
+            String clientId = DomainRegistry.getJwtService().getClientId(jwtRaw);
             boolean allowUser = true;
             boolean allowClient = true;
             if (userId != null) {
@@ -38,7 +38,7 @@ public class RevokeTokenService {
     }
 
     private boolean notBlocked(String id, Long iat) {
-        Optional<RevokeToken> optionalRevokeToken = DomainRegistry.revokeTokenRepository().revokeToken(id);
+        Optional<RevokeToken> optionalRevokeToken = DomainRegistry.getRevokeTokenRepository().revokeToken(id);
         return optionalRevokeToken.isEmpty() || optionalRevokeToken.get().getIssuedAt() < iat;
     }
 }

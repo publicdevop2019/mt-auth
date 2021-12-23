@@ -5,6 +5,9 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
+import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.cors_profile.CORSProfile;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.cors_profile.CORSProfileQuery;
@@ -36,6 +39,8 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
     @JsonIgnore
     private transient CORSProfileId corsProfileId;
     @JsonIgnore
+    private transient ClientId clientId;
+    @JsonIgnore
     private transient CacheProfileId cacheProfileId;
     private String roleId;
 
@@ -50,28 +55,40 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
         this.csrfEnabled = endpoint.isCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
+        this.clientId = endpoint.getClientId();
         this.roleId = endpoint.getSystemRoleId() == null ? null : endpoint.getSystemRoleId().getDomainId();
     }
 
     public static void updateDetail(List<EndpointProxyCardRepresentation> original) {
+        Set<ClientId> clients = original.stream().map(EndpointProxyCardRepresentation::getClientId).collect(Collectors.toSet());
         Set<CacheProfileId> cache = original.stream().map(EndpointProxyCardRepresentation::getCacheProfileId).filter(Objects::nonNull).collect(Collectors.toSet());
         Set<CORSProfileId> cors = original.stream().map(EndpointProxyCardRepresentation::getCorsProfileId).filter(Objects::nonNull).collect(Collectors.toSet());
         Set<CORSProfile> corsFetched = null;
         Set<CacheProfile> cacheFetched = null;
+        Set<Client> clientFetched = null;
         if (cors.size() > 0) {
             corsFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery((CORSProfileQuery) query), new CORSProfileQuery(cors));
         }
         if (cache.size() > 0) {
             cacheFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery((CacheProfileQuery) query), new CacheProfileQuery(cache));
         }
+        if (clients.size() > 0) {
+            clientFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(clients));
+        }
         Set<CacheProfile> finalCacheFetched = cacheFetched;
         Set<CORSProfile> finalCorsFetched = corsFetched;
+        Set<Client> finalClientFetched = clientFetched;
         original.forEach(rep -> {
             if (finalCacheFetched != null) {
                 finalCacheFetched.stream().filter(e -> e.getCacheProfileId().equals(rep.cacheProfileId)).findFirst().ifPresent(e -> rep.cacheConfig = new CacheConfig(e));
             }
             if (finalCorsFetched != null) {
                 finalCorsFetched.stream().filter(e -> e.getCorsId().equals(rep.corsProfileId)).findFirst().ifPresent(e -> rep.corsConfig = new CorsConfig(e));
+            }
+            if (finalClientFetched != null) {
+                finalClientFetched.stream().filter(e -> e.getClientId().equals(rep.clientId)).findFirst().ifPresent(e -> {
+                    rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                });
             }
         });
     }
