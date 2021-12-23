@@ -4,6 +4,7 @@ manytree:
   url:
     eureka:
     endpoint: endpoints/proxy
+    clients: clients/proxy
   domain-name: duoshu.org
 mt:
   url:

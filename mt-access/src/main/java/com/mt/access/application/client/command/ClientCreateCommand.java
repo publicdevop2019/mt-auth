@@ -16,6 +16,7 @@ public class ClientCreateCommand implements Serializable {
     private boolean hasSecret = false;
     private String description;
     private String name;
+    private String path;
 
     private Set<GrantType> grantTypeEnums;
 

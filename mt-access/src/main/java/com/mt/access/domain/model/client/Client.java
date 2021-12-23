@@ -67,6 +67,9 @@ public class Client extends Auditable {
     private ClientId clientId;
     @Getter
     private String name;
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
+    private String path;
     @Getter
     private String secret;
     @Getter
@@ -95,6 +98,7 @@ public class Client extends Auditable {
 
     public Client(ClientId clientId,
                   String name,
+                  String path,
                   @Nullable String secret,
                   String description,
                   boolean accessible,
@@ -112,6 +116,7 @@ public class Client extends Auditable {
         setRoles(roles);
         setAccessible(accessible);
         setName(name);
+        setPath(path);
         setSecret(secret);
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
@@ -229,6 +234,7 @@ public class Client extends Auditable {
 
     public void replace(String name,
                         String secret,
+                        String path,
                         String description,
                         boolean accessible,
                         Set<SystemRoleId> scopes,
@@ -240,6 +246,7 @@ public class Client extends Auditable {
     ) {
         setScopes(scopes);
         setRoles(roles);
+        setPath(path);
         setResources(resources);
         setAccessible(accessible);
         setSecret(secret);

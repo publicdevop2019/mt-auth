@@ -1,6 +1,7 @@
 package com.mt.access.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.access.application.client.representation.ClientProxyRepresentation;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.*;
@@ -41,6 +42,16 @@ public class ClientResource {
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         SumPagedRep<Client> clients = clientApplicationService().clients(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, ClientCardRepresentation::new));
+    }
+
+    @GetMapping("proxy")
+    public ResponseEntity<SumPagedRep<ClientProxyRepresentation>> internalGetAll(
+                                                                                    @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                    @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+
+    ) {
+        SumPagedRep<Client> clients = clientApplicationService().internalClients(pageParam, skipCount);
+        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientProxyRepresentation::new));
     }
 
     @GetMapping("{id}")

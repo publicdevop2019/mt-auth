@@ -1,5 +1,6 @@
 package com.mt.access.application.client.representation;
 
+import com.mt.access.domain.model.client.Client;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
 
@@ -8,7 +9,7 @@ public class ClientAutoApproveRepresentation {
     private Long id;
     private Boolean autoApprove;
 
-    public ClientAutoApproveRepresentation(Object client) {
+    public ClientAutoApproveRepresentation(Client client) {
         BeanUtils.copyProperties(client, this);
     }
 }

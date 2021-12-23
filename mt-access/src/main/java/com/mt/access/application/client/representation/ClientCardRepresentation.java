@@ -39,8 +39,7 @@ public class ClientCardRepresentation {
 
     protected int version;
 
-    public ClientCardRepresentation(Object client) {
-        Client client1 = (Client) client;
+    public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
         name = client1.getName();
         grantTypeEnums = client1.getGrantTypes();

@@ -48,6 +48,7 @@ public class ClientApplicationService implements ClientDetailsService {
                     Client client = new Client(
                             clientId,
                             command.getName(),
+                            command.getPath(),
                             command.getClientSecret(),
                             command.getDescription(),
                             command.isResourceIndicator(),
@@ -70,6 +71,9 @@ public class ClientApplicationService implements ClientDetailsService {
     public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
         return DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(queryParam, pagingParam, configParam, false));
     }
+    public SumPagedRep<Client> internalClients(String pagingParam, String configParam) {
+        return DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(null, pagingParam, configParam, true));
+    }
 
     public Optional<Client> client(String id) {
         return DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
@@ -85,6 +89,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 Client client = optionalClient.get();
                 client.replace(
                         command.getName(),
+                        command.getPath(),
                         command.getClientSecret(),
                         command.getDescription(),
                         command.isResourceIndicator(),
@@ -135,6 +140,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
                 original.replace(
                         afterPatch.getName(),
+                        afterPatch.getPath(),
                         null,
                         afterPatch.getDescription(),
                         afterPatch.isResourceIndicator(),
