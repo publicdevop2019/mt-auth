@@ -10,6 +10,7 @@ import org.ehcache.expiry.Expirations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 
 import javax.cache.Caching;
 import javax.cache.spi.CachingProvider;
@@ -18,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
 //@EnableCaching
+@EnableEurekaServer
 public class Access {
     public static void main(String[] args) {
         //remove redision create cache provider
