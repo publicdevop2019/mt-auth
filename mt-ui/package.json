@@ -9,7 +9,7 @@
     "build:demo": "ng build --configuration demo",
     "build:prod": "ng build --configuration production",
     "package": "npm run build:prod && npm run update:analytics && npm run update:version && npm run update:timestamp && npm run cleanup",
-    "update:analytics": "sed -i.bak 's#<!-- analytics -->#<script async src=\"https://www\\.googletagmanager\\.com/gtag/js?id=UA-179477519-2\" ><\\/script> <script> window\\.dataLayer = window\\.dataLayer || []; function gtag(){dataLayer\\.push(arguments);} gtag('js', new Date()); gtag('config', 'UA-179477519-2'); <\\/script>#g' ./dist/index.html",
+    "update:analytics": "sed -i.bak 's#<!-- analytics -->#<script async src=\"https://www\\.googletagmanager\\.com/gtag/js?id=UA-179477519-2\"><\\/script> <script> window\\.dataLayer = window\\.dataLayer || []; function gtag(){dataLayer\\.push(arguments);} gtag(\"js\", new Date()); gtag(\"config\", \"UA-179477519-2\"); <\\/script>#g' ./dist/index.html",
     "update:version": "sed -i.bak \"s/version/$(npm pkg get version)/g\" ./dist/index.html",
     "update:timestamp": "sed -i.bak \"s/timestamp/$(date -u)/g\" ./dist/index.html",
     "cleanup": "rm ./dist/index.html.bak",
