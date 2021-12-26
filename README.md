@@ -27,10 +27,9 @@
 # 技术栈
 | 模块                       |编号                                     | 概述                                  | 技术栈                                  |  
 |:---------------------------|:---------------------------------------|:--------------------------------------|:--------------------------------------|
-| mt-access      |0| 用户,应用与API管理 |Spring Boot, JWT, OAuth2, Redis, RabbitMQ
+| mt-access      |0| 用户,应用与API管理, 服务注册与发现 |Spring Boot, JWT, OAuth2, Redis, RabbitMQ, Spring Cloud Eureka
 | mt-proxy        |1 | API网关   |Spring Boot, Spring Cloud Gateway, Redis, RabbitMQ
 | mt-ui |9| 管理前端UI |Angular
-| mt-registry|11 | 服务注册与发现  |Spring Cloud Eureka
 | mt-notification|4 | 邮件与WebSocket  |Spring Boot, RabbitMQ
 | mt-common |无| 通用Utility  |Spring Boot
 | mt-integration-test|8 | 集成测试 |Spring Boot Test

@@ -1,1 +1,0 @@
-# mt11-eureka
