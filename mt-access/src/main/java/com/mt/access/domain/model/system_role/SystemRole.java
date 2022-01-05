@@ -29,12 +29,11 @@ public class SystemRole extends Auditable {
 
     static {
         nonDeletableIds = List.of(
-                AppConstant.ADMIN_USER_ID,
-                AppConstant.BACKEND_ID,
-                AppConstant.USER_USER_ID,
-                AppConstant.ROOT_USER_ID,
-                AppConstant.ROOT_CLIENT_ID,
-                AppConstant.FIRST_PARTY_ID
+                AppConstant.MT_AUTH_BACKEND_CLIENT_ROLE,
+                AppConstant.MT_AUTH_DEFAULT_USER_ROLE,
+                AppConstant.MT_AUTH_ADMIN_ROLE,
+                AppConstant.MT_AUTH_ROOT_CLIENT_ROLE,
+                AppConstant.MT_AUTH_OWNED_CLIENT_ROLE
         );
     }
 

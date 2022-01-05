@@ -61,8 +61,8 @@ public class ClientValidator {
     private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                    client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.FIRST_PARTY_ID))
-                            || client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.BACKEND_ID))
+                    client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_OWNED_CLIENT_ROLE))
+                            || client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_BACKEND_CLIENT_ROLE))
             ) {
                 handler.handleError("invalid grantedAuthorities to be a resource, must be first party & backend application");
             }

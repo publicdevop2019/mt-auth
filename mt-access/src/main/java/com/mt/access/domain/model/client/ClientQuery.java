@@ -2,7 +2,6 @@ package com.mt.access.domain.model.client;
 
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -116,9 +115,9 @@ public class ClientQuery extends QueryCriteria {
     private void validate() {
         if (!isInternal) {
             boolean isRoot = DomainRegistry.getAuthenticationService().isUser()
-                    && DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.ROOT_USER_ID));
+                    && DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE));
             boolean isUser = DomainRegistry.getAuthenticationService().isUser()
-                    && DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.USER_USER_ID));
+                    && DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_DEFAULT_USER_ROLE));
             if (isRoot || isUser) {
                 if (!isRoot) {
                     if (clientIds == null)

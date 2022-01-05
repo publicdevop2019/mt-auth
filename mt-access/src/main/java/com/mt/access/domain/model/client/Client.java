@@ -367,7 +367,7 @@ public class Client extends Auditable {
     }
 
     public boolean removable() {
-        return roles.stream().noneMatch(e -> e.getDomainId().equals(AppConstant.ROOT_CLIENT_ID));
+        return roles.stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_ROOT_CLIENT_ROLE));
     }
 
     public void removeRole(SystemRoleId systemRoleId) {

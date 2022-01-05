@@ -15,16 +15,12 @@ import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Service
@@ -37,7 +33,7 @@ public class RevokeTokenApplicationService {
     public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            boolean rootUser = DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.ROOT_USER_ID));
+            boolean rootUser = DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE));
             if (!rootUser && revokeTokenId.getType().equals(RevokeToken.TokenType.CLIENT))
                 throw new IllegalArgumentException("non root role can only revoke user token");
             DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));

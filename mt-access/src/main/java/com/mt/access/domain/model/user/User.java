@@ -77,7 +77,7 @@ public class User extends Auditable {
         setPassword(password);
         setUserId(userId);
         setLocked(false);
-        setRoles(Collections.singleton(new SystemRoleId(AppConstant.USER_USER_ID)));
+        setRoles(Collections.singleton(new SystemRoleId(AppConstant.MT_AUTH_DEFAULT_USER_ROLE)));
         setSubscription(false);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService().validate(this, new HttpValidationNotificationHandler());
@@ -92,14 +92,14 @@ public class User extends Auditable {
                 DomainEventPublisher.instance().publish(new UserAuthorityChanged(getUserId()));
             }
         }
-        if (roles.contains(new SystemRoleId(AppConstant.ROOT_USER_ID))
+        if (roles.contains(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE))
                 &&
-                !this.roles.contains(new SystemRoleId(AppConstant.ROOT_USER_ID))) {
+                !this.roles.contains(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE))) {
             throw new IllegalArgumentException("assign root role is prohibited");
         }
-        if (!roles.contains(new SystemRoleId(AppConstant.ROOT_USER_ID))
+        if (!roles.contains(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE))
                 &&
-                this.roles.contains(new SystemRoleId(AppConstant.ROOT_USER_ID))) {
+                this.roles.contains(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE))) {
             throw new IllegalArgumentException("remove root role is prohibited");
         }
         this.roles = roles;
@@ -116,13 +116,13 @@ public class User extends Auditable {
     }
 
     public boolean isNonRoot() {
-        return getRoles().stream().noneMatch(e -> AppConstant.ROOT_USER_ID.equals(e.getDomainId()));
+        return getRoles().stream().noneMatch(e -> AppConstant.MT_AUTH_ADMIN_ROLE.equals(e.getDomainId()));
     }
 
     public void replace(Set<SystemRoleId> roleIds, boolean locked, boolean subscription) {
-        if (isSubscription() != subscription && !DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.ROOT_USER_ID)))
+        if (isSubscription() != subscription && !DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE)))
             throw new IllegalArgumentException("only root user can change subscription");
-        if (!getRoles().equals(roleIds) && !DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.ROOT_USER_ID)))
+        if (!getRoles().equals(roleIds) && !DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE)))
             throw new IllegalArgumentException("only root user can change roles");
         if (Boolean.TRUE.equals(locked)) {
             DomainEventPublisher.instance().publish(new UserGetLocked(getUserId()));
@@ -130,9 +130,6 @@ public class User extends Auditable {
         setRoles(roleIds);
         setLocked(locked);
         setSubscription(subscription);
-        if (isSubscription() && getRoles().stream().noneMatch(e -> AppConstant.ADMIN_USER_ID.equals(e.getDomainId()))) {
-            throw new IllegalArgumentException("only admin can subscribe to new order");
-        }
         validate(new HttpValidationNotificationHandler());
     }
 

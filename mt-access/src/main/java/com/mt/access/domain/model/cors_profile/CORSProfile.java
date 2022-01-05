@@ -21,7 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 
 @Entity
-@Table
+@Table(name = "cors_profile")
 @Slf4j
 @NoArgsConstructor
 @Getter
