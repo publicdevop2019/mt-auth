@@ -87,7 +87,9 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
             }
             if (finalClientFetched != null) {
                 finalClientFetched.stream().filter(e -> e.getClientId().equals(rep.clientId)).findFirst().ifPresent(e -> {
-                    rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                    if (e.getPath() != null) {
+                        rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                    }
                 });
             }
         });
