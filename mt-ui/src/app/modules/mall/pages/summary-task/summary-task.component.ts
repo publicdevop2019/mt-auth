@@ -36,7 +36,7 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
     retry: 'DETAILS',
     cancel: 'CANCEL',
   }
-  columnList :any= this.columnListNotCancel;
+  columnList: any = this.columnListNotCancel;
   columnListCancel = {
     id: 'ID',
     referenceId: 'REFERENCE_ID_TASK',
@@ -54,7 +54,7 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
       searchValue: 'id',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -62,7 +62,7 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
       searchValue: 'orderId',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -70,14 +70,14 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
       searchValue: 'changeId',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
       searchLabel: 'DTX_STATUS',
       searchValue: 'status',
       type: 'dropdown',
-      source:CONST_DTX_STATUS
+      source: CONST_DTX_STATUS
     }
   ]
   constructor(
@@ -87,25 +87,30 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
     public dialog: MatDialog,
     public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 1);
+    super(entitySvc, deviceSvc, bottomSheet, fis, 1);
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
     const sub = this.formCreatedOb2.subscribe(() => {
       const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
+        console.dir('here')
         this.entitySvc.pageNumber = 0;
         if ((e.taskName as string).includes("cancel")) {
           console.dir('here')
           this.isCancel = true;
           this.columnList = this.columnListCancel;
-          this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListCancel))
+          if(this.fis.formGroupCollection[this.formId]){
+            this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListCancel))
+          }
         } else {
           this.isCancel = false;
           this.columnList = this.columnListNotCancel;
-          this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListNotCancel))
+          if (this.fis.formGroupCollection[this.formId]) {
+            this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListNotCancel))
+          }
         }
         this.entitySvc.updateEntityName(e.taskName);
         this.deviceSvc.refreshSummary.next();
       });
-      this.fis.formGroupCollection[this.formId2].setValue({ taskName: entitySvc.getEntityName() });
+      this.fis.formGroupCollection[this.formId2].setValue({ taskName: entitySvc.getEntityName() }, { emitEvent: false });
       this.subs.add(sub)
     })
     this.subs.add(sub)
@@ -150,7 +155,7 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
     config.panelClass = 'fix-height'
     this.entitySvc.readById(row.id).subscribe(next => {
       next.cancelable = this.cancelStatus(row) !== 'SUCCESS';
-      next.retryable = (!this.cancelStatus(row) || this.cancelStatus(row) === 'SUCCESS'|| this.cancelStatus(row) === 'RESOLVED');
+      next.retryable = (!this.cancelStatus(row) || this.cancelStatus(row) === 'SUCCESS' || this.cancelStatus(row) === 'RESOLVED');
       config.data = <IBottomSheet<IBizTask>>{ context: 'edit', from: next };
       this.bottomSheet.open(this.sheetComponent, config);
     })
