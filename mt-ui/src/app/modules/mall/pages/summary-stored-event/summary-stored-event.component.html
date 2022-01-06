@@ -1,8 +1,10 @@
 <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'MALL_CENTER' |translate}} /
     {{'EVENT_DASHBOARD'|translate}}</h2>
-        <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        <lib-factory [formId]="formId2" [formInfo]="formInfo2"></lib-factory>
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
-
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
+</div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">
     <div class="table-container">
         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
@@ -22,28 +24,28 @@
             </ng-container>
 
             <ng-container matColumnDef="id" sticky>
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['id']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{'NAME'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef>{{columnList['name']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.name|translate"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="domainId">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'REFERENCE_ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['domainId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.domainId"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="internal">
-                <th mat-header-cell *matHeaderCellDef> {{'INTERNAL'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['internal']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <mat-icon *ngIf="row.internal" [color]="'primary'">
                         check_circle_outline
@@ -54,13 +56,13 @@
             </ng-container>
 
             <ng-container matColumnDef="timestamp">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'CREATE_AT'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['timestamp']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     {{row.timestamp|date:'M/d/yy, h:mm:ss a'}}
                 </td>
             </ng-container>
             <ng-container matColumnDef="eventBody">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'DETAILS'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['eventBody']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     <mat-icon (click)="launchOverlay(origin,row)" #origin [color]="'primary'">
                         remove_red_eye</mat-icon>
@@ -68,13 +70,13 @@
             </ng-container>
 
             <ng-container matColumnDef="retry">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{'RETRY'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['retry']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <mat-icon (click)="doRetry(row.id)" [color]="'primary'">redo</mat-icon>
                 </td>
             </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
         </table>
     </div>
     <mat-paginator [showFirstLastButtons]="true" [pageIndex]="entitySvc.pageNumber"

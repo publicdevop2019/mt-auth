@@ -1,20 +1,17 @@
 import { Component, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { FactoryComponent, FormInfoService } from 'mt-form-builder';
-import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { FormInfoService } from 'mt-form-builder';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, of } from 'rxjs';
-import { filter, map, take } from 'rxjs/operators';
+import { filter, map } from 'rxjs/operators';
 import { CATALOG_TYPE } from 'src/app/clazz/constants';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IBizAttribute } from 'src/app/clazz/validation/aggregate/attribute/interfaze-attribute';
 import { ICatalog } from 'src/app/clazz/validation/aggregate/catalog/interfaze-catalog';
 import { IProductDetail, IProductSimple } from 'src/app/clazz/validation/aggregate/product/interfaze-product';
 import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
 import { SearchAttributeComponent } from 'src/app/components/search-attribute/search-attribute.component';
 import { ISearchConfig, SearchComponent } from 'src/app/components/search/search.component';
-import { FORM_SEARCH_CATALOG_CONFIG } from 'src/app/form-configs/search.config';
 import { AttributeService } from 'src/app/services/attribute.service';
 import { CatalogService } from 'src/app/services/catalog.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -28,10 +25,20 @@ import { ProductComponent } from '../product/product.component';
   templateUrl: './summary-product.component.html',
 })
 export class SummaryProductComponent extends SummaryEntityComponent<IProductSimple, IProductDetail> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'coverImage', 'name', 'sales', 'status', 'endAt', 'edit', 'delete', 'clone', 'review'];
   sheetComponent = ProductComponent;
-  formId: string = 'searchFormNew'
-  formInfo: IForm = JSON.parse(JSON.stringify(FORM_SEARCH_CATALOG_CONFIG))
+  public formId = "mallProductTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    coverImage: 'COVER_IMAGE',
+    name: 'NAME',
+    sales: 'TOTAL_SALES',
+    status: 'AVAILABLE',
+    endAt: 'EXPIREAT',
+    edit: 'EDIT',
+    delete: 'DELETE',
+    clone: 'CLONE',
+    review: 'REVIEW_REQUIRED',
+  }
   searchConfigs: ISearchConfig[] = []
   private initSearchConfig: ISearchConfig[] = [
     {
@@ -63,9 +70,9 @@ export class SummaryProductComponent extends SummaryEntityComponent<IProductSimp
     public dialog: MatDialog,
     private catalogSvc: CatalogService,
     private attrSvc: AttributeService,
-    private fis: FormInfoService
+    public fis: FormInfoService
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 3);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
     const queryCatalog = (event: any, searchCmpt: SearchComponent, catalogs: ICatalog[]) => {
       const attr = this.loadAttributes(event, catalogs)
       this.parseAttrId(attr).subscribe((next: string[]) => {

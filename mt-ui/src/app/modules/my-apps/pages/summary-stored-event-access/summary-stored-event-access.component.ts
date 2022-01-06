@@ -5,16 +5,12 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { FORM_CONFIG } from 'src/app/form-configs/stored-event.config';
 import { DeviceService } from 'src/app/services/device.service';
 import { OverlayService } from 'src/app/services/overlay.service';
-import { IStoredEvent, StoredEventService } from 'src/app/services/stored-event.service';
+import { IStoredEvent } from 'src/app/services/stored-event.service';
 import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
 import { IBizTask } from 'src/app/services/task.service';
 @Component({
@@ -23,7 +19,16 @@ import { IBizTask } from 'src/app/services/task.service';
   styleUrls: ['./summary-stored-event-access.component.css']
 })
 export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IStoredEvent, IStoredEvent> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'eventBody', 'timestamp', 'domainId', 'name', 'internal','retry'];
+  formId = "authEventTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    eventBody: 'DETAILS',
+    timestamp: 'CREATE_AT',
+    domainId: 'REFERENCE_ID',
+    name: 'NAME',
+    internal: 'INTERNAL',
+    retry: 'RETRY',
+  }
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -49,9 +54,9 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     public dialog: MatDialog,
     private overlay: Overlay,
     private overlaySvc: OverlayService,
-    private fis: FormInfoService,
+    fis: FormInfoService,
     ) {
-      super(entitySvc, deviceSvc, bottomSheet, 1);
+      super(entitySvc, deviceSvc, bottomSheet,fis, 1);
   }
   launchOverlay(el: MatIcon, data: IBizTask) {
     this.overlaySvc.data = data;

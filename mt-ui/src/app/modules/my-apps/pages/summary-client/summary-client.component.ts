@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -15,8 +16,21 @@ import { ClientComponent } from '../client/client.component';
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
 })
-export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy {
-  displayedColumns: string[] = ['name','id', 'description', 'resourceIndicator', 'grantTypeEnums', 'accessTokenValiditySeconds', 'grantedAuthorities', 'resourceIds', 'edit', 'token', 'delete'];
+export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy{
+  public formId = "clientTableColumnConfig";
+  columnList = {
+    name: 'NAME',
+    id: 'ID',
+    description: 'DESCRIPTION',
+    resourceIndicator: 'RESOURCE_INDICATOR',
+    grantTypeEnums: 'GRANTTYPE_ENUMS',
+    accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
+    grantedAuthorities: 'GRANTED_AUTHORITIES',
+    resourceIds: 'RESOURCEIDS',
+    edit: 'EDIT',
+    token: 'REVOKE_TOKEN',
+    delete: 'DELETE',
+  }
   sheetComponent = ClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
   public roleList: IOption[] = [];
@@ -29,7 +43,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
       searchValue: 'id',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -37,7 +51,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
       searchValue: 'name',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -45,9 +59,9 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
       searchValue: 'grantTypeEnums',
       type: 'dropdown',
       multiple: {
-        delimiter:'$'
+        delimiter: '$'
       },
-      source:CONST_GRANT_TYPE
+      source: CONST_GRANT_TYPE
     },
     {
       searchLabel: 'RESOURCE_INDICATOR',
@@ -63,40 +77,45 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   constructor(
     public entitySvc: ClientService,
     public roleSvc: RoleService,
+    public fis: FormInfoService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 3);
-    combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1'),this.roleSvc.readEntityByQuery(0,1000,'type:CLIENT')]).pipe(take(1))//@todo use paginated select component
-    .subscribe(next => {
-      if (next){
-        this.searchConfigs = [...this.initSearchConfigs,{
-          searchLabel: 'RESOURCEIDS',
-          searchValue: 'resourceIds',
-          type: 'dropdown',
-          multiple: {
-            delimiter:'.'
+    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
+    combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1'), this.roleSvc.readEntityByQuery(0, 1000, 'type:CLIENT')]).pipe(take(1))//@todo use paginated select component
+      .subscribe(next => {
+        if (next) {
+          this.searchConfigs = [...this.initSearchConfigs, {
+            searchLabel: 'RESOURCEIDS',
+            searchValue: 'resourceIds',
+            type: 'dropdown',
+            multiple: {
+              delimiter: '.'
+            },
+            source: next[0].data.map(e => {
+              return {
+                label: e.name,
+                value: e.id
+              }
+            })
           },
-          source:next[0].data.map(e=>{return {
-            label:e.name,
-            value:e.id
-          }})
-        },
-        {
-          searchLabel: 'GRANTED_AUTHORITIES',
-          searchValue: 'grantedAuthorities',
-          type: 'dropdown',
-          multiple: {
-            delimiter:'.'
+          {
+            searchLabel: 'GRANTED_AUTHORITIES',
+            searchValue: 'grantedAuthorities',
+            type: 'dropdown',
+            multiple: {
+              delimiter: '.'
+            },
+            source: next[1].data.map(e => {
+              return {
+                label: e.name,
+                value: e.id
+              }
+            })
           },
-          source:next[1].data.map(e=>{return {
-            label:e.name,
-            value:e.id
-          }})
-        },
-      ];
-      }
-    });
+          ];
+        }
+      });
   }
   updateSummaryData(next: ISumRep<IClient>) {
     super.updateSummaryData(next);

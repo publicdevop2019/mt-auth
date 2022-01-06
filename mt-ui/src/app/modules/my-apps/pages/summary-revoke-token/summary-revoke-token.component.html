@@ -2,14 +2,17 @@
     {{'REVOKE_TOKEN_DASHBOARD' |translate}} </h2>
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
 </app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;">
-    <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-        style="margin-right: 16px;" (click)="showOptions()">
-        {{'BATCH_OPERATION'|translate}}
-    </mat-slide-toggle>
-    <ng-container *ngIf="batchUpdate.checked">
-        <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
-    </ng-container>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
+    <section>
+        <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
+            style="margin-right: 16px;" (click)="showOptions()">
+            {{'BATCH_OPERATION'|translate}}
+        </mat-slide-toggle>
+        <ng-container *ngIf="batchUpdate.checked">
+            <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
+        </ng-container>
+    </section>
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
 </div>
 <div class="mat-elevation-z8">
     <div class="table-container">
@@ -30,21 +33,21 @@
             </ng-container>
 
             <ng-container matColumnDef="targetId">
-                <th mat-header-cell *matHeaderCellDef> {{'TARGET_ID'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['targetId']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.targetId"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="issuedAt">
-                <th mat-header-cell *matHeaderCellDef> {{'ISSUE_AT'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['issuedAt']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     {{row.issuedAt*1000 | date:'short'}}
                 </td>
             </ng-container>
             
             <ng-container matColumnDef="type">
-                <th mat-header-cell *matHeaderCellDef> {{'TYPE'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     <mat-chip >
                         {{'TARGET_'+row.type|translate}}
@@ -52,8 +55,8 @@
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
         </table>
     </div>
 

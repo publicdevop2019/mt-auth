@@ -3,6 +3,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { FormInfoService } from 'mt-form-builder';
 import { switchMap } from 'rxjs/internal/operators/switchMap';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISkuNew, IProductSimple } from 'src/app/clazz/validation/aggregate/product/interfaze-product';
@@ -17,7 +18,19 @@ import { SkuService } from 'src/app/services/sku.service';
   styleUrls: ['./summary-sku.component.css']
 })
 export class SummarySkuComponent extends SummaryEntityComponent<ISkuNew, ISkuNew> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'coverImage', 'referenceId', 'salesAttr', 'description', 'storageOrder', 'storageActual', 'price', 'sales', 'delete'];
+  public formId = "mallSkuTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    coverImage: 'COVER_IMAGE',
+    referenceId: 'REFERENCE_ID',
+    salesAttr: 'SALES_ATTR',
+    description: 'DESCRIPTION',
+    storageOrder: 'STORAGE_ORDER',
+    storageActual: 'STORAGE_ACTUAL',
+    price: 'PRICE',
+    sales: 'SALES',
+    delete: 'DELETE',
+  }
   productRef: ISumRep<IProductSimple>
   searchConfigs: ISearchConfig[] = [
     {
@@ -36,8 +49,9 @@ export class SummarySkuComponent extends SummaryEntityComponent<ISkuNew, ISkuNew
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 7);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 7);
   }
   updateSummaryData(next: ISumRep<ISkuNew>) {
     super.updateSummaryData(next);

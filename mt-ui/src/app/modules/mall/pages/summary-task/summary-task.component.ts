@@ -1,15 +1,14 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { PageEvent } from '@angular/material/paginator';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable, Subscription } from 'rxjs';
-import { filter, mergeMap, switchMap } from 'rxjs/operators';
+import { Observable } from 'rxjs';
+import { filter, switchMap } from 'rxjs/operators';
 import { CONST_DTX_STATUS } from 'src/app/clazz/constants';
 import { IBottomSheet, ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
+import { TableColumnConfigComponent } from 'src/app/components/table-column-config/table-column-config.component';
 import { FORM_CONFIG } from 'src/app/form-configs/task.config';
 import { TaskComponent } from 'src/app/modules/mall/pages/task/task.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -21,11 +20,33 @@ import { ResolveConfirmDialogComponent } from '../../components/resolve-confirm-
   styleUrls: ['./summary-task.component.css']
 })
 export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizTask> implements OnDestroy {
-  formId = 'summaryTask';
-  formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
-  private formCreatedOb: Observable<string>;
+  formId2 = 'summaryTask';
+  formInfo2: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
+  private formCreatedOb2: Observable<string>;
   sheetComponent = TaskComponent;
-  displayedColumns: string[] = ['id', 'referenceId', 'taskStatus', 'transactionId', 'hasCancel', 'cancelStatus', 'createAt', 'retry', 'cancel'];
+  public formId = "mallTaskTableColumnConfig";
+  columnListNotCancel = {
+    id: 'ID',
+    referenceId: 'REFERENCE_ID_TASK',
+    taskStatus: 'TASK_STATUS',
+    transactionId: 'TRANSACTION_ID',
+    hasCancel: 'HAS_CANCEL',
+    cancelStatus: 'CANCEL_STATUS',
+    createAt: 'CREATE_AT',
+    retry: 'DETAILS',
+    cancel: 'CANCEL',
+  }
+  columnList :any= this.columnListNotCancel;
+  columnListCancel = {
+    id: 'ID',
+    referenceId: 'REFERENCE_ID_TASK',
+    taskStatus: 'TASK_STATUS',
+    transactionId: 'TRANSACTION_ID',
+    createAt: 'CREATE_AT',
+    retry: 'DETAILS',
+    resolve: 'RESOLVE',
+  }
+
   isCancel: boolean = false;
   searchConfigs: ISearchConfig[] = [
     {
@@ -64,24 +85,27 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
-    private fis: FormInfoService,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 1);
-    this.formCreatedOb = this.fis.formCreated(this.formId);
-    const sub = this.formCreatedOb.subscribe(() => {
-      const sub = this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
+    super(entitySvc, deviceSvc, bottomSheet,fis, 1);
+    this.formCreatedOb2 = this.fis.formCreated(this.formId2);
+    const sub = this.formCreatedOb2.subscribe(() => {
+      const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.entitySvc.pageNumber = 0;
         if ((e.taskName as string).includes("cancel")) {
+          console.dir('here')
           this.isCancel = true;
-          this.displayedColumns = ['id', 'referenceId', 'taskStatus', 'resolveReason', 'transactionId', 'createAt', 'retry', 'resolve'];
+          this.columnList = this.columnListCancel;
+          this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListCancel))
         } else {
           this.isCancel = false;
-          this.displayedColumns = ['id', 'referenceId', 'taskStatus', 'transactionId', 'hasCancel', 'cancelStatus', 'createAt', 'retry', 'cancel'];
+          this.columnList = this.columnListNotCancel;
+          this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnListNotCancel))
         }
         this.entitySvc.updateEntityName(e.taskName);
         this.deviceSvc.refreshSummary.next();
       });
-      this.fis.formGroupCollection[this.formId].setValue({ taskName: entitySvc.getEntityName() });
+      this.fis.formGroupCollection[this.formId2].setValue({ taskName: entitySvc.getEntityName() });
       this.subs.add(sub)
     })
     this.subs.add(sub)
@@ -101,7 +125,7 @@ export class SummaryTaskComponent extends SummaryEntityComponent<IBizTask, IBizT
   }
   ngOnDestroy() {
     super.ngOnDestroy();
-    this.fis.reset(this.formId);
+    this.fis.reset(this.formId2);
   }
   cancelledIds: { key: string, value: string }[] = [];
   updateSummaryData(inputs: ISumRep<IBizTask>) {

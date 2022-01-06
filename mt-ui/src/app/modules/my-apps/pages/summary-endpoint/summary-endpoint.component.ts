@@ -1,7 +1,9 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { Observable } from 'rxjs';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
@@ -17,7 +19,17 @@ import { EndpointComponent } from '../endpoint/endpoint.component';
   styleUrls: ['./summary-endpoint.component.css']
 })
 export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'description', 'resourceId', 'path', 'method', 'edit', 'clone', 'delete'];
+  public formId = "endpointTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    description: 'DESCRIPTION',
+    resourceId: 'PARENT_CLIENT',
+    path: 'URL',
+    method: 'METHOD',
+    edit: 'EDIT',
+    clone: 'CLONE',
+    delete: 'DELETE',
+  }
   sheetComponent = EndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
@@ -43,9 +55,10 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public clientSvc: ClientService,
+    public fis: FormInfoService,
     public dialog: MatDialog
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 3);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
     this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
       .subscribe(next => {
         if (next.data)

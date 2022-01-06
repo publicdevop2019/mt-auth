@@ -1,14 +1,17 @@
 <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'MALL_CENTER' |translate}} /
     {{'SKU_DASHBOARD'|translate}}</h2>
 <app-search [searchConfigs]="searchConfigs" (search)="doSearch($event)"></app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;">
-    <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-        style="margin-right: 16px;" (click)="showOptions()">
-        {{'BATCH_OPERATION'|translate}}
-    </mat-slide-toggle>
-    <ng-container *ngIf="batchUpdate.checked">
-        <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
-    </ng-container>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
+    <section>
+        <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
+            style="margin-right: 16px;" (click)="showOptions()">
+            {{'BATCH_OPERATION'|translate}}
+        </mat-slide-toggle>
+        <ng-container *ngIf="batchUpdate.checked">
+            <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
+        </ng-container>
+    </section>
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
 </div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">
     <div class="table-container">
@@ -29,35 +32,35 @@
             </ng-container>
 
             <ng-container matColumnDef="id" sticky>
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['id']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="coverImage">
-                <th mat-header-cell *matHeaderCellDef style="text-align: center;">{{'COVER_IMAGE'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef style="text-align: center;">{{columnList['coverImage']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-lazy-image *ngIf="parsedRef[row.id]" [lazySrc]="parsedRef[row.id].coverImage"></app-lazy-image>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="referenceId">
-                <th mat-header-cell *matHeaderCellDef>{{'REFERENCE_ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef>{{columnList['referenceId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field *ngIf="parsedRef[row.id]" [inputValue]="parsedRef[row.id].name"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="salesAttr">
-                <th mat-header-cell *matHeaderCellDef>{{'SALES_ATTR'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef>{{columnList['salesAttr']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field *ngIf="parsedRefAttr[row.id]" [inputValue]="parsedRefAttr[row.id]"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef>{{'DESCRIPTION'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef>{{columnList['description']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-editable-field [inputValue]="row.description"
                         (newValue)="doPatch(row.id,$event,'description')">
@@ -66,7 +69,7 @@
             </ng-container>
 
             <ng-container matColumnDef="storageOrder">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'STORAGE_ORDER'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['storageOrder']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-editable-field [inputValue]="row.storageOrder"
                         (newValue)="doPatchAtomicNum(row.id,$event,'storageOrder')">
@@ -75,7 +78,7 @@
             </ng-container>
 
             <ng-container matColumnDef="storageActual">
-                <th mat-header-cell *matHeaderCellDef> {{'STORAGE_ACTUAL'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['storageActual']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-editable-field [inputValue]="row.storageActual"
                         (newValue)="doPatchAtomicNum(row.id,$event,'storageActual')">
@@ -84,7 +87,7 @@
             </ng-container>
 
             <ng-container matColumnDef="price">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'PRICE'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['price']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     <app-editable-field [inputValue]="row.price" (newValue)="doPatch(row.id,$event,'price')">
                     </app-editable-field>
@@ -93,19 +96,19 @@
 
 
             <ng-container matColumnDef="sales">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'SALES'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['sales']|translate}}</th>
                 <td mat-cell *matCellDef="let row"> {{row.sales }} </td>
             </ng-container>
 
             <ng-container matColumnDef="delete">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{'DELETE'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
         </table>
     </div>
     <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"

@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { TYPE_ROLE } from 'src/app/clazz/constants';
@@ -16,7 +17,16 @@ import { RoleComponent } from '../role/role.component';
   styleUrls: ['./summary-role.component.css']
 })
 export class SummaryRoleComponent extends SummaryEntityComponent<IRole, IRole> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'name', 'description', 'type','edit','clone', 'delete'];
+  public formId = "roleTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    name: 'NAME',
+    description: 'DESCRIPTION',
+    type: 'TYPE',
+    edit: 'EDIT',
+    clone: 'CLONE',
+    delete: 'DELETE',
+  }
   sheetComponent = RoleComponent;
   searchConfigs: ISearchConfig[] = [
     {
@@ -37,9 +47,10 @@ export class SummaryRoleComponent extends SummaryEntityComponent<IRole, IRole> i
   constructor(
     public entitySvc: RoleService,
     public deviceSvc: DeviceService,
+    public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 2);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 2);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

@@ -13,12 +13,23 @@ import { IResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaz
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { RoleService } from 'src/app/services/role.service';
 import { combineLatest } from 'rxjs';
+import { FormInfoService } from 'mt-form-builder';
 @Component({
   selector: 'app-summary-resource-owner',
   templateUrl: './summary-resource-owner.component.html',
 })
 export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IResourceOwner, IResourceOwner> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'email', 'grantedAuthorities', 'locked', 'createdAt', 'edit', 'token', 'delete'];
+  public formId = "userTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    email: 'EMAIL',
+    grantedAuthorities: 'GRANTED_AUTHORITIES',
+    locked: 'LOCKED',
+    createdAt: 'CREATE_AT',
+    edit: 'EDIT',
+    token: 'REVOKE_TOKEN',
+    delete: 'DELETE',
+  }
   sheetComponent = ResourceOwnerComponent;
   public roleList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
@@ -43,10 +54,11 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IResou
     public entitySvc: ResourceOwnerService,
     public deviceSvc: DeviceService,
     public roleSvc: RoleService,
+    public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 2);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 2);
     combineLatest([this.roleSvc.readEntityByQuery(0,1000,'type:USER')]).pipe(take(1))//@todo use paginated select component
     .subscribe(next => {
       if (next){

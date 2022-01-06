@@ -5,6 +5,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatIcon } from '@angular/material/icon';
 import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
+import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
@@ -19,8 +20,11 @@ import { environment } from 'src/environments/environment';
   styleUrls: ['./operation-history.component.css']
 })
 export class OperationHistoryComponent extends SummaryEntityComponent<IChangeRecord, IChangeRecord> implements OnDestroy {
-  displayedColumns: string[] = ['changeId', 'entityType'];
-  // sheetComponent = ClientComponent;
+  public formId = "optTableColumnConfig";
+  columnList = {
+    changeId: 'CHANGE_ID',
+    entityType: 'ENTITY_TYPE',
+  }
   label: string;
   queryPrefix: string;
   searchConfigs: ISearchConfig[] = [
@@ -39,9 +43,10 @@ export class OperationHistoryComponent extends SummaryEntityComponent<IChangeRec
     public bottomSheet: MatBottomSheet,
     private route: ActivatedRoute,
     private overlay: Overlay,
+    public fis: FormInfoService,
     private overlaySvc: OverlayService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 2, true);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 2, true);
     let ob = this.route.paramMap.subscribe(queryMaps => {
       this.entitySvc.pageNumber = 0;//reset var
       this.queryString = undefined;

@@ -10,12 +10,23 @@ import { OrderComponent } from '../order/order.component';
 import * as UUID from 'uuid/v1';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ORDER_STATUS } from 'src/app/clazz/constants';
+import { FormInfoService } from 'mt-form-builder';
 @Component({
   selector: 'app-summary-order',
   templateUrl: './summary-order.component.html',
 })
 export class SummaryOrderComponent extends SummaryEntityComponent<IOrder, IOrder> {
-  displayedColumns: string[] = ['id', 'productList', 'paymentAmt', 'orderState', 'createdAt', 'createdBy', 'view', 'delete'];
+  public formId = "mallOrderTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    productList: 'PRODUCT_LIST',
+    paymentAmt: 'PAYMENT_AMT',
+    orderState: 'ORDER_STATUS',
+    createdAt: 'CREATE_AT',
+    createdBy: 'USER_ID',
+    view: 'VIEW',
+    delete: 'DELETE',
+  }
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -38,8 +49,9 @@ export class SummaryOrderComponent extends SummaryEntityComponent<IOrder, IOrder
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 1, false);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 1, false);
   }
   public parse(items: ICartItem[]): IOption[] {
     return items.map(e => <IOption>{ label: e.name, value: e.productId });

@@ -7,7 +7,6 @@ import { MatIcon } from '@angular/material/icon';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
@@ -22,10 +21,19 @@ import { IBizTask } from 'src/app/services/task.service';
   styleUrls: ['./summary-stored-event.component.css']
 })
 export class SummaryStoredEventComponent extends SummaryEntityComponent<IStoredEvent, IStoredEvent> implements OnDestroy {
-  formId = 'summaryStoredEvent';
-  formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
-  private formCreatedOb: Observable<string>;
-  displayedColumns: string[] = ['id', 'eventBody', 'timestamp', 'domainId', 'name', 'internal','retry'];
+  formId2 = 'summaryStoredEvent';
+  formInfo2: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
+  private formCreatedOb2: Observable<string>;
+  public formId = "mallEventTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    eventBody: 'DETAILS',
+    timestamp: 'CREATE_AT',
+    domainId: 'REFERENCE_ID',
+    name: 'NAME',
+    internal: 'INTERNAL',
+    retry: 'RETRY',
+  }
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -51,13 +59,13 @@ export class SummaryStoredEventComponent extends SummaryEntityComponent<IStoredE
     public dialog: MatDialog,
     private overlay: Overlay,
     private overlaySvc: OverlayService,
-    private fis: FormInfoService,
+    public fis: FormInfoService,
     ) {
-      super(entitySvc, deviceSvc, bottomSheet, 1);
-      this.formCreatedOb = this.fis.formCreated(this.formId);
-      this.formCreatedOb.subscribe(()=>{
-        this.fis.formGroupCollection[this.formId].setValue({appName:entitySvc.getServiceName()})
-        this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e=>{
+      super(entitySvc, deviceSvc, bottomSheet,fis, 1);
+      this.formCreatedOb2 = this.fis.formCreated(this.formId2);
+      this.formCreatedOb2.subscribe(()=>{
+        this.fis.formGroupCollection[this.formId2].setValue({appName:entitySvc.getServiceName()})
+        this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e=>{
           entitySvc.setServiceName(e.appName);
           entitySvc.pageNumber=0;
         this.deviceSvc.refreshSummary.next();

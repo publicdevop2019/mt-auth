@@ -1,11 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { PageEvent } from '@angular/material/paginator';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
-import { filter } from 'rxjs/operators';
 import { CATALOG_TYPE } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ICatalog } from 'src/app/clazz/validation/aggregate/catalog/interfaze-catalog';
@@ -21,12 +19,20 @@ import { CatalogComponent } from '../catalog/catalog.component';
   templateUrl: './summary-catalog.component.html',
 })
 export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, ICatalog> implements OnDestroy {
-  formId = 'summaryCatalogCustomerView';
+  formId2 = 'summaryCatalogCustomerView';
   formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
   viewType: "TREE_VIEW" | "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
-  displayedColumns: string[] = ['id', 'name', 'parentId', 'edit', 'delete', 'review'];
+  public formId = "mallCatalogTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    name: 'NAME',
+    parentId: 'PARENT_ID',
+    edit: 'EDIT',
+    delete: 'DELETE',
+    review: 'REVIEW_REQUIRED',
+  }
   sheetComponent = CatalogComponent;
-  private formCreatedOb: Observable<string>;
+  private formCreatedOb2: Observable<string>;
   initSearchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -51,14 +57,14 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     private route: ActivatedRoute,
-    private fis: FormInfoService,
+    fis: FormInfoService,
   ) {
 
-    super(entitySvc, deviceSvc, bottomSheet, 5);
-    this.formCreatedOb = this.fis.formCreated(this.formId);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 5);
+    this.formCreatedOb2 = this.fis.formCreated(this.formId2);
     
-    const sub0 = combineLatest([this.formCreatedOb]).subscribe(()=>{
-      const sub = this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
+    const sub0 = combineLatest([this.formCreatedOb2]).subscribe(()=>{
+      const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.viewType = e.view;
         if (this.viewType === 'TREE_VIEW') {
           this.entitySvc.readEntityByQuery(0, 1000).subscribe(next => {
@@ -69,7 +75,7 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
       this.subs.add(sub)
     })
     this.subs.add(sub0)
-    const sub = combineLatest([this.formCreatedOb, this.route.paramMap]).subscribe(combine => {
+    const sub = combineLatest([this.formCreatedOb2, this.route.paramMap]).subscribe(combine => {
       if (combine[1].get('type') === 'frontend') {
         if(this.entitySvc.queryPrefix!==CATALOG_TYPE.FRONTEND){
           this.entitySvc.queryPrefix = CATALOG_TYPE.FRONTEND;
@@ -81,8 +87,8 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
           this.prepareDashboard(combine[1].get('type'))
         }
       }
-      if(!this.fis.formGroupCollection[this.formId].get('view').value){
-        this.fis.formGroupCollection[this.formId].get('view').setValue(this.viewType);
+      if(!this.fis.formGroupCollection[this.formId2].get('view').value){
+        this.fis.formGroupCollection[this.formId2].get('view').setValue(this.viewType);
       }
 
     })
@@ -119,7 +125,7 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
       });
   }
   ngOnDestroy(): void {
-    this.fis.reset(this.formId);
+    this.fis.reset(this.formId2);
     this.entitySvc.queryPrefix=undefined;
     super.ngOnDestroy();
   }

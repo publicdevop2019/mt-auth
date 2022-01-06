@@ -635,4 +635,6 @@ export const enUS = {
     "BATCH_ROLE": "Batch update role",
     "GO_BACK": "Go Back",
     "CLIENT_PATH_CHANGED": "Client path changed",
+    "UPDATE_TABLE_COLUMN": "Configuration",
+    "SELECT_TO_CHANGE_TABLE_COLUMN": "Select to change displayed columns",
 }

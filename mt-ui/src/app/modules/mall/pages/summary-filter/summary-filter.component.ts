@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IBizFilter } from 'src/app/clazz/validation/aggregate/filter/interfaze-filter';
@@ -14,7 +15,15 @@ import { FilterComponent } from '../filter/filter.component';
   templateUrl: './summary-filter.component.html',
 })
 export class SummaryFilterComponent extends SummaryEntityComponent<IBizFilter, IBizFilter> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'description', 'catalogs', 'edit', 'delete', 'review'];
+  public formId = "mallFilterTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    description: 'DESCRIPTION',
+    catalogs: 'CATALOGS',
+    edit: 'EDIT',
+    delete: 'DELETE',
+    review: 'REVIEW_REQUIRED',
+  }
   sheetComponent = FilterComponent;
   public catalogList: IOption[] = []
   searchConfigs: ISearchConfig[] = [
@@ -34,8 +43,9 @@ export class SummaryFilterComponent extends SummaryEntityComponent<IBizFilter, I
     public deviceSvc: DeviceService,
     protected bottomSheet: MatBottomSheet,
     public catalogSvc: CatalogService,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 0);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 0);
     this.catalogSvc.readEntityByQuery(0, 1000, 'type:FRONTEND').subscribe(next => {
       this.searchConfigs = [...this.initSearchConfigs,
       {

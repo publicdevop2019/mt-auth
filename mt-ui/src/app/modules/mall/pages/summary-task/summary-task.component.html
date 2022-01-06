@@ -1,8 +1,10 @@
 <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'MALL_CENTER' |translate}} /
     {{'TASK_DASHBOARD'|translate}}</h2>
-        <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        <lib-factory [formId]="formId2" [formInfo]="formInfo2"></lib-factory>
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
-
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
+</div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">
     <div class="table-container">
         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
@@ -22,21 +24,21 @@
             </ng-container>
 
             <ng-container matColumnDef="id" sticky>
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['id']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="referenceId">
-                <th mat-header-cell *matHeaderCellDef>{{'REFERENCE_ID_TASK'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef>{{columnList['referenceId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.orderId"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="taskStatus">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'TASK_STATUS'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['taskStatus']|translate}} </th>
                 <td mat-cell *matCellDef="let row" style="padding-left: 8px;">
                     <ng-container *ngIf="row.status==='SUCCESS'">
                         <mat-icon [color]="'primary'">check_circle</mat-icon>
@@ -54,21 +56,21 @@
             </ng-container>
 
             <ng-container *ngIf="isCancel" matColumnDef="resolveReason">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{'RESOLVE_REASON'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resolveReason']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     {{row.resolveReason}} 
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="transactionId">
-                <th mat-header-cell *matHeaderCellDef> {{'TRANSACTION_ID'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['transactionId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.changeId"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="hasCancel">
-                <th mat-header-cell *matHeaderCellDef> {{'HAS_CANCEL'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['hasCancel']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <ng-container *ngIf="hasCancel(row)">
                         <mat-icon [color]="'accent'">check_circle</mat-icon>
@@ -80,7 +82,7 @@
             </ng-container>
 
             <ng-container matColumnDef="cancelStatus">
-                <th mat-header-cell *matHeaderCellDef> {{'CANCEL_STATUS'|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['cancelStatus']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <ng-container *ngIf="cancelStatus(row)==='SUCCESS'">
                         <mat-icon [color]="'primary'">check_circle</mat-icon>
@@ -98,13 +100,13 @@
             </ng-container>
 
             <ng-container matColumnDef="createAt">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{'CREATE_AT'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header>{{columnList['createAt']|translate}}</th>
                 <td mat-cell *matCellDef="let row">
                     {{row.createdAt|date:'M/d/yy, h:mm:ss a'}}
                 </td>
             </ng-container>
             <ng-container *ngIf="!isCancel" matColumnDef="cancel">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{'CANCEL'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['cancel']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <ng-container *ngIf="cancelStatus(row)!=='SUCCESS'">
                         
@@ -113,21 +115,21 @@
                 </td>
             </ng-container>
             <ng-container matColumnDef="retry">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{'DETAILS'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['retry']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <mat-icon (click)="openBottomSheetExt(row)" [color]="'primary'">remove_red_eye</mat-icon>
                 </td>
             </ng-container>
             <ng-container *ngIf="isCancel" matColumnDef="resolve">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{'RESOLVE'|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['resolve']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <ng-container *ngIf="row.status==='STARTED'">
                         <mat-icon (click)="openResolveDialog(row.id)" [color]="'accent'">build</mat-icon>
                     </ng-container>
                 </td>
             </ng-container>
-            <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
         </table>
     </div>
     <mat-paginator [showFirstLastButtons]="true" [pageIndex]="entitySvc.pageNumber"

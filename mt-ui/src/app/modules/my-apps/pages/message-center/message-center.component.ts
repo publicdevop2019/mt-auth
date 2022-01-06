@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { webSocket } from "rxjs/webSocket";
+import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { IDetail, MessageService } from 'src/app/services/message.service';
@@ -11,13 +11,18 @@ import { IDetail, MessageService } from 'src/app/services/message.service';
   styleUrls: ['./message-center.component.css']
 })
 export class MessageCenterComponent extends SummaryEntityComponent<IDetail, IDetail>{
-  displayedColumns: string[] = ['date','message'];
+  public formId = "authMsgTableColumnConfig";
+  columnList = {
+    date: 'DATE',
+    message: 'MESSAGE',
+  }
   constructor(
     public entitySvc: MessageService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, -2);
+    super(entitySvc, deviceSvc, bottomSheet, fis,-2);
     this.doRefresh();
 
   }

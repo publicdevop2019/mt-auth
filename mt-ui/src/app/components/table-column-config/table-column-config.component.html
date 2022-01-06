@@ -1,0 +1,8 @@
+<mat-icon style="cursor: pointer;" [matMenuTriggerFor]="more">settings</mat-icon>
+<mat-menu #more="matMenu">
+    <ng-template matMenuContent>
+        <div  style="padding: 8px;" (click)="handleClick($event)">
+            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        </div>
+    </ng-template>
+</mat-menu>

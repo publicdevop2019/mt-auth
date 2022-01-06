@@ -15,6 +15,8 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { hasValue } from './validation/validator-common';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
+import { FormInfoService } from 'mt-form-builder';
+import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
 export interface IIdBasedEntity {
   id: string;
   version: number
@@ -50,9 +52,10 @@ export interface IBottomSheet<S> {
 @Directive()
 export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDestroy {
   sheetComponent: ComponentType<any>;
-  displayedColumns: string[] = [];
   columnWidth: number;
+  columnList: any;
   queryString: string = undefined;
+  formId: string = undefined;
   queryKey: string = undefined;
   dataSource: MatTableDataSource<T>;
   totoalItemCount = 0;
@@ -64,15 +67,21 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(SearchComponent, { static: true }) searcher: SearchComponent;
   selection = new SelectionModel<T>(true, []);
+  private formCreatedOb: Observable<string>;
   constructor(
     protected entitySvc: IEntityService<T, S>,
     protected deviceSvc: DeviceService,
     protected bottomSheet: MatBottomSheet,
+    protected fis: FormInfoService,
     protected _pageSizeOffset: number,
     protected skipInitialLoad?: boolean
   ) {
     this.pageSizeOffset = _pageSizeOffset;
     this.initUrlRelatedValues();
+    this.formCreatedOb = this.fis.formCreated(this.formId);
+    this.formCreatedOb.subscribe(() => {
+      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnList))
+    })
   }
   initUrlRelatedValues() {
     this.entitySvc.pageNumber = this.getPageNum(this.deviceSvc.getParams().page);
@@ -115,6 +124,15 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   ngOnDestroy(): void {
     this.subs.unsubscribe();
   }
+  displayedColumns() {
+    if (this.fis.formGroupCollection[this.formId]) {
+      const orderKeys = Object.keys(this.columnList);
+      const value = this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).value as string[]
+      return orderKeys.filter(e => value.includes(e))
+    } else {
+      return Object.keys(this.columnList)
+    }
+  };
   openBottomSheet(id?: string, clone?: boolean): void {
     let config = new MatBottomSheetConfig();
     config.autoFocus = true;
@@ -136,7 +154,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   }
   pageHandler(e: PageEvent) {
     this.entitySvc.pageNumber = e.pageIndex;
-    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder,this.queryKey);
+    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
       this.updateSummaryData(next);
     });
@@ -165,11 +183,14 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
     });
   }
   showOptions() {
-    if (!this.displayedColumns.includes('select')) {
-      this.displayedColumns = ['select', ...this.displayedColumns]
+    if (!this.displayedColumns().includes('select')) {
+      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(['select', ...this.displayedColumns()])
     } else {
-      this.displayedColumns = this.displayedColumns.filter(e => e !== 'select')
+      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(this.displayedColumns().filter(e => e !== 'select'))
     }
+  }
+  getColumnLabelValue() {
+    return Object.keys(this.columnList).map(e => ({ label: this.columnList[e], value: e }))
   }
   /** Whether the number of selected elements matches the total number of rows. */
   isAllSelected() {

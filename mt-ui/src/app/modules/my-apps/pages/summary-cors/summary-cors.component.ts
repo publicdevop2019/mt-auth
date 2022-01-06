@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
@@ -15,7 +16,16 @@ import { CorsComponent } from '../cors/cors.component';
   styleUrls: ['./summary-cors.component.css']
 })
 export class SummaryCorsComponent extends SummaryEntityComponent<ICorsProfile, ICorsProfile> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'name', 'description', 'origin','edit', 'clone', 'delete'];
+  public formId = "corsTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    name: 'NAME',
+    description: 'DESCRIPTION',
+    origin: 'CORS_ORIGIN',
+    edit: 'EDIT',
+    clone: 'CLONE',
+    delete: 'DELETE',
+  }
   sheetComponent = CorsComponent;
   searchConfigs: ISearchConfig[] = [
     {
@@ -31,8 +41,9 @@ export class SummaryCorsComponent extends SummaryEntityComponent<ICorsProfile, I
     public entitySvc: CORSProfileService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 3);
+    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatIcon } from '@angular/material/icon';
 import { TranslateService } from '@ngx-translate/core';
+import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -17,17 +18,22 @@ import { IBizTask } from 'src/app/services/task.service';
   styleUrls: ['./message-center-mall.component.css']
 })
 export class MessageCenterMallComponent extends SummaryEntityComponent<IMallMonitorMsg, IMallMonitorMsg>{
-
-  displayedColumns: string[] = ['date','orderId', 'name', 'detail'];
+  public formId = "mallMsgTableColumnConfig";
+  columnList = {
+    date: 'DATE',
+    orderId: 'REFERENCE_ID',
+    name: 'NAME',
+    detail: 'DETAIL',
+  }
   constructor(
     public entitySvc: MessageMallService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    private txSvc: TranslateService,
     private overlay: Overlay,
     private overlaySvc: OverlayService,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, -2);
+    super(entitySvc, deviceSvc, bottomSheet,fis, -2);
     super.doSearch({value:'',resetPage:false})
   }
   launchOverlay(el: MatIcon, data: IBizTask) {

@@ -642,4 +642,6 @@ export const zhHans = {
     "BATCH_ROLE": "角色",
     "GO_BACK": "返回",
     "CLIENT_PATH_CHANGED": "客户端Path变更",
+    "UPDATE_TABLE_COLUMN": "设置",
+    "SELECT_TO_CHANGE_TABLE_COLUMN": "表单显示列",
 }

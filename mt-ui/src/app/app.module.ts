@@ -123,6 +123,7 @@ import { SummaryCacheComponent } from './modules/my-apps/pages/summary-cache/sum
 import { CacheComponent } from './modules/my-apps/pages/cache/cache.component';
 import { SummaryStoredEventAccessComponent } from './modules/my-apps/pages/summary-stored-event-access/summary-stored-event-access.component';
 import { BatchUpdateCorsComponent } from './modules/my-apps/components/batch-update-cors/batch-update-cors.component';
+import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
 
 @NgModule({
   declarations: [
@@ -193,7 +194,8 @@ import { BatchUpdateCorsComponent } from './modules/my-apps/components/batch-upd
     SummaryCacheComponent,
     CacheComponent,
     SummaryStoredEventAccessComponent,
-    BatchUpdateCorsComponent
+    BatchUpdateCorsComponent,
+    TableColumnConfigComponent
   ],
   imports: [
     BrowserAnimationsModule,

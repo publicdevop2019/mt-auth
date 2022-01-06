@@ -1,5 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
@@ -15,7 +16,15 @@ import { CacheComponent } from '../cache/cache.component';
   styleUrls: ['./summary-cache.component.css']
 })
 export class SummaryCacheComponent extends SummaryEntityComponent<ICacheProfile, ICacheProfile> implements OnDestroy {
-  displayedColumns: string[] = ['id', 'name', 'description','edit', 'clone', 'delete'];
+  public formId = "cacheTableColumnConfig";
+  columnList = {
+    id: 'ID',
+    name: 'NAME',
+    description: 'DESCRIPTION',
+    edit: 'EDIT',
+    clone: 'CLONE',
+    delete: 'DELETE',
+  }
   sheetComponent = CacheComponent;
   searchConfigs: ISearchConfig[] = [
     {
@@ -31,8 +40,9 @@ export class SummaryCacheComponent extends SummaryEntityComponent<ICacheProfile,
     public entitySvc: CacheService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
+    public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, 3);
+    super(entitySvc, deviceSvc, bottomSheet, fis,3);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
