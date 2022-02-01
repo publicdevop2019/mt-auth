@@ -26,7 +26,7 @@ import java.util.*;
 @Slf4j
 @Service
 public class JwtService {
-    @Value("${manytree.mt0.name}")
+    @Value("${manytree.mt-access.appId}")
     private String appName;
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwtKeyUrl;

@@ -16,6 +16,7 @@ export enum grantTypeEnums {
     path?: string;
     id: string;
     clientSecret?: string;
+    projectId: string;
     description?: string;
     grantTypeEnums: grantTypeEnums[];
     grantedAuthorities: string[];

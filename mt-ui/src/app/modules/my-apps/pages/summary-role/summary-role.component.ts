@@ -3,14 +3,13 @@ import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-s
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
-import { TYPE_ROLE } from 'src/app/clazz/constants';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IRole } from 'src/app/clazz/validation/aggregate/role/interface-role';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { RoleService } from 'src/app/services/role.service';
-import { RoleComponent } from '../role/role.component';
+import { RoleComponent } from '../../../../pages/role/role.component';
 @Component({
   selector: 'app-summary-role',
   templateUrl: './summary-role.component.html',
@@ -36,12 +35,6 @@ export class SummaryRoleComponent extends SummaryEntityComponent<IRole, IRole> i
       multiple: {
         delimiter:'.'
       }
-    },
-    {
-      searchLabel: 'TYPE',
-      searchValue: 'type',
-      type: 'dropdown',
-      source:TYPE_ROLE
     },
   ]
   constructor(

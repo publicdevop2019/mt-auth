@@ -11,6 +11,7 @@ import com.mt.access.domain.model.client.*;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -47,6 +48,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 (change) -> {
                     Client client = new Client(
                             clientId,
+                            new ProjectId(command.getProjectId()),
                             command.getName(),
                             command.getPath(),
                             command.getClientSecret(),

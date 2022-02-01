@@ -27,7 +27,7 @@ public class HttpRetrieveRegisteredApplicationService implements RetrieveRegiste
     private EurekaClient eurekaClient;
     @Value("${manytree.url.clients}")
     private String url;
-    @Value("${manytree.mt0.name}")
+    @Value("${manytree.mt-access.appId}")
     private String appName;
 
     @Override

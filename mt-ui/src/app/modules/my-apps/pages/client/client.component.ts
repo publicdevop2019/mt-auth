@@ -6,7 +6,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { ISumRep } from 'src/app/clazz/summary.component';
+import { IBottomSheet, ISumRep } from 'src/app/clazz/summary.component';
 import { grantTypeEnums, IClient, scopeEnums } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { IRole } from 'src/app/clazz/validation/aggregate/role/interface-role';
@@ -26,6 +26,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   hide = true;
   disabled = false;
   disabled2 = false;
+  bottomSheet: IBottomSheet<IClient>;
   private formCreatedOb: Observable<string>;
   private previousPayload: any = {};
   constructor(
@@ -38,12 +39,16 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     cdr: ChangeDetectorRef
   ) {
     super('client', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
+    this.bottomSheet = data;
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.fis.queryProvider[this.formId + '_' + 'authority'] = this.getClientRoles();
     this.fis.queryProvider[this.formId + '_' + 'scope'] = this.getClientScope();
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
     combineLatest([this.formCreatedOb
     ]).pipe(take(1)).subscribe(next => {
+      if (this.bottomSheet.context === 'new') {
+        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)
+      }
       this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
         // prevent infinite loop
         if (this.findDelta(e) !== undefined) {
@@ -60,7 +65,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         this.previousPayload = e;
         // update form config
       });
-      if (this.aggregate) {
+      if (this.bottomSheet.context === 'new') {
 
         const var0: Observable<any>[] = [];
         if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
@@ -91,6 +96,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
             this.fis.formGroupCollection[this.formId].patchValue({
               id: this.aggregate.id,
               hasSecret: this.aggregate.hasSecret,
+              projectId: this.aggregate.projectId,
               path: this.aggregate.path ? this.aggregate.path : '',
               clientSecret: this.aggregate.hasSecret ? '*****' : '',
               name: this.aggregate.name,
@@ -169,7 +175,8 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
       registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
       autoApprove: formGroup.get('grantType').value === grantTypeEnums.authorization_code ? !!formGroup.get('autoApprove').value : null,
-      version: cmpt.aggregate && cmpt.aggregate.version
+      version: cmpt.aggregate && cmpt.aggregate.version,
+      projectId: formGroup.get('projectId').value
     }
   }
   update() {

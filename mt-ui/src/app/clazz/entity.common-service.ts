@@ -1,18 +1,17 @@
-import { Observable, Subject } from 'rxjs';
+import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
+import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
+import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
+import { DeviceService } from '../services/device.service';
 import { HttpProxyService } from '../services/http-proxy.service';
 import { CustomHttpInterceptor } from '../services/interceptors/http.interceptor';
-import { IEntityService, IEventAdminRep, IIdBasedEntity } from "./summary.component";
-import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
-import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
-import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
-import { DeviceService } from '../services/device.service';
+import { IEntityService, IIdBasedEntity } from "./summary.component";
 
 export class EntityCommonService<C extends IIdBasedEntity, D> implements IEntityService<C, D>{
     httpProxySvc: HttpProxyService;
     pageNumber: number = 0;
     entityRepo: string;
-    role: string;
+    role: string='';
     interceptor: CustomHttpInterceptor
     deviceSvc: DeviceService
     constructor(httpProxySvc: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {

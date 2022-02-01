@@ -16,6 +16,16 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "text",
+            "display": false,
+            "label": "",
+            "key": "projectId",
+            "position": {
+                "row": "0",
+                "column": "0"
+            }
+        },
+        {
+            "type": "text",
             "display": true,
             "label": "ENTER_NAME",
             "key": "name",

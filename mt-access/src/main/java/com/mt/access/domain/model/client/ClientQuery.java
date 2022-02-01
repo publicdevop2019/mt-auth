@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.client;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
@@ -25,9 +26,11 @@ public class ClientQuery extends QueryCriteria {
     public static final String SCOPE_ENUMS = "scopeEnums";
     public static final String RESOURCE_IDS = "resourceIds";
     public static final String ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
+    public static final String PROJECT_ID = "projectIds";
     private Set<ClientId> clientIds;
     @Setter(AccessLevel.PRIVATE)
     private Set<ClientId> resources;
+    private Set<ProjectId> projectIds;
     private Boolean resourceFlag;
     private String name;
     private SystemRoleId authoritiesSearch;
@@ -92,9 +95,12 @@ public class ClientQuery extends QueryCriteria {
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
                 ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
-                GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS, ACCESS_TOKEN_VALIDITY_SECONDS);
+                GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS, ACCESS_TOKEN_VALIDITY_SECONDS,PROJECT_ID);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
+        });
+        Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> {
+            projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(CLIENT_ID)).ifPresent(e -> {
             clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());

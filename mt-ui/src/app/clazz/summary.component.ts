@@ -1,30 +1,24 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { ComponentType } from '@angular/cdk/portal';
-import { OnDestroy, ViewChild, Directive } from '@angular/core';
+import { Directive, OnDestroy, ViewChild } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { combineLatest, Observable, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { FormInfoService } from 'mt-form-builder';
+import { Observable, Subscription } from 'rxjs';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
 import { DeviceService } from 'src/app/services/device.service';
 import * as UUID from 'uuid/v1';
-import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
-import { hasValue } from './validation/validator-common';
+import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
-import { FormInfoService } from 'mt-form-builder';
 import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
+import { hasValue } from './validation/validator-common';
 export interface IIdBasedEntity {
   id: string;
   version: number
-}
-export interface IEventAdminRep {
-  id: number,
-  events: any[],
-  version: number,
 }
 export interface IEntityService<C extends IIdBasedEntity, D> {
   readById: (id: string) => Observable<D>;
@@ -47,7 +41,6 @@ export interface ISumRep<T> {
 export interface IBottomSheet<S> {
   context: 'clone' | 'new' | 'edit';
   from: S;
-  events: IEventAdminRep;
 }
 @Directive()
 export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDestroy {

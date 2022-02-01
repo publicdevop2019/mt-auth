@@ -15,7 +15,7 @@ import { SummaryOrderComponent } from './modules/mall/pages/summary-order/summar
 import { SummaryProductComponent } from './modules/mall/pages/summary-product/summary-product.component';
 import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/summary-client.component';
 import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
-import { SummaryResourceOwnerComponent } from './modules/my-users/pages/summary-resource-owner/summary-resource-owner.component';
+import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-resource-owner/summary-resource-owner.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { LoginComponent } from './pages/login/login.component';
 import { OperationHistoryComponent } from './pages/operation-history/operation-history.component';
@@ -33,6 +33,22 @@ import { SummaryRoleComponent } from './modules/my-apps/pages/summary-role/summa
 import { SummaryCorsComponent } from './modules/my-apps/pages/summary-cors/summary-cors.component';
 import { SummaryCacheComponent } from './modules/my-apps/pages/summary-cache/summary-cache.component';
 import { SummaryStoredEventAccessComponent } from './modules/my-apps/pages/summary-stored-event-access/summary-stored-event-access.component';
+import { MyProfileComponent } from './pages/my-profile/my-profile.component';
+import { ApiCenterComponent } from './pages/api-center/api-center.component';
+import { SummaryOrgComponent } from './modules/my-apps/pages/summary-org/summary-org.component';
+import { SummaryPermissionComponent } from './modules/my-apps/pages/summary-permission/summary-permission.component';
+import { SummaryPositionComponent } from './modules/my-apps/pages/summary-position/summary-position.component';
+import { MyClientsComponent } from './pages/my-clients/my-clients.component';
+import { MyApisComponent } from './pages/my-apis/my-apis.component';
+import { MyPermissionsComponent } from './pages/my-permissions/my-permissions.component';
+import { MyRolesComponent } from './pages/my-roles/my-roles.component';
+import { MyOrgsComponent } from './pages/my-orgs/my-orgs.component';
+import { MyPositionsComponent } from './pages/my-positions/my-positions.component';
+import { MyProjectComponent } from './pages/my-project/my-project.component';
+import { SummaryProjectComponent } from './modules/my-apps/pages/summary-project/summary-project.component';
+import { NewProjectComponent } from './pages/new-project/new-project.component';
+import { AddAdminComponent } from './pages/add-admin/add-admin.component';
+import { MyUsersComponent } from './pages/my-users/my-users.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -41,6 +57,7 @@ const routes: Routes = [
     path: 'dashboard', component: NavBarComponent, canActivateChild: [AuthService],
     children: [
       { path: '', redirectTo: 'api-profiles', pathMatch: 'full' },
+      { path: 'projects', component: SummaryProjectComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'resource-owners', component: SummaryResourceOwnerComponent },
@@ -70,6 +87,21 @@ const routes: Routes = [
       { path: 'revoke-token', component: SummaryRevokeTokenComponent},
       { path: 'cache-mngr', component: CacheControlComponent},
       { path: 'skus', component: SummarySkuComponent},
+      { path: 'my-profile', component: MyProfileComponent},
+      { path: 'new-project', component: NewProjectComponent},
+      { path: 'api-center', component: ApiCenterComponent},
+      { path: 'org-profiles', component: SummaryOrgComponent},
+      { path: 'permission-profiles', component: SummaryPermissionComponent},
+      { path: 'position-profiles', component: SummaryPositionComponent},
+      { path: ':id/my-client', component: MyClientsComponent},
+      { path: ':id/my-api', component: MyApisComponent},
+      { path: ':id/my-permission', component: MyPermissionsComponent},
+      { path: ':id/my-role', component: MyRolesComponent},
+      { path: ':id/my-org', component: MyOrgsComponent},
+      { path: ':id/my-position', component: MyPositionsComponent},
+      { path: ':id/my-project', component: MyProjectComponent},
+      { path: ':id/my-user', component: MyUsersComponent},
+      { path: ':id/add-admin', component: AddAdminComponent},
       { path: '**', component: SummaryEndpointComponent }
     ]
   },

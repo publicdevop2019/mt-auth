@@ -19,10 +19,6 @@ export const CONST_HTTP_METHOD: IOption[] = [
     { label: 'HTTP_DELETE', value: "DELETE" },
     { label: 'HTTP_PATCH', value: "PATCH" },
 ]
-export const TYPE_ROLE: IOption[] = [
-    { label: 'ROLE_CLIENT', value: "CLIENT" },
-    { label: 'ROLE_USER', value: "USER" },
-]
 export const CONST_ATTR_TYPE: IOption[] = [
     { label: 'KEY_ATTR', value: "KEY_ATTR" },
     { label: 'SALES_ATTR', value: "SALES_ATTR" },

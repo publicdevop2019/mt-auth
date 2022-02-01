@@ -6,7 +6,7 @@ import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
-import { IEventAdminRep, ISumRep } from '../clazz/summary.component';
+import { ISumRep } from '../clazz/summary.component';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IOrder, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';

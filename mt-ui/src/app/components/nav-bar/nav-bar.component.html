@@ -27,8 +27,14 @@
         <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
             [opened]="navExpand('side_bar')" (opened)="openedHandler('side_bar')" (closed)="closedHander('side_bar')"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
-            <mat-expansion-panel (opened)="openedHandler('auth_nav')" (closed)="closedHander('auth_nav')"
-                [expanded]="navExpand('auth_nav')">
+            <mat-nav-list>
+                <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                    style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
+                    <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display| translate}}
+                </mat-list-item>
+            </mat-nav-list>
+            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
+                [expanded]="navExpand('admin_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
                         {{'AUTH_CENTER'| translate}}
@@ -36,12 +42,28 @@
                 </mat-expansion-panel-header>
                 <mat-nav-list>
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
+                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuAuthMangement">
+                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                        {{nav.display| translate}}
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-expansion-panel>
+            <mat-expansion-panel *ngFor="let project of projectSvc.totalProjects" (opened)="openedHandler(project.id)" (closed)="closedHander(project.id)"
+                [expanded]="navExpand(project.id)">
+                <mat-expansion-panel-header>
+                    <mat-panel-title style="font-weight: 600;">
+                        {{project.name}}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-nav-list>
+                    <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
                         style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuAuth">
                         <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
+
             <mat-expansion-panel (opened)="openedHandler('mall_nav')" (closed)="closedHander('mall_nav')"
                 [expanded]="navExpand('mall_nav')">
                 <mat-expansion-panel-header>

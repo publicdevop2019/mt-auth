@@ -8,6 +8,13 @@ export interface IResourceOwner {
     createdAt?:number;
     version:number;
 }
+export interface IProjectUser {
+    id: string,
+    email?: string;
+    projectId: string;
+    roles: string[];
+    version:number;
+}
 export interface IPendingResourceOwner {
     email: string;
     password?: string;

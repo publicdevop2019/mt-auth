@@ -18,7 +18,7 @@ import { DeviceService } from 'src/app/services/device.service';
 import { ProductService } from 'src/app/services/product.service';
 import { isNullOrUndefined } from 'util';
 import * as UUID from 'uuid/v1';
-import { CatalogTreeComponent } from '../../components/catalog-tree/catalog-tree.component';
+import { TreeComponent } from '../../../../components/tree/tree.component';
 import { ProductComponent } from '../product/product.component';
 @Component({
   selector: 'app-summary-product',
@@ -107,7 +107,7 @@ export class SummaryProductComponent extends SummaryEntityComponent<IProductSimp
             searchValue: 'attributes',
             type: 'custom',
             key: '0',
-            component: CatalogTreeComponent,
+            component: TreeComponent,
             componentInputMap: { 'catalogs': response[0].data },
             componentOutputMap: {
               'leafNodeClicked': (event: any, searchCmpt: SearchComponent) => {
@@ -124,7 +124,7 @@ export class SummaryProductComponent extends SummaryEntityComponent<IProductSimp
             searchValue: 'attributes',
             type: 'custom',
             key: '1',
-            component: CatalogTreeComponent,
+            component: TreeComponent,
             componentInputMap: { 'catalogs': response[1].data },
             componentOutputMap: {
               'leafNodeClicked': (event: any, searchCmpt: SearchComponent) => {

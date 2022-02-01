@@ -13,6 +13,7 @@ import java.util.Set;
 public class ClientCreateCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String clientSecret;
+    private String projectId;
     private boolean hasSecret = false;
     private String description;
     private String name;

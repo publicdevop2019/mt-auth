@@ -1,5 +1,4 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { TYPE_ROLE_ENUM } from '../clazz/validation/aggregate/role/interface-role';
 
 export const FORM_CONFIG: IForm = {
     "repeatable": false,

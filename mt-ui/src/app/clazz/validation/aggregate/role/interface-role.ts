@@ -6,7 +6,3 @@ export interface IRole extends IIdBasedEntity{
     id:string;
     type:'CLIENT'|'USER'
 }
-export const TYPE_ROLE_ENUM=[
-    { label: 'CLIENT', value: "CLIENT" },
-    { label: 'USER', value: "USER" },
-]

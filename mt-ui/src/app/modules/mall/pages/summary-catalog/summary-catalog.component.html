@@ -96,9 +96,9 @@
     </div>
 </ng-container>
 <div *ngIf="viewType==='TREE_VIEW'">
-    <app-catalog-tree [catalogs]="dataSource.data" (leafNodeClicked)="openBottomSheet($event.id)"
-        (nonLeafNodeClicked)="openBottomSheet($event.id)"></app-catalog-tree>
+    <app-tree [catalogs]="dataSource.data" (leafNodeClicked)="openBottomSheet($event.id)"
+        (nonLeafNodeClicked)="openBottomSheet($event.id)"></app-tree>
 </div>
 <div *ngIf="viewType==='DYNAMIC_TREE_VIEW'">
-    <app-dynamic-catalog-tree></app-dynamic-catalog-tree>
+    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"></app-dynamic-tree>
 </div>

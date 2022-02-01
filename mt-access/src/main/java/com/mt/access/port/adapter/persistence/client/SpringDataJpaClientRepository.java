@@ -1,6 +1,7 @@
 package com.mt.access.port.adapter.persistence.client;
 
 import com.mt.access.domain.model.client.*;
+import com.mt.access.domain.model.endpoint.Endpoint_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domainId.DomainId_;
@@ -54,6 +55,7 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
             Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.CLIENT_ID, queryContext));
             Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
+            Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.PROJECT_ID, queryContext));
             Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e.getDomainId(), Client_.ROLES, queryContext));
             Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.SCOPES, queryContext));
 

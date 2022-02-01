@@ -62,7 +62,7 @@ import { SummaryLikeComponent } from './modules/bbs/pages/summary-like/summary-l
 import { SummaryNotInterestedComponent } from './modules/bbs/pages/summary-not-interested/summary-not-interested.component';
 import { SummaryPostComponent } from './modules/bbs/pages/summary-post/summary-post.component';
 import { SummaryReportComponent } from './modules/bbs/pages/summary-report/summary-report.component';
-import { CatalogTreeComponent } from './modules/mall/components/catalog-tree/catalog-tree.component';
+import { TreeComponent } from './components/tree/tree.component';
 import { AttributeComponent } from './modules/mall/pages/attribute/attribute.component';
 import { CatalogComponent } from './modules/mall/pages/catalog/catalog.component';
 import { FilterComponent } from './modules/mall/pages/filter/filter.component';
@@ -80,8 +80,8 @@ import { EndpointComponent } from './modules/my-apps/pages/endpoint/endpoint.com
 import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/summary-client.component';
 import { SummaryEndpointComponent } from './modules/my-apps/pages/summary-endpoint/summary-endpoint.component';
 import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
-import { ResourceOwnerComponent } from './modules/my-users/pages/resource-owner/resource-owner.component';
-import { SummaryResourceOwnerComponent } from './modules/my-users/pages/summary-resource-owner/summary-resource-owner.component';
+import { ResourceOwnerComponent } from './modules/my-apps/pages/resource-owner/resource-owner.component';
+import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-resource-owner/summary-resource-owner.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { LoginComponent } from './pages/login/login.component';
 import { OperationHistoryComponent } from './pages/operation-history/operation-history.component';
@@ -104,9 +104,9 @@ import { CacheControlComponent } from './pages/cache-control/cache-control.compo
 import { MessageCenterComponent } from './modules/my-apps/pages/message-center/message-center.component';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { MessageCenterMallComponent } from './modules/mall/pages/message-center-mall/message-center-mall.component';
-import { DynamicCatalogTreeComponent } from './modules/mall/components/dynamic-catalog-tree/dynamic-catalog-tree.component';
-import { DynamicCatalogNodeComponent } from './modules/mall/components/dynamic-catalog-tree/dynamic-catalog-node/dynamic-catalog-node.component';
-import { TreeNodeDirective } from './modules/mall/directive/tree-node.directive';
+import { DynamicTreeComponent } from './components/dynamic-tree/dynamic-tree.component';
+import { DynamicNodeComponent } from './components/dynamic-tree/dynamic-node/dynamic-node.component';
+import { TreeNodeDirective } from './directive/tree-node.directive';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { SummaryStoredEventComponent } from './modules/mall/pages/summary-stored-event/summary-stored-event.component';
 import { CardNotificationComponent } from './components/card-notification/card-notification.component';
@@ -116,7 +116,7 @@ import { SearchComponent } from './components/search/search.component';
 import { SearchAttributeComponent } from './components/search-attribute/search-attribute.component';
 import { SummaryRoleComponent } from './modules/my-apps/pages/summary-role/summary-role.component';
 import { RoleService } from './services/role.service';
-import { RoleComponent } from './modules/my-apps/pages/role/role.component';
+import { RoleComponent } from './pages/role/role.component';
 import { CorsComponent } from './modules/my-apps/pages/cors/cors.component';
 import { SummaryCorsComponent } from './modules/my-apps/pages/summary-cors/summary-cors.component';
 import { SummaryCacheComponent } from './modules/my-apps/pages/summary-cache/summary-cache.component';
@@ -124,6 +124,24 @@ import { CacheComponent } from './modules/my-apps/pages/cache/cache.component';
 import { SummaryStoredEventAccessComponent } from './modules/my-apps/pages/summary-stored-event-access/summary-stored-event-access.component';
 import { BatchUpdateCorsComponent } from './modules/my-apps/components/batch-update-cors/batch-update-cors.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
+import { MyProfileComponent } from './pages/my-profile/my-profile.component';
+import { ApiCenterComponent } from './pages/api-center/api-center.component';
+import { SummaryOrgComponent } from './modules/my-apps/pages/summary-org/summary-org.component';
+import { SummaryPermissionComponent } from './modules/my-apps/pages/summary-permission/summary-permission.component';
+import { SummaryPositionComponent } from './modules/my-apps/pages/summary-position/summary-position.component';
+import { MyClientsComponent } from './pages/my-clients/my-clients.component';
+import { MyApisComponent } from './pages/my-apis/my-apis.component';
+import { MyRolesComponent } from './pages/my-roles/my-roles.component';
+import { MyOrgsComponent } from './pages/my-orgs/my-orgs.component';
+import { MyPositionsComponent } from './pages/my-positions/my-positions.component';
+import { MyPermissionsComponent } from './pages/my-permissions/my-permissions.component';
+import { MyProjectComponent } from './pages/my-project/my-project.component';
+import { SummaryProjectComponent } from './modules/my-apps/pages/summary-project/summary-project.component';
+import { NewProjectComponent } from './pages/new-project/new-project.component';
+import { AddAdminComponent } from './pages/add-admin/add-admin.component';
+import { PermissionComponent } from './pages/permission/permission.component';
+import { MyUsersComponent } from './pages/my-users/my-users.component';
+import { UserComponent } from './pages/user/user.component';
 
 @NgModule({
   declarations: [
@@ -154,7 +172,7 @@ import { TableColumnConfigComponent } from './components/table-column-config/tab
     BackButtonComponent,
     SummaryAttributeComponent,
     AttributeComponent,
-    CatalogTreeComponent,
+    TreeComponent,
     UpdatePwdComponent,
     OperationConfirmDialogComponent,
     SummaryFilterComponent,
@@ -178,8 +196,8 @@ import { TableColumnConfigComponent } from './components/table-column-config/tab
     CacheControlComponent,
     MessageCenterComponent,
     MessageCenterMallComponent,
-    DynamicCatalogTreeComponent,
-    DynamicCatalogNodeComponent,
+    DynamicTreeComponent,
+    DynamicNodeComponent,
     TreeNodeDirective,
     SummaryStoredEventComponent,
     CardNotificationComponent,
@@ -195,7 +213,25 @@ import { TableColumnConfigComponent } from './components/table-column-config/tab
     CacheComponent,
     SummaryStoredEventAccessComponent,
     BatchUpdateCorsComponent,
-    TableColumnConfigComponent
+    TableColumnConfigComponent,
+    MyProfileComponent,
+    NewProjectComponent,
+    ApiCenterComponent,
+    SummaryOrgComponent,
+    SummaryPermissionComponent,
+    SummaryPositionComponent,
+    MyClientsComponent,
+    MyApisComponent,
+    MyRolesComponent,
+    MyOrgsComponent,
+    MyPositionsComponent,
+    MyPermissionsComponent,
+    MyProjectComponent,
+    SummaryProjectComponent,
+    AddAdminComponent,
+    PermissionComponent,
+    MyUsersComponent,
+    UserComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -256,7 +292,7 @@ import { TableColumnConfigComponent } from './components/table-column-config/tab
     RoleComponent,
     CorsComponent,
     BatchUpdateCorsComponent,
-    CatalogTreeComponent,
+    TreeComponent,
     SearchAttributeComponent,
     CacheComponent],
   providers: [

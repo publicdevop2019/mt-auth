@@ -31,8 +31,6 @@ export class CatalogService extends EntityCommonService<ICatalog, ICatalog> impl
   };
 
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-    console.dir('query')
-    console.dir(query)
     if (query && (query.includes(CATALOG_TYPE.BACKEND) || query.includes(CATALOG_TYPE.FRONTEND))) {
       return this.httpProxySvc.readEntityByQuery<ICatalog>(this.entityRepo, this.role, num, size, query, by, order, headers)
     } else {

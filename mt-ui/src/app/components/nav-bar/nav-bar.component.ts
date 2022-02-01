@@ -6,14 +6,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { logout } from 'src/app/clazz/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { MessageService } from 'src/app/services/message.service';
+import { ProjectService } from 'src/app/services/project.service';
 export interface INavElement {
   link: string;
   icon?: string;
   display: string;
   params: any
-}
-export const NAV_LIST: { [index: string]: string } = {
-  'clients': ''
 }
 
 @Component({
@@ -25,7 +23,14 @@ export class NavBarComponent implements OnInit {
   msgDetails: boolean = false;
   menuOpen: boolean = false;
   mobileQuery: MediaQueryList;
-  menuAuth: INavElement[] = [
+  menuAuthMangement: INavElement[] = [
+    {
+      link: 'projects',
+      display: 'PROJECT_DASHBOARD',
+      icon: 'blur_on',
+      params: {
+      },
+    },
     {
       link: 'clients',
       display: 'CLIENT_DASHBOARD',
@@ -43,7 +48,7 @@ export class NavBarComponent implements OnInit {
     {
       link: 'resource-owners',
       display: 'RESOURCE_OWNER_DASHBOARD',
-      icon: 'perm_identity',
+      icon: 'people',
       params: {
       },
     },
@@ -51,6 +56,27 @@ export class NavBarComponent implements OnInit {
       link: 'role-profiles',
       display: 'ROLE_DASHBOARD',
       icon: 'person',
+      params: {
+      },
+    },
+    {
+      link: 'org-profiles',
+      display: 'ORG_DASHBOARD',
+      icon: 'corporate_fare',
+      params: {
+      },
+    },
+    {
+      link: 'permission-profiles',
+      display: 'PERMISSION_DASHBOARD',
+      icon: 'policy',
+      params: {
+      },
+    },
+    {
+      link: 'position-profiles',
+      display: 'POSITION_DASHBOARD',
+      icon: 'work',
       params: {
       },
     },
@@ -97,6 +123,71 @@ export class NavBarComponent implements OnInit {
       },
     },
   ];
+  menuAuth: INavElement[] = [
+    {
+      link: 'my-project',
+      display: 'MY_PROJECT',
+      icon: 'blur_on',
+      params: {
+      },
+    },
+    {
+      link: 'my-client',
+      display: 'MY_CLIENTS',
+      icon: 'apps',
+      params: {
+      },
+    },
+    {
+      link: 'my-api',
+      display: 'MY_API',
+      icon: 'mediation',
+      params: {
+      },
+    },
+    {
+      link: 'my-permission',
+      display: 'MY_PERMISSION_DASHBOARD',
+      icon: 'policy',
+      params: {
+      },
+    },
+    {
+      link: 'my-role',
+      display: 'MY_ROLE_DASHBOARD',
+      icon: 'person',
+      params: {
+      },
+    },
+    {
+      link: 'my-org',
+      display: 'MY_ORG_DASHBOARD',
+      icon: 'corporate_fare',
+      params: {
+      },
+    },
+    {
+      link: 'my-position',
+      display: 'MY_POSITION_DASHBOARD',
+      icon: 'work',
+      params: {
+      },
+    },
+    {
+      link: 'my-user',
+      display: 'MY_USER_DASHBOARD',
+      icon: 'people',
+      params: {
+      },
+    },
+    {
+      link: 'add-admin',
+      display: 'ADD_ADMIN',
+      icon: 'admin_panel_settings',
+      params: {
+      },
+    },
+  ];
   menuMisc: INavElement[] = [
     {
       link: 'updatePwd',
@@ -109,6 +200,29 @@ export class NavBarComponent implements OnInit {
       link: 'settings',
       display: 'SYSTEM_SETTINGS',
       icon: 'settings',
+      params: {
+      },
+    },
+  ];
+  menuTop: INavElement[] = [
+    {
+      link: 'my-profile',
+      display: 'MY_PROFILE',
+      icon: 'account_circle',
+      params: {
+      },
+    },
+    {
+      link: 'new-project',
+      display: 'REGISTER_MY_PROJECT',
+      icon: 'blur_on',
+      params: {
+      },
+    },
+    {
+      link: 'api-center',
+      display: 'API_CENTER',
+      icon: 'mediation',
       params: {
       },
     },
@@ -185,7 +299,7 @@ export class NavBarComponent implements OnInit {
       },
     },
   ];
-  menuOpt: INavElement[] =[
+  menuOpt: INavElement[] = [
     {
       link: 'operation-history/auth/client',
       display: 'OPERATION_DASHBOARD_CLIENT',
@@ -259,7 +373,7 @@ export class NavBarComponent implements OnInit {
   ]
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;
-  constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public route: ActivatedRoute, public router: Router, public translate: TranslateService,public deviceSvc:DeviceService,public msgSvc:MessageService) {
+  constructor(public projectSvc: ProjectService, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public route: ActivatedRoute, public router: Router, public translate: TranslateService, public deviceSvc: DeviceService, public msgSvc: MessageService) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -278,20 +392,23 @@ export class NavBarComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.projectSvc.readByQuery(0, 40).subscribe(next => {
+      this.projectSvc.totalProjects=next.data;
+    })
     this.msgSvc.connectSystemMonitor();
     this.msgSvc.connectMallMonitor();
   }
-  doLogout(){
+  doLogout() {
     logout()
-  }  
-  preserveURLQueryParams(input:INavElement){
-    const var0=this.route.snapshot.queryParams;
-    if(this.router.url.includes(input.link)){
+  }
+  preserveURLQueryParams(input: INavElement) {
+    const var0 = this.route.snapshot.queryParams;
+    if (this.router.url.includes(input.link)) {
       return {
         ...input.params,
         ...var0
       }
-    }else{
+    } else {
       return {
         ...input.params,
       }

@@ -5,6 +5,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -70,6 +71,12 @@ public class Endpoint extends Auditable {
             @AttributeOverride(name = "domainId", column = @Column(name = "clientId", updatable = false, nullable = false))
     })
     private ClientId clientId;
+    @Embedded
+    @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "projectId", updatable = false, nullable = false))
+    })
+    private ProjectId projectId;
 
     private String path;
 
@@ -84,12 +91,13 @@ public class Endpoint extends Auditable {
     private boolean csrfEnabled = true;
 
 
-    public Endpoint(ClientId clientId, SystemRoleId systemRoleId, CacheProfileId cacheProfileId, String description,
+    public Endpoint(ClientId clientId,ProjectId projectId, SystemRoleId systemRoleId, CacheProfileId cacheProfileId, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId
     ) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
+        setProjectId(projectId);
         setEndpointId(endpointId);
         update(systemRoleId, cacheProfileId, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
     }

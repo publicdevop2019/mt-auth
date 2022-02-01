@@ -637,4 +637,5 @@ export const enUS = {
     "CLIENT_PATH_CHANGED": "Client path changed",
     "UPDATE_TABLE_COLUMN": "Configuration",
     "SELECT_TO_CHANGE_TABLE_COLUMN": "Select to change displayed columns",
+    "MY_ROLE_DASHBOARD": "Roles",
 }

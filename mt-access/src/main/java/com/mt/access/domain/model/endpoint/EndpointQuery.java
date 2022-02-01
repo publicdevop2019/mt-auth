@@ -4,6 +4,7 @@ package com.mt.access.domain.model.endpoint;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
@@ -20,8 +21,10 @@ public class EndpointQuery extends QueryCriteria {
     public static final String RESOURCE_ID = "resourceId";
     public static final String PATH = "path";
     public static final String METHOD = "method";
+    public static final String PROJECT_IDS = "projectIds";
     private Set<EndpointId> endpointIds;
     private Set<ClientId> clientIds;
+    private Set<ProjectId> projectIds;
     private Set<CORSProfileId> corsProfileIds;
     private String path;
     private String method;
@@ -86,12 +89,15 @@ public class EndpointQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID, RESOURCE_ID, PATH, METHOD);
+                ID, RESOURCE_ID, PATH, METHOD,PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             endpointIds = Arrays.stream(e.split("\\.")).map(EndpointId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(RESOURCE_ID)).ifPresent(e -> {
             clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
+        });
+        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> {
+            projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(PATH)).ifPresent(e -> path = e);
         Optional.ofNullable(stringStringMap.get(METHOD)).ifPresent(e -> method = e);

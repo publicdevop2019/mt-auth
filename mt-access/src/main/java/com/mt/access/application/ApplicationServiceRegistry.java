@@ -2,8 +2,14 @@ package com.mt.access.application;
 
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.cors_profile.CORSProfileApplicationService;
+import com.mt.access.application.organization.OrganizationApplicationService;
+import com.mt.access.application.permission.PermissionApplicationService;
+import com.mt.access.application.position.PositionApplicationService;
+import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
+import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.system_role.SystemRoleApplicationService;
+import com.mt.access.application.user_relation.UserRelationApplicationService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import com.mt.common.domain.model.idempotent.IdempotentService;
 import com.mt.access.application.client.ClientApplicationService;
@@ -22,6 +28,12 @@ import org.springframework.stereotype.Component;
 public class ApplicationServiceRegistry {
     @Getter
     private static ClientApplicationService clientApplicationService;
+    @Getter
+    private static ProjectApplicationService projectApplicationService;
+    @Getter
+    private static RoleApplicationService roleApplicationService;
+    @Getter
+    private static PermissionApplicationService permissionApplicationService;
     @Getter
     private static PendingUserApplicationService pendingUserApplicationService;
     @Getter
@@ -46,10 +58,40 @@ public class ApplicationServiceRegistry {
     private static ProxyApplicationService proxyApplicationService;
     @Getter
     private static RedisAuthorizationCodeServices redisAuthorizationCodeServices;
+    @Getter
+    private static OrganizationApplicationService organizationApplicationService;
+    @Getter
+    private static PositionApplicationService positionApplicationService;
+    @Getter
+    private static UserRelationApplicationService userRelationApplicationService;
 
+    @Autowired
+    public void setUserRelationApplicationService(UserRelationApplicationService userRelationApplicationService) {
+        ApplicationServiceRegistry.userRelationApplicationService = userRelationApplicationService;
+    }
+    @Autowired
+    public void setPositionApplicationService(PositionApplicationService positionApplicationService) {
+        ApplicationServiceRegistry.positionApplicationService = positionApplicationService;
+    }
+    @Autowired
+    public void setOrganizationApplicationService(OrganizationApplicationService organizationApplicationService) {
+        ApplicationServiceRegistry.organizationApplicationService = organizationApplicationService;
+    }
     @Autowired
     public void setRedisAuthorizationCodeServices(RedisAuthorizationCodeServices redisAuthorizationCodeServices) {
         ApplicationServiceRegistry.redisAuthorizationCodeServices = redisAuthorizationCodeServices;
+    }
+    @Autowired
+    public void setProjectApplicationService(ProjectApplicationService projectApplicationService) {
+        ApplicationServiceRegistry.projectApplicationService = projectApplicationService;
+    }
+    @Autowired
+    public void setPermissionApplicationService(PermissionApplicationService permissionApplicationService) {
+        ApplicationServiceRegistry.permissionApplicationService = permissionApplicationService;
+    }
+    @Autowired
+    public void setRoleApplicationService(RoleApplicationService roleApplicationService) {
+        ApplicationServiceRegistry.roleApplicationService = roleApplicationService;
     }
     @Autowired
     public void setProxyApplicationService(ProxyApplicationService proxyApplicationService) {

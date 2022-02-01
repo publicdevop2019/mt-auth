@@ -7,6 +7,7 @@ import com.mt.access.domain.model.client.event.*;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.access.port.adapter.persistence.system_role.SystemRoleIdConverter;
@@ -61,6 +62,13 @@ public class Client extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private Long id;
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
+    })
+    private ProjectId projectId;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -96,6 +104,7 @@ public class Client extends Auditable {
     private TokenDetail tokenDetail;
 
     public Client(ClientId clientId,
+                  ProjectId projectId,
                   String name,
                   String path,
                   @Nullable String secret,
@@ -109,6 +118,7 @@ public class Client extends Auditable {
                   RedirectDetail authorizationCodeGrant
     ) {
         setClientId(clientId);
+        setProjectId(projectId);
         setResources(resources);
         setScopes(scopes);
         setDescription(description);
@@ -280,7 +290,7 @@ public class Client extends Auditable {
                                    String description, String path, EndpointId endpointId, String method,
                                    boolean secured,
                                    boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig) {
-        return new Endpoint(getClientId(), systemRoleId, cacheProfileId,
+        return new Endpoint(getClientId(),getProjectId(), systemRoleId, cacheProfileId,
                 description, path, endpointId, method, secured,
                 isWebsocket, csrfEnabled, corsConfig);
     }

@@ -51,7 +51,9 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
       }
     }
   ]
-  searchConfigs: ISearchConfig[] = copyOf(this.initSearchConfigs)
+  searchConfigs: ISearchConfig[] = copyOf(this.initSearchConfigs);
+  public loadRoot = this.entitySvc.readByQuery(0, 10, ",parentId:null")
+  public loadChildren = (id: string) => this.entitySvc.readByQuery(0, 10, ",parentId:" + id)
   constructor(
     public entitySvc: CatalogService,
     public deviceSvc: DeviceService,
@@ -60,41 +62,41 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
     fis: FormInfoService,
   ) {
 
-    super(entitySvc, deviceSvc, bottomSheet,fis, 5);
+    super(entitySvc, deviceSvc, bottomSheet, fis, 5);
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
-    
-    const sub0 = combineLatest([this.formCreatedOb2]).subscribe(()=>{
+
+    const sub0 = combineLatest([this.formCreatedOb2]).subscribe(() => {
       const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.viewType = e.view;
         if (this.viewType === 'TREE_VIEW') {
           this.entitySvc.readEntityByQuery(0, 1000).subscribe(next => {
             super.updateSummaryData(next)
           });
-        } 
+        }
       });
       this.subs.add(sub)
     })
     this.subs.add(sub0)
     const sub = combineLatest([this.formCreatedOb2, this.route.paramMap]).subscribe(combine => {
       if (combine[1].get('type') === 'frontend') {
-        if(this.entitySvc.queryPrefix!==CATALOG_TYPE.FRONTEND){
+        if (this.entitySvc.queryPrefix !== CATALOG_TYPE.FRONTEND) {
           this.entitySvc.queryPrefix = CATALOG_TYPE.FRONTEND;
           this.prepareDashboard(combine[1].get('type'))
         }
       } else {
-        if(this.entitySvc.queryPrefix!==CATALOG_TYPE.BACKEND){
+        if (this.entitySvc.queryPrefix !== CATALOG_TYPE.BACKEND) {
           this.entitySvc.queryPrefix = CATALOG_TYPE.BACKEND;
           this.prepareDashboard(combine[1].get('type'))
         }
       }
-      if(!this.fis.formGroupCollection[this.formId2].get('view').value){
+      if (!this.fis.formGroupCollection[this.formId2].get('view').value) {
         this.fis.formGroupCollection[this.formId2].get('view').setValue(this.viewType);
       }
 
     })
     this.subs.add(sub)
   }
-  prepareDashboard(catalogType:string) {
+  prepareDashboard(catalogType: string) {
     this.deviceSvc.refreshSummary.next();
     //update search config
     this.entitySvc.readEntityByQuery(0, 1000)//@todo use paginated select component
@@ -113,7 +115,7 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
           }];
         }
       });
-      
+
   }
   catalogList: IOption[] = [];
   updateSummaryData(inputs: ISumRep<ICatalog>) {
@@ -126,7 +128,7 @@ export class SummaryCatalogComponent extends SummaryEntityComponent<ICatalog, IC
   }
   ngOnDestroy(): void {
     this.fis.reset(this.formId2);
-    this.entitySvc.queryPrefix=undefined;
+    this.entitySvc.queryPrefix = undefined;
     super.ngOnDestroy();
   }
   getOption(value: string, options: IOption[]) {

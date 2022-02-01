@@ -37,7 +37,7 @@ public class SCGRouteService implements ApplicationEventPublisherAware {
         registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).forEach(e -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(e.getId());
-            definition.setUri(URI.create("lb://" + e.getName()));
+            definition.setUri(URI.create("lb://" + e.getId()));
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setName("Path");
             Map<String, String> predicateParams = new HashMap<>(8);

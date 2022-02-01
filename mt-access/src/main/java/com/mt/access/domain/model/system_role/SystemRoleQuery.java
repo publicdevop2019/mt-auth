@@ -13,9 +13,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 @Getter
 public class SystemRoleQuery extends QueryCriteria {
+    private static final String TYPE = "type";
     private static final String ID = "id";
     private static final String NAME = "name";
-    private static final String TYPE = "type";
     private Set<SystemRoleId> ids;
     private Set<String> names;
     private RoleType type;

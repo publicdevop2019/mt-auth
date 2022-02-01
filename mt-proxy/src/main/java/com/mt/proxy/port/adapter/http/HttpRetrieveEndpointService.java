@@ -27,7 +27,7 @@ public class HttpRetrieveEndpointService  implements RetrieveEndpointService {
     private EurekaClient eurekaClient;
     @Value("${manytree.url.endpoint}")
     private String endpointUrl;
-    @Value("${manytree.mt0.name}")
+    @Value("${manytree.mt-access.appId}")
     private String appName;
 
     @Override
