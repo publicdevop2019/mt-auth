@@ -41,6 +41,7 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
             Optional.ofNullable(query.getParentId()).ifPresent(e -> addParentIdPredicate(query.getParentId().getDomainId(), Permission_.PARENT_ID, queryContext));
             Optional.ofNullable(query.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.PROJECT_ID, queryContext));
             Optional.ofNullable(query.getTenantIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.TENANT_ID, queryContext));
+            Optional.ofNullable(query.getNames()).ifPresent(e -> QueryUtility.addStringInPredicate(e, Permission_.NAME, queryContext));
             Order order = null;
             if (query.getSort().isById())
                 order = QueryUtility.getDomainIdOrder(Permission_.PERMISSION_ID, queryContext, query.getSort().isAsc());
@@ -48,7 +49,7 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
             return QueryUtility.pagedQuery(query, queryContext);
         }
     }
-
+    //@tod
     private static <T> void addParentIdPredicate(String value, String sqlFieldName, QueryUtility.QueryContext<T> context) {
         if("null".equalsIgnoreCase(value)){
             context.getPredicates().add(context.getCriteriaBuilder().isNull(context.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class)));

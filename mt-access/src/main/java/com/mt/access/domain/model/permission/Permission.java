@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
@@ -16,6 +17,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.annotation.Nullable;
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Table
@@ -25,6 +27,7 @@ import java.util.Set;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "permissionRegion")
 public class Permission extends Auditable {
+    public static final String API_ACCESS = "API_ACCESS";
     @Id
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -56,6 +59,7 @@ public class Permission extends Auditable {
         this.permissionId = permissionId;
         this.parentId = parentId;
         this.projectId = projectId;
+        this.tenantId = tenantId;
         this.name = name;
     }
 
@@ -70,7 +74,7 @@ public class Permission extends Auditable {
     public static void onboardNewProject(ProjectId projectId, ProjectId tenantId, UserId creatorId) {
         Set<PermissionId> createdPermissionIds = new HashSet<>();
         PermissionId rootId = new PermissionId();
-        Permission rootPermission = new Permission(projectId, rootId, projectId.getDomainId(), tenantId);
+        Permission rootPermission = new Permission(projectId, rootId, tenantId.getDomainId(), tenantId);
         PermissionId projectMgntId = new PermissionId();
         Permission permission0 = new Permission(projectId, projectMgntId, "PROJECT_INFO_MANAGEMENT", rootId, tenantId);
         Permission permission1 = new Permission(projectId, new PermissionId(), "VIEW_PROJECT_INFO", projectMgntId, tenantId);
@@ -116,6 +120,10 @@ public class Permission extends Auditable {
         Permission permission24 = new Permission(projectId, new PermissionId(), "VIEW_POSITION", positionMgntId, tenantId);
         Permission permission25 = new Permission(projectId, new PermissionId(), "EDIT_POSITION", positionMgntId, tenantId);
         Permission permission26 = new Permission(projectId, new PermissionId(), "DELETE_POSITION", positionMgntId, tenantId);
+
+        Permission apiPermission = new Permission(tenantId, new PermissionId(), API_ACCESS, null);
+
+        DomainRegistry.getPermissionRepository().add(apiPermission);
         DomainRegistry.getPermissionRepository().add(rootPermission);
         DomainRegistry.getPermissionRepository().add(permission0);
         DomainRegistry.getPermissionRepository().add(permission1);
@@ -184,7 +192,15 @@ public class Permission extends Auditable {
         createdPermissionIds.add(permission30.getPermissionId());
         createdPermissionIds.add(permission31.getPermissionId());
         createdPermissionIds.add(permission32.getPermissionId());
-        DomainEventPublisher.instance().publish(new ProjectPermissionCreated(createdPermissionIds, projectId, creatorId));
+        DomainEventPublisher.instance().publish(new ProjectPermissionCreated(createdPermissionIds, tenantId, creatorId));
+    }
+
+    public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId) {
+        Optional<Permission> apiRoot = DomainRegistry.getPermissionRepository().getByQuery(new PermissionQuery(projectId, API_ACCESS)).findFirst();
+        apiRoot.ifPresent(e->{
+            Permission apiPermission = new Permission(projectId, new PermissionId(), endpointId.getDomainId(),apiRoot.get().getPermissionId(), null);
+            DomainRegistry.getPermissionRepository().add(apiPermission);
+        });
     }
 
     public void replace(String name) {

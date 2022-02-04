@@ -44,12 +44,13 @@ public class PermissionQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
     }
-    public PermissionQuery(ProjectId projectId) {
+    public PermissionQuery(ProjectId projectId,String name) {
         projectIds = new HashSet<>();
         projectIds.add(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
+        this.names=Collections.singleton(name);
     }
     public static PermissionQuery tenantQuery(ProjectId tenantIds){
         PermissionQuery permissionQuery = new PermissionQuery();

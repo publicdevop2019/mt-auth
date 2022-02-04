@@ -1,5 +1,6 @@
 package com.mt.access.application.client.command;
 
+import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -20,10 +21,7 @@ public class ClientCreateCommand implements Serializable {
     private String path;
 
     private Set<GrantType> grantTypeEnums;
-
-    private Set<String> grantedAuthorities;
-
-    private Set<String> scopeEnums;
+    private Set<ClientType> types;
 
     private int accessTokenValiditySeconds = 0;
     @Nullable

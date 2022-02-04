@@ -21,9 +21,7 @@ public class ClientCardRepresentation {
 
     protected Set<GrantType> grantTypeEnums;
 
-    protected Set<String> grantedAuthorities;
-
-    protected Set<String> scopeEnums;
+    protected Set<ClientType> types;
 
     protected int accessTokenValiditySeconds;
 
@@ -43,8 +41,6 @@ public class ClientCardRepresentation {
         id = client1.getClientId().getDomainId();
         name = client1.getName();
         grantTypeEnums = client1.getGrantTypes();
-        grantedAuthorities = client1.getRoles().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-        scopeEnums = client1.getScopes().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
         if (client1.getAuthorizationCodeGrant() != null)
@@ -53,5 +49,6 @@ public class ClientCardRepresentation {
         if (!ObjectUtils.isEmpty(client1.getResources()))
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         resourceIndicator = client1.isAccessible();
+        types=client1.getTypes();
     }
 }

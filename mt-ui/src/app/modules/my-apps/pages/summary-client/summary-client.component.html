@@ -83,17 +83,6 @@
                 </td>
             </ng-container>
 
-            <ng-container matColumnDef="grantedAuthorities">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['grantedAuthorities']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-editable-page-select-multi [inputOptions]="getAuthorityList(row.grantedAuthorities)"
-                        [entitySvc]="roleSvc"
-                        [list]="roleList" (newValue)="doPatchList(row.id,$event,'grantedAuthorities')"
-                        [query]="'type:CLIENT'"
-                        >
-                    </app-editable-page-select-multi>
-                </td>
-            </ng-container>
 
             <ng-container matColumnDef="resourceIds">
                 <th mat-header-cell *matHeaderCellDef> {{columnList['resourceIds']|translate}} </th>

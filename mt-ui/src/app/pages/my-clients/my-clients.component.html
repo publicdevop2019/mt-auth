@@ -83,15 +83,35 @@
             </td>
         </ng-container>
 
-        <ng-container matColumnDef="grantedAuthorities">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['grantedAuthorities']|translate}} </th>
+        <ng-container matColumnDef="types">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['types']|translate}} </th>
             <td mat-cell *matCellDef="let row">
-                <app-editable-page-select-multi [inputOptions]="getAuthorityList(row.grantedAuthorities)"
-                    [entitySvc]="roleSvc"
-                    [list]="roleList" (newValue)="doPatchList(row.id,$event,'grantedAuthorities')"
-                    [query]="'type:CLIENT'"
-                    >
-                </app-editable-page-select-multi>
+                <ng-container *ngIf="row.types.length>1">
+                    <mat-chip-list aria-label="chip list selection">
+                        <mat-chip >
+                            {{row.types[0]|translate}}
+                        </mat-chip>
+                        <mat-chip [matMenuTriggerFor]="more">
+                            +{{(row.types.length-1)}} {{'MORE'|translate}}
+                        </mat-chip>
+                        <mat-menu #more="matMenu">
+                            <ng-template matMenuContent>
+                                <div  style="display: flex;flex-direction: column;padding: 8px;">
+                                    <mat-chip *ngFor="let e of removeFirst(row.types)" mat-menu-item style="margin-bottom:8px">
+                                        {{e|translate}}
+                                    </mat-chip>
+                                </div>
+                            </ng-template>
+                        </mat-menu>
+                    </mat-chip-list>
+                </ng-container>
+                <ng-container *ngIf="row.types.length<=1">
+                    <mat-chip-list aria-label="chip list selection">
+                        <mat-chip *ngFor="let e of row.types">
+                            {{e|translate}}
+                        </mat-chip>
+                    </mat-chip-list>
+                </ng-container>
             </td>
         </ng-container>
 

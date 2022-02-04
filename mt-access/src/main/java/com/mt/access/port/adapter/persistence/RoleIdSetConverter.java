@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 public class RoleIdSetConverter implements AttributeConverter<Set<RoleId>, String> {
     @Override
     public String convertToDatabaseColumn(Set<RoleId> attribute) {
+        if(attribute==null){
+            return null;
+        }
         return String.join(",", attribute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
     }
 

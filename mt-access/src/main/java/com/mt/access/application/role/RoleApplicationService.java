@@ -106,6 +106,11 @@ public class RoleApplicationService {
             return roleId.getDomainId();
         }, ROLE);
     }
+
+    /**
+     * create admin role to mt-auth and default user role to target project
+     * @param deserialize
+     */
     @SubscribeForEvent
     @Transactional
     public void handle(ProjectPermissionCreated deserialize) {
@@ -115,7 +120,7 @@ public class RoleApplicationService {
             ProjectId authPId = new ProjectId(authProjectId);
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
             Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "",permissionIdSet , null,tenantProjectId);
-            Role userRole = new Role(authPId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), null,tenantProjectId);
+            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), null,null);
             DomainRegistry.getRoleRepository().add(adminRole);
             DomainRegistry.getRoleRepository().add(userRole);
             DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(),userRole.getRoleId(),deserialize.getProjectId(),permissionIdSet,deserialize.getCreator()));

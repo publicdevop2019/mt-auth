@@ -6,8 +6,8 @@ import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.domain.model.endpoint.EndpointQuery;
+import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.endpoint.event.PrivateEndpointCreated;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
@@ -115,6 +115,17 @@ public class PermissionApplicationService {
             ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
             ProjectId projectId = new ProjectId(authProjectId);
             Permission.onboardNewProject(projectId,tenantProjectId, deserialize.getCreator());
+            return null;
+        }, PERMISSION);
+    }
+    @SubscribeForEvent
+    @Transactional
+    public void handle(PrivateEndpointCreated deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            log.debug("handle endpoint created event");
+            EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
+            ProjectId projectId = deserialize.getProjectId();
+            Permission.addNewEndpoint(projectId,endpointId);
             return null;
         }, PERMISSION);
     }

@@ -20,6 +20,7 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.access.domain.model.endpoint.event.PrivateEndpointCreated;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -88,6 +89,9 @@ public class EndpointApplicationService {
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                if (endpoint.isSecured()) {
+                    DomainEventPublisher.instance().publish(new PrivateEndpointCreated(client1.getProjectId(), endpointId));
+                }
                 return endpointId.getDomainId();
             } else {
                 throw new InvalidClientIdException();

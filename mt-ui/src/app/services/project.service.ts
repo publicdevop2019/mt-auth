@@ -22,8 +22,14 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query, by, order, headers)
   };
+  findTenantProjects(num: number, size: number) {
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, '/tenant', num, size)
+  };
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)
+  };
+  resolveTenantId(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query, by, order, headers)
   };
   resolveNameById(id:string){
     return this.totalProjects.find(e=>e.id===id)?.name

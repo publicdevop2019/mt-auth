@@ -7,7 +7,7 @@ import { BehaviorSubject, combineLatest, Observable } from 'rxjs';
 import { filter, take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet, ISumRep } from 'src/app/clazz/summary.component';
-import { grantTypeEnums, IClient, scopeEnums } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
+import { CLIENT_TYPE, grantTypeEnums, IClient, scopeEnums } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { IRole } from 'src/app/clazz/validation/aggregate/role/interface-role';
 import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-common';
@@ -71,26 +71,12 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
           var0.push(this.clientService.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
         }
-        if (this.aggregate.scopeEnums && this.aggregate.scopeEnums.length > 0) {
-          var0.push(this.roleSvc.readEntityByQuery(0, this.aggregate.scopeEnums.length, 'id:' + this.aggregate.scopeEnums.join('.')))
-        }
-        if (this.aggregate.grantedAuthorities && this.aggregate.grantedAuthorities.length > 0) {
-          var0.push(this.roleSvc.readEntityByQuery(0, this.aggregate.grantedAuthorities.length, 'id:' + this.aggregate.grantedAuthorities.join('.')))
-        }
         combineLatest(var0).pipe(take(1))
           .subscribe(next => {
             let count = -1;
             if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
               count++;
               this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-            }
-            if (this.aggregate.scopeEnums && this.aggregate.scopeEnums.length > 0) {
-              count++;
-              this.formInfo.inputs.find(e => e.key === 'scope').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-            }
-            if (this.aggregate.grantedAuthorities && this.aggregate.grantedAuthorities.length > 0) {
-              count++;
-              this.formInfo.inputs.find(e => e.key === 'authority').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
             }
             const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
             this.fis.formGroupCollection[this.formId].patchValue({
@@ -106,8 +92,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
               refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
               resourceIndicator: this.aggregate.resourceIndicator,
               autoApprove: this.aggregate.autoApprove,
-              authority: this.aggregate.grantedAuthorities,
-              scope: this.aggregate.scopeEnums.map(e => e.toString()),
               accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
               refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
               resourceId: this.aggregate.resourceIds,
@@ -147,7 +131,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
     let grants: grantTypeEnums[] = [];
     let authority: string[] = [];
-    let scopes: scopeEnums[] = [];
     if (formGroup.get('grantType').value as grantTypeEnums) {
       grants.push(formGroup.get('grantType').value as grantTypeEnums);
     }
@@ -157,8 +140,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     if (formGroup.get('authority').value)
       authority = (formGroup.get('authority').value as string[]);
 
-    if (formGroup.get('scope').value)
-      scopes = (formGroup.get('scope').value as scopeEnums[]);
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
@@ -167,8 +148,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       hasSecret: formGroup.get('hasSecret').value ? true : false,
       clientSecret: formGroup.get('clientSecret').value == '*****' ? '' : formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
-      scopeEnums: scopes,
-      grantedAuthorities: authority,
+      types: formGroup.get('types').value as CLIENT_TYPE[],
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
       refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,

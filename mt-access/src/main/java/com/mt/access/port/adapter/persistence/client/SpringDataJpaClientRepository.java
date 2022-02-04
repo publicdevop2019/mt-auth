@@ -56,13 +56,16 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
             Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
             Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.PROJECT_ID, queryContext));
-            Optional.ofNullable(clientQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e.getDomainId(), Client_.ROLES, queryContext));
-            Optional.ofNullable(clientQuery.getScopeSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.SCOPES, queryContext));
 
             Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> {
                 queryContext.getPredicates().add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
                         .ifPresent(ee -> ee.add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
+            });
+            Optional.ofNullable(clientQuery.getClientTypeSearch()).ifPresent(e -> {
+                queryContext.getPredicates().add(ClientTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                Optional.ofNullable(queryContext.getCountPredicates())
+                        .ifPresent(ee -> ee.add(ClientTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
             });
             Optional.ofNullable(clientQuery.getResources()).ifPresent(e -> {
                 queryContext.getPredicates().add(ResourceIdsPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
@@ -138,6 +141,46 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                     return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
                 } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
                     return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%");
+                } else {
+                    return null;
+                }
+            }
+        }
+        private static class ClientTypePredicateConverter {
+            public static Predicate getPredicate(String query, CriteriaBuilder cb, Root<Client> root) {
+                if (query.contains("$")) {
+                    Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
+                    List<Predicate> list2 = new ArrayList<>();
+                    for (String str : strings) {
+                        if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.ROOT_APPLICATION.name() + "%"));
+                        } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FIRST_PARTY.name() + "%"));
+                        } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.THIRD_PARTY.name() + "%"));
+                        } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FRONTEND_APP.name() + "%"));
+                        } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.BACKEND_APP.name() + "%"));
+                        }
+                    }
+                    return cb.and(list2.toArray(Predicate[]::new));
+                } else {
+                    return getExpression(query, cb, root);
+                }
+            }
+
+            private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
+                if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.ROOT_APPLICATION.name() + "%");
+                } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FIRST_PARTY.name() + "%");
+                } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.THIRD_PARTY.name() + "%");
+                } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FRONTEND_APP.name() + "%");
+                } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.BACKEND_APP.name() + "%");
                 } else {
                     return null;
                 }

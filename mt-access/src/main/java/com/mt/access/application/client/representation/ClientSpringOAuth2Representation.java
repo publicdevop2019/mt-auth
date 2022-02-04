@@ -21,8 +21,8 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
-    private Set<SystemRoleId> grantedAuthorities;
-    private Set<SystemRoleId> scope;
+//    private Set<SystemRoleId> grantedAuthorities;
+//    private Set<SystemRoleId> scope;
     private int accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private int refreshTokenValiditySeconds;
@@ -33,8 +33,8 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setClientId(client.getClientId());
         setClientSecret(client.getSecret());
         setGrantTypeEnums(client.getGrantTypes());
-        setGrantedAuthorities(client.getRoles());
-        setScope(client.getScopes());
+//        setGrantedAuthorities(client.getRoles());
+//        setScope(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
         setResourceIds(client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
@@ -70,11 +70,12 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public Set<String> getScope() {
-        if (isScoped()) {
-            return scope.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-        } else {
+//        if (isScoped()) {
+//            return scope.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
+//        } else {
+//            return Collections.emptySet();
+//        }
             return Collections.emptySet();
-        }
     }
 
     @Override
@@ -89,7 +90,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        return grantedAuthorities.stream().map(UserSpringRepresentation.GrantedAuthorityImpl::new).collect(Collectors.toList());
+        return Collections.emptySet();
     }
 
     @Override

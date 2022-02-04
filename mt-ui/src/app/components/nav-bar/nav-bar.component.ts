@@ -392,7 +392,7 @@ export class NavBarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.projectSvc.readByQuery(0, 40).subscribe(next => {
+    this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects=next.data;
     })
     this.msgSvc.connectSystemMonitor();

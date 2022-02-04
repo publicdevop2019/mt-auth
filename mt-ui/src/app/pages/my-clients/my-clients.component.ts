@@ -30,8 +30,8 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
     description: 'DESCRIPTION',
     resourceIndicator: 'RESOURCE_INDICATOR',
     grantTypeEnums: 'GRANTTYPE_ENUMS',
+    types: 'TYPES',
     accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
-    grantedAuthorities: 'GRANTED_AUTHORITIES',
     resourceIds: 'RESOURCEIDS',
     edit: 'EDIT',
     delete: 'DELETE',
@@ -39,7 +39,6 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
   sheetComponent = ClientComponent;
   public projectId: string;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
-  public roleList: IOption[] = [];
   resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
   ]
@@ -138,19 +137,9 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
         this.resourceClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
     }
-    let var2 = new Set(next.data.flatMap(e => e.grantedAuthorities).filter(ee => ee));
-    let var3 = new Array(...var2);
-    if (var3.length > 0) {
-      this.roleSvc.readEntityByQuery(0, var3.length, "id:" + var3.join('.')).subscribe(next => {
-        this.roleList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
   }
   getList(inputs: string[]) {
     return inputs.map(e => <IOption>{ label: e, value: e })
-  }
-  getAuthorityList(inputs: string[]) {
-    return this.roleList.filter(e => inputs?.includes(e.value + ''))
   }
   getResourceList(inputs?: string[]) {
     return this.resourceClientList.filter(e => inputs?.includes(e.value + ''))
@@ -174,5 +163,8 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
       config.data = <IBottomSheet<IClient>>{ context: 'new', from: { projectId: this.projectId, name: '', id: '', version: 0 } };
       this.bottomSheet.open(this.sheetComponent, config);
     }
+  }
+  removeFirst(input: string[]) {
+    return input.filter((e, i) => i !== 0);
   }
 }

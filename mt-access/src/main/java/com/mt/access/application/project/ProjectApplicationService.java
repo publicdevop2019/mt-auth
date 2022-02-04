@@ -10,10 +10,8 @@ import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.infrastructure.JwtAuthenticationService;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -87,9 +86,17 @@ public class ProjectApplicationService {
         ProjectId projectId = new ProjectId();
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             UserId userId = DomainRegistry.getAuthenticationService().getUserId();
-            Project project = new Project(projectId, command.getName(),userId);
+            Project project = new Project(projectId, command.getName(), userId);
             DomainRegistry.getProjectRepository().add(project);
             return projectId.getDomainId();
         }, PROJECT);
+    }
+
+    public SumPagedRep<Project> findTenantProjects(String pageParam) {
+        Set<ProjectId> tenantIds = DomainRegistry.getAuthenticationService().getTenantId();
+        if (tenantIds.size() == 0) {
+            return SumPagedRep.empty();
+        }
+        return DomainRegistry.getProjectRepository().getByQuery(new ProjectQuery(tenantIds, pageParam));
     }
 }

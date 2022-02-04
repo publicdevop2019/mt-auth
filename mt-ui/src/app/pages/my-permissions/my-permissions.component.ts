@@ -38,8 +38,8 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
     delete: 'DELETE',
   }
   sheetComponent = PermissionComponent;
-  public loadRoot = this.entitySvc.readByQuery(0, 1000, "parentId:null")
-  public loadChildren = (id: string) => this.entitySvc.readByQuery(0, 1000, "parentId:" + id)
+  public loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
+  public loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -62,6 +62,8 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.queryPrefix = 'projectIds:'+this.projectId;
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
+      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
     });
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
     

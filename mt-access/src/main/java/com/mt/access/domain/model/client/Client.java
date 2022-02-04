@@ -81,12 +81,11 @@ public class Client extends Auditable {
     private String secret;
     @Getter
     private String description;
+
     @Getter
-    @Convert(converter = SystemRoleIdConverter.class)
-    private Set<SystemRoleId> roles;
-    @Getter
-    @Convert(converter = SystemRoleIdConverter.class)
-    private Set<SystemRoleId> scopes;
+    @Convert(converter = ClientType.DBConverter.class)
+    private Set<ClientType> types;
+
     @Getter
     @Column(name = "accessible_")
     private boolean accessible = false;
@@ -110,22 +109,20 @@ public class Client extends Auditable {
                   @Nullable String secret,
                   String description,
                   boolean accessible,
-                  Set<SystemRoleId> scopes,
-                  Set<SystemRoleId> roles,
                   Set<ClientId> resources,
                   Set<GrantType> grantTypes,
                   TokenDetail tokenDetail,
-                  RedirectDetail authorizationCodeGrant
+                  RedirectDetail authorizationCodeGrant,
+                  Set<ClientType> types
     ) {
         setClientId(clientId);
         setProjectId(projectId);
         setResources(resources);
-        setScopes(scopes);
         setDescription(description);
-        setRoles(roles);
         setAccessible(accessible);
         setName(name);
         setPath(path);
+        setTypes(types);
         setSecret(secret);
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
@@ -134,6 +131,12 @@ public class Client extends Auditable {
         DomainEventPublisher.instance().publish(new ClientCreated(clientId));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+    }
+
+    private void setTypes(Set<ClientType> types) {
+        if (this.types != null)
+            throw new IllegalArgumentException("type can not be updated");
+        this.types = types;
     }
 
     private void setPath(String path) {
@@ -188,43 +191,6 @@ public class Client extends Auditable {
         this.tokenDetail = tokenDetail;
     }
 
-    private void setScopes(Set<SystemRoleId> scopes) {
-        if (id != null) {
-
-            if (scopesChanged(scopes)) {
-                DomainEventPublisher.instance().publish(new ClientScopesChanged(clientId));
-            }
-        }
-        Validator.noNullMember(scopes);
-        if (!scopes.equals(this.scopes)) {
-            if (this.scopes != null) {
-                this.scopes.clear();
-            } else {
-                this.scopes = new HashSet<>();
-            }
-            this.scopes.addAll(scopes);
-        }
-    }
-
-    private void setRoles(Set<SystemRoleId> next) {
-        if (id != null) {
-
-            if (rolesChanged(next)) {
-                DomainEventPublisher.instance().publish(new ClientAuthoritiesChanged(clientId));
-            }
-        }
-        Validator.notEmpty(next);
-        Validator.noNullMember(next);
-        if (!next.equals(this.roles)) {
-            if (this.roles != null) {
-                this.roles.clear();
-            } else {
-                this.roles = new HashSet<>();
-            }
-            this.roles.addAll(next);
-        }
-    }
-
     private void setAccessible(boolean accessible) {
         if (id != null) {
 
@@ -259,15 +225,11 @@ public class Client extends Auditable {
                         String path,
                         String description,
                         boolean accessible,
-                        Set<SystemRoleId> scopes,
-                        Set<SystemRoleId> roles,
                         Set<ClientId> resources,
                         Set<GrantType> grantTypes,
                         TokenDetail tokenDetail,
                         RedirectDetail authorizationCodeGrant
     ) {
-        setScopes(scopes);
-        setRoles(roles);
         setPath(path);
         setResources(resources);
         setAccessible(accessible);
@@ -290,7 +252,7 @@ public class Client extends Auditable {
                                    String description, String path, EndpointId endpointId, String method,
                                    boolean secured,
                                    boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig) {
-        return new Endpoint(getClientId(),getProjectId(), systemRoleId, cacheProfileId,
+        return new Endpoint(getClientId(), getProjectId(), systemRoleId, cacheProfileId,
                 description, path, endpointId, method, secured,
                 isWebsocket, csrfEnabled, corsConfig);
     }
@@ -319,14 +281,6 @@ public class Client extends Auditable {
 
     private boolean resourcesChanged(Set<ClientId> clientIds) {
         return !ObjectUtils.equals(this.resources, clientIds);
-    }
-
-    private boolean rolesChanged(Set<SystemRoleId> authorities) {
-        return !ObjectUtils.equals(this.roles, authorities);
-    }
-
-    private boolean scopesChanged(Set<SystemRoleId> scopes) {
-        return !ObjectUtils.equals(this.scopes, scopes);
     }
 
     private boolean tokenDetailChanged(TokenDetail tokenDetail) {
@@ -377,11 +331,6 @@ public class Client extends Auditable {
     }
 
     public boolean removable() {
-        return roles.stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_ROOT_CLIENT_ROLE));
-    }
-
-    public void removeRole(SystemRoleId systemRoleId) {
-        Set<SystemRoleId> collect1 = this.roles.stream().filter(e -> !e.equals(systemRoleId)).collect(Collectors.toSet());
-        setRoles(collect1);
+        return types.stream().noneMatch(e -> e.equals(ClientType.ROOT_APPLICATION));
     }
 }

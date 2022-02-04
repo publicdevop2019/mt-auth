@@ -10,33 +10,30 @@ import java.util.stream.Collectors;
 
 @Data
 public class ClientRepresentation {
-    protected String id;
+    private final Set<ClientType> types;
+    private String id;
 
-    protected String name;
+    private String name;
 
-    protected String path;
+    private String path;
 
-    protected String description;
+    private String description;
 
-    protected Set<GrantType> grantTypeEnums;
+    private Set<GrantType> grantTypeEnums;
 
-    protected Set<String> grantedAuthorities;
+    private Integer accessTokenValiditySeconds;
 
-    protected Set<String> scopeEnums;
+    private Set<String> registeredRedirectUri;
 
-    protected Integer accessTokenValiditySeconds;
+    private Integer refreshTokenValiditySeconds;
 
-    protected Set<String> registeredRedirectUri;
+    private Set<String> resourceIds;
 
-    protected Integer refreshTokenValiditySeconds;
+    private boolean resourceIndicator;
 
-    protected Set<String> resourceIds;
+    private boolean autoApprove;
 
-    protected boolean resourceIndicator;
-
-    protected boolean autoApprove;
-
-    protected Integer version;
+    private Integer version;
     private String clientSecret;
 
     private boolean hasSecret;
@@ -47,8 +44,6 @@ public class ClientRepresentation {
         path = client.getPath();
         description = client.getDescription();
         grantTypeEnums = client.getGrantTypes();
-        grantedAuthorities = client.getRoles().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-        scopeEnums = client.getScopes().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         if (client.getAuthorizationCodeGrant() != null)
             registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
@@ -61,6 +56,7 @@ public class ClientRepresentation {
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;
+        types=client.getTypes();
 
     }
 }

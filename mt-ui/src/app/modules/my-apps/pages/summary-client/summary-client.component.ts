@@ -25,7 +25,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     resourceIndicator: 'RESOURCE_INDICATOR',
     grantTypeEnums: 'GRANTTYPE_ENUMS',
     accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
-    grantedAuthorities: 'GRANTED_AUTHORITIES',
     resourceIds: 'RESOURCEIDS',
     edit: 'EDIT',
     token: 'REVOKE_TOKEN',
@@ -33,7 +32,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   }
   sheetComponent = ClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
-  public roleList: IOption[] = [];
   resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
   ]
@@ -126,22 +124,12 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
         this.resourceClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
     }
-    let var2 = new Set(next.data.flatMap(e => e.grantedAuthorities).filter(ee => ee));
-    let var3 = new Array(...var2);
-    if (var3.length > 0) {
-      this.roleSvc.readEntityByQuery(0, var3.length, "id:" + var3.join('.')).subscribe(next => {
-        this.roleList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
   }
   revokeClientToken(clientId: number) {
     this.entitySvc.revokeClientToken(clientId);
   }
   getList(inputs: string[]) {
     return inputs.map(e => <IOption>{ label: e, value: e })
-  }
-  getAuthorityList(inputs: string[]) {
-    return this.roleList.filter(e => inputs?.includes(e.value + ''))
   }
   getResourceList(inputs?: string[]) {
     return this.resourceClientList.filter(e => inputs?.includes(e.value + ''))

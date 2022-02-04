@@ -26,7 +26,7 @@ public class JwtUtility {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> T getField(String field, String bearerHeader) {
+    public static <T> T getField(String field, String bearerHeader) {
         String replace = bearerHeader.replace(HTTP_HEADER_BEARER, "");
         String jwtBody;
         try {

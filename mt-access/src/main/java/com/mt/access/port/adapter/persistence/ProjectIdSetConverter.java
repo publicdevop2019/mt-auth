@@ -1,6 +1,7 @@
 package com.mt.access.port.adapter.persistence;
 
-import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.model.domainId.DomainId;
 
 import javax.persistence.AttributeConverter;
@@ -8,9 +9,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class PermissionIdSetConverter implements AttributeConverter<Set<PermissionId>, String> {
+public class ProjectIdSetConverter implements AttributeConverter<Set<ProjectId>, String> {
     @Override
-    public String convertToDatabaseColumn(Set<PermissionId> attribute) {
+    public String convertToDatabaseColumn(Set<ProjectId> attribute) {
         if(attribute==null){
             return null;
         }
@@ -18,9 +19,9 @@ public class PermissionIdSetConverter implements AttributeConverter<Set<Permissi
     }
 
     @Override
-    public Set<PermissionId> convertToEntityAttribute(String dbData) {
+    public Set<ProjectId> convertToEntityAttribute(String dbData) {
         if (dbData == null)
             return null;
-        return Arrays.stream(dbData.split(",")).map(PermissionId::new).collect(Collectors.toSet());
+        return Arrays.stream(dbData.split(",")).map(ProjectId::new).collect(Collectors.toSet());
     }
 }

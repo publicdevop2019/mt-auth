@@ -109,13 +109,6 @@ public class RevokeTokenApplicationService {
     }
 
     @Transactional
-    public void handleChange(ClientAuthoritiesChanged deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-                DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
-            return null;
-        }, REVOKE_TOKEN);
-    }
-    @Transactional
     public void handleChange(ClientGrantTypeChanged deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
@@ -138,13 +131,6 @@ public class RevokeTokenApplicationService {
     }
     @Transactional
     public void handleChange(ClientResourcesChanged deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-                DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
-            return null;
-        }, REVOKE_TOKEN);
-    }
-    @Transactional
-    public void handleChange(ClientScopesChanged deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
             return null;

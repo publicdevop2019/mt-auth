@@ -54,15 +54,14 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getClientSecret(),
                             command.getDescription(),
                             command.isResourceIndicator(),
-                            command.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                            command.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                             command.getGrantTypeEnums(),
                             new TokenDetail(command.getAccessTokenValiditySeconds(), command.getRefreshTokenValiditySeconds()),
                             new RedirectDetail(
                                     command.getRegisteredRedirectUri(),
                                     command.isAutoApprove()
-                            )
+                            ),
+                            command.getTypes()
                     );
                     return client.getClientId().getDomainId();
                 }, CLIENT
@@ -95,8 +94,6 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getPath(),
                         command.getDescription(),
                         command.isResourceIndicator(),
-                        command.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                        command.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(), command.getRefreshTokenValiditySeconds()),
@@ -146,8 +143,6 @@ public class ClientApplicationService implements ClientDetailsService {
                         afterPatch.getPath(),
                         afterPatch.getDescription(),
                         afterPatch.isResourceIndicator(),
-                        afterPatch.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                        afterPatch.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                         afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         afterPatch.getGrantTypeEnums(),
                         new TokenDetail(afterPatch.getAccessTokenValiditySeconds(), original.getTokenDetail().getRefreshTokenValiditySeconds()),
@@ -176,19 +171,6 @@ public class ClientApplicationService implements ClientDetailsService {
             Set<ClientId> collect = allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
             collect.add(removedClientId);
             DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
-            return null;
-        }, CLIENT);
-    }
-
-    @SubscribeForEvent
-    @Transactional
-    public void handleChange(SystemRoleDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-            //find clients which are using this role and remove it from those clients
-            SystemRoleId systemRoleId = new SystemRoleId(deserialize.getDomainId().getDomainId());
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query),
-                    new ClientQuery(systemRoleId));
-            allByQuery.forEach(e->e.removeRole(systemRoleId));
             return null;
         }, CLIENT);
     }

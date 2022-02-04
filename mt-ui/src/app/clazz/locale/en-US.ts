@@ -30,7 +30,7 @@ export const enUS = {
     "ENTER_TITLE": "Enter title",
     "ENTER_CLIENT_ID": "Enter Client id",
     "ENTER_CLIENT_SECRET": "Enter Client secret",
-    "SELECT_A_GRANT＿TYPE": "Select a grant type",
+    "SELECT_A_GRANT_TYPE": "Select a grant type",
     "ENTER_REDIRECT_URI": "Enter redirect uri",
     "PLEASE_SELECT_AUTHORITY(S)": "Please select authority(s)",
     "PLEASE_SELECT_SCOPE(S)": "Please select scope(s)",

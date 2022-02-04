@@ -26,11 +26,4 @@ public class ClientDomainEventSubscriber {
         });
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener15() {
-        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, MQHelper.handlerOf(appName+"_client", SYSTEM_ROLE_DELETED), (event) -> {
-            SystemRoleDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SystemRoleDeleted.class);
-            ApplicationServiceRegistry.getClientApplicationService().handleChange(deserialize);
-        },SYSTEM_ROLE_DELETED);
-    }
 }

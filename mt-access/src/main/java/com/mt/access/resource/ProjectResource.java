@@ -41,6 +41,18 @@ public class ProjectResource {
         return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
     }
 
+    @GetMapping(path = "tenant")
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> externalQuery(
+                                                                                     @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+
+                                                                                     @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        JwtAuthenticationService.JwtThreadLocal.unset();
+        JwtAuthenticationService.JwtThreadLocal.set(jwt);
+        SumPagedRep<Project> clients = ApplicationServiceRegistry.getProjectApplicationService().findTenantProjects(pageParam);
+        return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
+    }
+
     @GetMapping("{id}")
     public ResponseEntity<ProjectRepresentation> readForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtAuthenticationService.JwtThreadLocal.unset();

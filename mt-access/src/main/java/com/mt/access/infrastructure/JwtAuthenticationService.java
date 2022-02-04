@@ -2,6 +2,7 @@ package com.mt.access.infrastructure;
 
 import com.mt.access.domain.model.AuthenticationService;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.jwt.JwtUtility;
@@ -10,10 +11,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -75,6 +73,13 @@ public class JwtAuthenticationService implements AuthenticationService {
         return new ClientId(JwtUtility.getClientId(jwt));
     }
 
+    @Override
+    public Set<ProjectId> getTenantId() {
+        String jwt = JwtThreadLocal.get();
+        List<String> ids = JwtUtility.getField("tenantId", jwt);
+        return ids == null ? Collections.emptySet() : ids.stream().map(ProjectId::new).collect(Collectors.toSet());
+    }
+
     public static class JwtThreadLocal {
         public static final ThreadLocal<String> jwtThreadLocal = new ThreadLocal<>();
 
@@ -91,7 +96,7 @@ public class JwtAuthenticationService implements AuthenticationService {
         }
     }
 
-    private static class MyAuthentication implements Authentication , Serializable {
+    private static class MyAuthentication implements Authentication, Serializable {
         private final Collection<? extends GrantedAuthority> au;
         private final String userId;
 

@@ -1,4 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
+import { CLIENT_TYPE } from '../clazz/validation/aggregate/client/interfaze-client';
 import { GRANT_TYPE_LIST } from '../clazz/validation/constant';
 
 export const FORM_CONFIG: IForm = {
@@ -82,7 +83,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "select",
             "display": true,
-            "label": "SELECT_A_GRANT＿TYPE",
+            "label": "SELECT_A_GRANT_TYPE",
             "key": "grantType",
             "position": {
                 "row": "6",
@@ -92,12 +93,24 @@ export const FORM_CONFIG: IForm = {
             required:true,
         },
         {
+            "type": "select",
+            "display": true,
+            "label": "SELECT_A_CLIENT_TYPE",
+            "key": "types",
+            "position": {
+                "row": "7",
+                "column": "0"
+            },
+            "options": Object.values(CLIENT_TYPE).map(e=>({label:e,value:e})),
+            required:true,
+        },
+        {
             "type": "text",
             "display": false,
             "label": "ENTER_REDIRECT_URI",
             "key": "registeredRedirectUri",
             "position": {
-                "row": "7",
+                "row": "8",
                 "column": "0"
             },
             required:true,
@@ -108,7 +121,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "refreshToken",
             "position": {
-                "row": "8",
+                "row": "9",
                 "column": "0"
             },
             "options": [
@@ -121,7 +134,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "resourceIndicator",
             "position": {
-                "row": "9",
+                "row": "10",
                 "column": "0"
             },
             "options": [
@@ -134,7 +147,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "autoApprove",
             "position": {
-                "row": "10",
+                "row": "11",
                 "column": "0"
             },
             "options": [
@@ -148,7 +161,7 @@ export const FORM_CONFIG: IForm = {
             "key": "authority",
             "multiple": true,
             "position": {
-                "row": "11",
+                "row": "12",
                 "column": "0"
             },
             "options": [],
@@ -161,7 +174,7 @@ export const FORM_CONFIG: IForm = {
             "multiple": true,
             "key": "scope",
             "position": {
-                "row": "12",
+                "row": "13",
                 "column": "0"
             },
             "options": [],
@@ -174,7 +187,7 @@ export const FORM_CONFIG: IForm = {
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",
             "position": {
-                "row": "13",
+                "row": "14",
                 "column": "0"
             },
             "options": [
@@ -186,7 +199,7 @@ export const FORM_CONFIG: IForm = {
             "label": "ACCESS_TOKEN_VALIDITY_SECONDS",
             "key": "accessTokenValiditySeconds",
             "position": {
-                "row": "14",
+                "row": "15",
                 "column": "0"
             },
             required:true,
@@ -197,7 +210,7 @@ export const FORM_CONFIG: IForm = {
             "label": "REFRESH_TOKEN_VALIDITY_SECONDS",
             "key": "refreshTokenValiditySeconds",
             "position": {
-                "row": "15",
+                "row": "16",
                 "column": "0"
             },
             required:true,

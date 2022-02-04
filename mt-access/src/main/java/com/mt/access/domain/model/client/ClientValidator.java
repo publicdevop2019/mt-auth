@@ -1,16 +1,7 @@
 package com.mt.access.domain.model.client;
 
 
-import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.system_role.RoleType;
-import com.mt.access.domain.model.system_role.SystemRole;
-import com.mt.access.domain.model.system_role.SystemRoleQuery;
-import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import com.mt.common.domain.model.validate.Validator;
-
-import java.util.Set;
 
 public class ClientValidator {
     private final Client client;
@@ -25,21 +16,6 @@ public class ClientValidator {
         accessAndRoles();
         encryptedSecret();
         tokenAndGrantType();
-        onlyRoleWithClientType();
-        mustHaveScopeIfAuthorize();
-    }
-
-    private void mustHaveScopeIfAuthorize() {
-        if(client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)){
-            Validator.notEmpty(client.getScopes());
-        }
-    }
-
-    private void onlyRoleWithClientType() {
-        Set<SystemRole> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getSystemRoleRepository().systemRoleOfQuery((SystemRoleQuery) query), new SystemRoleQuery(client.getRoles()));
-        if(allByQuery.stream().anyMatch(e->e.getRoleType().equals(RoleType.USER))){
-            handler.handleError("client can only has client roles");
-        }
     }
 
     private void tokenAndGrantType() {
@@ -61,10 +37,10 @@ public class ClientValidator {
     private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                    client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_OWNED_CLIENT_ROLE))
-                            || client.getRoles().stream().noneMatch(e -> e.getDomainId().equals(AppConstant.MT_AUTH_BACKEND_CLIENT_ROLE))
+                    client.getTypes().stream().noneMatch(e -> e.equals(ClientType.THIRD_PARTY))
+                            || client.getTypes().stream().noneMatch(e -> e.equals(ClientType.FRONTEND_APP))
             ) {
-                handler.handleError("invalid grantedAuthorities to be a resource, must be first party & backend application");
+                handler.handleError("invalid client type to be a resource, must be first party & backend application");
             }
         }
     }

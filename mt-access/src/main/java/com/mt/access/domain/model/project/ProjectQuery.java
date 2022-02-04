@@ -4,15 +4,17 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 @Getter
 public class ProjectQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
-    private final ProjectSort sort;
+    private ProjectSort sort;
     private Set<ProjectId> ids;
     private Set<String> names;
 
@@ -29,6 +31,14 @@ public class ProjectQuery extends QueryCriteria {
         ids = new HashSet<>();
         ids.add(projectId);
         setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = ProjectSort.byId(true);
+    }
+
+    public ProjectQuery(Set<ProjectId> tenantIds, String pageParam) {
+        Validator.notEmpty(tenantIds);
+        this.ids = tenantIds;
+        setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.skipCount());
         this.sort = ProjectSort.byId(true);
     }

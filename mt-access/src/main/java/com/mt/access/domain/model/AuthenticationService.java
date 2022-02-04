@@ -1,6 +1,7 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.user.UserId;
 import org.springframework.security.core.Authentication;
@@ -23,4 +24,6 @@ public interface AuthenticationService {
     UserId getUserId();
 
     ClientId getClientId();
+
+    Set<ProjectId> getTenantId();
 }
