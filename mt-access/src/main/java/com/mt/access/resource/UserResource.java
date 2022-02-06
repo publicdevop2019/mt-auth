@@ -1,8 +1,6 @@
 package com.mt.access.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.common.domain.model.restful.PatchCommand;
-import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.*;
 import com.mt.access.application.user.representation.UserAdminRepresentation;
@@ -10,6 +8,8 @@ import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserSystemCardRepresentation;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.infrastructure.JwtAuthenticationService;
+import com.mt.common.domain.model.restful.PatchCommand;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

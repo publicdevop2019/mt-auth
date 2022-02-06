@@ -4,15 +4,14 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.PendingUser;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
-import com.mt.access.domain.model.user.*;
+import com.mt.access.domain.model.user.User;
+import com.mt.access.domain.model.user.UserEmail;
+import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.event.UserCreated;
-import com.mt.access.domain.model.user.event.UserGetLocked;
-import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.restful.PatchCommand;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service

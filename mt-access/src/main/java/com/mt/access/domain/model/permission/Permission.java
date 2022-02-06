@@ -195,10 +195,10 @@ public class Permission extends Auditable {
         DomainEventPublisher.instance().publish(new ProjectPermissionCreated(createdPermissionIds, tenantId, creatorId));
     }
 
-    public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId) {
+    public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId, PermissionId permissionId) {
         Optional<Permission> apiRoot = DomainRegistry.getPermissionRepository().getByQuery(new PermissionQuery(projectId, API_ACCESS)).findFirst();
         apiRoot.ifPresent(e->{
-            Permission apiPermission = new Permission(projectId, new PermissionId(), endpointId.getDomainId(),apiRoot.get().getPermissionId(), null);
+            Permission apiPermission = new Permission(projectId, permissionId, endpointId.getDomainId(),apiRoot.get().getPermissionId(), null);
             DomainRegistry.getPermissionRepository().add(apiPermission);
         });
     }

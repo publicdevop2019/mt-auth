@@ -1,7 +1,6 @@
 package com.mt.access.port.adapter.persistence.client;
 
 import com.mt.access.domain.model.client.*;
-import com.mt.access.domain.model.endpoint.Endpoint_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domainId.DomainId_;
@@ -10,8 +9,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
 import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 

@@ -6,8 +6,6 @@ import com.mt.access.application.user.command.*;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
 import com.mt.access.domain.model.user.*;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -15,7 +13,6 @@ import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -26,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,6 +30,7 @@ import java.util.stream.Collectors;
 public class UserApplicationService implements UserDetailsService {
 
     public static final String USER = "User";
+    public static final String DEFAULT_USERID = "0U8AZTODP4H0";
 
     @SubscribeForEvent
     @Transactional
@@ -70,9 +67,7 @@ public class UserApplicationService implements UserDetailsService {
             User user1 = user.get();
             ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
                 user1.replace(
-                        command.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                        command.isLocked(),
-                        command.isSubscription()
+                        command.isLocked()
                 );
                 return null;
             }, USER);
@@ -87,14 +82,14 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            if (user1.isNonRoot()) {
+            if (!DEFAULT_USERID.equals(user1.getUserId().getDomainId())) {
                 ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
                     DomainRegistry.getUserRepository().remove(user1);
                     return null;
                 }, USER);
                 DomainEventPublisher.instance().publish(new UserDeleted(userId));
             } else {
-                throw new RootUserDeleteException();
+                throw new DefaultUserDeleteException();
             }
         }
     }
@@ -110,9 +105,7 @@ public class UserApplicationService implements UserDetailsService {
                 UserPatchingCommand beforePatch = new UserPatchingCommand(original);
                 UserPatchingCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
                 original.replace(
-                        afterPatch.getGrantedAuthorities(),
-                        afterPatch.isLocked(),
-                        original.isSubscription()
+                        afterPatch.isLocked()
                 );
             }
             return null;
@@ -174,20 +167,6 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    @SubscribeForEvent
-    @Transactional
-    public void handleChange(SystemRoleDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-            SystemRoleId systemRoleId = new SystemRoleId(deserialize.getDomainId().getDomainId());
-            Set<User> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getUserRepository().usersOfQuery((UserQuery) query),
-                    new UserQuery(systemRoleId));
-            allByQuery.forEach(user->{
-                user.removeRole(systemRoleId);
-            });
-            return null;
-        }, USER);
-    }
-
-    public static class RootUserDeleteException extends RuntimeException {
+    public static class DefaultUserDeleteException extends RuntimeException {
     }
 }

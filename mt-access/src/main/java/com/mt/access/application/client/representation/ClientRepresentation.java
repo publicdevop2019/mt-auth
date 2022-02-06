@@ -1,7 +1,6 @@
 package com.mt.access.application.client.representation;
 
 import com.mt.access.domain.model.client.*;
-import com.mt.common.domain.model.domainId.DomainId;
 import lombok.Data;
 import org.springframework.util.ObjectUtils;
 

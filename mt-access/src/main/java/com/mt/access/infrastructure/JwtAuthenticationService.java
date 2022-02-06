@@ -3,7 +3,6 @@ package com.mt.access.infrastructure;
 import com.mt.access.domain.model.AuthenticationService;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import org.springframework.security.core.Authentication;
@@ -16,26 +15,14 @@ import java.util.stream.Collectors;
 
 @Service
 public class JwtAuthenticationService implements AuthenticationService {
-    @Override
-    public boolean userInRole(SystemRoleId role) {
-        String jwt = JwtThreadLocal.get();
-        List<String> authorities = JwtUtility.getAuthorities(jwt);
-        return authorities.stream().anyMatch(e -> role.getDomainId().equals(e));
-    }
 
     @Override
-    public Set<String> userRoleIds() {
+    public Set<String> userPermissionIds() {
         String jwt = JwtThreadLocal.get();
-        List<String> authorities = JwtUtility.getAuthorities(jwt);
-        return new HashSet<>(authorities);
+        List<String> permissionIds = JwtUtility.getPermissionIds(jwt);
+        return new HashSet<>(permissionIds);
     }
 
-    @Override
-    public Set<SystemRoleId> clientScopes() {
-        String jwt = JwtThreadLocal.get();
-        List<String> authorities = JwtUtility.getScopes(jwt);
-        return authorities.stream().map(SystemRoleId::new).collect(Collectors.toSet());
-    }
 
     @Override
     public boolean isClient() {
@@ -53,7 +40,7 @@ public class JwtAuthenticationService implements AuthenticationService {
     public Authentication getAuthentication() {
         String jwt = JwtThreadLocal.get();
         try {
-            Collection<? extends GrantedAuthority> au = JwtUtility.getAuthorities(jwt).stream().map(e -> (GrantedAuthority) () -> e).collect(Collectors.toList());
+            Collection<? extends GrantedAuthority> au = JwtUtility.getPermissionIds(jwt).stream().map(e -> (GrantedAuthority) () -> e).collect(Collectors.toList());
             String userId = JwtUtility.getUserId(jwt);
             return new MyAuthentication(au, userId);
         } catch (IllegalArgumentException e) {

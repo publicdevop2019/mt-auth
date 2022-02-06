@@ -88,8 +88,8 @@ public class JwtService {
         return getClaims(jwtRaw, "scope");
     }
 
-    public Set<String> getRoles(String jwtRaw) throws ParseException {
-        return getClaims(jwtRaw, "authorities");
+    public Set<String> getPermissionIds(String jwtRaw) throws ParseException {
+        return getClaims(jwtRaw, "permissionIds");
     }
 
     public Long getIssueAt(String jwtRaw) throws ParseException {

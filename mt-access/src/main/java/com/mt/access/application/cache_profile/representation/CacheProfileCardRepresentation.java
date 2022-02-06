@@ -1,13 +1,8 @@
 package com.mt.access.application.cache_profile.representation;
 
-import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
-import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import lombok.Data;
 
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Id;
 import java.util.Set;
 import java.util.stream.Collectors;
 

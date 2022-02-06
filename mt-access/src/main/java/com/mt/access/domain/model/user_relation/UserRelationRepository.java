@@ -1,9 +1,6 @@
 package com.mt.access.domain.model.user_relation;
 
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.role.Role;
-import com.mt.access.domain.model.role.RoleId;
-import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 

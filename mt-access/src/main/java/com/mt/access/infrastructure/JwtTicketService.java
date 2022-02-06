@@ -4,8 +4,8 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.ticket.SignedTicket;
 import com.mt.access.domain.model.ticket.TicketInfo;
-import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.ticket.TicketService;
+import com.mt.access.domain.model.user.UserId;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -50,8 +50,7 @@ public class JwtTicketService implements TicketService {
                         .claim(USER_ID, ticket.getUserId().getDomainId())
                         .claim(CLIENT_ID, ticket.getClientId().getDomainId())
                         .claim(AUD, ticket.getAud().getDomainId())
-                        .claim(AUTHORITIES, DomainRegistry.getAuthenticationService().userRoleIds())
-                        .claim(SCOPES, DomainRegistry.getAuthenticationService().clientScopes())
+                        .claim(AUTHORITIES, DomainRegistry.getAuthenticationService().userPermissionIds())
                         .build());
 
         try {

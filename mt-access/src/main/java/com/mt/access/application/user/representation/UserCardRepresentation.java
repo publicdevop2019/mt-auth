@@ -16,15 +16,12 @@ public class UserCardRepresentation {
     private boolean locked;
     private long createdAt;
 
-    private Set<String> grantedAuthorities;
-
     public UserCardRepresentation(Object o) {
         User user = (User) o;
         email = user.getEmail().getEmail();
         id = user.getUserId().getDomainId();
         locked = user.isLocked();
         this.createdAt = user.getCreatedAt().getTime();
-        grantedAuthorities = user.getRoles().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
     }
 
 }

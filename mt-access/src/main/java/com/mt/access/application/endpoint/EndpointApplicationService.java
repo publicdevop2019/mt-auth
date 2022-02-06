@@ -20,9 +20,8 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
-import com.mt.access.domain.model.endpoint.event.PrivateEndpointCreated;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AppStarted;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -75,8 +74,13 @@ public class EndpointApplicationService {
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(resourceId));
             if (client.isPresent()) {
                 Client client1 = client.get();
+                boolean secured = command.isSecured();
+                PermissionId permissionId = null;
+                if (secured) {
+                    permissionId = new PermissionId();
+                }
                 Endpoint endpoint = client1.addNewEndpoint(
-                        command.getRoleId() != null ? new SystemRoleId(command.getRoleId()) : null,
+                        permissionId,
                         command.getCacheProfileId() != null ? new CacheProfileId(command.getCacheProfileId()) : null,
                         command.getDescription(),
                         command.getPath(),
@@ -89,8 +93,8 @@ public class EndpointApplicationService {
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
-                if (endpoint.isSecured()) {
-                    DomainEventPublisher.instance().publish(new PrivateEndpointCreated(client1.getProjectId(), endpointId));
+                if (secured) {
+                    DomainEventPublisher.instance().publish(new SecureEndpointCreated(client1.getProjectId(), endpoint));
                 }
                 return endpointId.getDomainId();
             } else {
@@ -117,7 +121,6 @@ public class EndpointApplicationService {
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 endpoint1.update(
-                        command.getRoleId() != null ? new SystemRoleId(command.getRoleId()) : null,
                         command.getCacheProfileId() != null ? new CacheProfileId(command.getCacheProfileId()) : null,
                         command.getDescription(),
                         command.getPath(),
@@ -174,7 +177,6 @@ public class EndpointApplicationService {
                 EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
                 EndpointPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
                 endpoint1.update(
-                        endpoint1.getSystemRoleId(),
                         endpoint1.getCacheProfileId(),
                         afterPatch.getDescription(),
                         afterPatch.getPath(),
@@ -244,27 +246,6 @@ public class EndpointApplicationService {
             }
             return null;
         }, ENDPOINT);
-    }
-
-    /**
-     * refresh proxy when referred role group is updated
-     *
-     * @param deserialize
-     */
-    @SubscribeForEvent
-    @Transactional
-    public void handle(SystemRoleDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-            log.debug("handle role group removed");
-            SystemRoleId systemRoleId = new SystemRoleId(deserialize.getDomainId().getDomainId());
-            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(systemRoleId));
-            if (!allByQuery.isEmpty()) {
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
-                allByQuery.forEach(e -> e.setSystemRoleId(null));
-            }
-            return null;
-        }, ENDPOINT);
-
     }
 
     @SubscribeForEvent

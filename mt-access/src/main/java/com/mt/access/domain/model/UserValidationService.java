@@ -1,10 +1,10 @@
 package com.mt.access.domain.model;
 
-import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.pending_user.PendingUser;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
 import com.mt.access.domain.model.user.User;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

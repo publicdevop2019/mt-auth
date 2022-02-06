@@ -26,7 +26,7 @@ public class EndpointCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.roleId = endpoint.getSystemRoleId()!=null?endpoint.getSystemRoleId().getDomainId():null;
+        this.roleId = endpoint.getPermissionId()!=null?endpoint.getPermissionId().getDomainId():null;
         this.secured = endpoint.isSecured();
         this.csrfEnabled = endpoint.isCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId()!=null?endpoint.getCorsProfileId().getDomainId():null;

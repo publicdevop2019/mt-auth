@@ -1,7 +1,8 @@
 package com.mt.access.application.client.command;
 
-import com.mt.access.domain.model.client.*;
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.GrantType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

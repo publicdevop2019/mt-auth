@@ -9,7 +9,6 @@ import com.mt.access.domain.model.client.event.*;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
 import com.mt.access.domain.model.revoke_token.RevokeTokenId;
 import com.mt.access.domain.model.revoke_token.RevokeTokenQuery;
-import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.access.domain.model.user.event.UserAuthorityChanged;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
@@ -33,9 +32,6 @@ public class RevokeTokenApplicationService {
     public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            boolean rootUser = DomainRegistry.getAuthenticationService().userInRole(new SystemRoleId(AppConstant.MT_AUTH_ADMIN_ROLE));
-            if (!rootUser && revokeTokenId.getType().equals(RevokeToken.TokenType.CLIENT))
-                throw new IllegalArgumentException("non root role can only revoke user token");
             DomainRegistry.getRevokeTokenRepository().add(new RevokeToken(revokeTokenId));
             return revokeTokenId.getDomainId();
         }, REVOKE_TOKEN);

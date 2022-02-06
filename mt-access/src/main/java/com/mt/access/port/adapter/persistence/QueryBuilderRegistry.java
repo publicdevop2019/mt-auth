@@ -10,7 +10,6 @@ import com.mt.access.port.adapter.persistence.position.SpringDataJpaPositionRepo
 import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectRepository;
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
-import com.mt.access.port.adapter.persistence.system_role.SpringDataJpaSystemRoleRepository;
 import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRepository;
 import com.mt.access.port.adapter.persistence.user.UpdateUserQueryBuilder;
 import com.mt.access.port.adapter.persistence.user_relation.SpringDataJpaUserRelationRepository;
@@ -30,8 +29,6 @@ public class QueryBuilderRegistry {
     private static RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor;
     @Getter
     private static SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder;
-    @Getter
-    private static SpringDataJpaSystemRoleRepository.JpaCriteriaApiSystemRoleAdaptor systemRoleAdaptor;
     @Getter
     private static SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor corsProfileAdaptor;
     @Getter
@@ -59,31 +56,32 @@ public class QueryBuilderRegistry {
     public void setJpaCriteriaApiPositionAdaptor(SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor) {
         QueryBuilderRegistry.positionAdaptor = positionAdaptor;
     }
+
     @Autowired
     public void setJpaCriteriaApiOrganizationAdaptor(SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor organizationAdaptor) {
         QueryBuilderRegistry.organizationAdaptor = organizationAdaptor;
     }
+
     @Autowired
     public void setJpaCriteriaApiProjectAdaptor(SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor) {
         QueryBuilderRegistry.projectAdaptor = projectAdaptor;
     }
+
     @Autowired
     public void setJpaCriteriaApiRoleAdaptor(SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor) {
         QueryBuilderRegistry.roleAdaptor = roleAdaptor;
     }
+
     @Autowired
     public void setJpaCriteriaApiPermissionAdaptor(SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor) {
         QueryBuilderRegistry.permissionAdaptor = permissionAdaptor;
     }
+
     @Autowired
     public void setJpaCriteriaApiCacheProfileAdaptor(SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor cacheProfileAdaptor) {
         QueryBuilderRegistry.cacheProfileAdaptor = cacheProfileAdaptor;
     }
 
-    @Autowired
-    public void setJpaCriteriaApiSystemRoleAdaptor(SpringDataJpaSystemRoleRepository.JpaCriteriaApiSystemRoleAdaptor jpaCriteriaApiSystemRoleAdaptor) {
-        QueryBuilderRegistry.systemRoleAdaptor = jpaCriteriaApiSystemRoleAdaptor;
-    }
 
     @Autowired
     public void setJpaCriteriaApiCorsProfileAdaptor(SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor corsProfileAdaptor) {

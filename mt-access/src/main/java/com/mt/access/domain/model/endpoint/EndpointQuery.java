@@ -5,7 +5,6 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -29,7 +28,6 @@ public class EndpointQuery extends QueryCriteria {
     private String path;
     private String method;
     private EndpointSort endpointSort;
-    private Set<SystemRoleId> systemRoleIds;
     private Set<CacheProfileId> cacheProfileIds;
 
     public EndpointQuery(String queryParam) {
@@ -73,13 +71,6 @@ public class EndpointQuery extends QueryCriteria {
         setEndpointSort(pageConfig);
     }
 
-    public EndpointQuery(SystemRoleId systemRoleId) {
-        this.systemRoleIds = Collections.singleton(systemRoleId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
-    }
-
     public EndpointQuery(CacheProfileId profileId) {
         this.cacheProfileIds = Collections.singleton(profileId);
         setPageConfig(PageConfig.defaultConfig());
@@ -89,7 +80,7 @@ public class EndpointQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID, RESOURCE_ID, PATH, METHOD,PROJECT_IDS);
+                ID, RESOURCE_ID, PATH, METHOD, PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             endpointIds = Arrays.stream(e.split("\\.")).map(EndpointId::new).collect(Collectors.toSet());
         });

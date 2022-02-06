@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence.position;
 
-import com.mt.access.domain.model.permission.*;
 import com.mt.access.domain.model.position.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;

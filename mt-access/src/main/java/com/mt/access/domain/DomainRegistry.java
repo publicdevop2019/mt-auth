@@ -17,7 +17,6 @@ import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
-import com.mt.access.domain.model.system_role.SystemRoleRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
@@ -55,8 +54,6 @@ public class DomainRegistry {
     private static PasswordResetTokenService passwordResetTokenService;
     @Getter
     private static RevokeTokenRepository revokeTokenRepository;
-    @Getter
-    private static SystemRoleRepository systemRoleRepository;
     @Getter
     private static EndpointValidationService endpointValidationService;
     @Getter
@@ -126,11 +123,6 @@ public class DomainRegistry {
     @Autowired
     public void setNewUserService(NewUserService newUserService) {
         DomainRegistry.newUserService = newUserService;
-    }
-
-    @Autowired
-    public void setSystemRoleRepository(SystemRoleRepository systemRoleRepository) {
-        DomainRegistry.systemRoleRepository = systemRoleRepository;
     }
 
     @Autowired

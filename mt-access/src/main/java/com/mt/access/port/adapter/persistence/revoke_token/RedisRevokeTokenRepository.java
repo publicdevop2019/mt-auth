@@ -1,12 +1,11 @@
 package com.mt.access.port.adapter.persistence.revoke_token;
 
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
 import com.mt.access.domain.model.revoke_token.RevokeTokenQuery;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.core.StringRedisTemplate;

@@ -1,14 +1,12 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import com.mt.access.domain.model.user.*;
+import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.access.domain.model.user.*;
-import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -21,8 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.mt.access.domain.model.user.User.*;
 
 @Repository
 public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, UserRepository {
@@ -66,8 +62,6 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
             });
 
             Optional.ofNullable(userQuery.getUserIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), USER_ID_LITERAL, queryContext));
-            Optional.ofNullable(userQuery.getSubscription()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, User_.SUBSCRIPTION, queryContext));
-            Optional.ofNullable(userQuery.getAuthoritiesSearch()).ifPresent(e -> QueryUtility.addStringLikePredicate(e.getDomainId(), User_.ROLES, queryContext));
             Order order = null;
             if (userQuery.getUserSort().isById())
                 order = QueryUtility.getDomainIdOrder(USER_ID_LITERAL, queryContext, userQuery.getUserSort().isAsc());

@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence;
 
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.model.domainId.DomainId;
 

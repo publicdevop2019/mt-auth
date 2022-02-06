@@ -13,7 +13,7 @@ import java.util.Map;
 public class JwtUtility {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String HTTP_HEADER_BEARER = "Bearer ";
-    private static final String JWT_CLAIM_AUTHORITIES = "authorities";
+    private static final String JWT_CLAIM_PERM = "permissionIds";
     private static final String JWT_CLAIM_SCOPES = "scope";
     private static final String JWT_CLAIM_UID = "uid";
     private static final String JWT_CLAIM_CLIENT_ID = "client_id";
@@ -54,8 +54,8 @@ public class JwtUtility {
         return getField(JWT_CLAIM_CLIENT_ID, bearerHeader);
     }
 
-    public static List<String> getAuthorities(String bearerHeader) {
-        return getField(JWT_CLAIM_AUTHORITIES, bearerHeader);
+    public static List<String> getPermissionIds(String bearerHeader) {
+        return getField(JWT_CLAIM_PERM, bearerHeader);
     }
     public static List<String> getScopes(String bearerHeader) {
         return getField(JWT_CLAIM_SCOPES, bearerHeader);

@@ -1,12 +1,10 @@
 package com.mt.access.domain.model.cors_profile;
 
-import com.mt.access.domain.model.client.RedirectDetail;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.sql.converter.EnumSetConverter;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;

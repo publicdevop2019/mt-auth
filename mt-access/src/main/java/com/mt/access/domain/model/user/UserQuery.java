@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -14,12 +13,9 @@ import java.util.stream.Collectors;
 public class UserQuery extends QueryCriteria {
     public static final String EMAIL = "email";
     public static final String ID = "id";
-    public static final String SUBSCRIPTION = "subscription";
-    public static final String GRANTED_AUTHORITIES = "grantedAuthorities";
     private Set<String> userEmails;
     private Set<UserId> userIds;
     private Boolean subscription;
-    private SystemRoleId authoritiesSearch;
     private UserSort userSort;
 
     public UserQuery(UserId userId) {
@@ -36,24 +32,15 @@ public class UserQuery extends QueryCriteria {
         setUserSort(pageConfig);
     }
 
-    public UserQuery(SystemRoleId systemRoleId) {
-        this.authoritiesSearch=systemRoleId;
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        setUserSort(pageConfig);
-    }
-
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                EMAIL,ID,SUBSCRIPTION,GRANTED_AUTHORITIES);
+                EMAIL,ID);
         Optional.ofNullable(stringStringMap.get(EMAIL)).ifPresent(e -> {
             userEmails = new HashSet<>(List.of(e.split("\\.")));
         });
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             userIds = Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet());
         });
-        Optional.ofNullable(stringStringMap.get(SUBSCRIPTION)).ifPresent(e -> subscription = e.equalsIgnoreCase("1"));
-        Optional.ofNullable(stringStringMap.get(GRANTED_AUTHORITIES)).ifPresent(e -> authoritiesSearch = new SystemRoleId(e));
     }
 
     private void setUserSort(PageConfig pageConfig) {

@@ -1,13 +1,13 @@
 package com.mt.access.domain.model.pending_user;
 
 import com.google.common.base.Objects;
+import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.activation_code.ActivationCode;
+import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.activation_code.ActivationCode;
-import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

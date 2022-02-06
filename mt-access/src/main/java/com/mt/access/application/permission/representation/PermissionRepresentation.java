@@ -1,7 +1,6 @@
 package com.mt.access.application.permission.representation;
 
 import com.mt.access.domain.model.permission.Permission;
-import com.mt.access.domain.model.role.Role;
 import lombok.Data;
 
 @Data

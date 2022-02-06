@@ -9,16 +9,11 @@ import com.mt.access.application.client.representation.ClientSpringOAuth2Represe
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.*;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
-import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;

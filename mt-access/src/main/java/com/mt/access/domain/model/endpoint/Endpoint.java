@@ -5,8 +5,8 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -55,9 +56,9 @@ public class Endpoint extends Auditable {
     @Embedded
     @Setter(AccessLevel.PUBLIC)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "system_role_id"))
+            @AttributeOverride(name = "domainId", column = @Column(name = "permission_id"))
     })
-    private SystemRoleId systemRoleId;
+    private PermissionId permissionId;
     @Embedded
     @Setter(AccessLevel.PUBLIC)
     @AttributeOverrides({
@@ -91,7 +92,7 @@ public class Endpoint extends Auditable {
     private boolean csrfEnabled = true;
 
 
-    public Endpoint(ClientId clientId,ProjectId projectId, SystemRoleId systemRoleId, CacheProfileId cacheProfileId, String description,
+    public Endpoint(ClientId clientId, ProjectId projectId, @Nullable PermissionId permissionId, CacheProfileId cacheProfileId, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId
     ) {
@@ -99,15 +100,15 @@ public class Endpoint extends Auditable {
         setClientId(clientId);
         setProjectId(projectId);
         setEndpointId(endpointId);
-        update(systemRoleId, cacheProfileId, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
+        setPermissionId(permissionId);
+        update(cacheProfileId, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
     }
 
-    public void update(SystemRoleId roleGroupId,
+    public void update(
                        CacheProfileId cacheProfileId,
                        String description, String path, String method, boolean secured,
                        boolean isWebsocket,
                        boolean csrfEnabled, CORSProfileId corsProfileId) {
-        setSystemRoleId(roleGroupId);
         setDescription(description);
         setWebsocket(isWebsocket);
         setCacheProfileId(cacheProfileId);

@@ -16,8 +16,6 @@ public class EndpointCreateCommand implements Serializable {
     private String corsProfileId;
     private String cacheProfileId;
     private String resourceId;
-    private String roleId;
-
     private String path;
 
     private String method;

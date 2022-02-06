@@ -1,9 +1,9 @@
 package com.mt.access.infrastructure;
 
-import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
+import com.mt.common.domain.model.domainId.DomainId;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

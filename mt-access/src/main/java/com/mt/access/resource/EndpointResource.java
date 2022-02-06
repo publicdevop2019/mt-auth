@@ -8,7 +8,6 @@ import com.mt.access.application.endpoint.representation.EndpointCardRepresentat
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

@@ -1,23 +1,22 @@
 package com.mt.access.application;
 
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
+import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CORSProfileApplicationService;
+import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.organization.OrganizationApplicationService;
+import com.mt.access.application.pending_user.PendingUserApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.position.PositionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
+import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
-import com.mt.access.application.system_role.SystemRoleApplicationService;
+import com.mt.access.application.ticket.TicketApplicationService;
+import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import com.mt.common.domain.model.idempotent.IdempotentService;
-import com.mt.access.application.client.ClientApplicationService;
-import com.mt.access.application.endpoint.EndpointApplicationService;
-import com.mt.access.application.pending_user.PendingUserApplicationService;
-import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
-import com.mt.access.application.ticket.TicketApplicationService;
-import com.mt.access.application.user.UserApplicationService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +45,6 @@ public class ApplicationServiceRegistry {
     private static RevokeTokenApplicationService revokeTokenApplicationService;
     @Getter
     private static TicketApplicationService ticketApplicationService;
-    @Getter
-    private static SystemRoleApplicationService systemRoleApplicationService;
     @Getter
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
     @Getter
@@ -104,10 +101,6 @@ public class ApplicationServiceRegistry {
     @Autowired
     public void setCacheProfileApplicationService(CacheProfileApplicationService cacheProfileApplicationService) {
         ApplicationServiceRegistry.cacheProfileApplicationService = cacheProfileApplicationService;
-    }
-    @Autowired
-    public void setSystemRoleApplicationService(SystemRoleApplicationService systemRoleApplicationService) {
-        ApplicationServiceRegistry.systemRoleApplicationService = systemRoleApplicationService;
     }
     @Autowired
     public void setTicketApplicationService(TicketApplicationService ticketApplicationService) {

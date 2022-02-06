@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence.role;
 
-import com.mt.access.domain.model.permission.Permission_;
 import com.mt.access.domain.model.role.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.CommonConstant;

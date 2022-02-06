@@ -1,11 +1,11 @@
 package com.mt.access.port.adapter.http;
 
-import com.mt.access.domain.model.cors_profile.Origin;
-import com.mt.common.domain.model.logging.ErrorMessage;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.domain.model.client.RedirectURL;
+import com.mt.access.domain.model.cors_profile.Origin;
+import com.mt.common.domain.model.logging.ErrorMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +27,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             RedirectMismatchException.class,
             AccessDeniedException.class,
             ClientApplicationService.RootClientDeleteException.class,
-            UserApplicationService.RootUserDeleteException.class,
+            UserApplicationService.DefaultUserDeleteException.class,
             IllegalArgumentException.class,
             OAuth2Exception.class,
             EndpointApplicationService.InvalidClientIdException.class,

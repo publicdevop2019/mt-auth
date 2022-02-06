@@ -50,7 +50,6 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
             Optional.ofNullable(endpointQuery.getEndpointIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.ENDPOINT_ID, queryContext));
             Optional.ofNullable(endpointQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.CLIENT_ID, queryContext));
             Optional.ofNullable(endpointQuery.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.PROJECT_ID, queryContext));
-            Optional.ofNullable(endpointQuery.getSystemRoleIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.SYSTEM_ROLE_ID, queryContext));
             Optional.ofNullable(endpointQuery.getCacheProfileIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.CACHE_PROFILE_ID, queryContext));
             Optional.ofNullable(endpointQuery.getPath()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.PATH, queryContext));
             Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));

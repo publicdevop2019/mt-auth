@@ -7,7 +7,7 @@ import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.EndpointId;
-import com.mt.access.domain.model.endpoint.event.PrivateEndpointCreated;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
@@ -120,12 +120,13 @@ public class PermissionApplicationService {
     }
     @SubscribeForEvent
     @Transactional
-    public void handle(PrivateEndpointCreated deserialize) {
+    public void handle(SecureEndpointCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
             log.debug("handle endpoint created event");
             EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
+            PermissionId permissionId = deserialize.getPermissionId();
             ProjectId projectId = deserialize.getProjectId();
-            Permission.addNewEndpoint(projectId,endpointId);
+            Permission.addNewEndpoint(projectId,endpointId,permissionId);
             return null;
         }, PERMISSION);
     }

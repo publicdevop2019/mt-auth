@@ -1,7 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;

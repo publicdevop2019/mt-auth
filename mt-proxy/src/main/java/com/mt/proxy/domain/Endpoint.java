@@ -28,14 +28,14 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
-    private String roleId;
+    private String permissionId;
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
-        if (secured && roleId == null) {
+        if (secured && permissionId == null) {
             return false;
         }
-        Set<String> roles = DomainRegistry.getJwtService().getRoles(jwtRaw);
-        return roles.contains(roleId);
+        Set<String> roles = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
+        return roles.contains(permissionId);
     }
 
     @Override

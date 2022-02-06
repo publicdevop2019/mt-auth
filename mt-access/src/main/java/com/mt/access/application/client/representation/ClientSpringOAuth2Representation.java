@@ -1,11 +1,8 @@
 package com.mt.access.application.client.representation;
 
-import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.common.domain.model.domainId.DomainId;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;

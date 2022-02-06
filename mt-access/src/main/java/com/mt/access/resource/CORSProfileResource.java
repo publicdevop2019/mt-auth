@@ -3,15 +3,14 @@ package com.mt.access.resource;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.cors_profile.command.CORSProfileCreateCommand;
-import com.mt.access.application.cors_profile.representation.CORSProfileRepresentation;
 import com.mt.access.application.cors_profile.command.CORSProfileUpdateCommand;
+import com.mt.access.application.cors_profile.representation.CORSProfileRepresentation;
 import com.mt.access.domain.model.cors_profile.CORSProfile;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.mt.common.CommonConstant.*;
-import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 
 @RestController
 @RequestMapping(produces = "application/json", path = "cors")

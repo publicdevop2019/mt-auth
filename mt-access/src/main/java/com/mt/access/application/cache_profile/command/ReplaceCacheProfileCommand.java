@@ -1,6 +1,5 @@
 package com.mt.access.application.cache_profile.command;
 
-import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import lombok.Data;
 
 import java.util.Set;

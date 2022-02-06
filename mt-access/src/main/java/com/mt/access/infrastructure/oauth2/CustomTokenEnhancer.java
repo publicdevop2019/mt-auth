@@ -2,7 +2,6 @@ package com.mt.access.infrastructure.oauth2;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.common.domain.model.domainId.DomainId;
@@ -14,7 +13,10 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

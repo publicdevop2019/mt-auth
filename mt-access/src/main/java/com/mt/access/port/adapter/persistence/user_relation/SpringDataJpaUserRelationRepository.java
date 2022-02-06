@@ -1,12 +1,10 @@
 package com.mt.access.port.adapter.persistence.user_relation;
 
-import com.mt.access.domain.model.role.*;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.domain.model.user_relation.UserRelationRepository;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;

@@ -1,10 +1,10 @@
 package com.mt.access.application.client.representation;
 
 import com.mt.access.domain.model.client.*;
-import com.mt.common.domain.model.domainId.DomainId;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.ObjectUtils;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -39,10 +39,10 @@ public class ClientCardRepresentation {
 
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
-        name = client1.getName();
+        name = HtmlUtils.htmlEscape(client1.getName());
         grantTypeEnums = client1.getGrantTypes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
-        description = client1.getDescription();
+        description = HtmlUtils.htmlEscape(client1.getDescription());
         if (client1.getAuthorizationCodeGrant() != null)
             registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
         refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();

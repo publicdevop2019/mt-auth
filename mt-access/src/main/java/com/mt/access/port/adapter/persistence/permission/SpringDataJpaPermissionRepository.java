@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence.permission;
 
-import com.mt.access.domain.model.endpoint.Endpoint_;
 import com.mt.access.domain.model.permission.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.CommonConstant;

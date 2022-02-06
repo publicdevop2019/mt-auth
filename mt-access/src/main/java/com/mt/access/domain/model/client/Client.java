@@ -7,10 +7,8 @@ import com.mt.access.domain.model.client.event.*;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.access.infrastructure.AppConstant;
-import com.mt.access.port.adapter.persistence.system_role.SystemRoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -248,11 +246,11 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    public Endpoint addNewEndpoint(SystemRoleId systemRoleId, CacheProfileId cacheProfileId,
+    public Endpoint addNewEndpoint(@Nullable PermissionId permissionId, CacheProfileId cacheProfileId,
                                    String description, String path, EndpointId endpointId, String method,
                                    boolean secured,
                                    boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig) {
-        return new Endpoint(getClientId(), getProjectId(), systemRoleId, cacheProfileId,
+        return new Endpoint(getClientId(), getProjectId(), permissionId, cacheProfileId,
                 description, path, endpointId, method, secured,
                 isWebsocket, csrfEnabled, corsConfig);
     }

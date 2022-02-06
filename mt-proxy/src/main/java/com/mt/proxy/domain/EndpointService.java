@@ -74,7 +74,7 @@ public class EndpointService {
                 return false;
             } else {
                 //check roles
-                return checkAccessByRole(requestURI, method, authHeader, true);
+                return checkAccessByPermissionId(requestURI, method, authHeader, true);
             }
         }
         if (requestURI.contains("/oauth/token") || requestURI.contains("/oauth/token_key")) {
@@ -93,14 +93,14 @@ public class EndpointService {
                 return true;
             }
         } else if (authHeader.contains("Bearer")) {
-            return checkAccessByRole(requestURI, method, authHeader, false);
+            return checkAccessByPermissionId(requestURI, method, authHeader, false);
         } else {
             log.debug("return 403 due to un-registered endpoints");
             return false;
         }
     }
 
-    private boolean checkAccessByRole(String requestURI, String method, String authHeader, boolean websocket) throws ParseException {
+    private boolean checkAccessByPermissionId(String requestURI, String method, String authHeader, boolean websocket) throws ParseException {
         //check endpoint url, method first then check resourceId and security rule
         String jwtRaw = authHeader.replace("Bearer ", "");
         Set<String> resourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
