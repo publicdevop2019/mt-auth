@@ -64,7 +64,7 @@ export class SummaryCorsComponent extends SummaryEntityComponent<ICorsProfile, I
           }
         })
     } else {
-      config.data = <IBottomSheet<ICorsProfile>>{ context: 'new', from: undefined, events: {} };
+      config.data = <IBottomSheet<ICorsProfile>>{ context: 'new', from: undefined, params: {} };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

@@ -12,7 +12,7 @@ import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { BatchUpdateCorsComponent } from '../../components/batch-update-cors/batch-update-cors.component';
-import { EndpointComponent } from '../endpoint/endpoint.component';
+import { EndpointComponent } from '../../../../pages/tenant/api-profile/api-profile.component';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',

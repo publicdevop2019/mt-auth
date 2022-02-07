@@ -63,7 +63,8 @@ public class Role extends Auditable {
         this.description = description;
     }
 
-    public void replace(String name) {
+    public void replace(String name,Set<PermissionId> permissionIds) {
         this.name = name;
+        this.permissionIds = permissionIds;
     }
 }

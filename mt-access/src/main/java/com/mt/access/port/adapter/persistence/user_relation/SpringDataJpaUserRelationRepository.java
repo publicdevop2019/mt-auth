@@ -4,6 +4,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.domain.model.user_relation.UserRelationRepository;
+import com.mt.access.domain.model.user_relation.UserRelation_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -39,13 +40,13 @@ public interface SpringDataJpaUserRelationRepository extends UserRelationReposit
         public SumPagedRep<UserRelation> execute(UserRelationQuery query) {
             QueryUtility.QueryContext<UserRelation> queryContext = QueryUtility.prepareContext(UserRelation.class, query);
             Optional.ofNullable(query.getUserIds()).ifPresent(e -> QueryUtility
-                    .addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), "UserRelation_", queryContext));
+                    .addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), UserRelation_.USER_ID, queryContext));
             Optional.ofNullable(query.getProjectIds())
                     .ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
-                            .collect(Collectors.toSet()), "Role_.PROJECT_ID", queryContext));
+                            .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
             Order order = null;
             if (query.getSort().isById())
-                order = QueryUtility.getDomainIdOrder("Role_.ROLE_ID", queryContext, query.getSort().isAsc());
+                order = QueryUtility.getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().isAsc());
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(query, queryContext);
         }

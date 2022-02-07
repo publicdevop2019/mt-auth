@@ -64,12 +64,4 @@ public class RoleResource {
         ApplicationServiceRegistry.getRoleApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
-
-    @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id, @RequestBody JsonPatch command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtAuthenticationService.JwtThreadLocal.unset();
-        JwtAuthenticationService.JwtThreadLocal.set(jwt);
-        ApplicationServiceRegistry.getRoleApplicationService().patch(id, command, changeId);
-        return ResponseEntity.ok().build();
-    }
 }

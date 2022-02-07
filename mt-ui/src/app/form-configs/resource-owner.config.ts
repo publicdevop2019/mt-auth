@@ -49,18 +49,5 @@ export const FORM_CONFIG: IForm = {
                 { label: 'LOCK', value: "Lock" },
             ],
         },
-        {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "subNewOrder",
-            "position": {
-                "row": "7",
-                "column": "0"
-            },
-            "options": [
-                { label: 'SUBSCRIBE_FOR_NEW_ORDER', value: "Subscribe for new order" },
-            ],
-        },
     ],
 }

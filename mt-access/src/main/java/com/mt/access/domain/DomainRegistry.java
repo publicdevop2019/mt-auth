@@ -84,7 +84,13 @@ public class DomainRegistry {
     private static PositionRepository positionRepository;
     @Getter
     private static UserRelationRepository userRelationRepository;
+    @Getter
+    private static ComputePermissionService computePermissionService;
 
+    @Autowired
+    public void setComputePermissionService(ComputePermissionService computePermissionService) {
+        DomainRegistry.computePermissionService = computePermissionService;
+    }
     @Autowired
     public void setUserRelationRepository(UserRelationRepository repository) {
         DomainRegistry.userRelationRepository = repository;

@@ -157,32 +157,6 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "paginated-select",
             "display": true,
-            "label": "PLEASE_SELECT_AUTHORITY(S)",
-            "key": "authority",
-            "multiple": true,
-            "position": {
-                "row": "12",
-                "column": "0"
-            },
-            "options": [],
-            required:true,
-        },
-        {
-            "type": "paginated-select",
-            "display": false,
-            "label": "PLEASE_SELECT_SCOPE(S)",
-            "multiple": true,
-            "key": "scope",
-            "position": {
-                "row": "13",
-                "column": "0"
-            },
-            "options": [],
-            required:true,
-        },
-        {
-            "type": "paginated-select",
-            "display": true,
             "multiple": true,
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",

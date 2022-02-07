@@ -10,8 +10,7 @@ import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-cli
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
-import { RoleService } from 'src/app/services/role.service';
-import { ClientComponent } from '../client/client.component';
+import { ClientComponent } from '../../../../pages/tenant/client/client.component';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
@@ -74,13 +73,12 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   ]
   constructor(
     public entitySvc: ClientService,
-    public roleSvc: RoleService,
     public fis: FormInfoService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
-    combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1'), this.roleSvc.readEntityByQuery(0, 1000, 'type:CLIENT')]).pipe(take(1))//@todo use paginated select component
+    combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
       .subscribe(next => {
         if (next) {
           this.searchConfigs = [...this.initSearchConfigs, {
@@ -91,20 +89,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
               delimiter: '.'
             },
             source: next[0].data.map(e => {
-              return {
-                label: e.name,
-                value: e.id
-              }
-            })
-          },
-          {
-            searchLabel: 'GRANTED_AUTHORITIES',
-            searchValue: 'grantedAuthorities',
-            type: 'dropdown',
-            multiple: {
-              delimiter: '.'
-            },
-            source: next[1].data.map(e => {
               return {
                 label: e.name,
                 value: e.id

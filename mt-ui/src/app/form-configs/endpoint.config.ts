@@ -127,18 +127,6 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "paginated-select",
             "display": false,
-            "label": "SELECT_ROLE",
-            "key": "role",
-            "position": {
-                "row": "11",
-                "column": "0"
-            },
-            "options": [],
-            required: true,
-        },
-        {
-            "type": "paginated-select",
-            "display": false,
             "label": "SELECT_CACHE_PROFILE",
             "key": "cacheProfile",
             "position": {

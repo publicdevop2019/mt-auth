@@ -8,7 +8,7 @@ import { CATALOG_TYPE } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ICatalog } from 'src/app/clazz/validation/aggregate/catalog/interfaze-catalog';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { FORM_CONFIG } from 'src/app/form-configs/catalog-view.config';
+import { FORM_CONFIG } from 'src/app/form-configs/view.config';
 import { CatalogService } from 'src/app/services/catalog.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { copyOf } from 'src/app/services/utility';

@@ -38,17 +38,17 @@ import { ApiCenterComponent } from './pages/api-center/api-center.component';
 import { SummaryOrgComponent } from './modules/my-apps/pages/summary-org/summary-org.component';
 import { SummaryPermissionComponent } from './modules/my-apps/pages/summary-permission/summary-permission.component';
 import { SummaryPositionComponent } from './modules/my-apps/pages/summary-position/summary-position.component';
-import { MyClientsComponent } from './pages/my-clients/my-clients.component';
-import { MyApisComponent } from './pages/my-apis/my-apis.component';
-import { MyPermissionsComponent } from './pages/my-permissions/my-permissions.component';
-import { MyRolesComponent } from './pages/my-roles/my-roles.component';
-import { MyOrgsComponent } from './pages/my-orgs/my-orgs.component';
-import { MyPositionsComponent } from './pages/my-positions/my-positions.component';
-import { MyProjectComponent } from './pages/my-project/my-project.component';
+import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
+import { MyApisComponent } from './pages/tenant/my-apis/my-apis.component';
+import { MyPermissionsComponent } from './pages/tenant/my-permissions/my-permissions.component';
+import { MyRolesComponent } from './pages/tenant/my-roles/my-roles.component';
+import { MyOrgsComponent } from './pages/tenant/my-orgs/my-orgs.component';
+import { MyPositionsComponent } from './pages/tenant/my-positions/my-positions.component';
+import { MyProjectComponent } from './pages/tenant/my-project/my-project.component';
 import { SummaryProjectComponent } from './modules/my-apps/pages/summary-project/summary-project.component';
 import { NewProjectComponent } from './pages/new-project/new-project.component';
-import { AddAdminComponent } from './pages/add-admin/add-admin.component';
-import { MyUsersComponent } from './pages/my-users/my-users.component';
+import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
+import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },

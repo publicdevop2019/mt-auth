@@ -36,6 +36,7 @@ public class UserResource {
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
 
+
     @GetMapping("{id}")
     public ResponseEntity<UserAdminRepresentation> readForAdminById(@PathVariable String id) {
         Optional<User> user = ApplicationServiceRegistry.getUserApplicationService().user(id);

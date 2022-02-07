@@ -8,7 +8,6 @@ export interface IEndpoint {
   secured: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
-  roleId?: string;
   cacheProfileId?: string;
   version: number;
 }

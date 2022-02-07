@@ -1,10 +1,8 @@
 import { Injectable } from '@angular/core';
-import { IIdName, IQueryProvider, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
-import { Observable } from 'rxjs';
+import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { ICacheProfile } from '../clazz/validation/aggregate/cache/interfaze-cache';
-import { IRole } from '../clazz/validation/aggregate/role/interface-role';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';

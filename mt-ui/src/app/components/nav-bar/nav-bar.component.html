@@ -64,7 +64,7 @@
                 </mat-nav-list>
             </mat-expansion-panel>
 
-            <mat-expansion-panel (opened)="openedHandler('mall_nav')" (closed)="closedHander('mall_nav')"
+            <!-- <mat-expansion-panel (opened)="openedHandler('mall_nav')" (closed)="closedHander('mall_nav')"
                 [expanded]="navExpand('mall_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
@@ -93,7 +93,7 @@
                     </mat-list-item>
                 </mat-nav-list>
 
-            </mat-expansion-panel>
+            </mat-expansion-panel> -->
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuMisc">

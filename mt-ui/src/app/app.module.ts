@@ -75,12 +75,12 @@ import { SummaryOrderComponent } from './modules/mall/pages/summary-order/summar
 import { SummaryProductComponent } from './modules/mall/pages/summary-product/summary-product.component';
 import { SummarySkuComponent } from './modules/mall/pages/summary-sku/summary-sku.component';
 import { SummaryTaskComponent } from './modules/mall/pages/summary-task/summary-task.component';
-import { ClientComponent } from './modules/my-apps/pages/client/client.component';
-import { EndpointComponent } from './modules/my-apps/pages/endpoint/endpoint.component';
+import { ClientComponent } from './pages/tenant/client/client.component';
+import { EndpointComponent } from './pages/tenant/api-profile/api-profile.component';
 import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/summary-client.component';
 import { SummaryEndpointComponent } from './modules/my-apps/pages/summary-endpoint/summary-endpoint.component';
 import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
-import { ResourceOwnerComponent } from './modules/my-apps/pages/resource-owner/resource-owner.component';
+import { ResourceOwnerComponent } from './modules/my-apps/pages/user/user.component';
 import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-resource-owner/summary-resource-owner.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { LoginComponent } from './pages/login/login.component';
@@ -115,8 +115,7 @@ import { ResolveConfirmDialogComponent } from './modules/mall/components/resolve
 import { SearchComponent } from './components/search/search.component';
 import { SearchAttributeComponent } from './components/search-attribute/search-attribute.component';
 import { SummaryRoleComponent } from './modules/my-apps/pages/summary-role/summary-role.component';
-import { RoleService } from './services/role.service';
-import { RoleComponent } from './pages/role/role.component';
+import { RoleComponent } from './pages/tenant/role/role.component';
 import { CorsComponent } from './modules/my-apps/pages/cors/cors.component';
 import { SummaryCorsComponent } from './modules/my-apps/pages/summary-cors/summary-cors.component';
 import { SummaryCacheComponent } from './modules/my-apps/pages/summary-cache/summary-cache.component';
@@ -129,19 +128,19 @@ import { ApiCenterComponent } from './pages/api-center/api-center.component';
 import { SummaryOrgComponent } from './modules/my-apps/pages/summary-org/summary-org.component';
 import { SummaryPermissionComponent } from './modules/my-apps/pages/summary-permission/summary-permission.component';
 import { SummaryPositionComponent } from './modules/my-apps/pages/summary-position/summary-position.component';
-import { MyClientsComponent } from './pages/my-clients/my-clients.component';
-import { MyApisComponent } from './pages/my-apis/my-apis.component';
-import { MyRolesComponent } from './pages/my-roles/my-roles.component';
-import { MyOrgsComponent } from './pages/my-orgs/my-orgs.component';
-import { MyPositionsComponent } from './pages/my-positions/my-positions.component';
-import { MyPermissionsComponent } from './pages/my-permissions/my-permissions.component';
-import { MyProjectComponent } from './pages/my-project/my-project.component';
+import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
+import { MyApisComponent } from './pages/tenant/my-apis/my-apis.component';
+import { MyRolesComponent } from './pages/tenant/my-roles/my-roles.component';
+import { MyOrgsComponent } from './pages/tenant/my-orgs/my-orgs.component';
+import { MyPositionsComponent } from './pages/tenant/my-positions/my-positions.component';
+import { MyPermissionsComponent } from './pages/tenant/my-permissions/my-permissions.component';
+import { MyProjectComponent } from './pages/tenant/my-project/my-project.component';
 import { SummaryProjectComponent } from './modules/my-apps/pages/summary-project/summary-project.component';
 import { NewProjectComponent } from './pages/new-project/new-project.component';
-import { AddAdminComponent } from './pages/add-admin/add-admin.component';
-import { PermissionComponent } from './pages/permission/permission.component';
-import { MyUsersComponent } from './pages/my-users/my-users.component';
-import { UserComponent } from './pages/user/user.component';
+import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
+import { PermissionComponent } from './pages/tenant/permission/permission.component';
+import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
+import { UserComponent } from './pages/tenant/user/user.component';
 
 @NgModule({
   declarations: [
@@ -331,7 +330,7 @@ import { UserComponent } from './pages/user/user.component';
       useClass: OfflineInterceptor,
       multi: true
     },
-    HttpProxyService, ClientService, ResourceOwnerService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService, RoleService],
+    HttpProxyService, ClientService, ResourceOwnerService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

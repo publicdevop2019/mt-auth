@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.user;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -13,13 +14,20 @@ import java.util.stream.Collectors;
 public class UserQuery extends QueryCriteria {
     public static final String EMAIL = "email";
     public static final String ID = "id";
+    public static final String PROJECT_IDS = "projectIds";
     private Set<String> userEmails;
     private Set<UserId> userIds;
-    private Boolean subscription;
+    private Set<ProjectId> projectIds;
     private UserSort userSort;
 
     public UserQuery(UserId userId) {
         this.userIds = new HashSet<>(List.of(userId));
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        setUserSort(pageConfig);
+    }
+    public UserQuery(Set<UserId> userIds) {
+        this.userIds = userIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         setUserSort(pageConfig);
@@ -34,9 +42,12 @@ public class UserQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                EMAIL,ID);
+                EMAIL,ID,PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(EMAIL)).ifPresent(e -> {
             userEmails = new HashSet<>(List.of(e.split("\\.")));
+        });
+        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> {
+            projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             userIds = Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet());

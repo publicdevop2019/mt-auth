@@ -666,4 +666,7 @@ export const zhHans = {
     "ROLES": "角色",
     "SELECT_ROLES": "请选择角色",
     "TENANT_ID": "租户",
+    "PROJECT_NAME": "项目名称",
+    "PROJECT_CREATED_AT": "创建于",
+    "PROJECT_CREATED_BY": "创建者",
 }

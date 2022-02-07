@@ -5,13 +5,12 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { ResourceOwnerService } from 'src/app/services/resource-owner.service';
-import { ResourceOwnerComponent } from '../resource-owner/resource-owner.component';
+import { ResourceOwnerComponent } from '../user/user.component';
 import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
 import { filter, take } from 'rxjs/operators';
 import * as UUID from 'uuid/v1';
 import { IResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { RoleService } from 'src/app/services/role.service';
 import { combineLatest } from 'rxjs';
 import { FormInfoService } from 'mt-form-builder';
 @Component({
@@ -53,41 +52,11 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IResou
   constructor(
     public entitySvc: ResourceOwnerService,
     public deviceSvc: DeviceService,
-    public roleSvc: RoleService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 2);
-    combineLatest([this.roleSvc.readEntityByQuery(0,1000,'type:USER')]).pipe(take(1))//@todo use paginated select component
-    .subscribe(next => {
-      if (next){
-        this.searchConfigs = [...this.searchConfigs,
-        {
-          searchLabel: 'GRANTED_AUTHORITIES',
-          searchValue: 'grantedAuthorities',
-          type: 'dropdown',
-          multiple: {
-            delimiter:'.'
-          },
-          source:next[0].data.map(e=>{return {
-            label:e.name,
-            value:e.id
-          }})
-        },
-      ];
-      }
-    });
-  }
-  updateSummaryData(next: ISumRep<IResourceOwner>) {
-    super.updateSummaryData(next);
-    let var2 = new Set(next.data.flatMap(e => e.grantedAuthorities).filter(ee => ee));
-    let var3 = new Array(...var2);
-    if (var3.length > 0) {
-      this.roleSvc.readEntityByQuery(0, var3.length, "id:" + var3.join('.')).subscribe(next => {
-        this.roleList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
   }
   revokeResourceOwnerToken(id: string) {
     this.entitySvc.revokeResourceOwnerToken(id);

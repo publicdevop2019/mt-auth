@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class UserRelationQuery extends QueryCriteria {
     private static final String USER_ID = "userId";
-    private static final String PROJECT_ID = "projectId";
+    private static final String PROJECT_ID = "projectIds";
     @Getter
     private final Sort sort;
     @Getter
@@ -25,6 +25,14 @@ public class UserRelationQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, USER_ID,PROJECT_ID);
         Optional.ofNullable(stringStringMap.get(USER_ID)).ifPresent(e -> userIds = Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        setPageConfig(PageConfig.limited(pageParam, 1000));
+        setQueryConfig(new QueryConfig(config));
+        this.sort = Sort.byId(true);
+    }
+    public UserRelationQuery(ProjectId id,String queryParam, String pageParam, String config) {
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, USER_ID,PROJECT_ID);
+        Optional.ofNullable(stringStringMap.get(USER_ID)).ifPresent(e -> userIds = Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet()));
+        this.projectIds=Collections.singleton(id);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
         this.sort = Sort.byId(true);

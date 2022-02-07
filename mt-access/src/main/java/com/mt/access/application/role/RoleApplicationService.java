@@ -1,9 +1,7 @@
 package com.mt.access.application.role;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
-import com.mt.access.application.role.command.RolePatchCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -14,7 +12,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -50,7 +47,7 @@ public class RoleApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(RoleId)).findFirst();
             first.ifPresent(e -> {
-                e.replace(command.getName());
+                e.replace(command.getName(),command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
                 DomainRegistry.getRoleRepository().add(e);
             });
             return null;
@@ -72,24 +69,6 @@ public class RoleApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void patch(String id, JsonPatch command, String changeId) {
-        RoleId RoleId = new RoleId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(RoleId);
-            if (corsProfile.isPresent()) {
-                Role corsProfile1 = corsProfile.get();
-                RolePatchCommand beforePatch = new RolePatchCommand(corsProfile1);
-                RolePatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, RolePatchCommand.class);
-                corsProfile1.replace(
-                        afterPatch.getName()
-                );
-            }
-            return null;
-        }, ROLE);
-    }
-
-    @SubscribeForEvent
-    @Transactional
     public String create(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
@@ -98,7 +77,7 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    command.getPermissions().stream().map(PermissionId::new).collect(Collectors.toSet()),
+                    command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()),
                     command.getParentId() != null ? new RoleId(command.getParentId()) : null,
                     null
             );
@@ -126,5 +105,9 @@ public class RoleApplicationService {
             DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(),userRole.getRoleId(),deserialize.getProjectId(),permissionIdSet,deserialize.getCreator()));
             return null;
         }, ROLE);
+    }
+
+    public SumPagedRep<Role> query(RoleQuery roleQuery) {
+        return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 }

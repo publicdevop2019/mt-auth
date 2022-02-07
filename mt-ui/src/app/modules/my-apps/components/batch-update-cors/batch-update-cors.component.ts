@@ -11,7 +11,6 @@ import { CORSProfileService } from "src/app/services/cors-profile.service";
 import { DeviceService } from "src/app/services/device.service";
 import { EndpointService } from "src/app/services/endpoint.service";
 import { HttpProxyService } from "src/app/services/http-proxy.service";
-import { RoleService } from "src/app/services/role.service";
 import * as UUID from 'uuid/v1';
 export interface DialogData {
     data: { id: string, description: string }[]
@@ -32,7 +31,6 @@ export class BatchUpdateCorsComponent implements OnDestroy {
         private corsSvc: CORSProfileService,
         private cacheSvc: CacheService,
         private endpointSvc: EndpointService,
-        private roleSvc: RoleService,
         private httpProxySvc: HttpProxyService,
         private deviceSvc: DeviceService,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
@@ -40,7 +38,6 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     ) {
         this.fis.queryProvider[this.formId + '_' + 'corsId'] = this.getCorsProfiles();
         this.fis.queryProvider[this.formId + '_' + 'cacheId'] = this.getCacehProfiles();
-        this.fis.queryProvider[this.formId + '_' + 'roleId'] = this.getRoleGroupProfiles();
         this.fis.formCreated(this.formId).subscribe(() => {
             this.fis.formGroupCollection[this.formId].get('type').valueChanges.subscribe(next => {
                 if (next === 'cors') {
@@ -75,13 +72,6 @@ export class BatchUpdateCorsComponent implements OnDestroy {
             }
         } as IQueryProvider
     }
-    getRoleGroupProfiles() {
-        return {
-            readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-                return this.httpProxySvc.readEntityByQuery(this.roleSvc.entityRepo, this.roleSvc.role, num, size, "", by, order, header)
-            }
-        } as IQueryProvider
-    }
     onNoClick(): void {
         this.dialogRef.close();
     }
@@ -100,8 +90,6 @@ export class BatchUpdateCorsComponent implements OnDestroy {
                     next.corsProfileId=this.fis.formGroupCollection[this.formId].get('corsId').value
                 }else if(var0==='cache'){
                     next.cacheProfileId=this.fis.formGroupCollection[this.formId].get('cacheId').value
-                }else if(var0==='role'){
-                    next.roleId=this.fis.formGroupCollection[this.formId].get('roleId').value
                 }else{
                     // will not reach
                 }

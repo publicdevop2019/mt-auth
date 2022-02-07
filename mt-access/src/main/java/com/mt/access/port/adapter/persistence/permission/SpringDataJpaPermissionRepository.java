@@ -38,7 +38,8 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
             Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility
                     .addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.PERMISSION_ID, queryContext));
             Optional.ofNullable(query.getParentId()).ifPresent(e -> addParentIdPredicate(query.getParentId().getDomainId(), Permission_.PARENT_ID, queryContext));
-            Optional.ofNullable(query.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.PROJECT_ID, queryContext));
+            Optional.ofNullable(query.getProjectIds())
+                    .ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.PROJECT_ID, queryContext));
             Optional.ofNullable(query.getTenantIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Permission_.TENANT_ID, queryContext));
             Optional.ofNullable(query.getNames()).ifPresent(e -> QueryUtility.addStringInPredicate(e, Permission_.NAME, queryContext));
             Order order = null;

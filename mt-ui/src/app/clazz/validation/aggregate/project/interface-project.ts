@@ -6,4 +6,6 @@ export interface IProject extends IIdBasedEntity{
 }
 export interface IProjectSimple extends IIdBasedEntity{
     name:string
+    createdBy:string,
+    createdAt:string
 }

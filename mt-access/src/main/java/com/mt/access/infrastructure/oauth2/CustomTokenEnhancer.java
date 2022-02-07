@@ -1,10 +1,17 @@
 package com.mt.access.infrastructure.oauth2;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.Role;
+import com.mt.access.domain.model.role.RoleId;
+import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -42,15 +49,17 @@ public class CustomTokenEnhancer implements TokenEnhancer {
             Optional<String> first = scope.stream().findFirst();
             Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(first.get()));
             userRelation.ifPresent(e -> {
-                info.put("permissionIds", e.getPermissionSnapshot().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(e);
+                info.put("permissionIds", compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                 info.put("projectId", e.getProjectId().getDomainId());
             });
         } else {
             Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(authProjectId));
-            userRelation.ifPresent(e -> {
-                info.put("permissionIds", e.getPermissionSnapshot().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                info.put("projectId", e.getProjectId().getDomainId());
-                info.put("tenantId", e.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+            userRelation.ifPresent(relation -> {
+                Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(relation);
+                info.put("permissionIds", compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                info.put("projectId", relation.getProjectId().getDomainId());
+                info.put("tenantId", relation.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
             });
         }
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);

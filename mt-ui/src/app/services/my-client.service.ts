@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { IClient } from '../clazz/validation/aggregate/client/interfaze-client';
@@ -8,7 +9,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 @Injectable({
   providedIn: 'root'
 })
-export class MyClientService extends EntityCommonService<IClient, IClient> {
+export class MyClientService extends EntityCommonService<IClient, IClient> implements IQueryProvider{
   private AUTH_SVC_NAME = '/auth-svc';
   private ENTITY_NAME = '/clients';
   entityRepo: string = environment.serverUri + this.AUTH_SVC_NAME + this.ENTITY_NAME;
@@ -17,6 +18,9 @@ export class MyClientService extends EntityCommonService<IClient, IClient> {
     super(httpProxy, interceptor,deviceSvc);
   }
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
+    return this.httpProxySvc.readEntityByQuery<IClient>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)
+  };
+  readByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     return this.httpProxySvc.readEntityByQuery<IClient>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)
   };
 }

@@ -2,11 +2,17 @@ package com.mt.access.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.position.representation.PositionRepresentation;
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
 import com.mt.access.application.project.representation.ProjectCardRepresentation;
 import com.mt.access.application.project.representation.ProjectRepresentation;
+import com.mt.access.application.user.representation.UserCardRepresentation;
+import com.mt.access.application.user_relation.UpdateUserRelationCommand;
+import com.mt.access.application.user_relation.representation.UserTenantRepresentation;
 import com.mt.access.domain.model.project.Project;
+import com.mt.access.domain.model.user.User;
+import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.infrastructure.JwtAuthenticationService;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
@@ -43,9 +49,9 @@ public class ProjectResource {
 
     @GetMapping(path = "tenant")
     public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> externalQuery(
-                                                                                     @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
 
-                                                                                     @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+            @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
@@ -59,6 +65,35 @@ public class ProjectResource {
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         Optional<Project> client = ApplicationServiceRegistry.getProjectApplicationService().project(id);
         return client.map(value -> ResponseEntity.ok(new ProjectRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
+    }
+
+    @GetMapping(path = "{id}/users")
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> findUserForProject(
+            @PathVariable String id,
+            @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+            @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+            @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService().users(id,queryParam, pageParam, config);
+        return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
+    }
+    @GetMapping(path = "{id}/users/{userId}")
+    public ResponseEntity<UserTenantRepresentation> findUserDetailForProject(
+            @PathVariable String id,
+            @PathVariable String userId
+    ) {
+        Optional<UserRelation> userRelationDetail = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelationDetail(id, userId);
+        Optional<User> user = ApplicationServiceRegistry.getUserApplicationService().user(userId);
+        return userRelationDetail.map(value -> ResponseEntity.ok(new UserTenantRepresentation(value,user.get()))).orElseGet(() -> ResponseEntity.ok().build());
+    }
+
+    @PutMapping(path = "{id}/users/{userId}")
+    public ResponseEntity<UserTenantRepresentation> replaceUserDetailForProject(
+            @PathVariable String id,
+            @PathVariable String userId,
+            @RequestBody UpdateUserRelationCommand command
+    ) {
+        ApplicationServiceRegistry.getUserRelationApplicationService().replace(id, userId,command);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("{id}")

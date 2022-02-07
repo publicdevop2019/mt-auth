@@ -10,5 +10,5 @@ public class RoleCreateCommand {
     private String parentId;
     private String projectId;
     private String description;
-    private Set<String> permissions;
+    private Set<String> permissionIds;
 }

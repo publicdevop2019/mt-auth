@@ -1,0 +1,15 @@
+<div>
+    <h2>{{'MY_PROJECT_DETAIL'|translate}}</h2>
+    <div style="display: flex; margin-bottom: 16px;align-items: center;">
+        <div style="margin-right: 16px;">{{'PROJECT_NAME'|translate}}</div>
+        <div>{{data.name}}</div>
+    </div>
+    <div style="display: flex; margin-bottom: 16px;align-items:flex-end;">
+        <div style="margin-right: 16px;">{{'PROJECT_CREATED_AT'|translate}}</div>
+        <div>{{data.createdAt |date:'M/d/yy, h:mm:ss a'}}</div>
+    </div>
+    <div style="display: flex; margin-bottom: 16px;align-items:flex-end;">
+        <div style="margin-right: 16px;">{{'PROJECT_CREATED_BY'|translate}}</div>
+        <div>{{data.createdBy}}</div>
+    </div>
+</div>

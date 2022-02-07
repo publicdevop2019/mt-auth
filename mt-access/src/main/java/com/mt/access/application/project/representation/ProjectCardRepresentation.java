@@ -7,10 +7,13 @@ import lombok.Data;
 public class ProjectCardRepresentation {
     private final String name;
     private final String id;
+    private final String createdBy;
+    private final Long createdAt;
 
     public ProjectCardRepresentation(Project project) {
         this.name = project.getName();
         this.id = project.getProjectId().getDomainId();
-
+        this.createdBy = project.getCreatedBy();
+        this.createdAt = project.getCreatedAt().getTime();
     }
 }

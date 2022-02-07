@@ -41,12 +41,14 @@ export interface ISumRep<T> {
 export interface IBottomSheet<S> {
   context: 'clone' | 'new' | 'edit';
   from: S;
+  params: {}
 }
 @Directive()
 export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDestroy {
   sheetComponent: ComponentType<any>;
   columnWidth: number;
   columnList: any;
+  bottomSheetParams = {};
   queryString: string = undefined;
   formId: string = undefined;
   queryKey: string = undefined;
@@ -127,21 +129,21 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
     }
   };
   openBottomSheet(id?: string, clone?: boolean): void {
-    let config = new MatBottomSheetConfig();
+    const config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
     if (hasValue(id)) {
       this.entitySvc.readById(id).subscribe(next => {
         if (clone) {
-          config.data = <IBottomSheet<S>>{ context: 'clone', from: next };
+          config.data = <IBottomSheet<S>>{ context: 'clone', from: next, params: this.bottomSheetParams };
           this.bottomSheet.open(this.sheetComponent, config);
         } else {
-          config.data = <IBottomSheet<S>>{ context: 'edit', from: next };
+          config.data = <IBottomSheet<S>>{ context: 'edit', from: next, params: this.bottomSheetParams };
           this.bottomSheet.open(this.sheetComponent, config);
         }
       })
     } else {
-      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, events: {} };
+      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

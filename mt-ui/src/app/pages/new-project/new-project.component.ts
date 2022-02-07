@@ -22,7 +22,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
     fis: FormInfoService,
     cdr: ChangeDetectorRef
   ) {
-    super('newProjectForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new ProjectValidator('CLIENT'), undefined, {from:undefined,context:'new'}, fis, cdr);
+    super('newProjectForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new ProjectValidator('CLIENT'), undefined, {from:undefined,context:'new',params:{}}, fis, cdr);
   }
   ngOnInit(): void {
   }

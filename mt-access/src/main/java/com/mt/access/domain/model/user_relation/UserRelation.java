@@ -2,16 +2,18 @@ package com.mt.access.domain.model.user_relation;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.OrganizationId;
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.position.PositionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
+import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.port.adapter.persistence.PermissionIdSetConverter;
 import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
 import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,12 +24,13 @@ import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
 @Entity
 @NoArgsConstructor
 @Getter
 @Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "userRelationRegion")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRelationRegion")
 public class UserRelation extends Auditable {
     @Id
     @Setter(AccessLevel.PRIVATE)
@@ -59,43 +62,48 @@ public class UserRelation extends Auditable {
             @AttributeOverride(name = "domainId", column = @Column(name = "positionId"))
     })
     private PositionId positionId;
-    @Lob
-    @Convert(converter = PermissionIdSetConverter.class)
-    private Set<PermissionId> permissionSnapshot;
 
-    public UserRelation(RoleId roleId, UserId creator, Set<PermissionId> permissionIds, ProjectId projectId, ProjectId tenantId) {
-        this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.standaloneRoles=new HashSet<>();
+    public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
+        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
+        this.standaloneRoles = new HashSet<>();
         this.standaloneRoles.add(roleId);
-        this.tenantIds=new HashSet<>();
+        this.tenantIds = new HashSet<>();
         this.tenantIds.add(tenantId);
-        this.userId=creator;
+        this.userId = creator;
         this.projectId = projectId;
-        this.permissionSnapshot = permissionIds;
     }
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId) {
-        this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.standaloneRoles=new HashSet<>();
+        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
+        this.standaloneRoles = new HashSet<>();
         this.standaloneRoles.add(roleId);
-        this.userId=creator;
+        this.userId = creator;
         this.projectId = projectId;
     }
 
-    public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator, Set<PermissionId> permissionIds, ProjectId tenantId, ProjectId projectId) {
+    public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator, ProjectId tenantId, ProjectId projectId) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(creator, projectId);
         UserRelation userRelation;
-        if(byUserIdAndProjectId.isPresent()){
+        if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
             userRelation.tenantIds.add(tenantId);
             userRelation.standaloneRoles.add(adminRoleId);
-        }else{
-            userRelation = new UserRelation(adminRoleId,creator,permissionIds,projectId,tenantId);
+        } else {
+            userRelation = new UserRelation(adminRoleId, creator, projectId, tenantId);
         }
         DomainRegistry.getUserRelationRepository().add(userRelation);
         //to target project
-        UserRelation userRelation2 = new UserRelation(userRoleId,creator,tenantId);
+        UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
+    }
+
+    public void setStandaloneRoles(Set<RoleId> collect) {
+        this.standaloneRoles = collect;
+        Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(collect));
+        if (collect.size() != allByQuery.size()) {
+            HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+            handler.handleError("not able to find all roles");
+        }
     }
 }

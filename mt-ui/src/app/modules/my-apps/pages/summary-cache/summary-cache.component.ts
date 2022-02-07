@@ -63,7 +63,7 @@ export class SummaryCacheComponent extends SummaryEntityComponent<ICacheProfile,
           }
         })
     } else {
-      config.data = <IBottomSheet<ICacheProfile>>{ context: 'new', from: undefined, events: {} };
+      config.data = <IBottomSheet<ICacheProfile>>{ context: 'new', from: undefined, params: {} };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }
