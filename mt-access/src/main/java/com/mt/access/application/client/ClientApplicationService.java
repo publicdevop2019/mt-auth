@@ -74,6 +74,9 @@ public class ClientApplicationService implements ClientDetailsService {
     public Optional<Client> client(String id) {
         return DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
     }
+    public Optional<Client> clientOfId(ClientId id) {
+        return DomainRegistry.getClientRepository().clientOfId(id);
+    }
 
     @SubscribeForEvent
     @Transactional

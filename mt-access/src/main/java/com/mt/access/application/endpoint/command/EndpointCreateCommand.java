@@ -8,6 +8,7 @@ import java.util.Set;
 @Data
 public class EndpointCreateCommand implements Serializable {
     private static final long serialVersionUID = 1;
+    private String name;
     private String description;
     private Set<String> clientRoles;
     private boolean secured;

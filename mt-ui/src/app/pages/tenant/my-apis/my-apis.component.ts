@@ -25,6 +25,7 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
   public formId = "myApiTableColumnConfig";
   columnList = {
     id: 'ID',
+    name: 'NAME',
     description: 'DESCRIPTION',
     resourceId: 'PARENT_CLIENT',
     path: 'URL',

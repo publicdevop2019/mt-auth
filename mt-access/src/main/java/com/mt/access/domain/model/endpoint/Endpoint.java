@@ -42,6 +42,7 @@ public class Endpoint extends Auditable {
 
     @Setter(AccessLevel.PRIVATE)
     private String description;
+    private String name;
 
     @Setter(AccessLevel.PRIVATE)
     private boolean isWebsocket;
@@ -92,7 +93,7 @@ public class Endpoint extends Auditable {
     private boolean csrfEnabled = true;
 
 
-    public Endpoint(ClientId clientId, ProjectId projectId, @Nullable PermissionId permissionId, CacheProfileId cacheProfileId, String description,
+    public Endpoint(ClientId clientId, ProjectId projectId, @Nullable PermissionId permissionId, CacheProfileId cacheProfileId, String name, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId
     ) {
@@ -101,14 +102,15 @@ public class Endpoint extends Auditable {
         setProjectId(projectId);
         setEndpointId(endpointId);
         setPermissionId(permissionId);
-        update(cacheProfileId, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
+        update(cacheProfileId, name, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
     }
 
     public void update(
-                       CacheProfileId cacheProfileId,
-                       String description, String path, String method, boolean secured,
-                       boolean isWebsocket,
-                       boolean csrfEnabled, CORSProfileId corsProfileId) {
+            CacheProfileId cacheProfileId,
+            String name, String description, String path, String method, boolean secured,
+            boolean isWebsocket,
+            boolean csrfEnabled, CORSProfileId corsProfileId) {
+        setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
         setCacheProfileId(cacheProfileId);
@@ -119,6 +121,11 @@ public class Endpoint extends Auditable {
         setCorsProfileId(corsProfileId);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setName(String name) {
+        Validator.notBlank(name);
+        this.name = name;
     }
 
     private void setPath(String path) {

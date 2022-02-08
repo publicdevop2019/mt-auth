@@ -52,7 +52,7 @@ public class EndpointQuery extends QueryCriteria {
 
     public EndpointQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
-        setPageConfig(PageConfig.limited(pageParam, 40));
+        setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
         setEndpointSort(pageConfig);
     }

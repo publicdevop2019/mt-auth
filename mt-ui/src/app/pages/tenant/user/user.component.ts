@@ -2,7 +2,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit 
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { take } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { filter, map, mapTo, switchMap, take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
@@ -35,7 +36,12 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     this.roleSvc.queryPrefix = `projectIds:${this.bottomSheet.params['projectId']}`
-    this.loadRoot = this.roleSvc.readByQuery(0, 1000, "parentId:null");
+    this.loadRoot = this.roleSvc.readByQuery(0, 1000, "parentId:null").pipe(switchMap(e=>{
+      e.data=e.data.filter(ee=>ee.roleType==='USER');
+      //@todo use a new api or query to get user type list
+
+      return of(e)
+    }));
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)

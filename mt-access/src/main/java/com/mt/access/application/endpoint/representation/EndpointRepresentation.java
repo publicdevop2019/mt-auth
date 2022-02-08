@@ -10,6 +10,7 @@ public class EndpointRepresentation {
     private String id;
     private String resourceId;
     private String description;
+    private String name;
     private String path;
     private String method;
     private String createdBy;
@@ -34,6 +35,7 @@ public class EndpointRepresentation {
         this.secured = endpoint.isSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
+        this.name = endpoint.getName();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.createdBy = endpoint.getCreatedBy();

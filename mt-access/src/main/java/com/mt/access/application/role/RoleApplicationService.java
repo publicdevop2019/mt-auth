@@ -4,12 +4,15 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
+import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -38,6 +41,9 @@ public class RoleApplicationService {
 
     public Optional<Role> getById(String id) {
         return DomainRegistry.getRoleRepository().getById(new RoleId(id));
+    }
+    public Optional<Role> getById(RoleId id) {
+        return DomainRegistry.getRoleRepository().getById(id);
     }
 
     @SubscribeForEvent
@@ -78,6 +84,7 @@ public class RoleApplicationService {
                     command.getName(),
                     command.getDescription(),
                     command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()),
+                    RoleType.USER,
                     command.getParentId() != null ? new RoleId(command.getParentId()) : null,
                     null
             );
@@ -98,8 +105,8 @@ public class RoleApplicationService {
             ProjectId tenantProjectId = new ProjectId(deserialize.getProjectId().getDomainId());
             ProjectId authPId = new ProjectId(authProjectId);
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
-            Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "",permissionIdSet , null,tenantProjectId);
-            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), null,null);
+            Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "",permissionIdSet , RoleType.USER, null,tenantProjectId);
+            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), RoleType.USER, null,null);
             DomainRegistry.getRoleRepository().add(adminRole);
             DomainRegistry.getRoleRepository().add(userRole);
             DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(),userRole.getRoleId(),deserialize.getProjectId(),permissionIdSet,deserialize.getCreator()));
@@ -109,5 +116,23 @@ public class RoleApplicationService {
 
     public SumPagedRep<Role> query(RoleQuery roleQuery) {
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
+    }
+
+    /**
+     * create placeholder role when new client created
+     * @param deserialize
+     */
+    @SubscribeForEvent
+    @Transactional
+    public void handle(ClientCreated deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            log.debug("handle client created event");
+            ProjectId projectId = deserialize.getProjectId();
+            ClientId clientId = new ClientId(deserialize.getDomainId().getDomainId());
+            RoleId roleId = deserialize.getRoleId();
+            Role userRole = new Role(projectId, roleId, clientId.getDomainId(), "SYSTEM_AUTO_CREATE", Collections.emptySet(), RoleType.CLIENT,null,null);
+            DomainRegistry.getRoleRepository().add(userRole);
+            return null;
+        }, ROLE);
     }
 }

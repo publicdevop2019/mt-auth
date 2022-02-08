@@ -7,6 +7,7 @@ import lombok.Data;
 @Data
 public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
     private String description;
+    private String name;
     private String resourceId;
     private String path;
     private String method;

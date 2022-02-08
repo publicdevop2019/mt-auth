@@ -11,6 +11,7 @@ import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
+import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
@@ -98,9 +99,9 @@ public class PermissionApplicationService {
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Permission permission;
             if (command.getParentId() != null) {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), new PermissionId(command.getParentId()),null);
+                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()),null);
             } else {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(),null);
+                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null);
             }
             DomainRegistry.getPermissionRepository().add(permission);
             return permissionId.getDomainId();

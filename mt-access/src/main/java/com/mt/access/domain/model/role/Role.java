@@ -47,14 +47,17 @@ public class Role extends Auditable {
             @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
     })
     private ProjectId tenantId;
+    @Convert(converter = RoleType.DBConverter.class)
+    private RoleType type;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(name = "parentId"))
     })
     private RoleId parentId;
-    public Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, @Nullable RoleId parentId , @Nullable ProjectId tenantId) {
+    public Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId , @Nullable ProjectId tenantId) {
         this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.roleId = roleId;
+        this.type = type;
         this.name = name;
         this.parentId = parentId;
         this.permissionIds = permissionIds;

@@ -10,6 +10,7 @@ import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
+import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { NewRoleService } from 'src/app/services/new-role.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -18,6 +19,7 @@ export interface INewRole extends IIdBasedEntity {
   parentId?: string,
   tenantId?: string,
   projectId: string,
+  roleType?: 'USER'|'CLIENT',
   permissionIds: string[],
   description?: string
 }
@@ -39,6 +41,7 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     name: 'NAME',
     description: 'DESCRIPTION',
     tenantId: 'TENANT_ID',
+    roleType: 'TYPE',
     edit: 'EDIT',
     clone: 'CLONE',
     delete: 'DELETE',
@@ -57,9 +60,11 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     },
   ]
   allProjects: IOption[]=[];
+  allClients: IOption[]=[];
   constructor(
     public entitySvc: NewRoleService,
     public projectSvc: ProjectService,
+    public clientSvc: ClientService,
     public deviceSvc: DeviceService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
@@ -96,10 +101,22 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
         this.allProjects = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
     }
+    let clientIds = next.data.filter(e=>e.roleType==='CLIENT').map(e => e.name);
+    if (clientIds.length > 0) {
+      this.clientSvc.readEntityByQuery(0, clientIds.length, "id:" + clientIds.join('.')).subscribe(next => {
+        this.allClients = next.data.map(e => <IOption>{ label: e.name, value: e.id });
+      })
+    }
   }
   getProjectName(input: string) {
     if (input)
       return this.allProjects.find(e => e.value === input)?.label
+    return input
+
+  }
+  getClientName(input: string) {
+    if (input)
+      return this.allClients.find(e => e.value === input)?.label
     return input
 
   }

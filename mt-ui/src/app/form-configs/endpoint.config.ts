@@ -29,10 +29,20 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
+            "label": "NAME",
+            "key": "name",
+            "position": {
+                "row": "2",
+                "column": "0"
+            },
+        },
+        {
+            "type": "text",
+            "display": true,
             "label": "ENTER_DESCRIPTION",
             "key": "description",
             "position": {
-                "row": "2",
+                "row": "3",
                 "column": "0"
             },
         },
@@ -42,7 +52,7 @@ export const FORM_CONFIG: IForm = {
             "label": "ENTER_ENDPOINT",
             "key": "path",
             "position": {
-                "row": "3",
+                "row": "4",
                 "column": "0"
             },
             required: true,
@@ -53,7 +63,7 @@ export const FORM_CONFIG: IForm = {
             "label": "IS_WEBSOCKET",
             "key": "isWebsocket",
             "position": {
-                "row": "4",
+                "row": "5",
                 "column": "0"
             },
             "options": [
@@ -67,7 +77,7 @@ export const FORM_CONFIG: IForm = {
             "label": "SELECT_METHOD",
             "key": "method",
             "position": {
-                "row": "5",
+                "row": "6",
                 "column": "0"
             },
             "options": HTTP_METHODS,

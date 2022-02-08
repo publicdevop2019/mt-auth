@@ -115,6 +115,7 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
     return {
       id: formGroup.get('id').value,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
+      name: formGroup.get('name').value,
       resourceId: formGroup.get('resourceId').value,
       path: formGroup.get('path').value,
       method: formGroup.get('method').value,

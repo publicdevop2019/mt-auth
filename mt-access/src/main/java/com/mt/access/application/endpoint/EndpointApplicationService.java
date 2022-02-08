@@ -82,6 +82,7 @@ public class EndpointApplicationService {
                 Endpoint endpoint = client1.addNewEndpoint(
                         permissionId,
                         command.getCacheProfileId() != null ? new CacheProfileId(command.getCacheProfileId()) : null,
+                        command.getName(),
                         command.getDescription(),
                         command.getPath(),
                         endpointId,
@@ -122,6 +123,7 @@ public class EndpointApplicationService {
                 Endpoint endpoint1 = endpoint.get();
                 endpoint1.update(
                         command.getCacheProfileId() != null ? new CacheProfileId(command.getCacheProfileId()) : null,
+                        command.getName(),
                         command.getDescription(),
                         command.getPath(),
                         command.getMethod(),
@@ -178,6 +180,7 @@ public class EndpointApplicationService {
                 EndpointPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
                 endpoint1.update(
                         endpoint1.getCacheProfileId(),
+                        afterPatch.getName(),
                         afterPatch.getDescription(),
                         afterPatch.getPath(),
                         afterPatch.getMethod(),

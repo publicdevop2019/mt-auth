@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class EndpointCardRepresentation {
     private String id;
+    private String name;
     private String description;
     private String resourceId;
     private String path;
@@ -20,6 +21,7 @@ public class EndpointCardRepresentation {
     public EndpointCardRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
+        this.name = endpoint.getName();
         this.cacheProfileId = endpoint.getCacheProfileId()!=null?endpoint.getCacheProfileId().getDomainId():null;;
         this.websocket = endpoint.isWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();

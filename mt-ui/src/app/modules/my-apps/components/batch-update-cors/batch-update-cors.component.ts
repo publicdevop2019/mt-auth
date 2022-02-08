@@ -3,7 +3,6 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
 import { FormInfoService } from "mt-form-builder";
 import { IForm, IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
-import { switchMap, switchMapTo } from "rxjs/operators";
 import { IEndpoint } from "src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
 import { CacheService } from "src/app/services/cache.service";
