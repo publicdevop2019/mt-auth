@@ -49,6 +49,8 @@ import { SummaryProjectComponent } from './modules/my-apps/pages/summary-project
 import { NewProjectComponent } from './pages/new-project/new-project.component';
 import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
 import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { WelcomeComponent } from './pages/welcome/welcome.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -56,7 +58,8 @@ const routes: Routes = [
   {
     path: 'dashboard', component: NavBarComponent, canActivateChild: [AuthService],
     children: [
-      { path: '', redirectTo: 'api-profiles', pathMatch: 'full' },
+      { path: '', redirectTo: 'welcome', pathMatch: 'full' },
+      { path: 'welcome', component: WelcomeComponent },
       { path: 'projects', component: SummaryProjectComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
@@ -102,7 +105,7 @@ const routes: Routes = [
       { path: ':id/my-project', component: MyProjectComponent},
       { path: ':id/my-user', component: MyUsersComponent},
       { path: ':id/add-admin', component: AddAdminComponent},
-      { path: '**', component: SummaryEndpointComponent }
+      { path: '**', component: NotFoundComponent }
     ]
   },
   { path: '', redirectTo: 'login', pathMatch: 'full' },

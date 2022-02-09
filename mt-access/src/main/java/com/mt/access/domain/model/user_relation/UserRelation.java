@@ -81,20 +81,27 @@ public class UserRelation extends Auditable {
         this.projectId = projectId;
     }
 
-    public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator, ProjectId tenantId, ProjectId projectId) {
+    public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator, ProjectId tenantId, ProjectId authProjectId) {
         //to mt-auth
-        Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(creator, projectId);
+        Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(creator, authProjectId);
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
+            if(userRelation.tenantIds==null){
+                userRelation.tenantIds=new HashSet<>();
+            }
             userRelation.tenantIds.add(tenantId);
             userRelation.standaloneRoles.add(adminRoleId);
         } else {
-            userRelation = new UserRelation(adminRoleId, creator, projectId, tenantId);
+            userRelation = new UserRelation(adminRoleId, creator, authProjectId, tenantId);
         }
         DomainRegistry.getUserRelationRepository().add(userRelation);
         //to target project
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
+        DomainRegistry.getUserRelationRepository().add(userRelation2);
+    }
+    public static void initNewUser(RoleId userRoleId, UserId creator, ProjectId authProjectId) {
+        UserRelation userRelation2 = new UserRelation(userRoleId, creator, authProjectId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
     }
 

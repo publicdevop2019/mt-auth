@@ -14,6 +14,7 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
@@ -31,8 +32,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class RoleApplicationService {
-    @Value("${mt.project.id}")
-    private String authProjectId;
     private static final String ROLE = "Role";
 
     public SumPagedRep<Role> query(String queryParam, String pageParam, String skipCount) {
@@ -103,7 +102,7 @@ public class RoleApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
             log.debug("handle project permission created event");
             ProjectId tenantProjectId = new ProjectId(deserialize.getProjectId().getDomainId());
-            ProjectId authPId = new ProjectId(authProjectId);
+            ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
             Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "",permissionIdSet , RoleType.USER, null,tenantProjectId);
             Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), RoleType.USER, null,null);

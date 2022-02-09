@@ -206,6 +206,13 @@ export class NavBarComponent implements OnInit {
   ];
   menuTop: INavElement[] = [
     {
+      link: 'welcome',
+      display: 'WELCOME',
+      icon: 'dashboard',
+      params: {
+      },
+    },
+    {
       link: 'my-profile',
       display: 'MY_PROFILE',
       icon: 'account_circle',
@@ -219,13 +226,13 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-    {
-      link: 'api-center',
-      display: 'API_CENTER',
-      icon: 'mediation',
-      params: {
-      },
-    },
+    // {
+    //   link: 'api-center',
+    //   display: 'API_CENTER',
+    //   icon: 'mediation',
+    //   params: {
+    //   },
+    // },
   ];
   menuMall: INavElement[] = [
     {
@@ -393,7 +400,7 @@ export class NavBarComponent implements OnInit {
 
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
-      this.projectSvc.totalProjects=next.data;
+      this.projectSvc.totalProjects = next.data;
     })
     this.msgSvc.connectSystemMonitor();
     this.msgSvc.connectMallMonitor();
@@ -413,5 +420,8 @@ export class NavBarComponent implements OnInit {
         ...input.params,
       }
     }
+  }
+  hasAuth() {
+    return !!this.projectSvc.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
 }

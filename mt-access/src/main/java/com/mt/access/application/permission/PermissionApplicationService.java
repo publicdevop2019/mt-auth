@@ -14,6 +14,7 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
@@ -31,8 +32,6 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class PermissionApplicationService {
-    @Value("${mt.project.id}")
-    private String authProjectId;
     private static final String PERMISSION = "Permission";
 
     public SumPagedRep<Permission> query(String queryParam, String pageParam, String skipCount) {
@@ -50,9 +49,9 @@ public class PermissionApplicationService {
     @SubscribeForEvent
     @Transactional
     public void replace(String id, PermissionUpdateCommand command, String changeId) {
-        PermissionId PermissionId = new PermissionId(id);
+        PermissionId permissionId = new PermissionId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Optional<Permission> first = DomainRegistry.getPermissionRepository().getByQuery(new PermissionQuery(PermissionId)).findFirst();
+            Optional<Permission> first = DomainRegistry.getPermissionRepository().getByQuery(new PermissionQuery(permissionId)).findFirst();
             first.ifPresent(e -> {
                 e.replace(command.getName());
                 DomainRegistry.getPermissionRepository().add(e);
@@ -114,7 +113,7 @@ public class PermissionApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
             log.debug("handle project created event");
             ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
-            ProjectId projectId = new ProjectId(authProjectId);
+            ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
             Permission.onboardNewProject(projectId,tenantProjectId, deserialize.getCreator());
             return null;
         }, PERMISSION);

@@ -30,10 +30,10 @@
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
-                    <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display| translate}}
+                    <mat-icon style="padding-right:8px" *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display| translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
+            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')" *ngIf="hasAuth()"
                 [expanded]="navExpand('admin_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">

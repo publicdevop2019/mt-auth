@@ -10,8 +10,8 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.domainId.DomainId;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -32,8 +32,6 @@ import java.util.stream.Collectors;
 @Component
 public class CustomTokenEnhancer implements TokenEnhancer {
     private static final String NOT_USED = "not_used";
-    @Value("${mt.project.id}")
-    private String authProjectId;
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken, OAuth2Authentication authentication) {
@@ -56,22 +54,24 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 });
             } else {
                 //get auth project permission and user tenant projects
-                Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(authProjectId));
+                Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
                 userRelation.ifPresent(relation -> {
                     Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(relation);
                     info.put("permissionIds", compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                     info.put("projectId", relation.getProjectId().getDomainId());
-                    info.put("tenantId", relation.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                    if (relation.getTenantIds() != null) {
+                        info.put("tenantId", relation.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                    }
                 });
             }
         } else {
             //for client
             ClientId clientId = new ClientId(authentication.getName());
             Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().clientOfId(clientId);
-            client.ifPresent(client1->{
+            client.ifPresent(client1 -> {
                 RoleId roleId = client1.getRoleId();
                 Optional<Role> byId = ApplicationServiceRegistry.getRoleApplicationService().getById(roleId);
-                byId.ifPresent(role->{
+                byId.ifPresent(role -> {
                     info.put("projectId", client1.getProjectId().getDomainId());
                     info.put("permissionIds", role.getPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                 });

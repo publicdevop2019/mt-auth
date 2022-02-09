@@ -11,6 +11,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
@@ -26,8 +27,6 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserRelationApplicationService {
     private static final String USER_RELATION = "UserRelation";
-    @Value("${mt.project.id}")
-    private String authProjectId;
 
     public Optional<UserRelation> getUserRelation(UserId userId, ProjectId projectId) {
         return DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(userId, projectId);
@@ -36,18 +35,18 @@ public class UserRelationApplicationService {
     /**
      * create user relation to mt-auth and target project as well
      *
-     * @param deserialize
+     * @param event
      */
     @SubscribeForEvent
     @Transactional
-    public void handle(NewProjectRoleCreated deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+    public void handle(NewProjectRoleCreated event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (ignored) -> {
             log.debug("handle new project role created event");
-            RoleId adminRoleId = new RoleId(deserialize.getDomainId().getDomainId());
-            RoleId userRoleId = deserialize.getUserRoleId();
-            UserId creator = deserialize.getCreator();
-            ProjectId tenantId = deserialize.getProjectId();
-            UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId, new ProjectId(authProjectId));
+            RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
+            RoleId userRoleId = event.getUserRoleId();
+            UserId creator = event.getCreator();
+            ProjectId tenantId = event.getProjectId();
+            UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
             return null;
         }, USER_RELATION);
     }

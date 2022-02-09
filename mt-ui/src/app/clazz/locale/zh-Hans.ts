@@ -679,4 +679,12 @@ export const zhHans = {
     "API": "API",
     "COMMON": "通用",
     "PROJECT": "项目",
+    "NOT_FOUND": "无法找到该页面",
+    "WELCOME": "首页",
+    "APP_NAME": "多树AUTH",
+    "APP_DESCRIPTION_1": "多租户, 用户, 应用, API管理中心",
+    "APP_DESCRIPTION_2": "多树AUTH是一款基于Spring Boot, OAuth2采用事件驱动设计的多租户权限管理(RBAC)系统, 通过集成Spring Cloud Gateway实现了API鉴权, 缓存, 跨域, CSRF防护, 特殊字符过滤等常用功能",
+    "CONTACT_AUTHOR": "联系作者",
+    "PLS_LIKE": "请收藏",
+    "WE_CHAT": "微信",
 }

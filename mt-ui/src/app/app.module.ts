@@ -141,6 +141,8 @@ import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component'
 import { PermissionComponent } from './pages/tenant/permission/permission.component';
 import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
 import { UserComponent } from './pages/tenant/user/user.component';
+import { NotFoundComponent } from './pages/not-found/not-found.component';
+import { WelcomeComponent } from './pages/welcome/welcome.component';
 
 @NgModule({
   declarations: [
@@ -231,6 +233,8 @@ import { UserComponent } from './pages/tenant/user/user.component';
     PermissionComponent,
     MyUsersComponent,
     UserComponent,
+    NotFoundComponent,
+    WelcomeComponent,
   ],
   imports: [
     BrowserAnimationsModule,
