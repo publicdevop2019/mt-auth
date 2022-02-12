@@ -21,6 +21,8 @@ public class ProjectIdSetConverter implements AttributeConverter<Set<ProjectId>,
     public Set<ProjectId> convertToEntityAttribute(String dbData) {
         if (dbData == null)
             return null;
+        if (dbData.isBlank() || dbData.isEmpty())
+            return null;
         return Arrays.stream(dbData.split(",")).map(ProjectId::new).collect(Collectors.toSet());
     }
 }

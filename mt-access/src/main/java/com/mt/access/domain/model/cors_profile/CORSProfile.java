@@ -97,11 +97,11 @@ public class CORSProfile extends Auditable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CORSProfile that = (CORSProfile) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(corsId, that.corsId) && Objects.equals(allowCredentials, that.allowCredentials) && Objects.equals(allowedHeaders, that.allowedHeaders)  && Objects.equals(allowOrigin, that.allowOrigin) && Objects.equals(exposedHeaders, that.exposedHeaders) && Objects.equals(maxAge, that.maxAge);
+        return Objects.equals(corsId, that.corsId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, description, corsId, allowCredentials, allowedHeaders, allowOrigin, exposedHeaders, maxAge);
+        return Objects.hash(super.hashCode(), corsId);
     }
 }

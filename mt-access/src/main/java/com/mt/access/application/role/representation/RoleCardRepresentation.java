@@ -38,7 +38,12 @@ public class RoleCardRepresentation {
 
     public static SumPagedRep<RoleCardRepresentation> updateName(SumPagedRep<RoleCardRepresentation> response) {
         List<RoleCardRepresentation> data = response.getData();
-        Set<ProjectId> collect = data.stream().filter(e -> e.roleType.equals(RoleType.PROJECT)).flatMap(e -> Stream.of(new ProjectId(e.name), new ProjectId(e.tenantId))).collect(Collectors.toSet());
+        Set<ProjectId> collect = data.stream().filter(e -> e.roleType.equals(RoleType.PROJECT)).flatMap(e -> {
+            if (e.tenantId != null) {
+                return Stream.of(new ProjectId(e.name), new ProjectId(e.tenantId));
+            }
+            return Stream.of(new ProjectId(e.name));
+        }).collect(Collectors.toSet());
         Set<ProjectId> collect2 = data.stream().filter(e -> e.tenantId != null).map(e -> new ProjectId(e.tenantId)).collect(Collectors.toSet());
         collect.addAll(collect2);
         if (collect.size() > 0) {

@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -44,6 +45,7 @@ public class RoleApplicationService {
     public Optional<Role> getById(String id) {
         return DomainRegistry.getRoleRepository().getById(new RoleId(id));
     }
+
     public Optional<Role> getById(RoleId id) {
         return DomainRegistry.getRoleRepository().getById(id);
     }
@@ -55,7 +57,7 @@ public class RoleApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(RoleId)).findFirst();
             first.ifPresent(e -> {
-                e.replace(command.getName(),command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
+                e.replace(command.getName(), command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
                 DomainRegistry.getRoleRepository().add(e);
             });
             return null;
@@ -75,24 +77,26 @@ public class RoleApplicationService {
         }, ROLE);
     }
 
+    /**
+     * create role, permissions must belong to root node
+     *
+     * @param command
+     * @param changeId
+     * @return
+     */
     @SubscribeForEvent
     @Transactional
     public String create(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Set<PermissionId> collect = command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet());
-            Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery((PermissionQuery) e), new PermissionQuery(collect));
-            Set<PermissionId> collect1 = allByQuery.stream().filter(e -> e.getLinkedApiPermissionId() != null).map(Permission::getLinkedApiPermissionId).collect(Collectors.toSet());
-            collect.addAll(collect1);
-            Role role = new Role(
+            Role role = Role.createNewRoleForProject(
                     new ProjectId(command.getProjectId()),
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    collect,
+                    command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()),
                     RoleType.USER,
-                    command.getParentId() != null ? new RoleId(command.getParentId()) : null,
-                    null
+                    command.getParentId() != null ? new RoleId(command.getParentId()) : null
             );
             DomainRegistry.getRoleRepository().add(role);
             return roleId.getDomainId();
@@ -101,6 +105,7 @@ public class RoleApplicationService {
 
     /**
      * create admin role to mt-auth and default user role to target project
+     *
      * @param deserialize
      */
     @SubscribeForEvent
@@ -115,19 +120,19 @@ public class RoleApplicationService {
             permissionIdSet.addAll(defaultApiPermissions);
             RoleId roleId = new RoleId();
             RoleId roleId1 = new RoleId();
-            Role rootRole = new Role(authPId,roleId , tenantProjectId.getDomainId(), "",permissionIdSet , RoleType.PROJECT, null,tenantProjectId);
-            Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "",permissionIdSet , RoleType.USER, roleId,tenantProjectId);
+            Role rootRole = new Role(authPId, roleId, tenantProjectId.getDomainId(), "", permissionIdSet, RoleType.PROJECT, null, tenantProjectId);
+            Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "", permissionIdSet, RoleType.USER, roleId, tenantProjectId);
 
-            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), RoleType.USER, roleId1,null);
-            Role tenantClientRoot = new Role(tenantProjectId, new RoleId(), "CLIENT_ROLE", "", Collections.emptySet(), RoleType.CLIENT_ROOT, null,null);
-            Role tenantUserRoot = new Role(tenantProjectId, roleId1, tenantProjectId.getDomainId(), "", Collections.emptySet(), RoleType.PROJECT, null,null);
+            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), RoleType.USER, roleId1, null);
+            Role tenantClientRoot = new Role(tenantProjectId, new RoleId(), "CLIENT_ROLE", "", Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
+            Role tenantUserRoot = new Role(tenantProjectId, roleId1, tenantProjectId.getDomainId(), "", Collections.emptySet(), RoleType.PROJECT, null, null);
 
             DomainRegistry.getRoleRepository().add(adminRole);
             DomainRegistry.getRoleRepository().add(userRole);
             DomainRegistry.getRoleRepository().add(rootRole);
             DomainRegistry.getRoleRepository().add(tenantClientRoot);
             DomainRegistry.getRoleRepository().add(tenantUserRoot);
-            DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(),userRole.getRoleId(),deserialize.getProjectId(),permissionIdSet,deserialize.getCreator()));
+            DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(), userRole.getRoleId(), deserialize.getProjectId(), permissionIdSet, deserialize.getCreator()));
             return null;
         }, ROLE);
     }
@@ -138,6 +143,7 @@ public class RoleApplicationService {
 
     /**
      * create placeholder role when new client created
+     *
      * @param deserialize
      */
     @SubscribeForEvent
@@ -148,12 +154,12 @@ public class RoleApplicationService {
             ProjectId projectId = deserialize.getProjectId();
             ClientId clientId = new ClientId(deserialize.getDomainId().getDomainId());
             RoleId roleId = deserialize.getRoleId();
-            Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(projectId,new RoleId("null")));
+            Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(projectId, new RoleId("null")));
             Optional<Role> first = allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType())).findFirst();
-            if(first.isEmpty()){
+            if (first.isEmpty()) {
                 throw new IllegalStateException("unable to find root client role");
             }
-            Role userRole = new Role(projectId, roleId, clientId.getDomainId(), "SYSTEM_AUTO_CREATE", Collections.emptySet(), RoleType.CLIENT,first.get().getRoleId(), null);
+            Role userRole = new Role(projectId, roleId, clientId.getDomainId(), "SYSTEM_AUTO_CREATE", Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
             DomainRegistry.getRoleRepository().add(userRole);
             return null;
         }, ROLE);

@@ -21,6 +21,8 @@ public class RoleIdSetConverter implements AttributeConverter<Set<RoleId>, Strin
     public Set<RoleId> convertToEntityAttribute(String dbData) {
         if (dbData == null)
             return null;
+        if (dbData.isBlank() || dbData.isEmpty())
+            return null;
         return Arrays.stream(dbData.split(",")).map(RoleId::new).collect(Collectors.toSet());
     }
 }

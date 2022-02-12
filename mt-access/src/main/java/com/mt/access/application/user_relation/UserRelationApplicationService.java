@@ -2,7 +2,6 @@ package com.mt.access.application.user_relation;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
@@ -18,10 +17,10 @@ import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -74,15 +73,23 @@ public class UserRelationApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(new UserId(userId), projectId1);
         Set<RoleId> collect = command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet());
-        Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(collect));
-        //remove default user so mt-auth will not be miss added to tenant list
-        Set<Role> removeDefaultUser = allByQuery.stream().filter(e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e.getRoleId().getDomainId())).collect(Collectors.toSet());
-        Set<ProjectId> collect1 = removeDefaultUser.stream().map(Role::getTenantId).collect(Collectors.toSet());
-        //update tenant list based on role selected
-        byUserIdAndProjectId.ifPresent(e->{
-            e.setStandaloneRoles(command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet()));
-            e.setTenantIds(collect1);
-        });
+        if (collect.size() > 0) {
+            Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(collect));
+            //remove default user so mt-auth will not be miss added to tenant list
+            Set<Role> removeDefaultUser = allByQuery.stream().filter(e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e.getRoleId().getDomainId())).collect(Collectors.toSet());
+            Set<ProjectId> collect1 = removeDefaultUser.stream().map(Role::getTenantId).collect(Collectors.toSet());
+            //update tenant list based on role selected
+            byUserIdAndProjectId.ifPresent(e -> {
+                e.setStandaloneRoles(command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet()));
+                e.setTenantIds(collect1);
+            });
+
+        }else{
+            byUserIdAndProjectId.ifPresent(e -> {
+                e.setStandaloneRoles(Collections.emptySet());
+                e.setTenantIds(Collections.emptySet());
+            });
+        }
     }
 
 }

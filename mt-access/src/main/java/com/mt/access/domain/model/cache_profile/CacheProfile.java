@@ -14,6 +14,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -99,6 +100,20 @@ public class CacheProfile extends Auditable {
         this.weakValidation = weakValidation;
         this.allowCache=allowCache;
         DomainEventPublisher.instance().publish(new CacheProfileUpdated(this));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        CacheProfile that = (CacheProfile) o;
+        return Objects.equals(cacheProfileId, that.cacheProfileId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), cacheProfileId);
     }
 
     public void removeAllReference() {

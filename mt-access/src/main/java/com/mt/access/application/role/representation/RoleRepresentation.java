@@ -10,14 +10,17 @@ import java.util.stream.Collectors;
 
 @Data
 public class RoleRepresentation {
+    private final RoleType roleType;
     private String id;
     private String name;
     private Set<String> permissionIds;
-    private final RoleType roleType;
+
     public RoleRepresentation(Role role) {
-        this.id= role.getRoleId().getDomainId();
-        this.name= role.getName();
+        this.id = role.getRoleId().getDomainId();
+        this.name = role.getName();
         this.roleType = role.getType();
-        this.permissionIds=role.getPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
+        if (role.getPermissionIds() != null) {
+            this.permissionIds = role.getPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
+        }
     }
 }

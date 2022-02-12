@@ -14,10 +14,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
@@ -119,5 +116,19 @@ public class UserRelation extends Auditable {
 
     public void setTenantIds(Set<ProjectId> tenantIds) {
         this.tenantIds = tenantIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        UserRelation that = (UserRelation) o;
+        return Objects.equals(userId, that.userId) && Objects.equals(projectId, that.projectId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), userId, projectId);
     }
 }
