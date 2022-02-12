@@ -6,6 +6,7 @@ import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.Permission;
@@ -21,7 +22,6 @@ import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -96,11 +96,21 @@ public class PermissionApplicationService {
     public String create(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
+            PermissionId linkedPermId = null;
+            if (command.getLinkedApiId() != null && !command.getLinkedApiId().isBlank()) {
+                EndpointId endpointId = new EndpointId(command.getLinkedApiId());
+                Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+                if (endpoint.isPresent()) {
+                    linkedPermId = endpoint.get().getPermissionId();
+                } else {
+                    throw new IllegalArgumentException("unable to find linked api");
+                }
+            }
             Permission permission;
-            if (command.getParentId() != null) {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()),null);
+            if (command.getParentId() != null && !command.getParentId().isBlank()) {
+                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()), null, linkedPermId);
             } else {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null);
+                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, null, linkedPermId);
             }
             DomainRegistry.getPermissionRepository().add(permission);
             return permissionId.getDomainId();
@@ -114,10 +124,11 @@ public class PermissionApplicationService {
             log.debug("handle project created event");
             ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
             ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
-            Permission.onboardNewProject(projectId,tenantProjectId, deserialize.getCreator());
+            Permission.onboardNewProject(projectId, tenantProjectId, deserialize.getCreator());
             return null;
         }, PERMISSION);
     }
+
     @SubscribeForEvent
     @Transactional
     public void handle(SecureEndpointCreated deserialize) {
@@ -126,7 +137,7 @@ public class PermissionApplicationService {
             EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
             PermissionId permissionId = deserialize.getPermissionId();
             ProjectId projectId = deserialize.getProjectId();
-            Permission.addNewEndpoint(projectId,endpointId,permissionId);
+            Permission.addNewEndpoint(projectId, endpointId, permissionId);
             return null;
         }, PERMISSION);
     }

@@ -4,7 +4,9 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
+import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserId;
@@ -14,6 +16,7 @@ import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -64,13 +67,22 @@ public class UserRelationApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         return DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(new UserId(userId), projectId1);
     }
+
     @SubscribeForEvent
     @Transactional
-    public void replace(String projectId, String userId, UpdateUserRelationCommand command) {
+    public void adminUpdate(String projectId, String userId, UpdateUserRelationCommand command) {
         ProjectId projectId1 = new ProjectId(projectId);
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(new UserId(userId), projectId1);
+        Set<RoleId> collect = command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet());
+        Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(collect));
+        //remove default user so mt-auth will not be miss added to tenant list
+        Set<Role> removeDefaultUser = allByQuery.stream().filter(e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e.getRoleId().getDomainId())).collect(Collectors.toSet());
+        Set<ProjectId> collect1 = removeDefaultUser.stream().map(Role::getTenantId).collect(Collectors.toSet());
+        //update tenant list based on role selected
         byUserIdAndProjectId.ifPresent(e->{
             e.setStandaloneRoles(command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet()));
+            e.setTenantIds(collect1);
         });
     }
+
 }

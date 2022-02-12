@@ -43,6 +43,13 @@ public class ProjectQuery extends QueryCriteria {
         this.sort = ProjectSort.byId(true);
     }
 
+    public ProjectQuery(Set<ProjectId> collect) {
+        ids=collect;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = ProjectSort.byId(true);
+    }
+
     @Getter
     public static class ProjectSort {
         private final boolean isAsc;

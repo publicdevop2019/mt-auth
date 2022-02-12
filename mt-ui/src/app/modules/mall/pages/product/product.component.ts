@@ -102,7 +102,6 @@ export class ProductComponent extends Aggregate<ProductComponent, IProductDetail
     this.imgAttrSaleFormCreatedOb = this.fis.formCreated(this.imageAttrSaleFormId);
     this.salesFormIdTempFormCreatedOb = this.fis.formCreated(this.salesFormIdTempId);
     this.imageAttrSaleChildFormCreatedOb = this.fis.formCreated(this.imageAttrSaleChildFormId);
-    //@todo how to load tree structure
     combineLatest([this.categorySvc.readEntityByQuery(0, 1000, CATALOG_TYPE.BACKEND), this.formCreatedOb]).pipe(take(1)).subscribe(next => {
       if (next[0].data) {
         this.catalogs = next[0];

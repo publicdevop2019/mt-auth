@@ -22,8 +22,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
 @Entity
@@ -87,8 +89,8 @@ public class UserRelation extends Auditable {
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
-            if(userRelation.tenantIds==null){
-                userRelation.tenantIds=new HashSet<>();
+            if (userRelation.tenantIds == null) {
+                userRelation.tenantIds = new HashSet<>();
             }
             userRelation.tenantIds.add(tenantId);
             userRelation.standaloneRoles.add(adminRoleId);
@@ -100,6 +102,7 @@ public class UserRelation extends Auditable {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
     }
+
     public static void initNewUser(RoleId userRoleId, UserId creator, ProjectId authProjectId) {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, authProjectId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
@@ -112,5 +115,9 @@ public class UserRelation extends Auditable {
             HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
             handler.handleError("not able to find all roles");
         }
+    }
+
+    public void setTenantIds(Set<ProjectId> tenantIds) {
+        this.tenantIds = tenantIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
     }
 }

@@ -12,6 +12,7 @@ import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-commo
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { ClientService } from 'src/app/services/client.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { MyClientService } from 'src/app/services/my-client.service';
 
 @Component({
   selector: 'app-client',
@@ -26,7 +27,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   private formCreatedOb: Observable<string>;
   private previousPayload: any = {};
   constructor(
-    public clientService: ClientService,
+    public clientService: MyClientService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -35,12 +36,14 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   ) {
     super('client', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
+    clientService.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
     combineLatest([this.formCreatedOb
     ]).pipe(take(1)).subscribe(next => {
+      console.dir(this.bottomSheet.context)
       if (this.bottomSheet.context === 'new') {
-        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)
+        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
       this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
         // prevent infinite loop
@@ -55,48 +58,59 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         this.previousPayload = e;
         // update form config
       });
-      if (this.bottomSheet.context === 'new') {
+      if (this.bottomSheet.context === 'edit') {
 
         const var0: Observable<any>[] = [];
         if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
           var0.push(this.clientService.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
         }
-        combineLatest(var0).pipe(take(1))
-          .subscribe(next => {
-            let count = -1;
-            if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-              count++;
-              this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-            }
-            const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
-            this.fis.formGroupCollection[this.formId].patchValue({
-              id: this.aggregate.id,
-              hasSecret: this.aggregate.hasSecret,
-              projectId: this.aggregate.projectId,
-              path: this.aggregate.path ? this.aggregate.path : '',
-              clientSecret: this.aggregate.hasSecret ? '*****' : '',
-              name: this.aggregate.name,
-              description: this.aggregate.description,
-              grantType: grantType,
-              registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
-              refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
-              resourceIndicator: this.aggregate.resourceIndicator,
-              autoApprove: this.aggregate.autoApprove,
-              accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
-              refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
-              resourceId: this.aggregate.resourceIds,
-            });
-            this.cdr.markForCheck()
-          })
+        if(var0.length===0){
+          this.resume()
+        }else{
+          combineLatest(var0).pipe(take(1))
+            .subscribe(next => {
+              let count = -1;
+              if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
+                count++;
+                this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+              }
+              this.resume()
+              this.cdr.markForCheck()
+            })
+
+        }
       };
     })
   }
   ngOnInit(): void {
   }
+  resume(): void {
+    const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
+    this.fis.formGroupCollection[this.formId].patchValue({
+      id: this.aggregate.id,
+      hasSecret: this.aggregate.hasSecret,
+      projectId: this.aggregate.projectId,
+      path: this.aggregate.path ? this.aggregate.path : '',
+      clientSecret: this.aggregate.hasSecret ? '*****' : '',
+      name: this.aggregate.name,
+      description: this.aggregate.description||'',
+      isRoot:this.aggregate.types.includes(CLIENT_TYPE.root_app),
+      firstOrThirdApp:this.aggregate.types.filter(e=>[CLIENT_TYPE.firstParty,CLIENT_TYPE.thirdParty].includes(e))[0],
+      frontOrBackApp:this.aggregate.types.filter(e=>[CLIENT_TYPE.frontend_app,CLIENT_TYPE.backend_app].includes(e))[0],
+      grantType: grantType,
+      registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
+      refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
+      resourceIndicator: this.aggregate.resourceIndicator,
+      autoApprove: this.aggregate.autoApprove,
+      accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
+      refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
+      resourceId: this.aggregate.resourceIds,
+    });
+  }
   getResourceIds() {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IClient>(this.clientService.entityRepo, this.clientService.role, num, size, "resourceIndicator:1", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IClient>(this.clientService.entityRepo, this.clientService.role, num, size, `projectIds:${this.bottomSheet.params['projectId']},resourceIndicator:1`, by, order, header)
       }
     } as IQueryProvider
   }
@@ -106,11 +120,16 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   convertToPayload(cmpt: ClientComponent): IClient {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
     let grants: grantTypeEnums[] = [];
+    const types: CLIENT_TYPE[] = [];
     if (formGroup.get('grantType').value as grantTypeEnums) {
       grants.push(formGroup.get('grantType').value as grantTypeEnums);
     }
     if (formGroup.get('refreshToken').value)
       grants.push(grantTypeEnums.refresh_token);
+    if (formGroup.get('isRoot').value)
+      types.push(CLIENT_TYPE.root_app);
+    types.push(formGroup.get('firstOrThirdApp').value);
+    types.push(formGroup.get('frontOrBackApp').value);
 
     return {
       id: formGroup.get('id').value,
@@ -120,7 +139,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       hasSecret: formGroup.get('hasSecret').value ? true : false,
       clientSecret: formGroup.get('clientSecret').value == '*****' ? '' : formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
-      types: formGroup.get('types').value as CLIENT_TYPE[],
+      types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
       refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,

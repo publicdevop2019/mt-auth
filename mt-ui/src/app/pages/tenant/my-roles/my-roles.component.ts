@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, of } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { switchMap, take } from 'rxjs/operators';
 import { IBottomSheet, IIdBasedEntity, ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
@@ -12,6 +12,7 @@ import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { NewRoleService } from 'src/app/services/new-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface INewRole extends IIdBasedEntity {
@@ -19,7 +20,7 @@ export interface INewRole extends IIdBasedEntity {
   parentId?: string,
   tenantId?: string,
   projectId: string,
-  roleType?: 'USER'|'CLIENT',
+  roleType?: 'USER' | 'CLIENT' | 'PROJECT' | 'CLIENT_ROOT',
   permissionIds: string[],
   description?: string
 }
@@ -47,8 +48,8 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     delete: 'DELETE',
   }
   sheetComponent = RoleComponent;
-  public loadRoot = this.entitySvc.readByQuery(0, 1000, "parentId:null")
-  public loadChildren = (id: string) => this.entitySvc.readByQuery(0, 1000, "parentId:" + id)
+  public loadRoot
+  public loadChildren
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -59,10 +60,9 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
       }
     },
   ]
-  allProjects: IOption[]=[];
-  allClients: IOption[]=[];
   constructor(
     public entitySvc: NewRoleService,
+    public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
     public clientSvc: ClientService,
     public deviceSvc: DeviceService,
@@ -74,7 +74,10 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.queryPrefix = 'projectIds:' + this.projectId;
-      this.bottomSheetParams['projectId']=this.projectId;
+      this.bottomSheetParams['projectId'] = this.projectId;
+
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
+      this.loadChildren = (id: string) => this.readByQuery(0, 1000, "parentId:" + id)
     });
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
 
@@ -88,36 +91,14 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
       this.subs.add(sub)
     })
   }
+  readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}) {
+    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entitySvc.entityRepo, this.entitySvc.role, num, size, query ? ((this.entitySvc.queryPrefix) + ',' + query) : (this.entitySvc.queryPrefix), by, order, header)
+  }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
-  updateSummaryData(next: ISumRep<INewRole>) {
-    super.updateSummaryData(next);
-    let ids = next.data.map(e => e.tenantId);
-    let var0 = new Set(ids);
-    let var1 = new Array(...var0).filter(e => e);
-    if (var1.length > 0) {
-      this.projectSvc.resolveTenantId(0, var1.length, "id:" + var1.join('.')).subscribe(next => {
-        this.allProjects = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
-    let clientIds = next.data.filter(e=>e.roleType==='CLIENT').map(e => e.name);
-    if (clientIds.length > 0) {
-      this.clientSvc.readEntityByQuery(0, clientIds.length, "id:" + clientIds.join('.')).subscribe(next => {
-        this.allClients = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
-  }
-  getProjectName(input: string) {
-    if (input)
-      return this.allProjects.find(e => e.value === input)?.label
-    return input
-
-  }
-  getClientName(input: string) {
-    if (input)
-      return this.allClients.find(e => e.value === input)?.label
-    return input
-
+  ngOnDestroy(): void {
+    this.fis.resetAll()
+    super.ngOnDestroy()
   }
 }

@@ -78,6 +78,13 @@ public class EndpointQuery extends QueryCriteria {
         setEndpointSort(pageConfig);
     }
 
+    public EndpointQuery(Set<EndpointId> collect1) {
+        endpointIds = collect1;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        setEndpointSort(pageConfig);
+    }
+
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
                 ID, RESOURCE_ID, PATH, METHOD, PROJECT_IDS);

@@ -30,7 +30,7 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "ENTER_NAME",
             "key": "name",
-            required:true,
+            required: true,
             "position": {
                 "row": "1",
                 "column": "0"
@@ -78,7 +78,7 @@ export const FORM_CONFIG: IForm = {
                 "row": "5",
                 "column": "0"
             },
-            required:true,
+            required: true,
         },
         {
             "type": "select",
@@ -90,19 +90,53 @@ export const FORM_CONFIG: IForm = {
                 "column": "0"
             },
             "options": GRANT_TYPE_LIST,
-            required:true,
+            required: true,
         },
         {
-            "type": "select",
+            "type": "checkbox",
             "display": true,
-            "label": "SELECT_A_CLIENT_TYPE",
-            "key": "types",
+            "label": "",
+            "key": "isRoot",
             "position": {
                 "row": "7",
                 "column": "0"
             },
-            "options": Object.values(CLIENT_TYPE).map(e=>({label:e,value:e})),
-            required:true,
+            "options": [{
+                label: 'IS_ROOT_APPLICATION', value: 'isRootApplication'
+            }],
+            required: true,
+        },
+        {
+            "type": "radio",
+            "display": true,
+            "label": "SELECT_APP_TYPE_1",
+            "key": "firstOrThirdApp",
+            direction:'row',
+            "position": {
+                "row": "8",
+                "column": "0"
+            },
+            "options": [
+                { label: 'FIRST_PARTY', value: 'FIRST_PARTY'},
+                { label: 'THIRD_PARTY', value: 'THIRD_PARTY'},
+            ],
+            required: true,
+        },
+        {
+            "type": "radio",
+            "display": true,
+            "label": "SELECT_APP_TYPE_2",
+            "key": "frontOrBackApp",
+            direction:'row',
+            "position": {
+                "row": "9",
+                "column": "0"
+            },
+            "options": [
+                { label: 'FRONTEND_APP', value: 'FRONTEND_APP'},
+                { label: 'BACKEND_APP', value: 'BACKEND_APP'},
+            ],
+            required: true,
         },
         {
             "type": "text",
@@ -110,10 +144,10 @@ export const FORM_CONFIG: IForm = {
             "label": "ENTER_REDIRECT_URI",
             "key": "registeredRedirectUri",
             "position": {
-                "row": "8",
+                "row": "10",
                 "column": "0"
             },
-            required:true,
+            required: true,
         },
         {
             "type": "checkbox",
@@ -121,7 +155,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "refreshToken",
             "position": {
-                "row": "9",
+                "row": "11",
                 "column": "0"
             },
             "options": [
@@ -134,7 +168,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "resourceIndicator",
             "position": {
-                "row": "10",
+                "row": "12",
                 "column": "0"
             },
             "options": [
@@ -147,7 +181,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "autoApprove",
             "position": {
-                "row": "11",
+                "row": "13",
                 "column": "0"
             },
             "options": [
@@ -176,7 +210,7 @@ export const FORM_CONFIG: IForm = {
                 "row": "15",
                 "column": "0"
             },
-            required:true,
+            required: true,
         },
         {
             "type": "text",
@@ -187,7 +221,7 @@ export const FORM_CONFIG: IForm = {
                 "row": "16",
                 "column": "0"
             },
-            required:true,
+            required: true,
         },
     ],
 }

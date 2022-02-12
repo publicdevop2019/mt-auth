@@ -39,10 +39,10 @@ public class ClientCardRepresentation {
 
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
-        name = HtmlUtils.htmlEscape(client1.getName());
+        name = client1.getName();
         grantTypeEnums = client1.getGrantTypes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
-        description = HtmlUtils.htmlEscape(client1.getDescription());
+        description = client1.getDescription();
         if (client1.getAuthorizationCodeGrant() != null)
             registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
         refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();

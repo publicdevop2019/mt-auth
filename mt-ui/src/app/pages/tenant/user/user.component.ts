@@ -12,6 +12,7 @@ import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
 import { MyUserService } from 'src/app/services/my-user.service';
 import { NewRoleService } from 'src/app/services/new-role.service';
+import { ProjectService } from 'src/app/services/project.service';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -29,6 +30,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     public userSvc: MyUserService,
     fis: FormInfoService,
     public roleSvc: NewRoleService,
+    public projectSvc: ProjectService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<UserComponent>,
     cdr: ChangeDetectorRef
@@ -36,12 +38,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     this.roleSvc.queryPrefix = `projectIds:${this.bottomSheet.params['projectId']}`
-    this.loadRoot = this.roleSvc.readByQuery(0, 1000, "parentId:null").pipe(switchMap(e=>{
-      e.data=e.data.filter(ee=>ee.roleType==='USER');
-      //@todo use a new api or query to get user type list
-
-      return of(e)
-    }));
+    this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER");
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)

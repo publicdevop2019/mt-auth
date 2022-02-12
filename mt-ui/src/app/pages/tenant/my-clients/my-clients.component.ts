@@ -90,6 +90,7 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.queryPrefix = 'projectIds:'+this.projectId;
+      this.bottomSheetParams['projectId']=this.projectId;
     });
     combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
       .subscribe(next => {
@@ -127,26 +128,6 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
   }
   getResourceList(inputs?: string[]) {
     return this.resourceClientList.filter(e => inputs?.includes(e.value + ''))
-  }
-  openBottomSheet(id?: string, clone?: boolean): void {
-    let config = new MatBottomSheetConfig();
-    config.autoFocus = true;
-    config.panelClass = 'fix-height'
-    if (hasValue(id)) {
-      of(this.dataSource.data.find(e => e.id === id))
-        .subscribe(next => {
-          if (clone) {
-            config.data = <IBottomSheet<IClient>>{ context: 'clone', from: next };
-            this.bottomSheet.open(this.sheetComponent, config);
-          } else {
-            config.data = <IBottomSheet<IClient>>{ context: 'edit', from: next };
-            this.bottomSheet.open(this.sheetComponent, config);
-          }
-        })
-    } else {
-      config.data = <IBottomSheet<IClient>>{ context: 'new', from: { projectId: this.projectId, name: '', id: '', version: 0 } };
-      this.bottomSheet.open(this.sheetComponent, config);
-    }
   }
   removeFirst(input: string[]) {
     return input.filter((e, i) => i !== 0);

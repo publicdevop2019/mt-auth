@@ -2,7 +2,6 @@ package com.mt.access.resource;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.position.representation.PositionRepresentation;
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
 import com.mt.access.application.project.representation.ProjectCardRepresentation;
@@ -92,7 +91,7 @@ public class ProjectResource {
             @PathVariable String userId,
             @RequestBody UpdateUserRelationCommand command
     ) {
-        ApplicationServiceRegistry.getUserRelationApplicationService().replace(id, userId,command);
+        ApplicationServiceRegistry.getUserRelationApplicationService().adminUpdate(id, userId,command);
         return ResponseEntity.ok().build();
     }
 

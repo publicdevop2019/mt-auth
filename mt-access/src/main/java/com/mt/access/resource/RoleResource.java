@@ -38,7 +38,7 @@ public class RoleResource {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         SumPagedRep<Role> clients = ApplicationServiceRegistry.getRoleApplicationService().query(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, RoleCardRepresentation::new));
+        return ResponseEntity.ok(RoleCardRepresentation.updateName(new SumPagedRep<>(clients, RoleCardRepresentation::new)));
     }
 
     @GetMapping("{id}")

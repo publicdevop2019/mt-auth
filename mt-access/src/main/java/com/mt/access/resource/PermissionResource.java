@@ -38,7 +38,7 @@ public class PermissionResource {
         JwtAuthenticationService.JwtThreadLocal.unset();
         JwtAuthenticationService.JwtThreadLocal.set(jwt);
         SumPagedRep<Permission> clients = ApplicationServiceRegistry.getPermissionApplicationService().query(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, PermissionCardRepresentation::new));
+        return ResponseEntity.ok(PermissionCardRepresentation.updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
     }
 
     @GetMapping("{id}")

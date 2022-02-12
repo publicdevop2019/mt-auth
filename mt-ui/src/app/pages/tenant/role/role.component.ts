@@ -3,10 +3,11 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IBottomSheet, ISumRep } from 'src/app/clazz/summary.component';
+import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator-role';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/role.config';
@@ -14,6 +15,7 @@ import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { NewRoleService } from 'src/app/services/new-role.service';
 import { PermissionService } from 'src/app/services/permission.service';
+import { ProjectService } from 'src/app/services/project.service';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
@@ -26,9 +28,10 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   public permissionFg: FormGroup = new FormGroup({})
   public apiRootId: string;
   constructor(
-    public entityService: NewRoleService,
+    public entitySvc: NewRoleService,
     public epSvc: EndpointService,
     public permissoinSvc: PermissionService,
+    public projectSvc: ProjectService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<RoleComponent>,
@@ -38,32 +41,13 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     super('role-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new RoleValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     this.permissoinSvc.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
-    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null").pipe(switchMap(data => {
-      const var0 = data.data.find(ee => ee.name === 'API_ACCESS')
-      if (var0) {
-        this.apiRootId = var0.id;
-        return this.translate.get('API_ACCESS').pipe(switchMap((var1: string) => {
-          var0.name = var1;
-          return of(data)
-        }))
-      }
-      return of(data);
-    }))
+
+    this.entitySvc.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
+    this.fis.queryProvider[this.formId + '_' + 'parentId'] = entitySvc;
+
+    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null");
     this.loadChildren = (id: string) => {
-      if (id === this.apiRootId) {
-        return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(switchMap(childNodes => {
-          const epIds = childNodes.data.map(e => e.name)
-          return this.epSvc.readEntityByQuery(0, epIds.length, 'id:' + epIds.join('.')).pipe(switchMap(resp => {
-            childNodes.data.forEach(e => {
-              const var0 = resp.data.find(ee => ee.id === e.name);
-              e.name = var0 ? var0.name : e.name
-            })
-            return of(childNodes)
-          }))
-        }))
-      } else {
-        return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id)
-      }
+      return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id)
     }
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
@@ -107,11 +91,11 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   }
   update() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'update', this.fis, this, this.errorMapper))
-      this.entityService.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+      this.entitySvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
   }
   create() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'create', this.fis, this, this.errorMapper)) {
-      this.entityService.create(this.convertToPayload(this), this.changeId)
+      this.entitySvc.create(this.convertToPayload(this), this.changeId)
     }
   }
   errorMapper(original: ErrorMessage[], cmpt: RoleComponent) {

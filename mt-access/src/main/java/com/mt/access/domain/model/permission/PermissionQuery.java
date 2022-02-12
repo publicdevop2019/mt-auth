@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -18,6 +19,7 @@ public class PermissionQuery extends QueryCriteria {
     private static final String NAME = "name";
     private static final String PARENT_ID_LITERAL = "parentId";
     private static final String PROJECT_IDS = "projectIds";
+    private static final String TYPES = "types";
     private PermissionSort sort;
     private Set<PermissionId> ids;
     private Set<ProjectId> projectIds;
@@ -25,13 +27,32 @@ public class PermissionQuery extends QueryCriteria {
     private Set<ProjectId> tenantIds;
     private PermissionId parentId;
     private Set<String> names;
+    private Set<PermissionType> types;
+    private boolean typesIsAndRelation;
 
     public PermissionQuery(String queryParam, String pageParam, String config) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME,PARENT_ID_LITERAL,PROJECT_IDS);
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME,PARENT_ID_LITERAL,PROJECT_IDS,TYPES);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL)).ifPresent(e -> parentId = new PermissionId((e)));
         Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
+        {
+            if (e.contains(".")) {
+                this.typesIsAndRelation = false;
+                types = Arrays.stream(e.split("\\.")).map(ee -> {
+                    String s = ee.toUpperCase();
+                    return PermissionType.valueOf(s);
+                }).collect(Collectors.toSet());
+
+            } else {
+                this.typesIsAndRelation = true;
+                types = Arrays.stream(e.split("\\$")).map(ee -> {
+                    String s = ee.toUpperCase();
+                    return PermissionType.valueOf(s);
+                }).collect(Collectors.toSet());
+            }
+        });
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
         this.sort = PermissionSort.byId(true);
@@ -40,6 +61,12 @@ public class PermissionQuery extends QueryCriteria {
     public PermissionQuery(PermissionId permissionId) {
         ids = new HashSet<>();
         ids.add(permissionId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = PermissionSort.byId(true);
+    }
+    public PermissionQuery(Set<PermissionId> permissionId) {
+        ids=permissionId;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);

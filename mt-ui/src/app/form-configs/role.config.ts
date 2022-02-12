@@ -34,12 +34,23 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
+            "type": "paginated-select",
+            "display": true,
+            "label": "PARENT_ID",
+            "key": "parentId",
+            options:[],
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
+        },
+        {
             "type": "text",
             "display": false,
             "label": "",
             "key": "projectId",
             "position": {
-                "row": "3",
+                "row": "4",
                 "column": "0"
             },
         },

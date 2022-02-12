@@ -35,6 +35,7 @@ export const FORM_CONFIG: IForm = {
                 "row": "2",
                 "column": "0"
             },
+            required: true,
         },
         {
             "type": "text",

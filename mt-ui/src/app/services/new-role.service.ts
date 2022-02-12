@@ -1,4 +1,7 @@
 import { Injectable } from '@angular/core';
+import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { INewRole } from '../pages/tenant/my-roles/my-roles.component';
@@ -8,7 +11,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 @Injectable({
   providedIn: 'root'
 })
-export class NewRoleService extends EntityCommonService<INewRole, INewRole>{
+export class NewRoleService extends EntityCommonService<INewRole, INewRole> implements IQueryProvider{
   private ENTITY_NAME = '/auth-svc/roles';
   entityRepo: string = environment.serverUri + this.ENTITY_NAME;
   role: string = '';
@@ -17,7 +20,7 @@ export class NewRoleService extends EntityCommonService<INewRole, INewRole>{
     super(httpProxy, interceptor,deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}){
-    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entityRepo, this.role, num, size,query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, header)
+    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entityRepo, this.role, num, size,query ? ((this.queryPrefix+',types:PROJECT.USER') + ','+query) : (this.queryPrefix+',types:PROJECT.USER'), by, order, header);
  }
  readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
   return this.httpProxySvc.readEntityByQuery<INewRole>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)

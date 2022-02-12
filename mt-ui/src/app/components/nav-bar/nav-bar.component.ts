@@ -159,20 +159,20 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-    {
-      link: 'my-org',
-      display: 'MY_ORG_DASHBOARD',
-      icon: 'corporate_fare',
-      params: {
-      },
-    },
-    {
-      link: 'my-position',
-      display: 'MY_POSITION_DASHBOARD',
-      icon: 'work',
-      params: {
-      },
-    },
+    // {
+    //   link: 'my-org',
+    //   display: 'MY_ORG_DASHBOARD',
+    //   icon: 'corporate_fare',
+    //   params: {
+    //   },
+    // },
+    // {
+    //   link: 'my-position',
+    //   display: 'MY_POSITION_DASHBOARD',
+    //   icon: 'work',
+    //   params: {
+    //   },
+    // },
     {
       link: 'my-user',
       display: 'MY_USER_DASHBOARD',

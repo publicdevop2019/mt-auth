@@ -19,7 +19,7 @@ export class PermissionService extends EntityCommonService<IPermission, IPermiss
     super(httpProxy, interceptor, deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}) {
-    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ',' + query) : this.queryPrefix, by, order, header)
+    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix+',types:COMMON.PROJECT' + ',' + query) : (this.queryPrefix+',types:COMMON.PROJECT'), by, order, header)
   }
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     return this.httpProxySvc.readEntityByQuery<IPermission>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ',' + query) : this.queryPrefix, by, order, headers)

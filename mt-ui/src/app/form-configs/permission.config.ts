@@ -47,5 +47,29 @@ export const FORM_CONFIG: IForm = {
             },
             "options":[]
         },
+        {
+            "type": "checkbox",
+            "display": true,
+            "label": "",
+            "key": "linkApi",
+            "position": {
+                "row": "4",
+                "column": "0"
+            },
+            "options":[{
+                label:'LINK_TO_API',value:'linkToApi'
+            }]
+        },
+        {
+            "type": "paginated-select",
+            "display": false,
+            "label": "SELECT_API",
+            "key": "apiId",
+            "position": {
+                "row": "5",
+                "column": "0"
+            },
+            "options":[]
+        },
     ],
 }

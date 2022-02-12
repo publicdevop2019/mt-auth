@@ -5,7 +5,8 @@ import com.mt.common.domain.model.sql.converter.EnumConverter;
 public enum PermissionType {
     COMMON,
     PROJECT,
-    API;
+    API,
+    API_ROOT;
 
     public static class DBConverter extends EnumConverter<PermissionType> {
         public DBConverter() {

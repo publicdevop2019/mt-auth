@@ -7,4 +7,5 @@ public class PermissionCreateCommand {
     private String name;
     private String parentId;
     private String projectId;
+    private String linkedApiId;
 }
