@@ -1,14 +1,17 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
+import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { IPermission } from 'src/app/clazz/validation/aggregate/permission/interface-permission';
 import { PermissionValidator } from 'src/app/clazz/validation/aggregate/permission/validator-permission';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/permission.config';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
-import { PermissionService } from 'src/app/services/permission.service';
+import { MyPermissionService } from 'src/app/services/my-permission.service';
 
 @Component({
   selector: 'app-permission',
@@ -18,8 +21,9 @@ import { PermissionService } from 'src/app/services/permission.service';
 export class PermissionComponent extends Aggregate<PermissionComponent, IPermission> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IPermission>;
   constructor(
-    public entityService: PermissionService,
+    public entityService: MyPermissionService,
     public epSvc: MyEndpointService,
+    public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<PermissionComponent>,
@@ -27,10 +31,11 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
   ) {
     super('permission-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new PermissionValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
-    this.entityService.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
-    this.epSvc.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
-    this.fis.queryProvider[this.formId + '_' + 'parentId'] = entityService;
-    this.fis.queryProvider[this.formId + '_' + 'apiId'] = epSvc;
+    this.entityService.setProjectId(this.bottomSheet.params['projectId']);
+
+    this.epSvc.setProjectId(this.bottomSheet.params['projectId'])
+    this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParentPerm();
+    this.fis.queryProvider[this.formId + '_' + 'apiId'] = this.getEndpoints();
     this.fis.formCreated(this.formId).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
@@ -56,6 +61,20 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
         })
       }
     })
+  }
+  getParentPerm(): IQueryProvider {
+    return {
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
+        return this.httpProxySvc.readEntityByQuery<IPermission>(this.entityService.entityRepo, num, size, `types:COMMON.PROJECT`, by, order, header)
+      }
+    } as IQueryProvider
+  }
+  getEndpoints():IQueryProvider {
+    return {
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
+        return this.httpProxySvc.readEntityByQuery<IEndpoint>(this.epSvc.entityRepo, num, size, query, by, order, header)
+      }
+    } as IQueryProvider
   }
   ngOnDestroy(): void {
     this.fis.resetAllExcept(['summaryPermissionCustomerView'])

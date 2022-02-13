@@ -13,11 +13,10 @@ export class AttributeService extends EntityCommonService<IBizAttribute, IBizAtt
   private PRODUCT_SVC_NAME = '/product-svc';
   private ENTITY_NAME = '/attributes';
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
-  role: string = 'admin';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string,headers?:{}) {
-    return this.httpProxySvc.readEntityByQuery<IBizAttribute>(this.entityRepo, this.role, num, size, query, by, order,headers)
+    return this.httpProxySvc.readEntityByQuery<IBizAttribute>(this.entityRepo, num, size, query, by, order,headers)
 };
 }

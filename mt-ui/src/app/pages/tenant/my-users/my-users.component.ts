@@ -57,7 +57,7 @@ export class MyUsersComponent extends SummaryEntityComponent<IProjectUser, IProj
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
-      this.entitySvc.role=this.projectId+'/users';
+      this.entitySvc.setProjectId(this.projectId)
       this.bottomSheetParams['projectId']=this.projectId
     });
   }

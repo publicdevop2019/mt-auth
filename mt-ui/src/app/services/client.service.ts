@@ -14,7 +14,6 @@ export class ClientService extends EntityCommonService<IClient, IClient> impleme
   private AUTH_SVC_NAME = '/auth-svc';
   private ENTITY_NAME = '/clients';
   entityRepo: string = environment.serverUri + this.AUTH_SVC_NAME + this.ENTITY_NAME;
-  role: string = '';
   supportEvent = false;
   constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
@@ -25,6 +24,6 @@ export class ClientService extends EntityCommonService<IClient, IClient> impleme
     })
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}): Observable<ISumRep<IClient>> {
-    return this.httpProxySvc.readEntityByQuery<IClient>(this.entityRepo, this.role, num, size, ["grantedAuthorities:0R8G09CBKU0X", query].filter(e=>e).join(','), by, order, header)
+    return this.httpProxySvc.readEntityByQuery<IClient>(this.entityRepo, num, size, ["grantedAuthorities:0R8G09CBKU0X", query].filter(e=>e).join(','), by, order, header)
   };
 }

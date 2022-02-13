@@ -25,6 +25,34 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "permissionRegion")
 public class Permission extends Auditable {
     public static final String API_ACCESS = "API_ACCESS";
+    public static final String VIEW_PROJECT_INFO = "VIEW_PROJECT_INFO";
+    public static final String VIEW_CLIENT = "VIEW_CLIENT";
+    public static final String VIEW_CLIENT_SUMMARY = "VIEW_CLIENT_SUMMARY";
+    public static final String EDIT_CLIENT = "EDIT_CLIENT";
+    public static final String DELETE_CLIENT = "DELETE_CLIENT";
+    public static final String PATCH_CLIENT = "PATCH_CLIENT";
+    public static final String CREATE_CLIENT = "CREATE_CLIENT";
+    public static final String VIEW_API_SUMMARY = "VIEW_API_SUMMARY";
+    public static final String VIEW_API = "VIEW_API";
+    public static final String EDIT_API = "EDIT_API";
+    public static final String DELETE_API = "DELETE_API";
+    public static final String CREATE_API = "CREATE_API";
+    public static final String PATCH_API = "PATCH_API";
+    public static final String BATCH_DELETE_API = "BATCH_DELETE_API";
+    public static final String CREATE_PERMISSION = "CREATE_PERMISSION";
+    public static final String VIEW_PERMISSION_SUMMARY = "VIEW_PERMISSION_SUMMARY";
+    public static final String VIEW_PERMISSION = "VIEW_PERMISSION";
+    public static final String EDIT_PERMISSION = "EDIT_PERMISSION";
+    public static final String DELETE_PERMISSION = "DELETE_PERMISSION";
+    public static final String PATCH_PERMISSION = "PATCH_PERMISSION";
+    public static final String VIEW_TENANT_USER_SUMMARY = "VIEW_TENANT_USER_SUMMARY";
+    public static final String VIEW_TENANT_USER = "VIEW_TENANT_USER";
+    public static final String EDIT_TENANT_USER = "EDIT_TENANT_USER";
+    public static final String DELETE_ROLE = "DELETE_ROLE";
+    public static final String EDIT_ROLE = "EDIT_ROLE";
+    public static final String CREATE_ROLE = "CREATE_ROLE";
+    public static final String VIEW_ROLE = "VIEW_ROLE";
+    public static final String VIEW_ROLE_SUMMARY = "VIEW_ROLE_SUMMARY";
     @Id
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -85,50 +113,50 @@ public class Permission extends Auditable {
         Permission p0 = new Permission(projectId, rootId, tenantId.getDomainId(),PermissionType.PROJECT, tenantId,null);
         PermissionId projectMgntId = new PermissionId();
         Permission p1 = new Permission(projectId, projectMgntId, "PROJECT_INFO_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p2 = new Permission(projectId, new PermissionId(), "VIEW_PROJECT_INFO",PermissionType.COMMON, projectMgntId, tenantId,new PermissionId("0Y8HHJ47NBEU"));
+        Permission p2 = new Permission(projectId, new PermissionId(), VIEW_PROJECT_INFO,PermissionType.COMMON, projectMgntId, tenantId,new PermissionId("0Y8HHJ47NBEU"));
         Permission p3 = new Permission(projectId, new PermissionId(), "EDIT_PROJECT_INFO",PermissionType.COMMON, projectMgntId, tenantId,null);
         PermissionId clientMgntId = new PermissionId();
         Permission p4 = new Permission(projectId, clientMgntId, "CLIENT_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p5 = new Permission(projectId, new PermissionId(), "CREATE_CLIENT",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD6"));
-        Permission p6 = new Permission(projectId, new PermissionId(), "VIEW_CLIENT",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBDP"));
-        Permission p7 = new Permission(projectId, new PermissionId(), "EDIT_CLIENT",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD7"));
-        Permission p8 = new Permission(projectId, new PermissionId(), "DELETE_CLIENT",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD8"));
-        Permission p9 = new Permission(projectId, new PermissionId(), "VIEW_CLIENT_SUMMARY",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD4"));
-        Permission p10 = new Permission(projectId, new PermissionId(), "PATCH_CLIENT",PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBDQ"));
+        Permission p5 = new Permission(projectId, new PermissionId(), CREATE_CLIENT,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD6"));
+        Permission p6 = new Permission(projectId, new PermissionId(), VIEW_CLIENT,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBDP"));
+        Permission p7 = new Permission(projectId, new PermissionId(), EDIT_CLIENT,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD7"));
+        Permission p8 = new Permission(projectId, new PermissionId(), DELETE_CLIENT,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD8"));
+        Permission p9 = new Permission(projectId, new PermissionId(), VIEW_CLIENT_SUMMARY,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBD4"));
+        Permission p10 = new Permission(projectId, new PermissionId(), PATCH_CLIENT,PermissionType.COMMON, clientMgntId, tenantId,new PermissionId("0Y8HHJ47NBDQ"));
 
         PermissionId apiMgntId = new PermissionId();
         Permission p11 = new Permission(projectId, apiMgntId, "API_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p12 = new Permission(projectId, new PermissionId(), "VIEW_API_SUMMARY",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDM"));
-        Permission p13 = new Permission(projectId, new PermissionId(), "VIEW_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDS"));
-        Permission p14 = new Permission(projectId, new PermissionId(), "EDIT_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDN"));
-        Permission p15 = new Permission(projectId, new PermissionId(), "DELETE_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDO"));
-        Permission p16 = new Permission(projectId, new PermissionId(), "CREATE_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDL"));
-        Permission p17 = new Permission(projectId, new PermissionId(), "PATCH_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDW"));
-        Permission p18 = new Permission(projectId, new PermissionId(), "BATCH_DELETE_API",PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDV"));
+        Permission p12 = new Permission(projectId, new PermissionId(), VIEW_API_SUMMARY,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDM"));
+        Permission p13 = new Permission(projectId, new PermissionId(), VIEW_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDS"));
+        Permission p14 = new Permission(projectId, new PermissionId(), EDIT_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDN"));
+        Permission p15 = new Permission(projectId, new PermissionId(), DELETE_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDO"));
+        Permission p16 = new Permission(projectId, new PermissionId(), CREATE_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDL"));
+        Permission p17 = new Permission(projectId, new PermissionId(), PATCH_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDW"));
+        Permission p18 = new Permission(projectId, new PermissionId(), BATCH_DELETE_API,PermissionType.COMMON, apiMgntId, tenantId,new PermissionId("0Y8HHJ47NBDV"));
 
         PermissionId roleMgntId = new PermissionId();
         Permission p19 = new Permission(projectId, roleMgntId, "ROLE_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p20 = new Permission(projectId, new PermissionId(), "DELETE_ROLE",PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKE2QAIVF"));
-        Permission p21 = new Permission(projectId, new PermissionId(), "EDIT_ROLE",PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKE24FWUI"));
-        Permission p22 = new Permission(projectId, new PermissionId(), "CREATE_ROLE",PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HHJ47NBEY"));
-        Permission p23 = new Permission(projectId, new PermissionId(), "VIEW_ROLE",PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKACDVMDL"));
-        Permission p24 = new Permission(projectId, new PermissionId(), "VIEW_ROLE_SUMMARY",PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HHJ47NBEX"));
+        Permission p20 = new Permission(projectId, new PermissionId(), DELETE_ROLE,PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKE2QAIVF"));
+        Permission p21 = new Permission(projectId, new PermissionId(), EDIT_ROLE,PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKE24FWUI"));
+        Permission p22 = new Permission(projectId, new PermissionId(), CREATE_ROLE,PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HHJ47NBEY"));
+        Permission p23 = new Permission(projectId, new PermissionId(), VIEW_ROLE,PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HKACDVMDL"));
+        Permission p24 = new Permission(projectId, new PermissionId(), VIEW_ROLE_SUMMARY,PermissionType.COMMON, roleMgntId, tenantId,new PermissionId("0Y8HHJ47NBEX"));
 
 
         PermissionId permissionMgntId = new PermissionId();
         Permission p25 = new Permission(projectId, permissionMgntId, "PERMISSION_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p26 = new Permission(projectId, new PermissionId(), "CREATE_PERMISSION",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HHJ47NBEW"));
-        Permission p27 = new Permission(projectId, new PermissionId(), "VIEW_PERMISSION_SUMMARY",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HHJ47NBEV"));
-        Permission p28 = new Permission(projectId, new PermissionId(), "VIEW_PERMISSION",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWG1UJ8"));
-        Permission p29 = new Permission(projectId, new PermissionId(), "EDIT_PERMISSION",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWKQEJ1"));
-        Permission p30 = new Permission(projectId, new PermissionId(), "DELETE_PERMISSION",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWOH91P"));
-        Permission p31 = new Permission(projectId, new PermissionId(), "PATCH_PERMISSION",PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWMX2BX"));
+        Permission p26 = new Permission(projectId, new PermissionId(), CREATE_PERMISSION,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HHJ47NBEW"));
+        Permission p27 = new Permission(projectId, new PermissionId(), VIEW_PERMISSION_SUMMARY,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HHJ47NBEV"));
+        Permission p28 = new Permission(projectId, new PermissionId(), VIEW_PERMISSION,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWG1UJ8"));
+        Permission p29 = new Permission(projectId, new PermissionId(), EDIT_PERMISSION,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWKQEJ1"));
+        Permission p30 = new Permission(projectId, new PermissionId(), DELETE_PERMISSION,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWOH91P"));
+        Permission p31 = new Permission(projectId, new PermissionId(), PATCH_PERMISSION,PermissionType.COMMON, permissionMgntId, tenantId,new PermissionId("0Y8HLUWMX2BX"));
 
         PermissionId positionMgntId = new PermissionId();
         Permission p32 = new Permission(projectId, positionMgntId, "USER_MNGMT",PermissionType.COMMON, rootId, tenantId,null);
-        Permission p33 = new Permission(projectId, new PermissionId(), "VIEW_TENANT_USER_SUMMARY",PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HK4ZLA03Q"));
-        Permission p34 = new Permission(projectId, new PermissionId(), "VIEW_TENANT_USER",PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HKEMUH34B"));
-        Permission p35 = new Permission(projectId, new PermissionId(), "EDIT_TENANT_USER",PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HKEMWNQX7"));
+        Permission p33 = new Permission(projectId, new PermissionId(), VIEW_TENANT_USER_SUMMARY,PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HK4ZLA03Q"));
+        Permission p34 = new Permission(projectId, new PermissionId(), VIEW_TENANT_USER,PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HKEMUH34B"));
+        Permission p35 = new Permission(projectId, new PermissionId(), EDIT_TENANT_USER,PermissionType.COMMON, positionMgntId, tenantId,new PermissionId("0Y8HKEMWNQX7"));
 
         Permission apiPermission = new Permission(tenantId, new PermissionId(), API_ACCESS,PermissionType.API_ROOT, null,null);
 

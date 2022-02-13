@@ -12,6 +12,7 @@ import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
+import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
@@ -41,7 +42,7 @@ public class DomainRegistry {
     @Getter
     private static EncryptionService encryptionService;
     @Getter
-    private static AuthenticationService authenticationService;
+    private static CurrentUserService currentUserService;
     @Getter
     private static PendingUserService pendingUserService;
     @Getter
@@ -86,7 +87,13 @@ public class DomainRegistry {
     private static UserRelationRepository userRelationRepository;
     @Getter
     private static ComputePermissionService computePermissionService;
+    @Getter
+    private static PermissionCheckService permissionCheckService;
 
+    @Autowired
+    public void setPermissionCheckService(PermissionCheckService permissionCheckService) {
+        DomainRegistry.permissionCheckService = permissionCheckService;
+    }
     @Autowired
     public void setComputePermissionService(ComputePermissionService computePermissionService) {
         DomainRegistry.computePermissionService = computePermissionService;
@@ -217,8 +224,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        DomainRegistry.authenticationService = authenticationService;
+    public void setCurrentUserService(CurrentUserService currentUserService) {
+        DomainRegistry.currentUserService = currentUserService;
     }
 
     @Autowired

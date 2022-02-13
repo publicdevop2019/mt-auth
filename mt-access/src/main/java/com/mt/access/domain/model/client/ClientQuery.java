@@ -35,7 +35,7 @@ public class ClientQuery extends QueryCriteria {
     private String grantTypeSearch;
     private String accessTokenSecSearch;
 
-    private boolean isInternal = true;
+    private boolean isInternal = false;
 
     public ClientQuery(ClientId clientId) {
         clientIds = new HashSet<>(List.of(clientId));
@@ -43,16 +43,14 @@ public class ClientQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
     }
 
-    public static ClientQuery queryByResource(ClientId resourceId){
-        ClientQuery clientQuery = new ClientQuery();
-        clientQuery.setResources(new HashSet<>(List.of(resourceId)));
-        clientQuery.setPageConfig(PageConfig.defaultConfig());
-        clientQuery.setQueryConfig(QueryConfig.countRequired());
-        return clientQuery;
+    public ClientQuery(ClientId clientId, ProjectId projectId) {
+        clientIds = Collections.singleton(clientId);
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
     }
 
-    public ClientQuery(String queryParam, String pageConfig, String queryConfig, boolean isInternal) {
-        this.isInternal = isInternal;
+    public ClientQuery(String queryParam, String pageConfig, String queryConfig) {
         setPageConfig(PageConfig.limited(pageConfig, 2000));
         setQueryConfig(new QueryConfig(queryConfig));
         updateQueryParam(queryParam);
@@ -64,6 +62,17 @@ public class ClientQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
+    private ClientQuery() {
+    }
+
+    public static ClientQuery queryByResource(ClientId resourceId) {
+        ClientQuery clientQuery = new ClientQuery();
+        clientQuery.setResources(new HashSet<>(List.of(resourceId)));
+        clientQuery.setPageConfig(PageConfig.defaultConfig());
+        clientQuery.setQueryConfig(QueryConfig.countRequired());
+        return clientQuery;
+    }
+
     public static ClientQuery resourceIds(ClientId removedClientId) {
         ClientQuery clientQuery = new ClientQuery();
         clientQuery.resources = new HashSet<>(List.of(removedClientId));
@@ -72,13 +81,18 @@ public class ClientQuery extends QueryCriteria {
         return clientQuery;
     }
 
-    private ClientQuery() {
+    public static ClientQuery internalQuery(String pagingParam, String configParam) {
+        ClientQuery clientQuery = new ClientQuery();
+        clientQuery.isInternal = true;
+        clientQuery.setPageConfig(PageConfig.limited(pagingParam, 2000));
+        clientQuery.setQueryConfig(new QueryConfig(configParam));
+        return clientQuery;
     }
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
                 ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
-                GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS, ACCESS_TOKEN_VALIDITY_SECONDS,PROJECT_ID,CLIENT_TYPE);
+                GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS, ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID, CLIENT_TYPE);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });

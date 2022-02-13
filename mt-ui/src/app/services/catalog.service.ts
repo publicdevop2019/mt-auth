@@ -21,10 +21,9 @@ export class CatalogService extends EntityCommonService<ICatalog, ICatalog> impl
   private PRODUCT_SVC_NAME = '/product-svc';
   private ENTITY_NAME = '/catalogs';
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
-  role: string = 'admin';
   queryPrefix: string = undefined
-  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-    super(httpProxy, interceptor,deviceSvc);
+  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+    super(httpProxy, interceptor, deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     return this.readEntityByQuery(num, size, query, by, order, headers);
@@ -32,9 +31,9 @@ export class CatalogService extends EntityCommonService<ICatalog, ICatalog> impl
 
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
     if (query && (query.includes(CATALOG_TYPE.BACKEND) || query.includes(CATALOG_TYPE.FRONTEND))) {
-      return this.httpProxySvc.readEntityByQuery<ICatalog>(this.entityRepo, this.role, num, size, query, by, order, headers)
+      return this.httpProxySvc.readEntityByQuery<ICatalog>(this.entityRepo, num, size, query, by, order, headers)
     } else {
-      return this.httpProxySvc.readEntityByQuery<ICatalog>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)
+      return this.httpProxySvc.readEntityByQuery<ICatalog>(this.entityRepo, num, size, query ? (this.queryPrefix + ',' + query) : this.queryPrefix, by, order, headers)
     }
   };
 

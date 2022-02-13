@@ -7,6 +7,7 @@ import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
@@ -22,6 +23,7 @@ import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AppStarted;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -39,6 +41,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.mt.access.domain.model.permission.Permission.*;
 
 @Slf4j
 @Service
@@ -67,13 +71,18 @@ public class EndpointApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public String create(EndpointCreateCommand command, String changeId) {
+    public String create(String projectId, EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_API);
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             String resourceId = command.getResourceId();
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(resourceId));
             if (client.isPresent()) {
                 Client client1 = client.get();
+                if (!client1.getProjectId().equals(projectId1)) {
+                    throw new AccessDeniedException();
+                }
                 boolean secured = command.isSecured();
                 PermissionId permissionId = null;
                 if (secured) {
@@ -105,17 +114,23 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API_SUMMARY);
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
     }
 
-    public Optional<Endpoint> endpoint(String id) {
-        return DomainRegistry.getEndpointRepository().endpointOfId(new EndpointId(id));
+    public Optional<Endpoint> endpoint(String projectId, String id) {
+        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
     }
 
     @SubscribeForEvent
     @Transactional
     public void update(String id, EndpointUpdateCommand command, String changeId) {
         log.debug("start of update endpoint");
+        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(command.getProjectId()));
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), EDIT_API);
         EndpointId endpointId = new EndpointId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
@@ -142,10 +157,11 @@ public class EndpointApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void removeEndpoint(String id, String changeId) {
-        EndpointId endpointId = new EndpointId(id);
+    public void removeEndpoint(String projectId, String id, String changeId) {
+        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), DELETE_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+            Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 DomainRegistry.getEndpointRepository().remove(endpoint1);
@@ -157,9 +173,19 @@ public class EndpointApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void removeEndpoints(String queryParam, String changeId) {
+    public void removeEndpoints(String projectId, String queryParam, String changeId) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, BATCH_DELETE_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam));
+            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam, projectId1));
+            Set<ProjectId> collect = allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
+            if (collect.size() != 1) {
+                throw new AccessDeniedException();
+            }
+            ProjectId[] a = new ProjectId[1];
+            if (!collect.toArray(a)[0].equals(projectId1)) {
+                throw new AccessDeniedException();
+            }
             DomainRegistry.getEndpointRepository().remove(allByQuery);
             DomainEventPublisher.instance().publish(
                     new EndpointCollectionModified()
@@ -170,10 +196,12 @@ public class EndpointApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void patchEndpoint(String id, JsonPatch command, String changeId) {
+    public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, PATCH_API);
         EndpointId endpointId = new EndpointId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+            Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(endpointId, projectId1)).findFirst();
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
@@ -282,8 +310,8 @@ public class EndpointApplicationService {
         }, ENDPOINT);
     }
 
-    public SumPagedRep<EndpointProxyCardRepresentation> proxyEndpoints(String queryParam, String pageParam, String config) {
-        SumPagedRep<Endpoint> endpoints = endpoints(queryParam, pageParam, config);
+    public SumPagedRep<EndpointProxyCardRepresentation> internalQuery(String queryParam, String pageParam, String config) {
+        SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
         List<EndpointProxyCardRepresentation> collect = endpoints.getData().stream().map(EndpointProxyCardRepresentation::new).collect(Collectors.toList());
         EndpointProxyCardRepresentation.updateDetail(collect);
         return new SumPagedRep<>(collect, endpoints.getTotalItemCount());

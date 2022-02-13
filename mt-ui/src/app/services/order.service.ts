@@ -13,12 +13,11 @@ export class OrderService extends EntityCommonService<IOrder, IOrder> {
   private SVC_NAME = '/profile-svc';
   private ENTITY_NAME = '/orders';
   entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-  role: string = 'admin';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
       super(httpProxy, interceptor,deviceSvc);
   }
   deleteVersionedById(id: string, changeId: string,version:number) {
-    this.httpProxySvc.deleteVersionedEntityById(this.entityRepo, this.role, id, changeId,version).subscribe(next => {
+    this.httpProxySvc.deleteVersionedEntityById(this.entityRepo, id, changeId,version).subscribe(next => {
         this.notify(!!next)
         this.deviceSvc.refreshSummary.next();
     })

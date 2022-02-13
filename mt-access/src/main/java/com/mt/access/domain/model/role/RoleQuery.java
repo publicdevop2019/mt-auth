@@ -76,6 +76,14 @@ public class RoleQuery extends QueryCriteria {
         this.sort = RoleSort.byId(true);
     }
 
+    public RoleQuery(RoleId roleId, ProjectId projectId) {
+        ids = Collections.singleton(roleId);
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = RoleSort.byId(true);
+    }
+
     @Getter
     public static class RoleSort {
         private final boolean isAsc;

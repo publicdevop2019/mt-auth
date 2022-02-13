@@ -12,11 +12,10 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 export class CORSProfileService extends EntityCommonService<ICorsProfile, ICorsProfile>  implements IQueryProvider {
   private ENTITY_NAME = '/auth-svc/cors';
   entityRepo: string = environment.serverUri + this.ENTITY_NAME;
-  role: string = '';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}){
-     return this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.entityRepo, this.role, num, size,query, by, order, header)
+     return this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.entityRepo, num, size,query, by, order, header)
   }
 }

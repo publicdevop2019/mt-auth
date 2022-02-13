@@ -50,7 +50,7 @@ public class JwtTicketService implements TicketService {
                         .claim(USER_ID, ticket.getUserId().getDomainId())
                         .claim(CLIENT_ID, ticket.getClientId().getDomainId())
                         .claim(AUD, ticket.getAud().getDomainId())
-                        .claim(AUTHORITIES, DomainRegistry.getAuthenticationService().userPermissionIds())
+                        .claim(AUTHORITIES, DomainRegistry.getCurrentUserService().userPermissionIds())
                         .build());
 
         try {

@@ -60,14 +60,14 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     getCorsProfiles() {
         return {
             readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-                return this.httpProxySvc.readEntityByQuery(this.corsSvc.entityRepo, this.corsSvc.role, num, size, "", by, order, header)
+                return this.httpProxySvc.readEntityByQuery(this.corsSvc.entityRepo, num, size, "", by, order, header)
             }
         } as IQueryProvider
     }
     getCacehProfiles() {
         return {
             readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-                return this.httpProxySvc.readEntityByQuery(this.cacheSvc.entityRepo, this.cacheSvc.role, num, size, "", by, order, header)
+                return this.httpProxySvc.readEntityByQuery(this.cacheSvc.entityRepo, num, size, "", by, order, header)
             }
         } as IQueryProvider
     }
@@ -83,7 +83,7 @@ export class BatchUpdateCorsComponent implements OnDestroy {
         this.dataSource = new MatTableDataSource(var0);
         var0.forEach(endpoint => {
             this.dataSource.data.find(e => e.id === endpoint.id).status = 'WIP'
-            this.httpProxySvc.readEntityById<IEndpoint>(this.endpointSvc.entityRepo,this.endpointSvc.role,endpoint.id,{ 'loading': false }).subscribe(next => {
+            this.httpProxySvc.readEntityById<IEndpoint>(this.endpointSvc.entityRepo,endpoint.id,{ 'loading': false }).subscribe(next => {
                 const var0=this.fis.formGroupCollection[this.formId].get('type').value
                 if( var0==='cors'){
                     next.corsProfileId=this.fis.formGroupCollection[this.formId].get('corsId').value
@@ -92,7 +92,7 @@ export class BatchUpdateCorsComponent implements OnDestroy {
                 }else{
                     // will not reach
                 }
-                this.httpProxySvc.updateEntityExt(this.endpointSvc.entityRepo, this.endpointSvc.role, endpoint.id, next, UUID()).subscribe(next => {
+                this.httpProxySvc.updateEntityExt(this.endpointSvc.entityRepo, endpoint.id, next, UUID()).subscribe(next => {
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'SUCCESS'
                 },()=>{
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'FAILED'

@@ -1,17 +1,15 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { Component, OnDestroy } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, of } from 'rxjs';
+import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
-import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ClientComponent } from 'src/app/pages/tenant/client/client.component';
-import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -89,7 +87,7 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
-      this.entitySvc.queryPrefix = 'projectIds:'+this.projectId;
+      this.entitySvc.setProjectId(this.projectId)
       this.bottomSheetParams['projectId']=this.projectId;
     });
     combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component

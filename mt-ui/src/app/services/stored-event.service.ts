@@ -19,14 +19,13 @@ export interface IStoredEvent {
 })
 export class StoredEventService extends EntityCommonService<IStoredEvent, IStoredEvent> {
     retry(id: string) {
-        return this.httpProxySvc.retry(this.entityRepo + "/" + this.role, id)
+        return this.httpProxySvc.retry(this.entityRepo, id)
     }
     private SVC_NAME = '/saga-svc';
     private ENTITY_NAME = '/events';
-    role: string = 'admin';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-        super(httpProxy, interceptor,deviceSvc);
+    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+        super(httpProxy, interceptor, deviceSvc);
     }
     getServiceName() {
         return this.SVC_NAME;
@@ -39,6 +38,6 @@ export class StoredEventService extends EntityCommonService<IStoredEvent, IStore
         this.setServiceName('/saga-svc')
     }
     getRelatedEvents(num: number, size: number, query: string, entityRepo: string) {
-        return this.httpProxySvc.readEntityByQuery<IStoredEvent>(environment.serverUri +entityRepo+this.ENTITY_NAME, this.role, num, size, query)
+        return this.httpProxySvc.readEntityByQuery<IStoredEvent>(environment.serverUri + entityRepo + this.ENTITY_NAME, num, size, query)
     };
 }

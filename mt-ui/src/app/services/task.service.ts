@@ -18,25 +18,24 @@ export interface IBizTask {
     cancelable?: boolean
     retryable?: boolean
 }
-export type DTX_EVENT_TYPE='/createOrderDtx'|'/cancelCreateOrderDtx'|'/reserveOrderDtx'|'/cancelReserveOrderDtx'|'/recycleOrderDtx'|'/cancelRecycleOrderDtx'
-                            |'/confirmOrderPaymentDtx'|'/cancelConfirmOrderPaymentDtx'
-                            |'/concludeOrderDtx'|'/cancelConcludeOrderDtx'|'/updateOrderAddressDtx'|'/cancelUpdateOrderAddressDtx'|'/invalidOrderDtx'|'/cancelInvalidOrderDtx'
+export type DTX_EVENT_TYPE = '/createOrderDtx' | '/cancelCreateOrderDtx' | '/reserveOrderDtx' | '/cancelReserveOrderDtx' | '/recycleOrderDtx' | '/cancelRecycleOrderDtx'
+    | '/confirmOrderPaymentDtx' | '/cancelConfirmOrderPaymentDtx'
+    | '/concludeOrderDtx' | '/cancelConcludeOrderDtx' | '/updateOrderAddressDtx' | '/cancelUpdateOrderAddressDtx' | '/invalidOrderDtx' | '/cancelInvalidOrderDtx'
 @Injectable({
     providedIn: 'root'
 })
 export class TaskService extends EntityCommonService<IBizTask, IBizTask> {
     private SVC_NAME = '/saga-svc';
-    private ENTITY_NAME :DTX_EVENT_TYPE= '/createOrderDtx';
+    private ENTITY_NAME: DTX_EVENT_TYPE = '/createOrderDtx';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    role: string = 'admin';
-    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-        super(httpProxy, interceptor,deviceSvc);
+    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+        super(httpProxy, interceptor, deviceSvc);
     }
     doCancel(id: string) {
-        return this.httpProxySvc.cancelDtx(this.entityRepo + "/" + this.role, id)
+        return this.httpProxySvc.cancelDtx(this.entityRepo, id)
     }
     doResolve(id: string, reason: string) {
-        return this.httpProxySvc.resolveCancelDtx(this.entityRepo + "/" + this.role, id, reason)
+        return this.httpProxySvc.resolveCancelDtx(this.entityRepo, id, reason)
     }
     updateEntityName(name: DTX_EVENT_TYPE) {
         this.ENTITY_NAME = name;
@@ -46,7 +45,7 @@ export class TaskService extends EntityCommonService<IBizTask, IBizTask> {
         return this.ENTITY_NAME;
     }
     readCancelEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-        return this.httpProxySvc.readEntityByQuery<IBizTask>(this.getCancelRepo(this.ENTITY_NAME), this.role, num, size, query, by, order, headers)
+        return this.httpProxySvc.readEntityByQuery<IBizTask>(this.getCancelRepo(this.ENTITY_NAME), num, size, query, by, order, headers)
     };
     getCancelRepo(input: DTX_EVENT_TYPE) {
         if (input === '/createOrderDtx')

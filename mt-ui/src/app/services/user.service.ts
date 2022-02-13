@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Router } from '@angular/router';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { logout } from '../clazz/utility';
@@ -10,12 +9,11 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 @Injectable({
   providedIn: 'root'
 })
-export class ResourceOwnerService extends EntityCommonService<IResourceOwner, IResourceOwner>{
+export class UserService extends EntityCommonService<IResourceOwner, IResourceOwner>{
   private AUTH_SVC_NAME = '/auth-svc';
   private ENTITY_NAME = '/users';
   entityRepo: string = environment.serverUri + this.AUTH_SVC_NAME + this.ENTITY_NAME;
-  role: string = '';
-  constructor(private router: Router, private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
+  constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }
   revokeResourceOwnerToken(id: string): void {
@@ -32,7 +30,7 @@ export class ResourceOwnerService extends EntityCommonService<IResourceOwner, IR
     });
   }
   batchUpdateUserStatus(ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
-    this.httpProxy.batchUpdateUserStatus(this.entityRepo, this.role, ids, status, changeId).subscribe(result => {
+    this.httpProxy.batchUpdateUserStatus(this.entityRepo, ids, status, changeId).subscribe(result => {
       this.notify(result)
       this.deviceSvc.refreshSummary.next()
     })

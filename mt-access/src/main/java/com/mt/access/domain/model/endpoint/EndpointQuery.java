@@ -30,13 +30,6 @@ public class EndpointQuery extends QueryCriteria {
     private EndpointSort endpointSort;
     private Set<CacheProfileId> cacheProfileIds;
 
-    public EndpointQuery(String queryParam) {
-        updateQueryParam(queryParam);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
-    }
-
     public EndpointQuery() {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
@@ -82,6 +75,22 @@ public class EndpointQuery extends QueryCriteria {
         endpointIds = collect1;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
+        setEndpointSort(pageConfig);
+    }
+
+    public EndpointQuery(EndpointId endpointId, ProjectId projectId) {
+        endpointIds = Collections.singleton(endpointId);
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        setEndpointSort(pageConfig);
+    }
+
+    public EndpointQuery(String queryParam, ProjectId projectId) {
+        updateQueryParam(queryParam);
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.countRequired());
         setEndpointSort(pageConfig);
     }
 

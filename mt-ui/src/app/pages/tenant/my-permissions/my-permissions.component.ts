@@ -13,7 +13,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { PermissionService } from 'src/app/services/permission.service';
+import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { PermissionComponent } from '../permission/permission.component';
 
@@ -65,7 +65,7 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
     },
   ]
   constructor(
-    public entitySvc: PermissionService,
+    public entitySvc: MyPermissionService,
     public epSvc: EndpointService,
     public projectSvc: ProjectService,
     public deviceSvc: DeviceService,
@@ -78,7 +78,7 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.bottomSheetParams['projectId'] = this.projectId;
-      this.entitySvc.queryPrefix = 'projectIds:' + this.projectId;
+      this.entitySvc.setProjectId(this.projectId);
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null");
       this.loadChildren = (id: string) => {
         return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)

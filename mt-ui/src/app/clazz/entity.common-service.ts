@@ -11,7 +11,6 @@ export class EntityCommonService<C extends IIdBasedEntity, D> implements IEntity
     httpProxySvc: HttpProxyService;
     pageNumber: number = 0;
     entityRepo: string;
-    role: string='';
     interceptor: CustomHttpInterceptor
     deviceSvc: DeviceService
     constructor(httpProxySvc: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
@@ -20,63 +19,63 @@ export class EntityCommonService<C extends IIdBasedEntity, D> implements IEntity
         this.deviceSvc = deviceSvc;
     }
     readById(id: string) {
-        return this.httpProxySvc.readEntityById<D>(this.entityRepo, this.role, id)
+        return this.httpProxySvc.readEntityById<D>(this.entityRepo, id)
     };
     readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string,headers?:{}) {
-        return this.httpProxySvc.readEntityByQuery<C>(this.entityRepo, this.role, num, size, query, by, order,headers)
+        return this.httpProxySvc.readEntityByQuery<C>(this.entityRepo, num, size, query, by, order,headers)
     };
     deleteByQuery(query: string, changeId: string) {
-        this.httpProxySvc.deleteEntityByQuery(this.entityRepo, this.role, query, changeId).subscribe(next => {
+        this.httpProxySvc.deleteEntityByQuery(this.entityRepo, query, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()
         })
     };
     deleteById(id: string, changeId: string) {
-        this.httpProxySvc.deleteEntityById(this.entityRepo, this.role, id, changeId).subscribe(next => {
+        this.httpProxySvc.deleteEntityById(this.entityRepo, id, changeId).subscribe(next => {
             this.notify(!!next)
             this.refreshPage()
         })
     };
     create(s: D, changeId: string) {
-        this.httpProxySvc.createEntity(this.entityRepo, this.role, s, changeId).subscribe(next => {
+        this.httpProxySvc.createEntity(this.entityRepo, s, changeId).subscribe(next => {
             this.notify(!!next)
             this.refreshPage()
         });
     };
     update(id: string, s: D, changeId: string) {
-        this.httpProxySvc.updateEntity(this.entityRepo, this.role, id, s, changeId).subscribe(next => {
+        this.httpProxySvc.updateEntity(this.entityRepo, id, s, changeId).subscribe(next => {
             this.notify(!!next)
             this.refreshPage()
         })
     };
     patch(id: string, event: IEditEvent, changeId: string, fieldName: string) {
-        this.httpProxySvc.patchEntityById(this.entityRepo, this.role, id, fieldName, event, changeId).subscribe(next => {
+        this.httpProxySvc.patchEntityById(this.entityRepo, id, fieldName, event, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()
         })
     };
     patchAtomicNum(id: string, event: IEditEvent, changeId: string, fieldName: string) {
-        this.httpProxySvc.patchEntityAtomicById(this.entityRepo, this.role, id, fieldName, event, changeId).subscribe(next => {
+        this.httpProxySvc.patchEntityAtomicById(this.entityRepo, id, fieldName, event, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()
         })
     };
     patchList(id: string, event: IEditListEvent, changeId: string, fieldName: string) {
-        this.httpProxySvc.patchEntityListById(this.entityRepo, this.role, id, fieldName, event, changeId).subscribe(next => {
+        this.httpProxySvc.patchEntityListById(this.entityRepo, id, fieldName, event, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()
         })
 
     };
     patchMultiInput(id: string, event: IEditInputListEvent, changeId: string, fieldName: string) {
-        this.httpProxySvc.patchEntityInputListById(this.entityRepo, this.role, id, fieldName, event, changeId).subscribe(next => {
+        this.httpProxySvc.patchEntityInputListById(this.entityRepo, id, fieldName, event, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()
         })
 
     };
     patchBoolean(id: string, event: IEditBooleanEvent, changeId: string, fieldName: string) {
-        this.httpProxySvc.patchEntityBooleanById(this.entityRepo, this.role, id, fieldName, event, changeId).subscribe(next => {
+        this.httpProxySvc.patchEntityBooleanById(this.entityRepo, id, fieldName, event, changeId).subscribe(next => {
             this.notify(next)
             this.refreshPage()    
         })

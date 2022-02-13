@@ -9,8 +9,8 @@ import { IResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaz
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/resource-owner.config';
-import { NewRoleService } from 'src/app/services/new-role.service';
-import { ResourceOwnerService } from 'src/app/services/resource-owner.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
+import { UserService } from 'src/app/services/user.service';
 import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-user',
@@ -23,9 +23,9 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IR
   }
   private formCreatedOb: Observable<string>;
   constructor(
-    public resourceOwnerService: ResourceOwnerService,
+    public resourceOwnerService: UserService,
     fis: FormInfoService,
-    public roleSvc: NewRoleService,
+    public roleSvc: MyRoleService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<ResourceOwnerComponent>,
     cdr:ChangeDetectorRef

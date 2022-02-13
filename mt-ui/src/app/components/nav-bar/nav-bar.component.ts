@@ -180,13 +180,13 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-    {
-      link: 'add-admin',
-      display: 'ADD_ADMIN',
-      icon: 'admin_panel_settings',
-      params: {
-      },
-    },
+    // {
+    //   link: 'add-admin',
+    //   display: 'ADD_ADMIN',
+    //   icon: 'admin_panel_settings',
+    //   params: {
+    //   },
+    // },
   ];
   menuMisc: INavElement[] = [
     {

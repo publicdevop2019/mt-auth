@@ -33,29 +33,37 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static com.mt.access.domain.model.permission.Permission.*;
+
 @Slf4j
 @Service
 public class RoleApplicationService {
     private static final String ROLE = "Role";
 
-    public SumPagedRep<Role> query(String queryParam, String pageParam, String skipCount) {
-        return DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(queryParam, pageParam, skipCount));
+    public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
+        RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE_SUMMARY);
+        return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 
-    public Optional<Role> getById(String id) {
-        return DomainRegistry.getRoleRepository().getById(new RoleId(id));
+    public Optional<Role> getById(String projectId,String id) {
+        RoleQuery roleQuery = new RoleQuery(new RoleId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
+        return DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
     }
 
-    public Optional<Role> getById(RoleId id) {
+    public Optional<Role> internalGetById(RoleId id) {
         return DomainRegistry.getRoleRepository().getById(id);
     }
 
     @SubscribeForEvent
     @Transactional
     public void replace(String id, RoleUpdateCommand command, String changeId) {
-        RoleId RoleId = new RoleId(id);
+        RoleId roleId = new RoleId(id);
+        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(RoleId)).findFirst();
+            Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
             first.ifPresent(e -> {
                 e.replace(command.getName(), command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
                 DomainRegistry.getRoleRepository().add(e);
@@ -66,10 +74,12 @@ public class RoleApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void remove(String id, String changeId) {
-        RoleId RoleId = new RoleId(id);
+    public void remove(String projectId,String id, String changeId) {
+        RoleId roleId = new RoleId(id);
+        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), DELETE_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(RoleId);
+            Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(roleId);
             corsProfile.ifPresent(e -> {
                 DomainRegistry.getRoleRepository().remove(e);
             });
@@ -88,6 +98,7 @@ public class RoleApplicationService {
     @Transactional
     public String create(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Role role = Role.createNewRoleForProject(
                     new ProjectId(command.getProjectId()),
@@ -137,7 +148,7 @@ public class RoleApplicationService {
         }, ROLE);
     }
 
-    public SumPagedRep<Role> query(RoleQuery roleQuery) {
+    public SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 

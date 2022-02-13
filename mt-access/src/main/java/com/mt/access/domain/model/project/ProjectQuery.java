@@ -1,5 +1,9 @@
 package com.mt.access.domain.model.project;
 
+import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.permission.Permission;
+import com.mt.access.domain.model.permission.PermissionQuery;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -10,11 +14,13 @@ import lombok.Getter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
+
 @Getter
 public class ProjectQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
-    private ProjectSort sort;
+    private final ProjectSort sort;
     private Set<ProjectId> ids;
     private Set<String> names;
 
@@ -44,11 +50,13 @@ public class ProjectQuery extends QueryCriteria {
     }
 
     public ProjectQuery(Set<ProjectId> collect) {
-        ids=collect;
+        ids = collect;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = ProjectSort.byId(true);
     }
+
+
 
     @Getter
     public static class ProjectSort {

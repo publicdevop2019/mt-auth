@@ -13,7 +13,7 @@ import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface INewRole extends IIdBasedEntity {
   name: string,
@@ -61,7 +61,7 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     },
   ]
   constructor(
-    public entitySvc: NewRoleService,
+    public entitySvc: MyRoleService,
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
     public clientSvc: ClientService,
@@ -73,11 +73,11 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
-      this.entitySvc.queryPrefix = 'projectIds:' + this.projectId;
+      this.entitySvc.setProjectId(this.projectId);
       this.bottomSheetParams['projectId'] = this.projectId;
 
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
-      this.loadChildren = (id: string) => this.readByQuery(0, 1000, "parentId:" + id)
+      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
     });
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
 
@@ -90,9 +90,6 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
       }
       this.subs.add(sub)
     })
-  }
-  readByQuery(num: number, size: number, query?: string, by?: string, order?: string, header?: {}) {
-    return this.httpProxySvc.readEntityByQuery<INewRole>(this.entitySvc.entityRepo, this.entitySvc.role, num, size, query ? ((this.entitySvc.queryPrefix) + ',' + query) : (this.entitySvc.queryPrefix), by, order, header)
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

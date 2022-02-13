@@ -13,9 +13,11 @@ import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/role.config';
 import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
-import { PermissionService } from 'src/app/services/permission.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
+import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
@@ -28,10 +30,11 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   public permissionFg: FormGroup = new FormGroup({})
   public apiRootId: string;
   constructor(
-    public entitySvc: NewRoleService,
+    public entitySvc: MyRoleService,
     public epSvc: EndpointService,
-    public permissoinSvc: PermissionService,
+    public permissoinSvc: MyPermissionService,
     public projectSvc: ProjectService,
+    public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<RoleComponent>,
@@ -40,10 +43,10 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   ) {
     super('role-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new RoleValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
-    this.permissoinSvc.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
+    this.permissoinSvc.setProjectId(this.bottomSheet.params['projectId'])
 
-    this.entitySvc.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
-    this.fis.queryProvider[this.formId + '_' + 'parentId'] = entitySvc;
+    this.entitySvc.setProjectId(this.bottomSheet.params['projectId'])
+    this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
 
     this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null");
     this.loadChildren = (id: string) => {
@@ -54,6 +57,13 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
     })
+  }
+  getParents():IQueryProvider {
+    return {
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
+        return this.httpProxySvc.readEntityByQuery<INewRole>(this.entitySvc.entityRepo, num, size, `types:PROJECT.USER`, by, order, header)
+      }
+    } as IQueryProvider
   }
   ngAfterViewInit(): void {
     if (this.bottomSheet.context === 'edit') {

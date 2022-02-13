@@ -7,5 +7,6 @@ import java.util.Set;
 @Data
 public class RoleUpdateCommand {
     private String name;
+    private String projectId;
     private Set<String> permissionIds;
 }

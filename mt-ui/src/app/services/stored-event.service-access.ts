@@ -10,13 +10,12 @@ import { IStoredEvent } from './stored-event.service';
 })
 export class StoredEventAccessService extends EntityCommonService<IStoredEvent, IStoredEvent> {
     retry(id: string) {
-        return this.httpProxySvc.retry(this.entityRepo + "/" + this.role, id)
+        return this.httpProxySvc.retry(this.entityRepo, id)
     }
     private SVC_NAME = '/auth-svc';
     private ENTITY_NAME = '/events';
-    role: string = 'admin';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-        super(httpProxy, interceptor,deviceSvc);
+    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+        super(httpProxy, interceptor, deviceSvc);
     }
 }

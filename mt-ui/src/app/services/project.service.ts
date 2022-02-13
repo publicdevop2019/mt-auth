@@ -15,23 +15,22 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   public totalProjects: IProjectSimple[] = [];
   queryPrefix = undefined;
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
-  role: string = '';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }
   readByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query, by, order, headers)
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, num, size, query, by, order, headers)
   };
   findTenantProjects(num: number, size: number) {
-    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, 'tenant', num, size)
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo + '/tenant', num, size)
   };
   readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query ? (this.queryPrefix + ','+query) : this.queryPrefix, by, order, headers)
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, num, size, query ? (this.queryPrefix + ',' + query) : this.queryPrefix, by, order, headers)
   };
   resolveTenantId(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, this.role, num, size, query, by, order, headers)
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(this.entityRepo, num, size, query, by, order, headers)
   };
-  resolveNameById(id:string){
-    return this.totalProjects.find(e=>e.id===id)?.name
+  resolveNameById(id: string) {
+    return this.totalProjects.find(e => e.id === id)?.name
   }
 }

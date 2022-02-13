@@ -8,7 +8,7 @@ import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 import { RoleComponent } from '../../../../pages/tenant/role/role.component';
 @Component({
   selector: 'app-summary-role',
@@ -38,7 +38,7 @@ export class SummaryRoleComponent extends SummaryEntityComponent<INewRole, INewR
     },
   ]
   constructor(
-    public entitySvc: NewRoleService,
+    public entitySvc: MyRoleService,
     public deviceSvc: DeviceService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,

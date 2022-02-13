@@ -10,6 +10,7 @@ public class ClientAutoApproveRepresentation {
     private Boolean autoApprove;
 
     public ClientAutoApproveRepresentation(Client client) {
-        BeanUtils.copyProperties(client, this);
+        id= client.getId();
+        autoApprove=client.getAutoApprove();
     }
 }

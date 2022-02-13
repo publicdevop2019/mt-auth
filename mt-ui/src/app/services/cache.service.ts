@@ -12,11 +12,10 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 export class CacheService extends EntityCommonService<ICacheProfile, ICacheProfile>  implements IQueryProvider {
   private ENTITY_NAME = '/auth-svc/cache-profile';
   entityRepo: string = environment.serverUri + this.ENTITY_NAME;
-  role: string = '';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }
   readByQuery (num: number, size: number, query?: string, by?: string, order?: string, header?: {}){
-    return this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.entityRepo, this.role, num, size,query, by, order, header)
+    return this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.entityRepo, num, size,query, by, order, header)
   };
 }

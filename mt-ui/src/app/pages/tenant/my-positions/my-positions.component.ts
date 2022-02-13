@@ -11,7 +11,7 @@ import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface IPosition extends IIdBasedEntity{
 
@@ -45,7 +45,7 @@ export class MyPositionsComponent extends SummaryEntityComponent<IPosition, IPos
     },
   ]
   constructor(
-    public entitySvc: NewRoleService,
+    public entitySvc: MyRoleService,
     public projectSvc: ProjectService,
     public deviceSvc: DeviceService,
     public fis: FormInfoService,

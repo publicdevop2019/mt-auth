@@ -1,7 +1,8 @@
 package com.mt.access.infrastructure;
 
-import com.mt.access.domain.model.AuthenticationService;
+import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.jwt.JwtUtility;
@@ -14,7 +15,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class JwtAuthenticationService implements AuthenticationService {
+public class JwtCurrentUserService implements CurrentUserService {
 
     @Override
     public Set<String> userPermissionIds() {
@@ -61,10 +62,17 @@ public class JwtAuthenticationService implements AuthenticationService {
     }
 
     @Override
-    public Set<ProjectId> getTenantId() {
+    public Set<ProjectId> getTenantIds() {
         String jwt = JwtThreadLocal.get();
         List<String> ids = JwtUtility.getField("tenantId", jwt);
         return ids == null ? Collections.emptySet() : ids.stream().map(ProjectId::new).collect(Collectors.toSet());
+    }
+
+    @Override
+    public Set<PermissionId> getPermissionIds() {
+        String jwt = JwtThreadLocal.get();
+        List<String> permissionIds = JwtUtility.getPermissionIds(jwt);
+        return permissionIds.stream().map(PermissionId::new).collect(Collectors.toSet());
     }
 
     public static class JwtThreadLocal {

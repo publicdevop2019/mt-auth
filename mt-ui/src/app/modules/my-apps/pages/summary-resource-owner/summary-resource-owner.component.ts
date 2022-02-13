@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { ResourceOwnerService } from 'src/app/services/resource-owner.service';
+import { UserService } from 'src/app/services/user.service';
 import { ResourceOwnerComponent } from '../user/user.component';
 import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
 import { filter, take } from 'rxjs/operators';
@@ -50,7 +50,7 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IResou
     },
   ]
   constructor(
-    public entitySvc: ResourceOwnerService,
+    public entitySvc: UserService,
     public deviceSvc: DeviceService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,

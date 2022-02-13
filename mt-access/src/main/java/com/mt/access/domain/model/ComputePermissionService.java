@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 public class ComputePermissionService {
     public Set<PermissionId> compute(UserRelation userRelation){
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
-        Set<Role> allByQuery = QueryUtility.getAllByQuery(q -> ApplicationServiceRegistry.getRoleApplicationService().query((RoleQuery) q), new RoleQuery(standaloneRoles));
+        Set<Role> allByQuery = QueryUtility.getAllByQuery(q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery((RoleQuery) q), new RoleQuery(standaloneRoles));
         return allByQuery.stream().flatMap(e -> e.getPermissionIds().stream()).collect(Collectors.toSet());
     }
 }

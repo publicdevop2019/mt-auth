@@ -12,7 +12,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 import { OrgService } from 'src/app/services/org.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface IOrg extends IIdBasedEntity{

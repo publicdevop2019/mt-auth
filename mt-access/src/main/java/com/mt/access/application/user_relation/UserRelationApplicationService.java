@@ -1,6 +1,7 @@
 package com.mt.access.application.user_relation;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
@@ -24,6 +25,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.mt.access.domain.model.permission.Permission.*;
 
 @Service
 @Slf4j
@@ -53,9 +56,9 @@ public class UserRelationApplicationService {
         }, USER_RELATION);
     }
 
-    public SumPagedRep<User> users(String projectId, String queryParam, String pageParam, String config) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        UserRelationQuery userRelationQuery = new UserRelationQuery(projectId1, queryParam, pageParam, config);
+    public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
+        UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService().canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER_SUMMARY);
         SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery);
         Set<UserId> collect = byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
         UserQuery userQuery = new UserQuery(collect);
@@ -69,8 +72,9 @@ public class UserRelationApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void adminUpdate(String projectId, String userId, UpdateUserRelationCommand command) {
+    public void update(String projectId, String userId, UpdateUserRelationCommand command) {
         ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_TENANT_USER);
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(new UserId(userId), projectId1);
         Set<RoleId> collect = command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet());
         if (collect.size() > 0) {
@@ -84,7 +88,7 @@ public class UserRelationApplicationService {
                 e.setTenantIds(collect1);
             });
 
-        }else{
+        } else {
             byUserIdAndProjectId.ifPresent(e -> {
                 e.setStandaloneRoles(Collections.emptySet());
                 e.setTenantIds(Collections.emptySet());
@@ -92,4 +96,12 @@ public class UserRelationApplicationService {
         }
     }
 
+    public Optional<UserTenantRepresentation> tenantUserDetail(String projectId, String id) {
+        UserRelationQuery userRelationQuery = new UserRelationQuery(new UserId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
+        return DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery).findFirst().map(userRelation -> {
+            UserQuery userQuery = new UserQuery(userRelation.getUserId());
+            return DomainRegistry.getUserRepository().usersOfQuery(userQuery).findFirst().map(e -> new UserTenantRepresentation(userRelation, e));
+        }).orElseGet(Optional::empty);
+    }
 }

@@ -18,6 +18,7 @@ public class EndpointUpdateCommand implements Serializable {
     private String corsProfileId;
     private String resourceId;
     private String cacheProfileId;
+    private String projectId;
 
     private String path;
 

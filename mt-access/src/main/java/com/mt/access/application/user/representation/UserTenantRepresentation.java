@@ -1,4 +1,4 @@
-package com.mt.access.application.user_relation.representation;
+package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user_relation.UserRelation;

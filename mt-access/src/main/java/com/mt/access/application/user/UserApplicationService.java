@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -124,7 +123,7 @@ public class UserApplicationService implements UserDetailsService {
     @SubscribeForEvent
     @Transactional
     public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
-        UserId userId = DomainRegistry.getAuthenticationService().getUserId();
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();

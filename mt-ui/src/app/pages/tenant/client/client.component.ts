@@ -27,7 +27,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   private formCreatedOb: Observable<string>;
   private previousPayload: any = {};
   constructor(
-    public clientService: MyClientService,
+    public clientSvc: MyClientService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -36,7 +36,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   ) {
     super('client', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
-    clientService.queryPrefix=`projectIds:${this.bottomSheet.params['projectId']}`
+    clientSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
     combineLatest([this.formCreatedOb
@@ -62,7 +62,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
 
         const var0: Observable<any>[] = [];
         if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-          var0.push(this.clientService.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
+          var0.push(this.clientSvc.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
         }
         if(var0.length===0){
           this.resume()
@@ -110,7 +110,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   getResourceIds() {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IClient>(this.clientService.entityRepo, this.clientService.role, num, size, `projectIds:${this.bottomSheet.params['projectId']},resourceIndicator:1`, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IClient>(this.clientSvc.entityRepo, num, size, `resourceIndicator:1`, by, order, header)
       }
     } as IQueryProvider
   }
@@ -152,11 +152,11 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
   }
   update() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'rootUpdateClientCommandValidator', this.fis, this, this.errorMapper))
-      this.clientService.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+      this.clientSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
   }
   create() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'rootCreateClientCommandValidator', this.fis, this, this.errorMapper))
-      this.clientService.create(this.convertToPayload(this), this.changeId)
+      this.clientSvc.create(this.convertToPayload(this), this.changeId)
   }
   errorMapper(original: ErrorMessage[], cmpt: ClientComponent) {
     return original.map(e => {

@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -12,6 +11,7 @@ import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
 @NoArgsConstructor
 @Getter
 public class PermissionQuery extends QueryCriteria {
@@ -26,12 +26,13 @@ public class PermissionQuery extends QueryCriteria {
     @Setter
     private Set<ProjectId> tenantIds;
     private PermissionId parentId;
+    @Setter
     private Set<String> names;
     private Set<PermissionType> types;
     private boolean typesIsAndRelation;
 
     public PermissionQuery(String queryParam, String pageParam, String config) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME,PARENT_ID_LITERAL,PROJECT_IDS,TYPES);
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL)).ifPresent(e -> parentId = new PermissionId((e)));
@@ -65,28 +66,42 @@ public class PermissionQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
     }
+
     public PermissionQuery(Set<PermissionId> permissionId) {
-        ids=permissionId;
+        ids = permissionId;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
     }
-    public PermissionQuery(ProjectId projectId,String name) {
+
+    public PermissionQuery(ProjectId projectId, String name) {
         projectIds = new HashSet<>();
         projectIds.add(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
-        this.names=Collections.singleton(name);
+        this.names = Collections.singleton(name);
     }
-    public static PermissionQuery tenantQuery(ProjectId tenantIds){
+
+    public PermissionQuery(PermissionId permissionId, ProjectId projectId) {
+        projectIds = Collections.singleton(projectId);
+        ids = Collections.singleton(permissionId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = PermissionSort.byId(true);
+    }
+
+    //create query to find read project permission for tenant
+    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> ids) {
         PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.setTenantIds(Collections.singleton(tenantIds));
+        permissionQuery.projectIds = Collections.singleton(projectId);
+        permissionQuery.tenantIds = ids;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
-        permissionQuery. setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);
         return permissionQuery;
     }
+
     @Getter
     public static class PermissionSort {
         private final boolean isAsc;

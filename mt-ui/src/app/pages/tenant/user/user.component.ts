@@ -11,7 +11,7 @@ import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
 import { MyUserService } from 'src/app/services/my-user.service';
-import { NewRoleService } from 'src/app/services/new-role.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 @Component({
   selector: 'app-user',
@@ -23,13 +23,13 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     throw new Error('Method not implemented.');
   }
   public loadRoot;
-  public loadChildren = (id: string) => this.roleSvc.readByQuery(0, 1000, "parentId:" + id)
+  public loadChildren = (id: string) => this.roleSvc.readEntityByQuery(0, 1000, "parentId:" + id)
   public formGroup: FormGroup = new FormGroup({})
   bottomSheet: IBottomSheet<IProjectUser>;
   constructor(
     public userSvc: MyUserService,
     fis: FormInfoService,
-    public roleSvc: NewRoleService,
+    public roleSvc: MyRoleService,
     public projectSvc: ProjectService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<UserComponent>,
@@ -37,7 +37,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
   ) {
     super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
-    this.roleSvc.queryPrefix = `projectIds:${this.bottomSheet.params['projectId']}`
+    this.roleSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER");
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {

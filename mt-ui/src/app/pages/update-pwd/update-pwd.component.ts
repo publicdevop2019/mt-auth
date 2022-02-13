@@ -6,7 +6,7 @@ import { IResourceOwnerUpdatePwd } from 'src/app/clazz/validation/aggregate/user
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/update-pwd.config';
-import { ResourceOwnerService } from 'src/app/services/resource-owner.service';
+import { UserService } from 'src/app/services/user.service';
 import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-update-pwd',
@@ -20,7 +20,7 @@ export class UpdatePwdComponent implements OnInit, AfterViewInit, OnDestroy {
   private validator = new UserValidator()
   private validateHelper = new ValidatorHelper()
   constructor(
-    public resourceOwnerService: ResourceOwnerService,
+    public resourceOwnerService: UserService,
     private fis: FormInfoService,
   ) {
   }

@@ -96,7 +96,7 @@ import { HttpProxyService } from './services/http-proxy.service';
 import { CustomHttpInterceptor } from './services/interceptors/http.interceptor';
 import { LoadingInterceptor } from './services/interceptors/loading.interceptor';
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
-import { ResourceOwnerService } from './services/resource-owner.service';
+import { UserService } from './services/user.service';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
 import { EditablePageSelectSingleComponent } from './components/editable-page-select-single/editable-page-select-single.component';
 import { EditablePageSelectMultiComponent } from './components/editable-page-select-multi/editable-page-select-multi.component';
@@ -334,7 +334,7 @@ import { WelcomeComponent } from './pages/welcome/welcome.component';
       useClass: OfflineInterceptor,
       multi: true
     },
-    HttpProxyService, ClientService, ResourceOwnerService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, ClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -45,7 +45,7 @@ public class AuthorizeCodeApplicationService {
             throw new IllegalArgumentException("unable to find authorize client");
         }
 
-        Authentication authentication = DomainRegistry.getAuthenticationService().getAuthentication();
+        Authentication authentication = DomainRegistry.getCurrentUserService().getAuthentication();
         log.debug("before create authorization request");
         if (log.isDebugEnabled()) {
             try {

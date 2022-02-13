@@ -68,8 +68,8 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
     this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
-      this.entitySvc.queryPrefix = 'projectIds:'+this.projectId;
-      this.clientSvc.queryPrefix = 'projectIds:'+this.projectId;
+      this.entitySvc.setProjectId(this.projectId);
+      this.clientSvc.setProjectId(this.projectId)
       this.bottomSheetParams['projectId']=this.projectId;
     });
     this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
