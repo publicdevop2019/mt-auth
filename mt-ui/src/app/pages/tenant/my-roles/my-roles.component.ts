@@ -17,8 +17,10 @@ import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface INewRole extends IIdBasedEntity {
   name: string,
+  originalName?: string,
   parentId?: string,
   tenantId?: string,
+  systemCreate?: boolean,
   projectId: string,
   roleType?: 'USER' | 'CLIENT' | 'PROJECT' | 'CLIENT_ROOT',
   permissionIds: string[],
@@ -36,7 +38,6 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
 
   public projectId: string;
-  private formCreatedOb2: Observable<string>;
   columnList = {
     id: 'ID',
     name: 'NAME',
@@ -79,9 +80,8 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
       this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
     });
-    this.formCreatedOb2 = this.fis.formCreated(this.formId2);
 
-    combineLatest([this.formCreatedOb2]).pipe(take(1)).subscribe(() => {
+    this.fis.formCreated(this.formId2).subscribe(() => {
       const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.viewType = e.view;
       });
@@ -97,5 +97,8 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
   ngOnDestroy(): void {
     this.fis.resetAll()
     super.ngOnDestroy()
+  }
+  editable(row: INewRole) {
+    return row.roleType !== 'CLIENT_ROOT' && row.roleType !== 'PROJECT'
   }
 }

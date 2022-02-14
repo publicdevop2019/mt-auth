@@ -3,8 +3,8 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { combineLatest, of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { combineLatest, Observable, of } from 'rxjs';
+import { switchMap, take, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet, ISumRep } from 'src/app/clazz/summary.component';
 import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
@@ -16,17 +16,18 @@ import { EndpointService } from 'src/app/services/endpoint.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { I } from '@angular/cdk/keycodes';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
   styleUrls: ['./role.component.css']
 })
-export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements OnInit, AfterViewInit, OnDestroy {
+export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<INewRole>;
-  public loadRoot =undefined;
-  public loadChildren ;
+  public loadRoot = undefined;
+  public loadChildren;
   public permissionFg: FormGroup = new FormGroup({})
   public apiRootId: string;
   constructor(
@@ -48,7 +49,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     this.entitySvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
 
-    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null");
+    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null").pipe(tap(() => this.cdr.markForCheck()));
     this.loadChildren = (id: string) => {
       return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id)
     }
@@ -56,30 +57,46 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
+      this.reusme()
     })
   }
-  getParents():IQueryProvider {
+  getParents(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<INewRole>(this.entitySvc.entityRepo, num, size, `types:PROJECT.USER`, by, order, header)
       }
     } as IQueryProvider
   }
-  ngAfterViewInit(): void {
+  reusme(): void {
     if (this.bottomSheet.context === 'edit') {
-      this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
-      this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
-      this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.aggregate.projectId)
-      this.aggregate.permissionIds.forEach(p => {
-        if (!this.permissionFg.get(p)) {
-          this.permissionFg.addControl(p, new FormControl('checked'))
-        } else {
-          this.permissionFg.get(p).setValue('checked', { emitEvent: false })
-        }
-      })
-      this.cdr.markForCheck()
+      if (this.aggregate.parentId) {
+        this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId).subscribe(next => {
+          this.fis.updateOption(this.formId, 'parentId', next.data.map(e => <IOption>{ label: e.name, value: e.id }))
+          this.resumeForm()
+        })
+      } else {
+        this.resumeForm()
+      }
     }
+  }
+  resumeForm() {
+    this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
+    this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
+    this.fis.formGroupCollection[this.formId].get('parentId').setValue(this.aggregate.parentId)
+    if (this.aggregate.systemCreate) {
+      this.fis.disableIfMatch(this.formId, ['name', 'parentId'])
+      this.fis.hideIfMatch(this.formId, ['parentId'])
+    }
+    this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
+    this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.aggregate.projectId);
+    (this.aggregate.permissionIds || []).forEach(p => {
+      if (!this.permissionFg.get(p)) {
+        this.permissionFg.addControl(p, new FormControl('checked'))
+      } else {
+        this.permissionFg.get(p).setValue('checked', { emitEvent: false })
+      }
+    })
+    this.cdr.markForCheck()
   }
   ngOnDestroy(): void {
     Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
@@ -92,10 +109,10 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     const value = cmpt.permissionFg.value
     return {
       id: formGroup.get('id').value,//value is ignored
-      name: formGroup.get('name').value,
+      name: cmpt.bottomSheet.context === 'edit' ? (cmpt.aggregate.systemCreate ? cmpt.aggregate.originalName : formGroup.get('name').value) : formGroup.get('name').value,
       parentId: formGroup.get('parentId').value,
       projectId: formGroup.get('projectId').value,
-      permissionIds: Object.keys(value).filter(e => value[e] === 'checked').filter(e=>e),
+      permissionIds: Object.keys(value).filter(e => value[e] === 'checked').filter(e => e),
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       version: cmpt.aggregate && cmpt.aggregate.version
     }

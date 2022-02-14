@@ -1,7 +1,8 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { combineLatest, Observable } from 'rxjs';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
@@ -21,7 +22,7 @@ import { MyPermissionService } from 'src/app/services/my-permission.service';
 export class PermissionComponent extends Aggregate<PermissionComponent, IPermission> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IPermission>;
   constructor(
-    public entityService: MyPermissionService,
+    public entitySvc: MyPermissionService,
     public epSvc: MyEndpointService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
@@ -31,7 +32,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
   ) {
     super('permission-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new PermissionValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
-    this.entityService.setProjectId(this.bottomSheet.params['projectId']);
+    this.entitySvc.setProjectId(this.bottomSheet.params['projectId']);
 
     this.epSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParentPerm();
@@ -40,36 +41,64 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
-      this.fis.formGroupCollection[this.formId].get('linkApi').valueChanges.subscribe(next=>{
-        if(next){
-          this.fis.showIfMatch(this.formId,['apiId'])
-        }else{
-          this.fis.hideIfMatch(this.formId,['apiId'])
+      this.fis.formGroupCollection[this.formId].get('linkApi').valueChanges.subscribe(next => {
+        if (next) {
+          this.fis.showIfMatch(this.formId, ['apiId'])
+        } else {
+          this.fis.hideIfMatch(this.formId, ['apiId'])
         }
       })
-      if(this.aggregate){
-        if(this.aggregate.linkedApiId){
-          this.fis.showIfMatch(this.formId,['apiId'])
+      if (this.bottomSheet.context === 'edit') {
+        if (this.aggregate.linkedApiPermissionId) {
+          this.fis.showIfMatch(this.formId, ['apiId'])
+        }
+        const var0: Observable<any>[] = [];
+        if (this.aggregate.parentId || this.aggregate.linkedApiPermissionId) {
+          if (this.aggregate.parentId) {
+            var0.push(this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
+          }
+          if (this.aggregate.linkedApiPermissionId) {
+            var0.push(this.epSvc.readEntityByQuery(0, 1, 'permissionId:' + this.aggregate.linkedApiPermissionId))
+          }
+          combineLatest(var0).subscribe(next => {
+            if (this.aggregate.parentId) {
+              this.fis.updateOption(this.formId, 'parentId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
+            }
+            if (this.aggregate.linkedApiPermissionId && !this.aggregate.parentId) {
+              this.fis.updateOption(this.formId, 'apiId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data[0].id)
+            }
+            if (this.aggregate.linkedApiPermissionId && this.aggregate.parentId) {
+              this.fis.updateOption(this.formId, 'apiId', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data[0].id)
+            }
+            this.resumeForm()
+            this.cdr.markForCheck()
+          })
+        } else {
+          this.resumeForm()
+          this.cdr.markForCheck()
         }
 
-        this.fis.restore(this.formId,{
-          id:this.aggregate.id,
-          name:this.aggregate.name,
-          parentId:this.aggregate.parentId,
-          apiId:this.aggregate.linkedApiId,
-          linkApi:!!this.aggregate.linkedApiId
-        })
       }
+    })
+  }
+  resumeForm() {
+    this.fis.restore(this.formId, {
+      id: this.aggregate.id,
+      name: this.aggregate.name,
+      parentId: this.aggregate.parentId,
+      linkApi: !!this.aggregate.linkedApiPermissionId
     })
   }
   getParentPerm(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IPermission>(this.entityService.entityRepo, num, size, `types:COMMON.PROJECT`, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IPermission>(this.entitySvc.entityRepo, num, size, `types:COMMON.PROJECT`, by, order, header)
       }
     } as IQueryProvider
   }
-  getEndpoints():IQueryProvider {
+  getEndpoints(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IEndpoint>(this.epSvc.entityRepo, num, size, query, by, order, header)
@@ -93,10 +122,10 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
     }
   }
   update() {
-    this.entityService.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+    this.entitySvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
   }
   create() {
-    this.entityService.create(this.convertToPayload(this), this.changeId)
+    this.entitySvc.create(this.convertToPayload(this), this.changeId)
   }
   errorMapper(original: ErrorMessage[], cmpt: PermissionComponent) {
     return original.map(e => {

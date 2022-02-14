@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { of } from 'rxjs';
-import { filter, map, mapTo, switchMap, take } from 'rxjs/operators';
+import { filter, map, mapTo, switchMap, take, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
@@ -38,7 +38,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     this.roleSvc.setProjectId(this.bottomSheet.params['projectId'])
-    this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER");
+    this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER").pipe(tap(() => this.cdr.markForCheck()));;
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)

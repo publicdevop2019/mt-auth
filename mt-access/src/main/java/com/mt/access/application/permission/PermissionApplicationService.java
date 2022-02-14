@@ -68,10 +68,8 @@ public class PermissionApplicationService {
         PermissionQuery permissionQuery = new PermissionQuery(permissionId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), DELETE_PERMISSION);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Permission> corsProfile = DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getPermissionRepository().remove(e);
-            });
+            Optional<Permission> permission = DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
+            permission.ifPresent(Permission::remove);
             return null;
         }, PERMISSION);
     }
@@ -116,7 +114,7 @@ public class PermissionApplicationService {
             if (command.getParentId() != null && !command.getParentId().isBlank()) {
                 permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()), null, linkedPermId);
             } else {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, null, linkedPermId);
+                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null, null, linkedPermId);
             }
             DomainRegistry.getPermissionRepository().add(permission);
             return permissionId.getDomainId();

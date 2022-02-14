@@ -206,6 +206,13 @@ export class NavBarComponent implements OnInit {
   ];
   menuTop: INavElement[] = [
     {
+      link: 'new-project',
+      display: 'REGISTER_MY_PROJECT',
+      icon: 'blur_on',
+      params: {
+      },
+    },
+    {
       link: 'welcome',
       display: 'WELCOME',
       icon: 'dashboard',
@@ -216,13 +223,6 @@ export class NavBarComponent implements OnInit {
       link: 'my-profile',
       display: 'MY_PROFILE',
       icon: 'account_circle',
-      params: {
-      },
-    },
-    {
-      link: 'new-project',
-      display: 'REGISTER_MY_PROJECT',
-      icon: 'blur_on',
       params: {
       },
     },

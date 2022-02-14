@@ -65,7 +65,7 @@ public class RoleApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
             first.ifPresent(e -> {
-                e.replace(command.getName(), command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
+                e.replace(command.getName(),command.getDescription(), command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
                 DomainRegistry.getRoleRepository().add(e);
             });
             return null;
@@ -131,12 +131,12 @@ public class RoleApplicationService {
             permissionIdSet.addAll(defaultApiPermissions);
             RoleId roleId = new RoleId();
             RoleId roleId1 = new RoleId();
-            Role rootRole = new Role(authPId, roleId, tenantProjectId.getDomainId(), "", permissionIdSet, RoleType.PROJECT, null, tenantProjectId);
-            Role adminRole = new Role(authPId, new RoleId(), "PROJECT_ADMIN", "", permissionIdSet, RoleType.USER, roleId, tenantProjectId);
+            Role rootRole = Role.autoCreate(authPId, roleId, tenantProjectId.getDomainId(), null, permissionIdSet, RoleType.PROJECT, null, tenantProjectId);
+            Role adminRole = Role.autoCreate(authPId, new RoleId(), "PROJECT_ADMIN", null, permissionIdSet, RoleType.USER, roleId, tenantProjectId);
 
-            Role userRole = new Role(tenantProjectId, new RoleId(), "PROJECT_USER", "", Collections.emptySet(), RoleType.USER, roleId1, null);
-            Role tenantClientRoot = new Role(tenantProjectId, new RoleId(), "CLIENT_ROLE", "", Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
-            Role tenantUserRoot = new Role(tenantProjectId, roleId1, tenantProjectId.getDomainId(), "", Collections.emptySet(), RoleType.PROJECT, null, null);
+            Role userRole = Role.autoCreate(tenantProjectId, new RoleId(), "PROJECT_USER", null, Collections.emptySet(), RoleType.USER, roleId1, null);
+            Role tenantClientRoot = Role.autoCreate(tenantProjectId, new RoleId(), "CLIENT_ROOT", null, Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
+            Role tenantUserRoot = Role.autoCreate(tenantProjectId, roleId1, tenantProjectId.getDomainId(), null, Collections.emptySet(), RoleType.PROJECT, null, null);
 
             DomainRegistry.getRoleRepository().add(adminRole);
             DomainRegistry.getRoleRepository().add(userRole);
@@ -170,7 +170,7 @@ public class RoleApplicationService {
             if (first.isEmpty()) {
                 throw new IllegalStateException("unable to find root client role");
             }
-            Role userRole = new Role(projectId, roleId, clientId.getDomainId(), "SYSTEM_AUTO_CREATE", Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
+            Role userRole = Role.autoCreate(projectId, roleId, clientId.getDomainId(), null, Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
             DomainRegistry.getRoleRepository().add(userRole);
             return null;
         }, ROLE);

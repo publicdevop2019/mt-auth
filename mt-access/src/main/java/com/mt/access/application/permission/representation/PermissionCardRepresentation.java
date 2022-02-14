@@ -25,10 +25,12 @@ public class PermissionCardRepresentation {
     private String tenantName;
     private String id;
     private String parentId;
+    private boolean systemCreate;
     private PermissionType type;
 
     public PermissionCardRepresentation(Permission permission) {
         this.name = permission.getName();
+        this.systemCreate = permission.isSystemCreate();
         this.type = permission.getType();
         if (permission.getParentId() != null) {
             this.parentId = permission.getParentId().getDomainId();
