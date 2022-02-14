@@ -127,8 +127,6 @@ public class RoleApplicationService {
             ProjectId tenantProjectId = new ProjectId(deserialize.getProjectId().getDomainId());
             ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
-            Set<PermissionId> defaultApiPermissions = Arrays.stream(AppConstant.MT_AUTH_TENANT_ADMIN_DEFAULT_PERMISSIONS.split(",")).map(PermissionId::new).collect(Collectors.toSet());
-            permissionIdSet.addAll(defaultApiPermissions);
             RoleId roleId = new RoleId();
             RoleId roleId1 = new RoleId();
             Role rootRole = Role.autoCreate(authPId, roleId, tenantProjectId.getDomainId(), null, permissionIdSet, RoleType.PROJECT, null, tenantProjectId);

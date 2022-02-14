@@ -132,6 +132,8 @@ public class Permission extends Auditable {
         Permission p16 = Permission.autoCreate(projectId, new PermissionId(), CREATE_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDL"));
         Permission p17 = Permission.autoCreate(projectId, new PermissionId(), PATCH_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDW"));
         Permission p18 = Permission.autoCreate(projectId, new PermissionId(), BATCH_DELETE_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDV"));
+        Permission p36 = Permission.autoCreate(projectId, new PermissionId(), "VIEW_CORS_SUMMARY", PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEH"));
+        Permission p37 = Permission.autoCreate(projectId, new PermissionId(), "VIEW_CACHE_SUMMARY", PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEM"));
 
         PermissionId roleMgntId = new PermissionId();
         Permission p19 = Permission.autoCreate(projectId, roleMgntId, "ROLE_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
@@ -196,6 +198,8 @@ public class Permission extends Auditable {
         DomainRegistry.getPermissionRepository().add(p33);
         DomainRegistry.getPermissionRepository().add(p34);
         DomainRegistry.getPermissionRepository().add(p35);
+        DomainRegistry.getPermissionRepository().add(p36);
+        DomainRegistry.getPermissionRepository().add(p37);
         createdPermissions.add(p0);
         createdPermissions.add(p1);
         createdPermissions.add(p2);
@@ -232,6 +236,8 @@ public class Permission extends Auditable {
         createdPermissions.add(p33);
         createdPermissions.add(p34);
         createdPermissions.add(p35);
+        createdPermissions.add(p36);
+        createdPermissions.add(p37);
         Set<PermissionId> collect = createdPermissions.stream().flatMap(e -> {
             if (e.getLinkedApiPermissionId() != null) {
                 return List.of(e.getPermissionId(), e.getLinkedApiPermissionId()).stream();
