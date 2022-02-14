@@ -25,6 +25,11 @@ export interface IPatch {
 export interface IPatchCommand extends IPatch {
     expect: number,
 }
+export interface IUser{
+    id:string
+    email:string
+    createdAt:string
+}
 @Injectable({
     providedIn: 'root'
 })
@@ -61,6 +66,9 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/endpoints/event/reload', null, { headers: headerConfig });
+    }
+    getMyProfile() {
+        return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
     }
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/proxy/check');

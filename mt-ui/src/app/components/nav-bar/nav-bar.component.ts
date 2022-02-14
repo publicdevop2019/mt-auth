@@ -4,7 +4,9 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { logout } from 'src/app/clazz/utility';
+import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
 import { MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface INavElement {
@@ -380,7 +382,7 @@ export class NavBarComponent implements OnInit {
   ]
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;
-  constructor(public projectSvc: ProjectService, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public route: ActivatedRoute, public router: Router, public translate: TranslateService, public deviceSvc: DeviceService, public msgSvc: MessageService) {
+  constructor(public projectSvc: ProjectService,public authSvc:AuthService, public httpProxySvc: HttpProxyService, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public route: ActivatedRoute, public router: Router, public translate: TranslateService, public deviceSvc: DeviceService, public msgSvc: MessageService) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -397,11 +399,11 @@ export class NavBarComponent implements OnInit {
   ngOnDestroy(): void {
     this.mobileQuery.removeListener(this._mobileQueryListener);
   }
-
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects = next.data;
     })
+    this.httpProxySvc.getMyProfile().subscribe(next => this.authSvc.currentUser = next)
     this.msgSvc.connectSystemMonitor();
     this.msgSvc.connectMallMonitor();
   }

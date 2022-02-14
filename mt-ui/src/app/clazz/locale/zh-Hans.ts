@@ -693,4 +693,6 @@ export const zhHans = {
     "LINK_TO_API": "关联API",
     "SELECT_API": "选择关联API",
     "CLIENT_ROOT": "应用根",
+    "USER_EMAIL": "邮箱",
+    "CREATED_AT": "注册于",
 }

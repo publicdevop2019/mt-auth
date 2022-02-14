@@ -5,8 +5,9 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.*;
 import com.mt.access.application.user.representation.UserAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
-import com.mt.access.application.user_relation.UpdateUserRelationCommand;
+import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
+import com.mt.access.application.user_relation.UpdateUserRelationCommand;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
@@ -80,7 +81,7 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(path ="users/pwd")
+    @PutMapping(path = "users/pwd")
     public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserPasswordCommand command,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
@@ -90,13 +91,13 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path ="users/forgetPwd")
+    @PostMapping(path = "users/forgetPwd")
     public ResponseEntity<Void> forgetPwd(@RequestBody UserForgetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         ApplicationServiceRegistry.getUserApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path ="users/resetPwd")
+    @PostMapping(path = "users/resetPwd")
     public ResponseEntity<Void> resetPwd(@RequestBody UserResetPasswordCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         ApplicationServiceRegistry.getUserApplicationService().resetPassword(command, changeId);
         return ResponseEntity.ok().build();
@@ -111,7 +112,7 @@ public class UserResource {
             @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        queryParam=Utility.updateProjectId(queryParam,projectId);
+        queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService().tenantUsers(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
@@ -127,6 +128,15 @@ public class UserResource {
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
     }
 
+    @GetMapping(path = "users/profile")
+    public ResponseEntity<UserProfileRepresentation> findUserForProject3(
+            @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        Optional<User> user = ApplicationServiceRegistry.getUserRelationApplicationService().myProfile();
+        return user.map(value -> ResponseEntity.ok(new UserProfileRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
+    }
+
 
     @PutMapping(path = "projects/{projectId}/users/{id}")
     public ResponseEntity<UserTenantRepresentation> replaceUserDetailForProject(
@@ -137,7 +147,7 @@ public class UserResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        ApplicationServiceRegistry.getUserRelationApplicationService().update(projectId, id,command);
+        ApplicationServiceRegistry.getUserRelationApplicationService().update(projectId, id, command);
         return ResponseEntity.ok().build();
     }
 }

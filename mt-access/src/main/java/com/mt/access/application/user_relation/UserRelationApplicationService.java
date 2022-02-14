@@ -104,4 +104,9 @@ public class UserRelationApplicationService {
             return DomainRegistry.getUserRepository().usersOfQuery(userQuery).findFirst().map(e -> new UserTenantRepresentation(userRelation, e));
         }).orElseGet(Optional::empty);
     }
+
+    public Optional<User> myProfile() {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        return DomainRegistry.getUserRepository().userOfId(userId);
+    }
 }
