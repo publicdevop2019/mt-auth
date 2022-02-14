@@ -75,7 +75,7 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
     private translate: TranslateService
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.bottomSheetParams['projectId'] = this.projectId;
       this.entitySvc.setProjectId(this.projectId);
@@ -84,6 +84,7 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
         return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
       }
     });
+    this.subs.add(sub)
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
 
     combineLatest([this.formCreatedOb2]).pipe(take(1)).subscribe(() => {

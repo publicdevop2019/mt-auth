@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
@@ -65,13 +65,15 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
     public dialog: MatDialog,
     private route: ActivatedRoute,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.setProjectId(this.projectId);
       this.clientSvc.setProjectId(this.projectId)
-      this.bottomSheetParams['projectId']=this.projectId;
+      this.bottomSheetParams['projectId'] = this.projectId;
+      this.deviceSvc.refreshSummary.next()
     });
+    this.subs.add(sub)
     this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
       .subscribe(next => {
         if (next.data)
@@ -90,7 +92,7 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
             })
           },];
       });
-     
+
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {
     super.updateSummaryData(next);

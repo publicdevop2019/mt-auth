@@ -695,4 +695,5 @@ export const zhHans = {
     "CLIENT_ROOT": "应用根",
     "USER_EMAIL": "邮箱",
     "CREATED_AT": "注册于",
+    "MY_PROFILE_DETAIL": "我的资料",
 }

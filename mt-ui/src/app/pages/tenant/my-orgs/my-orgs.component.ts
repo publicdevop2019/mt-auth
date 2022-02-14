@@ -62,9 +62,11 @@ export class MyOrgsComponent extends SummaryEntityComponent<IOrg, IOrg> implemen
     private route: ActivatedRoute,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
+      this.deviceSvc.refreshSummary.next()
     });
+    this.subs.add(sub)
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
     
     combineLatest([this.formCreatedOb2]).pipe(take(1)).subscribe(()=>{

@@ -72,15 +72,16 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     private route: ActivatedRoute,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.setProjectId(this.projectId);
       this.bottomSheetParams['projectId'] = this.projectId;
 
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
       this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
+      this.deviceSvc.refreshSummary.next()
     });
-
+    this.subs.add(sub)
     this.fis.formCreated(this.formId2).subscribe(() => {
       const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.viewType = e.view;

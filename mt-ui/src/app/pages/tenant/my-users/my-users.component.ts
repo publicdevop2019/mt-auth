@@ -55,10 +55,12 @@ export class MyUsersComponent extends SummaryEntityComponent<IProjectUser, IProj
     private route: ActivatedRoute,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.setProjectId(this.projectId)
       this.bottomSheetParams['projectId']=this.projectId
+      this.deviceSvc.refreshSummary.next()
     });
+    this.subs.add(sub)
   }
 }

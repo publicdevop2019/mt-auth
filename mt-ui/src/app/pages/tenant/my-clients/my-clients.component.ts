@@ -85,11 +85,13 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
     private route: ActivatedRoute,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
       this.entitySvc.setProjectId(this.projectId)
       this.bottomSheetParams['projectId']=this.projectId;
+      this.deviceSvc.refreshSummary.next()
     });
+    this.subs.add(sub)
     combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
       .subscribe(next => {
         if (next) {

@@ -1,13 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { Component, OnDestroy } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { Observable, combineLatest, of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IBottomSheet, IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IPermission } from 'src/app/clazz/validation/aggregate/permission/interface-permission';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
+import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -53,9 +50,11 @@ export class MyPositionsComponent extends SummaryEntityComponent<IPosition, IPos
     private route: ActivatedRoute,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.route.paramMap.pipe(take(1)).subscribe(queryMaps => {
+    const sub=this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
+      this.deviceSvc.refreshSummary.next()
     });
+    this.subs.add(sub)
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
