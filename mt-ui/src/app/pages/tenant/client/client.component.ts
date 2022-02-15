@@ -10,7 +10,6 @@ import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/a
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
-import { ClientService } from 'src/app/services/client.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 
@@ -20,9 +19,6 @@ import { MyClientService } from 'src/app/services/my-client.service';
   styleUrls: ['./client.component.css']
 })
 export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy, OnInit {
-  hide = true;
-  disabled = false;
-  disabled2 = false;
   bottomSheet: IBottomSheet<IClient>;
   private formCreatedOb: Observable<string>;
   private previousPayload: any = {};

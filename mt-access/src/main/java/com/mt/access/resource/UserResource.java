@@ -31,7 +31,7 @@ public class UserResource {
         return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.getUserApplicationService().create(command, changeId)).build();
     }
 
-    @GetMapping(path = "users")
+    @GetMapping(path = "mngmt/users")
     public ResponseEntity<SumPagedRep<UserCardRepresentation>> readForAdminByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                                                    @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                                                    @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
@@ -40,14 +40,14 @@ public class UserResource {
     }
 
 
-    @GetMapping("users/{id}")
+    @GetMapping("mngmt/users/{id}")
     public ResponseEntity<UserAdminRepresentation> readForAdminById(@PathVariable String id) {
         Optional<User> user = ApplicationServiceRegistry.getUserApplicationService().user(id);
         return user.map(value -> ResponseEntity.ok(new UserAdminRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
 
-    @PutMapping("users/{id}")
+    @PutMapping("mngmt/users/{id}")
     public ResponseEntity<Void> updateForAdmin(@RequestBody UpdateUserCommand command,
                                                @PathVariable String id,
                                                @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -58,13 +58,13 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("users/{id}")
+    @DeleteMapping("mngmt/users/{id}")
     public ResponseEntity<Void> deleteForAdminById(@PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         ApplicationServiceRegistry.getUserApplicationService().delete(id, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "users/{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "mngmt/users/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Void> patchForAdminById(@PathVariable(name = "id") String id,
                                                   @RequestBody JsonPatch command,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -75,7 +75,7 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "users")
+    @PatchMapping(path = "mngmt/users")
     public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
         ApplicationServiceRegistry.getUserApplicationService().patchBatch(patch, changeId);
         return ResponseEntity.ok().build();

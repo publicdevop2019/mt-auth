@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+import static com.mt.proxy.infrastructure.AppConstant.MT_ACCESS_ID;
+
 @Slf4j
 @Component
 public class EndpointMQListener {
@@ -23,10 +25,10 @@ public class EndpointMQListener {
             Channel channel = connection.createChannel();
             channel.exchangeDeclare("mt_global_exchange", "topic");
             String queueName = channel.queueDeclare().getQueue();
-            channel.queueBind(queueName, "mt_global_exchange", "access.external.started_access");
-            channel.queueBind(queueName, "mt_global_exchange", "access.external.endpoint_reload_requested");
-            channel.queueBind(queueName, "mt_global_exchange", "access.external.endpoint_collection_modified");
-            channel.queueBind(queueName, "mt_global_exchange", "access.external.client_path_changed");
+            channel.queueBind(queueName, "mt_global_exchange", MT_ACCESS_ID+".external.started_access");
+            channel.queueBind(queueName, "mt_global_exchange", MT_ACCESS_ID+".external.endpoint_reload_requested");
+            channel.queueBind(queueName, "mt_global_exchange", MT_ACCESS_ID+".external.endpoint_collection_modified");
+            channel.queueBind(queueName, "mt_global_exchange", MT_ACCESS_ID+".external.client_path_changed");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 log.debug("start refresh cached endpoints");
                 DomainRegistry.getProxyCacheService().reloadProxyCache();

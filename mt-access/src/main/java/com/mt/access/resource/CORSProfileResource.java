@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.mt.common.CommonConstant.*;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "cors")
+@RequestMapping(produces = "application/json", path = "mngmt/cors")
 public class CORSProfileResource {
     @PostMapping
     public ResponseEntity<Void> createForRoot(@RequestBody CORSProfileCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {

@@ -81,14 +81,14 @@ import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/s
 import { SummaryEndpointComponent } from './modules/my-apps/pages/summary-endpoint/summary-endpoint.component';
 import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
 import { ResourceOwnerComponent } from './modules/my-apps/pages/user/user.component';
-import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-resource-owner/summary-resource-owner.component';
+import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-user/summary-user.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { LoginComponent } from './pages/login/login.component';
 import { OperationHistoryComponent } from './pages/operation-history/operation-history.component';
 import { SettingComponent } from './pages/setting/setting.component';
 import { UpdatePwdComponent } from './pages/update-pwd/update-pwd.component';
 import { AuthService } from './services/auth.service';
-import { ClientService } from './services/client.service';
+import { ClientService } from './services/mngmt-client.service';
 import { DeleteConfirmHttpInterceptor } from './services/interceptors/delete-confirm.interceptor';
 import { DeviceService } from './services/device.service';
 import { EndpointService } from './services/endpoint.service';
@@ -143,6 +143,8 @@ import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
 import { UserComponent } from './pages/tenant/user/user.component';
 import { NotFoundComponent } from './pages/not-found/not-found.component';
 import { WelcomeComponent } from './pages/welcome/welcome.component';
+import { MngmtEndpointComponent } from './modules/my-apps/pages/api-profile/api-profile.component';
+import { MngmtClientComponent } from './modules/my-apps/pages/client/client.component';
 
 @NgModule({
   declarations: [
@@ -235,6 +237,8 @@ import { WelcomeComponent } from './pages/welcome/welcome.component';
     UserComponent,
     NotFoundComponent,
     WelcomeComponent,
+    MngmtEndpointComponent,
+    MngmtClientComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -287,6 +291,8 @@ import { WelcomeComponent } from './pages/welcome/welcome.component';
     AttributeComponent,
     ProductComponent,
     ClientComponent,
+    MngmtEndpointComponent,
+    MngmtClientComponent,
     EndpointComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,

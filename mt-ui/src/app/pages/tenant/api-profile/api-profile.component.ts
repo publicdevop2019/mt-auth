@@ -17,6 +17,7 @@ import { CORSProfileService } from 'src/app/services/cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
+import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 @Component({
   selector: 'app-api-profile',
   templateUrl: './api-profile.component.html',
@@ -25,7 +26,7 @@ import { MyClientService } from 'src/app/services/my-client.service';
 export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;
   constructor(
-    public endpointSvc: EndpointService,
+    public endpointSvc: MyEndpointService,
     public clientSvc: MyClientService,
     public corsSvc: CORSProfileService,
     public cacheSvc: CacheService,

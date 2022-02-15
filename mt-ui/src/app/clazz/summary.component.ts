@@ -121,7 +121,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   }
   displayedColumns() {
     if (this.fis.formGroupCollection[this.formId]) {
-      const orderKeys = Object.keys(this.columnList);
+      const orderKeys = ['select',...Object.keys(this.columnList)];
       const value = this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).value as string[]
       return orderKeys.filter(e => value.includes(e))
     } else {

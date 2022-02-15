@@ -65,13 +65,13 @@ export class HttpProxyService {
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/endpoints/event/reload', null, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/endpoints/event/reload', null, { headers: headerConfig });
     }
     getMyProfile() {
         return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
     }
     checkSum() {
-        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/proxy/check');
+        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
     }
     cancelDtx(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/cancel', null);
@@ -188,7 +188,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -197,7 +197,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

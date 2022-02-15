@@ -8,29 +8,28 @@ import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { ClientService } from 'src/app/services/client.service';
+import { ClientService } from 'src/app/services/mngmt-client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { BatchUpdateCorsComponent } from '../../components/batch-update-cors/batch-update-cors.component';
 import { EndpointComponent } from '../../../../pages/tenant/api-profile/api-profile.component';
+import { MngmtEndpointComponent } from '../api-profile/api-profile.component';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
   styleUrls: ['./summary-endpoint.component.css']
 })
 export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
-  public formId = "endpointTableColumnConfig";
+  public formId = "mngmtEndpointTableColumnConfig";
   columnList = {
     id: 'ID',
     description: 'DESCRIPTION',
     resourceId: 'PARENT_CLIENT',
     path: 'URL',
     method: 'METHOD',
-    edit: 'EDIT',
-    clone: 'CLONE',
-    delete: 'DELETE',
+    more: 'MORE',
   }
-  sheetComponent = EndpointComponent;
+  sheetComponent = MngmtEndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [

@@ -12,9 +12,7 @@ export class StoredEventAccessService extends EntityCommonService<IStoredEvent, 
     retry(id: string) {
         return this.httpProxySvc.retry(this.entityRepo, id)
     }
-    private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/events';
-    entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
+    entityRepo: string = environment.serverUri + '/auth-svc/mngmt/events';
     constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);
     }

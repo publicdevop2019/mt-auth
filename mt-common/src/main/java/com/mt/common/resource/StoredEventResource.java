@@ -12,15 +12,15 @@ import static com.mt.common.CommonConstant.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json", path = "events")
+@RequestMapping(produces = "application/json")
 
 public class StoredEventResource {
-    @PostMapping("admin/{id}/retry")
+    @PostMapping("mngmt/events/{id}/retry")
     public ResponseEntity<?> publish(@PathVariable(name = "id") long id) {
         CommonApplicationServiceRegistry.getStoredEventApplicationService().retry(id);
         return ResponseEntity.ok().build();
     }
-    @GetMapping("admin")
+    @GetMapping("mngmt/events")
     public ResponseEntity<?> query(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                    @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                    @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {

@@ -44,17 +44,6 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['email']|translate}} </th>
                 <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.email"></app-copy-field> </td>
             </ng-container>
-            <ng-container matColumnDef="grantedAuthorities">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['grantedAuthorities']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-editable-page-select-multi [inputOptions]="getAuthorityList(row.grantedAuthorities)"
-                        [entitySvc]="roleSvc"
-                        [list]="roleList" (newValue)="doPatchList(row.id,$event,'grantedAuthorities')"
-                        [query]="'type:USER'"
-                        >
-                    </app-editable-page-select-multi>
-                </td>
-            </ng-container>
 
             <ng-container matColumnDef="createdAt">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['createdAt']|translate}} </th>

@@ -43,12 +43,12 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         if (this == o) return true;
         if (!(o instanceof Endpoint)) return false;
         Endpoint endpoint = (Endpoint) o;
-        return Objects.equal(resourceId, endpoint.resourceId) && Objects.equal(path, endpoint.path) && Objects.equal(method, endpoint.method);
+        return Objects.equal(id, endpoint.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(resourceId, path, method);
+        return Objects.hashCode(id);
     }
 
 

@@ -1,16 +1,12 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable, of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
-import { IBottomSheet, IIdBasedEntity, ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
+import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
-import { ClientService } from 'src/app/services/client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
@@ -65,7 +61,6 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     public entitySvc: MyRoleService,
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
-    public clientSvc: ClientService,
     public deviceSvc: DeviceService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,

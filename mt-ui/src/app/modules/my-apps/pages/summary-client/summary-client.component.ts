@@ -8,15 +8,16 @@ import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { ClientService } from 'src/app/services/client.service';
+import { ClientService } from 'src/app/services/mngmt-client.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { ClientComponent } from '../../../../pages/tenant/client/client.component';
+import { MngmtClientComponent } from '../client/client.component';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
 })
 export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy{
-  public formId = "clientTableColumnConfig";
+  public formId = "mngmtClientTableColumnConfig";
   columnList = {
     name: 'NAME',
     id: 'ID',
@@ -25,11 +26,10 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     grantTypeEnums: 'GRANTTYPE_ENUMS',
     accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
     resourceIds: 'RESOURCEIDS',
-    edit: 'EDIT',
+    more: 'MORE',
     token: 'REVOKE_TOKEN',
-    delete: 'DELETE',
   }
-  sheetComponent = ClientComponent;
+  sheetComponent = MngmtClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
   resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [

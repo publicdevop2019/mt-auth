@@ -1,28 +1,26 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
+import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { filter } from 'rxjs/operators';
+import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { IAuthUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
+import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
+import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { UserService } from 'src/app/services/user.service';
-import { ResourceOwnerComponent } from '../user/user.component';
-import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
-import { filter, take } from 'rxjs/operators';
 import * as UUID from 'uuid/v1';
-import { IResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { combineLatest } from 'rxjs';
-import { FormInfoService } from 'mt-form-builder';
+import { ResourceOwnerComponent } from '../user/user.component';
 @Component({
-  selector: 'app-summary-resource-owner',
-  templateUrl: './summary-resource-owner.component.html',
+  selector: 'app-summary-user',
+  templateUrl: './summary-user.component.html',
 })
-export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IResourceOwner, IResourceOwner> implements OnDestroy {
+export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthUser, IAuthUser> implements OnDestroy {
   public formId = "userTableColumnConfig";
   columnList = {
     id: 'ID',
     email: 'EMAIL',
-    grantedAuthorities: 'GRANTED_AUTHORITIES',
     locked: 'LOCKED',
     createdAt: 'CREATE_AT',
     edit: 'EDIT',

@@ -5,7 +5,7 @@
             <button mat-icon-button (click)="snav.toggle();">
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
-            <div style="font-size: 14px;">{{authSvc.currentUser.email}}</div>
+            <div style="font-size: 14px;">{{authSvc.currentUser?.email}}</div>
         </div>
         <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc">
             <mat-icon matBadge="{{msgSvc.latestMessage.length}}" matBadgeOverlap="false" matBadgeSize="small"

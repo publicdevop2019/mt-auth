@@ -54,34 +54,34 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-    {
-      link: 'role-profiles',
-      display: 'ROLE_DASHBOARD',
-      icon: 'person',
-      params: {
-      },
-    },
-    {
-      link: 'org-profiles',
-      display: 'ORG_DASHBOARD',
-      icon: 'corporate_fare',
-      params: {
-      },
-    },
-    {
-      link: 'permission-profiles',
-      display: 'PERMISSION_DASHBOARD',
-      icon: 'policy',
-      params: {
-      },
-    },
-    {
-      link: 'position-profiles',
-      display: 'POSITION_DASHBOARD',
-      icon: 'work',
-      params: {
-      },
-    },
+    // {
+    //   link: 'role-profiles',
+    //   display: 'ROLE_DASHBOARD',
+    //   icon: 'person',
+    //   params: {
+    //   },
+    // },
+    // {
+    //   link: 'org-profiles',
+    //   display: 'ORG_DASHBOARD',
+    //   icon: 'corporate_fare',
+    //   params: {
+    //   },
+    // },
+    // {
+    //   link: 'permission-profiles',
+    //   display: 'PERMISSION_DASHBOARD',
+    //   icon: 'policy',
+    //   params: {
+    //   },
+    // },
+    // {
+    //   link: 'position-profiles',
+    //   display: 'POSITION_DASHBOARD',
+    //   icon: 'work',
+    //   params: {
+    //   },
+    // },
     {
       link: 'cache-profiles',
       display: 'API_CACHE_DASHBOARD',

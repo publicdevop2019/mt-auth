@@ -47,15 +47,11 @@ export class BatchUpdateCorsComponent implements OnDestroy {
                     this.fis.showIfMatch(this.formId, ['cacheId'])
                     this.fis.hideIfNotMatch(this.formId, ['cacheId', 'type'])
                 }
-                if (next === 'role') {
-                    this.fis.showIfMatch(this.formId, ['roleId'])
-                    this.fis.hideIfNotMatch(this.formId, ['roleId', 'type'])
-                }
             })
         })
     }
     ngOnDestroy(): void {
-        this.fis.resetAll();
+        this.fis.reset(this.formId);
     }
     getCorsProfiles() {
         return {

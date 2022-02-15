@@ -72,7 +72,15 @@ public class ClientApplicationService implements ClientDetailsService {
         DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT_SUMMARY);
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
     }
+    public SumPagedRep<Client> adminQuery(String queryParam, String pagingParam, String configParam) {
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
+    }
 
+    public Optional<Client> adminQuery(String id) {
+        ClientQuery clientQuery = new ClientQuery(new ClientId(id));
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+    }
     public SumPagedRep<Client> internalQuery(String pagingParam, String configParam) {
         return DomainRegistry.getClientRepository().clientsOfQuery(ClientQuery.internalQuery(pagingParam, configParam));
     }
@@ -188,6 +196,7 @@ public class ClientApplicationService implements ClientDetailsService {
             return null;
         }, CLIENT);
     }
+
 
     public static class RootClientDeleteException extends RuntimeException {
     }

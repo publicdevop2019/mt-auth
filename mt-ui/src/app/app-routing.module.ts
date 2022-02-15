@@ -15,7 +15,7 @@ import { SummaryOrderComponent } from './modules/mall/pages/summary-order/summar
 import { SummaryProductComponent } from './modules/mall/pages/summary-product/summary-product.component';
 import { SummaryClientComponent } from './modules/my-apps/pages/summary-client/summary-client.component';
 import { SummaryRevokeTokenComponent } from './modules/my-apps/pages/summary-revoke-token/summary-revoke-token.component';
-import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-resource-owner/summary-resource-owner.component';
+import { SummaryResourceOwnerComponent } from './modules/my-apps/pages/summary-user/summary-user.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { LoginComponent } from './pages/login/login.component';
 import { OperationHistoryComponent } from './pages/operation-history/operation-history.component';

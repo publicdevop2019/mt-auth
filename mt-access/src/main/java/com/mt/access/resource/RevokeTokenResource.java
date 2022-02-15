@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import static com.mt.common.CommonConstant.*;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "revoke-tokens")
+@RequestMapping(produces = "application/json", path = "mngmt/revoke-tokens")
 public class RevokeTokenResource {
 
     @PostMapping

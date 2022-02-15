@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
 
-import static com.mt.access.domain.model.client.ClientQuery.PROJECT_ID;
 import static com.mt.access.infrastructure.Utility.updateProjectId;
 import static com.mt.common.CommonConstant.*;
 
@@ -52,6 +51,24 @@ public class ClientResource {
         return ResponseEntity.ok(new SumPagedRep<>(clients, ClientCardRepresentation::new));
     }
 
+    @GetMapping(path = "mngmt/clients")
+    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> readForRootByQuery2(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                     @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                     @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+                                                                                     @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+                                                                                     ) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService().adminQuery(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientCardRepresentation::new));
+    }
+    @GetMapping("mngmt/clients/{id}")
+    public ResponseEntity<ClientRepresentation> readForRootById2(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().adminQuery(id);
+        return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
+    }
 
     //for internal proxy to create router
     @GetMapping(path = "clients/proxy")

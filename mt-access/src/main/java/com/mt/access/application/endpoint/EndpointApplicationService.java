@@ -113,15 +113,23 @@ public class EndpointApplicationService {
         }, ENDPOINT);
     }
 
-    public SumPagedRep<Endpoint> endpoints(String queryParam, String pageParam, String config) {
+    public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
         DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API_SUMMARY);
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
+    }
+    public SumPagedRep<Endpoint> adminQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
     }
 
-    public Optional<Endpoint> endpoint(String projectId, String id) {
+    public Optional<Endpoint> tenantEndpoint(String projectId, String id) {
         EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
+    }
+    public Optional<Endpoint> adminEndpoint(String id) {
+        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id));
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
     }
 

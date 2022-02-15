@@ -1,48 +1,39 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
+import { Observable } from 'rxjs';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
+import { IAuthUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/resource-owner.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
-import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
-export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IResourceOwner> implements OnInit, AfterViewInit, OnDestroy {
+export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IAuthUser> implements OnInit, AfterViewInit, OnDestroy {
   create(): void {
     throw new Error('Method not implemented.');
   }
-  private formCreatedOb: Observable<string>;
   constructor(
     public resourceOwnerService: UserService,
     fis: FormInfoService,
     public roleSvc: MyRoleService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<ResourceOwnerComponent>,
-    cdr:ChangeDetectorRef
+    cdr: ChangeDetectorRef
   ) {
-    super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef,data,fis,cdr);
-    this.formCreatedOb = this.fis.formCreated(this.formId);
-    combineLatest([this.formCreatedOb,this.roleSvc.readEntityByQuery(0, 1000)]).pipe(take(1)).subscribe(next => {//@todo add checkbox paginated
-      this.formInfo.inputs.find(e => e.key === 'authority').options = next[1].data.map(e => <IOption>{ label: e.name, value: String(e.id) });
-      this.formInfo.inputs.find(e => e.key === 'authority').id = UUID()//ngFor chagne detect fix
-    })
+    super('authUser', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
   }
   ngAfterViewInit(): void {
     if (this.aggregate) {
       this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
       this.fis.formGroupCollection[this.formId].get('email').setValue(this.aggregate.email)
-      this.fis.formGroupCollection[this.formId].get('authority').setValue(this.aggregate.grantedAuthorities)
       this.fis.formGroupCollection[this.formId].get('locked').setValue(this.aggregate.locked)
+      this.fis.formGroupCollection[this.formId].get('createdAt').setValue(new Date(this.aggregate.createdAt))
       this.cdr.markForCheck()
     }
   }
@@ -51,7 +42,7 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IR
   }
   ngOnInit() {
   }
-  convertToPayload(cmpt: ResourceOwnerComponent): IResourceOwner {
+  convertToPayload(cmpt: ResourceOwnerComponent): IAuthUser {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
     let authority: string[] = [];
     if (Array.isArray(formGroup.get('authority').value)) {
@@ -60,8 +51,7 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IR
     return {
       id: formGroup.get('id').value,//value is ignored
       locked: formGroup.get('locked').value,
-      grantedAuthorities: authority,
-      version:cmpt.aggregate&&cmpt.aggregate.version
+      version: cmpt.aggregate && cmpt.aggregate.version
     }
   }
   update() {
@@ -70,17 +60,9 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IR
   }
   errorMapper(original: ErrorMessage[], cmpt: ResourceOwnerComponent) {
     return original.map(e => {
-      if (e.key === 'grantedAuthorities') {
-        return {
-          ...e,
-          key: 'authority',
-          formId: cmpt.formId
-        }
-      } else {
-        return {
-          ...e,
-          formId: cmpt.formId
-        }
+      return {
+        ...e,
+        formId: cmpt.formId
       }
     })
   }
