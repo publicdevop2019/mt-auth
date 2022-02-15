@@ -2,6 +2,7 @@ package com.mt.access.domain.model.client;
 
 
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import org.springframework.util.StringUtils;
 
 public class ClientValidator {
     private final Client client;
@@ -16,6 +17,7 @@ public class ClientValidator {
         accessAndRoles();
         encryptedSecret();
         tokenAndGrantType();
+        typeAndGrantType();
     }
 
     private void tokenAndGrantType() {
@@ -29,16 +31,28 @@ public class ClientValidator {
         }
     }
 
+    private void typeAndGrantType() {
+        if (client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) && !client.getTypes().contains(ClientType.FRONTEND_APP)) {
+            handler.handleError("only frontend client allows authorization code grant");
+        }
+    }
+
     private void encryptedSecret() {
-        if (client.getSecret() == null)
-            handler.handleError("client secret required");
+        if (client.getSecret() == null) {
+            if (client.getTypes().stream().noneMatch(e -> e.equals(ClientType.FRONTEND_APP))) {
+                handler.handleError("client secret required");
+            }
+        }
+        if (client.getTypes().contains(ClientType.FRONTEND_APP) && StringUtils.hasText(client.getSecret())) {
+            handler.handleError("frontend client must have empty required");
+        }
     }
 
     private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                    client.getTypes().stream().noneMatch(e -> e.equals(ClientType.THIRD_PARTY))
-                            || client.getTypes().stream().noneMatch(e -> e.equals(ClientType.FRONTEND_APP))
+                    client.getTypes().stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
+                            || client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
             ) {
                 handler.handleError("invalid client type to be a resource, must be first party & backend application");
             }

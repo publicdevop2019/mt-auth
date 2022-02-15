@@ -8,6 +8,7 @@ import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
+import { GRANT_TYPE_LIST } from 'src/app/clazz/validation/constant';
 import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -35,9 +36,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     clientSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
-    combineLatest([this.formCreatedOb
-    ]).pipe(take(1)).subscribe(next => {
-      console.dir(this.bottomSheet.context)
+    this.fis.formCreated(this.formId).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
@@ -45,7 +44,15 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         // prevent infinite loop
         if (this.findDelta(e) !== undefined) {
           // clear form value on display = false
-          this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['hasSecret'];
+          this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          this.formInfo.inputs.find(e => e.key === 'path').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          this.formInfo.inputs.find(e => e.key === 'resourceId').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          if (e['frontOrBackApp'] === 'FRONTEND_APP') {
+            this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
+          } else {
+            this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'))
+          }
           this.formInfo.inputs.find(e => e.key === 'registeredRedirectUri').display = (e['grantType'] as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
           this.formInfo.inputs.find(e => e.key === 'refreshToken').display = (e['grantType'] as string[] || []).indexOf('PASSWORD') > -1;
           this.formInfo.inputs.find(e => e.key === 'autoApprove').display = (e['grantType'] as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
@@ -60,9 +67,9 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
           var0.push(this.clientSvc.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
         }
-        if(var0.length===0){
+        if (var0.length === 0) {
           this.resume()
-        }else{
+        } else {
           combineLatest(var0).pipe(take(1))
             .subscribe(next => {
               let count = -1;
@@ -84,15 +91,14 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
     this.fis.formGroupCollection[this.formId].patchValue({
       id: this.aggregate.id,
-      hasSecret: this.aggregate.hasSecret,
       projectId: this.aggregate.projectId,
       path: this.aggregate.path ? this.aggregate.path : '',
       clientSecret: this.aggregate.hasSecret ? '*****' : '',
       name: this.aggregate.name,
-      description: this.aggregate.description||'',
-      isRoot:this.aggregate.types.includes(CLIENT_TYPE.root_app),
-      firstOrThirdApp:this.aggregate.types.filter(e=>[CLIENT_TYPE.firstParty,CLIENT_TYPE.thirdParty].includes(e))[0],
-      frontOrBackApp:this.aggregate.types.filter(e=>[CLIENT_TYPE.frontend_app,CLIENT_TYPE.backend_app].includes(e))[0],
+      description: this.aggregate.description || '',
+      isRoot: this.aggregate.types.includes(CLIENT_TYPE.root_app),
+      firstOrThirdApp: this.aggregate.types.filter(e => [CLIENT_TYPE.firstParty, CLIENT_TYPE.thirdParty].includes(e))[0],
+      frontOrBackApp: this.aggregate.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
       grantType: grantType,
       registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
       refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
@@ -111,7 +117,8 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     } as IQueryProvider
   }
   ngOnDestroy(): void {
-    this.cleanUp()
+    Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
+    this.fis.reset('client');
   }
   convertToPayload(cmpt: ClientComponent): IClient {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
@@ -132,8 +139,8 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       name: formGroup.get('name').value,
       path: formGroup.get('path').value ? formGroup.get('path').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
-      hasSecret: formGroup.get('hasSecret').value ? true : false,
-      clientSecret: formGroup.get('clientSecret').value == '*****' ? '' : formGroup.get('clientSecret').value,
+      hasSecret: formGroup.get('clientSecret').value === '*****',
+      clientSecret: formGroup.get('clientSecret').value === '*****' ? '' : formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
       types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,

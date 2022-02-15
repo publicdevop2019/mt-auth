@@ -47,58 +47,12 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
-            "type": "text",
-            "display": true,
-            "label": "ENTER_PATH",
-            "key": "path",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
-        },
-        {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "hasSecret",
-            "position": {
-                "row": "4",
-                "column": "0"
-            },
-            "options": [
-                { label: 'HAS_SECRET', value: "Has secret" }
-            ],
-        },
-        {
-            "type": "text",
-            "display": false,
-            "label": "ENTER_CLIENT_SECRET",
-            "key": "clientSecret",
-            "position": {
-                "row": "5",
-                "column": "0"
-            },
-            required: true,
-        },
-        {
-            "type": "select",
-            "display": true,
-            "label": "SELECT_A_GRANT_TYPE",
-            "key": "grantType",
-            "position": {
-                "row": "6",
-                "column": "0"
-            },
-            "options": GRANT_TYPE_LIST,
-            required: true,
-        },
-        {
             "type": "checkbox",
             "display": true,
             "label": "",
             "key": "isRoot",
             "position": {
-                "row": "7",
+                "row": "3",
                 "column": "0"
             },
             "options": [{
@@ -113,7 +67,7 @@ export const FORM_CONFIG: IForm = {
             "key": "firstOrThirdApp",
             direction:'row',
             "position": {
-                "row": "8",
+                "row": "4",
                 "column": "0"
             },
             "options": [
@@ -129,13 +83,47 @@ export const FORM_CONFIG: IForm = {
             "key": "frontOrBackApp",
             direction:'row',
             "position": {
-                "row": "9",
+                "row": "5",
                 "column": "0"
             },
             "options": [
                 { label: 'FRONTEND_APP', value: 'FRONTEND_APP'},
                 { label: 'BACKEND_APP', value: 'BACKEND_APP'},
             ],
+            required: true,
+        },
+        {
+            "type": "text",
+            "display": false,
+            "label": "ENTER_PATH",
+            "key": "path",
+            "position": {
+                "row": "6",
+                "column": "0"
+            },
+            required: true,
+        },
+        {
+            "type": "text",
+            "display": false,
+            "label": "ENTER_CLIENT_SECRET",
+            "key": "clientSecret",
+            "position": {
+                "row": "8",
+                "column": "0"
+            },
+            required: true,
+        },
+        {
+            "type": "select",
+            "display": true,
+            "label": "SELECT_A_GRANT_TYPE",
+            "key": "grantType",
+            "position": {
+                "row": "9",
+                "column": "0"
+            },
+            "options": GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'),
             required: true,
         },
         {
@@ -164,7 +152,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "checkbox",
-            "display": true,
+            "display": false,
             "label": "",
             "key": "resourceIndicator",
             "position": {
@@ -190,7 +178,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "paginated-select",
-            "display": true,
+            "display": false,
             "multiple": true,
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",

@@ -10,7 +10,6 @@ export class ClientValidator extends IAggregateValidator {
         this.rootCreateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootCreateClientCommandValidator.set('description', descriptionValidator);
         this.rootCreateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
-        this.rootCreateClientCommandValidator.set('clientSecret', this.clientClientSecretValidator);
         this.rootCreateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
         this.rootCreateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
         this.rootCreateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
@@ -22,7 +21,6 @@ export class ClientValidator extends IAggregateValidator {
         this.rootUpdateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootUpdateClientCommandValidator.set('description', descriptionValidator);
         this.rootUpdateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
-        this.rootUpdateClientCommandValidator.set('clientSecret', this.clientUpdateClientSecretValidator);
         this.rootUpdateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
         this.rootUpdateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
         this.rootUpdateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
@@ -156,32 +154,6 @@ export class ClientValidator extends IAggregateValidator {
     clientHasSecretValidator = (key: string, payload: IClient) => {
         let results: ErrorMessage[] = [];
         BooleanValidator.isBoolean(payload[key], results, key)
-        return results
-    }
-    clientClientSecretValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        if (payload.hasSecret === true) {
-            StringValidator.lessThanOrEqualTo(payload[key], 50, results, key);
-            StringValidator.greaterThanOrEqualTo(payload[key], 1, results, key);
-        } else {
-            if (payload[key]) {
-                results.push({ type: 'secretRequiresHasSecret', message: 'SECRET_REQUIRES_HAS_SECRET', key: key })
-            } else {
-
-            }
-        }
-        return results
-    }
-    clientUpdateClientSecretValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        if (payload.hasSecret === true) {
-        } else {
-            if (payload[key]) {
-                results.push({ type: 'secretRequiresHasSecret', message: 'SECRET_REQUIRES_HAS_SECRET', key: key })
-            } else {
-
-            }
-        }
         return results
     }
 }

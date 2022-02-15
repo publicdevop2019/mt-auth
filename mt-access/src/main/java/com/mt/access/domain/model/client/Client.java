@@ -147,8 +147,17 @@ public class Client extends Auditable {
     }
 
     private void setTypes(Set<ClientType> types) {
+        Validator.notEmpty(types);
         if (this.types != null)
-            throw new IllegalArgumentException("type can not be updated");
+            throw new IllegalArgumentException("client type can not be updated once created");
+        if (
+                types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP)) && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
+                        ||
+                types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY)) && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
+        )
+        {
+            throw new IllegalArgumentException("client type conflict");
+        }
         this.types = types;
     }
 

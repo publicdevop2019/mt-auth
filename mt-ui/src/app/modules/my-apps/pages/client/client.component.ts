@@ -21,7 +21,6 @@ import { ClientService } from 'src/app/services/mngmt-client.service';
 export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClient> implements OnDestroy, OnInit {
   bottomSheet: IBottomSheet<IClient>;
   private formCreatedOb: Observable<string>;
-  private previousPayload: any = {};
   constructor(
     public clientSvc: ClientService,
     public httpProxySvc: HttpProxyService,
@@ -35,9 +34,11 @@ export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClien
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.formCreatedOb.subscribe(() => {
       if (this.bottomSheet.context === 'edit') {
-        console.dir('resuming')
-        this.formInfo.inputs.find(e => e.key === 'clientSecret').display = this.aggregate.hasSecret
-        this.formInfo.inputs.find(e => e.key === 'registeredRedirectUri').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
+        this.formInfo.inputs.find(e => e.key === 'clientSecret').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);
+        this.formInfo.inputs.find(e => e.key === 'path').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
+        this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
+        this.formInfo.inputs.find(e => e.key === 'resourceId').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
+        this.formInfo.inputs.find(e => e.key === 'registeredRedirectUri').display = (this.aggregate.grantTypeEnums as string[] || []).includes('AUTHORIZATION_CODE');
         this.formInfo.inputs.find(e => e.key === 'refreshToken').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('PASSWORD') > -1;
         this.formInfo.inputs.find(e => e.key === 'autoApprove').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
         this.formInfo.inputs.find(e => e.key === 'refreshTokenValiditySeconds').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('PASSWORD') > -1 && this.aggregate.refreshTokenValiditySeconds >= 0;
@@ -91,7 +92,8 @@ export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClien
     });
   }
   ngOnDestroy(): void {
-    this.cleanUp()
+    Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
+    this.fis.reset('mngmtClient');
   }
   convertToPayload(cmpt: MngmtClientComponent): IClient {
     throw new Error('Method not implemented.');
