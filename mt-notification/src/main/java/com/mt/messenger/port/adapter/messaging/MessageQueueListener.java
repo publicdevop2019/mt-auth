@@ -16,19 +16,18 @@ import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONI
 @Slf4j
 @Component
 public class MessageQueueListener {
-    private static final String MESSENGER_USER_QUEUE = "messenger_user_queue";
     private static final String MESSENGER_SYS_MONITOR_QUEUE = "messenger_sys_monitor_queue";
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener0() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT0_APP_NAME, false, "user_pwd_reset_code_updated", (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, false, "user_pwd_reset_code_updated", (event) -> {
             UserPwdResetCodeUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), UserPwdResetCodeUpdated.class);
             ApplicationServiceRegistry.getEmailDeliverApplicationService().handle(deserialize);
         });
     }
     @EventListener(ApplicationReadyEvent.class)
     protected void listener1() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT0_APP_NAME, false, "pending_user_activation_code_updated", (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, false, "pending_user_activation_code_updated", (event) -> {
             PendingUserActivationCodeUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), PendingUserActivationCodeUpdated.class);
             ApplicationServiceRegistry.getEmailDeliverApplicationService().handle(deserialize);
         });
@@ -36,7 +35,7 @@ public class MessageQueueListener {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void systemMonitorListener() {
-        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT0_APP_NAME, false, MESSENGER_SYS_MONITOR_QUEUE, (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, false, MESSENGER_SYS_MONITOR_QUEUE, (event) -> {
             ApplicationServiceRegistry.getSystemNotificationApplicationService().handleMonitorEvent(event);
         }, MONITOR_TOPIC);
     }

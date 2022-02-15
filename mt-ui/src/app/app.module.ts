@@ -101,7 +101,7 @@ import { SameRequestHttpInterceptor } from './services/interceptors/same-request
 import { EditablePageSelectSingleComponent } from './components/editable-page-select-single/editable-page-select-single.component';
 import { EditablePageSelectMultiComponent } from './components/editable-page-select-multi/editable-page-select-multi.component';
 import { CacheControlComponent } from './pages/cache-control/cache-control.component';
-import { MessageCenterComponent } from './modules/my-apps/pages/message-center/message-center.component';
+import { MessageCenterComponent } from './modules/my-apps/pages/summary-message/summary-message.component';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { MessageCenterMallComponent } from './modules/mall/pages/message-center-mall/message-center-mall.component';
 import { DynamicTreeComponent } from './components/dynamic-tree/dynamic-tree.component';

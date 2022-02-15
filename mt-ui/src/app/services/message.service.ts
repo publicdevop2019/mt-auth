@@ -15,7 +15,7 @@ export interface IDetail extends IIdBasedEntity {
 })
 export class MessageService extends EntityCommonService<IDetail, IDetail>{
     private SVC_NAME = '/messenger-svc';
-    private ENTITY_NAME = '/systemNotifications';
+    private ENTITY_NAME = '/mngmt/notifications';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
     constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
         super(httpProxy, interceptor,deviceSvc);

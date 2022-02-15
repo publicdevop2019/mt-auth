@@ -26,7 +26,7 @@ import { SummarySkuComponent } from './modules/mall/pages/summary-sku/summary-sk
 import { SummaryTaskComponent } from './modules/mall/pages/summary-task/summary-task.component';
 import { SummaryEndpointComponent } from './modules/my-apps/pages/summary-endpoint/summary-endpoint.component';
 import { CacheControlComponent } from './pages/cache-control/cache-control.component';
-import { MessageCenterComponent } from './modules/my-apps/pages/message-center/message-center.component';
+import { MessageCenterComponent } from './modules/my-apps/pages/summary-message/summary-message.component';
 import { MessageCenterMallComponent } from './modules/mall/pages/message-center-mall/message-center-mall.component';
 import { SummaryStoredEventComponent } from './modules/mall/pages/summary-stored-event/summary-stored-event.component';
 import { SummaryRoleComponent } from './modules/my-apps/pages/summary-role/summary-role.component';

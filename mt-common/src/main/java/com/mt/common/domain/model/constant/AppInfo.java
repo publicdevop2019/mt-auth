@@ -1,7 +1,7 @@
 package com.mt.common.domain.model.constant;
 
 public class AppInfo {
-    public static final String MT0_APP_NAME="access";
+    public static final String MT_ACCESS_APP_ID ="0C8AZTODP4HT";
     public static final String MT1_APP_NAME="proxy";
     public static final String MT2_APP_NAME="profile";
     public static final String MT3_APP_NAME="mall";

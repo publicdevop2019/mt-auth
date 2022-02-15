@@ -6,9 +6,9 @@ import { DeviceService } from 'src/app/services/device.service';
 import { IDetail, MessageService } from 'src/app/services/message.service';
 
 @Component({
-  selector: 'app-message-center',
-  templateUrl: './message-center.component.html',
-  styleUrls: ['./message-center.component.css']
+  selector: 'app-summary-message',
+  templateUrl: './summary-message.component.html',
+  styleUrls: ['./summary-message.component.css']
 })
 export class MessageCenterComponent extends SummaryEntityComponent<IDetail, IDetail>{
   public formId = "authMsgTableColumnConfig";
