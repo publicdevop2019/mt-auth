@@ -31,7 +31,11 @@ public class EndpointMQListener {
             channel.queueBind(queueName, "mt_global_exchange", MT_ACCESS_ID + ".external.client_path_changed");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 log.debug("start refresh cached endpoints");
-                DomainRegistry.getProxyCacheService().reloadProxyCache();
+                try {
+                    DomainRegistry.getProxyCacheService().reloadProxyCache();
+                } catch (Exception ex) {
+                    log.error("error in mq, error will not throw to keep mq connection", ex);
+                }
                 log.debug("cached endpoints refreshed");
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
