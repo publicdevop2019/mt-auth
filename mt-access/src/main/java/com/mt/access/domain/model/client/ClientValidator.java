@@ -43,9 +43,6 @@ public class ClientValidator {
                 handler.handleError("client secret required");
             }
         }
-        if (client.getTypes().contains(ClientType.FRONTEND_APP) && StringUtils.hasText(client.getSecret())) {
-            handler.handleError("frontend client must have empty required");
-        }
     }
 
     private void accessAndRoles() {

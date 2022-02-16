@@ -11,11 +11,20 @@ import org.springframework.stereotype.Service;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 @Service
 public class ComputePermissionService {
-    public Set<PermissionId> compute(UserRelation userRelation){
+    public Set<PermissionId> compute(UserRelation userRelation) {
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery((RoleQuery) q), new RoleQuery(standaloneRoles));
-        return allByQuery.stream().flatMap(e -> e.getPermissionIds().stream()).collect(Collectors.toSet());
+        return allByQuery.stream().flatMap(e -> {
+                    if (e.getPermissionIds() != null) {
+                        return e.getPermissionIds().stream();
+                    } else {
+                        return Stream.empty();
+                    }
+                }
+        ).collect(Collectors.toSet());
     }
 }

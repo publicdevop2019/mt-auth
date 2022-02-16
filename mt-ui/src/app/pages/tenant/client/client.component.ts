@@ -140,7 +140,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       path: formGroup.get('path').value ? formGroup.get('path').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       hasSecret: formGroup.get('clientSecret').value === '*****',
-      clientSecret: formGroup.get('clientSecret').value === '*****' ? '' : formGroup.get('clientSecret').value,
+      clientSecret: formGroup.get('clientSecret').value === '*****' ? null : formGroup.get('clientSecret').value,
       grantTypeEnums: grants,
       types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,

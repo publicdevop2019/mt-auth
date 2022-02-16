@@ -114,16 +114,14 @@ public class ClientResource {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("projects/{projectId}/clients/autoApprove")
-    public ResponseEntity<SumPagedRep<ClientAutoApproveRepresentation>> getForUserByQuery(@PathVariable String projectId, @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                                                          @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                                          @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+    @GetMapping("projects/{projectId}/clients/{id}/autoApprove")
+    public ResponseEntity<ClientAutoApproveRepresentation> getForUserByQuery(@PathVariable String projectId,
+                                                                                          @PathVariable String id,
                                                                                           @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        queryParam = updateProjectId(queryParam, projectId);
-        SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService().tenantQuery(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientAutoApproveRepresentation::new));
+        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId,id);
+        return client.map(value -> ResponseEntity.ok(new ClientAutoApproveRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 
 }

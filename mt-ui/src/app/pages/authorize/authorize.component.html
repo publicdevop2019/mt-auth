@@ -1,21 +1,18 @@
-<div class="example-container">
-    <mat-card class="example-card">
+<div class="auth-container">
+    <mat-card class="auth-card">
         <mat-card-header>
-            <div mat-card-avatar class="example-header-image"></div>
             <mat-card-title>{{authorizeParty.client_id}}</mat-card-title>
-            <mat-card-subtitle>Response Type : {{authorizeParty.response_type}}</mat-card-subtitle>
         </mat-card-header>
-        <img mat-card-image src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="Photo of a Shiba Inu">
         <mat-card-content>
             <p>
-                Do you authorize {{authorizeParty.client_id}} to access your public profile ?
+                {{'AUTH_MSG_1'|translate}}{{authorizeParty.client_id}}{{'AUTH_MSG_2'|translate}}
             </p>
         </mat-card-content>
-        <mat-card-actions class="example-card-action">
+        <mat-card-actions class="auth-card-action">
             <button mat-raised-button color="warn" style="margin-bottom: 20px;margin-top: 20px;"
-                (click)="authorize()">Authorize</button>
+                (click)="authorize()">{{'AUTH_BTN_1'|translate}}</button>
             <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-                (click)="decline()">Decline</button>
+                (click)="decline()">{{'AUTH_BTN_2'|translate}}</button>
         </mat-card-actions>
     </mat-card>
 </div>

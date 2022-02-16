@@ -72,6 +72,7 @@ public class ClientApplicationService implements ClientDetailsService {
         DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT_SUMMARY);
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
     }
+
     public SumPagedRep<Client> adminQuery(String queryParam, String pagingParam, String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
@@ -195,6 +196,11 @@ public class ClientApplicationService implements ClientDetailsService {
             DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
             return null;
         }, CLIENT);
+    }
+
+    public Optional<Client> canAutoApprove(String projectId, String id) {
+        ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
     }
 
 

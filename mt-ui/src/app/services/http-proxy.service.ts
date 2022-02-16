@@ -175,12 +175,10 @@ export class HttpProxyService {
         let headers = this._getAuthHeader(false);
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers }).pipe(switchMap(token => this._getActivationCode(this._getToken(token), payload, changeId)))
     };
-    autoApprove(clientId: string): Observable<boolean> {
+    autoApprove(projectId:string,clientId: string): Observable<boolean> {
         return new Observable<boolean>(e => {
-            this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + '/clients/autoApprove?query=clientId:' + clientId).subscribe(next => {
-                if (next.data[0].autoApprove)
-                    e.next(true)
-                e.next(false)
+            this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/clients/${clientId}/autoApprove`).subscribe(next => {
+                e.next(next.autoApprove)
             });
         });
     };
@@ -207,6 +205,7 @@ export class HttpProxyService {
         formData.append('response_type', authorizeParty.response_type);
         formData.append('client_id', authorizeParty.client_id);
         formData.append('state', authorizeParty.state);
+        formData.append('project_id', authorizeParty.projectId);
         formData.append('redirect_uri', authorizeParty.redirect_uri);
         return this._httpClient.post<IAuthorizeCode>(environment.serverUri + this.AUTH_SVC_NAME + '/authorize', formData);
     };

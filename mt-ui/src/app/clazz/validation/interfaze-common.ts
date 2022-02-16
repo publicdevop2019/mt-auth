@@ -12,16 +12,14 @@ export interface IAuthorizeParty {
   client_id: string;
   state: string;
   redirect_uri: string;
+  projectId: string;
 }
 export interface IAuthorizeCode {
   authorize_code: string;
 }
 export interface IAutoApprove {
-  data: IClientUserRep[]
-}
-interface IClientUserRep {
-  autoApprove?: boolean;
-  clientId: string;
+  autoApprove: boolean;
+  id: string;
 }
 export interface IOrder extends IAuditable {
   id: string;

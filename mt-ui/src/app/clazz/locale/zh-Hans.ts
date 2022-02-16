@@ -666,7 +666,7 @@ export const zhHans = {
     "ROLES": "角色",
     "SELECT_ROLES": "请选择角色",
     "TENANT_ID": "租户",
-    "PROJECT_NAME": "项目名称",
+    "PROJECT_NAME": "名称",
     "PROJECT_CREATED_AT": "创建于",
     "PROJECT_CREATED_BY": "创建者",
     "TYPES": "类型",
@@ -696,4 +696,9 @@ export const zhHans = {
     "USER_EMAIL": "邮箱",
     "CREATED_AT": "注册于",
     "MY_PROFILE_DETAIL": "我的资料",
+    "AUTH_MSG_1": "是否允许",
+    "AUTH_MSG_2": "使用您的用户信息登录此系统",
+    "AUTH_BTN_1": "允许",
+    "AUTH_BTN_2": "拒绝",
+    "PROJECT_ID": "ID",
 }

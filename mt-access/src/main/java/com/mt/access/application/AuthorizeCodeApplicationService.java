@@ -19,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -81,9 +79,8 @@ public class AuthorizeCodeApplicationService {
         }
         authorizationRequest.setRedirectUri(resolvedRedirect);
 
-        oauth2RequestValidator.validateScope(authorizationRequest, client);
-
         authorizationRequest.setApproved(true);
+        authorizationRequest.setScope(Collections.singleton(parameters.get("project_id")));
 
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("authorize_code", generateCode(authorizationRequest, authentication));

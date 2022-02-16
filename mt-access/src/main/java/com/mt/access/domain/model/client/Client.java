@@ -23,7 +23,6 @@ import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
-import org.springframework.util.StringUtils;
 
 import javax.annotation.Nullable;
 import javax.persistence.*;
@@ -41,6 +40,7 @@ import java.util.stream.Collectors;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientRegion")
 public class Client extends Auditable {
 
+    private static final String EMPTY_SECRET = "";
     /**
      * if lazy then loadClientByClientId needs to be transactional
      * use eager as @Transactional is adding too much overhead
@@ -128,7 +128,7 @@ public class Client extends Auditable {
         setName(name);
         setPath(path);
         setTypes(types);
-        setSecret(secret);
+        initSecret(secret);
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
         setAuthorizationCodeGrant(authorizationCodeGrant);
@@ -153,9 +153,8 @@ public class Client extends Auditable {
         if (
                 types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP)) && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
                         ||
-                types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY)) && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
-        )
-        {
+                        types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY)) && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
+        ) {
             throw new IllegalArgumentException("client type conflict");
         }
         this.types = types;
@@ -255,7 +254,7 @@ public class Client extends Auditable {
         setPath(path);
         setResources(resources);
         setAccessible(accessible);
-        setSecret(secret);
+        updateSecret(secret);
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
         setName(name);
@@ -279,18 +278,25 @@ public class Client extends Auditable {
                 isWebsocket, csrfEnabled, corsConfig);
     }
 
-    private void setSecret(String secret) {
-        if (id != null) {
-            if (secretChanged(secret)) {
-                DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
-            }
+    // for create
+    private void initSecret(String secret) {
+        Validator.notNull(types);
+        Validator.notNull(secret);
+        if (types.contains(ClientType.FRONTEND_APP)) {
+            secret = EMPTY_SECRET;
         }
-        if (StringUtils.hasText(secret))
-            this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
+        this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
     }
 
-    private boolean secretChanged(String secret) {
-        return StringUtils.hasText(secret);
+    //for update
+    private void updateSecret(String secret) {
+        if (secret != null) {
+            Validator.notNull(types);
+            DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
+            if (types.contains(ClientType.FRONTEND_APP))
+                secret = EMPTY_SECRET;
+            this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
+        }
     }
 
     public int accessTokenValiditySeconds() {
