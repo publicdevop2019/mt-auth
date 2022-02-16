@@ -47,7 +47,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
           this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['frontOrBackApp'] === 'BACKEND_APP';
           this.formInfo.inputs.find(e => e.key === 'path').display = e['frontOrBackApp'] === 'BACKEND_APP';
           this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          this.formInfo.inputs.find(e => e.key === 'resourceId').display = e['frontOrBackApp'] === 'BACKEND_APP';
           if (e['frontOrBackApp'] === 'FRONTEND_APP') {
             this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
           } else {

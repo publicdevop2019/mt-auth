@@ -178,7 +178,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "paginated-select",
-            "display": false,
+            "display": true,
             "multiple": true,
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",
