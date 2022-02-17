@@ -26,6 +26,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.mt.access.application.role.RoleApplicationService.PROJECT_USER;
 import static com.mt.access.domain.model.permission.Permission.*;
 
 @Service
@@ -55,7 +56,14 @@ public class UserRelationApplicationService {
             return null;
         }, USER_RELATION);
     }
-
+    @SubscribeForEvent
+    @Transactional
+    public UserRelation onboardUserToTenant(UserId userId,ProjectId projectId){
+        Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(projectId, PROJECT_USER)).findFirst();
+        if(first.isEmpty())
+            throw new IllegalArgumentException("unable to find default user role for project");
+        return UserRelation.initNewUser(first.get().getRoleId(),userId,projectId);
+    }
     public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
         UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
         DomainRegistry.getPermissionCheckService().canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER_SUMMARY);
@@ -65,10 +73,6 @@ public class UserRelationApplicationService {
         return DomainRegistry.getUserRepository().usersOfQuery(userQuery);
     }
 
-    public Optional<UserRelation> getUserRelationDetail(String projectId, String userId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        return DomainRegistry.getUserRelationRepository().getByUserIdAndProjectId(new UserId(userId), projectId1);
-    }
 
     @SubscribeForEvent
     @Transactional

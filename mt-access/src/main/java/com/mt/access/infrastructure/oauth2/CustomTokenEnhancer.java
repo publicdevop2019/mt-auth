@@ -46,12 +46,19 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 //only one projectId allowed
                 //get tenant project permission
                 Optional<String> first = scope.stream().findFirst();
-                Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(first.get()));
-                userRelation.ifPresent(e -> {
-                    Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(e);
+                ProjectId projectId = new ProjectId(first.get());
+                Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId,projectId );
+                if (userRelation.isEmpty()) {
+                    //auto assign default user role for target project
+                    UserRelation newRelation = ApplicationServiceRegistry.getUserRelationApplicationService().onboardUserToTenant(userId, projectId);
+                    Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(newRelation);
                     info.put("permissionIds", compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                    info.put("projectId", e.getProjectId().getDomainId());
-                });
+                    info.put("projectId", newRelation.getProjectId().getDomainId());
+                } else {
+                    Set<PermissionId> compute = DomainRegistry.getComputePermissionService().compute(userRelation.get());
+                    info.put("permissionIds", compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                    info.put("projectId", userRelation.get().getProjectId().getDomainId());
+                }
             } else {
                 //get auth project permission and user tenant projects
                 Optional<UserRelation> userRelation = ApplicationServiceRegistry.getUserRelationApplicationService().getUserRelation(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));

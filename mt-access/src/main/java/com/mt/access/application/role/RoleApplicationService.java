@@ -39,6 +39,7 @@ import static com.mt.access.domain.model.permission.Permission.*;
 @Service
 public class RoleApplicationService {
     private static final String ROLE = "Role";
+    public static final String PROJECT_USER = "PROJECT_USER";
 
     public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
@@ -132,7 +133,7 @@ public class RoleApplicationService {
             Role rootRole = Role.autoCreate(authPId, roleId, tenantProjectId.getDomainId(), null, permissionIdSet, RoleType.PROJECT, null, tenantProjectId);
             Role adminRole = Role.autoCreate(authPId, new RoleId(), "PROJECT_ADMIN", null, permissionIdSet, RoleType.USER, roleId, tenantProjectId);
 
-            Role userRole = Role.autoCreate(tenantProjectId, new RoleId(), "PROJECT_USER", null, Collections.emptySet(), RoleType.USER, roleId1, null);
+            Role userRole = Role.autoCreate(tenantProjectId, new RoleId(), PROJECT_USER, null, Collections.emptySet(), RoleType.USER, roleId1, null);
             Role tenantClientRoot = Role.autoCreate(tenantProjectId, new RoleId(), "CLIENT_ROOT", null, Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
             Role tenantUserRoot = Role.autoCreate(tenantProjectId, roleId1, tenantProjectId.getDomainId(), null, Collections.emptySet(), RoleType.PROJECT, null, null);
 

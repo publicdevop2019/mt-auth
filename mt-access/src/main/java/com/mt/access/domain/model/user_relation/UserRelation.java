@@ -100,9 +100,10 @@ public class UserRelation extends Auditable {
         DomainRegistry.getUserRelationRepository().add(userRelation2);
     }
 
-    public static void initNewUser(RoleId userRoleId, UserId creator, ProjectId authProjectId) {
+    public static UserRelation initNewUser(RoleId userRoleId, UserId creator, ProjectId authProjectId) {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, authProjectId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
+        return userRelation2;
     }
 
     public void setStandaloneRoles(Set<RoleId> collect) {
