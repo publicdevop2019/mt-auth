@@ -112,9 +112,9 @@ public class PermissionApplicationService {
             }
             Permission permission;
             if (command.getParentId() != null && !command.getParentId().isBlank()) {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()), null, linkedPermId);
+                permission = Permission.manualCreate(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()), null, linkedPermId);
             } else {
-                permission = new Permission(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null, null, linkedPermId);
+                permission = Permission.manualCreate(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null, null, linkedPermId);
             }
             DomainRegistry.getPermissionRepository().add(permission);
             return permissionId.getDomainId();

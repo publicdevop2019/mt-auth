@@ -8,6 +8,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -55,6 +56,58 @@ public class Permission extends Auditable {
     public static final String CREATE_ROLE = "CREATE_ROLE";
     public static final String VIEW_ROLE = "VIEW_ROLE";
     public static final String VIEW_ROLE_SUMMARY = "VIEW_ROLE_SUMMARY";
+    public static final String USER_MNGMT = "USER_MNGMT";
+    public static final String PERMISSION_MNGMT = "PERMISSION_MNGMT";
+    public static final String ROLE_MNGMT = "ROLE_MNGMT";
+    public static final String VIEW_CACHE_SUMMARY = "VIEW_CACHE_SUMMARY";
+    public static final String VIEW_CORS_SUMMARY = "VIEW_CORS_SUMMARY";
+    public static final String API_MNGMT = "API_MNGMT";
+    public static final String CLIENT_MNGMT = "CLIENT_MNGMT";
+    public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
+    public static final String PROJECT_INFO_MNGMT = "PROJECT_INFO_MNGMT";
+    public static final Set<String> reservedName = new HashSet<>();
+
+    static {
+        reservedName.add(API_ACCESS);
+        reservedName.add(VIEW_PROJECT_INFO);
+        reservedName.add(VIEW_CLIENT);
+        reservedName.add(VIEW_CLIENT_SUMMARY);
+        reservedName.add(DELETE_CLIENT);
+        reservedName.add(PATCH_CLIENT);
+        reservedName.add(EDIT_CLIENT);
+        reservedName.add(CREATE_CLIENT);
+        reservedName.add(VIEW_API_SUMMARY);
+        reservedName.add(VIEW_API);
+        reservedName.add(EDIT_API);
+        reservedName.add(DELETE_API);
+        reservedName.add(CREATE_API);
+        reservedName.add(PATCH_API);
+        reservedName.add(BATCH_DELETE_API);
+        reservedName.add(CREATE_PERMISSION);
+        reservedName.add(VIEW_PERMISSION_SUMMARY);
+        reservedName.add(VIEW_PERMISSION);
+        reservedName.add(EDIT_PERMISSION);
+        reservedName.add(DELETE_PERMISSION);
+        reservedName.add(PATCH_PERMISSION);
+        reservedName.add(VIEW_TENANT_USER_SUMMARY);
+        reservedName.add(VIEW_TENANT_USER);
+        reservedName.add(EDIT_TENANT_USER);
+        reservedName.add(DELETE_ROLE);
+        reservedName.add(EDIT_ROLE);
+        reservedName.add(CREATE_ROLE);
+        reservedName.add(VIEW_ROLE);
+        reservedName.add(VIEW_ROLE_SUMMARY);
+        reservedName.add(USER_MNGMT);
+        reservedName.add(PERMISSION_MNGMT);
+        reservedName.add(ROLE_MNGMT);
+        reservedName.add(VIEW_CACHE_SUMMARY);
+        reservedName.add(VIEW_CORS_SUMMARY);
+        reservedName.add(API_MNGMT);
+        reservedName.add(CLIENT_MNGMT);
+        reservedName.add(EDIT_PROJECT_INFO);
+        reservedName.add(PROJECT_INFO_MNGMT);
+    }
+
     @Id
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -89,7 +142,7 @@ public class Permission extends Auditable {
     private PermissionType type;
     private boolean systemCreate = false;
 
-    public Permission(ProjectId projectId, PermissionId permissionId, String name, PermissionType type, @Nullable PermissionId parentId, @Nullable ProjectId tenantId, @Nullable PermissionId linkedApiPermissionId) {
+    private Permission(ProjectId projectId, PermissionId permissionId, String name, PermissionType type, @Nullable PermissionId parentId, @Nullable ProjectId tenantId, @Nullable PermissionId linkedApiPermissionId) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.permissionId = permissionId;
         this.linkedApiPermissionId = linkedApiPermissionId;
@@ -103,6 +156,13 @@ public class Permission extends Auditable {
     private static Permission autoCreate(ProjectId projectId, PermissionId permissionId, String name, PermissionType type, @Nullable PermissionId parentId, @Nullable ProjectId tenantId, @Nullable PermissionId linkedApiPermissionId) {
         Permission permission = new Permission(projectId, permissionId, name, type, parentId, tenantId, linkedApiPermissionId);
         permission.systemCreate = true;
+        new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
+        return permission;
+    }
+    
+    public static Permission manualCreate(ProjectId projectId, PermissionId permissionId, String name, PermissionType type, @Nullable PermissionId parentId, @Nullable ProjectId tenantId, @Nullable PermissionId linkedApiPermissionId) {
+        Permission permission = new Permission(projectId, permissionId, name, type, parentId, tenantId, linkedApiPermissionId);
+        new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
 
@@ -111,11 +171,11 @@ public class Permission extends Auditable {
         PermissionId rootId = new PermissionId();
         Permission p0 = Permission.autoCreate(projectId, rootId, tenantId.getDomainId(), PermissionType.PROJECT, null, tenantId, null);
         PermissionId projectMgntId = new PermissionId();
-        Permission p1 = Permission.autoCreate(projectId, projectMgntId, "PROJECT_INFO_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p1 = Permission.autoCreate(projectId, projectMgntId, PROJECT_INFO_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p2 = Permission.autoCreate(projectId, new PermissionId(), VIEW_PROJECT_INFO, PermissionType.COMMON, projectMgntId, tenantId, new PermissionId("0Y8HHJ47NBEU"));
-        Permission p3 = Permission.autoCreate(projectId, new PermissionId(), "EDIT_PROJECT_INFO", PermissionType.COMMON, projectMgntId, tenantId, null);
+        Permission p3 = Permission.autoCreate(projectId, new PermissionId(), EDIT_PROJECT_INFO, PermissionType.COMMON, projectMgntId, tenantId, null);
         PermissionId clientMgntId = new PermissionId();
-        Permission p4 = Permission.autoCreate(projectId, clientMgntId, "CLIENT_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p4 = Permission.autoCreate(projectId, clientMgntId, CLIENT_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p5 = Permission.autoCreate(projectId, new PermissionId(), CREATE_CLIENT, PermissionType.COMMON, clientMgntId, tenantId, new PermissionId("0Y8HHJ47NBD6"));
         Permission p6 = Permission.autoCreate(projectId, new PermissionId(), VIEW_CLIENT, PermissionType.COMMON, clientMgntId, tenantId, new PermissionId("0Y8HHJ47NBDP"));
         Permission p7 = Permission.autoCreate(projectId, new PermissionId(), EDIT_CLIENT, PermissionType.COMMON, clientMgntId, tenantId, new PermissionId("0Y8HHJ47NBD7"));
@@ -124,7 +184,7 @@ public class Permission extends Auditable {
         Permission p10 = Permission.autoCreate(projectId, new PermissionId(), PATCH_CLIENT, PermissionType.COMMON, clientMgntId, tenantId, new PermissionId("0Y8HHJ47NBDQ"));
 
         PermissionId apiMgntId = new PermissionId();
-        Permission p11 = Permission.autoCreate(projectId, apiMgntId, "API_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p11 = Permission.autoCreate(projectId, apiMgntId, API_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p12 = Permission.autoCreate(projectId, new PermissionId(), VIEW_API_SUMMARY, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDM"));
         Permission p13 = Permission.autoCreate(projectId, new PermissionId(), VIEW_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDS"));
         Permission p14 = Permission.autoCreate(projectId, new PermissionId(), EDIT_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDN"));
@@ -132,11 +192,11 @@ public class Permission extends Auditable {
         Permission p16 = Permission.autoCreate(projectId, new PermissionId(), CREATE_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDL"));
         Permission p17 = Permission.autoCreate(projectId, new PermissionId(), PATCH_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDW"));
         Permission p18 = Permission.autoCreate(projectId, new PermissionId(), BATCH_DELETE_API, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBDV"));
-        Permission p36 = Permission.autoCreate(projectId, new PermissionId(), "VIEW_CORS_SUMMARY", PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEH"));
-        Permission p37 = Permission.autoCreate(projectId, new PermissionId(), "VIEW_CACHE_SUMMARY", PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEM"));
+        Permission p36 = Permission.autoCreate(projectId, new PermissionId(), VIEW_CORS_SUMMARY, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEH"));
+        Permission p37 = Permission.autoCreate(projectId, new PermissionId(), VIEW_CACHE_SUMMARY, PermissionType.COMMON, apiMgntId, tenantId, new PermissionId("0Y8HHJ47NBEM"));
 
         PermissionId roleMgntId = new PermissionId();
-        Permission p19 = Permission.autoCreate(projectId, roleMgntId, "ROLE_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p19 = Permission.autoCreate(projectId, roleMgntId, ROLE_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p20 = Permission.autoCreate(projectId, new PermissionId(), DELETE_ROLE, PermissionType.COMMON, roleMgntId, tenantId, new PermissionId("0Y8HKE2QAIVF"));
         Permission p21 = Permission.autoCreate(projectId, new PermissionId(), EDIT_ROLE, PermissionType.COMMON, roleMgntId, tenantId, new PermissionId("0Y8HKE24FWUI"));
         Permission p22 = Permission.autoCreate(projectId, new PermissionId(), CREATE_ROLE, PermissionType.COMMON, roleMgntId, tenantId, new PermissionId("0Y8HHJ47NBEY"));
@@ -145,7 +205,7 @@ public class Permission extends Auditable {
 
 
         PermissionId permissionMgntId = new PermissionId();
-        Permission p25 = Permission.autoCreate(projectId, permissionMgntId, "PERMISSION_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p25 = Permission.autoCreate(projectId, permissionMgntId, PERMISSION_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p26 = Permission.autoCreate(projectId, new PermissionId(), CREATE_PERMISSION, PermissionType.COMMON, permissionMgntId, tenantId, new PermissionId("0Y8HHJ47NBEW"));
         Permission p27 = Permission.autoCreate(projectId, new PermissionId(), VIEW_PERMISSION_SUMMARY, PermissionType.COMMON, permissionMgntId, tenantId, new PermissionId("0Y8HHJ47NBEV"));
         Permission p28 = Permission.autoCreate(projectId, new PermissionId(), VIEW_PERMISSION, PermissionType.COMMON, permissionMgntId, tenantId, new PermissionId("0Y8HLUWG1UJ8"));
@@ -154,7 +214,7 @@ public class Permission extends Auditable {
         Permission p31 = Permission.autoCreate(projectId, new PermissionId(), PATCH_PERMISSION, PermissionType.COMMON, permissionMgntId, tenantId, new PermissionId("0Y8HLUWMX2BX"));
 
         PermissionId positionMgntId = new PermissionId();
-        Permission p32 = Permission.autoCreate(projectId, positionMgntId, "USER_MNGMT", PermissionType.COMMON, rootId, tenantId, null);
+        Permission p32 = Permission.autoCreate(projectId, positionMgntId, USER_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
         Permission p33 = Permission.autoCreate(projectId, new PermissionId(), VIEW_TENANT_USER_SUMMARY, PermissionType.COMMON, positionMgntId, tenantId, new PermissionId("0Y8HK4ZLA03Q"));
         Permission p34 = Permission.autoCreate(projectId, new PermissionId(), VIEW_TENANT_USER, PermissionType.COMMON, positionMgntId, tenantId, new PermissionId("0Y8HKEMUH34B"));
         Permission p35 = Permission.autoCreate(projectId, new PermissionId(), EDIT_TENANT_USER, PermissionType.COMMON, positionMgntId, tenantId, new PermissionId("0Y8HKEMWNQX7"));

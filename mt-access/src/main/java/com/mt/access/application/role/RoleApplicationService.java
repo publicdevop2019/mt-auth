@@ -6,9 +6,7 @@ import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
-import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
-import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
@@ -16,6 +14,7 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -26,11 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 import static com.mt.access.domain.model.permission.Permission.*;
@@ -39,7 +36,6 @@ import static com.mt.access.domain.model.permission.Permission.*;
 @Service
 public class RoleApplicationService {
     private static final String ROLE = "Role";
-    public static final String PROJECT_USER = "PROJECT_USER";
 
     public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
@@ -101,7 +97,7 @@ public class RoleApplicationService {
         RoleId roleId = new RoleId();
         DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Role role = Role.createNewRoleForProject(
+            Role role = Role.createRoleForTenant(
                     new ProjectId(command.getProjectId()),
                     roleId,
                     command.getName(),
@@ -125,24 +121,11 @@ public class RoleApplicationService {
     public void handle(ProjectPermissionCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
             log.debug("handle project permission created event");
-            ProjectId tenantProjectId = new ProjectId(deserialize.getProjectId().getDomainId());
+            ProjectId tenantProjectId = deserialize.getProjectId();
             ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
+            UserId creator = deserialize.getCreator();
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
-            RoleId roleId = new RoleId();
-            RoleId roleId1 = new RoleId();
-            Role rootRole = Role.autoCreate(authPId, roleId, tenantProjectId.getDomainId(), null, permissionIdSet, RoleType.PROJECT, null, tenantProjectId);
-            Role adminRole = Role.autoCreate(authPId, new RoleId(), "PROJECT_ADMIN", null, permissionIdSet, RoleType.USER, roleId, tenantProjectId);
-
-            Role userRole = Role.autoCreate(tenantProjectId, new RoleId(), PROJECT_USER, null, Collections.emptySet(), RoleType.USER, roleId1, null);
-            Role tenantClientRoot = Role.autoCreate(tenantProjectId, new RoleId(), "CLIENT_ROOT", null, Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
-            Role tenantUserRoot = Role.autoCreate(tenantProjectId, roleId1, tenantProjectId.getDomainId(), null, Collections.emptySet(), RoleType.PROJECT, null, null);
-
-            DomainRegistry.getRoleRepository().add(adminRole);
-            DomainRegistry.getRoleRepository().add(userRole);
-            DomainRegistry.getRoleRepository().add(rootRole);
-            DomainRegistry.getRoleRepository().add(tenantClientRoot);
-            DomainRegistry.getRoleRepository().add(tenantUserRoot);
-            DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(), userRole.getRoleId(), deserialize.getProjectId(), permissionIdSet, deserialize.getCreator()));
+            Role.onboardNewProject(authPId,tenantProjectId,permissionIdSet,creator);
             return null;
         }, ROLE);
     }

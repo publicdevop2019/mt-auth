@@ -110,7 +110,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     return {
       id: formGroup.get('id').value,//value is ignored
       name: cmpt.bottomSheet.context === 'edit' ? (cmpt.aggregate.systemCreate ? cmpt.aggregate.originalName : formGroup.get('name').value) : formGroup.get('name').value,
-      parentId: formGroup.get('parentId').value,
+      parentId: formGroup.get('parentId').value||null,
       projectId: formGroup.get('projectId').value,
       permissionIds: Object.keys(value).filter(e => value[e] === 'checked').filter(e => e),
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
