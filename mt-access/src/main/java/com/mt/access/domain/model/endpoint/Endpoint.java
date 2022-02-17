@@ -25,7 +25,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "path", "method"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
@@ -102,12 +102,22 @@ public class Endpoint extends Auditable {
         setProjectId(projectId);
         setEndpointId(endpointId);
         setPermissionId(permissionId);
-        update(cacheProfileId, name, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
+        setName(name);
+        setDescription(description);
+        setWebsocket(isWebsocket);
+        setCacheProfileId(cacheProfileId);
+        setPath(path);
+        setSecured(secured);
+        setMethod(method);
+        setCsrfEnabled(csrfEnabled);
+        setCorsProfileId(corsProfileId);
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
     public void update(
             CacheProfileId cacheProfileId,
-            String name, String description, String path, String method, boolean secured,
+            String name, String description, String path, String method,
             boolean isWebsocket,
             boolean csrfEnabled, CORSProfileId corsProfileId) {
         setName(name);
@@ -116,7 +126,6 @@ public class Endpoint extends Auditable {
         setCacheProfileId(cacheProfileId);
         setPath(path);
         setMethod(method);
-        setSecured(secured);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
         validate(new HttpValidationNotificationHandler());

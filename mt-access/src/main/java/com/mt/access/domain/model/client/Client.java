@@ -81,6 +81,7 @@ public class Client extends Auditable {
     @Getter
     private String name;
     @Getter
+    @Column(unique = true)
     private String path;
     @Getter
     private String secret;

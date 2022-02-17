@@ -150,7 +150,6 @@ public class EndpointApplicationService {
                         command.getDescription(),
                         command.getPath(),
                         command.getMethod(),
-                        command.isSecured(),
                         command.isWebsocket(),
                         command.isCsrfEnabled(),
                         command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null
@@ -220,7 +219,6 @@ public class EndpointApplicationService {
                         afterPatch.getDescription(),
                         afterPatch.getPath(),
                         afterPatch.getMethod(),
-                        endpoint1.isSecured(),
                         endpoint1.isWebsocket(),
                         endpoint1.isCsrfEnabled(),
                         endpoint1.getCorsProfileId()
