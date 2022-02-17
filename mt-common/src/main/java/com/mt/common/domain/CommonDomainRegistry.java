@@ -1,6 +1,7 @@
 package com.mt.common.domain;
 
 
+import com.mt.common.domain.model.cache.HibernateCacheService;
 import com.mt.common.domain.model.domain_event.EventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
@@ -21,12 +22,18 @@ public class CommonDomainRegistry {
     @Getter
     private static SagaEventStreamService eventStreamService;
     @Getter
+    private static HibernateCacheService hibernateCacheService;
+    @Getter
     private static ChangeRecordRepository changeRecordRepository;
     @Getter
     private static EventRepository eventRepository;
     @Getter
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
 
+    @Autowired
+    public void setHibernateCacheService(HibernateCacheService hibernateCacheService) {
+        CommonDomainRegistry.hibernateCacheService = hibernateCacheService;
+    }
     @Autowired
     public void setPublishedEventTrackerRepository(PublishedEventTrackerRepository publishedEventTrackerRepository) {
         CommonDomainRegistry.publishedEventTrackerRepository = publishedEventTrackerRepository;
