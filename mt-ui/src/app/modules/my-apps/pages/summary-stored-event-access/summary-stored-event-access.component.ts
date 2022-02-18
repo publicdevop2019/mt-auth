@@ -10,9 +10,17 @@ import { ObjectDetailComponent } from 'src/app/components/object-detail/object-d
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { OverlayService } from 'src/app/services/overlay.service';
-import { IStoredEvent } from 'src/app/services/stored-event.service';
 import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
-import { IBizTask } from 'src/app/services/task.service';
+export interface IStoredEvent {
+  id: string,
+  eventBody: string,
+  timestamp: number,
+  name: string,
+  domainId: string,
+  internal: string,
+  topic: string,
+  version: number
+}
 @Component({
   selector: 'app-summary-stored-event-access',
   templateUrl: './summary-stored-event-access.component.html',
@@ -58,7 +66,7 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     ) {
       super(entitySvc, deviceSvc, bottomSheet,fis, 1);
   }
-  launchOverlay(el: MatIcon, data: IBizTask) {
+  launchOverlay(el: MatIcon, data: IStoredEvent) {
     this.overlaySvc.data = data;
     let config = new OverlayConfig();
     config.hasBackdrop = true;

@@ -8,15 +8,12 @@ import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IOrder, ITokenResponse } from '../clazz/validation/interfaze-common';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
-import { ICommentSummary } from './comment.service';
-import { IPostSummary } from './post.service';
-import { IUserReactionResult } from './reaction.service';
 export interface IPatch {
     op: string,
     path: string,
@@ -73,50 +70,9 @@ export class HttpProxyService {
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
     }
-    cancelDtx(repo: string, id: string) {
-        return this._httpClient.post(repo + "/" + id + '/cancel', null);
-    }
-    resolveCancelDtx(repo: string, id: string, reason: string) {
-        return this._httpClient.post(repo + "/" + id + '/resolve', { reason: reason });
-    }
     retry(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/retry', null);
     }
-    deletePost(id: string): Observable<boolean> {
-        return new Observable<boolean>(e => {
-            this._httpClient.delete(environment.serverUri + this.BBS_SVC_NAME + '/admin/posts/' + id).subscribe(next => {
-                e.next(true)
-            });
-        });
-    };
-    deleteComment(id: string): Observable<boolean> {
-        return new Observable<boolean>(e => {
-            this._httpClient.delete(environment.serverUri + this.BBS_SVC_NAME + '/admin/comments/' + id).subscribe(next => {
-                e.next(true)
-            });
-        });
-    };
-    rankLikes(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/likes?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankDisLikes(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/dislikes?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankReports(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/reports?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankNotInterested(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/notInterested?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    getAllComments(pageNum: number, pageSize: number): Observable<ICommentSummary> {
-        return this._httpClient.get<ICommentSummary>(environment.serverUri + this.BBS_SVC_NAME + '/admin/comments?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortBy=id' + '&sortOrder=asc');
-    };
-    getAllPosts(pageNum: number, pageSize: number): Observable<IPostSummary> {
-        return this._httpClient.get<IPostSummary>(environment.serverUri + this.BBS_SVC_NAME + '/admin/posts?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortBy=id' + '&sortOrder=asc');
-    };
-    getOrders(): Observable<IOrder[]> {
-        return this._httpClient.get<IOrder[]>(environment.serverUri + this.PROFILE_SVC_NAME + '/orders');
-    };
     uploadFile(file: File): Observable<string> {
         return new Observable<string>(e => {
             const formData: FormData = new FormData();
@@ -128,25 +84,6 @@ export class HttpProxyService {
             });
         })
     };
-    updateProductStatus(id: string, status: 'AVAILABLE' | 'UNAVAILABLE', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(environment.serverUri + this.PRODUCT_SVC_NAME + '/products/admin/' + id, this.getTimeValuePatch(status), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    batchUpdateProductStatus(ids: string[], status: 'AVAILABLE' | 'UNAVAILABLE', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(environment.serverUri + this.PRODUCT_SVC_NAME + '/products/admin', this.getTimeValuePatch(status, ids), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
     batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
@@ -292,31 +229,6 @@ export class HttpProxyService {
         if (params.length > 0)
             return "?" + params.join('&')
         return ""
-    }
-    private getTimeValuePatch(status: 'AVAILABLE' | 'UNAVAILABLE', ids?: string[]): IPatch[] {
-        let re: IPatch[] = [];
-        if (ids && ids.length > 0) {
-            ids.forEach(id => {
-                if (status === "AVAILABLE") {
-                    let startAt = <IPatch>{ op: 'add', path: "/" + id + '/startAt', value: String(Date.now()) }
-                    let endAt = <IPatch>{ op: 'add', path: "/" + id + '/endAt' }
-                    re.push(startAt, endAt)
-                } else {
-                    let startAt = <IPatch>{ op: 'add', path: "/" + id + '/startAt' }
-                    re.push(startAt)
-                }
-            })
-        } else {
-            if (status === "AVAILABLE") {
-                let startAt = <IPatch>{ op: 'add', path: '/startAt', value: String(Date.now()) }
-                let endAt = <IPatch>{ op: 'add', path: '/endAt' }
-                re.push(startAt, endAt)
-            } else {
-                let startAt = <IPatch>{ op: 'add', path: '/startAt' }
-                re.push(startAt)
-            }
-        }
-        return re;
     }
     private getUserStatusPatch(status: 'LOCK' | 'UNLOCK', ids: string[]): IPatch[] {
         let re: IPatch[] = [];
