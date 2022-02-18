@@ -35,7 +35,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormInfoService, MtFormBuilderModule } from 'mt-form-builder';
-import 'mt-wc-product';
 import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
