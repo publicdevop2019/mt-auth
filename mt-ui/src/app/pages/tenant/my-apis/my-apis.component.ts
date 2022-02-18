@@ -8,7 +8,7 @@ import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { BatchUpdateCorsComponent } from 'src/app/modules/my-apps/components/batch-update-cors/batch-update-cors.component';
+import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { EndpointComponent } from 'src/app/pages/tenant/api-profile/api-profile.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyClientService } from 'src/app/services/my-client.service';

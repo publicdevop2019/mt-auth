@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
-import { IStoredEvent } from '../modules/my-apps/pages/summary-stored-event-access/summary-stored-event-access.component';
+import { IStoredEvent } from '../pages/mgnmt/summary-stored-event-access/summary-stored-event-access.component';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
