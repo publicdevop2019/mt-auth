@@ -80,7 +80,9 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
   }
   resume(): void {
     if (this.aggregate) {
-      this.fis.disableIfMatch(this.formId, ['secured'])
+      if (this.bottomSheet.context !== 'clone') {
+        this.fis.disableIfMatch(this.formId, ['secured'])
+      }
       const var0: Observable<any>[] = [];
       var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.resourceId))
       if (this.aggregate.corsProfileId) {

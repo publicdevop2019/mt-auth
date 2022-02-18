@@ -12,7 +12,7 @@ export const zhHans = {
     "GO_BACK_TO_LOGIN": "返回登录界面",
     "ENTER_YOUR_EMAIL": "输入邮箱",
     "CURRENT_LANG":"English",
-    "AUTH_CENTER": "系统管理",
+    "AUTH_CENTER": "管理员页面",
     "MALL_CENTER": "店铺管理",
     "CLIENT_DASHBOARD": "应用",
     "RESOURCE_OWNER_DASHBOARD": "用户",

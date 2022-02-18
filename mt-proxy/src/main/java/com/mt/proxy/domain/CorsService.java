@@ -72,6 +72,9 @@ public class CorsService implements CorsConfigurationSource {
         String s = exchange.getRequest().getPath().toString();
         CorsConfiguration corsConfiguration = getMostSpecificSecurityProfile(profile,s).stream().findFirst().orElse(null);
         log.debug("found {} for path {} with method {}", corsConfiguration, exchange.getRequest().getPath().value(), exchange.getRequest().getMethodValue());
+        if(corsConfiguration!=null){
+            log.debug("mismatch cors config could also result 403");
+        }
         return corsConfiguration;
     }
 }

@@ -1,8 +1,7 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IProject, IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
+import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { ProjectValidator } from 'src/app/clazz/validation/aggregate/project/validator-project';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/new-project.config';
@@ -14,7 +13,7 @@ import { ProjectService } from 'src/app/services/project.service';
   templateUrl: './new-project.component.html',
   styleUrls: ['./new-project.component.css']
 })
-export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject> implements OnInit {
+export class NewProjectComponent extends Aggregate<NewProjectComponent, IProjectSimple> implements OnInit {
 
   constructor(
     private projectSvc: ProjectService,
@@ -26,7 +25,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   }
   ngOnInit(): void {
   }
-  convertToPayload(cmpt: NewProjectComponent): IProject {
+  convertToPayload(cmpt: NewProjectComponent): IProjectSimple {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
     return {
       name: formGroup.get('projectName').value,

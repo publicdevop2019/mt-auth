@@ -1,24 +1,20 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { combineLatest, Observable, of } from 'rxjs';
-import { switchMap, take, tap } from 'rxjs/operators';
+import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { take, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IBottomSheet, ISumRep } from 'src/app/clazz/summary.component';
-import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
+import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator-role';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/role.config';
 import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { MyRoleService } from 'src/app/services/my-role.service';
-import { MyPermissionService } from 'src/app/services/my-permission.service';
-import { ProjectService } from 'src/app/services/project.service';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { I } from '@angular/cdk/keycodes';
+import { MyPermissionService } from 'src/app/services/my-permission.service';
+import { MyRoleService } from 'src/app/services/my-role.service';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',
@@ -34,7 +30,6 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     public entitySvc: MyRoleService,
     public epSvc: EndpointService,
     public permissoinSvc: MyPermissionService,
-    public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,

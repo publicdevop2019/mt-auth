@@ -2,17 +2,15 @@ import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit 
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { of } from 'rxjs';
-import { filter, map, mapTo, switchMap, take, tap } from 'rxjs/operators';
+import { take, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
-import { MyUserService } from 'src/app/services/my-user.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
-import { ProjectService } from 'src/app/services/project.service';
+import { MyUserService } from 'src/app/services/my-user.service';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -30,7 +28,6 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     public userSvc: MyUserService,
     fis: FormInfoService,
     public roleSvc: MyRoleService,
-    public projectSvc: ProjectService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<UserComponent>,
     cdr: ChangeDetectorRef

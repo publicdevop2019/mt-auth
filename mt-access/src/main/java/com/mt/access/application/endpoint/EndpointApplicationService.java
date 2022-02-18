@@ -60,7 +60,7 @@ public class EndpointApplicationService {
     protected void reloadProxy() {
         if (reloadOnAppStart) {
             try {
-                Thread.sleep(60 * 1000);
+                Thread.sleep(90 * 1000);
             } catch (InterruptedException e) {
                 log.error("wait is interrupted due to", e);
             }

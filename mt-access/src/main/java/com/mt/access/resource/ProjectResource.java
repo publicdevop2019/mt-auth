@@ -19,17 +19,17 @@ import static com.mt.common.CommonConstant.*;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json", path = "projects")
+@RequestMapping(produces = "application/json")
 public class ProjectResource {
 
-    @PostMapping
+    @PostMapping(path = "projects")
     public ResponseEntity<Void> createForRoot(@RequestBody ProjectCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         return ResponseEntity.ok().header("Location", ApplicationServiceRegistry.getProjectApplicationService().create(command, changeId)).build();
     }
 
-    @GetMapping
+    @GetMapping(path = "mngmt/projects")
     public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
                                                                                      @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                                                      @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -37,11 +37,11 @@ public class ProjectResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        SumPagedRep<Project> clients = ApplicationServiceRegistry.getProjectApplicationService().projects(queryParam, pageParam, skipCount);
+        SumPagedRep<Project> clients = ApplicationServiceRegistry.getProjectApplicationService().adminQueryProjects(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
     }
 
-    @GetMapping(path = "tenant")
+    @GetMapping(path = "projects/tenant")
     public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> externalQuery(
             @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
 
@@ -53,7 +53,7 @@ public class ProjectResource {
         return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
     }
 
-    @GetMapping("{id}")
+    @GetMapping("projects/{id}")
     public ResponseEntity<ProjectRepresentation> readForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
@@ -62,7 +62,7 @@ public class ProjectResource {
     }
 
 
-    @PutMapping("{id}")
+    @PutMapping("projects/{id}")
     public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id, @RequestBody ProjectUpdateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
@@ -70,7 +70,7 @@ public class ProjectResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("projects/{id}")
     public ResponseEntity<Void> deleteForRootById(@PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
@@ -78,7 +78,7 @@ public class ProjectResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "projects/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id, @RequestBody JsonPatch command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);

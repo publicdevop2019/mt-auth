@@ -57,9 +57,8 @@ public class ProjectApplicationService {
         }
     }
 
-    public SumPagedRep<Project> projects(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<Project> adminQueryProjects(String queryParam, String pageParam, String skipCount) {
         ProjectQuery projectQuery = new ProjectQuery(queryParam, pageParam, skipCount);
-        canReadProject(projectQuery.getIds());
         return DomainRegistry.getProjectRepository().getByQuery(projectQuery);
     }
 
