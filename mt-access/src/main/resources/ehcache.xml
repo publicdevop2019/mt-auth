@@ -5,10 +5,14 @@
             http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd
             http://www.ehcache.org/v3/jsr107 http://www.ehcache.org/schema/ehcache-107-ext-3.0.xsd">
 
+    <cache alias="userRelationRegion" uses-template="myDefaults" />
     <cache alias="userRegion" uses-template="myDefaults" />
-    <cache alias="systemRoleRegion" uses-template="myDefaults" />
-    <cache alias="roleGroupRegion" uses-template="myDefaults" />
+    <cache alias="roleRegion" uses-template="myDefaults" />
+    <cache alias="projectRegion" uses-template="myDefaults" />
+    <cache alias="positionRegion" uses-template="myDefaults" />
+    <cache alias="permissionRegion" uses-template="myDefaults" />
     <cache alias="pendingUserRegion" uses-template="myDefaults" />
+    <cache alias="organizationRegion" uses-template="myDefaults" />
     <cache alias="endpointRegion" uses-template="myDefaults" />
     <cache alias="corsProfileRegion" uses-template="myDefaults" />
     <cache alias="clientRegion" uses-template="myDefaults" />

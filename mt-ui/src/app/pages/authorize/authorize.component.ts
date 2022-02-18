@@ -18,8 +18,9 @@ export class AuthorizeComponent implements OnInit {
         client_id: queryMaps.get('client_id'),
         state: queryMaps.getAll('state')[1],
         redirect_uri: queryMaps.get('redirect_uri'),
+        projectId: queryMaps.get('project_id'),
       }
-      return this.httpProxy.autoApprove(this.authorizeParty.client_id)
+      return this.httpProxy.autoApprove(this.authorizeParty.projectId,this.authorizeParty.client_id)
     })).subscribe(next => {
       if (next)
         this.authorize();

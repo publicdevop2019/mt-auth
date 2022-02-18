@@ -15,9 +15,8 @@ export interface IDetail extends IIdBasedEntity {
 })
 export class MessageService extends EntityCommonService<IDetail, IDetail>{
     private SVC_NAME = '/messenger-svc';
-    private ENTITY_NAME = '/systemNotifications';
+    private ENTITY_NAME = '/mngmt/notifications';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    role: string = 'root';
     constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
         super(httpProxy, interceptor,deviceSvc);
     }
@@ -35,7 +34,7 @@ export class MessageService extends EntityCommonService<IDetail, IDetail>{
             const raw = atob(jwtBody);
             if ((JSON.parse(raw).authorities as string[]).filter(e => e === "0R8G09B8K64H").length > 0) {
                 //0C8AZTODP4H5 messenger client id
-                this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/tickets', '0C8AZTODP4H5', null, UUID()).subscribe(next => {
+                this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/tickets', '0C8AZTODP4H5', UUID()).subscribe(next => {
                     this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/messenger-svc/system-monitor?jwt=${btoa(next)}`);
                     this.socket.addEventListener('message', (event) => {
                         this.saveMessage(event.data as string);
@@ -49,7 +48,7 @@ export class MessageService extends EntityCommonService<IDetail, IDetail>{
             const jwtBody = this.httpProxySvc.currentUserAuthInfo.access_token.split('.')[1];
             const raw = atob(jwtBody);
             if ((JSON.parse(raw).authorities as string[]).filter(e => e === "0R8G09BPEZGG").length > 0) {
-                this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/tickets', '0C8AZTODP4H5', null, UUID()).subscribe(next => {
+                this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/tickets', '0C8AZTODP4H5', UUID()).subscribe(next => {
                     this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/messenger-svc/mall-monitor?jwt=${btoa(next)}`);
                     this.socket.addEventListener('message', (event) => {
                         this.saveMessage(event.data as string);

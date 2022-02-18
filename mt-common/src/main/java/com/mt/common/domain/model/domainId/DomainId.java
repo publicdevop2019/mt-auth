@@ -21,6 +21,8 @@ public class DomainId implements Serializable {
     public DomainId(String domainId) {
         if (domainId == null)
             throw new IllegalStateException("null domain id is not allowed");
+        if (domainId.isBlank()||domainId.isEmpty())
+            throw new IllegalStateException("empty or blank domain id is not allowed");
         if (this.domainId != null)
             throw new IllegalStateException("domain id already present");
         this.domainId = domainId;

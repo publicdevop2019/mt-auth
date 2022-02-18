@@ -26,11 +26,9 @@ public class UserAdminRepresentation {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
         this.locked = user.isLocked();
-        this.grantedAuthorities = user.getRoles().stream().map(e -> e.getDomainId()).collect(Collectors.toSet());
         this.createdBy = user.getCreatedBy();
         this.createdAt = user.getCreatedAt().getTime();
         this.modifiedBy = user.getModifiedBy();
         this.modifiedAt = user.getModifiedAt().getTime();
-        this.subscription = user.isSubscription();
     }
 }

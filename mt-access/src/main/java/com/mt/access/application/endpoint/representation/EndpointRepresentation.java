@@ -10,6 +10,7 @@ public class EndpointRepresentation {
     private String id;
     private String resourceId;
     private String description;
+    private String name;
     private String path;
     private String method;
     private String createdBy;
@@ -29,11 +30,12 @@ public class EndpointRepresentation {
     private String cacheProfileId;
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
-        this.roleId = endpoint.getSystemRoleId() != null ? endpoint.getSystemRoleId().getDomainId() : null;
+        this.roleId = endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
         this.websocket = endpoint.isWebsocket();
         this.secured = endpoint.isSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
+        this.name = endpoint.getName();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.createdBy = endpoint.getCreatedBy();

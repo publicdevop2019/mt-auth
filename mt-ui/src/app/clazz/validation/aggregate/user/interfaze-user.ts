@@ -1,11 +1,16 @@
-export interface IResourceOwner {
+export interface IAuthUser {
     id: string,
     email?: string;
     password?: string;
     locked: boolean;
-    subscription?: boolean;
-    grantedAuthorities: string[];
     createdAt?:number;
+    version:number;
+}
+export interface IProjectUser {
+    id: string,
+    email?: string;
+    projectId: string;
+    roles: string[];
     version:number;
 }
 export interface IPendingResourceOwner {

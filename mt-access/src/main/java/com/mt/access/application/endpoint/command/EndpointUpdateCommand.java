@@ -9,6 +9,7 @@ import java.util.Set;
 public class EndpointUpdateCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String description;
+    private String name;
     private Set<String> clientRoles;
     private boolean secured;
     private String roleId;
@@ -17,6 +18,7 @@ public class EndpointUpdateCommand implements Serializable {
     private String corsProfileId;
     private String resourceId;
     private String cacheProfileId;
+    private String projectId;
 
     private String path;
 

@@ -5,6 +5,8 @@ import com.mt.access.domain.model.user.UserId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 @Getter
 @NoArgsConstructor
 public class TicketInfo {
@@ -27,5 +29,18 @@ public class TicketInfo {
 
     public static TicketInfo create(UserId userId, ClientId clientId, ClientId aud) {
         return new TicketInfo(userId, clientId, aud);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TicketInfo that = (TicketInfo) o;
+        return Objects.equals(exp, that.exp) && Objects.equals(userId, that.userId) && Objects.equals(clientId, that.clientId) && Objects.equals(aud, that.aud);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(exp, userId, clientId, aud);
     }
 }

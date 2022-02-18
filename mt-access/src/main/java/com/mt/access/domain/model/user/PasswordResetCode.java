@@ -1,8 +1,8 @@
 package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
-import com.mt.common.domain.model.validate.Validator;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 
 import javax.persistence.Embeddable;

@@ -7,12 +7,9 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.proxy.CheckSumValue;
 import com.mt.access.domain.model.proxy.ProxyInfo;
-import com.mt.access.infrastructure.CheckSumService;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Set;

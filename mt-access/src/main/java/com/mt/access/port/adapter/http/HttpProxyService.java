@@ -30,7 +30,7 @@ public class HttpProxyService implements ProxyService {
 
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {
-        Application application = discoveryClient.getApplication(AppConstant.MT_AUTH_PROXY_APP_NAME.toUpperCase());
+        Application application = discoveryClient.getApplication(AppConstant.MT_AUTH_PROXY_APP_ID.toUpperCase());
         List<InstanceInfo> instances = application.getInstances();
         HashMap<ProxyInfo, CheckSumValue> valueHashMap = new HashMap<>();
         instances.forEach((e) -> {

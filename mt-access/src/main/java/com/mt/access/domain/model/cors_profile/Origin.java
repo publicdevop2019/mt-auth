@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.cors_profile;
 
 import com.google.common.base.Objects;
-import com.mt.access.domain.model.client.RedirectURL;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.AccessLevel;
 import lombok.Getter;

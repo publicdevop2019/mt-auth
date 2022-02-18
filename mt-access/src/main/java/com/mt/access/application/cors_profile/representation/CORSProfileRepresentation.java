@@ -2,10 +2,8 @@ package com.mt.access.application.cors_profile.representation;
 
 import com.mt.access.domain.model.cors_profile.CORSProfile;
 import com.mt.access.domain.model.cors_profile.Origin;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import lombok.Data;
 
-import javax.persistence.Convert;
 import java.util.Set;
 import java.util.stream.Collectors;
 

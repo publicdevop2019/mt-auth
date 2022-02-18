@@ -1,9 +1,6 @@
 package com.mt.access.port.adapter.persistence.cors_profile;
 
 import com.mt.access.domain.model.cors_profile.*;
-import com.mt.access.domain.model.system_role.SystemRole;
-import com.mt.access.domain.model.system_role.SystemRoleQuery;
-import com.mt.access.domain.model.system_role.SystemRole_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;

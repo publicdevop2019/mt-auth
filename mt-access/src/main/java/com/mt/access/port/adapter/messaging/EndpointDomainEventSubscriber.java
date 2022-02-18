@@ -6,7 +6,6 @@ import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileUpdated;
-import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,7 +18,6 @@ import static com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
 import static com.mt.access.domain.model.cors_profile.event.CORSProfileRemoved.CORS_PROFILE_REMOVED;
 import static com.mt.access.domain.model.cors_profile.event.CORSProfileUpdated.CORS_PROFILE_UPDATED;
-import static com.mt.access.domain.model.system_role.event.SystemRoleDeleted.SYSTEM_ROLE_DELETED;
 
 @Slf4j
 @Component
@@ -47,14 +45,6 @@ public class EndpointDomainEventSubscriber {
     private void listener18() {
         CommonDomainRegistry.getEventStreamService().of(appName, true, CORS_PROFILE_UPDATED, (event) -> {
             CORSProfileUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), CORSProfileUpdated.class);
-            ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-        });
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener20() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true, SYSTEM_ROLE_DELETED, (event) -> {
-            SystemRoleDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), SystemRoleDeleted.class);
             ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
         });
     }

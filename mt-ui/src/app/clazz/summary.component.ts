@@ -1,30 +1,24 @@
 import { SelectionModel } from '@angular/cdk/collections';
 import { ComponentType } from '@angular/cdk/portal';
-import { OnDestroy, ViewChild, Directive } from '@angular/core';
+import { Directive, OnDestroy, ViewChild } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { combineLatest, Observable, Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { FormInfoService } from 'mt-form-builder';
+import { Observable, Subscription } from 'rxjs';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
 import { DeviceService } from 'src/app/services/device.service';
 import * as UUID from 'uuid/v1';
-import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
-import { hasValue } from './validation/validator-common';
+import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
-import { FormInfoService } from 'mt-form-builder';
 import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
+import { hasValue } from './validation/validator-common';
 export interface IIdBasedEntity {
   id: string;
   version: number
-}
-export interface IEventAdminRep {
-  id: number,
-  events: any[],
-  version: number,
 }
 export interface IEntityService<C extends IIdBasedEntity, D> {
   readById: (id: string) => Observable<D>;
@@ -47,13 +41,14 @@ export interface ISumRep<T> {
 export interface IBottomSheet<S> {
   context: 'clone' | 'new' | 'edit';
   from: S;
-  events: IEventAdminRep;
+  params: {}
 }
 @Directive()
 export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDestroy {
   sheetComponent: ComponentType<any>;
   columnWidth: number;
   columnList: any;
+  bottomSheetParams = {};
   queryString: string = undefined;
   formId: string = undefined;
   queryKey: string = undefined;
@@ -126,7 +121,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   }
   displayedColumns() {
     if (this.fis.formGroupCollection[this.formId]) {
-      const orderKeys = Object.keys(this.columnList);
+      const orderKeys = ['select',...Object.keys(this.columnList)];
       const value = this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).value as string[]
       return orderKeys.filter(e => value.includes(e))
     } else {
@@ -134,21 +129,21 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
     }
   };
   openBottomSheet(id?: string, clone?: boolean): void {
-    let config = new MatBottomSheetConfig();
+    const config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
     if (hasValue(id)) {
       this.entitySvc.readById(id).subscribe(next => {
         if (clone) {
-          config.data = <IBottomSheet<S>>{ context: 'clone', from: next };
+          config.data = <IBottomSheet<S>>{ context: 'clone', from: next, params: this.bottomSheetParams };
           this.bottomSheet.open(this.sheetComponent, config);
         } else {
-          config.data = <IBottomSheet<S>>{ context: 'edit', from: next };
+          config.data = <IBottomSheet<S>>{ context: 'edit', from: next, params: this.bottomSheetParams };
           this.bottomSheet.open(this.sheetComponent, config);
         }
       })
     } else {
-      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, events: {} };
+      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

@@ -15,12 +15,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import static com.mt.access.domain.model.client.event.ClientAccessibilityRemoved.CLIENT_ACCESSIBILITY_REMOVED;
-import static com.mt.access.domain.model.client.event.ClientAuthoritiesChanged.CLIENT_AUTHORITIES_CHANGED;
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
 import static com.mt.access.domain.model.client.event.ClientGrantTypeChanged.CLIENT_GRANT_TYPE_CHANGED;
 import static com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted.CLIENT_RESOURCE_CLEAN_UP_COMPLETED;
 import static com.mt.access.domain.model.client.event.ClientResourcesChanged.CLIENT_RESOURCES_CHANGED;
-import static com.mt.access.domain.model.client.event.ClientScopesChanged.CLIENT_SCOPES_CHANGED;
 import static com.mt.access.domain.model.client.event.ClientSecretChanged.CLIENT_SECRET_CHANGED;
 import static com.mt.access.domain.model.client.event.ClientTokenDetailChanged.CLIENT_TOKEN_DETAIL_CHANGED;
 import static com.mt.access.domain.model.user.event.UserAuthorityChanged.USER_AUTHORITY_CHANGED;
@@ -32,6 +30,7 @@ import static com.mt.access.domain.model.user.event.UserGetLocked.USER_GET_LOCKE
 public class RevokeTokenDomainEventSubscriber {
     @Value("${spring.application.name}")
     private String appName;
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener2() {
         CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_RESOURCE_CLEAN_UP_COMPLETED, (event) -> {
@@ -47,6 +46,7 @@ public class RevokeTokenDomainEventSubscriber {
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener4() {
         CommonDomainRegistry.getEventStreamService().of(appName, true, USER_DELETED, (event) -> {
@@ -54,72 +54,67 @@ public class RevokeTokenDomainEventSubscriber {
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener5() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,USER_GET_LOCKED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, USER_GET_LOCKED, (event) -> {
             UserGetLocked deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), UserGetLocked.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener6() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,USER_GET_LOCKED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, USER_GET_LOCKED, (event) -> {
             UserPasswordChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), UserPasswordChanged.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener7() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_ACCESSIBILITY_REMOVED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_ACCESSIBILITY_REMOVED, (event) -> {
             ClientAccessibilityRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientAccessibilityRemoved.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener8() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_AUTHORITIES_CHANGED, (event) -> {
-            ClientAuthoritiesChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientAuthoritiesChanged.class);
-            ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
-        });
-    }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener9() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_GRANT_TYPE_CHANGED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_GRANT_TYPE_CHANGED, (event) -> {
             ClientGrantTypeChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientGrantTypeChanged.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener10() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_TOKEN_DETAIL_CHANGED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_TOKEN_DETAIL_CHANGED, (event) -> {
             ClientTokenDetailChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientTokenDetailChanged.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener11() {
-        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, MQHelper.handlerOf(appName+"_token", CLIENT_DELETED), (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(appName, true, MQHelper.handlerOf(appName + "_token", CLIENT_DELETED), (event) -> {
             ClientDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientDeleted.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
-        },CLIENT_DELETED);
+        }, CLIENT_DELETED);
     }
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener12() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_RESOURCES_CHANGED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_RESOURCES_CHANGED, (event) -> {
             ClientResourcesChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientResourcesChanged.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });
     }
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener13() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_SCOPES_CHANGED, (event) -> {
-            ClientScopesChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientScopesChanged.class);
-            ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
-        });
-    }
+
+
     @EventListener(ApplicationReadyEvent.class)
     private void listener14() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true,CLIENT_SECRET_CHANGED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_SECRET_CHANGED, (event) -> {
             ClientSecretChanged deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ClientSecretChanged.class);
             ApplicationServiceRegistry.getRevokeTokenApplicationService().handleChange(deserialize);
         });

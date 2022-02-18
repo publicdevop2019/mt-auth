@@ -46,6 +46,8 @@ public class SpringDataJpaConfig {
             String authorization = httpServletRequest.get().getHeader("authorization");
             if (authorization == null)
                 return Optional.ofNullable("EMPTY_AUTH_HEADER");
+            if (authorization.contains("Basic"))
+                return Optional.ofNullable("ONBOARD_TENANT_USER");
             return Optional.ofNullable(
                     JwtUtility.getUserId(authorization) == null ?
                             JwtUtility.getClientId(authorization) : JwtUtility.getUserId(authorization));

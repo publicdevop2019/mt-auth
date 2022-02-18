@@ -1,6 +1,7 @@
 export interface IEndpoint {
   resourceId: string;
   description?: string;
+  name: string;
   path: string;
   method?: string;
   id: string;
@@ -8,7 +9,6 @@ export interface IEndpoint {
   secured: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
-  roleId?: string;
   cacheProfileId?: string;
   version: number;
 }

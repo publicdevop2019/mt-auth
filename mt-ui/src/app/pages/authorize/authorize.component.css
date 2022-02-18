@@ -1,21 +1,22 @@
-.example-container {
+.auth-container {
     display: flex;
     flex-direction: row;
     justify-content: center;
+    height: 100%;
+    position: fixed;
+    width: 100%;
+    align-items: center;
   }
   
-  .example-container > * {
+  .auth-container > * {
     width: 100%;
   }
-  .example-card {
+  .auth-card {
     max-width: 400px;
+    max-height: 200px;
   }
   
-  .example-header-image {
-    background-image: url('https://material.angular.io/assets/img/examples/shiba1.jpg');
-    background-size: cover;
-  }
-  .example-card-action{
+  .auth-card-action{
       display: flex;
       flex-direction: row;
       justify-content: space-around;

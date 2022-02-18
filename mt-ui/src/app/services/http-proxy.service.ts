@@ -6,17 +6,14 @@ import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
-import { IEventAdminRep, ISumRep } from '../clazz/summary.component';
+import { ISumRep } from '../clazz/summary.component';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IOrder, ITokenResponse } from '../clazz/validation/interfaze-common';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
-import { ICommentSummary } from './comment.service';
-import { IPostSummary } from './post.service';
-import { IUserReactionResult } from './reaction.service';
 export interface IPatch {
     op: string,
     path: string,
@@ -24,6 +21,11 @@ export interface IPatch {
 }
 export interface IPatchCommand extends IPatch {
     expect: number,
+}
+export interface IUser{
+    id:string
+    email:string
+    createdAt:string
 }
 @Injectable({
     providedIn: 'root'
@@ -60,55 +62,17 @@ export class HttpProxyService {
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/endpoints/event/reload', null, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/endpoints/event/reload', null, { headers: headerConfig });
+    }
+    getMyProfile() {
+        return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
     }
     checkSum() {
-        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/proxy/check');
-    }
-    cancelDtx(repo: string, id: string) {
-        return this._httpClient.post(repo + "/" + id + '/cancel', null);
-    }
-    resolveCancelDtx(repo: string, id: string, reason: string) {
-        return this._httpClient.post(repo + "/" + id + '/resolve', { reason: reason });
+        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
     }
     retry(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/retry', null);
     }
-    deletePost(id: string): Observable<boolean> {
-        return new Observable<boolean>(e => {
-            this._httpClient.delete(environment.serverUri + this.BBS_SVC_NAME + '/admin/posts/' + id).subscribe(next => {
-                e.next(true)
-            });
-        });
-    };
-    deleteComment(id: string): Observable<boolean> {
-        return new Observable<boolean>(e => {
-            this._httpClient.delete(environment.serverUri + this.BBS_SVC_NAME + '/admin/comments/' + id).subscribe(next => {
-                e.next(true)
-            });
-        });
-    };
-    rankLikes(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/likes?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankDisLikes(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/dislikes?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankReports(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/reports?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    rankNotInterested(pageNum: number, pageSize: number): Observable<IUserReactionResult> {
-        return this._httpClient.get<IUserReactionResult>(environment.serverUri + this.BBS_SVC_NAME + '/admin/notInterested?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortOrder=DESC');
-    };
-    getAllComments(pageNum: number, pageSize: number): Observable<ICommentSummary> {
-        return this._httpClient.get<ICommentSummary>(environment.serverUri + this.BBS_SVC_NAME + '/admin/comments?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortBy=id' + '&sortOrder=asc');
-    };
-    getAllPosts(pageNum: number, pageSize: number): Observable<IPostSummary> {
-        return this._httpClient.get<IPostSummary>(environment.serverUri + this.BBS_SVC_NAME + '/admin/posts?pageNum=' + pageNum + '&pageSize=' + pageSize + '&sortBy=id' + '&sortOrder=asc');
-    };
-    getOrders(): Observable<IOrder[]> {
-        return this._httpClient.get<IOrder[]>(environment.serverUri + this.PROFILE_SVC_NAME + '/orders');
-    };
     uploadFile(file: File): Observable<string> {
         return new Observable<string>(e => {
             const formData: FormData = new FormData();
@@ -120,30 +84,11 @@ export class HttpProxyService {
             });
         })
     };
-    updateProductStatus(id: string, status: 'AVAILABLE' | 'UNAVAILABLE', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(environment.serverUri + this.PRODUCT_SVC_NAME + '/products/admin/' + id, this.getTimeValuePatch(status), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    batchUpdateProductStatus(ids: string[], status: 'AVAILABLE' | 'UNAVAILABLE', changeId: string) {
+    batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.patch(environment.serverUri + this.PRODUCT_SVC_NAME + '/products/admin', this.getTimeValuePatch(status, ids), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    batchUpdateUserStatus(entityRepo: string, role: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + role, this.getUserStatusPatch(status, ids), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo, this.getUserStatusPatch(status, ids), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -167,12 +112,10 @@ export class HttpProxyService {
         let headers = this._getAuthHeader(false);
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers }).pipe(switchMap(token => this._getActivationCode(this._getToken(token), payload, changeId)))
     };
-    autoApprove(clientId: string): Observable<boolean> {
+    autoApprove(projectId:string,clientId: string): Observable<boolean> {
         return new Observable<boolean>(e => {
-            this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + '/clients/autoApprove?query=clientId:' + clientId).subscribe(next => {
-                if (next.data[0].autoApprove)
-                    e.next(true)
-                e.next(false)
+            this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/clients/${clientId}/autoApprove`).subscribe(next => {
+                e.next(next.autoApprove)
             });
         });
     };
@@ -180,7 +123,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -189,7 +132,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -199,6 +142,7 @@ export class HttpProxyService {
         formData.append('response_type', authorizeParty.response_type);
         formData.append('client_id', authorizeParty.client_id);
         formData.append('state', authorizeParty.state);
+        formData.append('project_id', authorizeParty.projectId);
         formData.append('redirect_uri', authorizeParty.redirect_uri);
         return this._httpClient.post<IAuthorizeCode>(environment.serverUri + this.AUTH_SVC_NAME + '/authorize', formData);
     };
@@ -286,31 +230,6 @@ export class HttpProxyService {
             return "?" + params.join('&')
         return ""
     }
-    private getTimeValuePatch(status: 'AVAILABLE' | 'UNAVAILABLE', ids?: string[]): IPatch[] {
-        let re: IPatch[] = [];
-        if (ids && ids.length > 0) {
-            ids.forEach(id => {
-                if (status === "AVAILABLE") {
-                    let startAt = <IPatch>{ op: 'add', path: "/" + id + '/startAt', value: String(Date.now()) }
-                    let endAt = <IPatch>{ op: 'add', path: "/" + id + '/endAt' }
-                    re.push(startAt, endAt)
-                } else {
-                    let startAt = <IPatch>{ op: 'add', path: "/" + id + '/startAt' }
-                    re.push(startAt)
-                }
-            })
-        } else {
-            if (status === "AVAILABLE") {
-                let startAt = <IPatch>{ op: 'add', path: '/startAt', value: String(Date.now()) }
-                let endAt = <IPatch>{ op: 'add', path: '/endAt' }
-                re.push(startAt, endAt)
-            } else {
-                let startAt = <IPatch>{ op: 'add', path: '/startAt' }
-                re.push(startAt)
-            }
-        }
-        return re;
-    }
     private getUserStatusPatch(status: 'LOCK' | 'UNLOCK', ids: string[]): IPatch[] {
         let re: IPatch[] = [];
         ids.forEach(id => {
@@ -384,28 +303,28 @@ export class HttpProxyService {
         re.push(startAt)
         return re;
     }
-    createEntity(entityRepo: string, role: string, entity: any, changeId: string): Observable<string> {
+    createEntity(entityRepo: string, entity: any, changeId: string): Observable<string> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<string>(e => {
-            this._httpClient.post(entityRepo + (role ? ('/' + role) : ''), entity, { observe: 'response', headers: headerConfig }).subscribe(next => {
+            this._httpClient.post(entityRepo, entity, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));
             });
         });
     };
-    readEntityById<S>(entityRepo: string, role: string, id: string, headers?: {}): Observable<S> {
+    readEntityById<S>(entityRepo: string, id: string, headers?: {}): Observable<S> {
         let headerConfig = new HttpHeaders();
         headers && Object.keys(headers).forEach(e => {
             headerConfig = headerConfig.set(e, headers[e] + '')
         })
-        return this._httpClient.get<S>(entityRepo + (role ? ('/' + role) : '')+ '/' + id, { headers: headerConfig });
+        return this._httpClient.get<S>(entityRepo+ '/' + id, { headers: headerConfig });
     };
-    readEntityByQuery<T>(entityRepo: string, role: string, num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
+    readEntityByQuery<T>(entityRepo: string, num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
         let headerConfig = new HttpHeaders();
         headers && Object.keys(headers).forEach(e => {
             headerConfig = headerConfig.set(e, headers[e] + '')
         })
-        return this._httpClient.get<ISumRep<T>>(entityRepo + (role ? ('/' + role) : "") + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
+        return this._httpClient.get<ISumRep<T>>(entityRepo  + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
     }
     addPrefix(query: string): string {
         let var0: string = query;
@@ -416,96 +335,96 @@ export class HttpProxyService {
         }
         return var0
     }
-    updateEntity(entityRepo: string, role: string, id: string, entity: any, changeId: string): Observable<boolean> {
+    updateEntity(entityRepo: string, id: string, entity: any, changeId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.put(entityRepo + (role ? ('/' + role) : '') + '/' + id, entity, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.put(entityRepo  + '/' + id, entity, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     };
-    updateEntityExt(entityRepo: string, role: string, id: string, entity: any, changeId: string) {
+    updateEntityExt(entityRepo: string, id: string, entity: any, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.put(entityRepo + (role ? ('/' + role) : '') + '/' + id, entity, { headers: headerConfig });
+        return this._httpClient.put(entityRepo + '/' + id, entity, { headers: headerConfig });
     };
-    deleteEntityById(entityRepo: string, role: string, id: string, changeId: string): Observable<boolean> {
+    deleteEntityById(entityRepo: string, id: string, changeId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.delete(entityRepo + (role ? ('/' + role) : '') + '/' + id, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.delete(entityRepo + '/' + id, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     };
-    deleteVersionedEntityById(entityRepo: string, role: string, id: string, changeId: string, version: number): Observable<boolean> {
+    deleteVersionedEntityById(entityRepo: string, id: string, changeId: string, version: number): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         headerConfig = headerConfig.set('version', version + "")
         return new Observable<boolean>(e => {
-            this._httpClient.delete(entityRepo + (role ? ('/' + role) : '') + '/' + id, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.delete(entityRepo + '/' + id, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     };
-    deleteEntityByQuery(entityRepo: string, role: string, query: string, changeId: string): Observable<boolean> {
+    deleteEntityByQuery(entityRepo: string, query: string, changeId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.delete(entityRepo + (role ? ('/' + role) : '') + '?' + this.addPrefix(query), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.delete(entityRepo + '?' + this.addPrefix(query), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     };
-    patchEntityById(entityRepo: string, role: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
+    patchEntityById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
         headerConfig = headerConfig.set('changeId', changeId);
         return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + (role ? ('/' + role) : '') + '/' + id, this.getPatchPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo + '/' + id, this.getPatchPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     }
-    patchEntityAtomicById(entityRepo: string, role: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
+    patchEntityAtomicById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
         headerConfig = headerConfig.set('changeId', changeId);
         return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + (role ? ('/' + role) : ''), this.getPatchPayloadAtomicNum(id, fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo, this.getPatchPayloadAtomicNum(id, fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     }
-    patchEntityListById(entityRepo: string, role: string, id: string, fieldName: string, editEvent: IEditListEvent, changeId: string) {
+    patchEntityListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditListEvent, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
         headerConfig = headerConfig.set('changeId', changeId);
         return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + (role ? ('/' + role) : '') + '/' + id, this.getPatchListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo + '/' + id, this.getPatchListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     }
-    patchEntityInputListById(entityRepo: string, role: string, id: string, fieldName: string, editEvent: IEditInputListEvent, changeId: string) {
+    patchEntityInputListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditInputListEvent, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
         headerConfig = headerConfig.set('changeId', changeId);
         return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + (role ? ('/' + role) : '') + '/' + id, this.getPatchInputListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo + '/' + id, this.getPatchInputListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
     }
-    patchEntityBooleanById(entityRepo: string, role: string, id: string, fieldName: string, editEvent: IEditBooleanEvent, changeId: string) {
+    patchEntityBooleanById(entityRepo: string, id: string, fieldName: string, editEvent: IEditBooleanEvent, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
         headerConfig = headerConfig.set('changeId', changeId);
         if (typeof editEvent.original === 'undefined' && typeof editEvent.next === 'undefined')
             return new Observable<boolean>(e => e.next(true));
         return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + (role ? ('/' + role) : '') + '/' + id, this.getPatchBooleanPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
+            this._httpClient.patch(entityRepo + '/' + id, this.getPatchBooleanPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

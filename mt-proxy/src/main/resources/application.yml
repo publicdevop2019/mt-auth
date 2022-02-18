@@ -1,6 +1,6 @@
 manytree:
-  mt0:
-    name: access
+  mt-access:
+    appId: 0C8AZTODP4HT
   url:
     eureka:
     endpoint: endpoints/proxy
@@ -14,7 +14,7 @@ server:
   port: 8111
 spring:
   application:
-    name: proxy
+    name: 0C8AZYTQ5W5C
   zipkin:
     baseUrl: http://localhost:9411/
   sleuth:

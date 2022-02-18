@@ -69,9 +69,7 @@ public class SCGResponseJsonSanitizerFilter implements GlobalFilter, Ordered {
                                 return bufferFactory.wrap(responseBody);
                             }
                             String responseBodyString = new String(responseBody, StandardCharsets.UTF_8);
-                            String s2 = responseBodyString.replace("<", "&lt;");
-                            String s3 = s2.replace(">", "&gt;");
-                            String afterSanitize = JsonSanitizer.sanitize(s3);
+                            String afterSanitize = JsonSanitizer.sanitize(responseBodyString);
                             byte[] bytes = afterSanitize.getBytes(StandardCharsets.UTF_8);
                             if (headers.getContentLength() != afterSanitize.getBytes(StandardCharsets.UTF_8).length)
                                 log.debug("sanitized response length before {} after {}", responseBody.length, bytes.length);

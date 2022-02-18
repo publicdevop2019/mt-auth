@@ -1,7 +1,5 @@
 package com.mt.access.domain.model.cache_profile;
 
-import com.mt.access.domain.model.cors_profile.CORSProfileId;
-import com.mt.access.domain.model.cors_profile.CORSProfileQuery;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;

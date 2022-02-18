@@ -1,0 +1,12 @@
+<div>
+    <div style="margin-bottom: 8px;" class="{{level? 'child-node-style':''}}">
+        <div style="display: flex; align-items: center; ">
+            <mat-icon (click)="onClick(node.id,$event)">{{expanded?'expand_less':'expand_more'}}</mat-icon>
+            <div style="margin-right: 8px;">{{node.name}}</div>
+                <mat-checkbox *ngIf="edit" [checked]="checked()" [indeterminate]="fg.get(node.id).value==='indeterminate'" (change)="toggle()" ></mat-checkbox>
+        </div>
+        <div class="{{expanded?'':'hide_children'}}">
+            <ng-template appTreeNode></ng-template>
+        </div>
+    </div>
+</div>

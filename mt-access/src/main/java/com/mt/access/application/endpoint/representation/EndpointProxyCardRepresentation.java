@@ -42,7 +42,7 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
     private transient ClientId clientId;
     @JsonIgnore
     private transient CacheProfileId cacheProfileId;
-    private String roleId;
+    private String permissionId;
 
     public EndpointProxyCardRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
@@ -56,7 +56,7 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
-        this.roleId = endpoint.getSystemRoleId() == null ? null : endpoint.getSystemRoleId().getDomainId();
+        this.permissionId = endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }
 
     public static void updateDetail(List<EndpointProxyCardRepresentation> original) {

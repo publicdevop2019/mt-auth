@@ -5,7 +5,7 @@ export const FORM_CONFIG: IForm = {
     "inputs": [
         {
             "type": "text",
-            "display": false,
+            "display": true,
             "label": "ID",
             "key": "id",
             "position": {
@@ -26,15 +26,16 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
-            "type": "checkbox",
+            "type": "text",
             "display": true,
-            "label": "PLEASE_SELECT_AUTHORITY(S)",
-            "key": "authority",
+            "disabled": true,
+            "label": "CREATED_AT",
+            "key": "createdAt",
+            "readonly": true,
             "position": {
-                "row": "5",
+                "row": "2",
                 "column": "0"
             },
-            "options": [],
         },
         {
             "type": "checkbox",
@@ -47,19 +48,6 @@ export const FORM_CONFIG: IForm = {
             },
             "options": [
                 { label: 'LOCK', value: "Lock" },
-            ],
-        },
-        {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "subNewOrder",
-            "position": {
-                "row": "7",
-                "column": "0"
-            },
-            "options": [
-                { label: 'SUBSCRIBE_FOR_NEW_ORDER', value: "Subscribe for new order" },
             ],
         },
     ],

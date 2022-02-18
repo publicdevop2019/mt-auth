@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.cache_profile.event;
 
 import com.mt.access.domain.model.cache_profile.CacheProfile;
-import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 

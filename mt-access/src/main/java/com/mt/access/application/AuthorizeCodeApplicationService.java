@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.common.exceptions.RedirectMismatchExc
 import org.springframework.security.oauth2.common.exceptions.UnsupportedResponseTypeException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.*;
-import org.springframework.security.oauth2.provider.code.InMemoryAuthorizationCodeServices;
 import org.springframework.security.oauth2.provider.endpoint.DefaultRedirectResolver;
 import org.springframework.security.oauth2.provider.endpoint.RedirectResolver;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
@@ -20,9 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -46,7 +43,7 @@ public class AuthorizeCodeApplicationService {
             throw new IllegalArgumentException("unable to find authorize client");
         }
 
-        Authentication authentication = DomainRegistry.getAuthenticationService().getAuthentication();
+        Authentication authentication = DomainRegistry.getCurrentUserService().getAuthentication();
         log.debug("before create authorization request");
         if (log.isDebugEnabled()) {
             try {
@@ -82,9 +79,8 @@ public class AuthorizeCodeApplicationService {
         }
         authorizationRequest.setRedirectUri(resolvedRedirect);
 
-        oauth2RequestValidator.validateScope(authorizationRequest, client);
-
         authorizationRequest.setApproved(true);
+        authorizationRequest.setScope(Collections.singleton(parameters.get("project_id")));
 
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("authorize_code", generateCode(authorizationRequest, authentication));

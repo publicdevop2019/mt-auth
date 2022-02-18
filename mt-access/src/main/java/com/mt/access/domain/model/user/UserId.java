@@ -2,7 +2,6 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.access.domain.DomainRegistry;
 
 import javax.persistence.Embeddable;
 import java.io.Serializable;

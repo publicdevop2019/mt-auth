@@ -5,7 +5,8 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
-import com.mt.access.domain.model.system_role.SystemRoleId;
+import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
@@ -19,11 +20,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
+import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "path", "method"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
@@ -40,6 +42,7 @@ public class Endpoint extends Auditable {
 
     @Setter(AccessLevel.PRIVATE)
     private String description;
+    private String name;
 
     @Setter(AccessLevel.PRIVATE)
     private boolean isWebsocket;
@@ -54,9 +57,9 @@ public class Endpoint extends Auditable {
     @Embedded
     @Setter(AccessLevel.PUBLIC)
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "system_role_id"))
+            @AttributeOverride(name = "domainId", column = @Column(name = "permission_id"))
     })
-    private SystemRoleId systemRoleId;
+    private PermissionId permissionId;
     @Embedded
     @Setter(AccessLevel.PUBLIC)
     @AttributeOverrides({
@@ -70,6 +73,12 @@ public class Endpoint extends Auditable {
             @AttributeOverride(name = "domainId", column = @Column(name = "clientId", updatable = false, nullable = false))
     })
     private ClientId clientId;
+    @Embedded
+    @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(name = "projectId", updatable = false, nullable = false))
+    })
+    private ProjectId projectId;
 
     private String path;
 
@@ -84,32 +93,48 @@ public class Endpoint extends Auditable {
     private boolean csrfEnabled = true;
 
 
-    public Endpoint(ClientId clientId, SystemRoleId systemRoleId, CacheProfileId cacheProfileId, String description,
+    public Endpoint(ClientId clientId, ProjectId projectId, @Nullable PermissionId permissionId, CacheProfileId cacheProfileId, String name, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId
     ) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
+        setProjectId(projectId);
         setEndpointId(endpointId);
-        update(systemRoleId, cacheProfileId, description, path, method, secured, isWebsocket, csrfEnabled, corsProfileId);
+        setPermissionId(permissionId);
+        setName(name);
+        setDescription(description);
+        setWebsocket(isWebsocket);
+        setCacheProfileId(cacheProfileId);
+        setPath(path);
+        setSecured(secured);
+        setMethod(method);
+        setCsrfEnabled(csrfEnabled);
+        setCorsProfileId(corsProfileId);
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
     }
 
-    public void update(SystemRoleId roleGroupId,
-                       CacheProfileId cacheProfileId,
-                       String description, String path, String method, boolean secured,
-                       boolean isWebsocket,
-                       boolean csrfEnabled, CORSProfileId corsProfileId) {
-        setSystemRoleId(roleGroupId);
+    public void update(
+            CacheProfileId cacheProfileId,
+            String name, String description, String path, String method,
+            boolean isWebsocket,
+            boolean csrfEnabled, CORSProfileId corsProfileId) {
+        setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
         setCacheProfileId(cacheProfileId);
         setPath(path);
         setMethod(method);
-        setSecured(secured);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setName(String name) {
+        Validator.notBlank(name);
+        this.name = name;
     }
 
     private void setPath(String path) {

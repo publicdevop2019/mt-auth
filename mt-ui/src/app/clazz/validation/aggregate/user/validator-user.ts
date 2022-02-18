@@ -1,5 +1,5 @@
 import { BooleanValidator, ErrorMessage, IAggregateValidator, ListValidator, NumberValidator, StringValidator, TPlatform, TValidator } from '../../validator-common';
-import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwner, IResourceOwnerUpdatePwd } from './interfaze-user';
+import { IForgetPasswordRequest, IPendingResourceOwner, IAuthUser, IResourceOwnerUpdatePwd } from './interfaze-user';
 
 export class UserValidator extends IAggregateValidator {
     private appCreatePendingUserCommandValidator: Map<string, TValidator> = new Map();
@@ -26,9 +26,8 @@ export class UserValidator extends IAggregateValidator {
         this.appResetUserPasswordCommandValidator.set('newPassword', this.passwordValidator);
 
         this.adminUpdateUserCommandValidator.set('locked', this.lockedValidator);
-        this.adminUpdateUserCommandValidator.set('subscription', this.subscriptionValidator);
     }
-    public validate(client: IResourceOwner|IPendingResourceOwner|IForgetPasswordRequest, context: string): ErrorMessage[] {
+    public validate(client: IAuthUser|IPendingResourceOwner|IForgetPasswordRequest, context: string): ErrorMessage[] {
         if (context === 'adminUpdateUserCommandValidator')
             return this.validationWPlatform(client, this.adminUpdateUserCommandValidator)
         if (context === 'userUpdatePwdCommandValidator')

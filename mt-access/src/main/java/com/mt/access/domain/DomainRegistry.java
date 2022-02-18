@@ -8,15 +8,21 @@ import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CORSProfileRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
+import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
+import com.mt.access.domain.model.permission.PermissionRepository;
+import com.mt.access.domain.model.PermissionCheckService;
+import com.mt.access.domain.model.position.PositionRepository;
+import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
-import com.mt.access.domain.model.system_role.SystemRoleRepository;
+import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
+import com.mt.access.domain.model.user_relation.UserRelationRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,7 +42,7 @@ public class DomainRegistry {
     @Getter
     private static EncryptionService encryptionService;
     @Getter
-    private static AuthenticationService authenticationService;
+    private static CurrentUserService currentUserService;
     @Getter
     private static PendingUserService pendingUserService;
     @Getter
@@ -49,8 +55,6 @@ public class DomainRegistry {
     private static PasswordResetTokenService passwordResetTokenService;
     @Getter
     private static RevokeTokenRepository revokeTokenRepository;
-    @Getter
-    private static SystemRoleRepository systemRoleRepository;
     @Getter
     private static EndpointValidationService endpointValidationService;
     @Getter
@@ -69,6 +73,55 @@ public class DomainRegistry {
     private static CacheProfileRepository cacheProfileRepository;
     @Getter
     private static ProxyService proxyService;
+    @Getter
+    private static ProjectRepository projectRepository;
+    @Getter
+    private static RoleRepository roleRepository;
+    @Getter
+    private static PermissionRepository permissionRepository;
+    @Getter
+    private static OrganizationRepository organizationRepository;
+    @Getter
+    private static PositionRepository positionRepository;
+    @Getter
+    private static UserRelationRepository userRelationRepository;
+    @Getter
+    private static ComputePermissionService computePermissionService;
+    @Getter
+    private static PermissionCheckService permissionCheckService;
+
+    @Autowired
+    public void setPermissionCheckService(PermissionCheckService permissionCheckService) {
+        DomainRegistry.permissionCheckService = permissionCheckService;
+    }
+    @Autowired
+    public void setComputePermissionService(ComputePermissionService computePermissionService) {
+        DomainRegistry.computePermissionService = computePermissionService;
+    }
+    @Autowired
+    public void setUserRelationRepository(UserRelationRepository repository) {
+        DomainRegistry.userRelationRepository = repository;
+    }
+    @Autowired
+    public void setPositionRepository(PositionRepository repository) {
+        DomainRegistry.positionRepository = repository;
+    }
+    @Autowired
+    public void setOrganizationRepository(OrganizationRepository organizationRepository) {
+        DomainRegistry.organizationRepository = organizationRepository;
+    }
+    @Autowired
+    public void setPermissionRepository(PermissionRepository permissionRepository) {
+        DomainRegistry.permissionRepository = permissionRepository;
+    }
+    @Autowired
+    public void setRoleRepository(RoleRepository roleRepository) {
+        DomainRegistry.roleRepository = roleRepository;
+    }
+    @Autowired
+    public void setProjectRepository(ProjectRepository projectRepository) {
+        DomainRegistry.projectRepository = projectRepository;
+    }
 
     @Autowired
     public void setProxyService(ProxyService proxyService) {
@@ -83,11 +136,6 @@ public class DomainRegistry {
     @Autowired
     public void setNewUserService(NewUserService newUserService) {
         DomainRegistry.newUserService = newUserService;
-    }
-
-    @Autowired
-    public void setSystemRoleRepository(SystemRoleRepository systemRoleRepository) {
-        DomainRegistry.systemRoleRepository = systemRoleRepository;
     }
 
     @Autowired
@@ -176,8 +224,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        DomainRegistry.authenticationService = authenticationService;
+    public void setCurrentUserService(CurrentUserService currentUserService) {
+        DomainRegistry.currentUserService = currentUserService;
     }
 
     @Autowired

@@ -1,24 +1,24 @@
 package com.mt.access.resource;
 
-import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.access.application.revoke_token.RevokeTokenCardRepresentation;
+import com.mt.access.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
-import com.mt.access.infrastructure.JwtAuthenticationService;
+import com.mt.access.infrastructure.JwtCurrentUserService;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.mt.common.CommonConstant.*;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "revoke-tokens")
+@RequestMapping(produces = "application/json", path = "mngmt/revoke-tokens")
 public class RevokeTokenResource {
 
     @PostMapping
     public ResponseEntity<Void> createForRoot(@RequestBody RevokeTokenCreateCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtAuthenticationService.JwtThreadLocal.unset();
-        JwtAuthenticationService.JwtThreadLocal.set(jwt);
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
         ApplicationServiceRegistry.getRevokeTokenApplicationService().create(command, changeId);
         return ResponseEntity.ok().build();
     }

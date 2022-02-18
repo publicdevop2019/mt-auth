@@ -1,0 +1,16 @@
+
+<div>
+    <h2>{{'MY_PROFILE_DETAIL'|translate}}</h2>
+    <div style="display: flex; margin-bottom: 16px;align-items: center;">
+        <div style="margin-right: 16px;">{{'USER_ID'|translate}}</div>
+        <div>{{authSvc.currentUser?.id}}</div>
+    </div>
+    <div style="display: flex; margin-bottom: 16px;align-items:flex-end;">
+        <div style="margin-right: 16px;">{{'USER_EMAIL'|translate}}</div>
+        <div>{{authSvc.currentUser?.email}}</div>
+    </div>
+    <div style="display: flex; margin-bottom: 16px;align-items:flex-end;">
+        <div style="margin-right: 16px;">{{'CREATED_AT'|translate}}</div>
+        <div>{{authSvc.currentUser?.createdAt|date:'M/d/yy, h:mm:ss a'}}</div>
+    </div>
+</div>

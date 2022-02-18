@@ -1,11 +1,9 @@
 package com.mt.access.domain.model.pending_user;
 
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
-import com.mt.access.domain.model.pending_user.PendingUser;
-import com.mt.access.domain.model.pending_user.RegistrationEmail;
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;

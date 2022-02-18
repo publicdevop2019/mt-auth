@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.activation_code;
 
-import com.mt.common.domain.model.validate.Validator;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,5 +1,4 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { TYPE_ROLE_ENUM } from '../clazz/validation/aggregate/role/interface-role';
 
 export const FORM_CONFIG: IForm = {
     "repeatable": false,
@@ -35,15 +34,25 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
-            "type": "select",
+            "type": "paginated-select",
             "display": true,
-            "label": "PLEASE_SELECT_ROLE_TYPE",
-            "key": "type",
+            "label": "PARENT_ID",
+            "key": "parentId",
+            options:[],
             "position": {
                 "row": "3",
                 "column": "0"
             },
-            "options": TYPE_ROLE_ENUM,
+        },
+        {
+            "type": "text",
+            "display": false,
+            "label": "",
+            "key": "projectId",
+            "position": {
+                "row": "4",
+                "column": "0"
+            },
         },
     ],
 }

@@ -1,5 +1,5 @@
-import { GRANT_TYPE_LIST_EXT, RESOURCE_CLIENT_ROLE_LIST } from '../../constant';
-import { grantTypeEnums, IClient } from './interfaze-client';
+import { GRANT_TYPE_LIST_EXT } from '../../constant';
+import { CLIENT_TYPE, grantTypeEnums, IClient } from './interfaze-client';
 import { BooleanValidator, descriptionValidator, ErrorMessage, IAggregateValidator, ListValidator, NumberValidator, StringValidator, TPlatform, TValidator } from '../../validator-common';
 
 export class ClientValidator extends IAggregateValidator {
@@ -10,11 +10,8 @@ export class ClientValidator extends IAggregateValidator {
         this.rootCreateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootCreateClientCommandValidator.set('description', descriptionValidator);
         this.rootCreateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
-        this.rootCreateClientCommandValidator.set('clientSecret', this.clientClientSecretValidator);
         this.rootCreateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
         this.rootCreateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
-        this.rootCreateClientCommandValidator.set('grantedAuthorities', this.clientAuthorityValidator);
-        this.rootCreateClientCommandValidator.set('scopeEnums', this.clientScopeValidator);
         this.rootCreateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
         this.rootCreateClientCommandValidator.set('accessTokenValiditySeconds', this.clientAccessTokenValiditySecondsValidator);
         this.rootCreateClientCommandValidator.set('refreshTokenValiditySeconds', this.clientRefreshTokenValiditySecondsValidator);
@@ -24,11 +21,8 @@ export class ClientValidator extends IAggregateValidator {
         this.rootUpdateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootUpdateClientCommandValidator.set('description', descriptionValidator);
         this.rootUpdateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
-        this.rootUpdateClientCommandValidator.set('clientSecret', this.clientUpdateClientSecretValidator);
         this.rootUpdateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
         this.rootUpdateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
-        this.rootUpdateClientCommandValidator.set('grantedAuthorities', this.clientAuthorityValidator);
-        this.rootUpdateClientCommandValidator.set('scopeEnums', this.clientScopeValidator);
         this.rootUpdateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
         this.rootUpdateClientCommandValidator.set('accessTokenValiditySeconds', this.clientAccessTokenValiditySecondsValidator);
         this.rootUpdateClientCommandValidator.set('refreshTokenValiditySeconds', this.clientRefreshTokenValiditySecondsValidator);
@@ -115,24 +109,12 @@ export class ClientValidator extends IAggregateValidator {
         }
         return results
     }
-    clientAuthorityValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        ListValidator.hasValue(payload[key], results, key);
-        return results
-    }
-    clientScopeValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        if(payload.grantTypeEnums.includes(grantTypeEnums.authorization_code)){
-            ListValidator.hasValue(payload[key], results, key);
-        }
-        return results
-    }
     clientResourceIndicatorValidator = (key: string, payload: IClient) => {
         let results: ErrorMessage[] = [];
         BooleanValidator.isBoolean(payload[key], results, key);
         if (payload[key] === true) {
-            let var0 = RESOURCE_CLIENT_ROLE_LIST.map(e => e.value);
-            if (var0.some(e => !payload.grantedAuthorities.includes(e))) {
+            let var0 = [CLIENT_TYPE.firstParty, CLIENT_TYPE.backend_app];
+            if (var0.some(e => !payload.types.includes(e))) {
                 results.push({ type: 'resourceIndicatorRequiresRole', message: 'RESOURCE_INDICATOR_REQUIRES_ROLE', key: key })
             }
         }
@@ -162,35 +144,16 @@ export class ClientValidator extends IAggregateValidator {
         }
         return results
     }
+    clientTypeValidator = (key: string, payload: IClient) => {
+        let results: ErrorMessage[] = [];
+        let value = payload[key];
+        ListValidator.hasValue(value, results, key);
+        ListValidator.isSubListOf(value, Object.values(CLIENT_TYPE), results, key);
+        return results
+    }
     clientHasSecretValidator = (key: string, payload: IClient) => {
         let results: ErrorMessage[] = [];
         BooleanValidator.isBoolean(payload[key], results, key)
-        return results
-    }
-    clientClientSecretValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        if (payload.hasSecret === true) {
-            StringValidator.lessThanOrEqualTo(payload[key], 50, results, key);
-            StringValidator.greaterThanOrEqualTo(payload[key], 1, results, key);
-        } else {
-            if (payload[key]) {
-                results.push({ type: 'secretRequiresHasSecret', message: 'SECRET_REQUIRES_HAS_SECRET', key: key })
-            } else {
-
-            }
-        }
-        return results
-    }
-    clientUpdateClientSecretValidator = (key: string, payload: IClient) => {
-        let results: ErrorMessage[] = [];
-        if (payload.hasSecret === true) {
-        } else {
-            if (payload[key]) {
-                results.push({ type: 'secretRequiresHasSecret', message: 'SECRET_REQUIRES_HAS_SECRET', key: key })
-            } else {
-
-            }
-        }
         return results
     }
 }

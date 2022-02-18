@@ -1,12 +1,10 @@
 package com.mt.access.domain.model.cors_profile;
 
-import com.mt.access.domain.model.client.RedirectDetail;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.sql.converter.EnumSetConverter;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -99,11 +97,11 @@ public class CORSProfile extends Auditable {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
         CORSProfile that = (CORSProfile) o;
-        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(corsId, that.corsId) && Objects.equals(allowCredentials, that.allowCredentials) && Objects.equals(allowedHeaders, that.allowedHeaders)  && Objects.equals(allowOrigin, that.allowOrigin) && Objects.equals(exposedHeaders, that.exposedHeaders) && Objects.equals(maxAge, that.maxAge);
+        return Objects.equals(corsId, that.corsId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), id, name, description, corsId, allowCredentials, allowedHeaders, allowOrigin, exposedHeaders, maxAge);
+        return Objects.hash(super.hashCode(), corsId);
     }
 }

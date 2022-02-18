@@ -9,15 +9,11 @@ import com.mt.access.application.client.representation.ClientSpringOAuth2Represe
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.*;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
-import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
-import com.mt.access.domain.model.system_role.SystemRoleId;
-import com.mt.access.domain.model.system_role.event.SystemRoleDeleted;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -33,6 +29,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.mt.access.domain.model.permission.Permission.*;
+
 @Service
 @Slf4j
 public class ClientApplicationService implements ClientDetailsService {
@@ -41,26 +39,27 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public String create(ClientCreateCommand command, String operationId) {
+    public String tenantCreate(ClientCreateCommand command, String operationId) {
         ClientId clientId = new ClientId();
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(command.getProjectId()), CREATE_CLIENT);
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(operationId,
                 (change) -> {
                     Client client = new Client(
                             clientId,
+                            new ProjectId(command.getProjectId()),
                             command.getName(),
                             command.getPath(),
                             command.getClientSecret(),
                             command.getDescription(),
                             command.isResourceIndicator(),
-                            command.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                            command.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                             command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                             command.getGrantTypeEnums(),
                             new TokenDetail(command.getAccessTokenValiditySeconds(), command.getRefreshTokenValiditySeconds()),
                             new RedirectDetail(
                                     command.getRegisteredRedirectUri(),
                                     command.isAutoApprove()
-                            )
+                            ),
+                            command.getTypes()
                     );
                     return client.getClientId().getDomainId();
                 }, CLIENT
@@ -68,23 +67,43 @@ public class ClientApplicationService implements ClientDetailsService {
 
     }
 
-    public SumPagedRep<Client> clients(String queryParam, String pagingParam, String configParam) {
-        return DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(queryParam, pagingParam, configParam, false));
-    }
-    public SumPagedRep<Client> internalClients(String pagingParam, String configParam) {
-        return DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(null, pagingParam, configParam, true));
+    public SumPagedRep<Client> tenantQuery(String queryParam, String pagingParam, String configParam) {
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT_SUMMARY);
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
     }
 
-    public Optional<Client> client(String id) {
-        return DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
+    public SumPagedRep<Client> adminQuery(String queryParam, String pagingParam, String configParam) {
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
+    }
+
+    public Optional<Client> adminQuery(String id) {
+        ClientQuery clientQuery = new ClientQuery(new ClientId(id));
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+    }
+    public SumPagedRep<Client> internalQuery(String pagingParam, String configParam) {
+        return DomainRegistry.getClientRepository().clientsOfQuery(ClientQuery.internalQuery(pagingParam, configParam));
+    }
+
+    public Optional<Client> tenantQuery(String id, String projectId) {
+        ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+    }
+
+    public Optional<Client> internalQuery(ClientId id) {
+        return DomainRegistry.getClientRepository().clientOfId(id);
     }
 
     @SubscribeForEvent
     @Transactional
-    public void replaceClient(String id, ClientUpdateCommand command, String changeId) {
+    public void tenantReplace(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(command.getProjectId()), EDIT_CLIENT);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<Client> optionalClient = DomainRegistry.getClientRepository().clientOfId(clientId);
+            ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(command.getProjectId()));
+            Optional<Client> optionalClient = DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
             if (optionalClient.isPresent()) {
                 Client client = optionalClient.get();
                 client.replace(
@@ -93,8 +112,6 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getPath(),
                         command.getDescription(),
                         command.isResourceIndicator(),
-                        command.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                        command.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                         command.getResourceIds() != null ? command.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(), command.getRefreshTokenValiditySeconds()),
@@ -111,10 +128,12 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void removeClient(String id, String changeId) {
+    public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), DELETE_CLIENT);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
-            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
+            ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
+            Optional<Client> client = DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
             if (client.isPresent()) {
                 Client client1 = client.get();
                 if (client1.removable()) {
@@ -130,10 +149,13 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void patch(String id, JsonPatch command, String changeId) {
+    public void patch(String projectId, String id, JsonPatch command, String changeId) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, PATCH_CLIENT);
         ClientId clientId = new ClientId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
+            ClientQuery clientQuery = new ClientQuery(clientId, projectId1);
+            Optional<Client> client = DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
             if (client.isPresent()) {
                 Client original = client.get();
                 ClientPatchCommand beforePatch = new ClientPatchCommand(original);
@@ -144,8 +166,6 @@ public class ClientApplicationService implements ClientDetailsService {
                         afterPatch.getPath(),
                         afterPatch.getDescription(),
                         afterPatch.isResourceIndicator(),
-                        afterPatch.getScopeEnums().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
-                        afterPatch.getGrantedAuthorities().stream().map(SystemRoleId::new).collect(Collectors.toSet()),
                         afterPatch.getResourceIds() != null ? afterPatch.getResourceIds().stream().map(ClientId::new).collect(Collectors.toSet()) : Collections.emptySet(),
                         afterPatch.getGrantTypeEnums(),
                         new TokenDetail(afterPatch.getAccessTokenValiditySeconds(), original.getTokenDetail().getRefreshTokenValiditySeconds()),
@@ -178,18 +198,11 @@ public class ClientApplicationService implements ClientDetailsService {
         }, CLIENT);
     }
 
-    @SubscribeForEvent
-    @Transactional
-    public void handleChange(SystemRoleDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
-            //find clients which are using this role and remove it from those clients
-            SystemRoleId systemRoleId = new SystemRoleId(deserialize.getDomainId().getDomainId());
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query),
-                    new ClientQuery(systemRoleId));
-            allByQuery.forEach(e->e.removeRole(systemRoleId));
-            return null;
-        }, CLIENT);
+    public Optional<Client> canAutoApprove(String projectId, String id) {
+        ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
+        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
     }
+
 
     public static class RootClientDeleteException extends RuntimeException {
     }

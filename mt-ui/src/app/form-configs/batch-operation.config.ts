@@ -15,7 +15,6 @@ export const FORM_CONFIG: IForm = {
             "options": [
                 { label: 'BATCH_CORS', value: "cors" },
                 { label: 'BATCH_CACHE', value: "cache" },
-                { label: 'BATCH_ROLE', value: "role" },
             ],
         },
         {
@@ -36,19 +35,6 @@ export const FORM_CONFIG: IForm = {
             "display": false,
             "label": "SELECT_CACHE_PROFILE",
             "key": "cacheId",
-            "position": {
-                "row": "1",
-                "column": "0"
-            },
-            required:true,
-            "options": [
-            ],
-        },
-        {
-            "type": "paginated-select",
-            "display": false,
-            "label": "SELECT_ROLE",
-            "key": "roleId",
             "position": {
                 "row": "1",
                 "column": "0"

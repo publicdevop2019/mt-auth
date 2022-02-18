@@ -1,12 +1,7 @@
 package com.mt.access.application.cache_profile.command;
 
-import com.mt.access.domain.model.cache_profile.CacheControlValue;
-import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import lombok.Data;
 
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Id;
 import java.util.Set;
 @Data
 public class CreateCacheProfileCommand {

@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "proxy")
+@RequestMapping(produces = "application/json")
 public class ProxyResource {
-    @GetMapping(path = "check")
+    @GetMapping(path = "mngmt/proxy/check")
     public ResponseEntity<CheckSumRepresentation> checkSync() {
         return ResponseEntity.ok(ApplicationServiceRegistry.getProxyApplicationService().checkSumValue());
     }

@@ -12,10 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import static com.mt.common.CommonConstant.*;
-import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json", path = "cache-profile")
+@RequestMapping(produces = "application/json", path = "mngmt/cache-profile")
 public class CacheProfileResource {
     @PostMapping
     public ResponseEntity<Void> createForApp(@RequestBody CreateCacheProfileCommand command, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {

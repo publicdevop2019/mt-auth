@@ -16,9 +16,9 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 @Slf4j
 @RestController
-@RequestMapping(produces = "application/json", path = "systemNotifications")
+@RequestMapping(produces = "application/json")
 public class SystemNotificationResource {
-    @GetMapping("root")
+    @GetMapping(path = "mngmt/notifications")
     public ResponseEntity<SumPagedRep<SystemNotificationRepresentation>> getNotifications(@RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
                                                                           @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
         SumPagedRep<SystemNotification> notificationsOf=ApplicationServiceRegistry.getSystemNotificationApplicationService().notificationsOf(pageParam,skipCount);
