@@ -21,14 +21,13 @@ export class MyProjectComponent implements OnInit, OnDestroy {
   ) {
     const sub = this.route.paramMap.subscribe(queryMaps => {
       this.projectId = queryMaps.get('id')
-      this.projectSvc.queryPrefix = 'id:' + this.projectId;
-      this.projectSvc.readEntityByQuery(0, 1).subscribe(next => {
-        this.data = next.data[0];
+      this.projectSvc.getMyProject(this.projectId).subscribe(next => {
+        this.data = next;
       })
     });
     this.subs.add(sub)
   }
-  
+
   ngOnDestroy(): void {
     this.subs.unsubscribe()
   }

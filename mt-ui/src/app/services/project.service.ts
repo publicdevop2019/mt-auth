@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { IProjectSimple } from '../clazz/validation/aggregate/project/interface-project';
@@ -13,7 +12,6 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   private PRODUCT_SVC_NAME = '/auth-svc';
   private ENTITY_NAME = '/mngmt/projects';
   public totalProjects: IProjectSimple[] = [];
-  queryPrefix = undefined;
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
@@ -26,6 +24,9 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
       this.notify(!!next)
       this.refreshPage()
     });
+  };
+  getMyProject(projectId:string) {
+    return this.httpProxySvc.readEntityById<IProjectSimple>(environment.serverUri + '/auth-svc/projects',projectId)
   };
   resolveNameById(id: string) {
     return this.totalProjects.find(e => e.id === id)?.name

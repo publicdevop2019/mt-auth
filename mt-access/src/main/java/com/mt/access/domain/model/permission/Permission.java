@@ -172,7 +172,7 @@ public class Permission extends Auditable {
         Permission p0 = Permission.autoCreate(projectId, rootId, tenantId.getDomainId(), PermissionType.PROJECT, null, tenantId, null);
         PermissionId projectMgntId = new PermissionId();
         Permission p1 = Permission.autoCreate(projectId, projectMgntId, PROJECT_INFO_MNGMT, PermissionType.COMMON, rootId, tenantId, null);
-        Permission p2 = Permission.autoCreate(projectId, new PermissionId(), VIEW_PROJECT_INFO, PermissionType.COMMON, projectMgntId, tenantId, new PermissionId("0Y8HHJ47NBEU"));
+        Permission p2 = Permission.autoCreate(projectId, new PermissionId(), VIEW_PROJECT_INFO, PermissionType.COMMON, projectMgntId, tenantId, new PermissionId("0Y8HSHJC34BW"));
         Permission p3 = Permission.autoCreate(projectId, new PermissionId(), EDIT_PROJECT_INFO, PermissionType.COMMON, projectMgntId, tenantId, null);
         PermissionId clientMgntId = new PermissionId();
         Permission p4 = Permission.autoCreate(projectId, clientMgntId, CLIENT_MNGMT, PermissionType.COMMON, rootId, tenantId, null);

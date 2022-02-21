@@ -5,6 +5,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+import com.mt.common.domain.model.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,6 +33,7 @@ public class Project extends Auditable {
     private ProjectId projectId;
 
     public Project(ProjectId projectId, String name, UserId userId) {
+        Validator.notBlank(name);
         this.id=CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
         this.name = name;
