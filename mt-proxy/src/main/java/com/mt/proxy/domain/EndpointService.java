@@ -38,7 +38,8 @@ public class EndpointService {
                 if (collect2.size() == 1) {
                     next = Optional.of(collect2.get(0));
                 } else {
-                    next = Optional.empty();
+                    //return longest
+                    next = collect1.stream().sorted((a, b) -> b.getPath().length() - a.getPath().length()).findFirst();
                 }
             }
         }
