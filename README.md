@@ -5,7 +5,7 @@
   <strong>用户，应用，API管理中心</strong>
 </p>
 <p align="center">
-  MT-AUTH是一款基于Spring Boot, OAuth2与事件驱动的多租户权限管理(RBAC)系统，通过集成Spring Cloud Gateway实现了API鉴权，缓存，CORS跨域，CSRF防护等常用功能
+  MT-AUTH是一款基于Spring Boot, OAuth2与事件驱动的角色的权限管理(RBAC)系统，通过集成Spring Cloud Gateway实现了API鉴权，缓存，跨域，CSRF防护，特殊字符过滤等常用功能
 </p>
 
 <p align="center">
@@ -25,11 +25,11 @@
 - 请求日志记录
 
 # 技术栈
-| 模块                       |编号                                     | 概述                                  | 技术栈                                  |  
-|:---------------------------|:---------------------------------------|:--------------------------------------|:--------------------------------------|
-| mt-access      |0| 用户,应用与API管理, 服务注册与发现 |Spring Boot, JWT, OAuth2, Redis, RabbitMQ, Spring Cloud Eureka
-| mt-proxy        |1 | API网关   |Spring Boot, Spring Cloud Gateway, Redis, RabbitMQ
-| mt-ui |9| 管理前端UI |Angular
-| mt-notification|4 | 邮件与WebSocket  |Spring Boot, RabbitMQ
-| mt-common |无| 通用Utility  |Spring Boot
-| mt-integration-test|8 | 集成测试 |Spring Boot Test
+| 模块                       | 概述                                  | 技术栈                                  |  
+|:---------------------------|:--------------------------------------|:--------------------------------------|
+| mt-access      | 用户,应用与API管理, 服务注册与发现 |Spring Boot, JWT, OAuth2, Redis, RabbitMQ, Spring Cloud Eureka
+| mt-proxy        | API网关   |Spring Boot, Spring Cloud Gateway, Redis, RabbitMQ
+| mt-ui | 管理前端UI |Angular
+| mt-notification | 邮件与WebSocket  |Spring Boot, RabbitMQ
+| mt-common | 通用Utility  |Spring Boot
+| mt-integration-test | 集成测试 |Spring Boot Test
