@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.CommonConstant;
-import com.mt.common.domain.model.service_discovery.EurekaHelper;
+import com.mt.common.domain.model.service_discovery.ServiceDiscovery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,7 +31,7 @@ public class ResourceServiceTokenHelper {
     private String clientSecret;
 
     @Autowired
-    private EurekaHelper eurekaRegistryHelper;
+    private ServiceDiscovery serviceDiscovery;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -47,7 +47,7 @@ public class ResourceServiceTokenHelper {
         String token = null;
         try {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-            ResponseEntity<String> resp = restTemplate.exchange(eurekaRegistryHelper.getApplicationUrl(CommonConstant.APP_NAME_PROXY) + tokenUrl, HttpMethod.POST, request, String.class);
+            ResponseEntity<String> resp = restTemplate.exchange(serviceDiscovery.getApplicationUrl(CommonConstant.APP_ID_PROXY) + tokenUrl, HttpMethod.POST, request, String.class);
             token = this.extractToken(resp);
         } catch (Exception e) {
             log.error("unable to get jwt token", e);

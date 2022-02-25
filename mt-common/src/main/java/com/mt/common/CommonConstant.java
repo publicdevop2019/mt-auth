@@ -24,7 +24,7 @@ public class CommonConstant {
     public static final String EXCHANGE_NAME = "mt_global_exchange";
     public static final String DOMAIN_ID = "domainId";
     public static final String VERSION = "version";
-    public static final String APP_NAME_PROXY = "PROXY";
+    public static final String APP_ID_PROXY = "0C8AZTODP4HT";
     public static final String APP_NAME_OAUTH = "OAUTH";
 
     private CommonConstant() {

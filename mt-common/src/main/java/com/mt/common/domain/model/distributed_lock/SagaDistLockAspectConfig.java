@@ -45,13 +45,6 @@ public class SagaDistLockAspectConfig {
         lock.lock(SagaDistLock.unlockAfter(), TimeUnit.SECONDS);
         log.trace("acquire lock success for {}", key);
         obj = joinPoint.proceed();
-                //below will not work properly
-//            try {
-//                obj = joinPoint.proceed();
-//            } finally {
-//                log.info("releases the lock {}", key);
-//                lock.unlock();
-//            }
         return obj;
     }
 

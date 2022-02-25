@@ -2,7 +2,7 @@ package com.mt.messenger.port.adapter.http;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.domain.model.jwt.ResourceServiceTokenHelper;
-import com.mt.common.domain.model.service_discovery.EurekaHelper;
+import com.mt.common.domain.model.service_discovery.EurekaServiceDiscovery;
 import com.mt.messenger.application.email_delivery.NoAdminFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class OAuthService {
     private String appName;
 
     @Autowired
-    EurekaHelper eurekaRegistryHelper;
+    EurekaServiceDiscovery eurekaRegistryHelper;
 
     /**
      * @return
