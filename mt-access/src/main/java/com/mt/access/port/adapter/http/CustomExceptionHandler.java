@@ -36,7 +36,10 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             EndpointApplicationService.InvalidClientIdException.class,
             RedirectURL.InvalidRedirectURLException.class,
             Origin.InvalidOriginValueException.class,
-            DataIntegrityViolationException.class
+            DataIntegrityViolationException.class,
+            CoolDownException.class,
+            UnknownBizTypeException.class,
+            NoAdminFoundException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
@@ -47,5 +50,11 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     })
     protected ResponseEntity<Object> handle403Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.FORBIDDEN, request);
+    }
+    @ExceptionHandler(value = {
+            GmailDeliveryException.class,
+    })
+    protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 }

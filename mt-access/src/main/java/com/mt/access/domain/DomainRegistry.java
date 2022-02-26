@@ -89,7 +89,27 @@ public class DomainRegistry {
     private static ComputePermissionService computePermissionService;
     @Getter
     private static PermissionCheckService permissionCheckService;
+    @Getter
+    private static SystemMonitorNotificationService systemMonitorNotificationService;
+    @Getter
+    private static SystemNotificationService systemNotificationService;
+    @Getter
+    private static SystemNotificationRepository systemNotificationRepository;
 
+    @Autowired
+    public void setSystemMonitorNotificationService(SystemMonitorNotificationService userNotificationService) {
+        com.mt.access.messenger.domain.DomainRegistry.systemMonitorNotificationService = userNotificationService;
+    }
+
+    @Autowired
+    public void setSystemNotificationService(SystemNotificationService systemNotificationService) {
+        com.mt.access.messenger.domain.DomainRegistry.systemNotificationService = systemNotificationService;
+    }
+
+    @Autowired
+    public void setSystemNotificationRepository(SystemNotificationRepository systemNotificationRepository) {
+        com.mt.access.messenger.domain.DomainRegistry.systemNotificationRepository = systemNotificationRepository;
+    }
     @Autowired
     public void setPermissionCheckService(PermissionCheckService permissionCheckService) {
         DomainRegistry.permissionCheckService = permissionCheckService;

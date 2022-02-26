@@ -61,7 +61,21 @@ public class ApplicationServiceRegistry {
     private static PositionApplicationService positionApplicationService;
     @Getter
     private static UserRelationApplicationService userRelationApplicationService;
+    @Getter
+    private static EmailDeliveryApplicationService emailDeliverApplicationService;
+    @Getter
+    private static SystemNotificationApplicationService systemNotificationApplicationService;
 
+    @Autowired
+    public void setEmailDeliverApplicationService(EmailDeliveryApplicationService emailDeliverApplicationService) {
+        com.mt.access.messenger.application.ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
+    }
+
+
+    @Autowired
+    public void setSystemNotificationApplicationService(SystemNotificationApplicationService systemNotificationApplicationService) {
+        com.mt.access.messenger.application.ApplicationServiceRegistry.systemNotificationApplicationService = systemNotificationApplicationService;
+    }
     @Autowired
     public void setUserRelationApplicationService(UserRelationApplicationService userRelationApplicationService) {
         ApplicationServiceRegistry.userRelationApplicationService = userRelationApplicationService;
