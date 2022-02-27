@@ -704,4 +704,6 @@ export const zhHans = {
     "NEW_USER_REGISTER": "新用户注册",
     "NEW_PROJECT_CREATED": "新项目创建",
     "HANGING_TX": "悬挂事件",
+    "NEW_PROJECT_NOTE": "项目创建成功, 请重新登录!",
+    "DISMISS": "知道了",
 }

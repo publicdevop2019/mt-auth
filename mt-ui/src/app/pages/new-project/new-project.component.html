@@ -3,4 +3,8 @@
     <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
     <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
         (click)="create()">{{'CREATE'|translate}}</button>
+    <mat-card *ngIf="showNotes" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>{{'NEW_PROJECT_NOTE'|translate}}</div>
+        <button mat-button (click)="dismiss()">{{'DISMISS'|translate}}</button>
+    </mat-card>
 </div>

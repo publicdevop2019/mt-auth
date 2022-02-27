@@ -1,4 +1,4 @@
-package com.mt.access.port.adapter.persistence.system_notifiacation;
+package com.mt.access.port.adapter.persistence.notifiacation;
 
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.NotificationRepository;

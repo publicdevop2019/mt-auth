@@ -20,10 +20,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
     return this.httpProxySvc.readEntityByQuery<IProjectSimple>(environment.serverUri + '/auth-svc/projects/tenant', num, size)
   };
   create(s: IProjectSimple, changeId: string) {
-    this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId).subscribe(next => {
-      this.notify(!!next)
-      this.refreshPage()
-    });
+    return this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId)
   };
   getMyProject(projectId:string) {
     return this.httpProxySvc.readEntityById<IProjectSimple>(environment.serverUri + '/auth-svc/projects',projectId)

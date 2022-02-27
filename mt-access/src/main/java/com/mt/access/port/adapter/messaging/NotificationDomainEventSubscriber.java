@@ -1,7 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -29,6 +28,7 @@ public class NotificationDomainEventSubscriber {
             ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
         }, MONITOR_TOPIC);
     }
+
     @EventListener(ApplicationReadyEvent.class)
     protected void listener1() {
         CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true, USER_CREATED, (event) -> {
@@ -36,12 +36,13 @@ public class NotificationDomainEventSubscriber {
             ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
         });
     }
+
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true, PROJECT_CREATED, (event) -> {
+        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true, "notification_" + PROJECT_CREATED + "_handler", (event) -> {
             ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProjectCreated.class);
             ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-        });
+        }, PROJECT_CREATED);
     }
 
 }
