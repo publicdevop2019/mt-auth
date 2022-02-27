@@ -12,11 +12,14 @@ public class ProjectCreated extends DomainEvent {
     public static final String name = "PROJECT_CREATED";
     @Getter
     private UserId creator;
+    @Getter
+    private String projectName;
 
     public ProjectCreated(Project project) {
         super(project.getProjectId());
         setTopic(PROJECT_CREATED);
         setName(name);
+        projectName=project.getName();
         this.creator = new UserId(project.getCreatedBy());
     }
 }

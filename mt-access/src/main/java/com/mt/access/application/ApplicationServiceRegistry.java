@@ -3,6 +3,7 @@ package com.mt.access.application;
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CORSProfileApplicationService;
+import com.mt.access.application.email_delivery.EmailDeliveryApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.organization.OrganizationApplicationService;
 import com.mt.access.application.pending_user.PendingUserApplicationService;
@@ -12,6 +13,7 @@ import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
+import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
@@ -64,17 +66,17 @@ public class ApplicationServiceRegistry {
     @Getter
     private static EmailDeliveryApplicationService emailDeliverApplicationService;
     @Getter
-    private static SystemNotificationApplicationService systemNotificationApplicationService;
+    private static NotificationApplicationService notificationApplicationService;
 
     @Autowired
     public void setEmailDeliverApplicationService(EmailDeliveryApplicationService emailDeliverApplicationService) {
-        com.mt.access.messenger.application.ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
+        ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
     }
 
 
     @Autowired
-    public void setSystemNotificationApplicationService(SystemNotificationApplicationService systemNotificationApplicationService) {
-        com.mt.access.messenger.application.ApplicationServiceRegistry.systemNotificationApplicationService = systemNotificationApplicationService;
+    public void setNotificationApplicationService(NotificationApplicationService notificationApplicationService) {
+        ApplicationServiceRegistry.notificationApplicationService = notificationApplicationService;
     }
     @Autowired
     public void setUserRelationApplicationService(UserRelationApplicationService userRelationApplicationService) {

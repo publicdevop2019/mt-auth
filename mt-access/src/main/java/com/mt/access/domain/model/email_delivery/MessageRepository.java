@@ -13,5 +13,5 @@ import java.util.Optional;
 public interface MessageRepository extends JpaRepository<EmailDelivery, Long> {
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     @Query("SELECT p FROM #{#entityName} as p WHERE p.deliverTo = ?1 AND p.bizType = ?2")
-    Optional<EmailDelivery> findByDeliverToAndBizType(String deliverTo, BizTypeEnum bizTypeEnum);
+    Optional<EmailDelivery> findByDeliverToAndBizType(String deliverTo, BizType bizType);
 }

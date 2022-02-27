@@ -3,17 +3,18 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { IDetail, MessageService } from 'src/app/services/message.service';
+import { INotification, MessageService } from 'src/app/services/message.service';
 
 @Component({
   selector: 'app-summary-message',
   templateUrl: './summary-message.component.html',
   styleUrls: ['./summary-message.component.css']
 })
-export class MessageCenterComponent extends SummaryEntityComponent<IDetail, IDetail>{
+export class MessageCenterComponent extends SummaryEntityComponent<INotification, INotification>{
   public formId = "authMsgTableColumnConfig";
   columnList = {
     date: 'DATE',
+    title: 'TITLE',
     message: 'MESSAGE',
   }
   constructor(

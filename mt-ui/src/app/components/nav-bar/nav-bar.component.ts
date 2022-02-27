@@ -382,7 +382,18 @@ export class NavBarComponent implements OnInit {
   ]
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;
-  constructor(public projectSvc: ProjectService,public authSvc:AuthService, public httpProxySvc: HttpProxyService, changeDetectorRef: ChangeDetectorRef, media: MediaMatcher, public route: ActivatedRoute, public router: Router, public translate: TranslateService, public deviceSvc: DeviceService, public msgSvc: MessageService) {
+  constructor(
+    public projectSvc: ProjectService,
+    public authSvc: AuthService,
+    public httpProxySvc: HttpProxyService,
+    changeDetectorRef: ChangeDetectorRef,
+    media: MediaMatcher,
+    public route: ActivatedRoute,
+    public router: Router,
+    public translate: TranslateService,
+    public deviceSvc: DeviceService,
+    public msgSvc: MessageService
+    ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
     this.mobileQuery.addListener(this._mobileQueryListener);
@@ -404,8 +415,7 @@ export class NavBarComponent implements OnInit {
       this.projectSvc.totalProjects = next.data;
     })
     this.httpProxySvc.getMyProfile().subscribe(next => this.authSvc.currentUser = next)
-    this.msgSvc.connectSystemMonitor();
-    this.msgSvc.connectMallMonitor();
+    this.msgSvc.connectToMonitor();
   }
   doLogout() {
     logout()

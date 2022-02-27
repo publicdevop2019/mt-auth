@@ -6,6 +6,9 @@ import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.domain.model.client.RedirectURL;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.AccessDeniedException;
+import com.mt.access.domain.model.email_delivery.CoolDownException;
+import com.mt.access.domain.model.email_delivery.UnknownBizTypeException;
+import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
 import com.mt.common.domain.model.logging.ErrorMessage;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
@@ -19,8 +22,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-
-import java.sql.SQLIntegrityConstraintViolationException;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -39,7 +40,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
             DataIntegrityViolationException.class,
             CoolDownException.class,
             UnknownBizTypeException.class,
-            NoAdminFoundException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);

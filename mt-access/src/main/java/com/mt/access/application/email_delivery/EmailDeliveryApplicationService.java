@@ -1,7 +1,12 @@
 package com.mt.access.application.email_delivery;
 
+import com.mt.access.domain.model.email_delivery.BizType;
+import com.mt.access.domain.model.email_delivery.CoolDownException;
+import com.mt.access.domain.model.email_delivery.EmailDelivery;
+import com.mt.access.domain.model.email_delivery.MessageRepository;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
 import com.mt.common.domain.CommonDomainRegistry;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -43,8 +48,6 @@ public class EmailDeliveryApplicationService {
     @Autowired
     private Configuration freemarkerConfig;
     @Autowired
-    private OAuthService oAuthService;
-    @Autowired
     private PlatformTransactionManager transactionManager;
     @Autowired
     private EntityManager entityManager;
@@ -53,23 +56,17 @@ public class EmailDeliveryApplicationService {
         log.info("start of send email for pwd reset");
         Map<String, Object> model = new HashMap<>();
         model.put("token", map.get("token"));
-        sendEmail(map.get("email"), "PasswordResetTemplate.ftl", "Your password reset token", model, BizTypeEnum.PWD_RESET);
+        sendEmail(map.get("email"), "PasswordResetTemplate.ftl", "Your password reset token", model, BizType.PWD_RESET);
     }
 
     public void sendActivationCodeEmail(Map<String, String> map) {
         log.info("start of send email for activation code");
         Map<String, Object> model = new HashMap<>();
         model.put("activationCode", map.get("activationCode"));
-        sendEmail(map.get("email"), "ActivationCodeTemplate.ftl", "Your activation code", model, BizTypeEnum.NEW_USER_CODE);
+        sendEmail(map.get("email"), "ActivationCodeTemplate.ftl", "Your activation code", model, BizType.NEW_USER_CODE);
     }
 
-    public void sendNewOrderEmail() {
-        log.info("start of send email for new order");
-        String adminEmail = oAuthService.getAdminList();
-        sendEmail(adminEmail, "NewOrderEmailTemplate.ftl", "New Order(s) Has Been Placed", new HashMap<>(), BizTypeEnum.NEW_ORDER);
-    }
-
-    private void sendEmail(String email, String templateUrl, String subject, Map<String, Object> model, BizTypeEnum bizType) {
+    private void sendEmail(String email, String templateUrl, String subject, Map<String, Object> model, BizType bizType) {
         if (email == null)
             throw new IllegalArgumentException("email should not be empty");
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
@@ -106,7 +103,7 @@ public class EmailDeliveryApplicationService {
      *
      * @param email
      */
-    private void continueDeliver(String email, String templateUrl, String subject, Map<String, Object> model, BizTypeEnum bizTypeEnum) {
+    private void continueDeliver(String email, String templateUrl, String subject, Map<String, Object> model, BizType bizType) {
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         int isolationLevel = transactionTemplate.getIsolationLevel();
         log.info("isolation level " + isolationLevel);
@@ -114,7 +111,7 @@ public class EmailDeliveryApplicationService {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 log.info("after db save, read from db again");
-                Optional<EmailDelivery> byDeliverTo = messageRepository.findByDeliverToAndBizType(email, bizTypeEnum);
+                Optional<EmailDelivery> byDeliverTo = messageRepository.findByDeliverToAndBizType(email, bizType);
                 if (byDeliverTo.isPresent()) {
                     log.info("found previously saved entity");
                     continueDeliverShared(email, byDeliverTo.get(), templateUrl, subject, model);

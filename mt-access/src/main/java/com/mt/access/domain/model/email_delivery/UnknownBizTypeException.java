@@ -1,4 +1,4 @@
-package com.mt.access.application.email_delivery;
+package com.mt.access.domain.model.email_delivery;
 
 public class UnknownBizTypeException extends RuntimeException{
 }

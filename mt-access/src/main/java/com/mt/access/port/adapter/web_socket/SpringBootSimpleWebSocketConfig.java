@@ -25,59 +25,17 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class SpringBootSimpleWebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    SystemMonitorHandler systemMonitorHandler;
-    @Autowired
-    MallMonitorHandler mallMonitorHandler;
+    NotificationWSHandler notificationWSHandler;
 
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry
-                .addHandler(systemMonitorHandler, "/system-monitor").setAllowedOrigins("*")
-                .addHandler(mallMonitorHandler, "/mall-monitor").setAllowedOrigins("*")
+                .addHandler(notificationWSHandler, "/monitor").setAllowedOrigins("*")
         ;
     }
 
     @Component
-    public static class SystemMonitorHandler extends TextWebSocketHandler {
-        private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
-
-        @Override
-        public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-            sessions.add(session);
-            super.afterConnectionEstablished(session);
-        }
-
-        @Override
-        public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
-            sessions.remove(session);
-            super.afterConnectionClosed(session, status);
-        }
-
-        @Override
-        protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-            super.handleTextMessage(session, message);
-            sessions.forEach(webSocketSession -> {
-                try {
-                    webSocketSession.sendMessage(message);
-                } catch (IOException e) {
-                    log.error("Error occurred.", e);
-                }
-            });
-        }
-
-        public void broadcast(String message) {
-            sessions.forEach(webSocketSession -> {
-                try {
-                    webSocketSession.sendMessage(new TextMessage(message));
-                } catch (IOException e) {
-                    log.error("Error occurred.", e);
-                }
-            });
-        }
-    }
-
-    @Component
-    public static class MallMonitorHandler extends TextWebSocketHandler {
+    public static class NotificationWSHandler extends TextWebSocketHandler {
         private final List<WebSocketSession> sessions = new CopyOnWriteArrayList<>();
 
         @Override

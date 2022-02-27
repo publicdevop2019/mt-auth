@@ -20,7 +20,7 @@ public class EmailDelivery extends Auditable {
     private String deliverTo;
 
     @Column
-    private BizTypeEnum bizType;
+    private BizType bizType;
 
     @Column
     private Boolean lastTimeResult;
@@ -28,11 +28,11 @@ public class EmailDelivery extends Auditable {
     @Column
     private Date lastSuccessTime;
 
-    public static EmailDelivery create(Long id, String deliverTo, BizTypeEnum bizType) {
+    public static EmailDelivery create(Long id, String deliverTo, BizType bizType) {
         return new EmailDelivery(id, deliverTo, bizType);
     }
 
-    public EmailDelivery(Long id, String deliverTo, BizTypeEnum bizType) {
+    public EmailDelivery(Long id, String deliverTo, BizType bizType) {
         this.id = id;
         this.deliverTo = deliverTo;
         this.bizType = bizType;
@@ -43,11 +43,9 @@ public class EmailDelivery extends Auditable {
     public Boolean hasCoolDown() {
         if (lastSuccessTime == null)
             return true;
-        if (bizType.equals(BizTypeEnum.NEW_ORDER)) {
-            return System.currentTimeMillis() > lastSuccessTime.getTime() + 300 * 1000;
-        } else if (bizType.equals(BizTypeEnum.PWD_RESET)) {
+        if (bizType.equals(BizType.PWD_RESET)) {
             return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
-        } else if (bizType.equals(BizTypeEnum.NEW_USER_CODE)) {
+        } else if (bizType.equals(BizType.NEW_USER_CODE)) {
             return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
         } else {
             throw new UnknownBizTypeException();

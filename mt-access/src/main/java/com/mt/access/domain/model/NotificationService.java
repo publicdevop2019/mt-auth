@@ -1,5 +1,5 @@
 package com.mt.access.domain.model;
 
-public interface SystemMonitorNotificationService {
+public interface NotificationService {
     void notify(String message);
 }

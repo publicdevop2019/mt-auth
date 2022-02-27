@@ -18,6 +18,7 @@ import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
+import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
@@ -90,25 +91,18 @@ public class DomainRegistry {
     @Getter
     private static PermissionCheckService permissionCheckService;
     @Getter
-    private static SystemMonitorNotificationService systemMonitorNotificationService;
+    private static NotificationService notificationService;
     @Getter
-    private static SystemNotificationService systemNotificationService;
-    @Getter
-    private static SystemNotificationRepository systemNotificationRepository;
+    private static NotificationRepository notificationRepository;
 
     @Autowired
-    public void setSystemMonitorNotificationService(SystemMonitorNotificationService userNotificationService) {
-        com.mt.access.messenger.domain.DomainRegistry.systemMonitorNotificationService = userNotificationService;
+    public void setNotificationService(NotificationService userNotificationService) {
+        DomainRegistry.notificationService = userNotificationService;
     }
 
     @Autowired
-    public void setSystemNotificationService(SystemNotificationService systemNotificationService) {
-        com.mt.access.messenger.domain.DomainRegistry.systemNotificationService = systemNotificationService;
-    }
-
-    @Autowired
-    public void setSystemNotificationRepository(SystemNotificationRepository systemNotificationRepository) {
-        com.mt.access.messenger.domain.DomainRegistry.systemNotificationRepository = systemNotificationRepository;
+    public void setNotificationRepository(NotificationRepository notificationRepository) {
+        DomainRegistry.notificationRepository = notificationRepository;
     }
     @Autowired
     public void setPermissionCheckService(PermissionCheckService permissionCheckService) {

@@ -13,7 +13,7 @@ public class TicketInfo {
     public static String USER_ID = "uid";//required
     public static String CLIENT_ID = "clientId";
     public static String AUD = "aud";
-    public static String AUTHORITIES = "authorities";
+    public static String AUTHORITIES = "permissionIds";
     public static String SCOPES = "scope";
     private Long exp;
     private UserId userId;
