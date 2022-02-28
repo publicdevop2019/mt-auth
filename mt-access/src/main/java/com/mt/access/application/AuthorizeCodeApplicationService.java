@@ -1,6 +1,5 @@
 package com.mt.access.application;
 
-import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.domain.DomainRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,34 +9,31 @@ import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.security.oauth2.common.exceptions.UnsupportedResponseTypeException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.*;
+import org.springframework.security.oauth2.provider.AuthorizationRequest;
+import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.security.oauth2.provider.endpoint.DefaultRedirectResolver;
 import org.springframework.security.oauth2.provider.endpoint.RedirectResolver;
 import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
-import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @Service
 public class AuthorizeCodeApplicationService {
 
+    private final RedirectResolver redirectResolver = new DefaultRedirectResolver();
     @Autowired
     private DefaultOAuth2RequestFactory defaultOAuth2RequestFactory;
-    @Autowired
-    private ClientApplicationService clientApplicationService;
-
-    private final OAuth2RequestValidator oauth2RequestValidator = new DefaultOAuth2RequestValidator();
-
-    private final RedirectResolver redirectResolver = new DefaultRedirectResolver();
 
     public Map<String, String> authorize(Map<String, String> parameters) {
-
-        /**make sure authorize client exist*/
-
+        //make sure authorize client exist
         if (ApplicationServiceRegistry.getClientApplicationService().loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
             log.error("unable to find authorize client {}", parameters.get(OAuth2Utils.CLIENT_ID));
             throw new IllegalArgumentException("unable to find authorize client");
@@ -45,18 +41,6 @@ public class AuthorizeCodeApplicationService {
 
         Authentication authentication = DomainRegistry.getCurrentUserService().getAuthentication();
         log.debug("before create authorization request");
-        if (log.isDebugEnabled()) {
-            try {
-                Class<?> aClass = Class.forName(defaultOAuth2RequestFactory.getClass().getName());
-                Field field = aClass.getDeclaredField("clientDetailsService");
-                field.setAccessible(true);
-                Object o = field.get(defaultOAuth2RequestFactory);
-                log.debug("clientDetailsService is {}", o == null ? "null" : "not null");
-                log.debug("clientApplicationService is {}", clientApplicationService == null ? "null" : "not null");
-            } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
         AuthorizationRequest authorizationRequest = defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
         log.debug("after create authorization request");
 
