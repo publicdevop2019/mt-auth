@@ -13,7 +13,7 @@
             </mat-icon>
         </button>
     </mat-toolbar>
-    <mat-menu #menu="matMenu" (closed)="msgSvc.clear()">
+    <mat-menu #menu="matMenu">
         <ng-container *ngIf="msgSvc.latestMessage.length===0">
             <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
         </ng-container>

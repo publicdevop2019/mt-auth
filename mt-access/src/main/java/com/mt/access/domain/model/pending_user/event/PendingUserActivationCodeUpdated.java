@@ -3,9 +3,12 @@ package com.mt.access.domain.model.pending_user.event;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PendingUserActivationCodeUpdated extends DomainEvent {
     public static final String PENDING_USER_ACTIVATION_CODE_UPDATED = "pending_user_activation_code_updated";
     private String email;

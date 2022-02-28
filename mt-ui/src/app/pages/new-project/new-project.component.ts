@@ -14,7 +14,7 @@ import { ProjectService } from 'src/app/services/project.service';
   styleUrls: ['./new-project.component.css']
 })
 export class NewProjectComponent extends Aggregate<NewProjectComponent, IProjectSimple> implements OnInit {
-
+  showNotes:boolean=false
   constructor(
     private projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
@@ -34,12 +34,17 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
     }
   }
   create(): void {
-    this.projectSvc.create(this.convertToPayload(this), this.changeId)
+    this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next=>{
+      this.showNotes=true;
+    })
   }
   update(): void {
     throw new Error('Method not implemented.');
   }
   errorMapper(original: ErrorMessage[], cmpt: NewProjectComponent): ErrorMessage[] {
     throw new Error('Method not implemented.');
+  }
+  dismiss(){
+    this.showNotes=false;
   }
 }

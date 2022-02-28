@@ -18,6 +18,7 @@ import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
+import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
@@ -89,7 +90,20 @@ public class DomainRegistry {
     private static ComputePermissionService computePermissionService;
     @Getter
     private static PermissionCheckService permissionCheckService;
+    @Getter
+    private static NotificationService notificationService;
+    @Getter
+    private static NotificationRepository notificationRepository;
 
+    @Autowired
+    public void setNotificationService(NotificationService userNotificationService) {
+        DomainRegistry.notificationService = userNotificationService;
+    }
+
+    @Autowired
+    public void setNotificationRepository(NotificationRepository notificationRepository) {
+        DomainRegistry.notificationRepository = notificationRepository;
+    }
     @Autowired
     public void setPermissionCheckService(PermissionCheckService permissionCheckService) {
         DomainRegistry.permissionCheckService = permissionCheckService;
