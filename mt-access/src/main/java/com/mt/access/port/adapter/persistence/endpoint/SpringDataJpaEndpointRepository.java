@@ -54,6 +54,7 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
             Optional.ofNullable(endpointQuery.getCacheProfileIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.CACHE_PROFILE_ID, queryContext));
             Optional.ofNullable(endpointQuery.getPath()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.PATH, queryContext));
             Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
+            Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.CORS_PROFILE_ID, queryContext));
             Order order = null;
             if (endpointQuery.getEndpointSort().isById())

@@ -2,10 +2,13 @@ package com.mt.access.infrastructure;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.ticket.SignedTicket;
 import com.mt.access.domain.model.ticket.TicketInfo;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
@@ -20,6 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.security.KeyPair;
 import java.util.Date;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.mt.access.domain.model.ticket.TicketInfo.*;
 
@@ -40,7 +46,10 @@ public class JwtTicketService implements TicketService {
         KeyPair keyPair = jwtInfoProviderService.getKeyPair();
 
         JWK jwk = publicKeys.getKeys().get(0);
-
+        Set<Endpoint> allWSEndpoint = QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) e), EndpointQuery.websocketQuery());
+        Set<String> allWSPermission = allWSEndpoint.stream().filter(e->e.getPermissionId()!=null).map(e -> e.getPermissionId().getDomainId()).collect(Collectors.toSet());
+        Set<String> currentPermission = DomainRegistry.getCurrentUserService().userPermissionIds();
+        Set<String> wsRelatedPermission  = currentPermission.stream().filter(allWSPermission::contains).collect(Collectors.toSet());
         SignedJWT signedJWT = new SignedJWT(
                 new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwk.getKeyID()).build(),
                 new JWTClaimsSet.Builder()
@@ -50,7 +59,7 @@ public class JwtTicketService implements TicketService {
                         .claim(USER_ID, ticket.getUserId().getDomainId())
                         .claim(CLIENT_ID, ticket.getClientId().getDomainId())
                         .claim(AUD, ticket.getAud().getDomainId())
-                        .claim(AUTHORITIES, DomainRegistry.getCurrentUserService().userPermissionIds())
+                        .claim(PERMISSION_IDS,wsRelatedPermission )
                         .build());
 
         try {

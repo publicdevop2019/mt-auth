@@ -10,7 +10,9 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +32,8 @@ public class EndpointQuery extends QueryCriteria {
     private Set<CORSProfileId> corsProfileIds;
     private String path;
     private String method;
+    @Setter(AccessLevel.PRIVATE)
+    private Boolean isWebsocket;
     private EndpointSort endpointSort;
     private Set<CacheProfileId> cacheProfileIds;
 
@@ -95,6 +99,12 @@ public class EndpointQuery extends QueryCriteria {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
         setEndpointSort(pageConfig);
+    }
+
+    public static EndpointQuery websocketQuery() {
+        EndpointQuery endpointQuery = new EndpointQuery();
+        endpointQuery.setIsWebsocket(true);
+        return endpointQuery;
     }
 
     private void updateQueryParam(String queryParam) {
