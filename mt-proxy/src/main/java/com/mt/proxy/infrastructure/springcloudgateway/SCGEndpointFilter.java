@@ -72,7 +72,7 @@ public class SCGEndpointFilter implements GlobalFilter, Ordered {
     }
     public static boolean isWebSocket(HttpHeaders headers){
         log.debug("upgrade header value is {}",headers.getUpgrade());
-        log.debug("all header value is {}", headers);
+        log.trace("all header value is {}", headers);
         return "websocket".equals(headers.getUpgrade());
     }
 }
