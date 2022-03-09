@@ -4,6 +4,7 @@ import { EntityCommonService } from '../clazz/entity.common-service';
 import { IIdBasedEntity } from '../clazz/summary.component';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
 export interface INotification extends IIdBasedEntity {
@@ -18,7 +19,7 @@ export class MessageService extends EntityCommonService<INotification, INotifica
     private SVC_NAME = '/auth-svc';
     private ENTITY_NAME = '/mngmt/notifications';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+    constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);
     }
     public latestMessage: INotification[] = [];
@@ -30,7 +31,7 @@ export class MessageService extends EntityCommonService<INotification, INotifica
     }
     private socket: WebSocket;
     connectToMonitor() {
-        if (environment.mode !== 'offline') {
+        if (environment.mode !== 'offline' && this.httpProxySvc.currentUserAuthInfo.permissionIds.includes('0Y8HHJ47NBE7')) {
             this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, UUID()).subscribe(next => {
                 this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {
