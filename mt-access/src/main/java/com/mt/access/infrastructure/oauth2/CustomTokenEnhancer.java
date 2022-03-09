@@ -80,7 +80,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 Optional<Role> byId = ApplicationServiceRegistry.getRoleApplicationService().internalGetById(roleId);
                 byId.ifPresent(role -> {
                     info.put("projectId", client1.getProjectId().getDomainId());
-                    info.put("permissionIds", role.getPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+                    info.put("permissionIds", role.getTotalPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                 });
             });
         }

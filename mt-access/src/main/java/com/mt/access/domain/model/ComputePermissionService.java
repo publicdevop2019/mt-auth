@@ -19,11 +19,14 @@ public class ComputePermissionService {
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery((RoleQuery) q), new RoleQuery(standaloneRoles));
         return allByQuery.stream().flatMap(e -> {
+                    Stream<PermissionId> concat = Stream.empty();
                     if (e.getPermissionIds() != null) {
-                        return e.getPermissionIds().stream();
-                    } else {
-                        return Stream.empty();
+                        concat = Stream.concat(Stream.empty(), e.getPermissionIds().stream());
                     }
+                    if (e.getExternalPermissionIds() != null) {
+                        concat = Stream.concat(Stream.empty(), e.getExternalPermissionIds().stream());
+                    }
+                    return concat;
                 }
         ).collect(Collectors.toSet());
     }

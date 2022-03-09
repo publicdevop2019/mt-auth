@@ -136,6 +136,19 @@ export const FORM_CONFIG: IForm = {
             ],
         },
         {
+            "type": "checkbox",
+            "display": true,
+            "label": "",
+            "key": "shared",
+            "position": {
+                "row": "11",
+                "column": "0"
+            },
+            "options": [
+                { label: 'SHARED_API', value: "true" },
+            ],
+        },
+        {
             "type": "paginated-select",
             "display": false,
             "label": "SELECT_CACHE_PROFILE",

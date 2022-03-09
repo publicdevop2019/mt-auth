@@ -15,6 +15,23 @@ public class EndpointValidationService {
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
         hasValidClient(endpoint, handler);
         hasValidCacheProfileId(endpoint, handler);
+        sharedMustBeSecured(endpoint, handler);
+        sharedClientMustBeAccessible(endpoint, handler);
+    }
+
+    private void sharedClientMustBeAccessible(Endpoint endpoint, ValidationNotificationHandler handler) {
+        if (endpoint.isShared()) {
+            ClientId clientId = endpoint.getClientId();
+            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
+            if (client.isEmpty()) {
+                handler.handleError("endpoint client not found: " + endpoint.getClientId().getDomainId());
+            } else {
+                if (!client.get().isAccessible()) {
+                    handler.handleError("shared endpoint client must be accessible: " + endpoint.getClientId().getDomainId());
+                }
+            }
+        }
+
     }
 
     private void hasValidCacheProfileId(Endpoint endpoint, ValidationNotificationHandler handler) {
@@ -23,6 +40,12 @@ public class EndpointValidationService {
             if (cacheProfile.isEmpty()) {
                 handler.handleError("unable to find cache profile with id: " + endpoint.getCacheProfileId().getDomainId());
             }
+        }
+    }
+
+    private void sharedMustBeSecured(Endpoint endpoint, ValidationNotificationHandler handler) {
+        if (endpoint.isShared() && !endpoint.isSecured()) {
+            handler.handleError("shared endpoint must be non-public " + endpoint.getEndpointId().getDomainId());
         }
     }
 

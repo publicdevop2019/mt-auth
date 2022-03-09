@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.role;
 
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
@@ -23,6 +24,7 @@ public class RoleQuery extends QueryCriteria {
     private Set<ProjectId> projectIds;
     private Set<String> names;
     private Set<RoleType> types;
+    private PermissionId externalPermissionIds;
     private boolean typesIsAndRelation;
 
     public RoleQuery(String queryParam, String pageParam, String config) {
@@ -86,6 +88,20 @@ public class RoleQuery extends QueryCriteria {
 
     public RoleQuery(ProjectId projectId, String roleName) {
         names = Collections.singleton(roleName);
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = RoleSort.byId(true);
+    }
+
+    public RoleQuery(PermissionId permissionId) {
+        externalPermissionIds = permissionId;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.countRequired());
+        this.sort = RoleSort.byId(true);
+    }
+
+    public RoleQuery(ProjectId projectId) {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());

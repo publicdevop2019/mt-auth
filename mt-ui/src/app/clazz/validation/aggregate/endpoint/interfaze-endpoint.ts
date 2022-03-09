@@ -7,8 +7,10 @@ export interface IEndpoint {
   id: string;
   websocket: boolean;
   secured: boolean;
+  shared: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
+  projectId?: string;
   cacheProfileId?: string;
   version: number;
 }

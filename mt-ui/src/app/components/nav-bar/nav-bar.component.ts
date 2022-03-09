@@ -228,13 +228,13 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-    // {
-    //   link: 'api-center',
-    //   display: 'API_CENTER',
-    //   icon: 'mediation',
-    //   params: {
-    //   },
-    // },
+    {
+      link: 'api-center',
+      display: 'API_CENTER',
+      icon: 'mediation',
+      params: {
+      },
+    },
   ];
   menuMall: INavElement[] = [
     {

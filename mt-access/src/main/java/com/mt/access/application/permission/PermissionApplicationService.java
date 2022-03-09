@@ -8,6 +8,8 @@ import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
+import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -114,7 +116,7 @@ public class PermissionApplicationService {
             if (command.getParentId() != null && !command.getParentId().isBlank()) {
                 permission = Permission.manualCreate(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, new PermissionId(command.getParentId()), null, linkedPermId);
             } else {
-                permission = Permission.manualCreate(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON,null, null, linkedPermId);
+                permission = Permission.manualCreate(new ProjectId(command.getProjectId()), permissionId, command.getName(), PermissionType.COMMON, null, null, linkedPermId);
             }
             DomainRegistry.getPermissionRepository().add(permission);
             return permissionId.getDomainId();
@@ -141,7 +143,35 @@ public class PermissionApplicationService {
             EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
             PermissionId permissionId = deserialize.getPermissionId();
             ProjectId projectId = deserialize.getProjectId();
-            Permission.addNewEndpoint(projectId, endpointId, permissionId);
+            Permission.addNewEndpoint(projectId, endpointId, permissionId, deserialize.isShared());
+            return null;
+        }, PERMISSION);
+    }
+
+    public SumPagedRep<Permission> sharedPermissions(String queryParam,String pageParam) {
+        PermissionQuery permissionQuery = PermissionQuery.sharedQuery(queryParam,pageParam);
+        return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handle(EndpointShareAdded deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            log.debug("handle endpoint shared added event");
+            PermissionId permissionId = deserialize.getPermissionId();
+            Optional<Permission> byId = DomainRegistry.getPermissionRepository().getById(permissionId);
+            byId.ifPresent(e -> e.setShared(true));
+            return null;
+        }, PERMISSION);
+    }
+    @SubscribeForEvent
+    @Transactional
+    public void handle(EndpointShareRemoved deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            log.debug("handle endpoint shared remove event");
+            PermissionId permissionId = deserialize.getPermissionId();
+            Optional<Permission> byId = DomainRegistry.getPermissionRepository().getById(permissionId);
+            byId.ifPresent(e -> e.setShared(false));
             return null;
         }, PERMISSION);
     }

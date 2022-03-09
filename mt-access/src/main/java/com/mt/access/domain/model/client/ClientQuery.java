@@ -65,6 +65,12 @@ public class ClientQuery extends QueryCriteria {
     private ClientQuery() {
     }
 
+    public ClientQuery(ProjectId projectId) {
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+    }
+
     public static ClientQuery queryByResource(ClientId resourceId) {
         ClientQuery clientQuery = new ClientQuery();
         clientQuery.setResources(new HashSet<>(List.of(resourceId)));

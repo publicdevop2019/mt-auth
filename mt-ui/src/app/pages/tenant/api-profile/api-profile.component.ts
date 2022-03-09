@@ -105,6 +105,7 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
           }
           this.fis.restore(this.formId, this.aggregate, true);
           this.fis.formGroupCollection[this.formId].get("secured").setValue(this.aggregate.secured);
+          this.fis.formGroupCollection[this.formId].get("shared").setValue(this.aggregate.shared);
           this.fis.formGroupCollection[this.formId].get("csrf").setValue(this.aggregate.csrfEnabled);
           this.fis.formGroupCollection[this.formId].get("isWebsocket").setValue(this.aggregate.websocket ? 'yes' : 'no');
           if (this.aggregate.corsProfileId) {
@@ -133,6 +134,7 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
       method: formGroup.get('method').value,
       secured: secured,
       websocket: formGroup.get('isWebsocket').value === 'yes',
+      shared: !!formGroup.get('shared').value,
       csrfEnabled: !!formGroup.get('csrf').value,
       corsProfileId: noEmptyString(formGroup.get("corsProfile").value),
       cacheProfileId: noEmptyString(formGroup.get("cacheProfile").value),

@@ -30,30 +30,10 @@ public class PermissionQuery extends QueryCriteria {
     private Set<String> names;
     private Set<PermissionType> types;
     private boolean typesIsAndRelation;
+    private Boolean shared;
 
     public PermissionQuery(String queryParam, String pageParam, String config) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL)).ifPresent(e -> parentId = new PermissionId((e)));
-        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
-        {
-            if (e.contains(".")) {
-                this.typesIsAndRelation = false;
-                types = Arrays.stream(e.split("\\.")).map(ee -> {
-                    String s = ee.toUpperCase();
-                    return PermissionType.valueOf(s);
-                }).collect(Collectors.toSet());
-
-            } else {
-                this.typesIsAndRelation = true;
-                types = Arrays.stream(e.split("\\$")).map(ee -> {
-                    String s = ee.toUpperCase();
-                    return PermissionType.valueOf(s);
-                }).collect(Collectors.toSet());
-            }
-        });
+        updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
         this.sort = PermissionSort.byId(true);
@@ -100,6 +80,41 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);
         return permissionQuery;
+    }
+
+    public static PermissionQuery sharedQuery(String queryParam, String pageParam) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.updateQueryParam(queryParam);
+        permissionQuery.setPageConfig(PageConfig.limited(pageParam, 50));
+        permissionQuery.setQueryConfig(QueryConfig.countRequired());
+        permissionQuery.sort = PermissionSort.byId(true);
+        permissionQuery.shared = true;
+        return permissionQuery;
+    }
+
+    private void updateQueryParam(String queryParam) {
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
+        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL)).ifPresent(e -> parentId = new PermissionId((e)));
+        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
+        {
+            if (e.contains(".")) {
+                this.typesIsAndRelation = false;
+                types = Arrays.stream(e.split("\\.")).map(ee -> {
+                    String s = ee.toUpperCase();
+                    return PermissionType.valueOf(s);
+                }).collect(Collectors.toSet());
+
+            } else {
+                this.typesIsAndRelation = true;
+                types = Arrays.stream(e.split("\\$")).map(ee -> {
+                    String s = ee.toUpperCase();
+                    return PermissionType.valueOf(s);
+                }).collect(Collectors.toSet());
+            }
+        });
     }
 
     @Getter

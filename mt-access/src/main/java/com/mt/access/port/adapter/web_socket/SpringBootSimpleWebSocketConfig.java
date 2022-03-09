@@ -63,6 +63,7 @@ public class SpringBootSimpleWebSocketConfig implements WebSocketConfigurer {
         }
 
         public void broadcast(String message) {
+            log.debug("current session count is {}", sessions.size());
             sessions.forEach(webSocketSession -> {
                 try {
                     webSocketSession.sendMessage(new TextMessage(message));

@@ -59,6 +59,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     .addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Role_.ROLE_ID, queryContext));
             Optional.ofNullable(query.getParentId()).ifPresent(e -> addParentIdPredicate(query.getParentId().getDomainId(), Role_.PARENT_ID, queryContext));
             Optional.ofNullable(query.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Role_.PROJECT_ID, queryContext));
+            Optional.ofNullable(query.getExternalPermissionIds()).ifPresent(e -> QueryUtility.addStringLikePredicate(e.getDomainId(), Role_.EXTERNAL_PERMISSION_IDS, queryContext));
             Optional.ofNullable(query.getNames()).ifPresent(e -> QueryUtility.addStringInPredicate(e, Role_.NAME, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(e -> {
                 queryContext.getPredicates().add(JpaCriteriaApiRoleAdaptor.RoleTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot(),query.isTypesIsAndRelation()));

@@ -5,10 +5,15 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
+import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
+import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -20,7 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
-import javax.annotation.Nullable;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -92,11 +96,17 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private boolean csrfEnabled = true;
 
+    private boolean shared = false;
 
-    public Endpoint(ClientId clientId, ProjectId projectId, @Nullable PermissionId permissionId, CacheProfileId cacheProfileId, String name, String description,
+
+    public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId, String name, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId
+                    boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId, boolean shared
     ) {
+        PermissionId permissionId = null;
+        if (secured) {
+            permissionId = new PermissionId();
+        }
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setProjectId(projectId);
@@ -111,15 +121,20 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
+        this.shared = shared;
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+        if (secured) {
+            DomainEventPublisher.instance().publish(new SecureEndpointCreated(getProjectId(), this));
+        }
     }
 
     public void update(
             CacheProfileId cacheProfileId,
             String name, String description, String path, String method,
             boolean isWebsocket,
-            boolean csrfEnabled, CORSProfileId corsProfileId) {
+            boolean csrfEnabled, CORSProfileId corsProfileId, boolean shared) {
         setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
@@ -128,8 +143,18 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
+        setShared(shared);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setShared(boolean shared) {
+        if (this.shared && !shared) {
+            DomainEventPublisher.instance().publish(new EndpointShareRemoved(this));
+        } else if (!this.shared && shared) {
+            DomainEventPublisher.instance().publish(new EndpointShareAdded(this));
+        }
+        this.shared = shared;
     }
 
     private void setName(String name) {

@@ -20,6 +20,7 @@ export interface INewRole extends IIdBasedEntity {
   projectId: string,
   roleType?: 'USER' | 'CLIENT' | 'PROJECT' | 'CLIENT_ROOT',
   permissionIds: string[],
+  externalPermissionIds?: string[],
   description?: string
 }
 @Component({

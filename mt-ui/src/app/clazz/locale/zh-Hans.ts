@@ -654,7 +654,7 @@ export const zhHans = {
     "MY_POSITION_DASHBOARD": "岗位",
     "REGISTER_MY_PROJECT": "创建项目",
     "MY_PROFILE": "账户",
-    "API_CENTER": "API中心",
+    "API_CENTER": "共享API",
     "MY_CLIENTS": "应用",
     "MY_API": "API",
     "MY_PROJECT": "项目",
@@ -706,4 +706,8 @@ export const zhHans = {
     "HANGING_TX": "悬挂事件",
     "NEW_PROJECT_NOTE": "项目创建成功, 请重新登录!",
     "DISMISS": "知道了",
+    "SHARED_API": "共享API",
+    "API_PROJECT_ID": "项目名称",
+    "MY_PERMISSION": "我的权限",
+    "EXTERNAL_PERMISSION": "共享API",
 }

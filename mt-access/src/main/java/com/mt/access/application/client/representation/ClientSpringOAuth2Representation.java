@@ -18,8 +18,6 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
     private String clientSecret;
     private Set<GrantType> grantTypeEnums;
-//    private Set<SystemRoleId> grantedAuthorities;
-//    private Set<SystemRoleId> scope;
     private int accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
     private int refreshTokenValiditySeconds;
@@ -30,11 +28,12 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setClientId(client.getClientId());
         setClientSecret(client.getSecret());
         setGrantTypeEnums(client.getGrantTypes());
-//        setGrantedAuthorities(client.getRoles());
-//        setScope(client.getScopes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
-        setResourceIds(client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet()));
+        Set<String> collect = client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        Set<String> collect2 = client.getExternalResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        collect2.addAll(collect);
+        setResourceIds(collect2);
         setAutoApprove(client.getAutoApprove());
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
 
@@ -72,7 +71,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 //        } else {
 //            return Collections.emptySet();
 //        }
-            return Collections.emptySet();
+        return Collections.emptySet();
     }
 
     @Override

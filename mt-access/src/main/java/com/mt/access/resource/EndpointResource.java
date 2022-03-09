@@ -7,6 +7,7 @@ import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -125,5 +126,16 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         ApplicationServiceRegistry.getEndpointApplicationService().reloadEndpointCache(changeId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "endpoints/shared")
+    public ResponseEntity<SumPagedRep<EndpointSharedCardRepresentation>> getSharedApis(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        SumPagedRep<Endpoint> shared = ApplicationServiceRegistry.getEndpointApplicationService().getShared(queryParam, pageParam, config);
+        SumPagedRep<EndpointSharedCardRepresentation> rep = new SumPagedRep<>(shared, EndpointSharedCardRepresentation::new);
+        EndpointSharedCardRepresentation.updateDetail(rep.getData());
+        return ResponseEntity.ok(rep);
     }
 }

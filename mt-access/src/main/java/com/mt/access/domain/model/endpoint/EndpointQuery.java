@@ -34,6 +34,8 @@ public class EndpointQuery extends QueryCriteria {
     private String method;
     @Setter(AccessLevel.PRIVATE)
     private Boolean isWebsocket;
+    @Setter(AccessLevel.PRIVATE)
+    private Boolean isShared;
     private EndpointSort endpointSort;
     private Set<CacheProfileId> cacheProfileIds;
 
@@ -101,15 +103,30 @@ public class EndpointQuery extends QueryCriteria {
         setEndpointSort(pageConfig);
     }
 
+    public static EndpointQuery permissionQuery(Set<PermissionId> externalPermissions) {
+        EndpointQuery endpointQuery = new EndpointQuery();
+        endpointQuery.permissionIds = externalPermissions;
+        endpointQuery.setPageConfig(PageConfig.defaultConfig());
+        endpointQuery.setQueryConfig(QueryConfig.countRequired());
+        endpointQuery.setEndpointSort(endpointQuery.pageConfig);
+        return endpointQuery;
+    }
+
     public static EndpointQuery websocketQuery() {
         EndpointQuery endpointQuery = new EndpointQuery();
         endpointQuery.setIsWebsocket(true);
         return endpointQuery;
     }
 
+    public static EndpointQuery sharedQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        endpointQuery.setIsShared(true);
+        return endpointQuery;
+    }
+
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID, RESOURCE_ID, PATH, METHOD, PROJECT_IDS,PERMISSION_IDS);
+                ID, RESOURCE_ID, PATH, METHOD, PROJECT_IDS, PERMISSION_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             endpointIds = Arrays.stream(e.split("\\.")).map(EndpointId::new).collect(Collectors.toSet());
         });

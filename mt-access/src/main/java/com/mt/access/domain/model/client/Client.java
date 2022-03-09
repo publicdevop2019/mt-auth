@@ -57,6 +57,18 @@ public class Client extends Auditable {
     })
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientResourceRegion")
     private final Set<ClientId> resources = new HashSet<>();
+    @Getter
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "external_resources_map",
+            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
+            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
+    )
+    @AttributeOverrides({
+            @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
+    })
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientExtResourceRegion")
+    private final Set<ClientId> externalResources = new HashSet<>();
     @Id
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -270,13 +282,13 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    public Endpoint addNewEndpoint(@Nullable PermissionId permissionId, CacheProfileId cacheProfileId,
+    public Endpoint addNewEndpoint(CacheProfileId cacheProfileId,
                                    String name, String description, String path, EndpointId endpointId, String method,
                                    boolean secured,
-                                   boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig) {
-        return new Endpoint(getClientId(), getProjectId(), permissionId, cacheProfileId,
+                                   boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig,boolean shared) {
+        return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
                 name, description, path, endpointId, method, secured,
-                isWebsocket, csrfEnabled, corsConfig);
+                isWebsocket, csrfEnabled, corsConfig,shared);
     }
 
     // for create
@@ -361,5 +373,13 @@ public class Client extends Auditable {
 
     public boolean removable() {
         return types.stream().noneMatch(e -> e.equals(ClientType.ROOT_APPLICATION));
+    }
+
+    public void updateExternalResource(Set<ClientId> externalResource) {
+        if (!externalResource.equals(this.externalResources)) {
+            this.externalResources.clear();
+            this.externalResources.addAll(externalResource);
+            DomainRegistry.getClientValidationService().validate(this, new HttpValidationNotificationHandler());
+        }
     }
 }

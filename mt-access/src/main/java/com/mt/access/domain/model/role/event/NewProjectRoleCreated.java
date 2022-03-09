@@ -5,12 +5,13 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.Set;
 
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NewProjectRoleCreated extends DomainEvent {
     public static final String NEW_PROJECT_ROLE_CREATED = "new_project_role_created";
     public static final String name = "new_project_role_created";

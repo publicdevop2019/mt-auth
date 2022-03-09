@@ -56,3 +56,20 @@ export const FORM_CONFIG: IForm = {
         },
     ],
 }
+export const FORM_CONFIG_SHARED: IForm = {
+    "repeatable": false,
+    "inputs": [
+        {
+            "type": "paginated-select",
+            "display": true,
+            "label": "EXTERNAL_PERMISSION",
+            "key": "sharedApi",
+            multiple:true,
+            "position": {
+                "row": "0",
+                "column": "0"
+            },
+            options:[],
+        },
+    ],
+}

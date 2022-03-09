@@ -10,7 +10,13 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.*;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
+import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.EndpointQuery;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.Role;
+import com.mt.access.domain.model.role.RoleQuery;
+import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEventPublisher;
@@ -82,6 +88,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id));
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
     }
+
     public SumPagedRep<Client> internalQuery(String pagingParam, String configParam) {
         return DomainRegistry.getClientRepository().clientsOfQuery(ClientQuery.internalQuery(pagingParam, configParam));
     }
@@ -184,7 +191,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @SubscribeForEvent
     @Transactional
-    public void handleChange(ClientAsResourceDeleted deserialize) {
+    public void handle(ClientAsResourceDeleted deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
             //remove deleted client from resource_map
             DomainId domainId = deserialize.getDomainId();
@@ -201,6 +208,22 @@ public class ClientApplicationService implements ClientDetailsService {
     public Optional<Client> canAutoApprove(String projectId, String id) {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handle(ExternalPermissionUpdated deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            ProjectId projectId = new ProjectId(deserialize.getDomainId().getDomainId());
+            Set<Client> projectClients = QueryUtility.getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) e), new ClientQuery(projectId));
+            Set<Role> allRoles = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(projectId));
+            Set<PermissionId> externalPermissions = allRoles.stream().filter(e -> e.getExternalPermissionIds() != null).flatMap(e -> e.getExternalPermissionIds().stream()).collect(Collectors.toSet());
+            Set<Endpoint> referredClients = QueryUtility.getAllByQuery(e ->
+                    DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) e), EndpointQuery.permissionQuery(externalPermissions));
+            Set<ClientId> collect = referredClients.stream().map(Endpoint::getClientId).collect(Collectors.toSet());
+            projectClients.forEach(client -> client.updateExternalResource(collect));
+            return null;
+        }, CLIENT);
     }
 
 
