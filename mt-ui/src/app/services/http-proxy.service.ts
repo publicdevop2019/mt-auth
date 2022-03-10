@@ -14,6 +14,7 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
+import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
 export interface IPatch {
     op: string,
     path: string,
@@ -31,6 +32,9 @@ export interface IUser{
     providedIn: 'root'
 })
 export class HttpProxyService {
+    getRegistryStatus() {
+      return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
+    }
     inProgress = false;
     refreshInprogress = false;
     private AUTH_SVC_NAME = '/auth-svc';

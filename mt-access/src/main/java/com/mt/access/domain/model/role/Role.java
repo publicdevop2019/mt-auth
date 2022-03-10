@@ -80,6 +80,7 @@ public class Role extends Auditable {
     })
     private RoleId parentId;
     private boolean systemCreate = false;
+
     private Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId, @Nullable ProjectId tenantId, Set<PermissionId> externalPermissionIds) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.roleId = roleId;
@@ -151,8 +152,10 @@ public class Role extends Auditable {
 
     public Set<PermissionId> getTotalPermissionIds() {
         Set<PermissionId> objects = new HashSet<>();
-        objects.addAll(permissionIds);
-        objects.addAll(externalPermissionIds);
+        if (permissionIds != null)
+            objects.addAll(permissionIds);
+        if (externalPermissionIds != null)
+            objects.addAll(externalPermissionIds);
         return objects;
     }
 
@@ -161,7 +164,7 @@ public class Role extends Auditable {
         this.description = description;
         this.permissionIds = permissionIds;
         if (this.externalPermissionIds == null) {
-            if (externalPermissionIds.size() > 0) {
+            if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
                 this.externalPermissionIds = externalPermissionIds;
                 DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
             }

@@ -66,7 +66,7 @@ public class ClientResource {
     public ResponseEntity<ClientRepresentation> readForRootById2(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().adminQuery(id);
+        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
         return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 

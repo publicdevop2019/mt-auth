@@ -84,7 +84,7 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
     }
 
-    public Optional<Client> adminQuery(String id) {
+    public Optional<Client> adminQueryById(String id) {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id));
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
     }
@@ -224,6 +224,10 @@ public class ClientApplicationService implements ClientDetailsService {
             projectClients.forEach(client -> client.updateExternalResource(collect));
             return null;
         }, CLIENT);
+    }
+
+    public Set<Client> queryForRegistry(Set<ClientId> ids) {
+        return QueryUtility.getAllByQuery(e->DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) e),new ClientQuery(ids));
     }
 
 

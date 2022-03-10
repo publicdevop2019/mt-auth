@@ -5,6 +5,7 @@ import { ApiCenterComponent } from './pages/api-center/api-center.component';
 import { AuthorizeComponent } from './pages/authorize/authorize.component';
 import { CacheControlComponent } from './pages/cache-control/cache-control.component';
 import { LoginComponent } from './pages/login/login.component';
+import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 import { SummaryCacheComponent } from './pages/mgnmt/summary-cache/summary-cache.component';
 import { SummaryClientComponent } from './pages/mgnmt/summary-client/summary-client.component';
 import { SummaryCorsComponent } from './pages/mgnmt/summary-cors/summary-cors.component';
@@ -44,6 +45,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
       { path: 'projects', component: SummaryProjectComponent },
+      { path: 'registry', component: RegistryComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'resource-owners', component: SummaryResourceOwnerComponent },

@@ -710,4 +710,6 @@ export const zhHans = {
     "API_PROJECT_ID": "项目名称",
     "MY_PERMISSION": "我的权限",
     "EXTERNAL_PERMISSION": "共享API",
+    "REGISTRY_STATUS": "注册中心",
+    "INSTANCE_COUNT": "实例数",
 }

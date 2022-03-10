@@ -27,6 +27,13 @@ export class NavBarComponent implements OnInit {
   mobileQuery: MediaQueryList;
   menuAuthMangement: INavElement[] = [
     {
+      link: 'registry',
+      display: 'REGISTRY_STATUS',
+      icon: 'receipt',
+      params: {
+      },
+    },
+    {
       link: 'projects',
       display: 'PROJECT_DASHBOARD',
       icon: 'blur_on',
@@ -236,150 +243,6 @@ export class NavBarComponent implements OnInit {
       },
     },
   ];
-  menuMall: INavElement[] = [
-    {
-      link: 'products',
-      display: 'PRODUCT_DASHBOARD',
-      icon: 'storefront',
-      params: {
-      },
-    },
-    {
-      link: 'skus',
-      display: 'SKU_DASHBOARD',
-      icon: 'storage',
-      params: {
-      },
-    },
-    {
-      link: 'catalogs/frontend',
-      display: 'CATEGORY_DASHBOARD',
-      icon: 'category',
-      params: {
-      },
-    },
-    {
-      link: 'catalogs/backend',
-      display: 'CATEGORY_ADMIN_DASHBOARD',
-      icon: 'store',
-      params: {
-      },
-    },
-    {
-      link: 'attributes',
-      display: 'ATTRIBUTE_DASHBOARD',
-      icon: 'subject',
-      params: {
-      },
-    },
-    {
-      link: 'filters',
-      display: 'FILTER_DASHBOARD',
-      icon: 'filter_list',
-      params: {
-      },
-    },
-    {
-      link: 'orders',
-      display: 'ORDER_DASHBOARD',
-      icon: 'assignment',
-      params: {
-      },
-    },
-    {
-      link: 'tasks',
-      display: 'TASK_DASHBOARD',
-      icon: 'import_contacts',
-      params: {
-      },
-    },
-    {
-      link: 'events',
-      display: 'EVENT_DASHBOARD',
-      icon: 'event_available',
-      params: {
-      },
-    },
-    {
-      link: 'mall-message-center',
-      display: 'MALL_MSG_DASHBOARD',
-      icon: 'message',
-      params: {
-      },
-    },
-  ];
-  menuOpt: INavElement[] = [
-    {
-      link: 'operation-history/auth/client',
-      display: 'OPERATION_DASHBOARD_CLIENT',
-      icon: 'apps',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/auth/user',
-      display: 'OPERATION_DASHBOARD_USER',
-      icon: 'perm_identity',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/auth/endpoint',
-      display: 'OPERATION_DASHBOARD_EP',
-      icon: 'security',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/proxy/token',
-      display: 'OPERATION_DASHBOARD_TOKEN',
-      icon: 'stars',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/mall/product',
-      display: 'OPERATION_DASHBOARD_PRODUCT',
-      icon: 'storefront',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/mall/sku',
-      display: 'OPERATION_DASHBOARD_SKU',
-      icon: 'storage',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/mall/catalog',
-      display: 'OPERATION_DASHBOARD_CATALOG',
-      icon: 'category',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/mall/attribute',
-      display: 'OPERATION_DASHBOARD_ATTR',
-      icon: 'subject',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/mall/filter',
-      display: 'OPERATION_DASHBOARD_FILTER',
-      icon: 'filter_list',
-      params: {
-      },
-    },
-    {
-      link: 'operation-history/profile/order',
-      display: 'OPERATION_DASHBOARD_ORDER',
-      icon: 'assignment',
-      params: {
-      },
-    },
-  ]
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;
   constructor(

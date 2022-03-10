@@ -21,6 +21,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
   public formId = "mngmtEndpointTableColumnConfig";
   columnList = {
     id: 'ID',
+    name: 'NAME',
     description: 'DESCRIPTION',
     resourceId: 'PARENT_CLIENT',
     path: 'URL',

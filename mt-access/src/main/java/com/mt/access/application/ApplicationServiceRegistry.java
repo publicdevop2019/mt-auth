@@ -11,6 +11,7 @@ import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.position.PositionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
+import com.mt.access.application.registry.RegistryApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
@@ -67,7 +68,13 @@ public class ApplicationServiceRegistry {
     private static EmailDeliveryApplicationService emailDeliverApplicationService;
     @Getter
     private static NotificationApplicationService notificationApplicationService;
+    @Getter
+    private static RegistryApplicationService registryApplicationService;
 
+    @Autowired
+    public void setRegistryApplicationService(RegistryApplicationService registryApplicationService) {
+        ApplicationServiceRegistry.registryApplicationService = registryApplicationService;
+    }
     @Autowired
     public void setEmailDeliverApplicationService(EmailDeliveryApplicationService emailDeliverApplicationService) {
         ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;

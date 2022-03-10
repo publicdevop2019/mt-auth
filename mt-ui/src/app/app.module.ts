@@ -120,6 +120,7 @@ import { SummaryRoleComponent } from './pages/mgnmt/summary-role/summary-role.co
 import { SummaryStoredEventAccessComponent } from './pages/mgnmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgnmt/summary-user/summary-user.component';
 import { ResourceOwnerComponent } from './pages/mgnmt/user/user.component';
+import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 
 @NgModule({
   declarations: [
@@ -189,6 +190,7 @@ import { ResourceOwnerComponent } from './pages/mgnmt/user/user.component';
     WelcomeComponent,
     MngmtEndpointComponent,
     MngmtClientComponent,
+    RegistryComponent,
   ],
   imports: [
     BrowserAnimationsModule,

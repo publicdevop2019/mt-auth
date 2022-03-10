@@ -1,18 +1,16 @@
 package com.mt.access.application.email_delivery;
 
-import com.mt.access.domain.model.email_delivery.BizType;
-import com.mt.access.domain.model.email_delivery.CoolDownException;
-import com.mt.access.domain.model.email_delivery.EmailDelivery;
-import com.mt.access.domain.model.email_delivery.MessageRepository;
+import com.mt.access.domain.model.email_delivery.*;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
 import com.mt.common.domain.CommonDomainRegistry;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -45,8 +43,6 @@ public class EmailDeliveryApplicationService {
     private MessageRepository messageRepository;
     @Autowired
     private JavaMailSender sender;
-    @Autowired
-    private Configuration freemarkerConfig;
     @Autowired
     private PlatformTransactionManager transactionManager;
     @Autowired
@@ -129,8 +125,11 @@ public class EmailDeliveryApplicationService {
         MimeMessage mimeMessage = sender.createMimeMessage();
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         Template t;
+        Configuration freemarkerConfiguration = new Configuration(Configuration.VERSION_2_3_28);
+        Resource path = new DefaultResourceLoader().getResource("email/templates");
         try {
-            t = freemarkerConfig.getTemplate(templateUrl);
+            freemarkerConfiguration.setDirectoryForTemplateLoading(path.getFile());
+            t = freemarkerConfiguration.getTemplate(templateUrl);
             String text = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
             mimeMessageHelper.setTo(to);
             mimeMessageHelper.setText(text, true); // set to html
