@@ -7,9 +7,9 @@
             </button>
             <div style="font-size: 14px;">{{authSvc.currentUser?.email}}</div>
         </div>
-        <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc">
+        <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
             <mat-icon matBadge="{{msgSvc.latestMessage.length}}" matBadgeOverlap="false" matBadgeSize="small"
-                (mouseover)="msgDetails=true" (mouseout)="msgDetails=false" matBadgeColor="accent">notifications_none
+                matBadgeColor="accent">notifications_none
             </mat-icon>
         </button>
     </mat-toolbar>

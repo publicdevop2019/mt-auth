@@ -22,7 +22,6 @@ export interface INavElement {
   styleUrls: ['./nav-bar.component.css']
 })
 export class NavBarComponent implements OnInit {
-  msgDetails: boolean = false;
   menuOpen: boolean = false;
   mobileQuery: MediaQueryList;
   menuAuthMangement: INavElement[] = [

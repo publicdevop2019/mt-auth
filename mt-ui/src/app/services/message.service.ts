@@ -7,6 +7,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
+import { copyOf } from './utility';
 export interface INotification extends IIdBasedEntity {
     title: string,
     descriptions: string[],
@@ -56,5 +57,9 @@ export class MessageService extends EntityCommonService<INotification, INotifica
             return 'localhost:8111'
         }
         return environment.serverUri.replace('http://', '').replace("https://", "")
+    }
+    //clone so view will render as new with new timestamp
+    clone() {
+        this.latestMessage = copyOf(this.latestMessage)
     }
 }
