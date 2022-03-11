@@ -14,7 +14,7 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NewProjectRoleCreated extends DomainEvent {
     public static final String NEW_PROJECT_ROLE_CREATED = "new_project_role_created";
-    public static final String name = "new_project_role_created";
+    public static final String name = "NEW_PROJECT_ROLE_CREATED";
     @Getter
     private UserId creator;
     @Getter

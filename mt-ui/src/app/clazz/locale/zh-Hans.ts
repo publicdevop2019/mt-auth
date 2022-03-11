@@ -12,7 +12,7 @@ export const zhHans = {
     "GO_BACK_TO_LOGIN": "返回登录界面",
     "ENTER_YOUR_EMAIL": "输入邮箱",
     "CURRENT_LANG":"English",
-    "AUTH_CENTER": "管理员页面",
+    "AUTH_CENTER": "管理页面",
     "MALL_CENTER": "店铺管理",
     "CLIENT_DASHBOARD": "应用",
     "RESOURCE_OWNER_DASHBOARD": "用户",
@@ -712,4 +712,7 @@ export const zhHans = {
     "EXTERNAL_PERMISSION": "共享API",
     "REGISTRY_STATUS": "注册中心",
     "INSTANCE_COUNT": "实例数",
+    "PROJECT_CREATED": "新项目创建成功",
+    "PROJECT_PERMISSION_CREATED": "新项目权限创建成功",
+    "NEW_PROJECT_ROLE_CREATED": "新项目角色创建成功",
 }
