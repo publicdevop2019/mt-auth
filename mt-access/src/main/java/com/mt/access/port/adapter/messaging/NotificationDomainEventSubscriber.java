@@ -2,6 +2,7 @@ package com.mt.access.port.adapter.messaging;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
@@ -12,6 +13,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
+import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 
@@ -43,6 +45,14 @@ public class NotificationDomainEventSubscriber {
             ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProjectCreated.class);
             ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
         }, PROJECT_CREATED);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener3() {
+        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true, PROXY_CACHE_CHECK_FAILED_EVENT, (event) -> {
+            ProxyCacheCheckFailedEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProxyCacheCheckFailedEvent.class);
+            ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+        });
     }
 
 }

@@ -5,6 +5,6 @@ import com.mt.access.domain.model.proxy.ProxyInfo;
 
 import java.util.Map;
 
-public interface ProxyService {
+public interface RemoteProxyService {
     Map<ProxyInfo, CheckSumValue> getCacheEndpointSum();
 }

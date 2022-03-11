@@ -96,7 +96,7 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {
     super.updateSummaryData(next);
-    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'id');
+    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

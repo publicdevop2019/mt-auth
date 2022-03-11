@@ -18,6 +18,7 @@ public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
         this.resourceId = bizEndpoint.getClientId().getDomainId();
         this.path = bizEndpoint.getPath();
         this.method = bizEndpoint.getMethod();
+        this.name = bizEndpoint.getName();
     }
 
     public EndpointPatchCommand() {

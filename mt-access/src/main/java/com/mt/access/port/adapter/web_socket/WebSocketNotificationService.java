@@ -15,13 +15,9 @@ public class WebSocketNotificationService implements NotificationService {
         notificationWSHandler.broadcast(message);
     }
 
-    @Override
-    public void renew() {
-        notificationWSHandler.broadcast("_renew");
-    }
     @Scheduled(fixedRate = 25 * 1000)
     protected void autoRenew(){
         log.debug("start of renewing ws connects");
-        renew();
+        notificationWSHandler.broadcast("_renew");
     }
 }

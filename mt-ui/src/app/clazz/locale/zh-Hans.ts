@@ -715,4 +715,6 @@ export const zhHans = {
     "PROJECT_CREATED": "新项目创建成功",
     "PROJECT_PERMISSION_CREATED": "新项目权限创建成功",
     "NEW_PROJECT_ROLE_CREATED": "新项目角色创建成功",
+    "PROXY_CHECK_FAILED": "代理缓存不一致",
+    "PROXY_CACHE_CHECK_FAILED_EVENT": "代理缓存检查失败",
 }
