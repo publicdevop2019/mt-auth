@@ -9,16 +9,17 @@ import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
-import { EndpointComponent } from 'src/app/pages/tenant/api-profile/api-profile.component';
+import { EndpointComponent } from 'src/app/pages/tenant/endpoint/endpoint.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { uniqueObject } from 'src/app/clazz/utility';
 
 @Component({
-  selector: 'app-my-apis',
-  templateUrl: './my-apis.component.html',
-  styleUrls: ['./my-apis.component.css']
+  selector: 'app-my-endpoints',
+  templateUrl: './my-endpoints.component.html',
+  styleUrls: ['./my-endpoints.component.css']
 })
 export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
@@ -95,14 +96,7 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {
     super.updateSummaryData(next);
-    let ids = next.data.map(e => e.resourceId);
-    let var0 = new Set(ids);
-    let var1 = new Array(...var0);
-    if (var1.length > 0) {
-      this.clientSvc.readEntityByQuery(0, var1.length, "clientId:" + var1.join('.')).subscribe(next => {
-        this.allClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
+    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'id');
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

@@ -44,21 +44,22 @@ public class EndpointSharedCardRepresentation {
     }
 
     public static void updateDetail(List<EndpointSharedCardRepresentation> original) {
-        Set<ClientId> collect = original.stream().map(e -> e.clientId).collect(Collectors.toSet());
-        Set<ProjectId> collect2 = original.stream().map(e -> e.originalProjectId).collect(Collectors.toSet());
-        Set<Client> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) e), new ClientQuery(collect));
-        Set<Project> allByQuery2 = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery((ProjectQuery) e), new ProjectQuery(collect2));
-        original.forEach(e -> {
-            Optional<Client> first = allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId())).findFirst();
-            first.ifPresent(ee->{
-                String path = ee.getPath();
-                e.path = "/" + path + "/" + e.path;
+        if(!original.isEmpty()){
+            Set<ClientId> collect = original.stream().map(e -> e.clientId).collect(Collectors.toSet());
+            Set<ProjectId> collect2 = original.stream().map(e -> e.originalProjectId).collect(Collectors.toSet());
+            Set<Client> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) e), new ClientQuery(collect));
+            Set<Project> allByQuery2 = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery((ProjectQuery) e), new ProjectQuery(collect2));
+            original.forEach(e -> {
+                Optional<Client> first = allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId())).findFirst();
+                first.ifPresent(ee->{
+                    String path = ee.getPath();
+                    e.path = "/" + path + "/" + e.path;
+                });
+                Optional<Project> first2 = allByQuery2.stream().filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
+                first2.ifPresent(ee->{
+                    e.projectName = ee.getName();
+                });
             });
-            Optional<Project> first2 = allByQuery2.stream().filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
-            first2.ifPresent(ee->{
-                e.projectName = ee.getName();
-            });
-
-        });
+        }
     }
 }

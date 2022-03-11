@@ -40,7 +40,9 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService().tenantQuery(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(endpoints, EndpointCardRepresentation::new));
+        SumPagedRep<EndpointCardRepresentation> rep = new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
+        EndpointCardRepresentation.updateDetail(rep.getData());
+        return ResponseEntity.ok(rep);
     }
 
     @GetMapping(path = "mngmt/endpoints")
@@ -52,7 +54,9 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService().adminQuery(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(endpoints, EndpointCardRepresentation::new));
+        SumPagedRep<EndpointCardRepresentation> endpointCardRepresentationSumPagedRep = new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
+        EndpointCardRepresentation.updateDetail(endpointCardRepresentationSumPagedRep.getData());
+        return ResponseEntity.ok(endpointCardRepresentationSumPagedRep);
     }
 
     @GetMapping(path = "mngmt/endpoints/{id}")

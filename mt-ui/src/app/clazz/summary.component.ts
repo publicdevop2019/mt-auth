@@ -44,7 +44,7 @@ export interface IBottomSheet<S> {
   params: {}
 }
 @Directive()
-export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDestroy {
+export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> implements OnDestroy {
   sheetComponent: ComponentType<any>;
   columnWidth: number;
   columnList: any;
@@ -121,27 +121,35 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S> implements OnDe
   }
   displayedColumns() {
     if (this.fis.formGroupCollection[this.formId]) {
-      const orderKeys = ['select',...Object.keys(this.columnList)];
+      const orderKeys = ['select', ...Object.keys(this.columnList)];
       const value = this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).value as string[]
       return orderKeys.filter(e => value.includes(e))
     } else {
       return Object.keys(this.columnList)
     }
   };
-  openBottomSheet(id?: string, clone?: boolean): void {
+  openBottomSheet(id?: string, clone?: boolean, bypassQuery?: boolean): void {
     const config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
+    const doNext = (data: S | T) => {
+      if (clone) {
+        config.data = <IBottomSheet<S>>{ context: 'clone', from: data, params: this.bottomSheetParams };
+        this.bottomSheet.open(this.sheetComponent, config);
+      } else {
+        config.data = <IBottomSheet<S>>{ context: 'edit', from: data, params: this.bottomSheetParams };
+        this.bottomSheet.open(this.sheetComponent, config);
+      }
+    }
     if (hasValue(id)) {
-      this.entitySvc.readById(id).subscribe(next => {
-        if (clone) {
-          config.data = <IBottomSheet<S>>{ context: 'clone', from: next, params: this.bottomSheetParams };
-          this.bottomSheet.open(this.sheetComponent, config);
-        } else {
-          config.data = <IBottomSheet<S>>{ context: 'edit', from: next, params: this.bottomSheetParams };
-          this.bottomSheet.open(this.sheetComponent, config);
-        }
-      })
+      if (bypassQuery) {
+        const data = this.dataSource.data.find(e => e.id === id)!
+        doNext(data)
+      } else {
+        this.entitySvc.readById(id).subscribe(next => {
+          doNext(next)
+        })
+      }
     } else {
       config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
       this.bottomSheet.open(this.sheetComponent, config);

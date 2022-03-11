@@ -1,11 +1,13 @@
 package com.mt.access.application.client.representation;
 
+import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.util.HtmlUtils;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -13,29 +15,31 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 public class ClientCardRepresentation {
 
-    protected String id;
+    private String id;
 
-    protected String name;
+    private String name;
 
-    protected String description;
+    private String description;
 
-    protected Set<GrantType> grantTypeEnums;
+    private Set<GrantType> grantTypeEnums;
 
-    protected Set<ClientType> types;
+    private Set<ClientType> types;
 
-    protected int accessTokenValiditySeconds;
+    private int accessTokenValiditySeconds;
 
-    protected Set<String> registeredRedirectUri;
+    private Set<String> registeredRedirectUri;
 
-    protected int refreshTokenValiditySeconds;
+    private int refreshTokenValiditySeconds;
 
-    protected Set<String> resourceIds;
+    private Set<ResourceClientInfo> resources;
 
-    protected boolean resourceIndicator;
+    private Set<String> resourceIds;
 
-    protected boolean autoApprove;
+    private boolean resourceIndicator;
 
-    protected int version;
+    private boolean autoApprove;
+
+    private int version;
 
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
@@ -49,6 +53,32 @@ public class ClientCardRepresentation {
         if (!ObjectUtils.isEmpty(client1.getResources()))
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
         resourceIndicator = client1.isAccessible();
-        types=client1.getTypes();
+        types = client1.getTypes();
+    }
+
+    public static void updateDetails(List<ClientCardRepresentation> data) {
+        Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null).flatMap(e -> e.getResourceIds().stream()).map(ClientId::new).collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            Set<Client> allByIds = ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
+            data.forEach(e -> {
+                if (e.getResourceIds() != null) {
+                    e.resources = e.getResourceIds().stream().map(ee -> {
+                        Optional<Client> first = allByIds.stream().filter(el -> el.getClientId().getDomainId().equals(ee)).findFirst();
+                        return first.map(client -> new ResourceClientInfo(client.getName(), ee)).orElseGet(() -> new ResourceClientInfo(ee, ee));
+                    }).collect(Collectors.toSet());
+                }
+            });
+        }
+    }
+
+    @Data
+    private static class ResourceClientInfo {
+        private String name;
+        private String id;
+
+        public ResourceClientInfo(String name, String id) {
+            this.name = name;
+            this.id = id;
+        }
     }
 }

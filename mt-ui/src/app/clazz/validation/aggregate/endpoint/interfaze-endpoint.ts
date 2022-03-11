@@ -1,5 +1,6 @@
 export interface IEndpoint {
   resourceId: string;
+  resourceName?: string;
   description?: string;
   name: string;
   path: string;

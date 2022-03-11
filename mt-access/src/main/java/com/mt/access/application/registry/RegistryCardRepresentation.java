@@ -26,7 +26,7 @@ public class RegistryCardRepresentation {
 
     public static void updateDetails(List<RegistryCardRepresentation> info) {
         Set<ClientId> collect = info.stream().map(e -> new ClientId(e.name)).collect(Collectors.toSet());
-        Set<Client> clients = ApplicationServiceRegistry.getClientApplicationService().queryForRegistry(collect);
+        Set<Client> clients = ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
         info.forEach(e -> clients.stream().filter(ee -> ee.getClientId().equals(new ClientId(e.name))).findFirst().ifPresent(ee -> {
             e.name = ee.getName();
         }));

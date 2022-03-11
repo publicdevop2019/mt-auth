@@ -10,7 +10,7 @@ export function logout(router?: Router) {
     localStorage.removeItem('jwt');
     document.cookie = "jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
     if (router) {
-        const params=router.routerState.snapshot.root.queryParams;
+        const params = router.routerState.snapshot.root.queryParams;
         const queryBinded: string[] = [];
         Object.keys(params).forEach(k => {
             queryBinded.push(k + "=" + params[k]);
@@ -20,4 +20,10 @@ export function logout(router?: Router) {
     } else {
         window.location.assign('/login')
     }
+}
+export function uniqueString(input: string[]) {
+    return new Array(...new Set(input));
+}
+export function uniqueObject<T>(input: T[], field: string) {
+    return input.filter((e, i) => input.findIndex(ee => ee[field] === e[field]) === i)
 }

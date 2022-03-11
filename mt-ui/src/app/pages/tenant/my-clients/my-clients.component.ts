@@ -7,6 +7,7 @@ import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ClientComponent } from 'src/app/pages/tenant/client/client.component';
@@ -115,13 +116,7 @@ export class MyClientsComponent extends SummaryEntityComponent<IClient, IClient>
   }
   updateSummaryData(next: ISumRep<IClient>) {
     super.updateSummaryData(next);
-    let var0 = new Set(next.data.flatMap(e => e.resourceIds).filter(ee => ee));
-    let var1 = new Array(...var0);
-    if (var1.length > 0) {
-      this.entitySvc.readEntityByQuery(0, var1.length, "clientId:" + var1.join('.')).subscribe(next => {
-        this.resourceClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
+    this.resourceClientList = uniqueObject(next.data.filter(ee => ee.resources).flatMap(e => e.resources), 'id').map(e => <IOption>{ label: e.name, value: e.id })
   }
   getList(inputs: string[]) {
     return inputs.map(e => <IOption>{ label: e, value: e })

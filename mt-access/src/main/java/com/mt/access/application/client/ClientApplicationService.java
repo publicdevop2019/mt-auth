@@ -226,7 +226,7 @@ public class ClientApplicationService implements ClientDetailsService {
         }, CLIENT);
     }
 
-    public Set<Client> queryForRegistry(Set<ClientId> ids) {
+    public Set<Client> findAllByIds(Set<ClientId> ids) {
         return QueryUtility.getAllByQuery(e->DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) e),new ClientQuery(ids));
     }
 

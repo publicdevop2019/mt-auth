@@ -19,9 +19,9 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 @Component({
-  selector: 'app-api-profile',
-  templateUrl: './api-profile.component.html',
-  styleUrls: ['./api-profile.component.css']
+  selector: 'app-endpoint',
+  templateUrl: './endpoint.component.html',
+  styleUrls: ['./endpoint.component.css']
 })
 export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;

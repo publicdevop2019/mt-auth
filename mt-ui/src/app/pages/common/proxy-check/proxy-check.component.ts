@@ -5,9 +5,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import * as UUID from 'uuid/v1';
 @Component({
-  selector: 'app-cache-control',
-  templateUrl: './cache-control.component.html',
-  styleUrls: ['./cache-control.component.css']
+  selector: 'app-proxy-check',
+  templateUrl: './proxy-check.component.html',
+  styleUrls: ['./proxy-check.component.css']
 })
 export class CacheControlComponent implements OnInit {
   displayedColumns: string[] = ['instance', 'value', 'result'];

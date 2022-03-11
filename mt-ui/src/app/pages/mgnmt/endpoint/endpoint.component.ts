@@ -16,9 +16,9 @@ import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ClientService } from 'src/app/services/mngmt-client.service';
 @Component({
-  selector: 'mngmt-app-api-profile',
-  templateUrl: './api-profile.component.html',
-  styleUrls: ['./api-profile.component.css']
+  selector: 'mngmt-app-endpoint',
+  templateUrl: './endpoint.component.html',
+  styleUrls: ['./endpoint.component.css']
 })
 export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;

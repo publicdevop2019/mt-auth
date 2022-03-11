@@ -30,6 +30,7 @@ export interface IClient extends IIdName {
   accessTokenValiditySeconds: number;
   refreshTokenValiditySeconds: number;
   resourceIds: string[]
+  resources?: { name: string, id: string }[]
   hasSecret: boolean;
   resourceIndicator: boolean;
   registeredRedirectUri: string[];
