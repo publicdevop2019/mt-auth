@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.UUID;
 
 import static com.hw.helper.UserAction.*;
+import static com.hw.helper.UserAction.ACCOUNT_PASSWORD_ROOT;
 
 /**
  * this integration auth requires oauth2service to be running
@@ -33,8 +34,8 @@ import static com.hw.helper.UserAction.*;
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class RevokeTokenTest {
-    public static final String PROXY_BLACKLIST = "/auth-svc/revoke-tokens";
-    public static final String USERS_ADMIN = "/users/admin";
+    public static final String PROXY_BLACKLIST = "/auth-svc/mngmt/revoke-tokens";
+    public static final String USERS_ADMIN = "/mngmt/users";
 
     private ObjectMapper mapper = new ObjectMapper();
     @Autowired
@@ -57,14 +58,14 @@ public class RevokeTokenTest {
 
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints() throws JsonProcessingException, InterruptedException {
-
+        Thread.sleep(10000);
         String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + USERS_ADMIN;
+        String url2 = UserAction.proxyUrl + SVC_NAME_TEST + "/get/test";
         /**
          * before client get blacklisted, client is able to access auth server non token endpoint
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-                action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+                action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
         String bearer1 = tokenResponse1.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
@@ -102,7 +103,8 @@ public class RevokeTokenTest {
          * add thread sleep to prevent token get revoked and generate within a second
          */
         Thread.sleep(1000);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 = action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
+                action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
@@ -112,7 +114,7 @@ public class RevokeTokenTest {
 
     @Test
     public void only_root_user_can_add_blacklist_client() throws JsonProcessingException {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPasswordRoot();
         String bearer = tokenResponse.getBody().getValue();
 
         String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
@@ -125,16 +127,16 @@ public class RevokeTokenTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
         ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
-    public void receive_request_blacklist_resourceOwner_then_block_resourceOwner_old_request() throws JsonProcessingException, InterruptedException {
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + USERS_ADMIN;
+    public void receive_request_blacklist_user_then_block_user_old_request() throws JsonProcessingException, InterruptedException {
+        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_TEST + "/get/test";
         /**
-         * admin user can login & call resourceOwner api
+         * user can login & call resourceOwner api
          */
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
 
         String bearer0 = pwdTokenResponse.getBody().getValue();
         String refreshToken = pwdTokenResponse.getBody().getRefreshToken().getValue();
@@ -148,15 +150,13 @@ public class RevokeTokenTest {
         /**
          * blacklist admin account
          */
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtClientCredential(CLIENT_ID_OAUTH2_ID, COMMON_CLIENT_SECRET);
-        String bearer = tokenResponse.getBody().getValue();
 
         String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", userId);
         stringStringHashMap.put("type", "USER");
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
+        headers.setBearerAuth(bearer0);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(mapper.writeValueAsString(stringStringHashMap), headers);
         ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
@@ -176,7 +176,7 @@ public class RevokeTokenTest {
          * add thread sleep to prevent token get revoked and generate within a second
          */
         Thread.sleep(1000);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 = action.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 = action.getJwtPasswordRoot();
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);

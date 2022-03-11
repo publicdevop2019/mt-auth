@@ -30,7 +30,7 @@ import static com.hw.helper.UserAction.*;
 @Slf4j
 @SpringBootTest
 public class BIzUserTest {
-    public static final String RESOURCE_OWNER = "/users";
+    public static final String RESOURCE_OWNER = "/mngmt/users";
     private static final String root_index = "0U8AZTODP4H0";
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false).setSerializationInclusion(JsonInclude.Include.NON_NULL);
     @Autowired
@@ -52,27 +52,6 @@ public class BIzUserTest {
     }
 
     @Test
-    public void create_user_with_right_authority_is_user_only() throws JsonProcessingException {
-        ResourceOwner user = action.randomCreateUserDraft();
-        ResponseEntity<DefaultOAuth2AccessToken> user1 = action.registerAnUser(user);
-
-        Assert.assertEquals(HttpStatus.OK, user1.getStatusCode());
-
-        Assert.assertNotNull(user1.getHeaders().getLocation());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = action.getJwtPassword(user.getEmail(), user.getPassword());
-
-        Assert.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
-
-        List<String> authorities = ServiceUtility.getAuthority(tokenResponse12.getBody().getValue());
-
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-
-    }
-
-    @Test
     public void should_not_able_to_create_user_with_user_name_not_email() throws JsonProcessingException {
         ResourceOwner user = action.userCreateDraft(UUID.randomUUID().toString(), UUID.randomUUID().toString());
         ResponseEntity<DefaultOAuth2AccessToken> user1 = action.registerAnUser(user);
@@ -86,7 +65,7 @@ public class BIzUserTest {
         ResourceOwner user = action.randomCreateUserDraft();
         action.registerAnUser(user);
         /** Location is not used in this case, root/admin/user can only update their password */
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/pwd";
+        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + "/users"  + "/pwd";
         String newPassword = UUID.randomUUID().toString().replace("-", "");
         /** Login */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(user.getEmail(), user.getPassword());
@@ -108,7 +87,7 @@ public class BIzUserTest {
         String value = registerTokenResponse.getBody().getValue();
         ResourceOwner user = action.randomCreateUserDraft();
         action.registerAnUser(user);
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/forgetPwd";
+        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + "/users"  + "/forgetPwd";
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
@@ -119,7 +98,7 @@ public class BIzUserTest {
         ResponseEntity<Object> exchange = action.restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/resetPwd";
+        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + "/users"  + "/resetPwd";
         forgetPasswordRequest.setToken("123456789");
         forgetPasswordRequest.setNewPassword(UUID.randomUUID().toString().replaceAll("-",""));
         String s2 = mapper.writeValueAsString(forgetPasswordRequest);
@@ -145,7 +124,7 @@ public class BIzUserTest {
         resourceOwnerUpdatePwd.setPassword(UUID.randomUUID().toString().replaceAll("-",""));
         ResponseEntity<DefaultOAuth2AccessToken> createResponse = action.registerAnUser(user);
         /** Location is not used in this case, root/admin/user can only update their password */
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/pwd";
+        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + "/users"  + "/pwd";
         /** Login */
         String oldPassword = user.getPassword();
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(user.getEmail(), user.getPassword());
@@ -179,39 +158,10 @@ public class BIzUserTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(tokenResponse.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotalUser> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
 
         Assert.assertNotSame(0, exchange.getBody().getData().size());
-    }
-
-
-    @Test
-    public void update_user_authority_to_admin_with_root_account() throws JsonProcessingException {
-        ResourceOwner user = action.randomCreateUserDraft();
-        ResponseEntity<DefaultOAuth2AccessToken> createResp = action.registerAnUser(user);
-        String s = createResp.getHeaders().getLocation().toString();
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/" + s;
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
-        String bearer = tokenResponse.getBody().getValue();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        user.setGrantedAuthorities(List.of(AccessConstant.ADMIN_USER_ID, AccessConstant.USER_USER_ID));
-        user.setVersion(0);
-        HttpEntity<ResourceOwner> request = new HttpEntity<>(user, headers);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange = action.restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
-
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-
-        /**
-         * login to verify grantedAuthorities has been changed
-         */
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 = action.getJwtPassword(user.getEmail(), user.getPassword());
-        List<String> authorities = ServiceUtility.getAuthority(tokenResponse1.getBody().getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
     }
 
     @Test
@@ -235,49 +185,7 @@ public class BIzUserTest {
     }
 
     @Test
-    public void should_not_able_to_update_user_authority_to_root_with_root_account() throws JsonProcessingException {
-        ResourceOwner user = action.randomCreateUserDraft();
-        ResponseEntity<DefaultOAuth2AccessToken> createResp = action.registerAnUser(user);
-        String s = createResp.getHeaders().getLocation().toString();
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/" + s;
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
-        String bearer = tokenResponse.getBody().getValue();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        user.setGrantedAuthorities(List.of(AccessConstant.ADMIN_USER_ID, AccessConstant.USER_USER_ID, AccessConstant.ROOT_USER_ID));
-        String s1 = mapper.writeValueAsString(user);
-        HttpEntity<String> request = new HttpEntity<>(s1, headers);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange = action.restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
-
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-
-    }
-
-    @Test
-    public void should_not_able_to_update_user_authority_to_admin_with_admin_account() throws JsonProcessingException {
-        ResourceOwner user = action.randomCreateUserDraft();
-        ResponseEntity<DefaultOAuth2AccessToken> createResp = action.registerAnUser(user);
-        String s = createResp.getHeaders().getLocation().toString();
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + RESOURCE_OWNER  + "/" + s;
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        user.setGrantedAuthorities(List.of(AccessConstant.ADMIN_USER_ID, AccessConstant.USER_USER_ID));
-        String s1 = mapper.writeValueAsString(user);
-        HttpEntity<String> request = new HttpEntity<>(s1, headers);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange = action.restTemplate.exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
-
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
-
-    }
-
-    @Test
-    public void lock_then_unlock_user() throws JsonProcessingException {
+    public void lock_then_unlock_user() {
         ResourceOwner user = action.randomCreateUserDraft();
         ResponseEntity<DefaultOAuth2AccessToken> createResp = action.registerAnUser(user);
         String s = createResp.getHeaders().getLocation().toString();
@@ -361,18 +269,6 @@ public class BIzUserTest {
         ResponseEntity<Object> exchange = action.restTemplate.exchange(url, HttpMethod.DELETE, request, Object.class);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-        /**
-         * try w admin, admin can not delete user
-         */
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse2 = action.getJwtPassword(ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        HttpHeaders headers2 = new HttpHeaders();
-        headers2.setBearerAuth(tokenResponse2.getBody().getValue());
-        HttpEntity<Object> request2 = new HttpEntity<>(null, headers2);
-        ResponseEntity<Object> exchange2 = action.restTemplate.exchange(url, HttpMethod.DELETE, request2, Object.class);
-        /**
-         * forbidden if using proxy instead of HttpStatus.BAD_REQUEST
-         */
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
 
     }
 

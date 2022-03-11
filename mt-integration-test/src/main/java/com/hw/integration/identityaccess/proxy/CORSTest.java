@@ -30,8 +30,8 @@ public class CORSTest {
 
     private String thirdPartyOrigin = "http://localhost:4300";
 
-    private String[] corsUris = {"/oauth/token", "/clients/root/0", "/clients/root",
-            "/authorize", "/users/admin", "/users/admin/0", "/users/admin/pwd", "/users/admin"};
+    private String[] corsUris = {"/oauth/token", "/mngmt/clients/0", "/mngmt/clients",
+            "/authorize", "/mngmt/users", "/mngmt/users/0", "/users/pwd", "/users"};
     UUID uuid;
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -54,32 +54,6 @@ public class CORSTest {
         corsAssertToken(res);
     }
 
-    @Test
-    public void cors_client() {
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH+  corsUris[1];
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.PUT);
-        Assert.assertEquals("[PUT]", res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
-
-    @Test
-    public void cors_client_w_id_put() {
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH+  corsUris[2];
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.PUT);
-        Assert.assertEquals("[PUT]", res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
-
-    @Test
-    public void cors_client_w_id_delete() {
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH+  corsUris[2];
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.DELETE);
-        Assert.assertEquals("[DELETE]", res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
 
     @Test
     public void cors_clients() {
@@ -126,23 +100,6 @@ public class CORSTest {
 
     }
 
-    @Test
-    public void cors_resourceOwner_id_pwd() {
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH+  corsUris[6];
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.PATCH);
-        Assert.assertEquals("[PATCH]", res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
-
-    @Test
-    public void cors_resourceOwners() {
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH+  corsUris[7];
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.GET);
-        Assert.assertEquals("[GET]", res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
 
     private ResponseEntity<?> sendValidCorsForTokenUri(String uri) {
         /**

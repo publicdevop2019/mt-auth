@@ -11,6 +11,7 @@ public class SecurityProfile {
     private String lookupPath;
 
     private String method;
+    private String name;
 
     private String url;
 

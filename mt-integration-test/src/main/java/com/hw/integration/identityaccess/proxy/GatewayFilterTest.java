@@ -53,8 +53,8 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_etag_for_get_resources() {
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + USERS_ADMIN;
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordAdmin();
+        String url2 = UserAction.proxyUrl + SVC_NAME_TEST + "/cache";
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
         String bearer0 = pwdTokenResponse.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer0);
@@ -68,7 +68,7 @@ public class GatewayFilterTest {
     @Test
     public void should_get_cache_control_for_get_resources() {
         String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + USERS_ADMIN;
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
         String bearer0 = pwdTokenResponse.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer0);
@@ -106,8 +106,8 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_304_when_etag_present() {
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + USERS_ADMIN;
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordAdmin();
+        String url2 = UserAction.proxyUrl + SVC_NAME_TEST + "/cache";
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
         String bearer0 = pwdTokenResponse.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer0);
@@ -121,11 +121,13 @@ public class GatewayFilterTest {
     }
 
     @Test
+    @Ignore//move this feature to individual application level
     public void should_sanitize_request_json() {
         SecurityProfile securityProfile1 = new SecurityProfile();
         securityProfile1.setResourceId("0C8AZTODP4HT");
         securityProfile1.setSecured(false);
         securityProfile1.setMethod("GET");
+        securityProfile1.setName("Test");
         securityProfile1.setDescription("<script>test</script>");
         securityProfile1.setPath("/test/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "") + "/abc");
         ResponseEntity<String> profile = createProfile(securityProfile1, action);
@@ -136,6 +138,7 @@ public class GatewayFilterTest {
     }
 
     @Test
+    @Ignore
     public void should_sanitize_response_json() {
         String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS + "/" + CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID;
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
@@ -158,7 +161,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_cut_off_api_when_max_limit_reach() {
-        String url = UserAction.proxyUrl + SVC_NAME_TEST + "/test/delay/" + "15000";
+        String url = UserAction.proxyUrl + SVC_NAME_TEST + "/delay/" + "15000";
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, String.class);
@@ -168,7 +171,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_has_no_response_body_when_500() {
-        String url = UserAction.proxyUrl + SVC_NAME_TEST + "/test/status/500";
+        String url = UserAction.proxyUrl + SVC_NAME_TEST + "/status/500";
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, String.class);
@@ -183,6 +186,7 @@ public class GatewayFilterTest {
         securityProfile1.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
         securityProfile1.setUserOnly(true);
         securityProfile1.setMethod("GET");
+        securityProfile1.setName("TEST");
         securityProfile1.setPath("/test/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "") + "/abc");
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse2 = action.getJwtPasswordRoot();
         String bearer1 = pwdTokenResponse2.getBody().getValue();

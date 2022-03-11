@@ -7,7 +7,6 @@ import com.mt.access.domain.model.client.event.*;
 import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -285,10 +284,10 @@ public class Client extends Auditable {
     public Endpoint addNewEndpoint(CacheProfileId cacheProfileId,
                                    String name, String description, String path, EndpointId endpointId, String method,
                                    boolean secured,
-                                   boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig,boolean shared) {
+                                   boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig, boolean shared) {
         return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
                 name, description, path, endpointId, method, secured,
-                isWebsocket, csrfEnabled, corsConfig,shared);
+                isWebsocket, csrfEnabled, corsConfig, shared);
     }
 
     // for create
@@ -303,7 +302,7 @@ public class Client extends Auditable {
 
     //for update
     private void updateSecret(String secret) {
-        if (secret != null) {
+        if (secret != null && !secret.isBlank()) {
             Validator.notNull(types);
             DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
             if (types.contains(ClientType.FRONTEND_APP))

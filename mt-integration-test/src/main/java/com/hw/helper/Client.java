@@ -11,12 +11,9 @@ public class Client {
     private String clientSecret;
     private String description;
     private String name;
+    private Set<ClientType> types;
 
     private Set<GrantTypeEnum> grantTypeEnums;
-
-    private List<String> grantedAuthorities;
-
-    private Set<String> scopeEnums;
 
     private Integer accessTokenValiditySeconds;
 

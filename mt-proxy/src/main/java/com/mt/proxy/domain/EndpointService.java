@@ -81,7 +81,7 @@ public class EndpointService {
         if (requestURI.contains("/oauth/token") || requestURI.contains("/oauth/token_key")) {
             //permit all token endpoints,
             return true;
-        } else if (authHeader == null || !authHeader.contains("Bearer") || requestURI.contains("/public")) {
+        } else if (authHeader == null || !authHeader.contains("Bearer")) {
             if (cached.size() == 0) {
                 log.debug("return 403 due to cached endpoints are empty");
                 return false;

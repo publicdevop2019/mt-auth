@@ -36,7 +36,7 @@ export abstract class IAggregateValidator {
 }
 export class StringValidator {
     static STRING_WHITE_LIST = new RegExp(/^[a-zA-Z0-9 \u4E00-\u9FFF_]*$/)
-    static STRING_WHITE_LIST_DESC = new RegExp(/^[a-zA-Z0-9 \(\)\+\u4E00-\u9FFF]*$/)
+    static STRING_WHITE_LIST_DESC = new RegExp(/^[a-zA-Z0-9 \-\(\)\+\u4E00-\u9FFF]*$/)
     static STRING_WHITE_LIST_ATTR = new RegExp(/^[a-zA-Z0-9\:\u4E00-\u9FFF]*$/)
     static STRING_WHITE_LIST_ATTR_VALUE = new RegExp(/^[a-zA-Z0-9-\+\x\(\)\/\:\u4E00-\u9FFF]*$/)
     static STRING_URL_PATH_LIST = new RegExp(/^[a-zA-Z-\/\*]*$/)
