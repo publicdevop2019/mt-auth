@@ -1,4 +1,4 @@
-<div (mouseenter)="showEditIcon()" (mouseleave)="hideEditIcon()"
+<div (mouseenter)="!readOnly&&showEditIcon()" (mouseleave)="!readOnly&&hideEditIcon()"
     style="display: flex;flex-wrap: nowrap;align-items: center;">
     <ng-container *ngIf="!editView">
         <mat-chip-list #chipList aria-label="chip list selection">
@@ -24,7 +24,7 @@
         </mat-icon>
         <mat-icon [color]="'error'" (click)="doCancel()" style="cursor: pointer;">cancel</mat-icon>
     </ng-container>
-    <mat-icon *ngIf="!editView" [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doEdit()"
+    <mat-icon *ngIf="!readOnly&&!editView" [ngStyle]="{'visibility':displayEdit}" [color]="'primary'" (click)="doEdit()"
         style="padding-right: 8px;cursor: pointer;">edit
     </mat-icon>
 </div>

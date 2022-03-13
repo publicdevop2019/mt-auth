@@ -29,6 +29,7 @@ export class EditablePageSelectSingleComponent implements OnInit {
   allLoaded = false;
   @Input() inputValue: IOption = undefined;
   @Input() list: IOption[] = [];
+  @Input() readOnly: boolean = false;
   @Input() entitySvc: EntityCommonService<IIdName, IIdName>;
   @Output() newValue: EventEmitter<IEditEvent> = new EventEmitter();
   displayEdit = 'hidden';

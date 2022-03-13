@@ -10,6 +10,7 @@ export interface IEditEvent {
 })
 export class EditableFieldComponent implements OnInit {
   @Input() inputValue: string = '';
+  @Input() readOnly: boolean = false;
   @Output() newValue: EventEmitter<IEditEvent> = new EventEmitter();
   @ViewChild("inputField") inputField: ElementRef<HTMLInputElement>;
   displayEdit = 'hidden';

@@ -13,7 +13,7 @@ export class EditablePageSelectMultiComponent implements OnInit {
   @Input() query: string = undefined;
   @Input() inputOptions: IOption[] = [];
   @Input() list: IOption[] = [];
-  @Input() readonly: boolean = false;
+  @Input() readOnly: boolean = false;
   @Output() newValue: EventEmitter<IEditListEvent> = new EventEmitter();
   @Input() entitySvc: EntityCommonService<IIdName, IIdName>;
   private _visibilityConfig = {

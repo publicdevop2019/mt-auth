@@ -47,7 +47,7 @@
             <ng-container matColumnDef="resourceId">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resourceId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-page-select-single *ngIf="allClientList"
+                    <app-editable-page-select-single *ngIf="allClientList"  [readOnly]="true"
                         [inputValue]="getOption(row.resourceId,allClientList)" [list]="allClientList" [entitySvc]="clientSvc"
                         (newValue)="doPatch(row.id,$event,'resourceId')">
                     </app-editable-page-select-single>
@@ -56,17 +56,17 @@
             <ng-container matColumnDef="description">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['description']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-field [inputValue]="row.description"
+                    <app-copy-field [inputValue]="row.description" 
                         (newValue)="doPatch(row.id,$event,'description')">
-                    </app-editable-field>
+                    </app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="path">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> URL </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-field [inputValue]="row.path" (newValue)="doPatch(row.id,$event,'path')">
-                    </app-editable-field>
+                    <app-copy-field [inputValue]="row.path" (newValue)="doPatch(row.id,$event,'path')">
+                    </app-copy-field>
                 </td>
             </ng-container>
 
@@ -75,7 +75,7 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['method']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <ng-container *ngIf="!row.websocket">
-                        <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"
+                        <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"  [readOnly]="true"
                             [list]="httpMethodList" (newValue)="doPatch(row.id,$event,'method')">
                         </app-editable-select-single>
                     </ng-container>
