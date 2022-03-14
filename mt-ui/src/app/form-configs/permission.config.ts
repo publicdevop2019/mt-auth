@@ -63,6 +63,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "paginated-select",
             "display": false,
+            "multiple": true,
             "label": "SELECT_API",
             "key": "apiId",
             "position": {

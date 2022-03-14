@@ -104,9 +104,9 @@ public class Role extends Auditable {
     public static Role createRoleForTenant(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType user, RoleId roleId1, Set<PermissionId> externalPermissionIds) {
         Role role;
         if (permissionIds.size() > 0) {
-            Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery((PermissionQuery) e), new PermissionQuery(permissionIds));
+            Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e), new PermissionQuery(permissionIds));
             //add linked api permission
-            Set<PermissionId> collect1 = allByQuery.stream().map(Permission::getLinkedApiPermissionId).filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<PermissionId> collect1 = allByQuery.stream().flatMap(e->e.getLinkedApiPermissionIds().stream()).filter(Objects::nonNull).collect(Collectors.toSet());
             permissionIds.addAll(collect1);
             AtomicReference<ProjectId> tenantId = new AtomicReference<>();
             allByQuery.stream().findFirst().ifPresent(e -> {

@@ -2,7 +2,11 @@ package com.mt.access.application.permission.representation;
 
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionType;
+import com.mt.common.domain.model.domainId.DomainId;
 import lombok.Data;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Data
 public class PermissionRepresentation {
@@ -11,7 +15,7 @@ public class PermissionRepresentation {
     private String parentId;
     private PermissionType type;
     private boolean systemCreate;
-    private String linkedApiPermissionId;
+    private Set<String> linkedApiPermissionIds;
 
     public PermissionRepresentation(Permission permission) {
         this.id = permission.getPermissionId().getDomainId();
@@ -21,8 +25,8 @@ public class PermissionRepresentation {
         if (permission.getParentId() != null) {
             this.parentId = permission.getParentId().getDomainId();
         }
-        if (permission.getLinkedApiPermissionId() != null) {
-            this.linkedApiPermissionId = permission.getLinkedApiPermissionId().getDomainId();
+        if (permission.getLinkedApiPermissionIds() != null) {
+            this.linkedApiPermissionIds = permission.getLinkedApiPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         }
     }
 }

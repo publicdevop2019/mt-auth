@@ -9,10 +9,10 @@ public abstract class QueryCriteria {
     @Setter(AccessLevel.PROTECTED)
     protected QueryConfig queryConfig;
 
-    public QueryCriteria pageOf(int a) {
+    public <T extends QueryCriteria> T pageOf(int a) {
         PageConfig pageConfig = this.pageConfig.pageOf(((Integer) a).longValue());
         setPageConfig(pageConfig);
-        return this;
+        return (T) this;
     }
 
     boolean count() {

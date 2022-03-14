@@ -4,8 +4,8 @@ export interface IPermission extends IIdBasedEntity{
     name:string
     projectId:string
     parentId:string
-    linkedApiId:string
+    linkedApiIds:string[]
     systemCreate?:boolean
-    linkedApiPermissionId?:string
+    linkedApiPermissionIds?:string[]
     type?:"COMMON"|'API'|'PROJECT'
 }

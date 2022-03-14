@@ -2,10 +2,11 @@ package com.mt.access.application.permission.command;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class PermissionUpdateCommand {
     private String name;
-    private String parentId;
     private String projectId;
-    private String linkedApiId;
+    private List<String> linkedApiIds;
 }
