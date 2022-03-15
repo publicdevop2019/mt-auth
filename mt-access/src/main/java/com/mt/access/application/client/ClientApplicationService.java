@@ -75,7 +75,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     public SumPagedRep<Client> tenantQuery(String queryParam, String pagingParam, String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
     }
 
@@ -137,7 +137,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
-        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), DELETE_CLIENT);
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), EDIT_CLIENT);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
             Optional<Client> client = DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
@@ -158,7 +158,7 @@ public class ClientApplicationService implements ClientDetailsService {
     @Transactional
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, PATCH_CLIENT);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CLIENT);
         ClientId clientId = new ClientId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             ClientQuery clientQuery = new ClientQuery(clientId, projectId1);

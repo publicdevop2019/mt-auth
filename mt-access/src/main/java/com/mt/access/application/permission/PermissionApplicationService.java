@@ -42,7 +42,7 @@ public class PermissionApplicationService {
 
     public SumPagedRep<Permission> query(String queryParam, String pageParam, String skipCount) {
         PermissionQuery permissionQuery = new PermissionQuery(queryParam, pageParam, skipCount);
-        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
     }
 
@@ -80,7 +80,7 @@ public class PermissionApplicationService {
     public void remove(String projectId, String id, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery = new PermissionQuery(permissionId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), DELETE_PERMISSION);
+        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Permission> permission = DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
             permission.ifPresent(Permission::remove);
@@ -93,7 +93,7 @@ public class PermissionApplicationService {
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery = new PermissionQuery(permissionId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), PATCH_PERMISSION);
+        DomainRegistry.getPermissionCheckService().canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Permission> corsProfile = DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
             if (corsProfile.isPresent()) {

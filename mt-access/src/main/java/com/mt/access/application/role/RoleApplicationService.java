@@ -38,7 +38,7 @@ public class RoleApplicationService {
 
     public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 
@@ -76,7 +76,7 @@ public class RoleApplicationService {
     public void remove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), DELETE_ROLE);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(roleId);
             corsProfile.ifPresent(e -> {

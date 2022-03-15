@@ -106,7 +106,7 @@ public class EndpointApplicationService {
 
     public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API);
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
     }
 
@@ -165,7 +165,7 @@ public class EndpointApplicationService {
     @Transactional
     public void removeEndpoint(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), DELETE_API);
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), EDIT_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
             if (endpoint.isPresent()) {
@@ -181,7 +181,7 @@ public class EndpointApplicationService {
     @Transactional
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, BATCH_DELETE_API);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam, projectId1));
             Set<ProjectId> collect = allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
@@ -204,7 +204,7 @@ public class EndpointApplicationService {
     @Transactional
     public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, PATCH_API);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(endpointId, projectId1)).findFirst();

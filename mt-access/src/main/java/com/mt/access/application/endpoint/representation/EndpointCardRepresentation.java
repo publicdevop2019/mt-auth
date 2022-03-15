@@ -45,9 +45,11 @@ public class EndpointCardRepresentation {
 
     public static void updateDetail(List<EndpointCardRepresentation> data) {
         Set<ClientId> collect = data.stream().map(e -> new ClientId(e.resourceId)).collect(Collectors.toSet());
-        Set<Client> allByIds = ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
-        data.forEach(e -> allByIds.stream().filter(ee -> ee.getClientId().getDomainId().equals(e.resourceId)).findFirst().ifPresent(ee -> {
-            e.resourceName = ee.getName();
-        }));
+        if(!collect.isEmpty()){
+            Set<Client> allByIds = ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
+            data.forEach(e -> allByIds.stream().filter(ee -> ee.getClientId().getDomainId().equals(e.resourceId)).findFirst().ifPresent(ee -> {
+                e.resourceName = ee.getName();
+            }));
+        }
     }
 }

@@ -83,6 +83,7 @@ export class MyPermissionsComponent extends SummaryEntityComponent<IPermission, 
       this.loadChildren = (id: string) => {
         return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
       }
+      this.deviceSvc.refreshSummary.next()
     });
     this.subs.add(sub)
     this.formCreatedOb2 = this.fis.formCreated(this.formId2);
