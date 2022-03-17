@@ -77,6 +77,7 @@ public class Permission extends Auditable {
         reservedName.add(CLIENT_MNGMT);
         reservedName.add(EDIT_PROJECT_INFO);
         reservedName.add(PROJECT_INFO_MNGMT);
+
     }
 
     @Id

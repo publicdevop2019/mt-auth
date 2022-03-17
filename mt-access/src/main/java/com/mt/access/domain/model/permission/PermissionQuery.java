@@ -71,6 +71,16 @@ public class PermissionQuery extends QueryCriteria {
         this.sort = PermissionSort.byId(true);
     }
 
+    public static PermissionQuery uiPermissionQuery(Set<ProjectId> projectIds, Set<String> names) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.tenantIds = projectIds;
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.sort = PermissionSort.byId(true);
+        permissionQuery.names = names;
+        return permissionQuery;
+    }
+
     //create query to find read project permission for tenant
     public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> ids) {
         PermissionQuery permissionQuery = new PermissionQuery();

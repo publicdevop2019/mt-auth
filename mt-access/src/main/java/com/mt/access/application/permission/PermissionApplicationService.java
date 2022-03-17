@@ -19,6 +19,7 @@ import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.infrastructure.AppConstant;
+import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
@@ -184,5 +185,10 @@ public class PermissionApplicationService {
             byId.ifPresent(e -> e.setShared(false));
             return null;
         }, PERMISSION);
+    }
+
+    public Set<Permission> ui() {
+        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e), PermissionQuery.uiPermissionQuery(tenantIds, reservedName));
     }
 }
