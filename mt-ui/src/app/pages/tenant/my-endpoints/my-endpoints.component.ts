@@ -15,27 +15,20 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { uniqueObject } from 'src/app/clazz/utility';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { combineLatest, ReplaySubject } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
   styleUrls: ['./my-endpoints.component.css']
 })
-export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
+export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
-  columnList = {
-    id: 'ID',
-    name: 'NAME',
-    description: 'DESCRIPTION',
-    resourceId: 'PARENT_CLIENT',
-    path: 'URL',
-    method: 'METHOD',
-    edit: 'EDIT',
-    clone: 'CLONE',
-    delete: 'DELETE',
-  }
+  columnList: any={};
   sheetComponent = EndpointComponent;
-  public projectId: string;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
@@ -55,43 +48,73 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
     },
   ]
   searchConfigs: ISearchConfig[] = []
+  projectIdSubject = this.route.paramMap.pipe(map(e => e.get('id')))
   constructor(
     public projectSvc: ProjectService,
+    public httpSvc: HttpProxyService,
     public entitySvc: MyEndpointService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public clientSvc: MyClientService,
     public fis: FormInfoService,
     public dialog: MatDialog,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub=this.route.paramMap.subscribe(queryMaps => {
-      this.projectId = queryMaps.get('id')
-      this.entitySvc.setProjectId(this.projectId);
-      this.clientSvc.setProjectId(this.projectId)
-      this.bottomSheetParams['projectId'] = this.projectId;
-      this.deviceSvc.refreshSummary.next()
-    });
-    this.subs.add(sub)
-    this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
-      .subscribe(next => {
-        if (next.data)
-          this.searchConfigs = [...this.initSearchConfig, {
-            searchLabel: 'PARENT_CLIENT',
-            searchValue: 'resourceId',
-            type: 'dropdown',
-            multiple: {
-              delimiter: '.'
-            },
-            source: next.data.map(e => {
-              return {
-                label: e.name,
-                value: e.id
-              }
-            })
-          },];
-      });
+    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
+    const sub2 = this.canDo('VIEW_API').subscribe(b => {
+      if (b.result) {
+        this.doSearch({ value: '', resetPage: true })
+      }
+    })
+    const sub4 = this.canDo('VIEW_API','VIEW_CLIENT').subscribe(b => {
+        if (b.result) {
+          //prepare search
+          this.clientSvc.setProjectId(b.projectId)
+          this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
+            .subscribe(next => {
+              if (next.data)
+                this.searchConfigs = [...this.initSearchConfig, {
+                  searchLabel: 'PARENT_CLIENT',
+                  searchValue: 'resourceId',
+                  type: 'dropdown',
+                  multiple: {
+                    delimiter: '.'
+                  },
+                  source: next.data.map(e => {
+                    return {
+                      label: e.name,
+                      value: e.id
+                    }
+                  })
+                },];
+            });
+        } else {
+          this.searchConfigs = [...this.initSearchConfig]
+        }
+    })
+    this.subs.add(sub4);
+    const sub3 = this.canDo('EDIT_API').subscribe(b => {
+      this.columnList = b.result ? {
+        id: 'ID',
+        name: 'NAME',
+        description: 'DESCRIPTION',
+        resourceId: 'PARENT_CLIENT',
+        path: 'URL',
+        method: 'METHOD',
+        edit: 'EDIT',
+        clone: 'CLONE',
+        delete: 'DELETE',
+      } : {
+        id: 'ID',
+        name: 'NAME',
+        description: 'DESCRIPTION',
+        resourceId: 'PARENT_CLIENT',
+        path: 'URL',
+        method: 'METHOD',
+      }
+    })
+    this.subs.add(sub3);
+    this.subs.add(sub2);
 
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {
@@ -102,14 +125,11 @@ export class MyApisComponent extends SummaryEntityComponent<IEndpoint, IEndpoint
     return options.find(e => e.value == value)
   }
   batchOperation() {
-    const dialogRef = this.dialog.open(BatchUpdateCorsComponent, {
+    this.dialog.open(BatchUpdateCorsComponent, {
       width: '500px',
       data: {
         data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
       },
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
     });
   }
 }

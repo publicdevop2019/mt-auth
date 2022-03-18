@@ -121,10 +121,13 @@ import { SummaryResourceOwnerComponent } from './pages/mgnmt/summary-user/summar
 import { ResourceOwnerComponent } from './pages/mgnmt/user/user.component';
 import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
+import { RequirePermissionDirective } from './directive/require-permission.directive';
+import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
 
 @NgModule({
   declarations: [
     AppComponent,
+    TenantSearchComponent,
     LoginComponent,
     ClientComponent,
     ResourceOwnerComponent,
@@ -157,6 +160,7 @@ import { AuthorizeComponent } from './pages/common/authorize/authorize.component
     DynamicTreeComponent,
     DynamicNodeComponent,
     TreeNodeDirective,
+    RequirePermissionDirective,
     CardNotificationComponent,
     SearchComponent,
     SummaryRoleComponent,

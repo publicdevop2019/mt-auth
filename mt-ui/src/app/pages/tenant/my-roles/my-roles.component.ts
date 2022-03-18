@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
@@ -28,23 +29,12 @@ export interface INewRole extends IIdBasedEntity {
   templateUrl: './my-roles.component.html',
   styleUrls: ['./my-roles.component.css']
 })
-export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole> implements OnDestroy {
+export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INewRole> implements OnDestroy {
   public formId = "roleTableColumnConfig";
   formId2 = 'summaryRoleCustomerView';
   formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
-
-  public projectId: string;
-  columnList = {
-    id: 'ID',
-    name: 'NAME',
-    description: 'DESCRIPTION',
-    tenantId: 'TENANT_ID',
-    roleType: 'TYPE',
-    edit: 'EDIT',
-    clone: 'CLONE',
-    delete: 'DELETE',
-  }
+  columnList: any={};
   sheetComponent = RoleComponent;
   public loadRoot
   public loadChildren
@@ -63,19 +53,16 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
     public deviceSvc: DeviceService,
+    public httpSvc: HttpProxyService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub=this.route.paramMap.subscribe(queryMaps => {
-      this.projectId = queryMaps.get('id')
-      this.entitySvc.setProjectId(this.projectId);
-      this.bottomSheetParams['projectId'] = this.projectId;
-
+    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
+    const sub=this.projectId.subscribe(pId => {
+      this.entitySvc.setProjectId(pId);
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
       this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
-      this.deviceSvc.refreshSummary.next()
     });
     this.subs.add(sub)
     this.fis.formCreated(this.formId2).subscribe(() => {
@@ -86,13 +73,39 @@ export class MyRolesComponent extends SummaryEntityComponent<INewRole, INewRole>
         this.fis.formGroupCollection[this.formId2].get('view').setValue(this.viewType);
       }
       this.subs.add(sub)
+    });
+    const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
+      if (b.result) {
+        this.doSearch({ value: '', resetPage: true })
+      }
     })
+    const sub3 = this.canDo('EDIT_ROLE').subscribe(b => {
+      this.columnList = b.result? {
+        id: 'ID',
+        name: 'NAME',
+        description: 'DESCRIPTION',
+        tenantId: 'TENANT_ID',
+        roleType: 'TYPE',
+        edit: 'EDIT',
+        clone: 'CLONE',
+        delete: 'DELETE',
+      }:{
+        id: 'ID',
+        name: 'NAME',
+        description: 'DESCRIPTION',
+        tenantId: 'TENANT_ID',
+        roleType: 'TYPE',
+      }
+    })
+    this.subs.add(sub2)
+    this.subs.add(sub3)
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
   ngOnDestroy(): void {
-    this.fis.resetAll()
+    this.fis.reset(this.formId)
+    this.fis.reset(this.formId2)
     super.ngOnDestroy()
   }
   editable(row: INewRole) {

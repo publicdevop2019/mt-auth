@@ -1,0 +1,60 @@
+<form class="example-container" [formGroup]="options">
+    <mat-form-field>
+        <mat-label>{{'SELECT_A_SEARCH_TYPE'|translate}}</mat-label>
+        <mat-select [formControl]="searchLevel1">
+            <ng-container *ngFor="let e of searchConfigs">
+                <mat-option  [value]="e">{{e.searchLabel|translate}}</mat-option>
+            </ng-container>
+        </mat-select>
+    </mat-form-field>
+    <div *ngIf="searchLevel1.value?.type==='text'" style="display: flex;flex-direction: row;">
+        <mat-form-field>
+            <mat-label>{{'ENTER_VALUE'|translate}}</mat-label>
+            <input matInput type="text" [formControl]="searchByString">
+        </mat-form-field>
+        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;" [disabled]="shouldDisableAddBtn()"
+            (click)="add(searchByString.value)">{{'ADD'|translate}}</button>
+    </div>
+        <ng-container *ngIf="searchLevel1.value?.type==='custom'" #custom></ng-container>
+    <div 
+        style="display: flex;flex-direction: row;align-items: center;">
+        <mat-form-field *ngIf="searchLevel1.value === null || ['dropdown','text','custom'].includes(searchLevel1.value?.type)" class="example-chip-list">
+            <mat-chip-list #chipList aria-label="chip list selection">
+                <mat-chip *ngFor="let e of searchItems" [selectable]="true" [removable]="true" (removed)="remove(e)">
+                    <ng-container>
+                        {{e.label|translate}}
+                    </ng-container>
+                    <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+                </mat-chip>
+                <input [placeholder]="translateSvc.get('SEARCH') | async" [matAutocomplete]="auto"
+                    style="margin-bottom: 10px;" [matChipInputFor]="chipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+            </mat-chip-list>
+            <mat-autocomplete #auto="matAutocomplete" >
+                <mat-option *ngFor="let e of getAutoCompleteList()" [value]="e.value" (click)="onAutoCompleteClickHandler(e)">
+                    {{e.label|translate}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <div *ngIf="searchLevel1.value?.type==='range'" style="display: flex;flex-direction: row;flex:1">
+            <mat-form-field>
+                <mat-label>{{'ENTER_MIN_VALUE'|translate}}</mat-label>
+                <input matInput type="text" [formControl]="searchByNumMin">
+            </mat-form-field>
+            <mat-form-field style="margin-left: 24px;">
+                <mat-label>{{'ENTER_MAX_VALUE'|translate}}</mat-label>
+                <input matInput type="text" [formControl]="searchByNumMax">
+            </mat-form-field>
+        </div>
+        <div *ngIf="searchLevel1.value?.type==='boolean'" style="display: flex;flex-direction: row;">
+            <mat-radio-group [formControl]="searchByBoolean" (change)="overwriteCommon(searchByBoolean.value)">
+                <mat-radio-button value="1">{{'YES'|translate}}</mat-radio-button>
+                <mat-radio-button value="0" style="margin-left: 12px;">{{'NO'|translate}}</mat-radio-button>
+            </mat-radio-group>
+        </div>
+        <button mat-raised-button color="accent" style="height: 36px; margin-left: 24px;"
+            (click)="doReset()">{{'RESET'|translate}}</button>
+        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
+            (click)="doRefresh()">{{'REFRESH'|translate}}</button>
+    </div>
+</form>

@@ -122,7 +122,8 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   }
   ngOnDestroy(): void {
     Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
-    this.fis.resetAllExcept(['summaryRoleCustomerView'])
+    this.fis.reset(this.formId)
+    this.fis.reset(this.formIdShared)
   }
   ngOnInit() {
   }

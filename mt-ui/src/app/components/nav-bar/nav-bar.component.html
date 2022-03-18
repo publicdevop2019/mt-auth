@@ -59,11 +59,13 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuAuth">
-                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                        {{nav.display| translate}}
-                    </mat-list-item>
+                    <ng-container  *ngFor="let nav of menuAuth">
+                        <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
+                            style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"  *appRequireP="getPermissionId(project.id,nav.authName) | async">
+                            <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                            {{nav.display| translate}}
+                        </mat-list-item>
+                    </ng-container>
                 </mat-nav-list>
             </mat-expansion-panel>
 

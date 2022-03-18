@@ -15,7 +15,6 @@ export function logout(router?: Router) {
         Object.keys(params).forEach(k => {
             queryBinded.push(k + "=" + params[k]);
         });
-        console.dir(queryBinded.join("&"))
         window.location.assign('/login?' + queryBinded.join("&"))
     } else {
         window.location.assign('/login')
