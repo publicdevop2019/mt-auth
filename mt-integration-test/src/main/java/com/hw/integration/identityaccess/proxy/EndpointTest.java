@@ -2,7 +2,7 @@ package com.hw.integration.identityaccess.proxy;
 
 import com.hw.helper.OutgoingReqInterceptor;
 import com.hw.helper.SecurityProfile;
-import com.hw.helper.SumTotalProfile;
+import com.hw.helper.SumTotal;
 import com.hw.helper.UserAction;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.*;
@@ -11,6 +11,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -29,8 +30,7 @@ import static com.hw.helper.UserAction.SVC_NAME_AUTH;
 @Slf4j
 @SpringBootTest
 public class EndpointTest {
-    public static final String PROXY_SECURITY = "/proxy";
-    public static final String ENDPOINTS = "/endpoints";
+    public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
     UUID uuid;
     @Autowired
     private UserAction action;
@@ -43,14 +43,15 @@ public class EndpointTest {
         }
     };
 
-    public static ResponseEntity<SumTotalProfile> readProfiles(UserAction action) {
+    public static ResponseEntity<SumTotal<SecurityProfile>> readProfiles(UserAction action) {
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse2 = action.getJwtPasswordRoot();
         String bearer1 = pwdTokenResponse2.getBody().getValue();
         String url = UserAction.proxyUrl + SVC_NAME_AUTH + ENDPOINTS;
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
         HttpEntity<SecurityProfile> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return action.restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, SumTotalProfile.class);
+        return action.restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
+        });
     }
 
     public static ResponseEntity<SecurityProfile> readProfile(UserAction action, String id) {
@@ -86,7 +87,7 @@ public class EndpointTest {
         /**
          * before modify, admin is able to access resourceOwner apis
          */
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
         String bearer1 = pwdTokenResponse.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
@@ -97,7 +98,7 @@ public class EndpointTest {
         /**
          * modify profile to prevent admin access
          */
-        ResponseEntity<SumTotalProfile> listResponseEntity = readProfiles();
+        ResponseEntity<SumTotal<SecurityProfile>> listResponseEntity = readProfiles();
         SecurityProfile securityProfile = listResponseEntity.getBody().getData().get(6);
         securityProfile.getUserRoles().remove("ROLE_ADMIN");
         securityProfile.getUserRoles().add("ROLE_ROOT");
@@ -139,8 +140,8 @@ public class EndpointTest {
         SecurityProfile securityProfile1 = new SecurityProfile();
         securityProfile1.setResourceId("0C8AZTODP4HT");
         securityProfile1.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
-//        securityProfile1.setClientRoles(new HashSet<>(List.of("TRUST")));
         securityProfile1.setUserOnly(true);
+        securityProfile1.setName("test");
         securityProfile1.setMethod("GET");
         securityProfile1.setWebsocket(false);
         securityProfile1.setPath("/test/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "") + "/abc");
@@ -150,7 +151,7 @@ public class EndpointTest {
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
     }
 
-    private ResponseEntity<SumTotalProfile> readProfiles() {
+    private ResponseEntity<SumTotal<SecurityProfile>> readProfiles() {
         return readProfiles(action);
     }
 

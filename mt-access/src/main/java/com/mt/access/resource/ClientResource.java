@@ -48,7 +48,9 @@ public class ClientResource {
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService().tenantQuery(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientCardRepresentation::new));
+        SumPagedRep<ClientCardRepresentation> rep = new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        ClientCardRepresentation.updateDetails(rep.getData());
+        return ResponseEntity.ok(rep);
     }
 
     @GetMapping(path = "mngmt/clients")
@@ -60,13 +62,15 @@ public class ClientResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService().adminQuery(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ClientCardRepresentation::new));
+        SumPagedRep<ClientCardRepresentation> rep = new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        ClientCardRepresentation.updateDetails(rep.getData());
+        return ResponseEntity.ok(rep);
     }
     @GetMapping("mngmt/clients/{id}")
     public ResponseEntity<ClientRepresentation> readForRootById2(@PathVariable String id, @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().adminQuery(id);
+        Optional<Client> client = ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
         return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value))).orElseGet(() -> ResponseEntity.ok().build());
     }
 

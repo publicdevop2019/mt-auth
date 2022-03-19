@@ -14,6 +14,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
@@ -60,7 +61,7 @@ public class RefreshTokenTest {
         enums.add(GrantTypeEnum.REFRESH_TOKEN);
         clientRaw.setResourceIds(Collections.singleton(CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
-        clientRaw.setGrantedAuthorities(List.of(AccessConstant.BACKEND_ID));
+        clientRaw.setTypes(new HashSet<>(List.of(ClientType.BACKEND_APP)));
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<String> client = action.createClient(clientRaw);
@@ -74,11 +75,13 @@ public class RefreshTokenTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotalUser> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         Thread.sleep(60000+60000+2000);//spring cloud gateway add 60S leeway
         //access access token should expire
-        ResponseEntity<SumTotalUser> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //get access token with refresh token
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -95,7 +98,8 @@ public class RefreshTokenTest {
         HttpHeaders headers3 = new HttpHeaders();
         headers3.setBearerAuth(exchange1.getBody().getValue());
         HttpEntity<String> request3 = new HttpEntity<>(null, headers3);
-        ResponseEntity<SumTotalUser> exchange3 = action.restTemplate.exchange(url, HttpMethod.GET, request3, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange3 = action.restTemplate.exchange(url, HttpMethod.GET, request3, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
     }
 
@@ -109,14 +113,14 @@ public class RefreshTokenTest {
         enums.add(GrantTypeEnum.REFRESH_TOKEN);
         clientRaw.setResourceIds(Collections.singleton(CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
-        clientRaw.setGrantedAuthorities(List.of(AccessConstant.FIRST_PARTY_ID));
+        clientRaw.setTypes(new HashSet<>(List.of(ClientType.FIRST_PARTY)));
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<String> client = action.createClient(clientRaw);
         String clientId = client.getHeaders().getLocation().toString();
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
-        ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient = action.getJwtPasswordWithClient(clientId, clientSecret, ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient = action.getJwtPasswordWithClient(clientId, clientSecret, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         OAuth2RefreshToken refreshToken = jwtPasswordWithClient.getBody().getRefreshToken();
         String jwt = refreshToken.getValue();

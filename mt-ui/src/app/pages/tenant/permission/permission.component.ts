@@ -21,6 +21,7 @@ import { MyPermissionService } from 'src/app/services/my-permission.service';
 })
 export class PermissionComponent extends Aggregate<PermissionComponent, IPermission> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IPermission>;
+  hasLinked = this.aggregate && this.aggregate.linkedApiPermissionIds && this.aggregate.linkedApiPermissionIds.length > 0;
   constructor(
     public entitySvc: MyPermissionService,
     public epSvc: MyEndpointService,
@@ -48,29 +49,30 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
           this.fis.hideIfMatch(this.formId, ['apiId'])
         }
       })
+
       if (this.bottomSheet.context === 'edit') {
-        if (this.aggregate.linkedApiPermissionId) {
+        if (this.hasLinked) {
           this.fis.showIfMatch(this.formId, ['apiId'])
         }
         const var0: Observable<any>[] = [];
-        if (this.aggregate.parentId || this.aggregate.linkedApiPermissionId) {
+        if (this.aggregate.parentId || this.hasLinked) {
           if (this.aggregate.parentId) {
             var0.push(this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
           }
-          if (this.aggregate.linkedApiPermissionId) {
-            var0.push(this.epSvc.readEntityByQuery(0, 1, 'permissionId:' + this.aggregate.linkedApiPermissionId))
+          if (this.hasLinked) {
+            var0.push(this.epSvc.readEntityByQuery(0, this.aggregate.linkedApiPermissionIds.length, 'permissionId:' + this.aggregate.linkedApiPermissionIds.join('.')))
           }
           combineLatest(var0).subscribe(next => {
             if (this.aggregate.parentId) {
               this.fis.updateOption(this.formId, 'parentId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
             }
-            if (this.aggregate.linkedApiPermissionId && !this.aggregate.parentId) {
+            if (this.hasLinked && !this.aggregate.parentId) {
               this.fis.updateOption(this.formId, 'apiId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data[0].id)
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data.map(e=>e.id))
             }
-            if (this.aggregate.linkedApiPermissionId && this.aggregate.parentId) {
+            if (this.hasLinked && this.aggregate.parentId) {
               this.fis.updateOption(this.formId, 'apiId', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data[0].id)
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data.map(e=>e.id))
             }
             this.resumeForm()
             this.cdr.markForCheck()
@@ -88,7 +90,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
       id: this.aggregate.id,
       name: this.aggregate.name,
       parentId: this.aggregate.parentId,
-      linkApi: !!this.aggregate.linkedApiPermissionId
+      linkApi: !!this.hasLinked
     })
   }
   getParentPerm(): IQueryProvider {
@@ -106,7 +108,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
     } as IQueryProvider
   }
   ngOnDestroy(): void {
-    this.fis.resetAllExcept(['summaryPermissionCustomerView'])
+    this.fis.reset(this.formId)
   }
   ngOnInit() {
   }
@@ -117,7 +119,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
       parentId: formGroup.get('parentId').value,
       name: formGroup.get('name').value,
       projectId: formGroup.get('projectId').value,
-      linkedApiId: formGroup.get('apiId').value,
+      linkedApiIds: formGroup.get('apiId').value,
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

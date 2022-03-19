@@ -14,6 +14,8 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
+import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
+import { IProjectPermissionInfo } from './project.service';
 export interface IPatch {
     op: string,
     path: string,
@@ -31,16 +33,14 @@ export interface IUser{
     providedIn: 'root'
 })
 export class HttpProxyService {
+    getRegistryStatus() {
+      return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
+    }
     inProgress = false;
     refreshInprogress = false;
     private AUTH_SVC_NAME = '/auth-svc';
-    private SAGA_SVC_NAME = '/saga-svc';
     private TOKEN_EP = this.AUTH_SVC_NAME + '/oauth/token';
-    private PRODUCT_SVC_NAME = '/product-svc';
-    private PROFILE_SVC_NAME = '/profile-svc';
     private FILE_UPLOAD_SVC_NAME = '/file-upload-svc';
-    private BBS_SVC_NAME = '/bbs-svc';
-    private EVENT_SVC_NAME = '/object-svc';
     set currentUserAuthInfo(token: ITokenResponse) {
         if (token === undefined || token === null) {
             localStorage.setItem('jwt', undefined);
@@ -325,6 +325,9 @@ export class HttpProxyService {
             headerConfig = headerConfig.set(e, headers[e] + '')
         })
         return this._httpClient.get<ISumRep<T>>(entityRepo  + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
+    }
+    getUIPermission() {
+        return this._httpClient.get<IProjectPermissionInfo>(environment.serverUri + '/auth-svc/permissions/ui')
     }
     addPrefix(query: string): string {
         let var0: string = query;

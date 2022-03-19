@@ -14,6 +14,7 @@ import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -31,9 +32,9 @@ import static com.hw.integration.identityaccess.oauth2.BIzUserTest.RESOURCE_OWNE
 public class BizClientTest {
 
     public ObjectMapper mapper = new ObjectMapper().configure(MapperFeature.USE_ANNOTATIONS, false);
+    UUID uuid;
     @Autowired
     private UserAction action;
-    UUID uuid;
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override
@@ -107,7 +108,8 @@ public class BizClientTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotalClient> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalClient.class);
+        ResponseEntity<SumTotal<Client>> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertNotSame(0, exchange.getBody().getData().size());
     }
 
@@ -117,7 +119,7 @@ public class BizClientTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = action.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = action.createClient(oldClient);
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS  + "/" + client1.getHeaders().getLocation().toString();
+        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS + "/" + client1.getHeaders().getLocation().toString();
         Client newClient = action.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
         newClient.setClientSecret(" ");
         newClient.setVersion(0);
@@ -141,7 +143,7 @@ public class BizClientTest {
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = action.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = action.createClient(oldClient);
-        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS+ "/" + client1.getHeaders().getLocation().toString();
+        String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS + "/" + client1.getHeaders().getLocation().toString();
         oldClient.setClientSecret(" ");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -183,7 +185,7 @@ public class BizClientTest {
     }
 
     @Test
-    public void should_not_be_able_to_create_client_then_replace_it_with_different_client_which_cannot_be_resource() throws JsonProcessingException {
+    public void should_not_be_able_to_update_client_type_once_created() throws JsonProcessingException {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
         String bearer = tokenResponse.getBody().getValue();
         Client oldClient = action.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
@@ -197,7 +199,11 @@ public class BizClientTest {
         String s1 = mapper.writeValueAsString(newClient);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        ResponseEntity<Client> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, Client.class);
+        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assert.assertTrue(exchange2.getBody().getTypes().contains(ClientType.BACKEND_APP));
+        Assert.assertTrue(exchange2.getBody().getTypes().contains(ClientType.FIRST_PARTY));
 
     }
 
@@ -250,7 +256,7 @@ public class BizClientTest {
         /**
          * add ROLE_ROOT so it can not be deleted
          */
-        oldClient.setGrantedAuthorities(Arrays.asList(AccessConstant.BACKEND_ID, AccessConstant.ROOT_CLIENT_ID));
+        oldClient.setTypes(new HashSet<>(Arrays.asList(ClientType.BACKEND_APP, ClientType.ROOT_APPLICATION)));
         ResponseEntity<String> client1 = action.createClient(oldClient);
 
         String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + CLIENTS + "/" + client1.getHeaders().getLocation().toString();
@@ -292,7 +298,8 @@ public class BizClientTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotalUser> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //delete resource client
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
@@ -311,7 +318,8 @@ public class BizClientTest {
         Set<String> resourceIds = exchange3.getBody().getResourceIds();
         Assert.assertEquals(1, resourceIds.size());
         //clientAsNonResource can not access endpoint both access token
-        ResponseEntity<SumTotalUser> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -329,7 +337,8 @@ public class BizClientTest {
         HttpHeaders headers5 = new HttpHeaders();
         headers5.setBearerAuth(jwtPasswordWithClient3.getBody().getValue());
         HttpEntity<String> request5 = new HttpEntity<>(null, headers5);
-        ResponseEntity<SumTotalUser> exchange5 = action.restTemplate.exchange(url, HttpMethod.GET, request5, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange5 = action.restTemplate.exchange(url, HttpMethod.GET, request5, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
     }
 
@@ -357,7 +366,8 @@ public class BizClientTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotalUser> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //update resource client to remove access
         clientAsResource.setResourceIndicator(false);
@@ -371,7 +381,8 @@ public class BizClientTest {
         Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
         Thread.sleep(10000);
         //clientAsNonResource can not access endpoint both access token
-        ResponseEntity<SumTotalUser> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange2 = action.restTemplate.exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -389,7 +400,8 @@ public class BizClientTest {
         HttpHeaders headers5 = new HttpHeaders();
         headers5.setBearerAuth(jwtPasswordWithClient3.getBody().getValue());
         HttpEntity<String> request5 = new HttpEntity<>(null, headers5);
-        ResponseEntity<SumTotalUser> exchange5 = action.restTemplate.exchange(url, HttpMethod.GET, request5, SumTotalUser.class);
+        ResponseEntity<SumTotal<ResourceOwner>> exchange5 = action.restTemplate.exchange(url, HttpMethod.GET, request5, new ParameterizedTypeReference<>() {
+        });
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
     }
 

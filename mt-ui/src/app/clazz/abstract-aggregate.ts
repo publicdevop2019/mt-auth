@@ -49,6 +49,6 @@ export abstract class Aggregate<C, T extends IIdBasedEntity>{
     }
     cleanUp() {
         Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
-        this.fis.resetAll();
+        this.fis.reset(this.formId);
     }
 }

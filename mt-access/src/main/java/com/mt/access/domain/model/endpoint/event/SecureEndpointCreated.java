@@ -13,6 +13,7 @@ public class SecureEndpointCreated extends DomainEvent {
     public static final String SECURE_ENDPOINT_CREATED = "secure_endpoint_created";
     public static final String name = "SECURE_ENDPOINT_CREATED";
     private ProjectId projectId;
+    private boolean shared;
     private PermissionId permissionId;
 
     public SecureEndpointCreated(ProjectId projectId, Endpoint endpoint) {
@@ -21,6 +22,7 @@ public class SecureEndpointCreated extends DomainEvent {
         setName(name);
         setDomainId(endpoint.getEndpointId());
         this.projectId = projectId;
+        this.shared = endpoint.isShared();
         this.permissionId = endpoint.getPermissionId();
     }
 }

@@ -12,7 +12,7 @@ export interface IEditInputListEvent {
   styleUrls: ['./editable-input-multi.component.css']
 })
 export class EditableInputMultiComponent implements OnInit {
-
+  @Input() readOnly: boolean = false;
   @Input() inputOptions: string[] = [];
   @Output() newValue: EventEmitter<IEditInputListEvent> = new EventEmitter();
   @ViewChild("userInput") userInput: ElementRef<HTMLInputElement>;

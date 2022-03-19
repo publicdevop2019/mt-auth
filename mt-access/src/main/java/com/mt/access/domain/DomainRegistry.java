@@ -15,6 +15,7 @@ import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
+import com.mt.access.domain.model.proxy.ProxyService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
@@ -73,7 +74,7 @@ public class DomainRegistry {
     @Getter
     private static CacheProfileRepository cacheProfileRepository;
     @Getter
-    private static ProxyService proxyService;
+    private static RemoteProxyService remoteProxyService;
     @Getter
     private static ProjectRepository projectRepository;
     @Getter
@@ -94,7 +95,13 @@ public class DomainRegistry {
     private static NotificationService notificationService;
     @Getter
     private static NotificationRepository notificationRepository;
+    @Getter
+    private static ProxyService proxyService;
 
+    @Autowired
+    public void setRemoteProxyService(ProxyService proxyService) {
+        DomainRegistry.proxyService = proxyService;
+    }
     @Autowired
     public void setNotificationService(NotificationService userNotificationService) {
         DomainRegistry.notificationService = userNotificationService;
@@ -138,8 +145,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setProxyService(ProxyService proxyService) {
-        DomainRegistry.proxyService = proxyService;
+    public void setRemoteProxyService(RemoteProxyService remoteProxyService) {
+        DomainRegistry.remoteProxyService = remoteProxyService;
     }
 
     @Autowired

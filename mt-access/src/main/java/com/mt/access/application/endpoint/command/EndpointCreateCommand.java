@@ -13,6 +13,7 @@ public class EndpointCreateCommand implements Serializable {
     private boolean secured;
     private boolean isWebsocket;
     private boolean csrfEnabled;
+    private boolean shared;
     private String corsProfileId;
     private String cacheProfileId;
     private String resourceId;

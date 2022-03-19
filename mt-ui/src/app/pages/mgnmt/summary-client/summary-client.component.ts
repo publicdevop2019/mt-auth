@@ -6,6 +6,7 @@ import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -15,7 +16,7 @@ import { MngmtClientComponent } from '../client/client.component';
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
 })
-export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy{
+export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy {
   public formId = "mngmtClientTableColumnConfig";
   columnList = {
     name: 'NAME',
@@ -76,7 +77,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
+    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
     combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
       .subscribe(next => {
         if (next) {
@@ -100,13 +101,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   }
   updateSummaryData(next: ISumRep<IClient>) {
     super.updateSummaryData(next);
-    let var0 = new Set(next.data.flatMap(e => e.resourceIds).filter(ee => ee));
-    let var1 = new Array(...var0);
-    if (var1.length > 0) {
-      this.entitySvc.readEntityByQuery(0, var1.length, "clientId:" + var1.join('.')).subscribe(next => {
-        this.resourceClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
+    this.resourceClientList = uniqueObject(next.data.filter(ee => ee.resources).flatMap(e => e.resources), 'id').map(e => <IOption>{ label: e.name, value: e.id })
   }
   revokeClientToken(clientId: number) {
     this.entitySvc.revokeClientToken(clientId);

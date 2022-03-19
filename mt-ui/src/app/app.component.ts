@@ -16,6 +16,7 @@ export class AppComponent implements AfterContentChecked, OnInit {
   }
   ngAfterContentChecked(): void {
     this.changeDec.detectChanges()
+    // this.router.routeReuseStrategy.shouldReuseRoute = () => false;
   }
   ngOnInit(): void {
   }

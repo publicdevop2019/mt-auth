@@ -6,9 +6,11 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { UserComponent } from '../user/user.component';
@@ -17,14 +19,9 @@ import { UserComponent } from '../user/user.component';
   templateUrl: './my-users.component.html',
   styleUrls: ['./my-users.component.css']
 })
-export class MyUsersComponent extends SummaryEntityComponent<IProjectUser, IProjectUser> implements OnDestroy {
+export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser, IProjectUser> implements OnDestroy {
   public formId = "myUserTableColumnConfig";
-  public projectId: string;
-  columnList = {
-    id: 'ID',
-    email: 'EMAIL',
-    edit: 'EDIT',
-  }
+  columnList :any={};
   sheetComponent = UserComponent;
   public roleList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
@@ -48,19 +45,33 @@ export class MyUsersComponent extends SummaryEntityComponent<IProjectUser, IProj
   constructor(
     public entitySvc: MyUserService,
     public deviceSvc: DeviceService,
+    public httpSvc: HttpProxyService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
     public projectSvc: ProjectService,
-    private route: ActivatedRoute,
+    public route: ActivatedRoute,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub=this.route.paramMap.subscribe(queryMaps => {
-      this.projectId = queryMaps.get('id')
-      this.entitySvc.setProjectId(this.projectId)
-      this.bottomSheetParams['projectId']=this.projectId
-      this.deviceSvc.refreshSummary.next()
-    });
-    this.subs.add(sub)
+    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
+    const sub3 = this.canDo('EDIT_TENANT_USER').subscribe(b => {
+      this.columnList = b.result? {
+        id: 'ID',
+        email: 'EMAIL',
+        edit: 'EDIT',
+      }:{
+        id: 'ID',
+        email: 'EMAIL',
+      }
+    })
+    this.subs.add(sub3)
+    const sub2 = this.canDo('VIEW_TENANT_USER').subscribe(b => {
+      if (b.result) {
+        this.doSearch({ value: '', resetPage: true })
+      }
+    })
+    this.subs.add(sub2)
+  }
+  ngOnDestroy(): void {
+    this.fis.reset(this.formId)
   }
 }

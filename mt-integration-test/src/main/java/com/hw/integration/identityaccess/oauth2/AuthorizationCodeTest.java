@@ -61,48 +61,7 @@ public class AuthorizationCodeTest {
     }
 
     @Test
-    public void should_authorize_token_has_right_role_for_admin() {
-        ResponseEntity<DefaultOAuth2AccessToken> defaultOAuth2AccessTokenResponseEntity = action.getJwtPasswordAdmin();
-        String accessToken = defaultOAuth2AccessTokenResponseEntity.getBody().getValue();
-        ResponseEntity<String> codeResp = action.getCodeResp(CLIENT_ID_OM_ID, accessToken, OBJECT_MARKET_REDIRECT_URI);
-        String code = JsonPath.read(codeResp.getBody(), "$.authorize_code");
-
-        Assert.assertNotNull(code);
-
-        ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = getAuthorizationToken(GRANT_TYPE_AUTHORIZATION_CODE, code, OBJECT_MARKET_REDIRECT_URI, CLIENT_ID_OM_ID, EMPTY_CLIENT_SECRET);
-
-        Assert.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
-        Assert.assertNotNull(authorizationToken.getBody());
-        DefaultOAuth2AccessToken body = authorizationToken.getBody();
-        List<String> authorities = ServiceUtility.getAuthority(body.getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-    }
-
-    @Test
-    public void should_authorize_token_has_right_role_for_root() {
-        ResponseEntity<DefaultOAuth2AccessToken> defaultOAuth2AccessTokenResponseEntity = action.getJwtPasswordRoot();
-        String accessToken = defaultOAuth2AccessTokenResponseEntity.getBody().getValue();
-        ResponseEntity<String> codeResp = action.getCodeResp(CLIENT_ID_OM_ID, accessToken, OBJECT_MARKET_REDIRECT_URI);
-        String code = JsonPath.read(codeResp.getBody(), "$.authorize_code");
-
-        Assert.assertNotNull(code);
-
-        ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = getAuthorizationToken(GRANT_TYPE_AUTHORIZATION_CODE, code, OBJECT_MARKET_REDIRECT_URI, CLIENT_ID_OM_ID, EMPTY_CLIENT_SECRET);
-
-        Assert.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
-        Assert.assertNotNull(authorizationToken.getBody());
-        DefaultOAuth2AccessToken body = authorizationToken.getBody();
-        List<String> authorities = ServiceUtility.getAuthority(body.getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-
-    }
-
-    @Test
-    public void should_authorize_token_has_right_role_for_user() {
+    public void should_authorize_token_has_permission() {
         ResponseEntity<DefaultOAuth2AccessToken> defaultOAuth2AccessTokenResponseEntity = action.getJwtPasswordUser();
         String accessToken = defaultOAuth2AccessTokenResponseEntity.getBody().getValue();
         ResponseEntity<String> codeResp = action.getCodeResp(CLIENT_ID_OM_ID, accessToken, OBJECT_MARKET_REDIRECT_URI);
@@ -115,10 +74,8 @@ public class AuthorizationCodeTest {
         Assert.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
         Assert.assertNotNull(authorizationToken.getBody());
         DefaultOAuth2AccessToken body = authorizationToken.getBody();
-        List<String> authorities = ServiceUtility.getAuthority(body.getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
+        List<String> authorities = ServiceUtility.getPermissions(body.getValue());
+        Assert.assertNotEquals(0, authorities.size());
 
     }
 
@@ -190,6 +147,7 @@ public class AuthorizationCodeTest {
         params.add("grant_type", grantType);
         params.add("code", code);
         params.add("redirect_uri", redirect_uri);
+        params.add("scope", PROJECT_ID);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

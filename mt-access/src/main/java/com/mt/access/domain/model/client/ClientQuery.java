@@ -35,8 +35,6 @@ public class ClientQuery extends QueryCriteria {
     private String grantTypeSearch;
     private String accessTokenSecSearch;
 
-    private boolean isInternal = false;
-
     public ClientQuery(ClientId clientId) {
         clientIds = new HashSet<>(List.of(clientId));
         setPageConfig(PageConfig.defaultConfig());
@@ -65,6 +63,12 @@ public class ClientQuery extends QueryCriteria {
     private ClientQuery() {
     }
 
+    public ClientQuery(ProjectId projectId) {
+        projectIds = Collections.singleton(projectId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+    }
+
     public static ClientQuery queryByResource(ClientId resourceId) {
         ClientQuery clientQuery = new ClientQuery();
         clientQuery.setResources(new HashSet<>(List.of(resourceId)));
@@ -83,7 +87,6 @@ public class ClientQuery extends QueryCriteria {
 
     public static ClientQuery internalQuery(String pagingParam, String configParam) {
         ClientQuery clientQuery = new ClientQuery();
-        clientQuery.isInternal = true;
         clientQuery.setPageConfig(PageConfig.limited(pagingParam, 2000));
         clientQuery.setQueryConfig(new QueryConfig(configParam));
         return clientQuery;

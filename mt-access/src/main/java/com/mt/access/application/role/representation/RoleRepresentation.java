@@ -19,6 +19,7 @@ public class RoleRepresentation {
     private String originalName;
     private String parentId;
     private Set<String> permissionIds;
+    private Set<String> externalPermissionIds;
     private boolean systemCreate;
 
     public RoleRepresentation(Role role) {
@@ -31,6 +32,9 @@ public class RoleRepresentation {
         this.roleType = role.getType();
         if (role.getPermissionIds() != null) {
             this.permissionIds = role.getPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
+        }
+        if (role.getExternalPermissionIds() != null) {
+            this.externalPermissionIds = role.getExternalPermissionIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         }
         if (this.roleType.equals(RoleType.CLIENT)) {
             DomainRegistry.getClientRepository().clientOfId(new ClientId(role.getName())).ifPresent(e -> this.name = e.getName());

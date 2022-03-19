@@ -68,7 +68,7 @@ public class UserRelationApplicationService {
 
     public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
         UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService().canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
         SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery);
         Set<UserId> collect = byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
         UserQuery userQuery = new UserQuery(collect);

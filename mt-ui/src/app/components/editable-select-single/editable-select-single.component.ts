@@ -9,6 +9,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 export class EditableSelectSingleComponent implements OnInit {
   @Input() inputValue: IOption = undefined;
   @Input() list: IOption[] = [];
+  @Input() readOnly: boolean = false;
   @Output() newValue: EventEmitter<IEditEvent> = new EventEmitter();
   displayEdit = 'hidden';
   lockEditIcon = false;

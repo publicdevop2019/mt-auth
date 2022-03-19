@@ -1,12 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { filter, take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaze-cache';
 import { CacheValidator } from 'src/app/clazz/validation/aggregate/cache/validator-cache';
-import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator-role';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
 import { CacheService } from 'src/app/services/cache.service';

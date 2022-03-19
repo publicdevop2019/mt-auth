@@ -25,6 +25,7 @@ import java.util.HashSet;
 import java.util.UUID;
 
 import static com.hw.helper.UserAction.*;
+import static com.hw.helper.UserAction.ACCOUNT_PASSWORD_ROOT;
 
 /**
  * this integration auth requires oauth2service to be running
@@ -56,7 +57,7 @@ public class BizClientApiSecurityTest {
     public void should_not_able_to_create_client_w_admin_account_when_going_through_proxy() throws JsonProcessingException {
         Client client = getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
         String url = UserAction.proxyUrl + UserAction.SVC_NAME_AUTH + "/clients/root";
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(GRANT_TYPE_PASSWORD, ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN, CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = getTokenResponse(GRANT_TYPE_PASSWORD, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT, CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET);
         String bearer = tokenResponse.getBody().getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -72,7 +73,7 @@ public class BizClientApiSecurityTest {
      */
     private Client getClientAsNonResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
-        client.setGrantedAuthorities(Arrays.asList(AccessConstant.BACKEND_ID));
+        client.setTypes(new HashSet<>(Collections.singletonList(ClientType.BACKEND_APP)));
         client.setResourceIndicator(false);
         return client;
     }
@@ -80,7 +81,7 @@ public class BizClientApiSecurityTest {
     private Client getClientRaw(String... resourceIds) {
         Client client = new Client();
         client.setClientSecret(UUID.randomUUID().toString().replace("-", ""));
-        client.setGrantTypeEnums(new HashSet<>(Arrays.asList(GrantTypeEnum.PASSWORD)));
+        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantTypeEnum.PASSWORD)));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);

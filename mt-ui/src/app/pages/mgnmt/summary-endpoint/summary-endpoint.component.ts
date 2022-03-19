@@ -5,13 +5,14 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { uniqueObject } from 'src/app/clazz/utility';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { ClientService } from 'src/app/services/mngmt-client.service';
-import { MngmtEndpointComponent } from '../api-profile/api-profile.component';
+import { MngmtEndpointComponent } from '../endpoint/endpoint.component';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
@@ -21,6 +22,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
   public formId = "mngmtEndpointTableColumnConfig";
   columnList = {
     id: 'ID',
+    name: 'NAME',
     description: 'DESCRIPTION',
     resourceId: 'PARENT_CLIENT',
     path: 'URL',
@@ -55,7 +57,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
+    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
     this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
       .subscribe(next => {
         if (next.data)
@@ -77,14 +79,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {
     super.updateSummaryData(next);
-    let ids = next.data.map(e => e.resourceId);
-    let var0 = new Set(ids);
-    let var1 = new Array(...var0);
-    if (var1.length > 0) {
-      this.clientSvc.readEntityByQuery(0, var1.length, "clientId:" + var1.join('.')).subscribe(next => {
-        this.allClientList = next.data.map(e => <IOption>{ label: e.name, value: e.id });
-      })
-    }
+    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
@@ -95,9 +90,6 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
       data: {
         data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
       },
-    });
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
     });
   }
 }

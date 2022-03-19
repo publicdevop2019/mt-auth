@@ -11,6 +11,7 @@ export interface IEditBooleanEvent {
 export class EditableBooleanComponent implements OnInit {
   @Input() inputValue: boolean = undefined;
   @Input() allowNull: boolean = false;
+  @Input() readOnly: boolean = false;
   @Output() newValue: EventEmitter<IEditBooleanEvent> = new EventEmitter();
   displayEdit = 'hidden';
   lockEditIcon = false;

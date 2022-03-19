@@ -13,7 +13,7 @@ import java.util.Map;
 public class ServiceUtility {
     private static ObjectMapper mapper = new ObjectMapper();
     private static String USER_ID = "uid";
-    private static String AUTHORITIES = "authorities";
+    private static String AUTHORITIES = "permissionIds";
 
     public static String getUsername(String bearerHeader) {
         String replace = bearerHeader.replace("Bearer ", "");
@@ -35,7 +35,7 @@ public class ServiceUtility {
         }
     }
 
-    public static List<String> getAuthority(String bearerHeader) {
+    public static List<String> getPermissions(String bearerHeader) {
         String replace = bearerHeader.replace("Bearer ", "");
         String jwtBody;
         try {

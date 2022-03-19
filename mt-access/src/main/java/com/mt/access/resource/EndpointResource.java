@@ -7,6 +7,7 @@ import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -39,7 +40,9 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService().tenantQuery(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(endpoints, EndpointCardRepresentation::new));
+        SumPagedRep<EndpointCardRepresentation> rep = new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
+        EndpointCardRepresentation.updateDetail(rep.getData());
+        return ResponseEntity.ok(rep);
     }
 
     @GetMapping(path = "mngmt/endpoints")
@@ -51,7 +54,9 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService().adminQuery(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(endpoints, EndpointCardRepresentation::new));
+        SumPagedRep<EndpointCardRepresentation> endpointCardRepresentationSumPagedRep = new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
+        EndpointCardRepresentation.updateDetail(endpointCardRepresentationSumPagedRep.getData());
+        return ResponseEntity.ok(endpointCardRepresentationSumPagedRep);
     }
 
     @GetMapping(path = "mngmt/endpoints/{id}")
@@ -125,5 +130,16 @@ public class EndpointResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         ApplicationServiceRegistry.getEndpointApplicationService().reloadEndpointCache(changeId);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "endpoints/shared")
+    public ResponseEntity<SumPagedRep<EndpointSharedCardRepresentation>> getSharedApis(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+                                                                                       @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        SumPagedRep<Endpoint> shared = ApplicationServiceRegistry.getEndpointApplicationService().getShared(queryParam, pageParam, config);
+        SumPagedRep<EndpointSharedCardRepresentation> rep = new SumPagedRep<>(shared, EndpointSharedCardRepresentation::new);
+        EndpointSharedCardRepresentation.updateDetail(rep.getData());
+        return ResponseEntity.ok(rep);
     }
 }

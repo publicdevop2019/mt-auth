@@ -10,4 +10,5 @@ public class RoleUpdateCommand {
     private String projectId;
     private String description;
     private Set<String> permissionIds;
+    private Set<String> externalPermissionIds;
 }

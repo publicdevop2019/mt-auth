@@ -1,6 +1,5 @@
 <h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'CLIENT_DASHBOARD'|translate}}</h2>
-<app-search (search)="doSearch($event)"
-    [searchConfigs]="searchConfigs">
+<app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
 </app-search>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
     <section>
@@ -12,7 +11,7 @@
             <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
         </ng-container>
     </section>
-    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
 </div>
 <div class="mat-elevation-z8">
     <div class="table-container">
@@ -41,24 +40,22 @@
             <ng-container matColumnDef="description">
                 <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-field [inputValue]="row.description"
-                        (newValue)="doPatch(row.id,$event,'description')">
-                    </app-editable-field>
+                    <app-copy-field [inputValue]="row.description"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="name" sticky>
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
-                    </app-editable-field>
+                    <app-copy-field [inputValue]="row.name"></app-copy-field>
                 </td>
             </ng-container>
 
             <ng-container matColumnDef="resourceIndicator">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resourceIndicator']|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resourceIndicator']|translate}}
+                </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-boolean [inputValue]="row.resourceIndicator"
+                    <app-editable-boolean [inputValue]="row.resourceIndicator" [readOnly]="true"
                         (newValue)="doPatchBoolean(row.id,$event,'resourceIndicator')"></app-editable-boolean>
                 </td>
             </ng-container>
@@ -66,7 +63,7 @@
             <ng-container matColumnDef="grantTypeEnums">
                 <th mat-header-cell *matHeaderCellDef> {{columnList['grantTypeEnums']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-select-multi [inputOptions]="getList(row.grantTypeEnums)" [list]="grantTypeList"
+                    <app-editable-select-multi [inputOptions]="getList(row.grantTypeEnums)" [list]="grantTypeList"  [readOnly]="true"
                         (newValue)="doPatchList(row.id,$event,'grantTypeEnums')"></app-editable-select-multi>
                 </td>
             </ng-container>
@@ -76,7 +73,7 @@
                     {{columnList['accessTokenValiditySeconds']|translate}}
                 </th>
                 <td mat-cell *matCellDef="let row" style="padding-left: 8px;padding-right: 8px;">
-                    <app-editable-field [inputValue]="row.accessTokenValiditySeconds"
+                    <app-editable-field [inputValue]="row.accessTokenValiditySeconds"  [readOnly]="true"
                         (newValue)="doPatch(row.id,$event,'accessTokenValiditySeconds')">
                     </app-editable-field>
                 </td>
@@ -86,11 +83,9 @@
             <ng-container matColumnDef="resourceIds">
                 <th mat-header-cell *matHeaderCellDef> {{columnList['resourceIds']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-page-select-multi [inputOptions]="getResourceList(row.resourceIds)"
+                    <app-editable-page-select-multi [inputOptions]="getResourceList(row.resourceIds)" [readOnly]="true"
                         [list]="resourceClientList" [entitySvc]="entitySvc"
-                        (newValue)="doPatchList(row.id,$event,'resourceIds')"
-                        [query]="'resourceIndicator:1'"
-                        >
+                        (newValue)="doPatchList(row.id,$event,'resourceIds')" [query]="'resourceIndicator:1'">
                     </app-editable-page-select-multi>
                 </td>
             </ng-container>

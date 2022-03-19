@@ -49,6 +49,9 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
   }
   ngOnDestroy(): void {
     this.cleanUp()
+    this.fis.reset(this.originFormId)
+    this.fis.reset(this.allowedHeaderFormId)
+    this.fis.reset(this.exposedHeaderFormId)
   }
   ngOnInit() {
   }

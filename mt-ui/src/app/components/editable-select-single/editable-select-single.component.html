@@ -1,11 +1,11 @@
-<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="showEditIcon()"
-    (mouseleave)="hideEditIcon()">
+<div style="display: flex;flex-direction: row;align-items: center;" (mouseenter)="!readOnly&&showEditIcon()"
+    (mouseleave)="!readOnly&&hideEditIcon()">
     <mat-chip-list aria-label="chip list selection" *ngIf="inputValue">
         <mat-chip>
             {{inputValue&&inputValue.label|translate}}
         </mat-chip>
     </mat-chip-list>
-    <button mat-icon-button [matMenuTriggerFor]="menu" (click)="lockEditIcon=true">
+    <button *ngIf="!readOnly" mat-icon-button [matMenuTriggerFor]="menu" (click)="lockEditIcon=true">
         <mat-icon [ngStyle]="{'visibility':lockEditIcon || displayEdit}" [color]="'primary'"
             style="padding-right: 8px;cursor: pointer;">edit
         </mat-icon>

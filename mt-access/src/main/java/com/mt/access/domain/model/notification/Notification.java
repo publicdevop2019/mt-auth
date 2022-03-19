@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.notification;
 
 import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -51,5 +52,12 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = "NEW_PROJECT_CREATED";
         descriptions = Collections.singleton(event.getProjectName());
+    }
+
+    public Notification(ProxyCacheCheckFailedEvent event) {
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = "PROXY_CHECK_FAILED";
     }
 }

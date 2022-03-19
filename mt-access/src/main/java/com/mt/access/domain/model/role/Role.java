@@ -5,6 +5,7 @@ import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.port.adapter.persistence.PermissionIdSetConverter;
@@ -57,7 +58,10 @@ public class Role extends Auditable {
     @Lob
     @Convert(converter = PermissionIdSetConverter.class)
     private Set<PermissionId> permissionIds;
-
+    @Lob
+    @Convert(converter = PermissionIdSetConverter.class)
+    @Setter
+    private Set<PermissionId> externalPermissionIds;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
@@ -77,32 +81,33 @@ public class Role extends Auditable {
     private RoleId parentId;
     private boolean systemCreate = false;
 
-    private Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId, @Nullable ProjectId tenantId) {
+    private Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId, @Nullable ProjectId tenantId, Set<PermissionId> externalPermissionIds) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.roleId = roleId;
         this.type = type;
         this.name = name;
         this.parentId = parentId;
         this.permissionIds = permissionIds;
+        this.externalPermissionIds = externalPermissionIds;
         this.projectId = projectId;
         this.tenantId = tenantId;
         this.description = description;
     }
 
     public static Role autoCreate(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId, @Nullable ProjectId tenantId) {
-        Role role = new Role(projectId, roleId, name, description, permissionIds, type, parentId, tenantId);
+        Role role = new Role(projectId, roleId, name, description, permissionIds, type, parentId, tenantId, null);
         role.systemCreate = true;
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         return role;
     }
 
-    public static Role createRoleForTenant(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> collect, RoleType user, RoleId roleId1) {
+    public static Role createRoleForTenant(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType user, RoleId roleId1, Set<PermissionId> externalPermissionIds) {
         Role role;
-        if (collect.size() > 0) {
-            Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery((PermissionQuery) e), new PermissionQuery(collect));
+        if (permissionIds.size() > 0) {
+            Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e), new PermissionQuery(permissionIds));
             //add linked api permission
-            Set<PermissionId> collect1 = allByQuery.stream().map(Permission::getLinkedApiPermissionId).filter(Objects::nonNull).collect(Collectors.toSet());
-            collect.addAll(collect1);
+            Set<PermissionId> collect1 = allByQuery.stream().flatMap(e->e.getLinkedApiPermissionIds().stream()).filter(Objects::nonNull).collect(Collectors.toSet());
+            permissionIds.addAll(collect1);
             AtomicReference<ProjectId> tenantId = new AtomicReference<>();
             allByQuery.stream().findFirst().ifPresent(e -> {
                 tenantId.set(e.getTenantId());
@@ -111,9 +116,12 @@ public class Role extends Auditable {
             if (b) {
                 throw new IllegalArgumentException("permissions added to role must belong to same tenant project");
             }
-            role = new Role(projectId, roleId, name, description, collect, user, roleId1, tenantId.get());
+            role = new Role(projectId, roleId, name, description, permissionIds, user, roleId1, tenantId.get(), externalPermissionIds);
         } else {
-            role = new Role(projectId, roleId, name, description, collect, user, roleId1, null);
+            role = new Role(projectId, roleId, name, description, permissionIds, user, roleId1, null, externalPermissionIds);
+        }
+        if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
+            DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
         }
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         return role;
@@ -138,10 +146,34 @@ public class Role extends Auditable {
                 userRole.getRoleId(), tenantProjectId, permissionIdSet, creator));
     }
 
-    public void replace(String name, String description, Set<PermissionId> permissionIds) {
+    public Set<PermissionId> getPermissionIds() {
+        return permissionIds;
+    }
+
+    public Set<PermissionId> getTotalPermissionIds() {
+        Set<PermissionId> objects = new HashSet<>();
+        if (permissionIds != null)
+            objects.addAll(permissionIds);
+        if (externalPermissionIds != null)
+            objects.addAll(externalPermissionIds);
+        return objects;
+    }
+
+    public void replace(String name, String description, Set<PermissionId> permissionIds, Set<PermissionId> externalPermissionIds) {
         setName(name);
         this.description = description;
         this.permissionIds = permissionIds;
+        if (this.externalPermissionIds == null) {
+            if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
+                this.externalPermissionIds = externalPermissionIds;
+                DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
+            }
+        } else {
+            if (!this.externalPermissionIds.equals(externalPermissionIds)) {
+                this.externalPermissionIds = externalPermissionIds;
+                DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
+            }
+        }
     }
 
     private void setName(String name) {
@@ -179,5 +211,9 @@ public class Role extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), roleId);
+    }
+
+    public void removeExternalPermission(PermissionId permissionId) {
+        externalPermissionIds = externalPermissionIds.stream().filter(ee -> !ee.equals(permissionId)).collect(Collectors.toSet());
     }
 }

@@ -20,6 +20,7 @@ public class EndpointRepresentation {
     private Set<String> clientRoles;
     private Set<String> userRoles;
     private boolean secured;
+    private boolean shared;
     private boolean userOnly;
     private boolean clientOnly;
     private boolean websocket;
@@ -32,6 +33,7 @@ public class EndpointRepresentation {
         this.id = endpoint.getEndpointId().getDomainId();
         this.roleId = endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
         this.websocket = endpoint.isWebsocket();
+        this.shared = endpoint.isShared();
         this.secured = endpoint.isSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();

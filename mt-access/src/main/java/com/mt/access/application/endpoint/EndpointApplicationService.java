@@ -83,13 +83,7 @@ public class EndpointApplicationService {
                 if (!client1.getProjectId().equals(projectId1)) {
                     throw new AccessDeniedException();
                 }
-                boolean secured = command.isSecured();
-                PermissionId permissionId = null;
-                if (secured) {
-                    permissionId = new PermissionId();
-                }
                 Endpoint endpoint = client1.addNewEndpoint(
-                        permissionId,
                         command.getCacheProfileId() != null ? new CacheProfileId(command.getCacheProfileId()) : null,
                         command.getName(),
                         command.getDescription(),
@@ -99,13 +93,10 @@ public class EndpointApplicationService {
                         command.isSecured(),
                         command.isWebsocket(),
                         command.isCsrfEnabled(),
-                        command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null
+                        command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null,
+                        command.isShared()
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
-                if (secured) {
-                    DomainEventPublisher.instance().publish(new SecureEndpointCreated(client1.getProjectId(), endpoint));
-                }
                 return endpointId.getDomainId();
             } else {
                 throw new InvalidClientIdException();
@@ -115,9 +106,15 @@ public class EndpointApplicationService {
 
     public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API);
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
     }
+
+    public SumPagedRep<Endpoint> getShared(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
+    }
+
     public SumPagedRep<Endpoint> adminQuery(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
@@ -128,6 +125,7 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), VIEW_API);
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
     }
+
     public Optional<Endpoint> adminEndpoint(String id) {
         EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id));
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
@@ -152,7 +150,8 @@ public class EndpointApplicationService {
                         command.getMethod(),
                         command.isWebsocket(),
                         command.isCsrfEnabled(),
-                        command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null
+                        command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null,
+                        command.isShared()
                 );
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
                 DomainRegistry.getEndpointRepository().add(endpoint1);
@@ -166,7 +165,7 @@ public class EndpointApplicationService {
     @Transactional
     public void removeEndpoint(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), DELETE_API);
+        DomainRegistry.getPermissionCheckService().canAccess(endpointQuery.getProjectIds(), EDIT_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
             if (endpoint.isPresent()) {
@@ -182,7 +181,7 @@ public class EndpointApplicationService {
     @Transactional
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, BATCH_DELETE_API);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(queryParam, projectId1));
             Set<ProjectId> collect = allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
@@ -205,7 +204,7 @@ public class EndpointApplicationService {
     @Transactional
     public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, PATCH_API);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(endpointId, projectId1)).findFirst();
@@ -221,7 +220,8 @@ public class EndpointApplicationService {
                         afterPatch.getMethod(),
                         endpoint1.isWebsocket(),
                         endpoint1.isCsrfEnabled(),
-                        endpoint1.getCorsProfileId()
+                        endpoint1.getCorsProfileId(),
+                        endpoint1.isShared()
                 );
                 DomainEventPublisher.instance().publish(new EndpointCollectionModified());
             }

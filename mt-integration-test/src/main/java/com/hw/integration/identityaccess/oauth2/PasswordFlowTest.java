@@ -74,40 +74,6 @@ public class PasswordFlowTest {
     }
 
     @Test
-    public void check_jwt_authorities_for_root_account() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword( ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
-        Assert.assertNotNull(tokenResponse.getBody().getValue());
-        Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
-        List<String> authorities = ServiceUtility.getAuthority(tokenResponse.getBody().getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-    }
-
-    @Test
-    public void check_jwt_authorities_for_admin_account() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword( ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ROOT);
-        Assert.assertNotNull(tokenResponse.getBody().getValue());
-        Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
-        List<String> authorities = ServiceUtility.getAuthority(tokenResponse.getBody().getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-    }
-
-    @Test
-    public void check_jwt_authorities_for_user_account() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPassword(ACCOUNT_USERNAME_USER, ACCOUNT_PASSWORD_ROOT);
-        Assert.assertNotNull(tokenResponse.getBody().getValue());
-        Assert.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
-        List<String> authorities = ServiceUtility.getAuthority(tokenResponse.getBody().getValue());
-        Assert.assertEquals(1, authorities.stream().filter(e -> e.equals(AccessConstant.USER_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ADMIN_USER_ID)).count());
-        Assert.assertEquals(0, authorities.stream().filter(e -> e.equals(AccessConstant.ROOT_USER_ID)).count());
-    }
-
-
-    @Test
     public void should_not_get_token_when_user_credentials_are_wrong_even_client_is_valid() {
         ResponseEntity<?> tokenResponse = action.getJwtPassword("root2@gmail.com", ACCOUNT_PASSWORD_ROOT);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());

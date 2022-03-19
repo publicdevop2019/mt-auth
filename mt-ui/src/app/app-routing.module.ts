@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
-import { ApiCenterComponent } from './pages/api-center/api-center.component';
-import { AuthorizeComponent } from './pages/authorize/authorize.component';
-import { CacheControlComponent } from './pages/cache-control/cache-control.component';
-import { LoginComponent } from './pages/login/login.component';
+import { ApiCenterComponent } from './pages/common/api-center/api-center.component';
+import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
+import { LoginComponent } from './pages/common/login/login.component';
+import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 import { SummaryCacheComponent } from './pages/mgnmt/summary-cache/summary-cache.component';
 import { SummaryClientComponent } from './pages/mgnmt/summary-client/summary-client.component';
 import { SummaryCorsComponent } from './pages/mgnmt/summary-cors/summary-cors.component';
@@ -18,12 +18,12 @@ import { SummaryRevokeTokenComponent } from './pages/mgnmt/summary-revoke-token/
 import { SummaryRoleComponent } from './pages/mgnmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgnmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgnmt/summary-user/summary-user.component';
-import { MyProfileComponent } from './pages/my-profile/my-profile.component';
-import { NewProjectComponent } from './pages/new-project/new-project.component';
-import { NotFoundComponent } from './pages/not-found/not-found.component';
-import { SettingComponent } from './pages/setting/setting.component';
+import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
+import { NewProjectComponent } from './pages/common/new-project/new-project.component';
+import { NotFoundComponent } from './pages/common/not-found/not-found.component';
+import { SettingComponent } from './pages/common/setting/setting.component';
 import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
-import { MyApisComponent } from './pages/tenant/my-apis/my-apis.component';
+import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
 import { MyOrgsComponent } from './pages/tenant/my-orgs/my-orgs.component';
 import { MyPermissionsComponent } from './pages/tenant/my-permissions/my-permissions.component';
@@ -31,9 +31,10 @@ import { MyPositionsComponent } from './pages/tenant/my-positions/my-positions.c
 import { MyProjectComponent } from './pages/tenant/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/my-users/my-users.component';
-import { UpdatePwdComponent } from './pages/update-pwd/update-pwd.component';
-import { WelcomeComponent } from './pages/welcome/welcome.component';
+import { UpdatePwdComponent } from './pages/common/update-pwd/update-pwd.component';
+import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
+import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -44,6 +45,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
       { path: 'projects', component: SummaryProjectComponent },
+      { path: 'registry', component: RegistryComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'resource-owners', component: SummaryResourceOwnerComponent },

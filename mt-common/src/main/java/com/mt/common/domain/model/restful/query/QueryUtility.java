@@ -27,7 +27,7 @@ public class QueryUtility {
         QueryUtility.em = em;
     }
 
-    public static <T> Set<T> getAllByQuery(Function<QueryCriteria, SumPagedRep<T>> ofQuery, QueryCriteria query) {
+    public static <T,S extends QueryCriteria> Set<T> getAllByQuery(Function<S, SumPagedRep<T>> ofQuery, S query) {
         SumPagedRep<T> tSumPagedRep = ofQuery.apply(query);
         if (tSumPagedRep.getData().size() == 0)
             return new HashSet<>();

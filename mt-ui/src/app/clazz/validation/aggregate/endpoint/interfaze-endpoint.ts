@@ -1,5 +1,6 @@
 export interface IEndpoint {
   resourceId: string;
+  resourceName?: string;
   description?: string;
   name: string;
   path: string;
@@ -7,8 +8,10 @@ export interface IEndpoint {
   id: string;
   websocket: boolean;
   secured: boolean;
+  shared: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
+  projectId?: string;
   cacheProfileId?: string;
   version: number;
 }

@@ -1,5 +1,5 @@
 <div class="example-container" [class.example-is-mobile]="mobileQuery.matches">
-    <mat-toolbar color="primary" class="example-toolbar" style="justify-content: space-between;"
+    <mat-toolbar color="primary" class="example-toolbar" style="justify-content: space-between; padding: 0px;"
         [style.height.px]="deviceSvc.topBar">
         <div style="display: flex;align-items: center;">
             <button mat-icon-button (click)="snav.toggle();">
@@ -7,9 +7,9 @@
             </button>
             <div style="font-size: 14px;">{{authSvc.currentUser?.email}}</div>
         </div>
-        <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc">
+        <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
             <mat-icon matBadge="{{msgSvc.latestMessage.length}}" matBadgeOverlap="false" matBadgeSize="small"
-                (mouseover)="msgDetails=true" (mouseout)="msgDetails=false" matBadgeColor="accent">notifications_none
+                matBadgeColor="accent">notifications_none
             </mat-icon>
         </button>
     </mat-toolbar>
@@ -59,44 +59,16 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuAuth">
-                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                        {{nav.display| translate}}
-                    </mat-list-item>
+                    <ng-container  *ngFor="let nav of menuAuth">
+                        <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
+                            style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"  *appRequireP="getPermissionId(project.id,nav.authName) | async">
+                            <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                            {{nav.display| translate}}
+                        </mat-list-item>
+                    </ng-container>
                 </mat-nav-list>
             </mat-expansion-panel>
 
-            <!-- <mat-expansion-panel (opened)="openedHandler('mall_nav')" (closed)="closedHander('mall_nav')"
-                [expanded]="navExpand('mall_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'MALL_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuMall">
-                        <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display | translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-
-            </mat-expansion-panel>
-            <mat-expansion-panel (opened)="openedHandler('opt_nav')" (closed)="closedHander('opt_nav')"
-                [expanded]="navExpand('opt_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'OPT_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuOpt">
-                        <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display | translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-
-            </mat-expansion-panel> -->
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuMisc">

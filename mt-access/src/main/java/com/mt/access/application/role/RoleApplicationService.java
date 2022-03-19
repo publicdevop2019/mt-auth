@@ -6,6 +6,7 @@ import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
+import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
@@ -13,11 +14,9 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
-import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -39,11 +38,11 @@ public class RoleApplicationService {
 
     public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE_SUMMARY);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 
-    public Optional<Role> getById(String projectId,String id) {
+    public Optional<Role> getById(String projectId, String id) {
         RoleQuery roleQuery = new RoleQuery(new RoleId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
@@ -62,7 +61,10 @@ public class RoleApplicationService {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (change) -> {
             Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
             first.ifPresent(e -> {
-                e.replace(command.getName(),command.getDescription(), command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()));
+                e.replace(command.getName(), command.getDescription(),
+                        command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()),
+                        command.getExternalPermissionIds() != null ? command.getExternalPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()) : null
+                );
                 DomainRegistry.getRoleRepository().add(e);
             });
             return null;
@@ -71,10 +73,10 @@ public class RoleApplicationService {
 
     @SubscribeForEvent
     @Transactional
-    public void remove(String projectId,String id, String changeId) {
+    public void remove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), DELETE_ROLE);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(roleId);
             corsProfile.ifPresent(e -> {
@@ -104,7 +106,8 @@ public class RoleApplicationService {
                     command.getDescription(),
                     command.getPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()),
                     RoleType.USER,
-                    command.getParentId() != null ? new RoleId(command.getParentId()) : null
+                    command.getParentId() != null ? new RoleId(command.getParentId()) : null,
+                    command.getExternalPermissionIds() != null ? command.getExternalPermissionIds().stream().map(PermissionId::new).collect(Collectors.toSet()) : null
             );
             DomainRegistry.getRoleRepository().add(role);
             return roleId.getDomainId();
@@ -125,7 +128,7 @@ public class RoleApplicationService {
             ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
             UserId creator = deserialize.getCreator();
             Set<PermissionId> permissionIdSet = deserialize.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId())).collect(Collectors.toSet());
-            Role.onboardNewProject(authPId,tenantProjectId,permissionIdSet,creator);
+            Role.onboardNewProject(authPId, tenantProjectId, permissionIdSet, creator);
             return null;
         }, ROLE);
     }
@@ -154,6 +157,22 @@ public class RoleApplicationService {
             }
             Role userRole = Role.autoCreate(projectId, roleId, clientId.getDomainId(), null, Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
             DomainRegistry.getRoleRepository().add(userRole);
+            return null;
+        }, ROLE);
+    }
+
+    @SubscribeForEvent
+    @Transactional
+    public void handle(EndpointShareRemoved deserialize) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
+            log.debug("handle endpoint shared removed event");
+            PermissionId permissionId = deserialize.getPermissionId();
+            RoleQuery roleQuery = new RoleQuery(permissionId);
+            Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), roleQuery);
+            allByQuery.forEach(e -> {
+                e.removeExternalPermission(permissionId);
+                DomainRegistry.getRoleRepository().add(e);
+            });
             return null;
         }, ROLE);
     }
