@@ -22,7 +22,7 @@ public interface SpringDataJpaCorsProfileRepository extends CORSProfileRepositor
     };
 
     default void remove(CORSProfile corsProfile){
-        corsProfile.setDeleted(true);
+        corsProfile.softDelete();
         save(corsProfile);
     };
 

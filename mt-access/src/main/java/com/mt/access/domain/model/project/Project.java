@@ -22,10 +22,6 @@ import java.util.Objects;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "projectRegion")
 public class Project extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
 
     private String name;
 
@@ -33,6 +29,7 @@ public class Project extends Auditable {
     private ProjectId projectId;
 
     public Project(ProjectId projectId, String name, UserId userId) {
+        super();
         Validator.notBlank(name);
         this.id=CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;

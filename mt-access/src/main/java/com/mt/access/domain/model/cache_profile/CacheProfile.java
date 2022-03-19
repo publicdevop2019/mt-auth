@@ -13,7 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
+import javax.persistence.Convert;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,11 +26,9 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Where(clause = "deleted=0")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "cacheProfileRegion")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "cacheProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 public class CacheProfile extends Auditable {
-    @Id
-    private Long id;
 
     private String name;
     private String description;
@@ -35,7 +36,7 @@ public class CacheProfile extends Auditable {
     @Embedded
     private CacheProfileId cacheProfileId;
 
-    private  boolean allowCache;
+    private boolean allowCache;
 
     @Convert(converter = CacheControlValue.DBConverter.class)
     private Set<CacheControlValue> cacheControl;
@@ -64,19 +65,21 @@ public class CacheProfile extends Auditable {
             boolean allowCache,
             boolean etag,
             boolean weakValidation) {
-        this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.name = name;
-        this.description = description;
-        this.allowCache=allowCache;
-        this.cacheProfileId = cacheProfileId;
-        this.cacheControl = cacheControl;
-        this.expires = expires;
-        this.maxAge = maxAge;
-        this.smaxAge = smaxAge;
-        this.vary = vary;
-        this.etag = etag;
-        this.weakValidation = weakValidation;
+        super();
+        setName(name);
+        setDescription(description);
+        setAllowCache(allowCache);
+        setCacheProfileId(cacheProfileId);
+        setCacheControl(cacheControl);
+        setExpires(expires);
+        setMaxAge(maxAge);
+        setSmaxAge(smaxAge);
+        setVary(vary);
+        setEtag(etag);
+        setWeakValidation(weakValidation);
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
     }
+
     public void update(String name,
                        String description,
                        CacheProfileId cacheProfileId,
@@ -87,7 +90,7 @@ public class CacheProfile extends Auditable {
                        String vary,
                        boolean allowCache,
                        boolean etag,
-                       boolean weakValidation){
+                       boolean weakValidation) {
         this.name = name;
         this.description = description;
         this.cacheProfileId = cacheProfileId;
@@ -98,7 +101,7 @@ public class CacheProfile extends Auditable {
         this.vary = vary;
         this.etag = etag;
         this.weakValidation = weakValidation;
-        this.allowCache=allowCache;
+        this.allowCache = allowCache;
         DomainEventPublisher.instance().publish(new CacheProfileUpdated(this));
     }
 

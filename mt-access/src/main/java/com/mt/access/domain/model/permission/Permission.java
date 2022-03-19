@@ -80,11 +80,6 @@ public class Permission extends Auditable {
 
     }
 
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
-
     private String name;
     @Embedded
     @AttributeOverrides({
@@ -124,6 +119,7 @@ public class Permission extends Auditable {
     private boolean systemCreate = false;
 
     private Permission(ProjectId projectId, PermissionId permissionId, String name, PermissionType type, @Nullable PermissionId parentId, @Nullable ProjectId tenantId, @Nullable Set<PermissionId> linkedApiPermissionIds, boolean shared) {
+        super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.permissionId = permissionId;
         this.linkedApiPermissionIds = linkedApiPermissionIds;

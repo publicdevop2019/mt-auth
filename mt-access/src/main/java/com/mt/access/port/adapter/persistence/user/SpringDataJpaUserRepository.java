@@ -38,7 +38,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
     }
 
     default void remove(User user) {
-        user.setDeleted(true);
+        user.softDelete();
         save(user);
     }
 

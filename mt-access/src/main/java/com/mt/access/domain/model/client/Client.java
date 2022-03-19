@@ -31,12 +31,12 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Table
 @Entity
 @NoArgsConstructor
 @Where(clause = "deleted=0")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientRegion")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path", "deleted"}))
 public class Client extends Auditable {
 
     private static final String EMPTY_SECRET = "";
@@ -68,10 +68,6 @@ public class Client extends Auditable {
     })
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientExtResourceRegion")
     private final Set<ClientId> externalResources = new HashSet<>();
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
@@ -92,7 +88,6 @@ public class Client extends Auditable {
     @Getter
     private String name;
     @Getter
-    @Column(unique = true)
     private String path;
     @Getter
     private String secret;
@@ -132,6 +127,7 @@ public class Client extends Auditable {
                   RedirectDetail authorizationCodeGrant,
                   Set<ClientType> types
     ) {
+        super();
         setClientId(clientId);
         setProjectId(projectId);
         setResources(resources);

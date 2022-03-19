@@ -30,10 +30,6 @@ import javax.validation.constraints.NotNull;
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 public class User extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
     @Setter(AccessLevel.PRIVATE)
     @Embedded
     @Getter
@@ -57,6 +53,7 @@ public class User extends Auditable {
     private PasswordResetCode pwdResetToken;
 
     public User(UserEmail userEmail, UserPassword password, UserId userId) {
+        super();
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);

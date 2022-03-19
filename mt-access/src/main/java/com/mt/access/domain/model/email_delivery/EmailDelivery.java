@@ -1,8 +1,8 @@
 package com.mt.access.domain.model.email_delivery;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -10,12 +10,11 @@ import java.util.Date;
 
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"deliverTo", "bizType"}))
+@EqualsAndHashCode(callSuper = true)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"deliverTo", "bizType","deleted"}))
 @NoArgsConstructor
+@Setter(AccessLevel.PRIVATE)
 public class EmailDelivery extends Auditable {
-    @Id
-    private Long id;
-
     @Column
     private String deliverTo;
 
@@ -28,16 +27,17 @@ public class EmailDelivery extends Auditable {
     @Column
     private Date lastSuccessTime;
 
-    public static EmailDelivery create(Long id, String deliverTo, BizType bizType) {
-        return new EmailDelivery(id, deliverTo, bizType);
+    public static EmailDelivery create(String deliverTo, BizType bizType) {
+        return new EmailDelivery(deliverTo, bizType);
     }
 
-    public EmailDelivery(Long id, String deliverTo, BizType bizType) {
-        this.id = id;
-        this.deliverTo = deliverTo;
-        this.bizType = bizType;
-        this.lastTimeResult = false;
-        this.lastSuccessTime = null;
+    public EmailDelivery(String deliverTo, BizType bizType) {
+        super();
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        setDeliverTo(deliverTo);
+        setBizType(bizType);
+        setLastSuccessTime(null);
+        setLastTimeResult(false);
     }
 
     public Boolean hasCoolDown() {

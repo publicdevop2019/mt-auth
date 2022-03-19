@@ -2,6 +2,7 @@ package com.mt.access.port.adapter.persistence.client;
 
 import com.mt.access.domain.model.client.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domainId.DomainId_;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -28,14 +29,12 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
     }
 
     default void remove(Client client) {
-        client.setDeleted(true);
+        client.softDelete();
         save(client);
     }
 
     default void remove(Collection<Client> client) {
-        client.forEach(e->{
-            e.setDeleted(true);
-        });
+        client.forEach(Auditable::softDelete);
         saveAll(client);
     }
 

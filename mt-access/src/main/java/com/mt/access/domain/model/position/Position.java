@@ -17,10 +17,6 @@ import javax.persistence.*;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "positionRegion")
 public class Position extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
 
     private String name;
 
@@ -28,6 +24,7 @@ public class Position extends Auditable {
     private PositionId positionId;
 
     public Position(PositionId positionId, String name) {
+        super();
         this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.positionId = positionId;
         this.name = name;

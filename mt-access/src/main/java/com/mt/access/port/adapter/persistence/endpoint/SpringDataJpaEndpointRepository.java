@@ -2,6 +2,7 @@ package com.mt.access.port.adapter.persistence.endpoint;
 
 import com.mt.access.domain.model.endpoint.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -27,14 +28,12 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
     }
 
     default void remove(Endpoint endpoint) {
-        endpoint.setDeleted(true);
+        endpoint.softDelete();
         save(endpoint);
     }
 
     default void remove(Collection<Endpoint> endpoints) {
-        endpoints.forEach(e -> {
-            e.setDeleted(true);
-        });
+        endpoints.forEach(Auditable::softDelete);
         saveAll(endpoints);
     }
 

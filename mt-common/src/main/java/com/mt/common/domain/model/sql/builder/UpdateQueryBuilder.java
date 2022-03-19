@@ -1,10 +1,11 @@
 package com.mt.common.domain.model.sql.builder;
 
 import com.mt.common.CommonConstant;
-import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.Auditable_;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.sql.clause.NotDeletedClause;
+import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.EntityManager;
@@ -18,8 +19,6 @@ import java.util.stream.Collectors;
 
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_DIFF;
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
-import static com.mt.common.domain.model.audit.Auditable.ENTITY_MODIFIED_AT;
-import static com.mt.common.domain.model.audit.Auditable.ENTITY_MODIFIED_BY;
 
 public abstract class UpdateQueryBuilder<T extends Auditable> {
     @Autowired
@@ -61,8 +60,8 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             criteriaUpdate.set(root.<Integer>get(CommonConstant.VERSION), cb.sum(root.get(CommonConstant.VERSION), 1));
             //manually set updateAt updateBy bcz criteria api bypass hibernate session
             Optional<String> currentAuditor = SpringDataJpaConfig.AuditorAwareImpl.getAuditor();
-            criteriaUpdate.set(ENTITY_MODIFIED_BY, currentAuditor.orElse(""));
-            criteriaUpdate.set(ENTITY_MODIFIED_AT, new Date());
+            criteriaUpdate.set(Auditable_.MODIFIED_AT, currentAuditor.orElse(""));
+            criteriaUpdate.set(Auditable_.MODIFIED_AT, new Date());
             patchCommandCriteriaUpdateHashMap.put(key, criteriaUpdate);
         });
         AtomicInteger count = new AtomicInteger(0);

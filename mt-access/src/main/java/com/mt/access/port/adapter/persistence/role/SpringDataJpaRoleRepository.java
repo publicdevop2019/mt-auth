@@ -43,7 +43,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     }
 
     default void remove(Role Role) {
-        Role.setDeleted(true);
+        Role.softDelete();
         save(Role);
     }
 

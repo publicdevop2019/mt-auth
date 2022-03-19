@@ -24,17 +24,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId","deleted"}))
 @Entity
 @NoArgsConstructor
 @Getter
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRelationRegion")
 public class UserRelation extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
     @Embedded
     @AttributeOverrides({
             @AttributeOverride(name = "domainId", column = @Column(name = "userId"))
@@ -63,6 +59,7 @@ public class UserRelation extends Auditable {
     private PositionId positionId;
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
+        super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.standaloneRoles = new HashSet<>();
         this.standaloneRoles.add(roleId);
@@ -73,6 +70,7 @@ public class UserRelation extends Auditable {
     }
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId) {
+        super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.standaloneRoles = new HashSet<>();
         this.standaloneRoles.add(roleId);

@@ -44,11 +44,6 @@ public class Role extends Auditable {
         reservedName.add(CLIENT_ROOT);
     }
 
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
-
     private String name;
 
     private String description;
@@ -82,6 +77,7 @@ public class Role extends Auditable {
     private boolean systemCreate = false;
 
     private Role(ProjectId projectId, RoleId roleId, String name, String description, Set<PermissionId> permissionIds, RoleType type, @Nullable RoleId parentId, @Nullable ProjectId tenantId, Set<PermissionId> externalPermissionIds) {
+        super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.roleId = roleId;
         this.type = type;

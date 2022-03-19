@@ -22,7 +22,7 @@ public interface SpringDataJpaPositionRepository extends PositionRepository, Jpa
     }
 
     default void remove(Position Position) {
-        Position.setDeleted(true);
+        Position.softDelete();
         save(Position);
     }
 

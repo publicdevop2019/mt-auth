@@ -27,8 +27,6 @@ import java.util.Set;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "corsProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 public class CORSProfile extends Auditable {
-    @Id
-    private Long id;
     private String name;
     private String description;
     @Embedded
@@ -54,6 +52,7 @@ public class CORSProfile extends Auditable {
                        Set<String> exposedHeaders,
                        Long maxAge,
                        CORSProfileId corsId) {
+        super();
         setName(name);
         setDescription(description);
         setAllowedHeaders(allowedHeaders);

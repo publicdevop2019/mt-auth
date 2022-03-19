@@ -22,8 +22,6 @@ import java.util.Set;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
-    @Id
-    private Long id;
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
@@ -31,6 +29,7 @@ public class Notification extends Auditable {
     private String title;
 
     public Notification(HangingTxDetected deserialize) {
+        super();
         id = deserialize.getId();
         notificationId = new NotificationId();
         timestamp = deserialize.getTimestamp();
@@ -39,6 +38,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(NewUserRegistered event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
@@ -47,6 +47,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(ProjectCreated event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
@@ -55,6 +56,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(ProxyCacheCheckFailedEvent event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();

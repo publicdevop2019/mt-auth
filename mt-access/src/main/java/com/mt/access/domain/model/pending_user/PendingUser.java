@@ -17,14 +17,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import javax.persistence.*;
 
 @Entity
-@Table
 @NoArgsConstructor
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "pendingUserRegion")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email", "deleted"}))
 public class PendingUser extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    private Long id;
-
     @Column
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -37,6 +33,7 @@ public class PendingUser extends Auditable {
     private ActivationCode activationCode;
 
     public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode) {
+        super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setRegistrationEmail(registrationEmail);
         setActivationCode(activationCode);

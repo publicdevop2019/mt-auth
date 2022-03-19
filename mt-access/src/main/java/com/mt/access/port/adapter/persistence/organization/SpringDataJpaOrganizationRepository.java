@@ -21,9 +21,9 @@ public interface SpringDataJpaOrganizationRepository extends OrganizationReposit
         save(Organization);
     }
 
-    default void remove(Organization Organization) {
-        Organization.setDeleted(true);
-        save(Organization);
+    default void remove(Organization organization) {
+        organization.softDelete();
+        save(organization);
     }
 
     default SumPagedRep<Organization> getByQuery(OrganizationQuery OrganizationQuery) {

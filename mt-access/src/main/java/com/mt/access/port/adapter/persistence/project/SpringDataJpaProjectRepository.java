@@ -22,7 +22,7 @@ public interface SpringDataJpaProjectRepository extends ProjectRepository, JpaRe
     }
 
     default void remove(Project project) {
-        project.setDeleted(true);
+        project.softDelete();
         save(project);
     }
 

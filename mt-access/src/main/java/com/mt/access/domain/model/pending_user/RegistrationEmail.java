@@ -10,7 +10,6 @@ import javax.persistence.Column;
 @NoArgsConstructor
 public class RegistrationEmail extends DomainId {
     @Getter
-    @Column(unique = true)
     private String email;
 
     public RegistrationEmail(String email) {

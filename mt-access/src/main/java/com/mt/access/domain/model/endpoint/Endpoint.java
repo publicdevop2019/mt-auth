@@ -29,17 +29,13 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method","deleted"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "endpointRegion")
 public class Endpoint extends Auditable {
-
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    private Long id;
 
     @Setter(AccessLevel.PRIVATE)
     private boolean secured;
@@ -103,6 +99,7 @@ public class Endpoint extends Auditable {
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsProfileId, boolean shared
     ) {
+        super();
         PermissionId permissionId = null;
         if (secured) {
             permissionId = new PermissionId();

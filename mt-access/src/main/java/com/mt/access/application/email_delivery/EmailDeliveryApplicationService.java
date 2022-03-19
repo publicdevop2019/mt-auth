@@ -83,7 +83,7 @@ public class EmailDeliveryApplicationService {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
-                    EmailDelivery message = EmailDelivery.create(CommonDomainRegistry.getUniqueIdGeneratorService().id(), email, bizType);
+                    EmailDelivery message = EmailDelivery.create(email, bizType);
                     log.info("save to db first for concurrency scenario");
                     entityManager.persist(message);
                     entityManager.flush();

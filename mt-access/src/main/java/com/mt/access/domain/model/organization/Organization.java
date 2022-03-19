@@ -16,11 +16,6 @@ import java.util.Objects;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "organizationRegion")
 public class Organization extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
-
     private String name;
 
     @Embedded
@@ -32,6 +27,7 @@ public class Organization extends Auditable {
     private ProjectId projectId;
 
     public Organization(OrganizationId organizationId, String name) {
+        super();
         this.id= CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.organizationId = organizationId;
         this.name = name;

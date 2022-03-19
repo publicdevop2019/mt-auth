@@ -42,7 +42,7 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
     }
 
     default void remove(Permission Permission) {
-        Permission.setDeleted(true);
+        Permission.softDelete();
         save(Permission);
     }
 

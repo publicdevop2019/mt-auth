@@ -27,7 +27,7 @@ public interface SpringDataJpaUserRelationRepository extends UserRelationReposit
     }
 
     default void remove(UserRelation userRelation) {
-        userRelation.setDeleted(true);
+        userRelation.softDelete();
         save(userRelation);
     }
 

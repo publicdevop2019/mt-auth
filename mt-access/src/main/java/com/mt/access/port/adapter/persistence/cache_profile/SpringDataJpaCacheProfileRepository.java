@@ -23,7 +23,7 @@ public interface SpringDataJpaCacheProfileRepository extends CacheProfileReposit
     }
 
     default void remove(CacheProfile cacheProfile) {
-        cacheProfile.setDeleted(true);
+        cacheProfile.softDelete();
         save(cacheProfile);
     }
 
