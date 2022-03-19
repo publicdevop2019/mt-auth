@@ -21,10 +21,10 @@ public class ComputePermissionService {
         return allByQuery.stream().flatMap(e -> {
                     Stream<PermissionId> concat = Stream.empty();
                     if (e.getPermissionIds() != null) {
-                        concat = Stream.concat(Stream.empty(), e.getPermissionIds().stream());
+                        concat = Stream.concat(concat, e.getPermissionIds().stream());
                     }
                     if (e.getExternalPermissionIds() != null) {
-                        concat = Stream.concat(Stream.empty(), e.getExternalPermissionIds().stream());
+                        concat = Stream.concat(concat, e.getExternalPermissionIds().stream());
                     }
                     return concat;
                 }
