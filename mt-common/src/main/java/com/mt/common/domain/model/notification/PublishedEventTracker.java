@@ -19,7 +19,4 @@ public class PublishedEventTracker {
     @Setter
     @Getter
     private long lastPublishedId;
-    @Getter
-    @Setter
-    private boolean skipped;
 }
