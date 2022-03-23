@@ -1,6 +1,7 @@
 package com.mt.access.port.adapter.persistence.client;
 
 import com.mt.access.domain.model.client.*;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domainId.DomainId;
@@ -10,6 +11,7 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
 import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -19,6 +21,17 @@ import java.util.stream.Collectors;
 
 @Repository
 public interface SpringDataJpaClientRepository extends JpaRepository<Client, Long>, ClientRepository {
+    default Set<ProjectId> getProjectIds() {
+        return _getProjectIds();
+    }
+    default Set<ClientId> allClientIds(){
+        return _getAllClientIds();
+    }
+
+    @Query("select distinct c.projectId from Client c")
+    Set<ProjectId> _getProjectIds();
+    @Query("select distinct c.clientId from Client c")
+    Set<ClientId> _getAllClientIds();
 
     default Optional<Client> clientOfId(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId)).findFirst();

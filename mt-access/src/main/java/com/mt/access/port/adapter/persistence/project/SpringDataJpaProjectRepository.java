@@ -6,10 +6,12 @@ import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Order;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface SpringDataJpaProjectRepository extends ProjectRepository, JpaRepository<Project, Long> {
@@ -29,7 +31,12 @@ public interface SpringDataJpaProjectRepository extends ProjectRepository, JpaRe
     default SumPagedRep<Project> getByQuery(ProjectQuery query) {
         return QueryBuilderRegistry.getProjectAdaptor().execute(query);
     }
+    default Set<ProjectId> allProjectIds(){
+        return _getProjectIds();
+    };
 
+    @Query("select distinct ep.projectId from Project ep")
+    Set<ProjectId> _getProjectIds();
     @Component
     class JpaCriteriaApiProjectAdaptor {
         public SumPagedRep<Project> execute(ProjectQuery query) {

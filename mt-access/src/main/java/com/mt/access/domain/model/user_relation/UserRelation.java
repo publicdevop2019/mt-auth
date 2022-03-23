@@ -13,6 +13,7 @@ import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.*;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -106,6 +107,7 @@ public class UserRelation extends Auditable {
 
     public void setStandaloneRoles(Set<RoleId> collect) {
         this.standaloneRoles = collect;
+        Validator.notEmpty(collect);
         Set<Role> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery((RoleQuery) e), new RoleQuery(collect));
         if (collect.size() != allByQuery.size()) {
             HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();

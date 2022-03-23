@@ -29,7 +29,6 @@ public class PermissionQuery extends QueryCriteria {
     @Setter
     private Set<String> names;
     private Set<PermissionType> types;
-    private boolean typesIsAndRelation;
     private Boolean shared;
 
     public PermissionQuery(String queryParam, String pageParam, String config) {
@@ -111,18 +110,12 @@ public class PermissionQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
         {
             if (e.contains(".")) {
-                this.typesIsAndRelation = false;
                 types = Arrays.stream(e.split("\\.")).map(ee -> {
                     String s = ee.toUpperCase();
                     return PermissionType.valueOf(s);
                 }).collect(Collectors.toSet());
-
             } else {
-                this.typesIsAndRelation = true;
-                types = Arrays.stream(e.split("\\$")).map(ee -> {
-                    String s = ee.toUpperCase();
-                    return PermissionType.valueOf(s);
-                }).collect(Collectors.toSet());
+                types = Collections.singleton(PermissionType.valueOf(e.toUpperCase()));
             }
         });
     }

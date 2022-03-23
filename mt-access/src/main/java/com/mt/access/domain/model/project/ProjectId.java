@@ -16,4 +16,9 @@ public class ProjectId extends DomainId implements Serializable {
     public ProjectId(String domainId) {
         super(domainId);
     }
+
+    @Override
+    public String toString() {
+        return getDomainId();
+    }
 }

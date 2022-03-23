@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.user_relation;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
@@ -10,10 +11,12 @@ import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.Order;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface SpringDataJpaUserRelationRepository extends UserRelationRepository, JpaRepository<UserRelation, Long> {
@@ -30,11 +33,14 @@ public interface SpringDataJpaUserRelationRepository extends UserRelationReposit
         userRelation.softDelete();
         save(userRelation);
     }
-
+    default Set<ProjectId> getProjectIds(){
+        return _getProjectIds();
+    }
     default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
         return QueryBuilderRegistry.getUserRelationAdaptor().execute(query);
     }
-
+    @Query("select distinct c.projectId from UserRelation c")
+    Set<ProjectId> _getProjectIds();
     @Component
     class JpaCriteriaApiUserRelationAdaptor {
         public SumPagedRep<UserRelation> execute(UserRelationQuery query) {

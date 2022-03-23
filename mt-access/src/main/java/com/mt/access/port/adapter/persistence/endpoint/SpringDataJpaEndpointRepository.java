@@ -1,5 +1,8 @@
 package com.mt.access.port.adapter.persistence.endpoint;
 
+import com.mt.access.domain.model.cache_profile.CacheProfileId;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.cors_profile.CORSProfileId;
 import com.mt.access.domain.model.endpoint.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -7,12 +10,14 @@ import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.Order;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
@@ -22,6 +27,25 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
         return endpointsOfQuery(new EndpointQuery(endpointId)).findFirst();
     }
 
+    default Set<CacheProfileId> getCacheProfileIds() {
+        return _getCacheProfileIds();
+    }
+
+    default Set<CORSProfileId> getCorsProfileIds() {
+        return _getCorsProfileIds();
+    }
+    default Set<ClientId> getClientIds() {
+        return _getClientIds();
+    }
+
+    @Query("select distinct ep.cacheProfileId from Endpoint ep where ep.cacheProfileId is not null")
+    Set<CacheProfileId> _getCacheProfileIds();
+
+    @Query("select distinct ep.corsProfileId from Endpoint ep where ep.cacheProfileId is not null")
+    Set<CORSProfileId> _getCorsProfileIds();
+
+    @Query("select distinct ep.clientId from Endpoint ep")
+    Set<ClientId> _getClientIds();
 
     default void add(Endpoint endpoint) {
         save(endpoint);
@@ -55,6 +79,7 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
             Optional.ofNullable(endpointQuery.getMethod()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
             Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
             Optional.ofNullable(endpointQuery.getIsShared()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.SHARED, queryContext));
+            Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.SECURED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Endpoint_.CORS_PROFILE_ID, queryContext));
             Order order = null;
             if (endpointQuery.getEndpointSort().isById())

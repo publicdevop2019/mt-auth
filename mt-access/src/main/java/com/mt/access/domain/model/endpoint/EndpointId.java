@@ -16,4 +16,9 @@ public class EndpointId extends DomainId implements Serializable {
     public EndpointId(String domainId) {
         super(domainId);
     }
+
+    @Override
+    public String toString() {
+        return getDomainId();
+    }
 }

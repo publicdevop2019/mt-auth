@@ -1,8 +1,10 @@
 package com.mt.access.port.adapter.persistence.role;
 
 import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.Client_;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.access.port.adapter.persistence.client.SpringDataJpaClientRepository;
@@ -11,6 +13,7 @@ import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -51,6 +54,13 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         return QueryBuilderRegistry.getRoleAdaptor().execute(roleQuery);
     }
 
+    default Set<ProjectId> getProjectIds(){
+        return getProjectId();
+    };
+
+    @Query("select distinct ep.projectId from Role ep")
+    Set<ProjectId> getProjectId();
+
     @Component
     class JpaCriteriaApiRoleAdaptor {
         public SumPagedRep<Role> execute(RoleQuery query) {
@@ -62,9 +72,9 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
             Optional.ofNullable(query.getExternalPermissionIds()).ifPresent(e -> QueryUtility.addStringLikePredicate(e.getDomainId(), Role_.EXTERNAL_PERMISSION_IDS, queryContext));
             Optional.ofNullable(query.getNames()).ifPresent(e -> QueryUtility.addStringInPredicate(e, Role_.NAME, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(e -> {
-                queryContext.getPredicates().add(JpaCriteriaApiRoleAdaptor.RoleTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot(),query.isTypesIsAndRelation()));
+                queryContext.getPredicates().add(JpaCriteriaApiRoleAdaptor.RoleTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(JpaCriteriaApiRoleAdaptor.RoleTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot(),query.isTypesIsAndRelation())));
+                        .ifPresent(ee -> ee.add(JpaCriteriaApiRoleAdaptor.RoleTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
             });
             Order order = null;
             if (query.getSort().isById())
@@ -73,22 +83,19 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
             return QueryUtility.pagedQuery(query, queryContext);
         }
         private static class RoleTypePredicateConverter {
-            public static Predicate getPredicate(Set<RoleType> query, CriteriaBuilder cb, Root<Role> root,boolean isAnd) {
+            public static Predicate getPredicate(Set<RoleType> query, CriteriaBuilder cb, Root<Role> root) {
                 if (query.size()>1) {
                     List<Predicate> list2 = new ArrayList<>();
                     for (RoleType str : query) {
                         if (RoleType.CLIENT_ROOT.equals(str)) {
-                            list2.add(cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.CLIENT_ROOT.name() + "%"));
+                            list2.add(cb.equal(root.get(Role_.TYPE).as(String.class), RoleType.CLIENT_ROOT.name()));
                         } else if (RoleType.PROJECT.equals(str)) {
-                            list2.add(cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.PROJECT.name() + "%"));
+                            list2.add(cb.equal(root.get(Role_.TYPE).as(String.class), RoleType.PROJECT.name()));
                         } else if (RoleType.CLIENT.equals(str)) {
-                            list2.add(cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.CLIENT.name() + "%"));
+                            list2.add(cb.equal(root.get(Role_.TYPE).as(String.class), RoleType.CLIENT.name()));
                         } else if (RoleType.USER.equals(str)) {
-                            list2.add(cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.USER.name() + "%"));
+                            list2.add(cb.equal(root.get(Role_.TYPE).as(String.class), RoleType.USER.name()));
                         }
-                    }
-                    if(isAnd){
-                        return cb.and(list2.toArray(Predicate[]::new));
                     }
                     return cb.or(list2.toArray(Predicate[]::new));
                 } else {
@@ -98,13 +105,13 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
 
             private static Predicate getExpression(RoleType str, CriteriaBuilder cb, Root<Role> root) {
                 if (RoleType.CLIENT_ROOT.equals(str)) {
-                    return cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.CLIENT_ROOT.name() + "%");
+                    return cb.like(root.get(Role_.TYPE).as(String.class), RoleType.CLIENT_ROOT.name());
                 } else if (RoleType.PROJECT.equals(str)) {
-                    return cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.PROJECT.name() + "%");
+                    return cb.like(root.get(Role_.TYPE).as(String.class), RoleType.PROJECT.name());
                 } else if (RoleType.CLIENT.equals(str)) {
-                    return cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.CLIENT.name() + "%");
+                    return cb.like(root.get(Role_.TYPE).as(String.class), RoleType.CLIENT.name());
                 } else if (RoleType.USER.equals(str)) {
-                    return cb.like(root.get(Role_.TYPE).as(String.class), "%" + RoleType.USER.name() + "%");
+                    return cb.like(root.get(Role_.TYPE).as(String.class), RoleType.USER.name());
                 } else {
                     return null;
                 }

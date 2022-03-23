@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.permission;
 
+import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.permission.*;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.CommonConstant;
@@ -7,6 +8,7 @@ import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -20,7 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface SpringDataJpaPermissionRepository extends PermissionRepository, JpaRepository<Permission, Long> {
-    //@tod
+    //@todo
     private static <T> void addParentIdPredicate(String value, String sqlFieldName, QueryUtility.QueryContext<T> context) {
         if ("null".equalsIgnoreCase(value)) {
             context.getPredicates().add(context.getCriteriaBuilder().isNull(context.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class)));
@@ -45,6 +47,11 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
         Permission.softDelete();
         save(Permission);
     }
+    default Set<EndpointId> allApiPermissionLinkedEpId(){
+     return _allApiPermissionLinkedEpId();
+    }
+    @Query("select distinct p.name from Permission p where p.type='API'")
+    Set<EndpointId> _allApiPermissionLinkedEpId();
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery PermissionQuery) {
         return QueryBuilderRegistry.getPermissionAdaptor().execute(PermissionQuery);
@@ -63,9 +70,9 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
             Optional.ofNullable(query.getNames()).ifPresent(e -> QueryUtility.addStringInPredicate(e, Permission_.NAME, queryContext));
             Optional.ofNullable(query.getShared()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Permission_.SHARED, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(e -> {
-                queryContext.getPredicates().add(PermissionTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot(), query.isTypesIsAndRelation()));
+                queryContext.getPredicates().add(PermissionTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(PermissionTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot(), query.isTypesIsAndRelation())));
+                        .ifPresent(ee -> ee.add(PermissionTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
             });
             Order order = null;
             if (query.getSort().isById())
@@ -76,22 +83,19 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
 
         //@todo simple enum query
         private static class PermissionTypePredicateConverter {
-            public static Predicate getPredicate(Set<PermissionType> query, CriteriaBuilder cb, Root<Permission> root, boolean isAnd) {
+            public static Predicate getPredicate(Set<PermissionType> query, CriteriaBuilder cb, Root<Permission> root) {
                 if (query.size() > 1) {
                     List<Predicate> list2 = new ArrayList<>();
                     for (PermissionType str : query) {
                         if (PermissionType.API_ROOT.equals(str)) {
-                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.API_ROOT.name() + "%"));
+                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.API_ROOT.name()));
                         } else if (PermissionType.API.equals(str)) {
-                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.API.name() + "%"));
+                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.API.name()));
                         } else if (PermissionType.COMMON.equals(str)) {
-                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.COMMON.name() + "%"));
+                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.COMMON.name()));
                         } else if (PermissionType.PROJECT.equals(str)) {
-                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.PROJECT.name() + "%"));
+                            list2.add(cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.PROJECT.name()));
                         }
-                    }
-                    if (isAnd) {
-                        return cb.and(list2.toArray(Predicate[]::new));
                     }
                     return cb.or(list2.toArray(Predicate[]::new));
                 } else {
@@ -101,13 +105,13 @@ public interface SpringDataJpaPermissionRepository extends PermissionRepository,
 
             private static Predicate getExpression(PermissionType str, CriteriaBuilder cb, Root<Permission> root) {
                 if (PermissionType.API.equals(str)) {
-                    return cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.API.name() + "%");
+                    return cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.API.name());
                 } else if (PermissionType.PROJECT.equals(str)) {
-                    return cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.PROJECT.name() + "%");
+                    return cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.PROJECT.name());
                 } else if (PermissionType.API_ROOT.equals(str)) {
-                    return cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.API_ROOT.name() + "%");
+                    return cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.API_ROOT.name());
                 } else if (PermissionType.COMMON.equals(str)) {
-                    return cb.like(root.get(Permission_.TYPE).as(String.class), "%" + PermissionType.COMMON.name() + "%");
+                    return cb.like(root.get(Permission_.TYPE).as(String.class), PermissionType.COMMON.name());
                 } else {
                     return null;
                 }

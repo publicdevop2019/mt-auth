@@ -36,6 +36,8 @@ public class EndpointQuery extends QueryCriteria {
     private Boolean isWebsocket;
     @Setter(AccessLevel.PRIVATE)
     private Boolean isShared;
+    @Setter(AccessLevel.PRIVATE)
+    private Boolean isSecured;
     private EndpointSort endpointSort;
     private Set<CacheProfileId> cacheProfileIds;
 
@@ -121,6 +123,12 @@ public class EndpointQuery extends QueryCriteria {
     public static EndpointQuery sharedQuery(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
         endpointQuery.setIsShared(true);
+        return endpointQuery;
+    }
+
+    public static EndpointQuery securedQuery() {
+        EndpointQuery endpointQuery = new EndpointQuery();
+        endpointQuery.setIsSecured(true);
         return endpointQuery;
     }
 

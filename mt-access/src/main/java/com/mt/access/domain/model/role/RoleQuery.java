@@ -6,26 +6,28 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Getter
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RoleQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
     private static final String PARENT_ID = "parentId";
     private static final String PROJECT_ID = "projectIds";
     private static final String TYPES = "types";
-    private final RoleSort sort;
+    private RoleSort sort;
     private Set<RoleId> ids;
     private RoleId parentId;
     private Set<ProjectId> projectIds;
     private Set<String> names;
     private Set<RoleType> types;
     private PermissionId externalPermissionIds;
-    private boolean typesIsAndRelation;
 
     public RoleQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID, PROJECT_ID, TYPES);
@@ -36,18 +38,12 @@ public class RoleQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
         {
             if (e.contains(".")) {
-                this.typesIsAndRelation = false;
                 types = Arrays.stream(e.split("\\.")).map(ee -> {
                     String s = ee.toUpperCase();
                     return RoleType.valueOf(s);
                 }).collect(Collectors.toSet());
-
             } else {
-                this.typesIsAndRelation = true;
-                types = Arrays.stream(e.split("\\$")).map(ee -> {
-                    String s = ee.toUpperCase();
-                    return RoleType.valueOf(s);
-                }).collect(Collectors.toSet());
+                types= Collections.singleton(RoleType.valueOf(e.toUpperCase()));
             }
         });
         setPageConfig(PageConfig.limited(pageParam, 1000));
@@ -106,6 +102,25 @@ public class RoleQuery extends QueryCriteria {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = RoleSort.byId(true);
+    }
+
+    public RoleQuery(RoleType type) {
+        this.types = Collections.singleton(type);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = RoleSort.byId(true);
+    }
+
+    public static RoleQuery projectDefaultRoleQuery() {
+        RoleQuery roleQuery = new RoleQuery();
+        Set<RoleType> roleTypes = new HashSet<>();
+        roleTypes.add(RoleType.PROJECT);
+        roleTypes.add(RoleType.CLIENT_ROOT);
+        roleQuery.types = roleTypes;
+        roleQuery.setPageConfig(PageConfig.defaultConfig());
+        roleQuery.setQueryConfig(QueryConfig.skipCount());
+        roleQuery.sort = RoleSort.byId(true);
+        return roleQuery;
     }
 
     @Getter
