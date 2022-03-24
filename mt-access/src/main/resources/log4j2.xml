@@ -2,7 +2,7 @@
 <Configuration status="warn">
     <Properties>
         <Property name="location">./logs</Property>
-        <Property name="name">AuthService</Property>
+        <Property name="name">access</Property>
     </Properties>
 
     <Appenders>
@@ -23,7 +23,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.hw" level="info" additivity="false">
+        <Logger name="com.mt" level="info" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>

@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ScheduledValidationService {
-    @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 5*60*1000, initialDelay = 60 * 1000)
     @SubscribeForEvent
     @Transactional
     public void validate() {

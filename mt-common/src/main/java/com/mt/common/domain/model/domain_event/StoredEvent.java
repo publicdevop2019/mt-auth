@@ -17,11 +17,12 @@ public class StoredEvent implements Serializable {
     private String eventBody;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //db generated id will make sure event get read in order and will not get skipped
+    //auto_increment id will not be continuous e.g. 1,2,3,5 due to transaction rollback in concurrent scenario
     private Long id;
     private Long timestamp;
     private String name;
     private boolean internal;
+    private boolean send = false;
     private String topic;
     private String domainId;
 
@@ -37,6 +38,9 @@ public class StoredEvent implements Serializable {
 
     public void setIdExplicitly(long id) {
         this.id = id;
+    }
+    public void sendToMQ() {
+        this.send = true;
     }
 
 }

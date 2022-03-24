@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * improved event tracker, rarely it will not send events properly
+ * improved event tracker, rarely it will not send events properly .e.g insert 1,2,3,5 and 4 later, 4 will be missed
  */
 @Repository
 public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedEventTrackerRepository, JpaRepository<PublishedEventTracker, Long> {
@@ -40,34 +40,12 @@ public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedE
         return objects.isEmpty() ? new PublishedEventTracker() : objects.get(0);
     }
 
-    /**
-     * publish event since id 1
-     * when 2,3,5 event got scanned & published but 4 got missed
-     */
     default void trackMostRecentPublishedNotification(PublishedEventTracker tracker, List<StoredEvent> events) {
         int lastIndex = events.size() - 1;
         if (lastIndex >= 0) {
-            long mostRecentId = events.get(lastIndex).getId(); //5
-            //only update tracker to 5 when event count pass check
-            //5-1 compare to 3
-            if ((mostRecentId - tracker.getLastPublishedId()) == events.size()) {
-                tracker.setLastPublishedId(mostRecentId);
-                save(tracker);
-            }else{
-                log.debug("missing event detected, last published id is {}, event size is {}, last event id is {}",tracker.getLastPublishedId(),events.size(),mostRecentId);
-                // find last publish id which should be 3
-                for(long i=tracker.getLastPublishedId();i<=mostRecentId;i++){
-                    long nextIndex=i;
-                    nextIndex++;
-                    long finalNextIndex = nextIndex;
-                    if(events.stream().noneMatch(e->e.getId()== finalNextIndex)){
-                        tracker.setLastPublishedId(i);
-                        save(tracker);
-                        break;
-                    }
-                }
-            }
-
+            long mostRecentId = events.get(lastIndex).getId();
+            tracker.setLastPublishedId(mostRecentId);
+            save(tracker);
         }
     }
 

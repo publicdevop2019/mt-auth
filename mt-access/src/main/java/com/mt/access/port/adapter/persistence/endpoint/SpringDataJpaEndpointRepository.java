@@ -41,7 +41,7 @@ public interface SpringDataJpaEndpointRepository extends JpaRepository<Endpoint,
     @Query("select distinct ep.cacheProfileId from Endpoint ep where ep.cacheProfileId is not null")
     Set<CacheProfileId> _getCacheProfileIds();
 
-    @Query("select distinct ep.corsProfileId from Endpoint ep where ep.cacheProfileId is not null")
+    @Query("select distinct ep.corsProfileId from Endpoint ep where ep.corsProfileId is not null")
     Set<CORSProfileId> _getCorsProfileIds();
 
     @Query("select distinct ep.clientId from Endpoint ep")

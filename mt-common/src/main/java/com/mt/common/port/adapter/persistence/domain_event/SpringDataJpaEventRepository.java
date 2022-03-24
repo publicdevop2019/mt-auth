@@ -36,8 +36,9 @@ public interface SpringDataJpaEventRepository extends CrudRepository<StoredEvent
     class JpaCriteriaApiStoredEventQueryAdapter {
         public SumPagedRep<StoredEvent> execute(StoredEventQuery query) {
             QueryUtility.QueryContext<StoredEvent> queryContext = QueryUtility.prepareContext(StoredEvent.class, query);
-            Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility.addLongInPredicate(query.getIds(), StoredEvent_.ID, queryContext));
-            Optional.ofNullable(query.getDomainIds()).ifPresent(e -> QueryUtility.addStringInPredicate(query.getDomainIds(), StoredEvent_.DOMAIN_ID, queryContext));
+            Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility.addLongInPredicate(e, StoredEvent_.ID, queryContext));
+            Optional.ofNullable(query.getDomainIds()).ifPresent(e -> QueryUtility.addStringInPredicate(e, StoredEvent_.DOMAIN_ID, queryContext));
+            Optional.ofNullable(query.getSend()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.SEND, queryContext));
             Order order = null;
             if (query.getSort().isById())
                 order = QueryUtility.getOrder(StoredEvent_.ID, queryContext, query.getSort().isAsc());

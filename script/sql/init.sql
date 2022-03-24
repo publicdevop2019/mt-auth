@@ -596,6 +596,7 @@ CREATE TABLE `stored_event` (
   `name` varchar(255) DEFAULT NULL,
   `timestamp` bigint DEFAULT NULL,
   `topic` varchar(255) DEFAULT NULL,
+  `send` bit(1) DEFAULT NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -606,7 +607,6 @@ CREATE TABLE `stored_event` (
 
 LOCK TABLES `stored_event` WRITE;
 /*!40000 ALTER TABLE `stored_event` DISABLE KEYS */;
-INSERT INTO `stored_event` VALUES (1,NULL,'{\"id\":864064904888447,\"timestamp\":1648073015902,\"name\":\"com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent\",\"domainId\":null,\"domainIds\":null,\"internal\":true,\"topic\":\"system_validation_failed\",\"message\":\"project must have related role created\"}',_binary '','com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent',1648073015902,'system_validation_failed'),(2,NULL,'{\"id\":864064909607078,\"timestamp\":1648073024867,\"name\":\"com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent\",\"domainId\":null,\"domainIds\":null,\"internal\":true,\"topic\":\"system_validation_failed\",\"message\":\"project must have related role created\"}',_binary '','com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent',1648073024867,'system_validation_failed'),(3,NULL,'{\"id\":864064915374196,\"timestamp\":1648073035902,\"name\":\"com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent\",\"domainId\":null,\"domainIds\":null,\"internal\":true,\"topic\":\"system_validation_failed\",\"message\":\"project must have related role created\"}',_binary '','com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent',1648073035902,'system_validation_failed'),(4,NULL,'{\"id\":864064923238490,\"timestamp\":1648073050745,\"name\":\"com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent\",\"domainId\":null,\"domainIds\":null,\"internal\":true,\"topic\":\"system_validation_failed\",\"message\":\"project must have related role created\"}',_binary '','com.mt.access.domain.model.ScheduledValidationService$ValidationFailedEvent',1648073050745,'system_validation_failed');
 /*!40000 ALTER TABLE `stored_event` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -690,4 +690,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-03-23 22:47:09
+-- Dump completed on 2022-03-24 14:31:20
