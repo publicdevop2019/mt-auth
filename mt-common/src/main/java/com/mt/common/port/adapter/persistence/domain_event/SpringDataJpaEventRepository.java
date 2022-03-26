@@ -14,10 +14,10 @@ import java.util.Optional;
 
 @Repository
 public interface SpringDataJpaEventRepository extends CrudRepository<StoredEvent, Long>, EventRepository {
-    List<StoredEvent> findByIdGreaterThan(long id);
+    List<StoredEvent> findTop50ByIdGreaterThanOrderById(long id);
 
     default List<StoredEvent> allStoredEventsSince(long lastId) {
-        return findByIdGreaterThan(lastId);
+        return findTop50ByIdGreaterThanOrderById(lastId);
     }
 
     default void append(DomainEvent aDomainEvent) {

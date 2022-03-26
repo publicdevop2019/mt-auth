@@ -60,7 +60,7 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             criteriaUpdate.set(root.<Integer>get(CommonConstant.VERSION), cb.sum(root.get(CommonConstant.VERSION), 1));
             //manually set updateAt updateBy bcz criteria api bypass hibernate session
             Optional<String> currentAuditor = SpringDataJpaConfig.AuditorAwareImpl.getAuditor();
-            criteriaUpdate.set(Auditable_.MODIFIED_AT, currentAuditor.orElse(""));
+            criteriaUpdate.set(Auditable_.MODIFIED_BY, currentAuditor.orElse(""));
             criteriaUpdate.set(Auditable_.MODIFIED_AT, new Date());
             patchCommandCriteriaUpdateHashMap.put(key, criteriaUpdate);
         });

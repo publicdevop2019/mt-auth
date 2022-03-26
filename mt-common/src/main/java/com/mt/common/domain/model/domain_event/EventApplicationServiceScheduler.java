@@ -31,6 +31,7 @@ public class EventApplicationServiceScheduler {
         List<StoredEvent> storedEvents = CommonDomainRegistry.getEventRepository().allStoredEventsSince(eventTracker.getLastPublishedId());
         if (!storedEvents.isEmpty()) {
             log.trace("publish event since id {}", eventTracker.getLastPublishedId());
+            log.trace("total domain event found {}", storedEvents.size());
             for (StoredEvent event : storedEvents) {
                 log.trace("publishing event {} with id {}",event.getName(), event.getId());
                 CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
@@ -47,12 +48,13 @@ public class EventApplicationServiceScheduler {
         log.debug("running task for not send event");
         Set<StoredEvent> allByQuery = QueryUtility.getAllByQuery(e -> CommonDomainRegistry.getEventRepository().query(e), StoredEventQuery.notSend());
         if (!allByQuery.isEmpty()) {
-            log.debug("publish not send event since id");
+            log.debug("start of publish not send event");
             for (StoredEvent event : allByQuery) {
                 log.debug("publishing event {} with id {}",event.getName(), event.getId());
                 CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
                 event.sendToMQ();
             }
+            log.debug("end of publish not send event");
         }
     }
 

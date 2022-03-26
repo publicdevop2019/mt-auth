@@ -35,6 +35,7 @@ public class StoredEventQuery extends QueryCriteria {
         storedEventQuery.sort=DomainEventSort.byId(true);
         storedEventQuery.send=false;
         storedEventQuery.setPageConfig(PageConfig.defaultConfig());
+        storedEventQuery.setQueryConfig(QueryConfig.skipCount());
         return storedEventQuery;
     }
 
