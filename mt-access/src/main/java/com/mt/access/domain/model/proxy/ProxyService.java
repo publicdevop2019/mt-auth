@@ -9,16 +9,17 @@ import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 import java.util.stream.Collectors;
 @Service
+@Slf4j
 public class ProxyService {
     public CheckSumRepresentation checkSumValue() {
         Map<ProxyInfo, CheckSumValue> cacheEndpointSum = DomainRegistry.getRemoteProxyService().getCacheEndpointSum();
-
-        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery());
+        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query), new EndpointQuery());
         Set<EndpointProxyCardRepresentation> collect = allByQuery.stream().map(EndpointProxyCardRepresentation::new).collect(Collectors.toSet());
         EndpointProxyCardRepresentation.updateDetail(new ArrayList<>(collect));
         //sort before generate check sum
@@ -31,15 +32,18 @@ public class ProxyService {
     public void checkSum() {
         CheckSumRepresentation checkSumRepresentation = checkSumValue();
         String hostValue = checkSumRepresentation.getHostValue();
-        HashSet<String> strings = new HashSet<>(checkSumRepresentation.getProxyValue().values());
-        if (strings.isEmpty()) {
+        HashSet<String> values = new HashSet<>(checkSumRepresentation.getProxyValue().values());
+        if (values.isEmpty()) {
+            log.debug("pass check due to no proxy found");
             return;
         }
-        if (strings.size() != 1) {
+        if (values.size() != 1) {
+            log.debug("failed check due to different proxy value found");
             CommonDomainRegistry.getDomainEventRepository().append(new ProxyCacheCheckFailedEvent());
             return;
         }
-        if (!strings.stream().findFirst().get().equals(hostValue)) {
+        if (!values.stream().findFirst().get().equals(hostValue)) {
+            log.debug("failed check due to proxy value not matching host value");
             CommonDomainRegistry.getDomainEventRepository().append(new ProxyCacheCheckFailedEvent());
         }
 

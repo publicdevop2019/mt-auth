@@ -28,13 +28,19 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 
 
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.util.Optional;
 import java.util.Set;
@@ -43,20 +49,34 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ScheduledValidationService {
+    @Autowired
+    CleanUpThreadPoolExecutor taskExecutor;
+    @Autowired
+    private PlatformTransactionManager transactionManager;
     @Scheduled(fixedRate = 5*60*1000, initialDelay = 60 * 1000)
-    
-    @Transactional
     public void validate() {
-        log.debug("start of validation existing data");
-        validateCacheProfileAndEndpoint();
-        validateClientAndEndpoint();
-        validateClientAndProject();
-        validateClientAndRole();
-        validateCorsProfileAndEndpoint();
-        validateProjectAndRole();
-        validateProjectAndUser();
-        validateEndpointAndPermission();
-        log.debug("end of validation existing data");
+        taskExecutor.execute(new Runnable() {
+            @Override
+            public void run() {
+                TransactionTemplate template = new TransactionTemplate(transactionManager);
+                template.execute(new TransactionCallbackWithoutResult() {
+                    @Override
+                    protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                        log.debug("start of validation existing data");
+                        validateCacheProfileAndEndpoint();
+                        validateClientAndEndpoint();
+                        validateClientAndProject();
+                        validateClientAndRole();
+                        validateCorsProfileAndEndpoint();
+                        validateProjectAndRole();
+                        validateProjectAndUser();
+                        validateEndpointAndPermission();
+                        log.debug("end of validation existing data");
+                    }
+                });
+
+            }
+        });
     }
 
     private void validateEndpointAndPermission() {

@@ -36,5 +36,6 @@ public class LogFilter extends GenericFilter {
         }
         filterChain.doFilter(servletRequest, servletResponse);
         httpResponse.setHeader("UUID", MDC.get("UUID"));
+        MDC.clear();
     }
 }
