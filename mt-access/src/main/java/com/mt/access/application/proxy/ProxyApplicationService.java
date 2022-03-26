@@ -22,8 +22,7 @@ public class ProxyApplicationService {
     CleanUpThreadPoolExecutor taskExecutor;
     @Autowired
     private PlatformTransactionManager transactionManager;
-    @Scheduled(fixedRate = 10 * 1000, initialDelay = 30 * 1000)
-//    @Scheduled(fixedRate = 60 * 1000, initialDelay = 180 * 1000)
+    @Scheduled(fixedRate = 60 * 1000, initialDelay = 180 * 1000)
     @Transactional
     protected void checkSum() {
         taskExecutor.execute(new Runnable() {
