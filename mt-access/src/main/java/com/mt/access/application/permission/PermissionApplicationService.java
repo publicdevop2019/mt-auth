@@ -22,7 +22,7 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
@@ -53,7 +53,7 @@ public class PermissionApplicationService {
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void replace(String id, PermissionUpdateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
@@ -76,7 +76,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void remove(String projectId, String id, String changeId) {
         PermissionId permissionId = new PermissionId(id);
@@ -89,7 +89,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
@@ -109,7 +109,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
@@ -133,7 +133,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(ProjectCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -145,7 +145,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(SecureEndpointCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -163,7 +163,7 @@ public class PermissionApplicationService {
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(EndpointShareAdded deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -175,7 +175,7 @@ public class PermissionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(EndpointShareRemoved deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {

@@ -6,7 +6,7 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
@@ -69,7 +69,7 @@ public class User extends Auditable {
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {
         this.pwdResetToken = pwdResetToken;
-        DomainEventPublisher.instance().publish(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
+        CommonDomainRegistry.getDomainEventRepository().append(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
     }
 
 
@@ -80,7 +80,7 @@ public class User extends Auditable {
 
     @PreUpdate
     private void preUpdate() {
-        DomainEventPublisher.instance().publish(new UserUpdated(getUserId()));
+        CommonDomainRegistry.getDomainEventRepository().append(new UserUpdated(getUserId()));
     }
 
     @Override

@@ -22,10 +22,11 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
+
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -43,7 +44,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ScheduledValidationService {
     @Scheduled(fixedRate = 5*60*1000, initialDelay = 60 * 1000)
-    @SubscribeForEvent
+    
     @Transactional
     public void validate() {
         log.debug("start of validation existing data");
@@ -64,7 +65,7 @@ public class ScheduledValidationService {
         Set<PermissionId> mappedPId = securedEp.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
         Set<Permission> storedP = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e), new PermissionQuery(mappedPId));
         if (storedP.size() != mappedPId.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("mapped user relation has valid projectId"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("mapped user relation has valid projectId"));
         }
         Set<EndpointId> endpointIds = DomainRegistry.getPermissionRepository().allApiPermissionLinkedEpId();
         Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e), new EndpointQuery(endpointIds));
@@ -72,12 +73,12 @@ public class ScheduledValidationService {
             Set<EndpointId> foundEpIds = allByQuery.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet());
             Set<EndpointId> missingEpIds = endpointIds.stream().filter(e -> !foundEpIds.contains(e)).collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", missingEpIds);
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("each api permission needs mapped to one endpoint"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("each api permission needs mapped to one endpoint"));
         }
         if (allByQuery.stream().anyMatch(e -> !e.isSecured())) {
             Set<EndpointId> publicEpIds = allByQuery.stream().filter(e -> !e.isSecured()).map(Endpoint::getEndpointId).collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", publicEpIds);
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("endpoint has permission must be secured"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("endpoint has permission must be secured"));
         }
 
     }
@@ -87,7 +88,7 @@ public class ScheduledValidationService {
         Set<ProjectId> projectIds = DomainRegistry.getUserRelationRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e), new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("mapped user relation has valid projectId"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("mapped user relation has valid projectId"));
         }
     }
 
@@ -96,7 +97,7 @@ public class ScheduledValidationService {
         Set<ProjectId> projectIds = DomainRegistry.getRoleRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e), new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("projectId in role table must be valid"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("projectId in role table must be valid"));
         }
         //project must have project role and client_root role
         Set<ProjectId> projectIds1 = DomainRegistry.getProjectRepository().allProjectIds();
@@ -108,7 +109,7 @@ public class ScheduledValidationService {
         }).collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             log.debug("project must have related role created {}", collect);
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("project must have related role created"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("project must have related role created"));
         }
     }
 
@@ -117,7 +118,7 @@ public class ScheduledValidationService {
         Set<CORSProfileId> corsProfileIds = DomainRegistry.getEndpointRepository().getCorsProfileIds();
         Set<CORSProfile> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(e), new CORSProfileQuery(corsProfileIds));
         if (allByQuery.size() != corsProfileIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("endpoints must have valid cors profile"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("endpoints must have valid cors profile"));
         }
     }
 
@@ -131,13 +132,13 @@ public class ScheduledValidationService {
         if (clients.stream().anyMatch(e -> !names.contains(e.getDomainId()))) {
             Set<ClientId> collect = clients.stream().filter(e -> !names.contains(e.getDomainId())).collect(Collectors.toSet());
             log.debug("unable to find roles for clients {}", collect);
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("client must have related role"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("client must have related role"));
         }
         Set<String> clientIds = clients.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         if (names.stream().anyMatch(e -> !clientIds.contains(e))) {
             Set<String> collect = names.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
             log.debug("unable to find client for role {}", collect);
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("role must have related client"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("role must have related client"));
         }
     }
 
@@ -146,7 +147,7 @@ public class ScheduledValidationService {
         Set<ProjectId> projectIds = DomainRegistry.getClientRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e), new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("all clients must have valid projectId"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("all clients must have valid projectId"));
         }
     }
 
@@ -155,7 +156,7 @@ public class ScheduledValidationService {
         Set<ClientId> clientIds = DomainRegistry.getEndpointRepository().getClientIds();
         Set<Client> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e), new ClientQuery(clientIds));
         if (allByQuery.size() != clientIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("all endpoints must have valid clientId"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("all endpoints must have valid clientId"));
         }
     }
 
@@ -164,7 +165,7 @@ public class ScheduledValidationService {
         Set<CacheProfileId> cacheProfileIds = DomainRegistry.getEndpointRepository().getCacheProfileIds();
         Set<CacheProfile> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery(e), new CacheProfileQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
-            DomainEventPublisher.instance().publish(new ValidationFailedEvent("endpoints must have valid cache profile"));
+            CommonDomainRegistry.getDomainEventRepository().append(new ValidationFailedEvent("endpoints must have valid cache profile"));
         }
     }
 

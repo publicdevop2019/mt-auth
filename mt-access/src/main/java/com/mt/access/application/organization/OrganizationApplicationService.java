@@ -11,7 +11,7 @@ import com.mt.access.domain.model.organization.OrganizationId;
 import com.mt.access.domain.model.organization.OrganizationQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class OrganizationApplicationService {
         return DomainRegistry.getOrganizationRepository().getById(new OrganizationId(id));
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void replace(String id, OrganizationUpdateCommand command, String changeId) {
         OrganizationId OrganizationId = new OrganizationId(id);
@@ -47,7 +47,7 @@ public class OrganizationApplicationService {
         }, ORGANIZATION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void remove(String id, String changeId) {
         OrganizationId OrganizationId = new OrganizationId(id);
@@ -60,7 +60,7 @@ public class OrganizationApplicationService {
         }, ORGANIZATION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         OrganizationId OrganizationId = new OrganizationId(id);
@@ -78,7 +78,7 @@ public class OrganizationApplicationService {
         }, ORGANIZATION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(OrganizationCreateCommand command, String changeId) {
         OrganizationId OrganizationId = new OrganizationId();

@@ -14,7 +14,7 @@ import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import org.springframework.stereotype.Service;
@@ -27,7 +27,7 @@ public class RevokeTokenApplicationService {
 
     public static final String REVOKE_TOKEN = "RevokeToken";
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());
@@ -37,7 +37,7 @@ public class RevokeTokenApplicationService {
         }, REVOKE_TOKEN);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public String internalOnlyCreate(RevokeTokenCreateCommand command, String changeId) {
         RevokeTokenId revokeTokenId = new RevokeTokenId(command.getId());

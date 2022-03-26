@@ -11,7 +11,6 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -142,7 +141,7 @@ public class Client extends Auditable {
         setAuthorizationCodeGrant(authorizationCodeGrant);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());//set id last so we know it's new object
         setRoleId();
-        DomainEventPublisher.instance().publish(new ClientCreated(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
     }
@@ -172,10 +171,10 @@ public class Client extends Auditable {
         if (this.path == null && path == null) {
             return;
         } else if (this.path == null || path == null) {
-            DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
         } else {
             if (!path.equals(this.path)) {
-                DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
             }
         }
         this.path = path;
@@ -184,7 +183,7 @@ public class Client extends Auditable {
     private void setGrantTypes(Set<GrantType> grantTypes) {
         if (id != null) {
             if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
-                DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ClientGrantTypeChanged(clientId));
             }
         }
         if (grantTypes.contains(GrantType.REFRESH_TOKEN) && !grantTypes.contains(GrantType.PASSWORD))
@@ -214,7 +213,7 @@ public class Client extends Auditable {
     private void setTokenDetail(TokenDetail tokenDetail) {
         if (id != null) {
             if (tokenDetailChanged(tokenDetail)) {
-                DomainEventPublisher.instance().publish(new ClientTokenDetailChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ClientTokenDetailChanged(clientId));
             }
         }
         this.tokenDetail = tokenDetail;
@@ -224,7 +223,7 @@ public class Client extends Auditable {
         if (id != null) {
 
             if (this.accessible && !accessible) {
-                DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ClientAccessibilityRemoved(clientId));
             }
         }
         this.accessible = accessible;
@@ -238,7 +237,7 @@ public class Client extends Auditable {
         if (id != null) {
 
             if (resourcesChanged(resources)) {
-                DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ClientResourcesChanged(clientId));
             }
         }
         Validator.notNull(resources);
@@ -269,7 +268,7 @@ public class Client extends Auditable {
         setDescription(description);
         setAuthorizationCodeGrant(authorizationCodeGrant);
         validate(new HttpValidationNotificationHandler());
-        DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientUpdated(getClientId()));
     }
 
     @Override
@@ -300,7 +299,7 @@ public class Client extends Auditable {
     private void updateSecret(String secret) {
         if (secret != null && !secret.isBlank()) {
             Validator.notNull(types);
-            DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientSecretChanged(clientId));
             if (types.contains(ClientType.FRONTEND_APP))
                 secret = EMPTY_SECRET;
             this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
@@ -338,9 +337,9 @@ public class Client extends Auditable {
     }
 
     public void removeAllReferenced() {
-        DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientDeleted(clientId));
         if (isAccessible()) {
-            DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientAsResourceDeleted(clientId));
         }
     }
 

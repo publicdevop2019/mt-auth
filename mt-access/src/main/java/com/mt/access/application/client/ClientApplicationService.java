@@ -19,8 +19,6 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +41,6 @@ public class ClientApplicationService implements ClientDetailsService {
 
     public static final String CLIENT = "Client";
 
-    @SubscribeForEvent
     @Transactional
     public String tenantCreate(ClientCreateCommand command, String operationId) {
         ClientId clientId = new ClientId();
@@ -103,7 +100,6 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().clientOfId(id);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void tenantReplace(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
@@ -133,7 +129,6 @@ public class ClientApplicationService implements ClientDetailsService {
         }, CLIENT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
@@ -154,7 +149,6 @@ public class ClientApplicationService implements ClientDetailsService {
         }, CLIENT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
@@ -189,7 +183,6 @@ public class ClientApplicationService implements ClientDetailsService {
         return client.map(ClientSpringOAuth2Representation::new).orElse(null);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(ClientAsResourceDeleted deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -200,7 +193,7 @@ public class ClientApplicationService implements ClientDetailsService {
             allByQuery.forEach(e -> e.removeResource(removedClientId));
             Set<ClientId> collect = allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
             collect.add(removedClientId);
-            DomainEventPublisher.instance().publish(new ClientResourceCleanUpCompleted(collect));
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientResourceCleanUpCompleted(collect));
             return null;
         }, CLIENT);
     }
@@ -210,7 +203,6 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(ExternalPermissionUpdated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {

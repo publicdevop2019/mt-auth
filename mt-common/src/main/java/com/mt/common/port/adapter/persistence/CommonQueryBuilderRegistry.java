@@ -1,6 +1,6 @@
 package com.mt.common.port.adapter.persistence;
 
-import com.mt.common.port.adapter.persistence.domain_event.SpringDataJpaEventRepository;
+import com.mt.common.port.adapter.persistence.domain_event.SpringDataJpaDomainEventRepository;
 import com.mt.common.port.adapter.persistence.idempotent.SpringDataJpaChangeRecordRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +16,10 @@ public class CommonQueryBuilderRegistry {
         CommonQueryBuilderRegistry.changeRecordQueryBuilder = changeRecordQueryBuilder;
     }
     @Getter
-    private static SpringDataJpaEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter;
+    private static SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter;
 
     @Autowired
-    public void setCreateOrderDTXQueryAdapter(SpringDataJpaEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter) {
+    public void setCreateOrderDTXQueryAdapter(SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter) {
         CommonQueryBuilderRegistry.storedEventQueryAdapter = storedEventQueryAdapter;
     }
 }

@@ -26,8 +26,6 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AppStarted;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -69,7 +67,6 @@ public class EndpointApplicationService {
         }
     }
 
-    @SubscribeForEvent
     @Transactional
     public String create(String projectId, EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
@@ -131,7 +128,6 @@ public class EndpointApplicationService {
         return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
     }
 
-    @SubscribeForEvent
     @Transactional
     public void update(String id, EndpointUpdateCommand command, String changeId) {
         log.debug("start of update endpoint");
@@ -153,7 +149,7 @@ public class EndpointApplicationService {
                         command.getCorsProfileId() != null ? new CORSProfileId(command.getCorsProfileId()) : null,
                         command.isShared()
                 );
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
                 DomainRegistry.getEndpointRepository().add(endpoint1);
             }
             return null;
@@ -161,7 +157,6 @@ public class EndpointApplicationService {
         log.debug("end of update endpoint");
     }
 
-    @SubscribeForEvent
     @Transactional
     public void removeEndpoint(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
@@ -171,13 +166,12 @@ public class EndpointApplicationService {
             if (endpoint.isPresent()) {
                 Endpoint endpoint1 = endpoint.get();
                 DomainRegistry.getEndpointRepository().remove(endpoint1);
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             }
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
@@ -193,14 +187,13 @@ public class EndpointApplicationService {
                 throw new AccessDeniedException();
             }
             DomainRegistry.getEndpointRepository().remove(allByQuery);
-            DomainEventPublisher.instance().publish(
+            CommonDomainRegistry.getDomainEventRepository().append(
                     new EndpointCollectionModified()
             );
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
@@ -223,13 +216,12 @@ public class EndpointApplicationService {
                         endpoint1.getCorsProfileId(),
                         endpoint1.isShared()
                 );
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             }
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void reloadEndpointCache(String changeId) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
@@ -238,7 +230,6 @@ public class EndpointApplicationService {
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(ClientDeleted deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -246,13 +237,12 @@ public class EndpointApplicationService {
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(new ClientId(deserialize.getDomainId().getDomainId())));
             if (!allByQuery.isEmpty()) {
                 DomainRegistry.getEndpointRepository().remove(allByQuery);
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             }
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(CORSProfileRemoved deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -260,7 +250,7 @@ public class EndpointApplicationService {
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(new CORSProfileId(deserialize.getDomainId().getDomainId())));
             if (!allByQuery.isEmpty()) {
                 allByQuery.forEach(e -> e.setCorsProfileId(null));
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             }
             return null;
         }, ENDPOINT);
@@ -271,7 +261,6 @@ public class EndpointApplicationService {
      *
      * @param deserialize
      */
-    @SubscribeForEvent
     @Transactional
     public void handle(CORSProfileUpdated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -279,13 +268,12 @@ public class EndpointApplicationService {
             CORSProfileId corsProfileId = new CORSProfileId(deserialize.getDomainId().getDomainId());
             SumPagedRep<Endpoint> endpointSumPagedRep = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(corsProfileId));
             if (endpointSumPagedRep.findFirst().isPresent()) {
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             }
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(CacheProfileRemoved deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -293,14 +281,13 @@ public class EndpointApplicationService {
             CacheProfileId profileId = new CacheProfileId(deserialize.getDomainId().getDomainId());
             Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) query), new EndpointQuery(profileId));
             if (!allByQuery.isEmpty()) {
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
                 allByQuery.forEach(e -> e.setCacheProfileId(null));
             }
             return null;
         }, ENDPOINT);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void handle(CacheProfileUpdated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -308,7 +295,7 @@ public class EndpointApplicationService {
             CacheProfileId profileId = new CacheProfileId(deserialize.getDomainId().getDomainId());
             SumPagedRep<Endpoint> firstPage = DomainRegistry.getEndpointRepository().endpointsOfQuery(new EndpointQuery(profileId));
             if (firstPage.findFirst().isPresent()) {
-                DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+                CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
             } else {
                 log.debug("cache profile is not used");
             }

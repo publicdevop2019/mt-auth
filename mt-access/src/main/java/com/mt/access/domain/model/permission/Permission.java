@@ -7,7 +7,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -253,7 +253,7 @@ public class Permission extends Auditable {
                 return Stream.of(e.getPermissionId());
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        DomainEventPublisher.instance().publish(new ProjectPermissionCreated(collect, tenantId, creatorId));
+        CommonDomainRegistry.getDomainEventRepository().append(new ProjectPermissionCreated(collect, tenantId, creatorId));
     }
 
     public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId, PermissionId permissionId, boolean shared) {

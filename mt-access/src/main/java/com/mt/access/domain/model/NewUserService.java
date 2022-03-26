@@ -13,7 +13,8 @@ import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
+import com.mt.common.domain.CommonDomainRegistry;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,7 +29,7 @@ public class NewUserService {
                 throw new IllegalArgumentException("activation code mismatch");
             User user = new User(userEmail, password, userId);
             DomainRegistry.getUserRepository().add(user);
-            DomainEventPublisher.instance().publish(new NewUserRegistered(user.getUserId(),userEmail));
+            CommonDomainRegistry.getDomainEventRepository().append(new NewUserRegistered(user.getUserId(),userEmail));
             return user.getUserId();
         } else {
             return null;

@@ -17,7 +17,7 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -52,7 +52,7 @@ public class RoleApplicationService {
         return DomainRegistry.getRoleRepository().getById(id);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void replace(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
@@ -71,7 +71,7 @@ public class RoleApplicationService {
         }, ROLE);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void remove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
@@ -93,7 +93,7 @@ public class RoleApplicationService {
      * @param changeId
      * @return
      */
-    @SubscribeForEvent
+    
     @Transactional
     public String create(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
@@ -119,7 +119,7 @@ public class RoleApplicationService {
      *
      * @param deserialize
      */
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(ProjectPermissionCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -142,7 +142,7 @@ public class RoleApplicationService {
      *
      * @param deserialize
      */
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(ClientCreated deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -161,7 +161,7 @@ public class RoleApplicationService {
         }, ROLE);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(EndpointShareRemoved deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(deserialize.getId().toString(), (ignored) -> {

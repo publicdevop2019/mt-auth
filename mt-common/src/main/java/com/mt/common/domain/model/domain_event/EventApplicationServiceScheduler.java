@@ -2,10 +2,8 @@ package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.notification.PublishedEventTracker;
-import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -28,7 +26,7 @@ public class EventApplicationServiceScheduler {
     public void streaming() {
         PublishedEventTracker eventTracker =
                 CommonDomainRegistry.getPublishedEventTrackerRepository().publishedNotificationTracker();
-        List<StoredEvent> storedEvents = CommonDomainRegistry.getEventRepository().allStoredEventsSince(eventTracker.getLastPublishedId());
+        List<StoredEvent> storedEvents = CommonDomainRegistry.getDomainEventRepository().top50StoredEventsSince(eventTracker.getLastPublishedId());
         if (!storedEvents.isEmpty()) {
             log.trace("publish event since id {}", eventTracker.getLastPublishedId());
             log.trace("total domain event found {}", storedEvents.size());
@@ -46,7 +44,7 @@ public class EventApplicationServiceScheduler {
     @Scheduled(fixedRate = 5*60*1000,initialDelay = 60*1000)
     public void checkNotSend() {
         log.debug("running task for not send event");
-        Set<StoredEvent> allByQuery = QueryUtility.getAllByQuery(e -> CommonDomainRegistry.getEventRepository().query(e), StoredEventQuery.notSend());
+        Set<StoredEvent> allByQuery = QueryUtility.getAllByQuery(e -> CommonDomainRegistry.getDomainEventRepository().query(e), StoredEventQuery.notSend());
         if (!allByQuery.isEmpty()) {
             log.debug("start of publish not send event");
             for (StoredEvent event : allByQuery) {

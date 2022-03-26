@@ -47,8 +47,8 @@ public interface SpringDataJpaChangeRecordRepository extends ChangeRecordReposit
             Optional.ofNullable(query.getChangeIds()).ifPresent(e -> QueryUtility.addStringInPredicate(e, ChangeRecord_.CHANGE_ID, context));
             Optional.ofNullable(query.getEntityType()).ifPresent(e -> QueryUtility.addStringEqualPredicate(e, ChangeRecord_.ENTITY_TYPE, context));
             Order order = null;
-            if (query.getChangeRecordSort().isById())
-                order = QueryUtility.getOrder(ChangeRecord_.CHANGE_ID, context, query.getChangeRecordSort().isAsc());
+            if (query.getSort().isById())
+                order = QueryUtility.getOrder(ChangeRecord_.CHANGE_ID, context, query.getSort().isAsc());
             context.setOrder(order);
             return QueryUtility.nativePagedQuery(query, context);
         }

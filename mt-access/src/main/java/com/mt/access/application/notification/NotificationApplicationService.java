@@ -8,7 +8,7 @@ import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
@@ -22,7 +22,6 @@ public class NotificationApplicationService {
     public static final String NOTIFICATION = "notification";
 
     @Transactional
-    @SubscribeForEvent
     public void handle(HangingTxDetected event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (command) -> {
             Notification notification = new Notification(event);
@@ -36,7 +35,7 @@ public class NotificationApplicationService {
         return DomainRegistry.getNotificationRepository().latestNotifications(PageConfig.limited(pageParam, 200), new QueryConfig(skipCount));
     }
     @Transactional
-    @SubscribeForEvent
+    
     public void handle(NewUserRegistered event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (command) -> {
             Notification notification = new Notification(event);
@@ -46,7 +45,7 @@ public class NotificationApplicationService {
         }, NOTIFICATION);
     }
     @Transactional
-    @SubscribeForEvent
+    
     public void handle(ProjectCreated event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (command) -> {
             Notification notification = new Notification(event);
@@ -56,7 +55,7 @@ public class NotificationApplicationService {
         }, NOTIFICATION);
     }
     @Transactional
-    @SubscribeForEvent
+    
     public void handle(ProxyCacheCheckFailedEvent event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (command) -> {
             Notification notification = new Notification(event);

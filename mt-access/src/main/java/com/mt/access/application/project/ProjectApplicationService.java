@@ -16,7 +16,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +68,7 @@ public class ProjectApplicationService {
         return DomainRegistry.getProjectRepository().getById(projectId);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void replace(String id, ProjectUpdateCommand command, String changeId) {
         ProjectId projectId = new ProjectId(id);
@@ -82,7 +82,7 @@ public class ProjectApplicationService {
         }, PROJECT);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void removeProject(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
@@ -95,7 +95,7 @@ public class ProjectApplicationService {
         }, PROJECT);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         ProjectId projectId = new ProjectId(id);
@@ -113,7 +113,7 @@ public class ProjectApplicationService {
         }, PROJECT);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();

@@ -9,8 +9,8 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.user.*;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
+
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
@@ -31,7 +31,7 @@ public class UserApplicationService implements UserDetailsService {
     public static final String USER = "User";
     public static final String DEFAULT_USERID = "0U8AZTODP4H0";
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
         UserId userId = new UserId();
@@ -57,7 +57,7 @@ public class UserApplicationService implements UserDetailsService {
         return DomainRegistry.getUserRepository().userOfId(new UserId(id));
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void update(String id, UpdateUserCommand command, String changeId) {
         UserId userId = new UserId(id);
@@ -74,7 +74,7 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void delete(String id, String changeId) {
         UserId userId = new UserId(id);
@@ -86,14 +86,14 @@ public class UserApplicationService implements UserDetailsService {
                     DomainRegistry.getUserRepository().remove(user1);
                     return null;
                 }, USER);
-                DomainEventPublisher.instance().publish(new UserDeleted(userId));
+                CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
             } else {
                 throw new DefaultUserDeleteException();
             }
         }
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         UserId userId = new UserId(id);
@@ -111,7 +111,7 @@ public class UserApplicationService implements UserDetailsService {
         }, USER);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
@@ -120,7 +120,7 @@ public class UserApplicationService implements UserDetailsService {
         }, USER);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -135,7 +135,7 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
@@ -144,7 +144,7 @@ public class UserApplicationService implements UserDetailsService {
         }, USER);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {

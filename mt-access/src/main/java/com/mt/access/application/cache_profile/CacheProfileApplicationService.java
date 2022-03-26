@@ -12,7 +12,6 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ public class CacheProfileApplicationService {
 
     public static final String CACHE_PROFILE = "CACHE_PROFILE";
 
-    @SubscribeForEvent
     @Transactional
     public String create(CreateCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId();
@@ -52,7 +50,6 @@ public class CacheProfileApplicationService {
     public SumPagedRep<CacheProfile> cacheProfiles(String queryParam, String pageParam, String config) {
         return DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery(new CacheProfileQuery(queryParam, pageParam, config));
     }
-    @SubscribeForEvent
     @Transactional
     public void update(String id, ReplaceCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
@@ -76,7 +73,6 @@ public class CacheProfileApplicationService {
             return null;
         }, CACHE_PROFILE);
     }
-    @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
@@ -103,7 +99,6 @@ public class CacheProfileApplicationService {
             return null;
         }, CACHE_PROFILE);
     }
-    @SubscribeForEvent
     @Transactional
     public void remove(String id, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);

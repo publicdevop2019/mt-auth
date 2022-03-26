@@ -6,7 +6,7 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -42,7 +42,7 @@ public class PendingUser extends Auditable {
 
     private void setActivationCode(ActivationCode activationCode) {
         this.activationCode = activationCode;
-        DomainEventPublisher.instance().publish(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
+        CommonDomainRegistry.getDomainEventRepository().append(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
     }
 
     public void newActivationCode(ActivationCode activationCode) {

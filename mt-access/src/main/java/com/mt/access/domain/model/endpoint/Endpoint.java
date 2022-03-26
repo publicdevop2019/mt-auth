@@ -13,7 +13,6 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -121,9 +120,9 @@ public class Endpoint extends Auditable {
         this.shared = shared;
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService().validate(this, new HttpValidationNotificationHandler());
-        DomainEventPublisher.instance().publish(new EndpointCollectionModified());
+        CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
         if (secured) {
-            DomainEventPublisher.instance().publish(new SecureEndpointCreated(getProjectId(), this));
+            CommonDomainRegistry.getDomainEventRepository().append(new SecureEndpointCreated(getProjectId(), this));
         }
     }
 
@@ -147,9 +146,9 @@ public class Endpoint extends Auditable {
 
     private void setShared(boolean shared) {
         if (this.shared && !shared) {
-            DomainEventPublisher.instance().publish(new EndpointShareRemoved(this));
+            CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareRemoved(this));
         } else if (!this.shared && shared) {
-            DomainEventPublisher.instance().publish(new EndpointShareAdded(this));
+            CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareAdded(this));
         }
         this.shared = shared;
     }

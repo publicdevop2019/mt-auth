@@ -11,7 +11,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.port.adapter.persistence.PermissionIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import lombok.AccessLevel;
@@ -117,7 +117,7 @@ public class Role extends Auditable {
             role = new Role(projectId, roleId, name, description, permissionIds, user, roleId1, null, externalPermissionIds);
         }
         if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
-            DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
+            CommonDomainRegistry.getDomainEventRepository().append(new ExternalPermissionUpdated(projectId));
         }
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         return role;
@@ -138,7 +138,7 @@ public class Role extends Auditable {
         DomainRegistry.getRoleRepository().add(rootRole);
         DomainRegistry.getRoleRepository().add(tenantClientRoot);
         DomainRegistry.getRoleRepository().add(tenantUserRoot);
-        DomainEventPublisher.instance().publish(new NewProjectRoleCreated(adminRole.getRoleId(),
+        CommonDomainRegistry.getDomainEventRepository().append(new NewProjectRoleCreated(adminRole.getRoleId(),
                 userRole.getRoleId(), tenantProjectId, permissionIdSet, creator));
     }
 
@@ -162,12 +162,12 @@ public class Role extends Auditable {
         if (this.externalPermissionIds == null) {
             if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
                 this.externalPermissionIds = externalPermissionIds;
-                DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ExternalPermissionUpdated(projectId));
             }
         } else {
             if (!this.externalPermissionIds.equals(externalPermissionIds)) {
                 this.externalPermissionIds = externalPermissionIds;
-                DomainEventPublisher.instance().publish(new ExternalPermissionUpdated(projectId));
+                CommonDomainRegistry.getDomainEventRepository().append(new ExternalPermissionUpdated(projectId));
             }
         }
     }

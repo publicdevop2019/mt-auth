@@ -35,7 +35,7 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
     private Connection connectionSub;
 
     public RabbitMQEventStreamService(@Value("${mt.url.support.mq}") final String url) {
-        log.debug("start of configure rabbitmq with url {}",url);
+        log.debug("start of configure rabbitmq with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(url);
         try {
@@ -116,7 +116,7 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
     @Override
     public void next(String appName, boolean internal, String topic, StoredEvent event) {
         String routingKey = appName + "." + (internal ? "internal" : "external") + "." + topic;
-        log.debug("publish next event with routing key {}",routingKey);
+        log.debug("publish next event id {}with routing key {}", event.getId(), routingKey);
         try (Channel channel = connectionPub.createChannel()) {
             checkExchange(channel);
             channel.basicPublish(EXCHANGE_NAME, routingKey,
@@ -131,7 +131,8 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
     public void next(StoredEvent event) {
         next(appName, event.isInternal(), event.getTopic(), event);
     }
-    private void  checkExchange(Channel channel) throws IOException {
+
+    private void checkExchange(Channel channel) throws IOException {
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
     }
 }

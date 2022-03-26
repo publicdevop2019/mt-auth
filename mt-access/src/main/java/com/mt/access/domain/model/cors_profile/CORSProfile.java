@@ -4,7 +4,7 @@ import com.mt.access.domain.model.cors_profile.event.CORSProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CORSProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -82,12 +82,12 @@ public class CORSProfile extends Auditable {
         copy.setDescription(null);
         copy2.setDescription(null);
         if(!copy.equals(copy2)){
-            DomainEventPublisher.instance().publish(new CORSProfileUpdated(this));
+            CommonDomainRegistry.getDomainEventRepository().append(new CORSProfileUpdated(this));
         }
     }
 
     public void removeAllReference() {
-        DomainEventPublisher.instance().publish(new CORSProfileRemoved(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new CORSProfileRemoved(this));
     }
 
     @Override

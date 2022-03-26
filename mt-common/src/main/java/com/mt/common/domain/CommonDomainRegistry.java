@@ -2,12 +2,11 @@ package com.mt.common.domain;
 
 
 import com.mt.common.domain.model.cache.HibernateCacheService;
-import com.mt.common.domain.model.domain_event.EventRepository;
+import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
 import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
-import com.mt.common.domain.model.domain_event.EventStreamService;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,7 @@ public class CommonDomainRegistry {
     @Getter
     private static ChangeRecordRepository changeRecordRepository;
     @Getter
-    private static EventRepository eventRepository;
+    private static DomainEventRepository domainEventRepository;
     @Getter
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
 
@@ -39,8 +38,8 @@ public class CommonDomainRegistry {
         CommonDomainRegistry.publishedEventTrackerRepository = publishedEventTrackerRepository;
     }
     @Autowired
-    public void setEventRepository(EventRepository eventRepository) {
-        CommonDomainRegistry.eventRepository = eventRepository;
+    public void setDomainEventRepository(DomainEventRepository domainEventRepository) {
+        CommonDomainRegistry.domainEventRepository = domainEventRepository;
     }
     @Autowired
     public void setEventStreamService(SagaEventStreamService eventStreamService) {

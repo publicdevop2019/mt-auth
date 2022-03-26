@@ -12,7 +12,6 @@ import com.mt.access.domain.model.cors_profile.CORSProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,6 @@ public class CORSProfileApplicationService {
 
     public static final String CORS_PROFILE = "CORS_PROFILE";
 
-    @SubscribeForEvent
     @Transactional
     public String create(CORSProfileCreateCommand command, String changeId) {
         CORSProfileId corsProfileId = new CORSProfileId();
@@ -49,7 +47,6 @@ public class CORSProfileApplicationService {
         return DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(new CORSProfileQuery(queryParam, pageParam, config));
     }
 
-    @SubscribeForEvent
     @Transactional
     public void update(String id, CORSProfileUpdateCommand command, String changeId) {
         CORSProfileId corsProfileId = new CORSProfileId(id);
@@ -68,7 +65,6 @@ public class CORSProfileApplicationService {
         }, CORS_PROFILE);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void remove(String id, String changeId) {
         CORSProfileId corsProfileId = new CORSProfileId(id);
@@ -82,7 +78,6 @@ public class CORSProfileApplicationService {
         }, CORS_PROFILE);
     }
 
-    @SubscribeForEvent
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CORSProfileId corsProfileId = new CORSProfileId(id);

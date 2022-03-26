@@ -4,7 +4,7 @@ import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import com.mt.common.domain.model.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -35,7 +35,7 @@ public class Project extends Auditable {
         this.projectId = projectId;
         this.name = name;
         this.setCreatedBy(userId.getDomainId());
-        DomainEventPublisher.instance().publish(new ProjectCreated(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new ProjectCreated(this));
     }
 
     public void replace(String name) {

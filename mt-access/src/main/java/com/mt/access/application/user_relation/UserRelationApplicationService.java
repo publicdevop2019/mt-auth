@@ -14,7 +14,7 @@ import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +43,7 @@ public class UserRelationApplicationService {
      *
      * @param event
      */
-    @SubscribeForEvent
+    
     @Transactional
     public void handle(NewProjectRoleCreated event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(event.getId().toString(), (ignored) -> {
@@ -57,7 +57,7 @@ public class UserRelationApplicationService {
         }, USER_RELATION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public UserRelation onboardUserToTenant(UserId userId, ProjectId projectId) {
         Optional<Role> first = DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(projectId, PROJECT_USER)).findFirst();
@@ -76,7 +76,7 @@ public class UserRelationApplicationService {
     }
 
 
-    @SubscribeForEvent
+    
     @Transactional
     public void update(String projectId, String userId, UpdateUserRelationCommand command) {
         ProjectId projectId1 = new ProjectId(projectId);

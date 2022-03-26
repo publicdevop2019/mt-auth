@@ -4,7 +4,7 @@ import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -102,7 +102,7 @@ public class CacheProfile extends Auditable {
         this.etag = etag;
         this.weakValidation = weakValidation;
         this.allowCache = allowCache;
-        DomainEventPublisher.instance().publish(new CacheProfileUpdated(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
     }
 
     @Override
@@ -120,6 +120,6 @@ public class CacheProfile extends Auditable {
     }
 
     public void removeAllReference() {
-        DomainEventPublisher.instance().publish(new CacheProfileRemoved(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileRemoved(this));
     }
 }

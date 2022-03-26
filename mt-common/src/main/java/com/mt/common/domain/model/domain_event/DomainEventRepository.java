@@ -5,9 +5,9 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.List;
 import java.util.Optional;
 
-public interface EventRepository {
+public interface DomainEventRepository {
 
-    List<StoredEvent> allStoredEventsSince(long lastId);
+    List<StoredEvent> top50StoredEventsSince(long lastId);
 
     void append(DomainEvent aDomainEvent);
 

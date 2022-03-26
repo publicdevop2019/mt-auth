@@ -11,7 +11,7 @@ import com.mt.access.domain.model.position.PositionId;
 import com.mt.access.domain.model.position.PositionQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
+
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class PositionApplicationService {
         return DomainRegistry.getPositionRepository().getById(new PositionId(id));
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void replace(String id, PositionUpdateCommand command, String changeId) {
         PositionId PositionId = new PositionId(id);
@@ -47,7 +47,7 @@ public class PositionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void remove(String id, String changeId) {
         PositionId PositionId = new PositionId(id);
@@ -60,7 +60,7 @@ public class PositionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         PositionId PositionId = new PositionId(id);
@@ -78,7 +78,7 @@ public class PositionApplicationService {
         }, PERMISSION);
     }
 
-    @SubscribeForEvent
+    
     @Transactional
     public String create(PositionCreateCommand command, String changeId) {
         PositionId PositionId = new PositionId();
