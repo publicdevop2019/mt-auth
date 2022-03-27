@@ -25,8 +25,6 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-
-
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import lombok.AccessLevel;
@@ -38,7 +36,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -53,26 +50,29 @@ public class ScheduledValidationService {
     CleanUpThreadPoolExecutor taskExecutor;
     @Autowired
     private PlatformTransactionManager transactionManager;
-    @Scheduled(fixedRate = 5*60*1000, initialDelay = 60 * 1000)
+
+    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void validate() {
         taskExecutor.execute(new Runnable() {
             @Override
             public void run() {
-                TransactionTemplate template = new TransactionTemplate(transactionManager);
-                template.execute(new TransactionCallbackWithoutResult() {
-                    @Override
-                    protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
-                        log.debug("start of validation existing data");
-                        validateCacheProfileAndEndpoint();
-                        validateClientAndEndpoint();
-                        validateClientAndProject();
-                        validateClientAndRole();
-                        validateCorsProfileAndEndpoint();
-                        validateProjectAndRole();
-                        validateProjectAndUser();
-                        validateEndpointAndPermission();
-                        log.debug("end of validation existing data");
-                    }
+                CommonDomainRegistry.getSchedulerDistLockService().executeIfLockSuccess("validation_task", 15, (nullValue) -> {
+                    TransactionTemplate template = new TransactionTemplate(transactionManager);
+                    template.execute(new TransactionCallbackWithoutResult() {
+                        @Override
+                        protected void doInTransactionWithoutResult(TransactionStatus transactionStatus) {
+                            log.debug("start of validation existing data");
+                            validateCacheProfileAndEndpoint();
+                            validateClientAndEndpoint();
+                            validateClientAndProject();
+                            validateClientAndRole();
+                            validateCorsProfileAndEndpoint();
+                            validateProjectAndRole();
+                            validateProjectAndUser();
+                            validateEndpointAndPermission();
+                            log.debug("end of validation existing data");
+                        }
+                    });
                 });
 
             }

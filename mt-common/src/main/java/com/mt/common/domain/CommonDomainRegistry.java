@@ -2,6 +2,7 @@ package com.mt.common.domain;
 
 
 import com.mt.common.domain.model.cache.HibernateCacheService;
+import com.mt.common.domain.model.distributed_lock.SchedulerDistLockService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
@@ -28,7 +29,13 @@ public class CommonDomainRegistry {
     private static DomainEventRepository domainEventRepository;
     @Getter
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
+    @Getter
+    private static SchedulerDistLockService schedulerDistLockService;
 
+    @Autowired
+    public void setSchedulerDistLockService(SchedulerDistLockService schedulerDistLockService) {
+        CommonDomainRegistry.schedulerDistLockService = schedulerDistLockService;
+    }
     @Autowired
     public void setHibernateCacheService(HibernateCacheService hibernateCacheService) {
         CommonDomainRegistry.hibernateCacheService = hibernateCacheService;

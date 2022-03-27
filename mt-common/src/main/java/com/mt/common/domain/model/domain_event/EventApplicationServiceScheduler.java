@@ -24,36 +24,40 @@ public class EventApplicationServiceScheduler {
     @Transactional
     @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
     public void streaming() {
-        PublishedEventTracker eventTracker =
-                CommonDomainRegistry.getPublishedEventTrackerRepository().publishedNotificationTracker();
-        List<StoredEvent> storedEvents = CommonDomainRegistry.getDomainEventRepository().top50StoredEventsSince(eventTracker.getLastPublishedId());
-        if (!storedEvents.isEmpty()) {
-            log.trace("publish event since id {}", eventTracker.getLastPublishedId());
-            log.trace("total domain event found {}", storedEvents.size());
-            for (StoredEvent event : storedEvents) {
-                log.trace("publishing event {} with id {}",event.getName(), event.getId());
-                CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
-                event.sendToMQ();
+        CommonDomainRegistry.getSchedulerDistLockService().executeIfLockSuccess("event_emitter",2000,(nullValue)->{
+            PublishedEventTracker eventTracker =
+                    CommonDomainRegistry.getPublishedEventTrackerRepository().publishedNotificationTracker();
+            List<StoredEvent> storedEvents = CommonDomainRegistry.getDomainEventRepository().top50StoredEventsSince(eventTracker.getLastPublishedId());
+            if (!storedEvents.isEmpty()) {
+                log.trace("publish event since id {}", eventTracker.getLastPublishedId());
+                log.trace("total domain event found {}", storedEvents.size());
+                for (StoredEvent event : storedEvents) {
+                    log.trace("publishing event {} with id {}",event.getName(), event.getId());
+                    CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
+                    event.sendToMQ();
+                }
+                CommonDomainRegistry.getPublishedEventTrackerRepository()
+                        .trackMostRecentPublishedNotification(eventTracker, storedEvents);
             }
-            CommonDomainRegistry.getPublishedEventTrackerRepository()
-                    .trackMostRecentPublishedNotification(eventTracker, storedEvents);
-        }
+        });
     }
 
     @Transactional
     @Scheduled(fixedRate = 5*60*1000,initialDelay = 60*1000)
     public void checkNotSend() {
-        log.debug("running task for not send event");
-        Set<StoredEvent> allByQuery = QueryUtility.getAllByQuery(e -> CommonDomainRegistry.getDomainEventRepository().query(e), StoredEventQuery.notSend());
-        if (!allByQuery.isEmpty()) {
-            log.debug("start of publish not send event");
-            for (StoredEvent event : allByQuery) {
-                log.debug("publishing event {} with id {}",event.getName(), event.getId());
-                CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
-                event.sendToMQ();
+        CommonDomainRegistry.getSchedulerDistLockService().executeIfLockSuccess("check_not_send",240,(nullValue)->{
+            log.debug("running task for not send event");
+            Set<StoredEvent> allByQuery = QueryUtility.getAllByQuery(e -> CommonDomainRegistry.getDomainEventRepository().query(e), StoredEventQuery.notSend());
+            if (!allByQuery.isEmpty()) {
+                log.debug("start of publish not send event");
+                for (StoredEvent event : allByQuery) {
+                    log.debug("publishing event {} with id {}",event.getName(), event.getId());
+                    CommonDomainRegistry.getEventStreamService().next(appName, event.isInternal(), event.getTopic(), event);
+                    event.sendToMQ();
+                }
+                log.debug("end of publish not send event");
             }
-            log.debug("end of publish not send event");
-        }
+        });
     }
 
 }
