@@ -28,7 +28,6 @@ import java.util.concurrent.TimeUnit;
         havingValue = "true",
         matchIfMissing = true)
 public class SagaDistLockAspectConfig {
-    private static final Integer LOCK_WAIT_TIME = 5;
 
     private final RedissonClient redissonClient;
 

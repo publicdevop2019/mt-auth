@@ -29,7 +29,7 @@ public class SpringDataJpaConfig {
                 return Optional.of("NOT_HTTP");
             String authorization = httpServletRequest.get().getHeader("authorization");
             if (authorization == null)
-                return Optional.ofNullable("EMPTY_AUTH_HEADER");
+                return Optional.of("EMPTY_AUTH_HEADER");
             return Optional.ofNullable(
                     JwtUtility.getUserId(authorization) == null ?
                             JwtUtility.getClientId(authorization) : JwtUtility.getUserId(authorization));
@@ -45,9 +45,9 @@ public class SpringDataJpaConfig {
                 return Optional.of("NOT_HTTP");
             String authorization = httpServletRequest.get().getHeader("authorization");
             if (authorization == null)
-                return Optional.ofNullable("EMPTY_AUTH_HEADER");
+                return Optional.of("EMPTY_AUTH_HEADER");
             if (authorization.contains("Basic"))
-                return Optional.ofNullable("ONBOARD_TENANT_USER");
+                return Optional.of("ONBOARD_TENANT_USER");
             return Optional.ofNullable(
                     JwtUtility.getUserId(authorization) == null ?
                             JwtUtility.getClientId(authorization) : JwtUtility.getUserId(authorization));
