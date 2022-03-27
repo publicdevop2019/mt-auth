@@ -22,12 +22,7 @@ import java.util.function.Function;
 public class QueryUtility {
     private static EntityManager em;
 
-    @Autowired
-    public void setEntityManager(EntityManager em) {
-        QueryUtility.em = em;
-    }
-
-    public static <T,S extends QueryCriteria> Set<T> getAllByQuery(Function<S, SumPagedRep<T>> ofQuery, S query) {
+    public static <T, S extends QueryCriteria> Set<T> getAllByQuery(Function<S, SumPagedRep<T>> ofQuery, S query) {
         SumPagedRep<T> tSumPagedRep = ofQuery.apply(query);
         if (tSumPagedRep.getData().size() == 0)
             return new HashSet<>();
@@ -82,7 +77,7 @@ public class QueryUtility {
         return query1.getResultList();
     }
 
-    public static Map<String, String> parseQuery(String rawQuery,String ...supportedFields) {
+    public static Map<String, String> parseQuery(String rawQuery, String... supportedFields) {
         Map<String, String> stringStringMap = Optional.ofNullable(rawQuery).map(e -> {
             Map<String, String> parsed = new HashMap<>();
             String[] split = rawQuery.split(",");
@@ -96,12 +91,13 @@ public class QueryUtility {
             }
             return parsed;
         }).orElseGet(Collections::emptyMap);
-        validateQuery(stringStringMap,supportedFields);
+        validateQuery(stringStringMap, supportedFields);
         return stringStringMap;
     }
-    private static void validateQuery(Map<String, String> parsedMap,String ...supportedFields) {
-        List<String> list=List.of(supportedFields);
-        if(parsedMap.keySet().stream().anyMatch(e->!list.contains(e))){
+
+    private static void validateQuery(Map<String, String> parsedMap, String... supportedFields) {
+        List<String> list = List.of(supportedFields);
+        if (parsedMap.keySet().stream().anyMatch(e -> !list.contains(e))) {
             throw new UnknownQueryValueException();
         }
     }
@@ -176,6 +172,17 @@ public class QueryUtility {
         Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(queryContext.getCountRoot().get(fieldName).get(CommonConstant.DOMAIN_ID).as(String.class).in(collect)));
     }
 
+    public static <T> void addDomainIdIsPredicate(String value, String sqlFieldName, QueryContext<T> queryContext) {
+        if ("null".equalsIgnoreCase(value)) {
+            queryContext.getPredicates().add(queryContext.getCriteriaBuilder().isNull(queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class)));
+            Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(queryContext.getCriteriaBuilder().isNull(queryContext.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class))));
+        } else {
+            queryContext.getPredicates().add(queryContext.getCriteriaBuilder().equal(queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class), value));
+            Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(queryContext.getCriteriaBuilder().equal(queryContext.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID).as(String.class), value)));
+
+        }
+    }
+
     public static <T> void addStringLikePredicate(String value, String sqlFieldName, QueryContext<T> queryContext) {
         queryContext.getPredicates().add(queryContext.getCriteriaBuilder().like(queryContext.getRoot().get(sqlFieldName).as(String.class), "%" + value.trim() + "%"));
         Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(queryContext.getCriteriaBuilder().like(queryContext.getCountRoot().get(sqlFieldName).as(String.class), "%" + value.trim() + "%")));
@@ -214,8 +221,31 @@ public class QueryUtility {
         return cb.and(results.toArray(new Predicate[0]));
     }
 
+    public static <T> void addEnumLiteralEqualPredicate(Set<? extends Enum<?>> e, String type, QueryContext<T> queryContext) {
+        List<Predicate> list2 = new ArrayList<>();
+        for (Enum<?> str : e) {
+            list2.add(queryContext.getCriteriaBuilder().equal(queryContext.getRoot().get(type).as(String.class), str.name()));
+        }
+        Predicate or = queryContext.getCriteriaBuilder().or(list2.toArray(Predicate[]::new));
+        queryContext.getPredicates().add(or);
+        Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(ee -> {
+            List<Predicate> list3 = new ArrayList<>();
+            for (Enum<?> str : e) {
+                list3.add(queryContext.getCriteriaBuilder().equal(queryContext.getCountRoot().get(type).as(String.class), str.name()));
+            }
+            ee.add(queryContext.getCriteriaBuilder().or(list3.toArray(Predicate[]::new)));
+        });
+    }
+
+
+    @Autowired
+    public void setEntityManager(EntityManager em) {
+        QueryUtility.em = em;
+    }
+
     public static class QueryParseException extends RuntimeException {
     }
+
     public static class UnknownQueryValueException extends RuntimeException {
     }
 
@@ -231,14 +261,6 @@ public class QueryUtility {
         private final List<Predicate> countPredicates;
         private List<Order> order;
 
-        public void setOrder(Order order) {
-            this.order = List.of(order);
-        }
-
-        public void setOrder(List<Order> order) {
-            this.order = order;
-        }
-
         public QueryContext(CriteriaBuilder cb, CriteriaQuery<T> query, Root<T> root, CriteriaQuery<Long> countQuery, Root<T> countRoot, Class<T> clazz, List<Predicate> predicates, List<Predicate> countPredicates) {
             this.criteriaBuilder = cb;
             this.root = root;
@@ -248,6 +270,14 @@ public class QueryUtility {
             this.predicates = predicates;
             this.countRoot = countRoot;
             this.countPredicates = countPredicates;
+        }
+
+        public void setOrder(Order order) {
+            this.order = List.of(order);
+        }
+
+        public void setOrder(List<Order> order) {
+            this.order = order;
         }
     }
 }
