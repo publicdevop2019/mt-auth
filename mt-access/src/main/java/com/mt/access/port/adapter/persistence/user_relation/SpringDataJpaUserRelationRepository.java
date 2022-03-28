@@ -10,16 +10,16 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domainId.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.criteria.Order;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-public interface SpringDataJpaUserRelationRepository extends UserRelationRepository, JpaRepository<UserRelation, Long> {
+public interface SpringDataJpaUserRelationRepository
+    extends UserRelationRepository, JpaRepository<UserRelation, Long> {
 
     default SumPagedRep<UserRelation> getByUserId(UserId id) {
         return getByQuery(new UserRelationQuery(id));
@@ -33,26 +33,36 @@ public interface SpringDataJpaUserRelationRepository extends UserRelationReposit
         userRelation.softDelete();
         save(userRelation);
     }
-    default Set<ProjectId> getProjectIds(){
-        return _getProjectIds();
+
+    default Set<ProjectId> getProjectIds() {
+        return getProjectIds_();
     }
+
     default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
         return QueryBuilderRegistry.getUserRelationAdaptor().execute(query);
     }
+
     @Query("select distinct c.projectId from UserRelation c")
-    Set<ProjectId> _getProjectIds();
+    Set<ProjectId> getProjectIds_();
+
     @Component
     class JpaCriteriaApiUserRelationAdaptor {
         public SumPagedRep<UserRelation> execute(UserRelationQuery query) {
-            QueryUtility.QueryContext<UserRelation> queryContext = QueryUtility.prepareContext(UserRelation.class, query);
+            QueryUtility.QueryContext<UserRelation> queryContext =
+                QueryUtility.prepareContext(UserRelation.class, query);
             Optional.ofNullable(query.getUserIds()).ifPresent(e -> QueryUtility
-                    .addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), UserRelation_.USER_ID, queryContext));
+                .addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    UserRelation_.USER_ID, queryContext));
             Optional.ofNullable(query.getProjectIds())
-                    .ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
-                            .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
+                .ifPresent(
+                    e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
+                        .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById())
-                order = QueryUtility.getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().isAsc());
+            if (query.getSort().isById()) {
+                order = QueryUtility
+                    .getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().isAsc());
+            }
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(query, queryContext);
         }

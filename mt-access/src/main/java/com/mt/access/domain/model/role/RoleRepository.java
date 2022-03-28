@@ -2,7 +2,6 @@ package com.mt.access.domain.model.role;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-
 import java.util.Optional;
 import java.util.Set;
 

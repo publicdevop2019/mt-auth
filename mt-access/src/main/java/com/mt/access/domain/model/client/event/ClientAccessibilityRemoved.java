@@ -9,6 +9,7 @@ public class ClientAccessibilityRemoved extends DomainEvent {
 
     public static final String CLIENT_ACCESSIBILITY_REMOVED = "client_accessibility_removed";
     public static final String name = "CLIENT_ACCESSIBILITY_REMOVED";
+
     public ClientAccessibilityRemoved(ClientId clientId) {
         super(clientId);
         setTopic(CLIENT_ACCESSIBILITY_REMOVED);

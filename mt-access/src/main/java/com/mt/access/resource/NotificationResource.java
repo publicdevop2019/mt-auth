@@ -1,5 +1,8 @@
 package com.mt.access.resource;
 
+import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
+import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
+
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.notification.representation.NotificationRepresentation;
 import com.mt.access.domain.model.notification.Notification;
@@ -11,17 +14,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
-import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
-
 @Slf4j
 @RestController
 @RequestMapping(produces = "application/json")
 public class NotificationResource {
     @GetMapping(path = "mngmt/notifications")
-    public ResponseEntity<SumPagedRep<NotificationRepresentation>> getNotifications(@RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                                                    @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        SumPagedRep<Notification> notificationsOf = ApplicationServiceRegistry.getNotificationApplicationService().notificationsOf(pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(notificationsOf, NotificationRepresentation::new));
+    public ResponseEntity<SumPagedRep<NotificationRepresentation>> getNotifications(
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        SumPagedRep<Notification> notificationsOf =
+            ApplicationServiceRegistry.getNotificationApplicationService()
+                .notificationsOf(pageParam, skipCount);
+        return ResponseEntity
+            .ok(new SumPagedRep<>(notificationsOf, NotificationRepresentation::new));
     }
 }

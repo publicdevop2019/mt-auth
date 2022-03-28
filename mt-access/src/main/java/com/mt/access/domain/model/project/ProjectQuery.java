@@ -1,20 +1,17 @@
 package com.mt.access.domain.model.project;
 
-import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.permission.Permission;
-import com.mt.access.domain.model.permission.PermissionQuery;
-import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
-import lombok.Getter;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
+import lombok.Getter;
 
 @Getter
 public class ProjectQuery extends QueryCriteria {
@@ -26,8 +23,10 @@ public class ProjectQuery extends QueryCriteria {
 
     public ProjectQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
+            Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(NAME))
+            .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(new QueryConfig(config));
         this.sort = ProjectSort.byId(true);
@@ -55,7 +54,6 @@ public class ProjectQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
         this.sort = ProjectSort.byId(true);
     }
-
 
 
     @Getter

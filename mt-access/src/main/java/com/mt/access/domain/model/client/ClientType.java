@@ -8,8 +8,9 @@ public enum ClientType {
     THIRD_PARTY,
     FRONTEND_APP,
     BACKEND_APP;
-    public static class DBConverter extends EnumSetConverter<ClientType> {
-        public DBConverter() {
+
+    public static class DbConverter extends EnumSetConverter<ClientType> {
+        public DbConverter() {
             super(ClientType.class);
         }
     }

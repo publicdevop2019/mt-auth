@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.project;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
-
 import java.util.Optional;
 import java.util.Set;
 

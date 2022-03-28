@@ -7,6 +7,6 @@ public class ProxyInfo {
     private final String id;
 
     public ProxyInfo(int i) {
-        id=String.valueOf(i);
+        id = String.valueOf(i);
     }
 }

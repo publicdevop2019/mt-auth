@@ -8,8 +8,8 @@ public enum PermissionType {
     API,
     API_ROOT;
 
-    public static class DBConverter extends EnumConverter<PermissionType> {
-        public DBConverter() {
+    public static class DbConverter extends EnumConverter<PermissionType> {
+        public DbConverter() {
             super(PermissionType.class);
         }
     }

@@ -1,11 +1,10 @@
 package com.mt.access.domain.model.client;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
+import javax.persistence.Embeddable;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor
@@ -30,10 +29,16 @@ public class TokenDetail implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         TokenDetail that = (TokenDetail) o;
-        return Objects.equals(accessTokenValiditySeconds, that.accessTokenValiditySeconds) && Objects.equals(refreshTokenValiditySeconds, that.refreshTokenValiditySeconds);
+        return Objects.equals(accessTokenValiditySeconds, that.accessTokenValiditySeconds)
+            &&
+            Objects.equals(refreshTokenValiditySeconds, that.refreshTokenValiditySeconds);
     }
 
     @Override

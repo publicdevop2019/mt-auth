@@ -2,6 +2,9 @@ package com.mt.access.domain.model.cache_profile;
 
 import com.mt.common.domain.model.sql.converter.EnumSetConverter;
 
+/**
+ * http cache control value.
+ */
 public enum CacheControlValue {
 
     must_revalidate("must-revalidate"),
@@ -19,6 +22,12 @@ public enum CacheControlValue {
         this.label = label;
     }
 
+    /**
+     * parse value from string.
+     *
+     * @param label raw value
+     * @return enum
+     */
     public static CacheControlValue valueOfLabel(String label) {
         for (CacheControlValue e : values()) {
             if (e.label.equals(label)) {
@@ -28,8 +37,11 @@ public enum CacheControlValue {
         throw new IllegalArgumentException("unknown enum label value");
     }
 
-    public static class DBConverter extends EnumSetConverter<CacheControlValue> {
-        public DBConverter() {
+    /**
+     * common database converter.
+     */
+    public static class DbConverter extends EnumSetConverter<CacheControlValue> {
+        public DbConverter() {
             super(CacheControlValue.class);
         }
     }

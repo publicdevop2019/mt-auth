@@ -10,11 +10,14 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PendingUserActivationCodeUpdated extends DomainEvent {
-    public static final String PENDING_USER_ACTIVATION_CODE_UPDATED = "pending_user_activation_code_updated";
+    public static final String PENDING_USER_ACTIVATION_CODE_UPDATED =
+        "pending_user_activation_code_updated";
+    public static final String name = "PENDING_USER_ACTIVATION_CODE_UPDATED";
     private String email;
     private String code;
-    public static final String name = "PENDING_USER_ACTIVATION_CODE_UPDATED";
-    public PendingUserActivationCodeUpdated(RegistrationEmail registrationEmail, ActivationCode activationCode) {
+
+    public PendingUserActivationCodeUpdated(RegistrationEmail registrationEmail,
+                                            ActivationCode activationCode) {
         super(registrationEmail);
         setEmail(registrationEmail);
         setCode(activationCode);

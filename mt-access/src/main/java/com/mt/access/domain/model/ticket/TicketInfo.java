@@ -2,15 +2,17 @@ package com.mt.access.domain.model.ticket;
 
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.user.UserId;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
 public class TicketInfo {
-    public static String USER_ID = "uid";//required
+    /**
+     * below is required.
+     */
+    public static String USER_ID = "uid";
     public static String CLIENT_ID = "clientId";
     public static String AUD = "aud";
     public static String PERMISSION_IDS = "permissionIds";
@@ -33,10 +35,16 @@ public class TicketInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         TicketInfo that = (TicketInfo) o;
-        return Objects.equals(exp, that.exp) && Objects.equals(userId, that.userId) && Objects.equals(clientId, that.clientId) && Objects.equals(aud, that.aud);
+        return Objects.equals(exp, that.exp) && Objects.equals(userId, that.userId)
+            &&
+            Objects.equals(clientId, that.clientId) && Objects.equals(aud, that.aud);
     }
 
     @Override

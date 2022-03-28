@@ -6,19 +6,22 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-import javax.persistence.*;
-
 @Entity
 @NoArgsConstructor
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,region = "pendingUserRegion")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+    region = "pendingUserRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email", "deleted"}))
 public class PendingUser extends Auditable {
     @Column
@@ -37,24 +40,33 @@ public class PendingUser extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setRegistrationEmail(registrationEmail);
         setActivationCode(activationCode);
-        DomainRegistry.getPendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getPendingUserValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
     }
 
     private void setActivationCode(ActivationCode activationCode) {
         this.activationCode = activationCode;
-        CommonDomainRegistry.getDomainEventRepository().append(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
     }
 
     public void newActivationCode(ActivationCode activationCode) {
-        DomainRegistry.getPendingUserValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getPendingUserValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
         setActivationCode(activationCode);
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PendingUser)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PendingUser)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         PendingUser that = (PendingUser) o;
         return Objects.equal(registrationEmail, that.registrationEmail);
     }

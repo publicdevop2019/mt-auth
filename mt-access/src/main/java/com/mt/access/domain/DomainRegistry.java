@@ -1,25 +1,33 @@
 package com.mt.access.domain;
 
-import com.mt.access.domain.model.*;
+import com.mt.access.domain.model.ComputePermissionService;
+import com.mt.access.domain.model.CurrentUserService;
+import com.mt.access.domain.model.EncryptionService;
+import com.mt.access.domain.model.EndpointValidationService;
+import com.mt.access.domain.model.NewUserService;
+import com.mt.access.domain.model.NotificationService;
+import com.mt.access.domain.model.PendingUserValidationService;
+import com.mt.access.domain.model.PermissionCheckService;
+import com.mt.access.domain.model.RemoteProxyService;
+import com.mt.access.domain.model.UserValidationService;
 import com.mt.access.domain.model.activation_code.ActivationCodeService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
-import com.mt.access.domain.model.cors_profile.CORSProfileRepository;
+import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
+import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
-import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
-import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
@@ -70,7 +78,7 @@ public class DomainRegistry {
     @Getter
     private static NewUserService newUserService;
     @Getter
-    private static CORSProfileRepository corsProfileRepository;
+    private static CorsProfileRepository corsProfileRepository;
     @Getter
     private static CacheProfileRepository cacheProfileRepository;
     @Getter
@@ -99,9 +107,10 @@ public class DomainRegistry {
     private static ProxyService proxyService;
 
     @Autowired
-    public void setRemoteProxyService(ProxyService proxyService) {
+    public void setProxyService(ProxyService proxyService) {
         DomainRegistry.proxyService = proxyService;
     }
+
     @Autowired
     public void setNotificationService(NotificationService userNotificationService) {
         DomainRegistry.notificationService = userNotificationService;
@@ -111,34 +120,42 @@ public class DomainRegistry {
     public void setNotificationRepository(NotificationRepository notificationRepository) {
         DomainRegistry.notificationRepository = notificationRepository;
     }
+
     @Autowired
     public void setPermissionCheckService(PermissionCheckService permissionCheckService) {
         DomainRegistry.permissionCheckService = permissionCheckService;
     }
+
     @Autowired
     public void setComputePermissionService(ComputePermissionService computePermissionService) {
         DomainRegistry.computePermissionService = computePermissionService;
     }
+
     @Autowired
     public void setUserRelationRepository(UserRelationRepository repository) {
         DomainRegistry.userRelationRepository = repository;
     }
+
     @Autowired
     public void setPositionRepository(PositionRepository repository) {
         DomainRegistry.positionRepository = repository;
     }
+
     @Autowired
     public void setOrganizationRepository(OrganizationRepository organizationRepository) {
         DomainRegistry.organizationRepository = organizationRepository;
     }
+
     @Autowired
     public void setPermissionRepository(PermissionRepository permissionRepository) {
         DomainRegistry.permissionRepository = permissionRepository;
     }
+
     @Autowired
     public void setRoleRepository(RoleRepository roleRepository) {
         DomainRegistry.roleRepository = roleRepository;
     }
+
     @Autowired
     public void setProjectRepository(ProjectRepository projectRepository) {
         DomainRegistry.projectRepository = projectRepository;
@@ -160,7 +177,7 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setCORSProfileRepository(CORSProfileRepository corsProfileRepository) {
+    public void setCorsProfileRepository(CorsProfileRepository corsProfileRepository) {
         DomainRegistry.corsProfileRepository = corsProfileRepository;
     }
 
@@ -175,7 +192,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPendingUserValidationService(PendingUserValidationService pendingUserValidationService) {
+    public void setPendingUserValidationService(
+        PendingUserValidationService pendingUserValidationService) {
         DomainRegistry.pendingUserValidationService = pendingUserValidationService;
     }
 

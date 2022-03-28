@@ -2,7 +2,6 @@ package com.mt.access.domain.model.client;
 
 
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import org.springframework.util.StringUtils;
 
 public class ClientValidator {
     private final Client client;
@@ -22,17 +21,27 @@ public class ClientValidator {
 
     private void tokenAndGrantType() {
         if (client.getGrantTypes() != null && !client.getGrantTypes().isEmpty()) {
-            if (client.getTokenDetail().getAccessTokenValiditySeconds() == null || client.getTokenDetail().getAccessTokenValiditySeconds() < 60)
-                handler.handleError("when grant present access token validity seconds must be valid");
+            if (client.getTokenDetail().getAccessTokenValiditySeconds() == null
+                ||
+                client.getTokenDetail().getAccessTokenValiditySeconds() < 60) {
+                handler
+                    .handleError("when grant present access token validity seconds must be valid");
+            }
             if (client.getGrantTypes().contains(GrantType.REFRESH_TOKEN)) {
-                if (client.getTokenDetail().getRefreshTokenValiditySeconds() == null || client.getTokenDetail().getRefreshTokenValiditySeconds() < 120)
-                    handler.handleError("refresh grant must has valid refresh token validity seconds");
+                if (client.getTokenDetail().getRefreshTokenValiditySeconds() == null
+                    ||
+                    client.getTokenDetail().getRefreshTokenValiditySeconds() < 120) {
+                    handler
+                        .handleError("refresh grant must has valid refresh token validity seconds");
+                }
             }
         }
     }
 
     private void typeAndGrantType() {
-        if (client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) && !client.getTypes().contains(ClientType.FRONTEND_APP)) {
+        if (client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
+            &&
+            !client.getTypes().contains(ClientType.FRONTEND_APP)) {
             handler.handleError("only frontend client allows authorization code grant");
         }
     }
@@ -48,10 +57,13 @@ public class ClientValidator {
     private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                    client.getTypes().stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
-                            || client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
+                client.getTypes().stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
+                    || client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
             ) {
-                handler.handleError("invalid client type to be a resource, must be first party & backend application");
+                handler.handleError(
+                    "invalid client type to be a resource, "
+                        +
+                        "must be first party & backend application");
             }
         }
     }

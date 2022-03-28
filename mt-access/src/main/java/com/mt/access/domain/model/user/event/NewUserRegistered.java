@@ -13,10 +13,11 @@ public class NewUserRegistered extends DomainEvent {
     public static final String name = "USER_CREATED";
     @Getter
     private UserEmail email;
+
     public NewUserRegistered(UserId userId, UserEmail email) {
         super(userId);
         setTopic(USER_CREATED);
         setName(name);
-        this.email=email;
+        this.email = email;
     }
 }

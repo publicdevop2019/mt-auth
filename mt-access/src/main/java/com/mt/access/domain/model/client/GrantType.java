@@ -8,8 +8,8 @@ public enum GrantType {
     REFRESH_TOKEN,
     AUTHORIZATION_CODE;
 
-    public static class DBConverter extends EnumSetConverter<GrantType> {
-        public DBConverter() {
+    public static class DbConverter extends EnumSetConverter<GrantType> {
+        public DbConverter() {
             super(GrantType.class);
         }
     }

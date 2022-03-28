@@ -8,24 +8,24 @@ import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
-import com.mt.access.domain.model.cors_profile.CORSProfile;
-import com.mt.access.domain.model.cors_profile.CORSProfileId;
-import com.mt.access.domain.model.cors_profile.CORSProfileQuery;
+import com.mt.access.domain.model.cors_profile.CorsProfile;
+import com.mt.access.domain.model.cors_profile.CorsProfileId;
+import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EndpointProxyCardRepresentation implements Serializable, Comparable<EndpointProxyCardRepresentation> {
+public class EndpointProxyCardRepresentation
+    implements Serializable, Comparable<EndpointProxyCardRepresentation> {
     private String id;
     private String description;
     private String resourceId;
@@ -37,7 +37,7 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     @JsonIgnore
-    private transient CORSProfileId corsProfileId;
+    private transient CorsProfileId corsProfileId;
     @JsonIgnore
     private transient ClientId clientId;
     @JsonIgnore
@@ -56,42 +56,60 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
-        this.permissionId = endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
+        this.permissionId =
+            endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }
 
     public static void updateDetail(List<EndpointProxyCardRepresentation> original) {
-        if(!original.isEmpty()){
-            Set<ClientId> clients = original.stream().map(EndpointProxyCardRepresentation::getClientId).collect(Collectors.toSet());
-            Set<CacheProfileId> cache = original.stream().map(EndpointProxyCardRepresentation::getCacheProfileId).filter(Objects::nonNull).collect(Collectors.toSet());
-            Set<CORSProfileId> cors = original.stream().map(EndpointProxyCardRepresentation::getCorsProfileId).filter(Objects::nonNull).collect(Collectors.toSet());
-            Set<CORSProfile> corsFetched = null;
+        if (!original.isEmpty()) {
+            Set<ClientId> clients =
+                original.stream().map(EndpointProxyCardRepresentation::getClientId)
+                    .collect(Collectors.toSet());
+            Set<CacheProfileId> cache =
+                original.stream().map(EndpointProxyCardRepresentation::getCacheProfileId)
+                    .filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<CorsProfileId> cors =
+                original.stream().map(EndpointProxyCardRepresentation::getCorsProfileId)
+                    .filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<CorsProfile> corsFetched = null;
             Set<CacheProfile> cacheFetched = null;
             Set<Client> clientFetched = null;
             if (cors.size() > 0) {
-                corsFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery((CORSProfileQuery) query), new CORSProfileQuery(cors));
+                corsFetched = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(query),
+                    new CorsProfileQuery(cors));
             }
             if (cache.size() > 0) {
-                cacheFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery((CacheProfileQuery) query), new CacheProfileQuery(cache));
+                cacheFetched = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getCacheProfileRepository()
+                        .cacheProfileOfQuery(query), new CacheProfileQuery(cache));
             }
             if (clients.size() > 0) {
-                clientFetched = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(clients));
+                clientFetched = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    new ClientQuery(clients));
             }
             Set<CacheProfile> finalCacheFetched = cacheFetched;
-            Set<CORSProfile> finalCorsFetched = corsFetched;
+            Set<CorsProfile> finalCorsFetched = corsFetched;
             Set<Client> finalClientFetched = clientFetched;
             original.forEach(rep -> {
                 if (finalCacheFetched != null) {
-                    finalCacheFetched.stream().filter(e -> e.getCacheProfileId().equals(rep.cacheProfileId)).findFirst().ifPresent(e -> rep.cacheConfig = new CacheConfig(e));
+                    finalCacheFetched.stream()
+                        .filter(e -> e.getCacheProfileId().equals(rep.cacheProfileId)).findFirst()
+                        .ifPresent(e -> rep.cacheConfig = new CacheConfig(e));
                 }
                 if (finalCorsFetched != null) {
-                    finalCorsFetched.stream().filter(e -> e.getCorsId().equals(rep.corsProfileId)).findFirst().ifPresent(e -> rep.corsConfig = new CorsConfig(e));
+                    finalCorsFetched.stream().filter(e -> e.getCorsId().equals(rep.corsProfileId))
+                        .findFirst().ifPresent(e -> rep.corsConfig = new CorsConfig(e));
                 }
                 if (finalClientFetched != null) {
-                    finalClientFetched.stream().filter(e -> e.getClientId().equals(rep.clientId)).findFirst().ifPresent(e -> {
-                        if (e.getPath() != null) {
-                            rep.setPath("/" + e.getPath() + "/" + rep.getPath());
-                        }
-                    });
+                    finalClientFetched.stream()
+                        .filter(e -> e.getClientId().equals(rep.clientId))
+                        .findFirst().ifPresent(e -> {
+                            if (e.getPath() != null) {
+                                rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                            }
+                        });
                 }
             });
 
@@ -111,8 +129,9 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
         private Set<String> exposedHeaders;
         private Long maxAge;
 
-        public CorsConfig(CORSProfile e) {
-            this.origin = e.getAllowOrigin().stream().map(Origin::getValue).collect(Collectors.toSet());
+        public CorsConfig(CorsProfile e) {
+            this.origin =
+                e.getAllowOrigin().stream().map(Origin::getValue).collect(Collectors.toSet());
             this.credentials = e.isAllowCredentials();
             this.allowedHeaders = e.getAllowedHeaders();
             this.exposedHeaders = e.getExposedHeaders();
@@ -139,7 +158,8 @@ public class EndpointProxyCardRepresentation implements Serializable, Comparable
 
         public CacheConfig(CacheProfile cacheProfile) {
             allowCache = cacheProfile.isAllowCache();
-            cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label).collect(Collectors.toSet());
+            cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
+                .collect(Collectors.toSet());
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();

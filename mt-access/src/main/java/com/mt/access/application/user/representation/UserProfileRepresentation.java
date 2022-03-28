@@ -3,8 +3,6 @@ package com.mt.access.application.user.representation;
 import com.mt.access.domain.model.user.User;
 import lombok.Data;
 
-import java.util.Set;
-
 @Data
 public class UserProfileRepresentation {
     private String id;

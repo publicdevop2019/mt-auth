@@ -4,7 +4,12 @@ import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-
+import java.util.Objects;
+import java.util.Set;
+import javax.persistence.Convert;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,20 +18,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import java.util.Objects;
-import java.util.Set;
-
+/**
+ * cache profile for http.
+ */
 @Entity
 @Table
 @Slf4j
 @NoArgsConstructor
 @Getter
 @Where(clause = "deleted=0")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "cacheProfileRegion")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+    region = "cacheProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 public class CacheProfile extends Auditable {
 
@@ -38,7 +40,7 @@ public class CacheProfile extends Auditable {
 
     private boolean allowCache;
 
-    @Convert(converter = CacheControlValue.DBConverter.class)
+    @Convert(converter = CacheControlValue.DbConverter.class)
     private Set<CacheControlValue> cacheControl;
 
     private Long expires;
@@ -53,18 +55,33 @@ public class CacheProfile extends Auditable {
 
     private boolean weakValidation;
 
+    /**
+     * constructor of CacheProfile.
+     *
+     * @param name           profile name
+     * @param description    profile description
+     * @param cacheProfileId domain id
+     * @param cacheControl   value of cache control
+     * @param expires        value of expires
+     * @param maxAge         value of max age
+     * @param smaxAge        value of server max age
+     * @param vary           value of vary
+     * @param allowCache     whether cache is allowed
+     * @param etag           value of etag
+     * @param weakValidation whether weak validation
+     */
     public CacheProfile(
-            String name,
-            String description,
-            CacheProfileId cacheProfileId,
-            Set<CacheControlValue> cacheControl,
-            Long expires,
-            Long maxAge,
-            Long smaxAge,
-            String vary,
-            boolean allowCache,
-            boolean etag,
-            boolean weakValidation) {
+        String name,
+        String description,
+        CacheProfileId cacheProfileId,
+        Set<CacheControlValue> cacheControl,
+        Long expires,
+        Long maxAge,
+        Long smaxAge,
+        String vary,
+        boolean allowCache,
+        boolean etag,
+        boolean weakValidation) {
         super();
         setName(name);
         setDescription(description);
@@ -80,9 +97,22 @@ public class CacheProfile extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
     }
 
+    /**
+     * update CacheProfile.
+     *
+     * @param name           profile name
+     * @param description    profile description
+     * @param cacheControl   value of cache control
+     * @param expires        value of expires
+     * @param maxAge         value of max age
+     * @param smaxAge        value of server max age
+     * @param vary           value of vary
+     * @param allowCache     whether cache is allowed
+     * @param etag           value of etag
+     * @param weakValidation whether weak validation
+     */
     public void update(String name,
                        String description,
-                       CacheProfileId cacheProfileId,
                        Set<CacheControlValue> cacheControl,
                        Long expires,
                        Long maxAge,
@@ -93,7 +123,6 @@ public class CacheProfile extends Auditable {
                        boolean weakValidation) {
         this.name = name;
         this.description = description;
-        this.cacheProfileId = cacheProfileId;
         this.cacheControl = cacheControl;
         this.expires = expires;
         this.maxAge = maxAge;
@@ -107,9 +136,15 @@ public class CacheProfile extends Auditable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         CacheProfile that = (CacheProfile) o;
         return Objects.equals(cacheProfileId, that.cacheProfileId);
     }

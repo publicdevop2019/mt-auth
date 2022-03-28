@@ -1,10 +1,9 @@
 package com.mt.access.application.notification.representation;
 
 import com.mt.access.domain.model.notification.Notification;
+import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @NoArgsConstructor
 @Getter

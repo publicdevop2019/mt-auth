@@ -1,5 +1,10 @@
 package com.mt.access.infrastructure;
 
+import static com.mt.access.domain.model.ticket.TicketInfo.AUD;
+import static com.mt.access.domain.model.ticket.TicketInfo.CLIENT_ID;
+import static com.mt.access.domain.model.ticket.TicketInfo.PERMISSION_IDS;
+import static com.mt.access.domain.model.ticket.TicketInfo.USER_ID;
+
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -17,17 +22,13 @@ import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.security.KeyPair;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static com.mt.access.domain.model.ticket.TicketInfo.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
@@ -46,27 +47,33 @@ public class JwtTicketService implements TicketService {
         KeyPair keyPair = jwtInfoProviderService.getKeyPair();
 
         JWK jwk = publicKeys.getKeys().get(0);
-        Set<Endpoint> allWSEndpoint = QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) e), EndpointQuery.websocketQuery());
-        Set<String> allWSPermission = allWSEndpoint.stream().filter(e->e.getPermissionId()!=null).map(e -> e.getPermissionId().getDomainId()).collect(Collectors.toSet());
+        Set<Endpoint> allWsEndpoint = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+                EndpointQuery.websocketQuery());
+        Set<String> allWsPermission =
+            allWsEndpoint.stream().filter(e -> e.getPermissionId() != null)
+                .map(e -> e.getPermissionId().getDomainId()).collect(Collectors.toSet());
         Set<String> currentPermission = DomainRegistry.getCurrentUserService().userPermissionIds();
-        Set<String> wsRelatedPermission  = currentPermission.stream().filter(allWSPermission::contains).collect(Collectors.toSet());
-        SignedJWT signedJWT = new SignedJWT(
-                new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwk.getKeyID()).build(),
-                new JWTClaimsSet.Builder()
-                        .subject("ticket")
-                        .issueTime(new Date())
-                        .expirationTime(new Date(ticket.getExp()))
-                        .claim(USER_ID, ticket.getUserId().getDomainId())
-                        .claim(CLIENT_ID, ticket.getClientId().getDomainId())
-                        .claim(AUD, ticket.getAud().getDomainId())
-                        .claim(PERMISSION_IDS,wsRelatedPermission )
-                        .build());
+        Set<String> wsRelatedPermission =
+            currentPermission.stream().filter(allWsPermission::contains)
+                .collect(Collectors.toSet());
+        SignedJWT signedJwt = new SignedJWT(
+            new JWSHeader.Builder(JWSAlgorithm.RS256).keyID(jwk.getKeyID()).build(),
+            new JWTClaimsSet.Builder()
+                .subject("ticket")
+                .issueTime(new Date())
+                .expirationTime(new Date(ticket.getExp()))
+                .claim(USER_ID, ticket.getUserId().getDomainId())
+                .claim(CLIENT_ID, ticket.getClientId().getDomainId())
+                .claim(AUD, ticket.getAud().getDomainId())
+                .claim(PERMISSION_IDS, wsRelatedPermission)
+                .build());
 
         try {
-            signedJWT.sign(new RSASSASigner(keyPair.getPrivate()));
+            signedJwt.sign(new RSASSASigner(keyPair.getPrivate()));
         } catch (JOSEException e) {
             log.error("error during generating ticket", e);
         }
-        return new SignedTicket(signedJWT.serialize());
+        return new SignedTicket(signedJwt.serialize());
     }
 }

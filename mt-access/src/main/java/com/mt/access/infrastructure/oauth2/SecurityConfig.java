@@ -10,7 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     /**
-     * used for password flow, explicitly set to enable password flow
+     * used for password flow, explicitly set to enable password flow.
      */
     @Bean
     @Override
@@ -21,8 +21,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-                .csrf().disable()
-                .authorizeRequests()
-                .anyRequest().permitAll();
+            .csrf().disable()
+            .authorizeRequests()
+            .anyRequest().permitAll();
     }
 }

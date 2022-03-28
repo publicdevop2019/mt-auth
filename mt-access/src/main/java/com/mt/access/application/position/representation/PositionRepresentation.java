@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 public class PositionRepresentation {
     private String name;
+
     public PositionRepresentation(Position role) {
-        this.name= role.getName();
+        this.name = role.getName();
     }
 }

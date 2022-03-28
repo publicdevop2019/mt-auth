@@ -9,6 +9,7 @@ public class ClientDeleted extends DomainEvent {
 
     public static final String CLIENT_DELETED = "client_deleted";
     public static final String name = "CLIENT_DELETED";
+
     public ClientDeleted(ClientId clientId) {
         super(clientId);
         setTopic(CLIENT_DELETED);

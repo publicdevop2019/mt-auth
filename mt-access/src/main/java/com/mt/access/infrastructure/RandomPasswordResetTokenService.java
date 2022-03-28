@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 public class RandomPasswordResetTokenService implements PasswordResetTokenService {
     @Override
     public String generate() {
+        //return UUID.randomUUID().toString().replace("-", "");
         return "123456789";
-//        return UUID.randomUUID().toString().replace("-", "");
     }
 }

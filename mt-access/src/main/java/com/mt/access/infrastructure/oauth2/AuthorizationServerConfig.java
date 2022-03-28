@@ -4,6 +4,7 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import com.mt.access.infrastructure.SelfSignedJwtTokenService;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,8 +18,9 @@ import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 
-import java.util.Arrays;
-
+/**
+ * config for authorization server.
+ */
 @Configuration
 @EnableAuthorizationServer
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
@@ -50,18 +52,19 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     }
 
     /**
-     * explicitly set authenticationManager to enable password flow
+     * explicitly set authenticationManager to enable password flow.
      */
     @Override
     public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
         TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
-        enhancerChain.setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
+        enhancerChain
+            .setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
         endpoints
-                .tokenStore(tokenStore)
-                .tokenEnhancer(enhancerChain)
-                .authenticationManager(authenticationManager)
-                .authorizationCodeServices(authorizationCodeServices)
-                .reuseRefreshTokens(false)
+            .tokenStore(tokenStore)
+            .tokenEnhancer(enhancerChain)
+            .authenticationManager(authenticationManager)
+            .authorizationCodeServices(authorizationCodeServices)
+            .reuseRefreshTokens(false)
         ;
         authTokenHelper.setTokenGranter(endpoints.getTokenGranter());
     }
@@ -69,7 +72,7 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
         oauthServer
-                .tokenKeyAccess("isAuthenticated()")
+            .tokenKeyAccess("isAuthenticated()")
         ;
     }
 

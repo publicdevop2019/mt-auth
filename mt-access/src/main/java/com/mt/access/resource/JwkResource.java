@@ -1,14 +1,13 @@
 package com.mt.access.resource;
 
 import com.mt.access.infrastructure.JwtInfoProviderService;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
-public class JWKResource {
+public class JwkResource {
 
     @Autowired
     private JwtInfoProviderService jwtInfoProviderService;

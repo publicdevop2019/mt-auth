@@ -9,6 +9,7 @@ public class UserDeleted extends DomainEvent {
 
     public static final String USER_DELETED = "user_deleted";
     public static final String name = "USER_DELETED";
+
     public UserDeleted(UserId userId) {
         super(userId);
         setTopic(USER_DELETED);

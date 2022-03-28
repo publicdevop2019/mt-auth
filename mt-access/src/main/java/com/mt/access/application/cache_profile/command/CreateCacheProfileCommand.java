@@ -1,8 +1,8 @@
 package com.mt.access.application.cache_profile.command;
 
+import java.util.Set;
 import lombok.Data;
 
-import java.util.Set;
 @Data
 public class CreateCacheProfileCommand {
     private String name;

@@ -6,21 +6,29 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
-
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
-import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class ProxyService {
     public CheckSumRepresentation checkSumValue() {
-        Map<ProxyInfo, CheckSumValue> cacheEndpointSum = DomainRegistry.getRemoteProxyService().getCacheEndpointSum();
-        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query), new EndpointQuery());
-        Set<EndpointProxyCardRepresentation> collect = allByQuery.stream().map(EndpointProxyCardRepresentation::new).collect(Collectors.toSet());
+        Map<ProxyInfo, CheckSumValue> cacheEndpointSum =
+            DomainRegistry.getRemoteProxyService().getCacheEndpointSum();
+        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
+            (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
+            new EndpointQuery());
+        Set<EndpointProxyCardRepresentation> collect =
+            allByQuery.stream().map(EndpointProxyCardRepresentation::new)
+                .collect(Collectors.toSet());
         EndpointProxyCardRepresentation.updateDetail(new ArrayList<>(collect));
         //sort before generate check sum
         TreeSet<EndpointProxyCardRepresentation> endpointProxyCardRepresentations = new TreeSet<>();
@@ -39,12 +47,14 @@ public class ProxyService {
         }
         if (values.size() != 1) {
             log.debug("failed check due to different proxy value found");
-            CommonDomainRegistry.getDomainEventRepository().append(new ProxyCacheCheckFailedEvent());
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ProxyCacheCheckFailedEvent());
             return;
         }
         if (!values.stream().findFirst().get().equals(hostValue)) {
             log.debug("failed check due to proxy value not matching host value");
-            CommonDomainRegistry.getDomainEventRepository().append(new ProxyCacheCheckFailedEvent());
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ProxyCacheCheckFailedEvent());
         }
 
     }

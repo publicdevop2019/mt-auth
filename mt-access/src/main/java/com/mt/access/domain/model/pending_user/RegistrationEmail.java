@@ -5,8 +5,6 @@ import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-
 @NoArgsConstructor
 public class RegistrationEmail extends DomainId {
     @Getter

@@ -3,23 +3,23 @@ package com.mt.access.domain.model.user;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
-
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
 
     public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
-        if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd))
+        if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
             throw new IllegalArgumentException("wrong password");
+        }
         user.setPassword(password);
         DomainRegistry.getUserRepository().add(user);
-        CommonDomainRegistry.getDomainEventRepository().append(new UserPasswordChanged(user.getUserId()));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new UserPasswordChanged(user.getUserId()));
     }
 
     public void forgetPassword(UserEmail email) {
@@ -38,13 +38,16 @@ public class UserService {
         if (user.isEmpty()) {
             throw new IllegalArgumentException("user does not exist");
         }
-        if (user.get().getPwdResetToken() == null)
+        if (user.get().getPwdResetToken() == null) {
             throw new IllegalArgumentException("token not exist");
-        if (!user.get().getPwdResetToken().equals(token))
+        }
+        if (!user.get().getPwdResetToken().equals(token)) {
             throw new IllegalArgumentException("token mismatch");
+        }
         user.get().setPassword(newPassword);
         DomainRegistry.getUserRepository().add(user.get());
-        CommonDomainRegistry.getDomainEventRepository().append(new UserPasswordChanged(user.get().getUserId()));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new UserPasswordChanged(user.get().getUserId()));
     }
 
     public void batchLock(List<PatchCommand> commands) {

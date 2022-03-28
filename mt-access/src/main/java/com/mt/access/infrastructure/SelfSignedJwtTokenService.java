@@ -1,5 +1,7 @@
 package com.mt.access.infrastructure;
 
+import static com.mt.access.domain.model.client.GrantType.CLIENT_CREDENTIALS;
+
 import com.mt.access.application.ApplicationServiceRegistry;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
@@ -8,10 +10,8 @@ import org.springframework.security.oauth2.provider.TokenGranter;
 import org.springframework.security.oauth2.provider.TokenRequest;
 import org.springframework.stereotype.Component;
 
-import static com.mt.access.domain.model.client.GrantType.CLIENT_CREDENTIALS;
-
 /**
- * this class is only for authentication server itself
+ * this class is only for authentication server itself.
  */
 @Component
 public class SelfSignedJwtTokenService {
@@ -25,8 +25,11 @@ public class SelfSignedJwtTokenService {
     }
 
     public OAuth2AccessToken getSelfSignedAccessToken() {
-        ClientDetails clientDetails = ApplicationServiceRegistry.getClientApplicationService().loadClientByClientId(id);
-        TokenRequest tokenRequest = new TokenRequest(null, clientDetails.getClientId(), clientDetails.getScope(), CLIENT_CREDENTIALS.name().toLowerCase());
+        ClientDetails clientDetails =
+            ApplicationServiceRegistry.getClientApplicationService().loadClientByClientId(id);
+        TokenRequest tokenRequest =
+            new TokenRequest(null, clientDetails.getClientId(), clientDetails.getScope(),
+                CLIENT_CREDENTIALS.name().toLowerCase());
         return tokenGranter.grant(CLIENT_CREDENTIALS.name().toLowerCase(), tokenRequest);
     }
 }

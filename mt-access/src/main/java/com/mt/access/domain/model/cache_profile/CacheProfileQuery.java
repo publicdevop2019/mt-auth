@@ -4,15 +4,20 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
-import java.util.*;
-import java.util.stream.Collectors;
 @Getter
 public class CacheProfileQuery extends QueryCriteria {
     private static final String ID = "id";
     private Set<CacheProfileId> ids;
     private CacheProfileSort sort;
+
     public CacheProfileQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 40));
@@ -21,14 +26,14 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(CacheProfileId id) {
-        this.ids= Collections.singleton(id);
+        this.ids = Collections.singleton(id);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         setSort(pageConfig);
     }
 
     public CacheProfileQuery(Set<CacheProfileId> collect) {
-        this.ids= collect;
+        this.ids = collect;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         setSort(pageConfig);
@@ -37,12 +42,12 @@ public class CacheProfileQuery extends QueryCriteria {
     private void setSort(PageConfig pageConfig) {
         this.sort = CacheProfileSort.byId(pageConfig.isSortOrderAsc());
     }
+
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
-            ids = Arrays.stream(e.split("\\.")).map(CacheProfileId::new).collect(Collectors.toSet());
-        });
+            ID);
+        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
+            Arrays.stream(e.split("\\.")).map(CacheProfileId::new).collect(Collectors.toSet()));
     }
 
     @Getter

@@ -2,12 +2,11 @@ package com.mt.access.application.client.command;
 
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
-
-import javax.annotation.Nullable;
 import java.io.Serializable;
 import java.util.Set;
+import javax.annotation.Nullable;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j

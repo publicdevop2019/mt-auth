@@ -4,25 +4,28 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Getter
-public class CORSProfileQuery extends QueryCriteria {
+public class CorsProfileQuery extends QueryCriteria {
     private static final String ID = "id";
-    private Set<CORSProfileId> ids;
-    private CORSProfileSort sort;
+    private Set<CorsProfileId> ids;
+    private CorsProfileSort sort;
 
-    public CORSProfileQuery(String queryParam, String pageParam, String config) {
+    public CorsProfileQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 40));
         setQueryConfig(new QueryConfig(config));
         setSort(pageConfig);
     }
 
-    public CORSProfileQuery(CORSProfileId id) {
+    public CorsProfileQuery(CorsProfileId id) {
         if (id != null) {
             this.ids = Collections.singleton(id);
         }
@@ -31,36 +34,36 @@ public class CORSProfileQuery extends QueryCriteria {
         setSort(pageConfig);
     }
 
-    public CORSProfileQuery(Set<CORSProfileId> collect1) {
-        this.ids=collect1;
+    public CorsProfileQuery(Set<CorsProfileId> collect1) {
+        this.ids = collect1;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         setSort(pageConfig);
     }
 
     private void setSort(PageConfig pageConfig) {
-        this.sort = CORSProfileSort.byId(pageConfig.isSortOrderAsc());
+        this.sort = CorsProfileSort.byId(pageConfig.isSortOrderAsc());
     }
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID);
+            ID);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
-            ids = Arrays.stream(e.split("\\.")).map(CORSProfileId::new).collect(Collectors.toSet());
+            ids = Arrays.stream(e.split("\\.")).map(CorsProfileId::new).collect(Collectors.toSet());
         });
     }
 
     @Getter
-    public static class CORSProfileSort {
+    public static class CorsProfileSort {
         private final boolean isAsc;
         private boolean byId;
 
-        public CORSProfileSort(boolean sortOrderAsc) {
+        public CorsProfileSort(boolean sortOrderAsc) {
             this.isAsc = sortOrderAsc;
         }
 
-        public static CORSProfileSort byId(boolean sortOrderAsc) {
-            CORSProfileSort corsProfileSort = new CORSProfileSort(sortOrderAsc);
+        public static CorsProfileSort byId(boolean sortOrderAsc) {
+            CorsProfileSort corsProfileSort = new CorsProfileSort(sortOrderAsc);
             corsProfileSort.byId = true;
             return corsProfileSort;
         }

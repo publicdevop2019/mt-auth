@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProxyResource {
     @GetMapping(path = "mngmt/proxy/check")
     public ResponseEntity<CheckSumRepresentation> checkSync() {
-        return ResponseEntity.ok(ApplicationServiceRegistry.getProxyApplicationService().checkSumValue());
+        return ResponseEntity
+            .ok(ApplicationServiceRegistry.getProxyApplicationService().checkSumValue());
     }
 }

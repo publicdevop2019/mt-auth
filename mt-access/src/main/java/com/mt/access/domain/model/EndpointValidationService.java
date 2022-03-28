@@ -6,9 +6,8 @@ import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import org.springframework.stereotype.Service;
-
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class EndpointValidationService {
@@ -19,15 +18,19 @@ public class EndpointValidationService {
         sharedClientMustBeAccessible(endpoint, handler);
     }
 
-    private void sharedClientMustBeAccessible(Endpoint endpoint, ValidationNotificationHandler handler) {
+    private void sharedClientMustBeAccessible(Endpoint endpoint,
+                                              ValidationNotificationHandler handler) {
         if (endpoint.isShared()) {
             ClientId clientId = endpoint.getClientId();
             Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
             if (client.isEmpty()) {
-                handler.handleError("endpoint client not found: " + endpoint.getClientId().getDomainId());
+                handler.handleError(
+                    "endpoint client not found: " + endpoint.getClientId().getDomainId());
             } else {
                 if (!client.get().isAccessible()) {
-                    handler.handleError("shared endpoint client must be accessible: " + endpoint.getClientId().getDomainId());
+                    handler.handleError("shared endpoint client must be accessible: "
+                        +
+                        endpoint.getClientId().getDomainId());
                 }
             }
         }
@@ -36,16 +39,20 @@ public class EndpointValidationService {
 
     private void hasValidCacheProfileId(Endpoint endpoint, ValidationNotificationHandler handler) {
         if (endpoint.getCacheProfileId() != null) {
-            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository().cacheProfileOfId(endpoint.getCacheProfileId());
+            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository()
+                .cacheProfileOfId(endpoint.getCacheProfileId());
             if (cacheProfile.isEmpty()) {
-                handler.handleError("unable to find cache profile with id: " + endpoint.getCacheProfileId().getDomainId());
+                handler.handleError("unable to find cache profile with id: "
+                    +
+                    endpoint.getCacheProfileId().getDomainId());
             }
         }
     }
 
     private void sharedMustBeSecured(Endpoint endpoint, ValidationNotificationHandler handler) {
         if (endpoint.isShared() && !endpoint.isSecured()) {
-            handler.handleError("shared endpoint must be non-public " + endpoint.getEndpointId().getDomainId());
+            handler.handleError(
+                "shared endpoint must be non-public " + endpoint.getEndpointId().getDomainId());
         }
     }
 

@@ -11,23 +11,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class WebSocketNotificationService implements NotificationService {
     @Autowired
-    SpringBootSimpleWebSocketConfig.NotificationWSHandler notificationWSHandler;
+    SpringBootSimpleWebSocketConfig.NotificationWsHandler notificationWsHandler;
     @Autowired
     CleanUpThreadPoolExecutor taskExecutor;
 
     @Override
     public void notify(String message) {
-        notificationWSHandler.broadcast(message);
+        notificationWsHandler.broadcast(message);
     }
 
     @Scheduled(fixedRate = 25 * 1000)
     protected void autoRenew() {
-        taskExecutor.execute(new Runnable() {
-            @Override
-            public void run() {
-                log.debug("start of renewing ws connects");
-                notificationWSHandler.broadcast("_renew");
-            }
+        taskExecutor.execute(() -> {
+            log.debug("start of renewing ws connects");
+            notificationWsHandler.broadcast("_renew");
         });
     }
 }

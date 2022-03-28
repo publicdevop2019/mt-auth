@@ -1,11 +1,14 @@
 package com.mt.access.application.client.representation;
 
-import com.mt.access.domain.model.client.*;
-import lombok.Data;
-import org.springframework.util.ObjectUtils;
-
+import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.ClientType;
+import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.RedirectUrl;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Data;
+import org.springframework.util.ObjectUtils;
 
 @Data
 public class ClientRepresentation {
@@ -44,18 +47,23 @@ public class ClientRepresentation {
         description = client.getDescription();
         grantTypeEnums = client.getGrantTypes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        if (client.getAuthorizationCodeGrant() != null)
-            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
+        if (client.getAuthorizationCodeGrant() != null) {
+            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream()
+                .map(RedirectUrl::getValue).collect(Collectors.toSet());
+        }
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
-        if (!ObjectUtils.isEmpty(client.getResources()))
-            resourceIds = client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        if (!ObjectUtils.isEmpty(client.getResources())) {
+            resourceIds = client.getResources().stream().map(ClientId::getDomainId)
+                .collect(Collectors.toSet());
+        }
         resourceIndicator = client.isAccessible();
-        if (client.getAuthorizationCodeGrant() != null)
+        if (client.getAuthorizationCodeGrant() != null) {
             autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();
+        }
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;
-        types=client.getTypes();
+        types = client.getTypes();
 
     }
 }

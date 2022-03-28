@@ -19,7 +19,7 @@ public class ProjectCreated extends DomainEvent {
         super(project.getProjectId());
         setTopic(PROJECT_CREATED);
         setName(name);
-        projectName=project.getName();
+        projectName = project.getName();
         this.creator = new UserId(project.getCreatedBy());
     }
 }

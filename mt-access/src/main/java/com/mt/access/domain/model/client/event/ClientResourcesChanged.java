@@ -9,6 +9,7 @@ public class ClientResourcesChanged extends DomainEvent {
 
     public static final String CLIENT_RESOURCES_CHANGED = "client_resources_changed";
     public static final String name = "CLIENT_RESOURCES_CHANGED";
+
     public ClientResourcesChanged(ClientId clientId) {
         super(clientId);
         setTopic(CLIENT_RESOURCES_CHANGED);

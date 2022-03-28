@@ -4,9 +4,8 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import org.springframework.security.core.Authentication;
-
 import java.util.Set;
+import org.springframework.security.core.Authentication;
 
 public interface CurrentUserService {
 
@@ -23,5 +22,6 @@ public interface CurrentUserService {
     ClientId getClientId();
 
     Set<ProjectId> getTenantIds();
+
     Set<PermissionId> getPermissionIds();
 }

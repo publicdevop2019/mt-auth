@@ -9,8 +9,10 @@ public class RevokeTokenId extends DomainId {
     public RevokeTokenId(String domainId) {
         super(domainId);
     }
+
     @JsonIgnore
     public RevokeToken.TokenType getType() {
-        return this.getDomainId().indexOf("0C") == 0 ? RevokeToken.TokenType.CLIENT : RevokeToken.TokenType.USER;
+        return this.getDomainId().indexOf("0C") == 0 ? RevokeToken.TokenType.CLIENT :
+            RevokeToken.TokenType.USER;
     }
 }

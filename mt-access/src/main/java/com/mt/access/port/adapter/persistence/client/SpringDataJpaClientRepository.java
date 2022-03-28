@@ -1,6 +1,13 @@
 package com.mt.access.port.adapter.persistence.client;
 
-import com.mt.access.domain.model.client.*;
+import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.ClientQuery;
+import com.mt.access.domain.model.client.ClientRepository;
+import com.mt.access.domain.model.client.ClientType;
+import com.mt.access.domain.model.client.Client_;
+import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -10,31 +17,47 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
 import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
+import javax.persistence.criteria.AbstractQuery;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
-import javax.persistence.criteria.*;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Repository
-public interface SpringDataJpaClientRepository extends JpaRepository<Client, Long>, ClientRepository {
+public interface SpringDataJpaClientRepository
+    extends JpaRepository<Client, Long>, ClientRepository {
     default Set<ProjectId> getProjectIds() {
-        return _getProjectIds();
+        return getProjectIds_();
     }
-    default Set<ClientId> allClientIds(){
-        return _getAllClientIds();
+
+    default Set<ClientId> allClientIds() {
+        return getAllClientIds_();
     }
 
     @Query("select distinct c.projectId from Client c")
-    Set<ProjectId> _getProjectIds();
+    Set<ProjectId> getProjectIds_();
+
     @Query("select distinct c.clientId from Client c")
-    Set<ClientId> _getAllClientIds();
+    Set<ClientId> getAllClientIds_();
 
     default Optional<Client> clientOfId(ClientId clientId) {
-        return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId)).findFirst();
+        return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
+            .findFirst();
     }
 
     default void add(Client client) {
@@ -60,57 +83,86 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         public static final String ENTITY_NAME = "name";
 
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
-            QueryUtility.QueryContext<Client> queryContext = QueryUtility.prepareContext(Client.class, clientQuery);
-            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.CLIENT_ID, queryContext));
-            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
-            Optional.ofNullable(clientQuery.getName()).ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
-            Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()), Client_.PROJECT_ID, queryContext));
+            QueryUtility.QueryContext<Client> queryContext =
+                QueryUtility.prepareContext(Client.class, clientQuery);
+            Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility
+                .addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    Client_.CLIENT_ID, queryContext));
+            Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(
+                e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
+            Optional.ofNullable(clientQuery.getName())
+                .ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
+            Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility
+                .addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    Client_.PROJECT_ID, queryContext));
 
             Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> {
-                queryContext.getPredicates().add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getPredicates().add(GrantEnabledPredicateConverter
+                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(GrantEnabledPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
+                    .ifPresent(ee -> ee.add(GrantEnabledPredicateConverter
+                        .getPredicate(e, queryContext.getCriteriaBuilder(),
+                            queryContext.getCountRoot())));
             });
             Optional.ofNullable(clientQuery.getClientTypeSearch()).ifPresent(e -> {
-                queryContext.getPredicates().add(ClientTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getPredicates().add(ClientTypePredicateConverter
+                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(ClientTypePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
+                    .ifPresent(ee -> ee.add(ClientTypePredicateConverter
+                        .getPredicate(e, queryContext.getCriteriaBuilder(),
+                            queryContext.getCountRoot())));
             });
             Optional.ofNullable(clientQuery.getResources()).ifPresent(e -> {
-                queryContext.getPredicates().add(ResourceIdsPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getPredicates().add(ResourceIdsPredicateConverter
+                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(ResourceIdsPredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
+                    .ifPresent(ee -> ee.add(ResourceIdsPredicateConverter
+                        .getPredicate(e, queryContext.getCriteriaBuilder(),
+                            queryContext.getCountRoot())));
             });
             Optional.ofNullable(clientQuery.getAccessTokenSecSearch()).ifPresent(e -> {
-                queryContext.getPredicates().add(GrantAccessTokenClausePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
+                queryContext.getPredicates().add(GrantAccessTokenClausePredicateConverter
+                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
                 Optional.ofNullable(queryContext.getCountPredicates())
-                        .ifPresent(ee -> ee.add(GrantAccessTokenClausePredicateConverter.getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getCountRoot())));
+                    .ifPresent(ee -> ee.add(GrantAccessTokenClausePredicateConverter
+                        .getPredicate(e, queryContext.getCriteriaBuilder(),
+                            queryContext.getCountRoot())));
             });
 
             ClientOrderConverter clientSortConverter = new ClientOrderConverter();
-            List<Order> orderClause = clientSortConverter.getOrderClause(clientQuery.getPageConfig().getRawValue(), queryContext.getCriteriaBuilder(), queryContext.getRoot(), queryContext.getQuery());
+            List<Order> orderClause = clientSortConverter
+                .getOrderClause(clientQuery.getPageConfig().getRawValue(),
+                    queryContext.getCriteriaBuilder(), queryContext.getRoot(),
+                    queryContext.getQuery());
             queryContext.setOrder(orderClause);
             return QueryUtility.pagedQuery(clientQuery, queryContext);
         }
 
         public static class GrantAccessTokenClausePredicateConverter {
 
-            public static Predicate getPredicate(String query, CriteriaBuilder cb, Root<Client> root) {
+            public static Predicate getPredicate(String query, CriteriaBuilder cb,
+                                                 Root<Client> root) {
                 String[] split = query.split("\\$");
                 List<Predicate> results = new ArrayList<>();
                 for (String str : split) {
                     if (str.contains("<=")) {
                         int i = Integer.parseInt(str.replace("<=", ""));
-                        results.add(cb.lessThanOrEqualTo(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
+                        results.add(cb.lessThanOrEqualTo(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains(">=")) {
                         int i = Integer.parseInt(str.replace(">=", ""));
-                        results.add(cb.greaterThanOrEqualTo(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
+                        results.add(cb.greaterThanOrEqualTo(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains("<")) {
                         int i = Integer.parseInt(str.replace("<", ""));
-                        results.add(cb.lessThan(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
+                        results.add(cb.lessThan(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else if (str.contains(">")) {
                         int i = Integer.parseInt(str.replace(">", ""));
-                        results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
+                        results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else {
                         throw new UnsupportedQueryException();
                     }
@@ -120,19 +172,24 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         }
 
         private static class GrantEnabledPredicateConverter {
-            public static Predicate getPredicate(String query, CriteriaBuilder cb, Root<Client> root) {
+            public static Predicate getPredicate(String query, CriteriaBuilder cb,
+                                                 Root<Client> root) {
                 if (query.contains("$")) {
                     Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
                     List<Predicate> list2 = new ArrayList<>();
                     for (String str : strings) {
                         if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + GrantType.CLIENT_CREDENTIALS.name() + "%"));
                         } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + GrantType.PASSWORD.name() + "%"));
                         } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + GrantType.AUTHORIZATION_CODE.name() + "%"));
                         } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + GrantType.REFRESH_TOKEN.name() + "%"));
                         }
                     }
                     return cb.and(list2.toArray(Predicate[]::new));
@@ -141,36 +198,48 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                 }
             }
 
-            private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
+            private static Predicate getExpression(String str, CriteriaBuilder cb,
+                                                   Root<Client> root) {
                 if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.CLIENT_CREDENTIALS.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + GrantType.CLIENT_CREDENTIALS.name() + "%");
                 } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.PASSWORD.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + GrantType.PASSWORD.name() + "%");
                 } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
                 } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + GrantType.REFRESH_TOKEN.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + GrantType.REFRESH_TOKEN.name() + "%");
                 } else {
                     return null;
                 }
             }
         }
+
         private static class ClientTypePredicateConverter {
-            public static Predicate getPredicate(String query, CriteriaBuilder cb, Root<Client> root) {
+            public static Predicate getPredicate(String query, CriteriaBuilder cb,
+                                                 Root<Client> root) {
                 if (query.contains("$")) {
                     Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
                     List<Predicate> list2 = new ArrayList<>();
                     for (String str : strings) {
                         if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.ROOT_APPLICATION.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + ClientType.ROOT_APPLICATION.name() + "%"));
                         } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FIRST_PARTY.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + ClientType.FIRST_PARTY.name() + "%"));
                         } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.THIRD_PARTY.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + ClientType.THIRD_PARTY.name() + "%"));
                         } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FRONTEND_APP.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + ClientType.FRONTEND_APP.name() + "%"));
                         } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.BACKEND_APP.name() + "%"));
+                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                                "%" + ClientType.BACKEND_APP.name() + "%"));
                         }
                     }
                     return cb.and(list2.toArray(Predicate[]::new));
@@ -179,17 +248,23 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                 }
             }
 
-            private static Predicate getExpression(String str, CriteriaBuilder cb, Root<Client> root) {
+            private static Predicate getExpression(String str, CriteriaBuilder cb,
+                                                   Root<Client> root) {
                 if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.ROOT_APPLICATION.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + ClientType.ROOT_APPLICATION.name() + "%");
                 } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FIRST_PARTY.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + ClientType.FIRST_PARTY.name() + "%");
                 } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.THIRD_PARTY.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + ClientType.THIRD_PARTY.name() + "%");
                 } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.FRONTEND_APP.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + ClientType.FRONTEND_APP.name() + "%");
                 } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class), "%" + ClientType.BACKEND_APP.name() + "%");
+                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
+                        "%" + ClientType.BACKEND_APP.name() + "%");
                 } else {
                     return null;
                 }
@@ -197,7 +272,8 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
         }
 
         public static class ResourceIdsPredicateConverter {
-            public static Predicate getPredicate(Set<ClientId> query, CriteriaBuilder cb, Root<Client> root) {
+            public static Predicate getPredicate(Set<ClientId> query, CriteriaBuilder cb,
+                                                 Root<Client> root) {
                 Join<Object, Object> tags = root.join(Client_.RESOURCES);
                 CriteriaBuilder.In<Object> clause = cb.in(tags.get(DomainId_.DOMAIN_ID));
                 query.forEach(e -> clause.value(e.getDomainId()));
@@ -207,7 +283,8 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
 
         static class ClientOrderConverter extends OrderClause<Client> {
             @Override
-            public List<Order> getOrderClause(String page, CriteriaBuilder cb, Root<Client> root, AbstractQuery<?> abstractQuery) {
+            public List<Order> getOrderClause(String page, CriteriaBuilder cb, Root<Client> root,
+                                              AbstractQuery<?> abstractQuery) {
                 if (page == null) {
                     Order asc = cb.asc(root.get(Client_.NAME));
                     return Collections.singletonList(asc);
@@ -252,10 +329,12 @@ public interface SpringDataJpaClientRepository extends JpaRepository<Client, Lon
                     }
                 } else if ("accessTokenValiditySeconds".equalsIgnoreCase(orderMap.get("by"))) {
                     if ("asc".equalsIgnoreCase(orderMap.get("order"))) {
-                        Order asc = cb.asc(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
+                        Order asc = cb.asc(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
                         return Collections.singletonList(asc);
                     } else {
-                        Order desc = cb.desc(root.get(Client_.TOKEN_DETAIL).get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
+                        Order desc = cb.desc(root.get(Client_.TOKEN_DETAIL)
+                            .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS));
                         return Collections.singletonList(desc);
                     }
                 } else {
