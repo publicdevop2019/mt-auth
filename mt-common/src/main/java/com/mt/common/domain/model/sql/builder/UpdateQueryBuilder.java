@@ -1,24 +1,31 @@
 package com.mt.common.domain.model.sql.builder;
 
+import static com.mt.common.CommonConstant.PATCH_OP_TYPE_DIFF;
+import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
+
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.Auditable_;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.sql.clause.NotDeletedClause;
 import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaUpdate;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-
-import static com.mt.common.CommonConstant.PATCH_OP_TYPE_DIFF;
-import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public abstract class UpdateQueryBuilder<T extends Auditable> {
     @Autowired
@@ -41,10 +48,13 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
      * {op:'diff',path:'/0001/storageOrder',value:'1'},
      * {op:'diff',path:'/0002/storageOrder',value:'1'}
      * ]
+     * .
      */
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
-        Map<PatchCommand, List<String>> jsonPatchCommandListHashMap = optimizePatchCommands(commands);
-        Map<PatchCommand, CriteriaUpdate<T>> patchCommandCriteriaUpdateHashMap = new LinkedHashMap<>();
+        Map<PatchCommand, List<String>> jsonPatchCommandListHashMap =
+            optimizePatchCommands(commands);
+        Map<PatchCommand, CriteriaUpdate<T>> patchCommandCriteriaUpdateHashMap =
+            new LinkedHashMap<>();
         jsonPatchCommandListHashMap.keySet().forEach(key -> {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
@@ -53,11 +63,13 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             //force to select only not deleted entity
             Predicate notSoftDeleted = new NotDeletedClause<T>().getWhereClause(cb, root);
             Predicate and = cb.and(notSoftDeleted, predicate);
-            if (and != null)
+            if (and != null) {
                 criteriaUpdate.where(and);
+            }
             setUpdateValue(root, criteriaUpdate, key);
             //update version, this is required to make optimistic lock work properly
-            criteriaUpdate.set(root.<Integer>get(CommonConstant.VERSION), cb.sum(root.get(CommonConstant.VERSION), 1));
+            criteriaUpdate.set(root.<Integer>get(CommonConstant.VERSION),
+                cb.sum(root.get(CommonConstant.VERSION), 1));
             //manually set updateAt updateBy bcz criteria api bypass hibernate session
             Optional<String> currentAuditor = SpringDataJpaConfig.AuditorAwareImpl.getAuditor();
             criteriaUpdate.set(Auditable_.MODIFIED_BY, currentAuditor.orElse(""));
@@ -90,11 +102,14 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             }
         });
         jsonPatchCommandCount.keySet().forEach(e -> {
-            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM) || e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
+            if (e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_SUM)
+                ||
+                e.getOp().equalsIgnoreCase(PATCH_OP_TYPE_DIFF)) {
                 if (e.getValue() instanceof Integer) {
                     e.setValue((Integer) e.getValue() * jsonPatchCommandCount.get(e));
                 } else {
-                    e.setValue(Integer.parseInt((String) e.getValue()) * jsonPatchCommandCount.get(e));
+                    e.setValue(
+                        Integer.parseInt((String) e.getValue()) * jsonPatchCommandCount.get(e));
                 }
             }
         });
@@ -142,9 +157,11 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
         return split[1];
     }
 
-    protected abstract void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand operationLike);
+    protected abstract void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate,
+                                           PatchCommand operationLike);
 
-    protected abstract Predicate getWhereClause(Root<T> root, List<String> ids, PatchCommand command);
+    protected abstract Predicate getWhereClause(Root<T> root, List<String> ids,
+                                                PatchCommand command);
 
     public static class PatchCommandExpectNotMatchException extends RuntimeException {
     }

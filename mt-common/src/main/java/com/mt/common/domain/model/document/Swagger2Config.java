@@ -17,19 +17,19 @@ public class Swagger2Config {
     @Bean
     public Docket api() {
         return new Docket(DocumentationType.SWAGGER_2).select()
-                .apis(RequestHandlerSelectors
-                        .basePackage("com.mt"))
-                .paths(PathSelectors.any())
-                .build().apiInfo(apiEndPointsInfo());
+            .apis(RequestHandlerSelectors
+                .basePackage("com.mt"))
+            .paths(PathSelectors.any())
+            .build().apiInfo(apiEndPointsInfo());
     }
 
     private ApiInfo apiEndPointsInfo() {
         return new ApiInfoBuilder().title("Spring Boot REST API")
-                .description("Application REST API")
-                .contact(new Contact("Haolin Wei", "www.duoshu.org", "haolinwei2015@gmail.com"))
-                .license("Apache 2.0")
-                .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
-                .version("0.0.0a")
-                .build();
+            .description("Application REST API")
+            .contact(new Contact("Haolin Wei", "www.duoshu.org", "haolinwei2015@gmail.com"))
+            .license("Apache 2.0")
+            .licenseUrl("http://www.apache.org/licenses/LICENSE-2.0.html")
+            .version("0.0.0a")
+            .build();
     }
 }

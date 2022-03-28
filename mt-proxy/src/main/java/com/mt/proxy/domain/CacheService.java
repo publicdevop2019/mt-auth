@@ -1,18 +1,23 @@
 package com.mt.proxy.domain;
 
+import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR;
+
+import java.net.URI;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
-
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR;
 
 @Slf4j
 @Service
@@ -21,7 +26,8 @@ public class CacheService {
     @Autowired
     EndpointService endpointService;
 
-    public static <T> Optional<T> getMostSpecificSecurityProfile(Map<MethodPathKey, T> map, String requestURI) {
+    public static <T> Optional<T> getMostSpecificSecurityProfile(Map<MethodPathKey, T> map,
+                                                                 String requestUri) {
         Optional<T> next;
         Optional<MethodPathKey> key;
         Set<MethodPathKey> methodPathKeys = map.keySet();
@@ -32,18 +38,23 @@ public class CacheService {
             key = methodPathKeys.stream().findFirst();
             next = Optional.of(map.get(key.get()));
         } else {
-            List<MethodPathKey> collect = methodPathKeys.stream().filter(e -> !e.getPath().contains("/**")).collect(Collectors.toList());
+            List<MethodPathKey> collect =
+                methodPathKeys.stream().filter(e -> !e.getPath().contains("/**"))
+                    .collect(Collectors.toList());
             if (collect.size() == 1) {
                 key = collect.stream().findFirst();
                 next = Optional.of(map.get(key.get()));
             } else {
-                List<MethodPathKey> collect2 = methodPathKeys.stream().filter(e -> !e.getPath().endsWith("/**")).collect(Collectors.toList());
+                List<MethodPathKey> collect2 =
+                    methodPathKeys.stream().filter(e -> !e.getPath().endsWith("/**"))
+                        .collect(Collectors.toList());
                 if (collect2.size() == 1) {
                     key = collect2.stream().findFirst();
                     next = Optional.of(map.get(key.get()));
                 } else {
                     //return longest
-                    Optional<MethodPathKey> first = methodPathKeys.stream().sorted((a, b) -> b.getPath().length() - a.getPath().length()).findFirst();
+                    Optional<MethodPathKey> first = methodPathKeys.stream()
+                        .sorted((a, b) -> b.getPath().length() - a.getPath().length()).findFirst();
                     key = first;
                     next = Optional.of(map.get(key.get()));
                 }
@@ -51,7 +62,7 @@ public class CacheService {
         }
         if (next.isPresent()) {
             // /clients/root cannot match /clients/root/**
-            if (requestURI.split("/").length != key.get().getPath().split("/").length) {
+            if (requestUri.split("/").length != key.get().getPath().split("/").length) {
                 return Optional.empty();
             }
         }
@@ -63,9 +74,11 @@ public class CacheService {
         configurationMap.clear();
         cached.stream().filter(this::hasCacheInfo).forEach(endpoint -> {
             CacheConfiguration configuration = new CacheConfiguration(endpoint);
-            configurationMap.put(new MethodPathKey(endpoint.getMethod(), endpoint.getPath()), configuration);
+            configurationMap
+                .put(new MethodPathKey(endpoint.getMethod(), endpoint.getPath()), configuration);
         });
-        log.debug("refresh cache config completed, cache configuration count is {}", configurationMap.size());
+        log.debug("refresh cache config completed, cache configuration count is {}",
+            configurationMap.size());
     }
 
     public CacheConfiguration getCacheConfiguration(ServerWebExchange exchange, boolean isEtag) {
@@ -77,7 +90,8 @@ public class CacheService {
             path = exchange.getRequest().getPath().value();
         } else {
             LinkedHashSet<URI> attribute = exchange.getAttribute(GATEWAY_ORIGINAL_REQUEST_URL_ATTR);
-            Optional<URI> lb1 = attribute.stream().filter(e -> !e.getScheme().equals("lb")).findFirst();
+            Optional<URI> lb1 =
+                attribute.stream().filter(e -> !e.getScheme().equals("lb")).findFirst();
             if (lb1.isPresent()) {
                 path = lb1.get().getPath();
             } else {
@@ -85,14 +99,16 @@ public class CacheService {
             }
         }
         this.configurationMap.entrySet().stream()
-                .filter(entry -> pathMater.match(entry.getKey().getPath(), path)
-                        &&
-                        finalTargetMethod.equalsIgnoreCase(entry.getKey().getMethod()))
-                .forEach(e -> {
-                    profile.put(e.getKey(), e.getValue());
-                });
-        CacheConfiguration configuration = getMostSpecificSecurityProfile(profile, path).stream().findFirst().orElse(null);
-        log.debug("found {} for path {} with method {}", configuration, path, exchange.getRequest().getMethodValue());
+            .filter(entry -> pathMater.match(entry.getKey().getPath(), path)
+                &&
+                finalTargetMethod.equalsIgnoreCase(entry.getKey().getMethod()))
+            .forEach(e -> {
+                profile.put(e.getKey(), e.getValue());
+            });
+        CacheConfiguration configuration =
+            getMostSpecificSecurityProfile(profile, path).stream().findFirst().orElse(null);
+        log.debug("found {} for path {} with method {}", configuration, path,
+            exchange.getRequest().getMethodValue());
         return configuration;
     }
 
@@ -130,7 +146,8 @@ public class CacheService {
 
         public String getCacheControlValue() {
             List<String> list = new ArrayList<>();
-            Stream<String> stringStream = cacheControl.stream().filter(e -> !List.of("max-age", "s-maxage").contains(e));
+            Stream<String> stringStream =
+                cacheControl.stream().filter(e -> !List.of("max-age", "s-maxage").contains(e));
             if (this.maxAge != null) {
                 list.add("max-age=" + this.maxAge);
             }

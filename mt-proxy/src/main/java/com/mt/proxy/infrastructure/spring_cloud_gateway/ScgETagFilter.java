@@ -1,6 +1,9 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import com.mt.proxy.domain.CacheService;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +24,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.List;
-
 /**
- * manage api level cache control for http get request
+ * manage api level cache control for http get request.
  */
 @Slf4j
 @Component
-public class SCGETagFilter implements GlobalFilter, Ordered {
+public class ScgETagFilter implements GlobalFilter, Ordered {
     @Autowired
     CacheService cacheService;
 
@@ -81,7 +80,8 @@ public class SCGETagFilter implements GlobalFilter, Ordered {
                                 originalResponse.getHeaders().setETag(etag);
                                 log.debug("response etag generated {}", etag);
                             } else {
-                                String ifNoneMatch = exchange.getRequest().getHeaders().getIfNoneMatch().get(0);
+                                String ifNoneMatch =
+                                    exchange.getRequest().getHeaders().getIfNoneMatch().get(0);
                                 if (ifNoneMatch.equals(etag)) {
                                     ServerHttpResponse response = exchange.getResponse();
                                     log.debug("etag match, return 304");
@@ -100,10 +100,13 @@ public class SCGETagFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        if (!SCGEndpointFilter.isWebSocket(request.getHeaders()) && HttpMethod.GET.equals(request.getMethod())) {
+        if (!ScgEndpointFilter.isWebSocket(request.getHeaders())
+            &&
+            HttpMethod.GET.equals(request.getMethod())) {
             //check etag first
             log.debug("start of etag filter");
-            CacheService.CacheConfiguration cacheConfiguration = cacheService.getCacheConfiguration(exchange,true);
+            CacheService.CacheConfiguration cacheConfiguration =
+                cacheService.getCacheConfiguration(exchange, true);
             if (cacheConfiguration != null) {
                 ServerHttpResponse decoratedResponse = updateResponseWithETag(exchange);
                 if (cacheConfiguration.isEtag()) {
@@ -118,6 +121,7 @@ public class SCGETagFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -2;//required
+        //required
+        return -2;
     }
 }

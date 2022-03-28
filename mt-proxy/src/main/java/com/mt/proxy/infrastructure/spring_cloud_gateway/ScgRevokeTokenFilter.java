@@ -1,6 +1,14 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import com.mt.proxy.domain.DomainRegistry;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.fileupload.FileItem;
@@ -29,62 +37,12 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Supplier;
-
 @Slf4j
 @Component
-public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
-    @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String authHeader = null;
-        ServerHttpRequest request = exchange.getRequest();
-        List<String> authorization = request.getHeaders().get("authorization");
-        if (authorization != null && !authorization.isEmpty()) {
-            authHeader = authorization.get(0);
-        }
-        //due to netty performance issue
-        if (request.getPath().toString().contains("/oauth/token")) {
-            log.debug("checking revoke token");
-            GatewayContext gatewayContext = new GatewayContext();
-            Mono<String> modifiedBody = readFormDataFromRequest(exchange, authHeader, request.getPath().toString(), gatewayContext);
-            BodyInserter bodyInserter = BodyInserters.fromPublisher(modifiedBody, String.class);
-            HttpHeaders headers = new HttpHeaders();
-            headers.putAll(exchange.getRequest().getHeaders());
-            CachedBodyOutputMessage outputMessage = new CachedBodyOutputMessage(exchange, headers);
-            return bodyInserter.insert(outputMessage, new BodyInserterContext()).then(Mono.defer(() -> {
-                ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
-                if (gatewayContext.shouldBlock) {
-                    ServerHttpResponse response = exchange.getResponse();
-                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return response.setComplete();
-                } else {
-                    return chain.filter(exchange.mutate().request(decorator).build());
-                }
-            }));
-        } else {
-            ServerHttpResponse response = exchange.getResponse();
-            try {
-                if (!DomainRegistry.getRevokeTokenService().checkAccess(authHeader, request.getPath().toString(), null)) {
-                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
-                    return response.setComplete();
-                }
-            } catch (ParseException e) {
-                log.error("error during parse", e);
-                response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                return response.setComplete();
-            }
-            return chain.filter(exchange);
-        }
-    }
-
-    public static ServerHttpRequestDecorator decorate(ServerWebExchange exchange, HttpHeaders headers, CachedBodyOutputMessage outputMessage) {
+public class ScgRevokeTokenFilter implements GlobalFilter, Ordered {
+    public static ServerHttpRequestDecorator decorate(ServerWebExchange exchange,
+                                                      HttpHeaders headers,
+                                                      CachedBodyOutputMessage outputMessage) {
         return new ServerHttpRequestDecorator(exchange.getRequest()) {
             public HttpHeaders getHeaders() {
                 HttpHeaders httpHeaders = new HttpHeaders();
@@ -99,17 +57,67 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
     }
 
     @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String authHeader = null;
+        ServerHttpRequest request = exchange.getRequest();
+        List<String> authorization = request.getHeaders().get("authorization");
+        if (authorization != null && !authorization.isEmpty()) {
+            authHeader = authorization.get(0);
+        }
+        //due to netty performance issue
+        if (request.getPath().toString().contains("/oauth/token")) {
+            log.debug("checking revoke token");
+            GatewayContext gatewayContext = new GatewayContext();
+            Mono<String> modifiedBody =
+                readFormDataFromRequest(exchange, authHeader, request.getPath().toString(),
+                    gatewayContext);
+            BodyInserter bodyInserter = BodyInserters.fromPublisher(modifiedBody, String.class);
+            HttpHeaders headers = new HttpHeaders();
+            headers.putAll(exchange.getRequest().getHeaders());
+            CachedBodyOutputMessage outputMessage = new CachedBodyOutputMessage(exchange, headers);
+            return bodyInserter.insert(outputMessage, new BodyInserterContext())
+                .then(Mono.defer(() -> {
+                    ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
+                    if (gatewayContext.shouldBlock) {
+                        ServerHttpResponse response = exchange.getResponse();
+                        response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                        return response.setComplete();
+                    } else {
+                        return chain.filter(exchange.mutate().request(decorator).build());
+                    }
+                }));
+        } else {
+            ServerHttpResponse response = exchange.getResponse();
+            try {
+                if (!DomainRegistry.getRevokeTokenService()
+                    .checkAccess(authHeader, request.getPath().toString(), null)) {
+                    response.setStatusCode(HttpStatus.UNAUTHORIZED);
+                    return response.setComplete();
+                }
+            } catch (ParseException e) {
+                log.error("error during parse", e);
+                response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                return response.setComplete();
+            }
+            return chain.filter(exchange);
+        }
+    }
+
+    @Override
     public int getOrder() {
         return 0;
     }
 
-    private Mono<String> readFormDataFromRequest(ServerWebExchange exchange, String authHeader, String requestURI, GatewayContext gatewayContext) {
-        ServerRequest serverRequest = ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
+    private Mono<String> readFormDataFromRequest(ServerWebExchange exchange, String authHeader,
+                                                 String requestUri, GatewayContext gatewayContext) {
+        ServerRequest serverRequest =
+            ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
         return serverRequest.bodyToMono(String.class).map(body -> {
             try {
                 MultiPartStringParser multiPartStringParser = new MultiPartStringParser(body);
                 Map<String, String> parameters = multiPartStringParser.getParameters();
-                if (!DomainRegistry.getRevokeTokenService().checkAccess(authHeader, requestURI, parameters)) {
+                if (!DomainRegistry.getRevokeTokenService()
+                    .checkAccess(authHeader, requestUri, parameters)) {
                     gatewayContext.setShouldBlock(true);
                 }
             } catch (Exception e) {
@@ -123,7 +131,8 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
     public static class CachedBodyOutputMessage implements ReactiveHttpOutputMessage {
         private final DataBufferFactory bufferFactory;
         private final HttpHeaders httpHeaders;
-        private Flux<DataBuffer> body = Flux.error(new IllegalStateException("The body is not set. Did handling complete with success?"));
+        private Flux<DataBuffer> body = Flux.error(
+            new IllegalStateException("The body is not set. Did handling complete with success?"));
 
         CachedBodyOutputMessage(ServerWebExchange exchange, HttpHeaders httpHeaders) {
             this.bufferFactory = exchange.getResponse().bufferFactory();
@@ -154,7 +163,8 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
             return Mono.empty();
         }
 
-        public Mono<Void> writeAndFlushWith(Publisher<? extends Publisher<? extends DataBuffer>> body) {
+        public Mono<Void> writeAndFlushWith(
+            Publisher<? extends Publisher<? extends DataBuffer>> body) {
             return this.writeWith(Flux.from(body).flatMap((p) -> {
                 return p;
             }));
@@ -170,7 +180,8 @@ public class SCGRevokeTokenFilter implements GlobalFilter, Ordered {
         private boolean shouldBlock = false;
     }
 
-    public static class MultiPartStringParser implements org.apache.commons.fileupload.UploadContext {
+    public static class MultiPartStringParser
+        implements org.apache.commons.fileupload.UploadContext {
 
         private String postBody;
         private String boundary;

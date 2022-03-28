@@ -1,10 +1,18 @@
 package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import lombok.*;
-
-import javax.persistence.*;
 import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Lob;
+import javax.persistence.Table;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table
@@ -17,7 +25,8 @@ public class StoredEvent implements Serializable {
     private String eventBody;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //auto_increment id will not be continuous e.g. 1,2,3,5 due to transaction rollback in concurrent scenario
+    //auto_increment id will not be continuous e.g. 1,2,3,5
+    //due to transaction rollback in concurrent scenario.
     private Long id;
     private Long timestamp;
     private String name;
@@ -26,19 +35,21 @@ public class StoredEvent implements Serializable {
     private String topic;
     private String domainId;
 
-    public StoredEvent(DomainEvent aDomainEvent) {
-        this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(aDomainEvent);
-        this.timestamp = aDomainEvent.getTimestamp();
-        this.name = aDomainEvent.getName();
-        this.internal = aDomainEvent.isInternal();
-        this.topic = aDomainEvent.getTopic();
-        if (aDomainEvent.getDomainId() != null)
-            this.domainId = aDomainEvent.getDomainId().getDomainId();
+    public StoredEvent(DomainEvent event) {
+        this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
+        this.timestamp = event.getTimestamp();
+        this.name = event.getName();
+        this.internal = event.isInternal();
+        this.topic = event.getTopic();
+        if (event.getDomainId() != null) {
+            this.domainId = event.getDomainId().getDomainId();
+        }
     }
 
     public void setIdExplicitly(long id) {
         this.id = id;
     }
+
     public void sendToMQ() {
         this.send = true;
     }

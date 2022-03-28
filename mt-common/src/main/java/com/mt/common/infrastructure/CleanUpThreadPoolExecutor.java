@@ -1,9 +1,12 @@
 package com.mt.common.infrastructure;
 
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-
-import java.util.concurrent.*;
 
 @Slf4j
 public class CleanUpThreadPoolExecutor extends ThreadPoolExecutor {
@@ -15,7 +18,8 @@ public class CleanUpThreadPoolExecutor extends ThreadPoolExecutor {
                                      BlockingQueue<Runnable> workQueue,
                                      ThreadFactory threadFactory,
                                      RejectedExecutionHandler handler) {
-        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler);
+        super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory,
+            handler);
     }
 
     @Override

@@ -1,4 +1,6 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
+
+import static com.mt.proxy.infrastructure.spring_cloud_gateway.ScgRevokeTokenFilter.decorate;
 
 import com.google.json.JsonSanitizer;
 import lombok.Data;
@@ -19,26 +21,32 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import static com.mt.proxy.infrastructure.springcloudgateway.SCGRevokeTokenFilter.decorate;
-
 @Slf4j
 @Component
-public class SCGRequestJsonSanitizerFilter implements GlobalFilter, Ordered {
+public class ScgRequestJsonSanitizerFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        if (request.getMethod() != null && !request.getMethod().equals(HttpMethod.GET) && !request.getMethod().equals(HttpMethod.OPTIONS) && request.getHeaders().getContentType() != null && request.getHeaders().getContentType().equals(MediaType.APPLICATION_JSON)) {
+        if (request.getMethod() != null && !request.getMethod().equals(HttpMethod.GET)
+            &&
+            !request.getMethod().equals(HttpMethod.OPTIONS)
+            &&
+            request.getHeaders().getContentType() != null
+            &&
+            request.getHeaders().getContentType().equals(MediaType.APPLICATION_JSON)) {
             FilterContext filterContext = new FilterContext();
             Mono<String> sanitizedBody = readJsonFromRequest(exchange, filterContext);
             BodyInserter bodyInserter = BodyInserters.fromPublisher(sanitizedBody, String.class);
             HttpHeaders headers = new HttpHeaders();
             headers.putAll(exchange.getRequest().getHeaders());
-            SCGRevokeTokenFilter.CachedBodyOutputMessage outputMessage = new SCGRevokeTokenFilter.CachedBodyOutputMessage(exchange, headers);
-            return bodyInserter.insert(outputMessage, new BodyInserterContext()).then(Mono.defer(() -> {
-                headers.setContentLength(filterContext.contentLength);
-                ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
-                return chain.filter(exchange.mutate().request(decorator).build());
-            }));
+            ScgRevokeTokenFilter.CachedBodyOutputMessage outputMessage =
+                new ScgRevokeTokenFilter.CachedBodyOutputMessage(exchange, headers);
+            return bodyInserter.insert(outputMessage, new BodyInserterContext())
+                .then(Mono.defer(() -> {
+                    headers.setContentLength(filterContext.contentLength);
+                    ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
+                    return chain.filter(exchange.mutate().request(decorator).build());
+                }));
         } else {
             return chain.filter(exchange);
         }
@@ -49,12 +57,15 @@ public class SCGRequestJsonSanitizerFilter implements GlobalFilter, Ordered {
         return 3;
     }
 
-    private Mono<String> readJsonFromRequest(ServerWebExchange exchange, FilterContext filterContext) {
-        ServerRequest serverRequest = ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
+    private Mono<String> readJsonFromRequest(ServerWebExchange exchange,
+                                             FilterContext filterContext) {
+        ServerRequest serverRequest =
+            ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
         return serverRequest.bodyToMono(String.class).map(e -> {
             String sanitize = JsonSanitizer.sanitize(e);
             if (e.getBytes().length != sanitize.getBytes().length) {
-                log.debug("sanitized request length before {} after {}", e.getBytes().length, sanitize.getBytes().length);
+                log.debug("sanitized request length before {} after {}", e.getBytes().length,
+                    sanitize.getBytes().length);
             }
             filterContext.contentLength = sanitize.getBytes().length;
             return sanitize;

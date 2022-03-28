@@ -2,18 +2,18 @@ package com.mt.proxy.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import javax.xml.bind.DatatypeConverter;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import javax.xml.bind.DatatypeConverter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class CheckSumService {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public String getChecksum(Object object) {
         String serialize = serialize(object);
         try {
@@ -26,7 +26,7 @@ public class CheckSumService {
         }
     }
 
-    private  <T> String serialize(T object) {
+    private <T> String serialize(T object) {
         try {
             return objectMapper.writeValueAsString(object);
         } catch (JsonProcessingException e) {

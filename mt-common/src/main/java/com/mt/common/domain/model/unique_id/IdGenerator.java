@@ -1,9 +1,8 @@
 package com.mt.common.domain.model.unique_id;
 
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.PostConstruct;
 
 @Component
 public class IdGenerator {
@@ -16,8 +15,9 @@ public class IdGenerator {
 
     @PostConstruct
     private void validateInstanceId() {
-        if (instanceId > ~(-1L << 4L) || instanceId < 0)
+        if (instanceId > ~(-1L << 4L) || instanceId < 0) {
             throw new InvalidInstanceIdException();
+        }
     }
 
     public synchronized long id() {
@@ -36,8 +36,8 @@ public class IdGenerator {
         }
         lastSuccessSecond = currentSecond;
         return (currentSecond << (INSTANCE_ID_LENGTH + SEQUENCE_ID_LENGTH))
-                | (instanceId << SEQUENCE_ID_LENGTH)
-                | sequenceId;
+            | (instanceId << SEQUENCE_ID_LENGTH)
+            | sequenceId;
     }
 
     private long waitForNextSecond(long lastTimestamp) {

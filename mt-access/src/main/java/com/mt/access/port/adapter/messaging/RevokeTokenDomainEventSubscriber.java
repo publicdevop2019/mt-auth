@@ -24,7 +24,7 @@ import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.MQHelper;
+import com.mt.common.domain.model.domain_event.MqHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -126,7 +126,7 @@ public class RevokeTokenDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener11() {
         CommonDomainRegistry.getEventStreamService()
-            .subscribe(appName, true, MQHelper.handlerOf(appName + "_token", CLIENT_DELETED),
+            .subscribe(appName, true, MqHelper.handlerOf(appName + "_token", CLIENT_DELETED),
                 (event) -> {
                     ClientDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), ClientDeleted.class);

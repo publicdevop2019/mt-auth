@@ -9,7 +9,9 @@
         <RollingFile name="fileLogger" fileName="${location}/${name}.log"
                      filePattern="${location}/archived/${name}-%d{yyyy-MM-dd}.%i.log" immediateFlush="false">
             <PatternLayout>
-                <pattern>%X{UUID} %X{CLIENT_IP} %d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} - %msg%n</pattern>
+                <pattern>%X{UUID} %X{CLIENT_IP} %d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} -
+                    %msg%n
+                </pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy/>

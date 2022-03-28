@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface SagaDistLock {
     String keyExpression();
+
     String aggregateName();
 
     int unlockAfter() default 5;

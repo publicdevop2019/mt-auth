@@ -9,6 +9,13 @@ import com.nimbusds.jwt.JWT;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.JWTParser;
 import com.nimbusds.jwt.SignedJWT;
+import java.security.interfaces.RSAPublicKey;
+import java.text.ParseException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,10 +25,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Service;
-
-import java.security.interfaces.RSAPublicKey;
-import java.text.ParseException;
-import java.util.*;
 
 @Slf4j
 @Service
@@ -54,12 +57,14 @@ public class JwtService {
     public String resolveAccessUrl() {
         if (eurekaClient.getApplication(appName) != null) {
             log.debug("update property value with resolve access path");
-            String homePageUrl = eurekaClient.getApplication(appName).getInstances().get(0).getHomePageUrl();
+            String homePageUrl =
+                eurekaClient.getApplication(appName).getInstances().get(0).getHomePageUrl();
             return homePageUrl + jwtKeyUrl;
 
         } else {
             log.error("jwt public key config update failed due to service is not ready");
-            throw new IllegalStateException("jwt public key config update failed due to service is not ready");
+            throw new IllegalStateException(
+                "jwt public key config update failed due to service is not ready");
         }
     }
 
@@ -97,8 +102,9 @@ public class JwtService {
     }
 
     public String getUserId(String jwtRaw) throws ParseException {
-        if (isUser(jwtRaw))
+        if (isUser(jwtRaw)) {
             return getClaims(jwtRaw, "uid").stream().findAny().get();
+        }
         return null;
     }
 
@@ -121,10 +127,12 @@ public class JwtService {
             objects.add(claim);
             return objects;
         }
-        if (jwtClaimsSet.getClaim(field) instanceof Long)
+        if (jwtClaimsSet.getClaim(field) instanceof Long) {
             return new HashSet<>(List.of(((Long) jwtClaimsSet.getClaim(field)).toString()));
-        if (jwtClaimsSet.getClaim(field) == null)
+        }
+        if (jwtClaimsSet.getClaim(field) == null) {
             return Collections.emptySet();
+        }
         if (jwtClaimsSet.getClaim(field) instanceof Date) {
             long epochSecond = ((Date) jwtClaimsSet.getClaim(field)).toInstant().getEpochSecond();
             return new HashSet<>(List.of(String.valueOf(epochSecond)));

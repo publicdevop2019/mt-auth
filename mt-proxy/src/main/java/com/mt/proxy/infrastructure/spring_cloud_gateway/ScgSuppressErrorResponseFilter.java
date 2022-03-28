@@ -1,4 +1,4 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
-public class SCGSuppressErrorResponseFilter implements GlobalFilter, Ordered {
+public class ScgSuppressErrorResponseFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -37,7 +37,9 @@ public class SCGSuppressErrorResponseFilter implements GlobalFilter, Ordered {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                 log.debug("checking response in case of downstream error");
-                if (originalResponse.getStatusCode() != null && originalResponse.getStatusCode().is5xxServerError()) {
+                if (originalResponse.getStatusCode() != null
+                    &&
+                    originalResponse.getStatusCode().is5xxServerError()) {
                     originalResponse.getHeaders().setContentLength(0);
                     return Mono.empty();
                 }

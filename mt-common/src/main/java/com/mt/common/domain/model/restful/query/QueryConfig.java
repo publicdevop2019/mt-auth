@@ -3,10 +3,6 @@ package com.mt.common.domain.model.restful.query;
 public class QueryConfig {
     private final String value;
 
-    public String value() {
-        return value;
-    }
-
     public QueryConfig(String configParam) {
         value = configParam;
     }
@@ -23,6 +19,10 @@ public class QueryConfig {
     public static QueryConfig countRequired() {
 
         return new QueryConfig();
+    }
+
+    public String value() {
+        return value;
     }
 
     public boolean count() {

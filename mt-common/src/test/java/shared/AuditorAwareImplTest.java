@@ -1,12 +1,11 @@
 package shared;
 
 import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
+import java.util.Optional;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.Optional;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AuditorAwareImplTest {

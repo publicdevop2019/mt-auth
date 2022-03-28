@@ -5,7 +5,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleType;
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_id.DomainId;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;

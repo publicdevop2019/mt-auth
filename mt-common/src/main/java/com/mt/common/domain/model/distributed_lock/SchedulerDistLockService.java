@@ -1,13 +1,12 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 @Service
 @Slf4j
@@ -15,7 +14,8 @@ public class SchedulerDistLockService {
     @Autowired
     private RedissonClient redissonClient;
 
-    public void executeIfLockSuccess(String taskName, Integer lockInSeconds,Consumer<Void> function ) {
+    public void executeIfLockSuccess(String taskName, Integer lockInSeconds,
+                                     Consumer<Void> function) {
         log.trace("before starting scheduler {} job", taskName);
         String key = taskName + "_scheduler_dist_lock";
         RLock lock = redissonClient.getLock(key);

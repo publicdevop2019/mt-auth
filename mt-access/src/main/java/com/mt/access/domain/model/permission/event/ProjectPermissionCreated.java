@@ -3,7 +3,7 @@ package com.mt.access.domain.model.permission.event;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.Set;
 import java.util.stream.Collectors;

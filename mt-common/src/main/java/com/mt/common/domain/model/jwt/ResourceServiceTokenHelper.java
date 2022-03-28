@@ -5,18 +5,21 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.service_discovery.ServiceDiscovery;
+import java.io.IOException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-
-import java.io.IOException;
 
 @Slf4j
 @Component
@@ -47,7 +50,9 @@ public class ResourceServiceTokenHelper {
         String token = null;
         try {
             HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(map, headers);
-            ResponseEntity<String> resp = restTemplate.exchange(serviceDiscovery.getApplicationUrl(CommonConstant.APP_ID_PROXY) + tokenUrl, HttpMethod.POST, request, String.class);
+            ResponseEntity<String> resp = restTemplate.exchange(
+                serviceDiscovery.getApplicationUrl(CommonConstant.APP_ID_PROXY) + tokenUrl,
+                HttpMethod.POST, request, String.class);
             token = this.extractToken(resp);
         } catch (Exception e) {
             log.error("unable to get jwt token", e);
@@ -68,13 +73,17 @@ public class ResourceServiceTokenHelper {
     }
 
     /**
-     * wrap request with jwt token, re try if jwt expired for first time, only re-try with 401 error code
+     * wrap request with jwt token, re try if jwt expired for first time,
+     * only re-try with 401 error code.
      */
-    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, Class<T> clazz) {
-        if (storedJwtToken == null)
+    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod,
+                                          HttpEntity<?> httpEntity, Class<T> clazz) {
+        if (storedJwtToken == null) {
             storedJwtToken = getJwtToken();
-        if (storedJwtToken == null)
+        }
+        if (storedJwtToken == null) {
             throw new JwtTokenRetrievalException();
+        }
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
         HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
@@ -83,8 +92,9 @@ public class ResourceServiceTokenHelper {
         } catch (HttpClientErrorException ex) {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
-                if (storedJwtToken == null)
+                if (storedJwtToken == null) {
                     throw new JwtTokenRetrievalException();
+                }
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
                 return restTemplate.exchange(url, httpMethod, httpEntity2, clazz);
@@ -93,11 +103,15 @@ public class ResourceServiceTokenHelper {
         }
     }
 
-    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod, HttpEntity<?> httpEntity, ParameterizedTypeReference<T> responseType) {
-        if (storedJwtToken == null)
+    public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod,
+                                          HttpEntity<?> httpEntity,
+                                          ParameterizedTypeReference<T> responseType) {
+        if (storedJwtToken == null) {
             storedJwtToken = getJwtToken();
-        if (storedJwtToken == null)
+        }
+        if (storedJwtToken == null) {
             throw new JwtTokenRetrievalException();
+        }
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
         HttpEntity<?> httpEntity1 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
@@ -106,8 +120,9 @@ public class ResourceServiceTokenHelper {
         } catch (HttpClientErrorException ex) {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
-                if (storedJwtToken == null)
+                if (storedJwtToken == null) {
                     throw new JwtTokenRetrievalException();
+                }
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
                 return restTemplate.exchange(url, httpMethod, httpEntity2, responseType);

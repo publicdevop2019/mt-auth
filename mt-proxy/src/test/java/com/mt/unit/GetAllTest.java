@@ -8,7 +8,7 @@ public class GetAllTest {
     public void getAll() {
         Long a = 15L;
         Integer b = 10;
-        double l = (double)a / b;
+        double l = (double) a / b;
         Assert.assertEquals("1.5", String.valueOf(l));
 
     }

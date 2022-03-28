@@ -1,6 +1,8 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import com.mt.proxy.domain.DomainRegistry;
+import java.text.ParseException;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -14,18 +16,22 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.text.ParseException;
-import java.util.List;
-
 @Slf4j
 @Component
-public class SCGEndpointFilter implements GlobalFilter, Ordered {
+public class ScgEndpointFilter implements GlobalFilter, Ordered {
+    public static boolean isWebSocket(HttpHeaders headers) {
+        log.debug("upgrade header value is {}", headers.getUpgrade());
+        log.trace("all header value is {}", headers);
+        return "websocket".equals(headers.getUpgrade());
+    }
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         log.debug("start of endpoint filter");
         String authHeader = null;
         ServerHttpRequest request = exchange.getRequest();
-        log.debug("endpoint path: {} scheme: {}",exchange.getRequest().getURI().getPath(),exchange.getRequest().getURI().getScheme());
+        log.debug("endpoint path: {} scheme: {}", exchange.getRequest().getURI().getPath(),
+            exchange.getRequest().getURI().getScheme());
         ServerHttpResponse response = exchange.getResponse();
         HttpHeaders headers = request.getHeaders();
         List<String> temp;
@@ -48,9 +54,9 @@ public class SCGEndpointFilter implements GlobalFilter, Ordered {
         try {
             //noinspection ConstantConditions
             allow = DomainRegistry.getEndpointService().checkAccess(
-                    request.getPath().toString(),
-                    request.getMethod().name(),
-                    authHeader, webSocket);
+                request.getPath().toString(),
+                request.getMethod().name(),
+                authHeader, webSocket);
         } catch (ParseException e) {
             log.error("error during parse", e);
             response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,10 +75,5 @@ public class SCGEndpointFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE;
-    }
-    public static boolean isWebSocket(HttpHeaders headers){
-        log.debug("upgrade header value is {}",headers.getUpgrade());
-        log.trace("all header value is {}", headers);
-        return "websocket".equals(headers.getUpgrade());
     }
 }

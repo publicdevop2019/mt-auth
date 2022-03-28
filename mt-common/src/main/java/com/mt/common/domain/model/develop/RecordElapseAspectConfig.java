@@ -21,7 +21,9 @@ public class RecordElapseAspectConfig {
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         long startTime = System.currentTimeMillis();
         Object proceed = joinPoint.proceed();
-        log.debug("[DEV ONLY] elapse time for [class] {} [method] {} is [{}]", joinPoint.getSignature().getDeclaringType(), joinPoint.getSignature().getName(), System.currentTimeMillis() - startTime);
+        log.debug("[DEV ONLY] elapse time for [class] {} [method] {} is [{}]",
+            joinPoint.getSignature().getDeclaringType(), joinPoint.getSignature().getName(),
+            System.currentTimeMillis() - startTime);
         return proceed;
     }
 }

@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.pending_user;
 
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

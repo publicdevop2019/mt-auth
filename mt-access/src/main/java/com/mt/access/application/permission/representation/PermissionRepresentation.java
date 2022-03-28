@@ -2,7 +2,7 @@ package com.mt.access.application.permission.representation;
 
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionType;
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_id.DomainId;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;

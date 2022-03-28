@@ -17,20 +17,20 @@ package com.mt.common.port.adapter.persistence.domain_event;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.notification.PublishedEventTracker;
 import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * improved event tracker, rarely it will not send events properly .e.g insert 1,2,3,5 and 4 later, 4 will be missed
+ * improved event tracker, rarely it will not send events properly
+ * .e.g insert 1,2,3,5 and 4 later, 4 will be missed.
  */
 @Repository
-public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedEventTrackerRepository, JpaRepository<PublishedEventTracker, Long> {
+public interface SpringDataJpaPublishedEventTrackerRepository
+    extends PublishedEventTrackerRepository, JpaRepository<PublishedEventTracker, Long> {
     Logger log = LoggerFactory.getLogger(SpringDataJpaPublishedEventTrackerRepository.class);
 
     default PublishedEventTracker publishedNotificationTracker() {
@@ -40,10 +40,11 @@ public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedE
         return objects.isEmpty() ? new PublishedEventTracker() : objects.get(0);
     }
 
-    default void trackMostRecentPublishedNotification(PublishedEventTracker tracker, List<StoredEvent> events) {
-        int lastIndex = events.size() - 1;
+    default void trackMostRecentPublishedNotification(PublishedEventTracker tracker,
+                                                      List<StoredEvent> eventList) {
+        int lastIndex = eventList.size() - 1;
         if (lastIndex >= 0) {
-            long mostRecentId = events.get(lastIndex).getId();
+            long mostRecentId = eventList.get(lastIndex).getId();
             tracker.setLastPublishedId(mostRecentId);
             save(tracker);
         }

@@ -4,11 +4,15 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -52,7 +56,8 @@ public class ChangeRecordQuery extends QueryCriteria {
     }
 
     private void updateQueryParam(String queryParam) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ENTITY_TYPE, CHANGE_ID);
+        Map<String, String> stringStringMap =
+            QueryUtility.parseQuery(queryParam, ENTITY_TYPE, CHANGE_ID);
         entityType = stringStringMap.get(ENTITY_TYPE);
         Optional.ofNullable(stringStringMap.get(CHANGE_ID)).ifPresent(e -> {
             changeIds = new HashSet<>(List.of(e.split("\\.")));

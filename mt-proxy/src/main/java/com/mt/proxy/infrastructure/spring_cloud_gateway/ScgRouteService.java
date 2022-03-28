@@ -1,6 +1,13 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import com.mt.proxy.domain.RegisteredApplication;
+import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.event.RefreshRoutesEvent;
@@ -14,13 +21,9 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @Service
 @Slf4j
-public class SCGRouteService implements ApplicationEventPublisherAware {
+public class ScgRouteService implements ApplicationEventPublisherAware {
     @Autowired
     RedisRateLimiter redisRateLimiter;
     private ApplicationEventPublisher publisher;
@@ -28,7 +31,8 @@ public class SCGRouteService implements ApplicationEventPublisherAware {
     private RouteDefinitionWriter routeDefinitionWriter;
 
     public void refreshRoutes(Set<RegisteredApplication> registeredApplicationSet) {
-        Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).map(e -> e.getId()).collect(Collectors.toSet());
+        Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null)
+            .map(e -> e.getId()).collect(Collectors.toSet());
         collect.forEach(e -> {
             routeDefinitionWriter.delete(Mono.just(e)).subscribe(null, (error) -> {
                 log.debug("ignore not found ex when delete routes");

@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.revoke_token;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.mt.common.domain.model.domainId.DomainId;
+import com.mt.common.domain.model.domain_id.DomainId;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor

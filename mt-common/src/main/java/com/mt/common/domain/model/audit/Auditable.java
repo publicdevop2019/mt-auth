@@ -2,6 +2,15 @@ package com.mt.common.domain.model.audit;
 
 import com.mt.common.domain.model.restful.exception.AggregateOutdatedException;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import java.io.Serializable;
+import java.util.Date;
+import javax.persistence.EntityListeners;
+import javax.persistence.Id;
+import javax.persistence.MappedSuperclass;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Version;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,11 +20,6 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.Date;
 
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -59,6 +63,7 @@ public abstract class Auditable implements Serializable {
     public void softDelete() {
         this.deleted = getId();
     }
+
     public void restore() {
         this.deleted = 0L;
     }

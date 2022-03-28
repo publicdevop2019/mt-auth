@@ -1,15 +1,14 @@
 package com.mt.common.domain.model.restful;
 
 import com.mt.common.CommonConstant;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.application.idempotent.exception.RollbackNotSupportedException;
-import lombok.Data;
-
+import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import java.util.List;
+import lombok.Data;
 
 /**
- * used for json patch and create/delete operation
+ * used for json patch and create/delete operation.
  */
 @Data
 public class PatchCommand implements Comparable<PatchCommand>, Serializable {
@@ -19,26 +18,9 @@ public class PatchCommand implements Comparable<PatchCommand>, Serializable {
     private Object value;
     private Integer expect;
 
-    @Override
-    public int compareTo(PatchCommand to) {
-        if (parseDomainId(path).equals(parseDomainId(to.path)))
-            return 0;
-        else
-            return 1;
-    }
-
-    private Long parseId(String path) {
-        String[] split = path.split("/");
-        return Long.parseLong(split[1]);
-    }
-
-    private String parseDomainId(String path) {
-        String[] split = path.split("/");
-        return split[1];
-    }
-
     public static List<PatchCommand> buildRollbackCommand(List<PatchCommand> patchCommands) {
-        List<PatchCommand> deepCopy = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(patchCommands);
+        List<PatchCommand> deepCopy =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(patchCommands);
         deepCopy.forEach(e -> {
             if (e.getOp().equalsIgnoreCase(CommonConstant.PATCH_OP_TYPE_SUM)) {
                 e.setOp(CommonConstant.PATCH_OP_TYPE_DIFF);
@@ -49,5 +31,24 @@ public class PatchCommand implements Comparable<PatchCommand>, Serializable {
             }
         });
         return deepCopy;
+    }
+
+    @Override
+    public int compareTo(PatchCommand to) {
+        if (parseDomainId(path).equals(parseDomainId(to.path))) {
+            return 0;
+        } else {
+            return 1;
+        }
+    }
+
+    private Long parseId(String path) {
+        String[] split = path.split("/");
+        return Long.parseLong(split[1]);
+    }
+
+    private String parseDomainId(String path) {
+        String[] split = path.split("/");
+        return split[1];
     }
 }

@@ -1,5 +1,6 @@
-package com.mt.proxy.infrastructure.springcloudgateway;
+package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -11,18 +12,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 @Slf4j
 @Component
-public class SCGLogFilter implements GlobalFilter, Ordered {
+public class ScgLogFilter implements GlobalFilter, Ordered {
 
     public static final String REQ_UUID = "UUID";
     public static final String REQ_CLIENT_IP = "CLIENT_IP";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        MDC.put(REQ_UUID, null);//clear previous value
+        //clear previous value
+        MDC.put(REQ_UUID, null);
         ServerHttpRequest request = exchange.getRequest();
         List<String> uuidHeader = request.getHeaders().get(REQ_UUID);
         List<String> clientIpHeader = request.getHeaders().get("X-FORWARDED-FOR");
@@ -57,7 +57,8 @@ public class SCGLogFilter implements GlobalFilter, Ordered {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange.mutate().request(httpRequest).build());
             }
-            return chain.filter(exchange.mutate().request(httpRequest).response(decoratedResponse).build());
+            return chain
+                .filter(exchange.mutate().request(httpRequest).response(decoratedResponse).build());
         } else {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange);

@@ -8,5 +8,5 @@ public class CreateChangeRecordCommand {
     private String changeId;
     private String aggregateName;
     private String returnValue;
-    private boolean emptyOpt =false;
+    private boolean emptyOpt = false;
 }

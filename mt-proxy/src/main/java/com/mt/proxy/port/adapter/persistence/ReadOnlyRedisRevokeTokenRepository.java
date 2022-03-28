@@ -3,13 +3,12 @@ package com.mt.proxy.port.adapter.persistence;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.proxy.domain.RevokeToken;
 import com.mt.proxy.domain.RevokeTokenRepository;
+import java.io.IOException;
+import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j
 @Repository

@@ -1,31 +1,30 @@
 package com.mt.common.infrastructure;
 
+import static com.mt.common.CommonConstant.EXCHANGE_NAME;
+
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.clazz.ClassUtility;
-import com.mt.common.domain.model.domain_event.MQHelper;
+import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import javax.annotation.Nullable;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nullable;
-import javax.annotation.Resource;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-
-import static com.mt.common.CommonConstant.EXCHANGE_NAME;
-
 @Slf4j
 @Component
-public class RabbitMQEventStreamService implements SagaEventStreamService {
+public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Value("${spring.application.name}")
     private String appName;
@@ -34,7 +33,7 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
     private Connection connectionPub;
     private Connection connectionSub;
 
-    public RabbitMQEventStreamService(@Value("${mt.url.support.mq}") final String url) {
+    public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
         log.debug("start of configure rabbitmq with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(url);
@@ -58,8 +57,11 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public void subscribe(String subscribedApplicationName, boolean internal, @Nullable String fixedQueueName, Consumer<StoredEvent> consumer, String... topics) {
-        String routingKeyWithoutTopic = subscribedApplicationName + "." + (internal ? "internal" : "external") + ".";
+    public void subscribe(String subscribedApplicationName, boolean internal,
+                          @Nullable String fixedQueueName, Consumer<StoredEvent> consumer,
+                          String... topics) {
+        String routingKeyWithoutTopic =
+            subscribedApplicationName + "." + (internal ? "internal" : "external") + ".";
         String queueName;
         if (fixedQueueName != null) {
             queueName = fixedQueueName;
@@ -70,8 +72,10 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             log.trace("mq message received");
             String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            StoredEvent event = CommonDomainRegistry.getCustomObjectSerializer().deserialize(s, StoredEvent.class);
-            log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()), event.getId());
+            StoredEvent event =
+                CommonDomainRegistry.getCustomObjectSerializer().deserialize(s, StoredEvent.class);
+            log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()),
+                event.getId());
             try {
                 consumer.accept(event);
             } catch (Exception ex) {
@@ -89,28 +93,38 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
             });
         } catch (IOException e) {
-            log.error("unable create queue for {} with routing key {} and queue name {}", subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+            log.error("unable create queue for {} with routing key {} and queue name {}",
+                subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
         }
     }
 
     @Override
-    public void replyOf(String subscribedApplicationName, boolean internal, String eventName, Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MQHelper.handleReplyOf(appName, eventName), consumer, MQHelper.replyOf(eventName));
+    public void replyOf(String subscribedApplicationName, boolean internal, String eventName,
+                        Consumer<StoredEvent> consumer) {
+        subscribe(subscribedApplicationName, internal, MqHelper.handleReplyOf(appName, eventName),
+            consumer, MqHelper.replyOf(eventName));
     }
 
     @Override
-    public void replyCancelOf(String subscribedApplicationName, boolean internal, String eventName, Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MQHelper.handleReplyCancelOf(appName, eventName), consumer, MQHelper.replyCancelOf(eventName));
+    public void replyCancelOf(String subscribedApplicationName, boolean internal, String eventName,
+                              Consumer<StoredEvent> consumer) {
+        subscribe(subscribedApplicationName, internal,
+            MqHelper.handleReplyCancelOf(appName, eventName), consumer,
+            MqHelper.replyCancelOf(eventName));
     }
 
     @Override
-    public void cancelOf(String subscribedApplicationName, boolean internal, String eventName, Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MQHelper.handleCancelOf(appName, eventName), consumer, MQHelper.cancelOf(eventName));
+    public void cancelOf(String subscribedApplicationName, boolean internal, String eventName,
+                         Consumer<StoredEvent> consumer) {
+        subscribe(subscribedApplicationName, internal, MqHelper.handleCancelOf(appName, eventName),
+            consumer, MqHelper.cancelOf(eventName));
     }
 
     @Override
-    public void of(String subscribedApplicationName, boolean internal, String eventName, Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MQHelper.handlerOf(appName, eventName), consumer, eventName);
+    public void of(String subscribedApplicationName, boolean internal, String eventName,
+                   Consumer<StoredEvent> consumer) {
+        subscribe(subscribedApplicationName, internal, MqHelper.handlerOf(appName, eventName),
+            consumer, eventName);
     }
 
     @Override
@@ -120,8 +134,9 @@ public class RabbitMQEventStreamService implements SagaEventStreamService {
         try (Channel channel = connectionPub.createChannel()) {
             checkExchange(channel);
             channel.basicPublish(EXCHANGE_NAME, routingKey,
-                    null,
-                    CommonDomainRegistry.getCustomObjectSerializer().serialize(event).getBytes(StandardCharsets.UTF_8));
+                null,
+                CommonDomainRegistry.getCustomObjectSerializer().serialize(event)
+                    .getBytes(StandardCharsets.UTF_8));
         } catch (IOException | TimeoutException e) {
             log.error("unable to publish message to rabbitmq", e);
         }

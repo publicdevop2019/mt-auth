@@ -1,5 +1,7 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import java.lang.reflect.Method;
+import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -17,31 +19,28 @@ import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;
 import org.springframework.expression.spel.standard.SpelExpressionParser;
 
-import java.lang.reflect.Method;
-import java.util.concurrent.TimeUnit;
-
 @Configuration
 @Aspect
 @Slf4j
 @ConditionalOnProperty(
-        value="mt.distributed_lock",
-        havingValue = "true",
-        matchIfMissing = true)
-public class DTXDistLockAspectConfig {
+    value = "mt.distributed_lock",
+    havingValue = "true",
+    matchIfMissing = true)
+public class DtxDistLockAspectConfig {
 
     private final RedissonClient redissonClient;
 
-    public DTXDistLockAspectConfig(RedissonClient redissonClient) {
+    public DtxDistLockAspectConfig(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
-    @Around(value = "@annotation(DTXDistLock)",argNames = "DTXDistLock")
-    public Object around(ProceedingJoinPoint joinPoint, DTXDistLock DTXDistLock) throws Throwable {
-        Long lockKeyValue = extractKey(joinPoint, DTXDistLock);
-        String key = lockKeyValue.toString()+"_dist_lock";
+    @Around(value = "@annotation(DTXDistLock)", argNames = "dtxDistLock")
+    public Object around(ProceedingJoinPoint joinPoint, DtxDistLock dtxDistLock) throws Throwable {
+        Long lockKeyValue = extractKey(joinPoint, dtxDistLock);
+        String key = lockKeyValue.toString() + "_dist_lock";
         Object obj;
         RLock lock = redissonClient.getLock(key);
-        lock.lock(DTXDistLock.unlockAfter(), TimeUnit.SECONDS);
+        lock.lock(dtxDistLock.unlockAfter(), TimeUnit.SECONDS);
         log.trace("acquire lock success for {}", key);
         obj = joinPoint.proceed();
         return obj;
@@ -49,15 +48,19 @@ public class DTXDistLockAspectConfig {
 
     private Method getTargetMethod(ProceedingJoinPoint pjp) throws NoSuchMethodException {
         Signature signature = pjp.getSignature();
-        MethodSignature methodSignature = (MethodSignature)signature;
+        MethodSignature methodSignature = (MethodSignature) signature;
         Method agentMethod = methodSignature.getMethod();
-        return pjp.getTarget().getClass().getMethod(agentMethod.getName(),agentMethod.getParameterTypes());
+        return pjp.getTarget().getClass()
+            .getMethod(agentMethod.getName(), agentMethod.getParameterTypes());
     }
-    private Long extractKey(ProceedingJoinPoint joinPoint, DTXDistLock lockConfig) throws NoSuchMethodException {
+
+    private Long extractKey(ProceedingJoinPoint joinPoint, DtxDistLock lockConfig)
+        throws NoSuchMethodException {
         String lockParam = lockConfig.keyExpression();
         Method targetMethod = getTargetMethod(joinPoint);
         ExpressionParser parser = new SpelExpressionParser();
-        EvaluationContext context = new MethodBasedEvaluationContext(new Object(), targetMethod, joinPoint.getArgs(),
+        EvaluationContext context =
+            new MethodBasedEvaluationContext(new Object(), targetMethod, joinPoint.getArgs(),
                 new DefaultParameterNameDiscoverer());
         Expression expression = parser.parseExpression(lockParam);
         return expression.getValue(context, Long.class);

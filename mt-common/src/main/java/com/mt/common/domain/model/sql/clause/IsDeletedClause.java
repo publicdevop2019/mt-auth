@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.sql.clause;
 
 import com.mt.common.domain.model.audit.Auditable_;
-
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;

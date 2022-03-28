@@ -12,9 +12,9 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 @Configuration
 @ConditionalOnProperty(
-        value="mt.distributed_lock",
-        havingValue = "true",
-        matchIfMissing = true)
+    value = "mt.distributed_lock",
+    havingValue = "true",
+    matchIfMissing = true)
 public class RedissonConfig {
     @Value("${mt.url.support.dis_lock}")
     private String url;

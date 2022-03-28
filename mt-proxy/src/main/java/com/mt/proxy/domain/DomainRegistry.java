@@ -4,6 +4,7 @@ import com.mt.proxy.infrastructure.CheckSumService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 @Service
 public class DomainRegistry {
     @Getter
@@ -24,16 +25,21 @@ public class DomainRegistry {
     private static RetrieveJwtPublicKeyService retrieveJwtPublicKeyService;
     @Getter
     private static EndpointService endpointService;
+
     @Autowired
-    public void setRetrieveRegisterApplicationService(RetrieveRegisterApplicationService retrieveRegisterApplicationService) {
+    public void setRetrieveRegisterApplicationService(
+        RetrieveRegisterApplicationService retrieveRegisterApplicationService) {
         DomainRegistry.retrieveRegisterApplicationService = retrieveRegisterApplicationService;
     }
+
     @Autowired
     public void setProxyCacheService(ProxyCacheService proxyCacheService) {
         DomainRegistry.proxyCacheService = proxyCacheService;
     }
+
     @Autowired
-    public void setRetrieveJwtPublicKeyService(RetrieveJwtPublicKeyService retrieveJwtPublicKeyService) {
+    public void setRetrieveJwtPublicKeyService(
+        RetrieveJwtPublicKeyService retrieveJwtPublicKeyService) {
         DomainRegistry.retrieveJwtPublicKeyService = retrieveJwtPublicKeyService;
     }
 
@@ -41,6 +47,7 @@ public class DomainRegistry {
     public void setRevokeTokenRepository(RevokeTokenRepository revokeTokenRepository) {
         DomainRegistry.revokeTokenRepository = revokeTokenRepository;
     }
+
     @Autowired
     public void setCheckSumService(CheckSumService checkSumService) {
         DomainRegistry.checkSumService = checkSumService;

@@ -7,8 +7,8 @@ import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
 import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
-import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
+import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,18 +36,23 @@ public class CommonDomainRegistry {
     public void setSchedulerDistLockService(SchedulerDistLockService schedulerDistLockService) {
         CommonDomainRegistry.schedulerDistLockService = schedulerDistLockService;
     }
+
     @Autowired
     public void setHibernateCacheService(HibernateCacheService hibernateCacheService) {
         CommonDomainRegistry.hibernateCacheService = hibernateCacheService;
     }
+
     @Autowired
-    public void setPublishedEventTrackerRepository(PublishedEventTrackerRepository publishedEventTrackerRepository) {
+    public void setPublishedEventTrackerRepository(
+        PublishedEventTrackerRepository publishedEventTrackerRepository) {
         CommonDomainRegistry.publishedEventTrackerRepository = publishedEventTrackerRepository;
     }
+
     @Autowired
     public void setDomainEventRepository(DomainEventRepository domainEventRepository) {
         CommonDomainRegistry.domainEventRepository = domainEventRepository;
     }
+
     @Autowired
     public void setEventStreamService(SagaEventStreamService eventStreamService) {
         CommonDomainRegistry.eventStreamService = eventStreamService;

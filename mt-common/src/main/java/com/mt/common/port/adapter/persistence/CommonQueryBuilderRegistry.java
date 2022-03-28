@@ -9,17 +9,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CommonQueryBuilderRegistry {
     @Getter
-    private static SpringDataJpaChangeRecordRepository.SpringDataJpaCriteriaApiChangeRecordAdaptor changeRecordQueryBuilder;
+    private static SpringDataJpaChangeRecordRepository.SpringDataJpaCriteriaApiChangeRecordAdaptor
+        changeRecordQueryBuilder;
+    @Getter
+    private static SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter
+        storedEventQueryAdapter;
 
     @Autowired
-    public void setChangeRecordQueryBuilder(SpringDataJpaChangeRecordRepository.SpringDataJpaCriteriaApiChangeRecordAdaptor changeRecordQueryBuilder) {
+    public void setChangeRecordQueryBuilder(
+        SpringDataJpaChangeRecordRepository.SpringDataJpaCriteriaApiChangeRecordAdaptor
+            changeRecordQueryBuilder) {
         CommonQueryBuilderRegistry.changeRecordQueryBuilder = changeRecordQueryBuilder;
     }
-    @Getter
-    private static SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter;
 
     @Autowired
-    public void setCreateOrderDTXQueryAdapter(SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter storedEventQueryAdapter) {
+    public void setCreateOrderDtxQueryAdapter(
+        SpringDataJpaDomainEventRepository.JpaCriteriaApiStoredEventQueryAdapter
+            storedEventQueryAdapter) {
         CommonQueryBuilderRegistry.storedEventQueryAdapter = storedEventQueryAdapter;
     }
 }
