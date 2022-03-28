@@ -34,7 +34,7 @@ public class SagaDistLockAspectConfig {
         this.redissonClient = redissonClient;
     }
 
-    @Around(value = "@annotation(SagaDistLock)", argNames = "sagaDistLock")
+    @Around(value = "@annotation(SagaDistLock)", argNames = "SagaDistLock")
     public Object around(ProceedingJoinPoint joinPoint, SagaDistLock sagaDistLock)
         throws Throwable {
         String lockKeyValue = extractKey(joinPoint, sagaDistLock);

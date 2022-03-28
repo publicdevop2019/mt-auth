@@ -130,7 +130,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Override
     public void next(String appName, boolean internal, String topic, StoredEvent event) {
         String routingKey = appName + "." + (internal ? "internal" : "external") + "." + topic;
-        log.debug("publish next event id {}with routing key {}", event.getId(), routingKey);
+        log.debug("publish next event id {} with routing key {}", event.getId(), routingKey);
         try (Channel channel = connectionPub.createChannel()) {
             checkExchange(channel);
             channel.basicPublish(EXCHANGE_NAME, routingKey,

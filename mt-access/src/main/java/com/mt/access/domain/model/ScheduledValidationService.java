@@ -237,11 +237,13 @@ public class ScheduledValidationService {
     @Getter
     public static class ValidationFailedEvent extends DomainEvent {
         public static final String SYSTEM_VALIDATION_FAILED = "system_validation_failed";
+        public static final String name = "SYSTEM_VALIDATION_FAILED";
         private String message;
 
         public ValidationFailedEvent(String message) {
             log.debug("creating event for {}", message);
             this.message = message;
+            setName(name);
             setTopic(SYSTEM_VALIDATION_FAILED);
         }
     }

@@ -75,6 +75,13 @@ public class ResourceServiceTokenHelper {
     /**
      * wrap request with jwt token, re try if jwt expired for first time,
      * only re-try with 401 error code.
+     *
+     * @param url url
+     * @param httpMethod http method
+     * @param httpEntity http entity
+     * @param clazz clazz
+     * @param <T> return type
+     * @return response entity
      */
     public <T> ResponseEntity<T> exchange(String url, HttpMethod httpMethod,
                                           HttpEntity<?> httpEntity, Class<T> clazz) {

@@ -1,10 +1,10 @@
 package com.mt.access.port.adapter.persistence.cors_profile;
 
-import com.mt.access.domain.model.cors_profile.CORSProfile_;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
+import com.mt.access.domain.model.cors_profile.CorsProfile_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -41,11 +41,11 @@ public interface SpringDataJpaCorsProfileRepository
                 QueryUtility.prepareContext(CorsProfile.class, query);
             Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                 e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
-                CORSProfile_.CORS_ID, queryContext));
+                CorsProfile_.CORS_ID, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility
-                    .getDomainIdOrder(CORSProfile_.CORS_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(CorsProfile_.CORS_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.pagedQuery(query, queryContext);

@@ -34,7 +34,7 @@ public class DtxDistLockAspectConfig {
         this.redissonClient = redissonClient;
     }
 
-    @Around(value = "@annotation(DTXDistLock)", argNames = "dtxDistLock")
+    @Around(value = "@annotation(DtxDistLock)", argNames = "DtxDistLock")
     public Object around(ProceedingJoinPoint joinPoint, DtxDistLock dtxDistLock) throws Throwable {
         Long lockKeyValue = extractKey(joinPoint, dtxDistLock);
         String key = lockKeyValue.toString() + "_dist_lock";
