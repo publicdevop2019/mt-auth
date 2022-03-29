@@ -6,7 +6,8 @@ import lombok.Data;
 @Data
 public class OrganizationRepresentation {
     private String name;
+
     public OrganizationRepresentation(Organization role) {
-        this.name= role.getName();
+        this.name = role.getName();
     }
 }

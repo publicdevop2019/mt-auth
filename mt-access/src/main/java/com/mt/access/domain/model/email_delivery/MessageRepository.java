@@ -1,14 +1,13 @@
 package com.mt.access.domain.model.email_delivery;
 
+import java.util.Optional;
+import javax.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
-import javax.persistence.LockModeType;
-import java.util.Optional;
-
 /**
- * use pessimistic lock to prevent code from executing, due to third party api can not be undo
+ * use pessimistic lock to prevent code from executing, due to third party api can not be undo.
  */
 public interface MessageRepository extends JpaRepository<EmailDelivery, Long> {
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)

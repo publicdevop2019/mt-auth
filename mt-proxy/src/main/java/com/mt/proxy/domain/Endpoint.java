@@ -1,17 +1,17 @@
 package com.mt.proxy.domain;
 
 import com.google.common.base.Objects;
+import java.io.Serializable;
+import java.text.ParseException;
+import java.util.Set;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.io.Serializable;
-import java.text.ParseException;
-import java.util.Set;
-
 /**
- * this requires to be same as EndpointProxyCardRepresentation from mt0-access in order to generate same MD5 value
+ * this requires to be same as EndpointProxyCardRepresentation
+ * from mt0-access in order to generate same MD5 value.
  */
 @Getter
 @Setter
@@ -43,8 +43,12 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Endpoint)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Endpoint)) {
+            return false;
+        }
         Endpoint endpoint = (Endpoint) o;
         return Objects.equal(id, endpoint.id);
     }

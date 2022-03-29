@@ -5,11 +5,10 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NewProjectRoleCreated extends DomainEvent {
@@ -24,7 +23,8 @@ public class NewProjectRoleCreated extends DomainEvent {
     @Getter
     private Set<PermissionId> permissionIds;
 
-    public NewProjectRoleCreated(RoleId adminRoleId, RoleId userRoleId, ProjectId projectId, Set<PermissionId> permissionIdSet, UserId creator) {
+    public NewProjectRoleCreated(RoleId adminRoleId, RoleId userRoleId, ProjectId projectId,
+                                 Set<PermissionId> permissionIdSet, UserId creator) {
         super(adminRoleId);
         setTopic(NEW_PROJECT_ROLE_CREATED);
         setName(name);

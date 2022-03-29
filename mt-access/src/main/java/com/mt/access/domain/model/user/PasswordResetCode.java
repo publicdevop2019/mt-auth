@@ -3,9 +3,8 @@ package com.mt.access.domain.model.user;
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
-import lombok.Getter;
-
 import javax.persistence.Embeddable;
+import lombok.Getter;
 
 @Embeddable
 public class PasswordResetCode {
@@ -27,8 +26,12 @@ public class PasswordResetCode {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PasswordResetCode)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof PasswordResetCode)) {
+            return false;
+        }
         PasswordResetCode that = (PasswordResetCode) o;
         return Objects.equal(value, that.value);
     }

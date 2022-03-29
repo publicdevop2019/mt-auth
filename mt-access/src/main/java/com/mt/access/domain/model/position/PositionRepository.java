@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
-
 import java.util.Optional;
 
 public interface PositionRepository {

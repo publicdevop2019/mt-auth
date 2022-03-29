@@ -2,7 +2,6 @@ package com.mt.common.domain.model.jwt;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import java.io.IOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -38,8 +37,9 @@ public class JwtUtility {
         byte[] decode = decoder.decode(jwtBody);
         String s = new String(decode);
         try {
-            Map<String, Object> var0 = mapper.readValue(s, new TypeReference<Map<String, Object>>() {
-            });
+            Map<String, Object> var0 =
+                mapper.readValue(s, new TypeReference<Map<String, Object>>() {
+                });
             return (T) var0.get(field);
         } catch (IOException e) {
             throw new JwtTokenExtractException();
@@ -57,6 +57,7 @@ public class JwtUtility {
     public static List<String> getPermissionIds(String bearerHeader) {
         return getField(JWT_CLAIM_PERM, bearerHeader);
     }
+
     public static List<String> getScopes(String bearerHeader) {
         return getField(JWT_CLAIM_SCOPES, bearerHeader);
     }

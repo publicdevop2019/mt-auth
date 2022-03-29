@@ -9,6 +9,7 @@ public class UserPasswordChanged extends DomainEvent {
 
     public static final String USER_PASSWORD_CHANGED = "user_password_changed";
     public static final String name = "USER_PASSWORD_CHANGED";
+
     public UserPasswordChanged(UserId userId) {
         super(userId);
         setTopic(USER_PASSWORD_CHANGED);

@@ -3,8 +3,8 @@ package com.mt.access.domain.model.user_relation;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-
 import java.util.Optional;
+import java.util.Set;
 
 public interface UserRelationRepository {
     void add(UserRelation userRelation);
@@ -16,4 +16,6 @@ public interface UserRelationRepository {
     SumPagedRep<UserRelation> getByUserId(UserId id);
 
     Optional<UserRelation> getByUserIdAndProjectId(UserId id, ProjectId projectId);
+
+    Set<ProjectId> getProjectIds();
 }

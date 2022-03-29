@@ -8,8 +8,8 @@ public enum RoleType {
     CLIENT_ROOT,
     CLIENT;
 
-    public static class DBConverter extends EnumConverter<RoleType> {
-        public DBConverter() {
+    public static class DbConverter extends EnumConverter<RoleType> {
+        public DbConverter() {
             super(RoleType.class);
         }
     }

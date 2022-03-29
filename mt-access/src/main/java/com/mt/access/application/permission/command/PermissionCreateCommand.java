@@ -1,8 +1,7 @@
 package com.mt.access.application.permission.command;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class PermissionCreateCommand {

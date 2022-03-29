@@ -2,9 +2,10 @@ package com.mt.access.application;
 
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
-import com.mt.access.application.cors_profile.CORSProfileApplicationService;
+import com.mt.access.application.cors_profile.CorsProfileApplicationService;
 import com.mt.access.application.email_delivery.EmailDeliveryApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
+import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.organization.OrganizationApplicationService;
 import com.mt.access.application.pending_user.PendingUserApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
@@ -14,7 +15,6 @@ import com.mt.access.application.proxy.ProxyApplicationService;
 import com.mt.access.application.registry.RegistryApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
-import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
@@ -25,6 +25,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * application service registry.
+ */
 @Slf4j
 @Component
 public class ApplicationServiceRegistry {
@@ -43,7 +46,7 @@ public class ApplicationServiceRegistry {
     @Getter
     private static EndpointApplicationService endpointApplicationService;
     @Getter
-    private static CORSProfileApplicationService corsProfileApplicationService;
+    private static CorsProfileApplicationService corsProfileApplicationService;
     @Getter
     private static RevokeTokenApplicationService revokeTokenApplicationService;
     @Getter
@@ -72,71 +75,95 @@ public class ApplicationServiceRegistry {
     private static RegistryApplicationService registryApplicationService;
 
     @Autowired
-    public void setRegistryApplicationService(RegistryApplicationService registryApplicationService) {
+    public void setRegistryApplicationService(
+        RegistryApplicationService registryApplicationService) {
         ApplicationServiceRegistry.registryApplicationService = registryApplicationService;
     }
+
     @Autowired
-    public void setEmailDeliverApplicationService(EmailDeliveryApplicationService emailDeliverApplicationService) {
+    public void setEmailDeliverApplicationService(
+        EmailDeliveryApplicationService emailDeliverApplicationService) {
         ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
     }
 
 
     @Autowired
-    public void setNotificationApplicationService(NotificationApplicationService notificationApplicationService) {
+    public void setNotificationApplicationService(
+        NotificationApplicationService notificationApplicationService) {
         ApplicationServiceRegistry.notificationApplicationService = notificationApplicationService;
     }
+
     @Autowired
-    public void setUserRelationApplicationService(UserRelationApplicationService userRelationApplicationService) {
+    public void setUserRelationApplicationService(
+        UserRelationApplicationService userRelationApplicationService) {
         ApplicationServiceRegistry.userRelationApplicationService = userRelationApplicationService;
     }
+
     @Autowired
-    public void setPositionApplicationService(PositionApplicationService positionApplicationService) {
+    public void setPositionApplicationService(
+        PositionApplicationService positionApplicationService) {
         ApplicationServiceRegistry.positionApplicationService = positionApplicationService;
     }
+
     @Autowired
-    public void setOrganizationApplicationService(OrganizationApplicationService organizationApplicationService) {
+    public void setOrganizationApplicationService(
+        OrganizationApplicationService organizationApplicationService) {
         ApplicationServiceRegistry.organizationApplicationService = organizationApplicationService;
     }
+
     @Autowired
-    public void setRedisAuthorizationCodeServices(RedisAuthorizationCodeServices redisAuthorizationCodeServices) {
+    public void setRedisAuthorizationCodeServices(
+        RedisAuthorizationCodeServices redisAuthorizationCodeServices) {
         ApplicationServiceRegistry.redisAuthorizationCodeServices = redisAuthorizationCodeServices;
     }
+
     @Autowired
     public void setProjectApplicationService(ProjectApplicationService projectApplicationService) {
         ApplicationServiceRegistry.projectApplicationService = projectApplicationService;
     }
+
     @Autowired
-    public void setPermissionApplicationService(PermissionApplicationService permissionApplicationService) {
+    public void setPermissionApplicationService(
+        PermissionApplicationService permissionApplicationService) {
         ApplicationServiceRegistry.permissionApplicationService = permissionApplicationService;
     }
+
     @Autowired
     public void setRoleApplicationService(RoleApplicationService roleApplicationService) {
         ApplicationServiceRegistry.roleApplicationService = roleApplicationService;
     }
+
     @Autowired
     public void setProxyApplicationService(ProxyApplicationService proxyApplicationService) {
         ApplicationServiceRegistry.proxyApplicationService = proxyApplicationService;
     }
+
     @Autowired
-    public void setCORSProfileApplicationService(CORSProfileApplicationService corsProfileApplicationService) {
+    public void setCorsProfileApplicationService(
+        CorsProfileApplicationService corsProfileApplicationService) {
         ApplicationServiceRegistry.corsProfileApplicationService = corsProfileApplicationService;
     }
+
     @Autowired
-    public void setCacheProfileApplicationService(CacheProfileApplicationService cacheProfileApplicationService) {
+    public void setCacheProfileApplicationService(
+        CacheProfileApplicationService cacheProfileApplicationService) {
         ApplicationServiceRegistry.cacheProfileApplicationService = cacheProfileApplicationService;
     }
+
     @Autowired
     public void setTicketApplicationService(TicketApplicationService ticketApplicationService) {
         ApplicationServiceRegistry.ticketApplicationService = ticketApplicationService;
     }
 
     @Autowired
-    public void setRevokeTokenApplicationService(RevokeTokenApplicationService revokeTokenApplicationService) {
+    public void setRevokeTokenApplicationService(
+        RevokeTokenApplicationService revokeTokenApplicationService) {
         ApplicationServiceRegistry.revokeTokenApplicationService = revokeTokenApplicationService;
     }
 
     @Autowired
-    public void setEndpointApplicationService(EndpointApplicationService endpointApplicationService) {
+    public void setEndpointApplicationService(
+        EndpointApplicationService endpointApplicationService) {
         ApplicationServiceRegistry.endpointApplicationService = endpointApplicationService;
     }
 
@@ -145,27 +172,37 @@ public class ApplicationServiceRegistry {
         ApplicationServiceRegistry.userApplicationService = userApplicationService;
     }
 
+    /**
+     * set the client application service.
+     *
+     * @param clientApplicationService client application service
+     */
     @Autowired
     public void setClientApplicationService(ClientApplicationService clientApplicationService) {
-        log.debug("[order1] setting clientApplicationService,value is {}", clientApplicationService == null ? "null" : "not null");
+        log.debug("[order1] setting clientApplicationService,value is {}",
+            clientApplicationService == null ? "null" : "not null");
         ApplicationServiceRegistry.clientApplicationService = clientApplicationService;
     }
 
     @Autowired
-    public void setAuthorizeCodeApplicationService(AuthorizeCodeApplicationService authorizeCodeApplicationService) {
-        ApplicationServiceRegistry.authorizeCodeApplicationService = authorizeCodeApplicationService;
+    public void setAuthorizeCodeApplicationService(
+        AuthorizeCodeApplicationService authorizeCodeApplicationService) {
+        ApplicationServiceRegistry.authorizeCodeApplicationService =
+            authorizeCodeApplicationService;
     }
 
     @Autowired
-    public void setPendingUserApplicationService(PendingUserApplicationService pendingUserApplicationService) {
+    public void setPendingUserApplicationService(
+        PendingUserApplicationService pendingUserApplicationService) {
         ApplicationServiceRegistry.pendingUserApplicationService = pendingUserApplicationService;
     }
 
     @Autowired
-    public void setClientIdempotentApplicationService(IdempotentService clientIdempotentApplicationService) {
-        ApplicationServiceRegistry.applicationServiceIdempotentWrapper = clientIdempotentApplicationService;
+    public void setClientIdempotentApplicationService(
+        IdempotentService clientIdempotentApplicationService) {
+        ApplicationServiceRegistry.applicationServiceIdempotentWrapper =
+            clientIdempotentApplicationService;
     }
-
 
 
 }

@@ -17,13 +17,19 @@ public class CommonApplicationServiceRegistry {
     private static IdempotentService idempotentService;
 
     @Autowired
-    public void setStoredEventApplicationService(StoredEventApplicationService storedEventApplicationService) {
-        CommonApplicationServiceRegistry.storedEventApplicationService = storedEventApplicationService;
+    public void setStoredEventApplicationService(
+        StoredEventApplicationService storedEventApplicationService) {
+        CommonApplicationServiceRegistry.storedEventApplicationService =
+            storedEventApplicationService;
     }
+
     @Autowired
-    public void setChangeRecordApplicationService(ChangeRecordApplicationService idempotentApplicationService) {
-        CommonApplicationServiceRegistry.changeRecordApplicationService = idempotentApplicationService;
+    public void setChangeRecordApplicationService(
+        ChangeRecordApplicationService idempotentApplicationService) {
+        CommonApplicationServiceRegistry.changeRecordApplicationService =
+            idempotentApplicationService;
     }
+
     @Autowired
     public void setIdempotentService(IdempotentService idempotentService) {
         CommonApplicationServiceRegistry.idempotentService = idempotentService;

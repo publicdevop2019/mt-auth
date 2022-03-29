@@ -7,6 +7,9 @@ import com.mt.access.infrastructure.AppConstant;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.EurekaClient;
 import com.netflix.discovery.shared.Application;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,10 +17,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Slf4j
 @Service
@@ -32,7 +31,8 @@ public class HttpRemoteProxyService implements RemoteProxyService {
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {
         HashMap<ProxyInfo, CheckSumValue> valueHashMap = new HashMap<>();
-        Application application = discoveryClient.getApplication(AppConstant.MT_AUTH_PROXY_APP_ID.toUpperCase());
+        Application application =
+            discoveryClient.getApplication(AppConstant.MT_AUTH_PROXY_APP_ID.toUpperCase());
         if (application != null && !application.getInstances().isEmpty()) {
             List<InstanceInfo> instances = application.getInstances();
             instances.forEach((e) -> {
@@ -40,7 +40,9 @@ public class HttpRemoteProxyService implements RemoteProxyService {
                 ProxyInfo proxyInfo = new ProxyInfo(i);
                 ResponseEntity<String> exchange = null;
                 try {
-                    exchange = restTemplate.exchange(e.getHomePageUrl() + proxyUrl, HttpMethod.GET, null, String.class);
+                    exchange = restTemplate
+                        .exchange(e.getHomePageUrl() + proxyUrl, HttpMethod.GET, null,
+                            String.class);
                 } catch (Exception ex) {
                     log.error("error during get sum value from proxy", ex);
                     valueHashMap.put(proxyInfo, CheckSumValue.failed());

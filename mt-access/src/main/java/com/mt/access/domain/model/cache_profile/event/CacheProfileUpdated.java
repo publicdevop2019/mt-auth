@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 public class CacheProfileUpdated extends DomainEvent {
 
     public static final String CACHE_PROFILE_UPDATED = "cache_profile_updated";
-    public static final String name ="CACHE_PROFILE_UPDATED" ;
+    public static final String name = "CACHE_PROFILE_UPDATED";
+
     public CacheProfileUpdated(CacheProfile cacheProfile) {
         super(cacheProfile.getCacheProfileId());
         setTopic(CACHE_PROFILE_UPDATED);

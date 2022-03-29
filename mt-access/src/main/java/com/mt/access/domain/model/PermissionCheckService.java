@@ -6,13 +6,12 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import org.springframework.stereotype.Service;
-
-import javax.validation.constraints.NotNull;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.validation.constraints.NotNull;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PermissionCheckService {
@@ -31,10 +30,14 @@ public class PermissionCheckService {
             throw new AccessDeniedException();
         }
         //second check if has read client access to current project
-        PermissionQuery permissionQuery = PermissionQuery.ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
+        PermissionQuery permissionQuery = PermissionQuery
+            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
         permissionQuery.setNames(Collections.singleton(permissionName));
-        Set<Permission> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery((PermissionQuery) e), permissionQuery);
-        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
+        Set<Permission> allByQuery = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                permissionQuery);
+        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
+            allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
             throw new AccessDeniedException();
         }

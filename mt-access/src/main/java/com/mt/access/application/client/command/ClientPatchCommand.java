@@ -3,11 +3,11 @@ package com.mt.access.application.client.command;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.Set;
-import java.util.stream.Collectors;
 @Getter
 @NoArgsConstructor
 public class ClientPatchCommand {
@@ -26,7 +26,8 @@ public class ClientPatchCommand {
         this.resourceIndicator = bizClient.isAccessible();
         this.grantTypeEnums = bizClient.getGrantTypes();
         this.accessTokenValiditySeconds = bizClient.accessTokenValiditySeconds();
-        this.resourceIds = bizClient.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        this.resourceIds = bizClient.getResources().stream().map(ClientId::getDomainId)
+            .collect(Collectors.toSet());
     }
 
 }

@@ -1,23 +1,25 @@
 package com.mt.common.domain.model.sql.builder;
 
 
+import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
+import static com.mt.common.CommonConstant.PATCH_OP_TYPE_ADD;
+import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REMOVE;
+import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REPLACE;
+
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
 import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
-import com.mt.common.domain.model.restful.PatchCommand;
-import org.springframework.stereotype.Component;
-
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaUpdate;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
-
-import static com.mt.common.CommonConstant.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaUpdate;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
+import org.springframework.stereotype.Component;
 
 @Component
 public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends UpdateQueryBuilder<T> {
@@ -25,7 +27,8 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
     protected Map<String, Function<Object, ?>> filedTypeMap = new HashMap<>();
 
     @Override
-    protected void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate, PatchCommand command) {
+    protected void setUpdateValue(Root<T> root, CriteriaUpdate<T> criteriaUpdate,
+                                  PatchCommand command) {
         ArrayList<Boolean> booleans = new ArrayList<>();
         filedMap.keySet().forEach(e -> {
             booleans.add(setUpdateValueFor(e, filedMap.get(e), criteriaUpdate, command));
@@ -36,14 +39,18 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
         }
     }
 
-    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral, CriteriaUpdate<T> criteriaUpdate, PatchCommand command) {
+    private boolean setUpdateValueFor(String fieldPath, String fieldLiteral,
+                                      CriteriaUpdate<T> criteriaUpdate, PatchCommand command) {
         if (command.getPath().contains(fieldPath)) {
             if (command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REMOVE)) {
                 criteriaUpdate.set(fieldLiteral, null);
                 return true;
-            } else if (command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD) || command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
+            } else if (command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_ADD)
+                ||
+                command.getOp().equalsIgnoreCase(PATCH_OP_TYPE_REPLACE)) {
                 if (command.getValue() != null) {
-                    criteriaUpdate.set(fieldLiteral, filedTypeMap.get(fieldPath).apply(command.getValue()));
+                    criteriaUpdate
+                        .set(fieldLiteral, filedTypeMap.get(fieldPath).apply(command.getValue()));
                 } else {
                     criteriaUpdate.set(fieldLiteral, null);
                 }

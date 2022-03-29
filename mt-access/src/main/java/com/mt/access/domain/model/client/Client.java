@@ -3,18 +3,45 @@ package com.mt.access.domain.model.client;
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
-import com.mt.access.domain.model.client.event.*;
-import com.mt.access.domain.model.cors_profile.CORSProfileId;
+import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
+import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
+import com.mt.access.domain.model.client.event.ClientCreated;
+import com.mt.access.domain.model.client.event.ClientDeleted;
+import com.mt.access.domain.model.client.event.ClientGrantTypeChanged;
+import com.mt.access.domain.model.client.event.ClientPathChanged;
+import com.mt.access.domain.model.client.event.ClientResourcesChanged;
+import com.mt.access.domain.model.client.event.ClientSecretChanged;
+import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
+import com.mt.access.domain.model.client.event.ClientUpdated;
+import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
+import javax.annotation.Nullable;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Cacheable;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
+import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,66 +50,57 @@ import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
-import javax.annotation.Nullable;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-@Table
 @Entity
 @NoArgsConstructor
 @Where(clause = "deleted=0")
 @Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientRegion")
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+    region = "clientRegion")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path", "deleted"}))
 public class Client extends Auditable {
 
     private static final String EMPTY_SECRET = "";
     /**
      * if lazy then loadClientByClientId needs to be transactional
-     * use eager as @Transactional is adding too much overhead
+     * use eager as @Transactional is adding too much overhead.
      */
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "resources_map",
-            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
+        name = "resources_map",
+        joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
     )
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
+        @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientResourceRegion")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientResourceRegion")
     private final Set<ClientId> resources = new HashSet<>();
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
-            name = "external_resources_map",
-            joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
-            uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
+        name = "external_resources_map",
+        joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
+        uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
     )
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
+        @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientExtResourceRegion")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientExtResourceRegion")
     private final Set<ClientId> externalResources = new HashSet<>();
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
+        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
     })
     private ProjectId projectId;
     @Getter
     @Embedded
     @AttributeOverrides({
-            @AttributeOverride(name = "domainId", column = @Column(name = "roleId"))
+        @AttributeOverride(name = "domainId", column = @Column(name = "roleId"))
     })
     private RoleId roleId;
     @Embedded
@@ -92,7 +110,6 @@ public class Client extends Auditable {
     @Getter
     private String name;
     @Getter
-    @Column(unique = true)
     private String path;
     @Getter
     private String secret;
@@ -100,7 +117,7 @@ public class Client extends Auditable {
     private String description;
 
     @Getter
-    @Convert(converter = ClientType.DBConverter.class)
+    @Convert(converter = ClientType.DbConverter.class)
     private Set<ClientType> types;
 
     @Getter
@@ -111,7 +128,7 @@ public class Client extends Auditable {
     @Getter
     @Embedded
     private RedirectDetail authorizationCodeGrant;
-    @Convert(converter = GrantType.DBConverter.class)
+    @Convert(converter = GrantType.DbConverter.class)
     @Getter
     private Set<GrantType> grantTypes;
 
@@ -132,6 +149,7 @@ public class Client extends Auditable {
                   RedirectDetail authorizationCodeGrant,
                   Set<ClientType> types
     ) {
+        super();
         setClientId(clientId);
         setProjectId(projectId);
         setResources(resources);
@@ -144,9 +162,11 @@ public class Client extends Auditable {
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
         setAuthorizationCodeGrant(authorizationCodeGrant);
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());//set id last so we know it's new object
+        //set id last so we know it's new object
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService()
+            .id());
         setRoleId();
-        DomainEventPublisher.instance().publish(new ClientCreated(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
     }
@@ -160,12 +180,15 @@ public class Client extends Auditable {
 
     private void setTypes(Set<ClientType> types) {
         Validator.notEmpty(types);
-        if (this.types != null)
+        if (this.types != null) {
             throw new IllegalArgumentException("client type can not be updated once created");
+        }
         if (
-                types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP)) && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
-                        ||
-                        types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY)) && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
+            types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
+                && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
+                ||
+                types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
+                    && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
         ) {
             throw new IllegalArgumentException("client type conflict");
         }
@@ -176,10 +199,11 @@ public class Client extends Auditable {
         if (this.path == null && path == null) {
             return;
         } else if (this.path == null || path == null) {
-            DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
         } else {
             if (!path.equals(this.path)) {
-                DomainEventPublisher.instance().publish(new ClientPathChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientPathChanged(clientId));
             }
         }
         this.path = path;
@@ -188,11 +212,15 @@ public class Client extends Auditable {
     private void setGrantTypes(Set<GrantType> grantTypes) {
         if (id != null) {
             if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
-                DomainEventPublisher.instance().publish(new ClientGrantTypeChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientGrantTypeChanged(clientId));
             }
         }
-        if (grantTypes.contains(GrantType.REFRESH_TOKEN) && !grantTypes.contains(GrantType.PASSWORD))
+        if (grantTypes.contains(GrantType.REFRESH_TOKEN)
+            &&
+            !grantTypes.contains(GrantType.PASSWORD)) {
             throw new IllegalArgumentException("refresh token grant requires password grant");
+        }
         this.grantTypes = grantTypes;
     }
 
@@ -218,7 +246,8 @@ public class Client extends Auditable {
     private void setTokenDetail(TokenDetail tokenDetail) {
         if (id != null) {
             if (tokenDetailChanged(tokenDetail)) {
-                DomainEventPublisher.instance().publish(new ClientTokenDetailChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientTokenDetailChanged(clientId));
             }
         }
         this.tokenDetail = tokenDetail;
@@ -228,7 +257,8 @@ public class Client extends Auditable {
         if (id != null) {
 
             if (this.accessible && !accessible) {
-                DomainEventPublisher.instance().publish(new ClientAccessibilityRemoved(clientId));
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientAccessibilityRemoved(clientId));
             }
         }
         this.accessible = accessible;
@@ -242,14 +272,16 @@ public class Client extends Auditable {
         if (id != null) {
 
             if (resourcesChanged(resources)) {
-                DomainEventPublisher.instance().publish(new ClientResourcesChanged(clientId));
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientResourcesChanged(clientId));
             }
         }
         Validator.notNull(resources);
         if (!resources.equals(this.resources)) {
             this.resources.clear();
             this.resources.addAll(resources);
-            DomainRegistry.getClientValidationService().validate(this, new HttpValidationNotificationHandler());
+            DomainRegistry.getClientValidationService()
+                .validate(this, new HttpValidationNotificationHandler());
         }
     }
 
@@ -273,7 +305,7 @@ public class Client extends Auditable {
         setDescription(description);
         setAuthorizationCodeGrant(authorizationCodeGrant);
         validate(new HttpValidationNotificationHandler());
-        DomainEventPublisher.instance().publish(new ClientUpdated(getClientId()));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientUpdated(getClientId()));
     }
 
     @Override
@@ -282,12 +314,14 @@ public class Client extends Auditable {
     }
 
     public Endpoint addNewEndpoint(CacheProfileId cacheProfileId,
-                                   String name, String description, String path, EndpointId endpointId, String method,
+                                   String name, String description, String path,
+                                   EndpointId endpointId, String method,
                                    boolean secured,
-                                   boolean isWebsocket, boolean csrfEnabled, CORSProfileId corsConfig, boolean shared) {
+                                   boolean isWebsocket, boolean csrfEnabled,
+                                   CorsProfileId corsConfig, boolean shared) {
         return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
-                name, description, path, endpointId, method, secured,
-                isWebsocket, csrfEnabled, corsConfig, shared);
+            name, description, path, endpointId, method, secured,
+            isWebsocket, csrfEnabled, corsConfig, shared);
     }
 
     // for create
@@ -304,9 +338,11 @@ public class Client extends Auditable {
     private void updateSecret(String secret) {
         if (secret != null && !secret.isBlank()) {
             Validator.notNull(types);
-            DomainEventPublisher.instance().publish(new ClientSecretChanged(clientId));
-            if (types.contains(ClientType.FRONTEND_APP))
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ClientSecretChanged(clientId));
+            if (types.contains(ClientType.FRONTEND_APP)) {
                 secret = EMPTY_SECRET;
+            }
             this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
         }
     }
@@ -329,9 +365,15 @@ public class Client extends Auditable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Client)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Client)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         Client client = (Client) o;
         return Objects.equal(clientId, client.clientId);
     }
@@ -342,14 +384,17 @@ public class Client extends Auditable {
     }
 
     public void removeAllReferenced() {
-        DomainEventPublisher.instance().publish(new ClientDeleted(clientId));
+        CommonDomainRegistry.getDomainEventRepository().append(new ClientDeleted(clientId));
         if (isAccessible()) {
-            DomainEventPublisher.instance().publish(new ClientAsResourceDeleted(clientId));
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ClientAsResourceDeleted(clientId));
         }
     }
 
     public int getRefreshTokenValiditySeconds() {
-        if (grantTypes.contains(GrantType.PASSWORD) && grantTypes.contains(GrantType.REFRESH_TOKEN)) {
+        if (grantTypes.contains(GrantType.PASSWORD)
+            &&
+            grantTypes.contains(GrantType.REFRESH_TOKEN)) {
             return getTokenDetail().getRefreshTokenValiditySeconds();
         }
         return 0;
@@ -364,7 +409,8 @@ public class Client extends Auditable {
 
     public Set<String> getRegisteredRedirectUri() {
         if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectURL::getValue).collect(Collectors.toSet());
+            return getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectUrl::getValue)
+                .collect(Collectors.toSet());
         }
         return Collections.emptySet();
 
@@ -378,7 +424,8 @@ public class Client extends Auditable {
         if (!externalResource.equals(this.externalResources)) {
             this.externalResources.clear();
             this.externalResources.addAll(externalResource);
-            DomainRegistry.getClientValidationService().validate(this, new HttpValidationNotificationHandler());
+            DomainRegistry.getClientValidationService()
+                .validate(this, new HttpValidationNotificationHandler());
         }
     }
 }

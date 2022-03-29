@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnProperty(
-        value = "mt.service_discovery",
-        havingValue = "false"
+    value = "mt.service_discovery",
+    havingValue = "false"
 )
 public class LocalServiceDiscovery implements ServiceDiscovery {
     @Autowired

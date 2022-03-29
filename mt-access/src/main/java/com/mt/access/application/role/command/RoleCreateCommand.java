@@ -1,8 +1,7 @@
 package com.mt.access.application.role.command;
 
-import lombok.Data;
-
 import java.util.Set;
+import lombok.Data;
 
 @Data
 public class RoleCreateCommand {

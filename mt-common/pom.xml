@@ -5,7 +5,7 @@
 
     <groupId>com.github.publicdevop2019</groupId>
     <artifactId>mt-common</artifactId>
-    <version>1.1.29</version>
+    <version>1.1.34</version>
     <packaging>jar</packaging>
     <name>mt-common</name>
     <url>https://github.com/publicdevop2019/config-center</url>
@@ -192,7 +192,7 @@
                         <version>1.6</version>
                         <executions>
                             <execution>
-                                <phase>verify</phase>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>

@@ -5,12 +5,16 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @NoArgsConstructor
 @Getter
@@ -29,7 +33,6 @@ public class PermissionQuery extends QueryCriteria {
     @Setter
     private Set<String> names;
     private Set<PermissionType> types;
-    private boolean typesIsAndRelation;
     private Boolean shared;
 
     public PermissionQuery(String queryParam, String pageParam, String config) {
@@ -103,26 +106,24 @@ public class PermissionQuery extends QueryCriteria {
     }
 
     private void updateQueryParam(String queryParam) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL)).ifPresent(e -> parentId = new PermissionId((e)));
-        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e ->
-        {
+        Map<String, String> stringStringMap =
+            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
+        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
+            Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(NAME))
+            .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL))
+            .ifPresent(e -> parentId = new PermissionId((e)));
+        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds =
+            Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {
             if (e.contains(".")) {
-                this.typesIsAndRelation = false;
                 types = Arrays.stream(e.split("\\.")).map(ee -> {
                     String s = ee.toUpperCase();
                     return PermissionType.valueOf(s);
                 }).collect(Collectors.toSet());
-
             } else {
-                this.typesIsAndRelation = true;
-                types = Arrays.stream(e.split("\\$")).map(ee -> {
-                    String s = ee.toUpperCase();
-                    return PermissionType.valueOf(s);
-                }).collect(Collectors.toSet());
+                types = Collections.singleton(PermissionType.valueOf(e.toUpperCase()));
             }
         });
     }

@@ -1,8 +1,7 @@
 package com.mt.proxy.domain;
 
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class SumPagedRep<T> {

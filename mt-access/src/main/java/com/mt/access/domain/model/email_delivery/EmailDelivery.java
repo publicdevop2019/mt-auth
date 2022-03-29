@@ -1,21 +1,26 @@
 package com.mt.access.domain.model.email_delivery;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-import javax.persistence.*;
 import java.util.Date;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Entity
 @Data
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"deliverTo", "bizType"}))
+@EqualsAndHashCode(callSuper = true)
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"deliverTo", "bizType", "deleted"}))
 @NoArgsConstructor
+@Setter(AccessLevel.PRIVATE)
 public class EmailDelivery extends Auditable {
-    @Id
-    private Long id;
-
     @Column
     private String deliverTo;
 
@@ -28,21 +33,23 @@ public class EmailDelivery extends Auditable {
     @Column
     private Date lastSuccessTime;
 
-    public static EmailDelivery create(Long id, String deliverTo, BizType bizType) {
-        return new EmailDelivery(id, deliverTo, bizType);
+    public EmailDelivery(String deliverTo, BizType bizType) {
+        super();
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        setDeliverTo(deliverTo);
+        setBizType(bizType);
+        setLastSuccessTime(null);
+        setLastTimeResult(false);
     }
 
-    public EmailDelivery(Long id, String deliverTo, BizType bizType) {
-        this.id = id;
-        this.deliverTo = deliverTo;
-        this.bizType = bizType;
-        this.lastTimeResult = false;
-        this.lastSuccessTime = null;
+    public static EmailDelivery create(String deliverTo, BizType bizType) {
+        return new EmailDelivery(deliverTo, bizType);
     }
 
     public Boolean hasCoolDown() {
-        if (lastSuccessTime == null)
+        if (lastSuccessTime == null) {
             return true;
+        }
         if (bizType.equals(BizType.PWD_RESET)) {
             return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
         } else if (bizType.equals(BizType.NEW_USER_CODE)) {

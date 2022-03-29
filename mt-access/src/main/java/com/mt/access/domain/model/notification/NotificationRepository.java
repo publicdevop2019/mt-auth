@@ -7,5 +7,6 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 public interface NotificationRepository {
     void add(Notification notification);
 
-    SumPagedRep<Notification> latestNotifications(PageConfig defaultPaging, QueryConfig queryConfig);
+    SumPagedRep<Notification> latestNotifications(PageConfig defaultPaging,
+                                                  QueryConfig queryConfig);
 }

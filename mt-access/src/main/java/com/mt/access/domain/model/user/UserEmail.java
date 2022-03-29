@@ -1,10 +1,9 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Validator;
+import javax.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Embeddable;
 
 @Embeddable
 @NoArgsConstructor

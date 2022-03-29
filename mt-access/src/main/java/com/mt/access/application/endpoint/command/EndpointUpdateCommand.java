@@ -1,9 +1,8 @@
 package com.mt.access.application.endpoint.command;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.Set;
+import lombok.Data;
 
 @Data
 public class EndpointUpdateCommand implements Serializable {

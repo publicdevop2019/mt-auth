@@ -1,10 +1,8 @@
 package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.User;
-import lombok.Data;
-
 import java.util.Set;
-import java.util.stream.Collectors;
+import lombok.Data;
 
 @Data
 public class UserAdminRepresentation {

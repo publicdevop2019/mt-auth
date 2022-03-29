@@ -2,6 +2,8 @@ package com.mt.access.infrastructure.oauth2;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.infrastructure.JwtInfoProviderService;
+import java.util.Collections;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -16,15 +18,21 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
-import java.util.Map;
-
+/**
+ * config BeanFactory.
+ */
 @Slf4j
 @Component
 public class BeanFactory {
     @Autowired
     JwtInfoProviderService jwtInfoProviderService;
 
+    /**
+     * configuration.
+     *
+     * @param tokenStore default token store
+     * @return handler
+     */
     @Bean
     public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore) {
 
@@ -32,13 +40,20 @@ public class BeanFactory {
 
         handler.setTokenStore(tokenStore);
 
-        handler.setRequestFactory(new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.getClientApplicationService()));
+        handler.setRequestFactory(new DefaultOAuth2RequestFactory(
+            ApplicationServiceRegistry.getClientApplicationService()));
 
         handler.setClientDetailsService(ApplicationServiceRegistry.getClientApplicationService());
 
         return handler;
     }
 
+    /**
+     * configuration.
+     *
+     * @param tokenStore default token store
+     * @return handler
+     */
     @Bean
     public ApprovalStore approvalStore(TokenStore tokenStore) {
 
@@ -56,7 +71,12 @@ public class BeanFactory {
         return new JwtTokenStore(accessTokenConverter);
     }
 
-
+    /**
+     * configuration to enable refresh token.
+     *
+     * @param tokenStore default token store
+     * @return handler
+     */
     @Bean
     @Primary
     public DefaultTokenServices tokenServices(TokenStore tokenStore) {
@@ -70,19 +90,32 @@ public class BeanFactory {
         return defaultTokenServices;
     }
 
+    /**
+     * Autowired is required to make sure it run after ApplicationServiceRegistry initialized.
+     *
+     * @param applicationServiceRegistry application registry
+     * @return request factory
+     */
     @Bean
-    //@Autowired is required to make sure it run after ApplicationServiceRegistry initialized
-    public DefaultOAuth2RequestFactory defaultOAuth2RequestFactory(@Autowired ApplicationServiceRegistry applicationServiceRegistry) {
-        log.debug("[order2] loading DefaultOAuth2RequestFactory, clientApplicationService is {}", ApplicationServiceRegistry.getClientApplicationService() == null ? "null" : "not null");
-        return new DefaultOAuth2RequestFactory(ApplicationServiceRegistry.getClientApplicationService());
+    public DefaultOAuth2RequestFactory defaultOAuth2RequestFactory(
+        @Autowired ApplicationServiceRegistry applicationServiceRegistry) {
+        log.debug("[order2] loading DefaultOAuth2RequestFactory, clientApplicationService is {}",
+            ApplicationServiceRegistry.getClientApplicationService() == null ? "null" : "not null");
+        return new DefaultOAuth2RequestFactory(
+            ApplicationServiceRegistry.getClientApplicationService());
     }
 
+    /**
+     * update default jwt header.
+     *
+     * @return converter
+     */
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
         Map<String, String> customHeaders =
-                Collections.singletonMap("kid", "manytree-id");
+            Collections.singletonMap("kid", "manytree-id");
         return new JwtCustomHeadersAccessTokenConverter(
-                customHeaders,
-                jwtInfoProviderService.getKeyPair());
+            customHeaders,
+            jwtInfoProviderService.getKeyPair());
     }
 }

@@ -9,6 +9,7 @@ public class UserUpdated extends DomainEvent {
 
     public static final String USER_UPDATED = "user_updated";
     public static final String name = "USER_UPDATED";
+
     public UserUpdated(UserId userId) {
         super(userId);
         setTopic(USER_UPDATED);

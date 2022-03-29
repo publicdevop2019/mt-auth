@@ -11,11 +11,10 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import lombok.Data;
-
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Data;
 
 @Data
 public class PermissionCardRepresentation {
@@ -36,37 +35,48 @@ public class PermissionCardRepresentation {
             this.parentId = permission.getParentId().getDomainId();
         }
         this.id = permission.getPermissionId().getDomainId();
-        if (permission.getTenantId() != null)
+        if (permission.getTenantId() != null) {
             this.tenantId = permission.getTenantId().getDomainId();
+        }
     }
 
-    public static SumPagedRep<PermissionCardRepresentation> updateName(SumPagedRep<PermissionCardRepresentation> response) {
+    public static SumPagedRep<PermissionCardRepresentation> updateName(
+        SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
-        Set<ProjectId> collect = data.stream().filter(e -> e.type.equals(PermissionType.PROJECT)).map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
+        Set<ProjectId> collect = data.stream().filter(e -> e.type.equals(PermissionType.PROJECT))
+            .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
         if (collect.size() > 0) {
-            Set<Project> allByQuery = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery((ProjectQuery) e), new ProjectQuery(collect));
+            Set<Project> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                    new ProjectQuery(collect));
             data.forEach(e -> {
-                allByQuery.stream().filter(ee -> ee.getProjectId().getDomainId().equals(e.name)).findFirst().ifPresent(ee -> {
-                    e.name = ee.getName();
-                });
+                allByQuery.stream().filter(ee -> ee.getProjectId().getDomainId().equals(e.name))
+                    .findFirst().ifPresent(ee -> e.name = ee.getName());
             });
         }
-        Set<EndpointId> collect1 = data.stream().filter(e -> e.type.equals(PermissionType.API)).map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
+        Set<EndpointId> collect1 = data.stream().filter(e -> e.type.equals(PermissionType.API))
+            .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
         if (collect1.size() > 0) {
-            Set<Endpoint> allByQuery2 = QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery((EndpointQuery) e), new EndpointQuery(collect1));
-            data.forEach(e -> {
-                allByQuery2.stream().filter(ee -> ee.getEndpointId().getDomainId().equals(e.name)).findFirst().ifPresent(ee -> {
-                    e.name = ee.getName();
-                });
-            });
+            Set<Endpoint> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+                    new EndpointQuery(collect1));
+            data.forEach(e -> allByQuery2.stream()
+                .filter(ee -> ee.getEndpointId().getDomainId().equals(e.name))
+                .findFirst().ifPresent(ee -> e.name = ee.getName()));
         }
-        Set<ProjectId> collect2 = data.stream().filter(e -> e.getTenantId() != null).map(e -> new ProjectId(e.tenantId)).collect(Collectors.toSet());
+        Set<ProjectId> collect2 =
+            data.stream().filter(e -> e.getTenantId() != null).map(e -> new ProjectId(e.tenantId))
+                .collect(Collectors.toSet());
         if (collect2.size() > 0) {
-            Set<Project> allByQuery2 = QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery((ProjectQuery) e), new ProjectQuery(collect2));
+            Set<Project> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                    new ProjectQuery(collect2));
             data.forEach(e -> {
-                allByQuery2.stream().filter(ee -> ee.getProjectId().getDomainId().equals(e.tenantId)).findFirst().ifPresent(ee -> {
-                    e.tenantName = ee.getName();
-                });
+                allByQuery2.stream()
+                    .filter(ee -> ee.getProjectId().getDomainId().equals(e.tenantId)).findFirst()
+                    .ifPresent(ee -> {
+                        e.tenantName = ee.getName();
+                    });
             });
         }
         return response;

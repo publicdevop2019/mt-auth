@@ -1,5 +1,10 @@
 package com.mt.access.port.adapter.messaging;
 
+import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
+import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
+import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
+import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
+
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
@@ -12,11 +17,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
-import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
-import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
-import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
-import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
-
 @Slf4j
 @Component
 public class NotificationDomainEventSubscriber {
@@ -25,34 +25,43 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener0() {
-        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, false, MESSENGER_SYS_MONITOR_QUEUE, (event) -> {
-            HangingTxDetected deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), HangingTxDetected.class);
-            ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-        }, MONITOR_TOPIC);
+        CommonDomainRegistry.getEventStreamService()
+            .subscribe(AppInfo.MT_ACCESS_APP_ID, false, MESSENGER_SYS_MONITOR_QUEUE, (event) -> {
+                HangingTxDetected deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), HangingTxDetected.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            }, MONITOR_TOPIC);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener1() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true, USER_CREATED, (event) -> {
-            NewUserRegistered deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), NewUserRegistered.class);
-            ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-        });
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, USER_CREATED, (event) -> {
+                NewUserRegistered deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), NewUserRegistered.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
-        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true, "notification_" + PROJECT_CREATED + "_handler", (event) -> {
-            ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProjectCreated.class);
-            ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-        }, PROJECT_CREATED);
+        CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true,
+            "notification_" + PROJECT_CREATED + "_handler", (event) -> {
+                ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), ProjectCreated.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            }, PROJECT_CREATED);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener3() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true, PROXY_CACHE_CHECK_FAILED_EVENT, (event) -> {
-            ProxyCacheCheckFailedEvent deserialize = CommonDomainRegistry.getCustomObjectSerializer().deserialize(event.getEventBody(), ProxyCacheCheckFailedEvent.class);
-            ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-        });
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, PROXY_CACHE_CHECK_FAILED_EVENT, (event) -> {
+                ProxyCacheCheckFailedEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), ProxyCacheCheckFailedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
     }
 
 }

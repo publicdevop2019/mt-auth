@@ -7,14 +7,13 @@ import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
 import com.mt.common.domain.model.sql.builder.UpdateByIdQueryBuilder;
-import org.springframework.stereotype.Component;
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.stereotype.Component;
 
 @Component
 public class UpdateUserQueryBuilder extends UpdateByIdQueryBuilder<User> {
@@ -35,10 +34,12 @@ public class UpdateUserQueryBuilder extends UpdateByIdQueryBuilder<User> {
     }
 
     private Boolean parseBoolean(@Nullable Object input) {
-        if (input == null)
+        if (input == null) {
             throw new UpdateFiledValueException();
-        if (input.getClass().equals(Boolean.class))
+        }
+        if (input.getClass().equals(Boolean.class)) {
             return ((Boolean) input);
+        }
         return Boolean.parseBoolean((String) input);
     }
 

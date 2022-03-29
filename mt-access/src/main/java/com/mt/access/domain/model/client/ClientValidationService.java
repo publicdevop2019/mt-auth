@@ -3,9 +3,8 @@ package com.mt.access.domain.model.client;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import org.springframework.stereotype.Service;
-
 import java.util.Set;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ClientValidationService {
@@ -16,7 +15,9 @@ public class ClientValidationService {
 
     private void validateResource(Client client, ValidationNotificationHandler handler) {
         if (!client.getResources().isEmpty()) {
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(client.getResources()));
+            Set<Client> allByQuery = QueryUtility.getAllByQuery(
+                (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                new ClientQuery(client.getResources()));
             if (allByQuery.size() != client.getResources().size()) {
                 handler.handleError("unable to find all resource(s)");
             }
@@ -26,9 +27,12 @@ public class ClientValidationService {
             }
         }
     }
+
     private void validateExternalResource(Client client, ValidationNotificationHandler handler) {
         if (!client.getExternalResources().isEmpty()) {
-            Set<Client> allByQuery = QueryUtility.getAllByQuery((query) -> DomainRegistry.getClientRepository().clientsOfQuery((ClientQuery) query), new ClientQuery(client.getExternalResources()));
+            Set<Client> allByQuery = QueryUtility.getAllByQuery(
+                (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                new ClientQuery(client.getExternalResources()));
             if (allByQuery.size() != client.getExternalResources().size()) {
                 handler.handleError("unable to find all external resource(s)");
             }

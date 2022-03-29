@@ -11,10 +11,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserPwdResetCodeUpdated extends DomainEvent {
     public static final String USER_PWD_RESET_CODE_UPDATED = "user_pwd_reset_code_updated";
+    public static final String name = "USER_PWD_RESET_CODE_UPDATED";
     private String email;
     private String code;
-    public static final String name = "USER_PWD_RESET_CODE_UPDATED";
-    public UserPwdResetCodeUpdated(UserId userId, UserEmail email, PasswordResetCode pwdResetToken) {
+
+    public UserPwdResetCodeUpdated(UserId userId, UserEmail email,
+                                   PasswordResetCode pwdResetToken) {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);

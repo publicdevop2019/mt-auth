@@ -3,10 +3,9 @@ package com.mt.common.infrastructure;
 import com.mt.common.domain.model.unique_id.ClockRevertException;
 import com.mt.common.domain.model.unique_id.InvalidInstanceIdException;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
+import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.PostConstruct;
 
 @Service
 public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
@@ -19,8 +18,9 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
 
     @PostConstruct
     private void validateInstanceId() {
-        if (instanceId > ~(-1L << 4L) || instanceId < 0)
+        if (instanceId > ~(-1L << 4L) || instanceId < 0) {
             throw new InvalidInstanceIdException();
+        }
     }
 
     public synchronized long id() {
@@ -39,8 +39,8 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
         }
         lastSuccessSecond = currentSecond;
         return (currentSecond << (INSTANCE_ID_LENGTH + SEQUENCE_ID_LENGTH))
-                | (instanceId << SEQUENCE_ID_LENGTH)
-                | sequenceId;
+            | (instanceId << SEQUENCE_ID_LENGTH)
+            | sequenceId;
     }
 
     private long waitForNextSecond(long lastTimestamp) {

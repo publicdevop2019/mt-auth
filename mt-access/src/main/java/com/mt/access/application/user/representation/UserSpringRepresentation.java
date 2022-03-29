@@ -1,12 +1,11 @@
 package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.User;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.Collection;
-import java.util.Collections;
 
 @Data
 public class UserSpringRepresentation implements UserDetails {

@@ -9,6 +9,7 @@ public class UserGetLocked extends DomainEvent {
 
     public static final String USER_GET_LOCKED = "user_get_locked";
     public static final String name = "USER_GET_LOCKED";
+
     public UserGetLocked(UserId userId) {
         super(userId);
         setTopic(USER_GET_LOCKED);

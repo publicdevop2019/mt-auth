@@ -1,19 +1,22 @@
 package com.mt.proxy.domain;
 
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
 import java.text.ParseException;
 import java.util.Map;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class RevokeTokenService {
 
-    public boolean checkAccess(String authHeader, String requestURI, Map<String, String> requestBody) throws ParseException {
-        if ((authHeader != null && authHeader.contains("Bearer")) ||
-                (requestURI.contains("/oauth/token") && requestBody != null && requestBody.get("refresh_token") != null)
+    public boolean checkAccess(String authHeader, String requestUri,
+                               Map<String, String> requestBody) throws ParseException {
+        if ((authHeader != null && authHeader.contains("Bearer"))
+            ||
+            (requestUri.contains("/oauth/token") && requestBody != null
+                &&
+                requestBody.get("refresh_token") != null)
         ) {
             String jwtRaw;
             if (authHeader != null && authHeader.contains("Bearer")) {
@@ -38,7 +41,8 @@ public class RevokeTokenService {
     }
 
     private boolean notBlocked(String id, Long iat) {
-        Optional<RevokeToken> optionalRevokeToken = DomainRegistry.getRevokeTokenRepository().revokeToken(id);
+        Optional<RevokeToken> optionalRevokeToken =
+            DomainRegistry.getRevokeTokenRepository().revokeToken(id);
         return optionalRevokeToken.isEmpty() || optionalRevokeToken.get().getIssuedAt() < iat;
     }
 }

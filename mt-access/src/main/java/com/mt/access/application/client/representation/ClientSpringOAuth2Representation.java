@@ -3,15 +3,14 @@ package com.mt.access.application.client.representation;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
-import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.provider.ClientDetails;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.oauth2.provider.ClientDetails;
 
 @Setter
 public class ClientSpringOAuth2Representation implements ClientDetails {
@@ -30,8 +29,10 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setGrantTypeEnums(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
-        Set<String> collect = client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
-        Set<String> collect2 = client.getExternalResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        Set<String> collect =
+            client.getResources().stream().map(ClientId::getDomainId).collect(Collectors.toSet());
+        Set<String> collect2 = client.getExternalResources().stream().map(ClientId::getDomainId)
+            .collect(Collectors.toSet());
         collect2.addAll(collect);
         setResourceIds(collect2);
         setAutoApprove(client.getAutoApprove());
@@ -66,11 +67,6 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public Set<String> getScope() {
-//        if (isScoped()) {
-//            return scope.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-//        } else {
-//            return Collections.emptySet();
-//        }
         return Collections.emptySet();
     }
 

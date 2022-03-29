@@ -5,10 +5,14 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import lombok.Getter;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 @Getter
 public class UserQuery extends QueryCriteria {
@@ -26,6 +30,7 @@ public class UserQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
         setUserSort(pageConfig);
     }
+
     public UserQuery(Set<UserId> userIds) {
         this.userIds = userIds;
         setPageConfig(PageConfig.defaultConfig());
@@ -42,12 +47,13 @@ public class UserQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                EMAIL,ID,PROJECT_IDS);
+            EMAIL, ID, PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(EMAIL)).ifPresent(e -> {
             userEmails = new HashSet<>(List.of(e.split("\\.")));
         });
         Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> {
-            projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
+            projectIds =
+                Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             userIds = Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet());
@@ -71,11 +77,11 @@ public class UserQuery extends QueryCriteria {
 
     @Getter
     public static class UserSort {
+        private final boolean isAsc;
         private boolean byEmail;
         private boolean byId;
         private boolean byCreateAt;
         private boolean byLocked;
-        private final boolean isAsc;
 
         public UserSort(boolean isAsc) {
             this.isAsc = isAsc;

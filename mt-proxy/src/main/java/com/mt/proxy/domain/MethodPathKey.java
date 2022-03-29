@@ -5,8 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class MethodPathKey {
-    private String method;
-    private String path;
+    private final String method;
+    private final String path;
 
     public MethodPathKey(String method, String path) {
         this.method = method;
@@ -15,11 +15,16 @@ public class MethodPathKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         MethodPathKey that = (MethodPathKey) o;
-        return Objects.equal(method, that.method) &&
-                Objects.equal(path, that.path);
+        return Objects.equal(method, that.method)
+            &&
+            Objects.equal(path, that.path);
     }
 
     @Override
@@ -29,9 +34,12 @@ public class MethodPathKey {
 
     @Override
     public String toString() {
-        return "MethodPathKey{" +
-                "method='" + method + '\'' +
-                ", path='" + path + '\'' +
-                '}';
+        return "MethodPathKey{"
+            +
+            "method='" + method + '\''
+            +
+            ", path='" + path + '\''
+            +
+            '}';
     }
 }

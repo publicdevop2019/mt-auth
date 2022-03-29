@@ -20,7 +20,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class QueryBuilderRegistry {
     @Getter
-    private static SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor clientSelectQueryBuilder;
+    private static SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor
+        clientSelectQueryBuilder;
     @Getter
     private static SpringDataJpaUserRepository.JpaCriteriaApiUserAdaptor userQueryBuilder;
     @Getter
@@ -28,78 +29,95 @@ public class QueryBuilderRegistry {
     @Getter
     private static RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor;
     @Getter
-    private static SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder;
+    private static SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter
+        endpointQueryBuilder;
     @Getter
-    private static SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor corsProfileAdaptor;
+    private static SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor
+        corsProfileAdaptor;
     @Getter
-    private static SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor cacheProfileAdaptor;
+    private static SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor
+        cacheProfileAdaptor;
     @Getter
     private static SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor;
     @Getter
     private static SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor;
     @Getter
-    private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor userRelationAdaptor;
+    private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor
+        userRelationAdaptor;
     @Getter
-    private static SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor;
+    private static SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor
+        permissionAdaptor;
     @Getter
-    private static SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor organizationAdaptor;
+    private static SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor
+        organizationAdaptor;
     @Getter
     private static SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor;
 
 
     @Autowired
-    public void setJpaCriteriaApiUserRelationAdaptor(SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor userRelationAdaptor) {
+    public void setJpaCriteriaApiUserRelationAdaptor(
+        SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor userRelationAdaptor) {
         QueryBuilderRegistry.userRelationAdaptor = userRelationAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiPositionAdaptor(SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor) {
+    public void setJpaCriteriaApiPositionAdaptor(
+        SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor) {
         QueryBuilderRegistry.positionAdaptor = positionAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiOrganizationAdaptor(SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor organizationAdaptor) {
+    public void setJpaCriteriaApiOrganizationAdaptor(
+        SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor organizationAdaptor) {
         QueryBuilderRegistry.organizationAdaptor = organizationAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiProjectAdaptor(SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor) {
+    public void setJpaCriteriaApiProjectAdaptor(
+        SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor) {
         QueryBuilderRegistry.projectAdaptor = projectAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiRoleAdaptor(SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor) {
+    public void setJpaCriteriaApiRoleAdaptor(
+        SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor) {
         QueryBuilderRegistry.roleAdaptor = roleAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiPermissionAdaptor(SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor) {
+    public void setJpaCriteriaApiPermissionAdaptor(
+        SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor) {
         QueryBuilderRegistry.permissionAdaptor = permissionAdaptor;
     }
 
     @Autowired
-    public void setJpaCriteriaApiCacheProfileAdaptor(SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor cacheProfileAdaptor) {
+    public void setJpaCriteriaApiCacheProfileAdaptor(
+        SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor cacheProfileAdaptor) {
         QueryBuilderRegistry.cacheProfileAdaptor = cacheProfileAdaptor;
     }
 
 
     @Autowired
-    public void setJpaCriteriaApiCorsProfileAdaptor(SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor corsProfileAdaptor) {
+    public void setJpaCriteriaApiCorsProfileAdaptor(
+        SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor corsProfileAdaptor) {
         QueryBuilderRegistry.corsProfileAdaptor = corsProfileAdaptor;
     }
 
     @Autowired
-    public void setEndpointQueryBuilder(SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder) {
+    public void setEndpointQueryBuilder(
+        SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter endpointQueryBuilder) {
         QueryBuilderRegistry.endpointQueryBuilder = endpointQueryBuilder;
     }
 
     @Autowired
-    public void setRevokeTokenAdaptor(RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor) {
+    public void setRevokeTokenAdaptor(
+        RedisRevokeTokenRepository.RedisRevokeTokenAdaptor redisRevokeTokenAdaptor) {
         QueryBuilderRegistry.redisRevokeTokenAdaptor = redisRevokeTokenAdaptor;
     }
 
     @Autowired
-    public void setClientQueryBuilder(SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor clientSelectQueryBuilder) {
+    public void setClientQueryBuilder(
+        SpringDataJpaClientRepository.JpaCriteriaApiClientAdaptor clientSelectQueryBuilder) {
         QueryBuilderRegistry.clientSelectQueryBuilder = clientSelectQueryBuilder;
     }
 
@@ -109,7 +127,8 @@ public class QueryBuilderRegistry {
     }
 
     @Autowired
-    public void setUserQueryBuilder(SpringDataJpaUserRepository.JpaCriteriaApiUserAdaptor userQueryBuilder) {
+    public void setUserQueryBuilder(
+        SpringDataJpaUserRepository.JpaCriteriaApiUserAdaptor userQueryBuilder) {
         QueryBuilderRegistry.userQueryBuilder = userQueryBuilder;
     }
 }

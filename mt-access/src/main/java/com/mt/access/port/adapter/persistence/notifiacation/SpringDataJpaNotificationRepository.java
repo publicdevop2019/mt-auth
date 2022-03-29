@@ -13,19 +13,23 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SpringDataJpaNotificationRepository extends JpaRepository<Notification, Long>, NotificationRepository {
+public interface SpringDataJpaNotificationRepository
+    extends JpaRepository<Notification, Long>, NotificationRepository {
 
     default void add(Notification notification) {
         save(notification);
     }
 
-    default SumPagedRep<Notification> latestNotifications(PageConfig defaultPaging, QueryConfig queryConfig) {
+    default SumPagedRep<Notification> latestNotifications(PageConfig defaultPaging,
+                                                          QueryConfig queryConfig) {
         Pageable sortedByTimestampDesc =
-                PageRequest.of(defaultPaging.getPageNumber().intValue(), defaultPaging.getPageSize(), Sort.by("timestamp").descending());
+            PageRequest.of(defaultPaging.getPageNumber().intValue(), defaultPaging.getPageSize(),
+                Sort.by("timestamp").descending());
         Page<Notification> all = findAll(sortedByTimestampDesc);
         SumPagedRep<Notification> systemNotificationSumPagedRep = new SumPagedRep<>();
-        if (!all.getContent().isEmpty())
+        if (!all.getContent().isEmpty()) {
             systemNotificationSumPagedRep.setData(all.getContent());
+        }
         systemNotificationSumPagedRep.setTotalItemCount(all.getTotalElements());
         return systemNotificationSumPagedRep;
     }

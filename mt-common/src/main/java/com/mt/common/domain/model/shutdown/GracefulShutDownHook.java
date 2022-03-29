@@ -1,10 +1,9 @@
 package com.mt.common.domain.model.shutdown;
 
+import javax.annotation.PreDestroy;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.context.annotation.Configuration;
-
-import javax.annotation.PreDestroy;
 
 @Configuration
 @Slf4j

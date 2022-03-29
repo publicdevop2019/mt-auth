@@ -1,9 +1,8 @@
 package com.mt.access.application.endpoint.representation;
 
 import com.mt.access.domain.model.endpoint.Endpoint;
-import lombok.Data;
-
 import java.util.Set;
+import lombok.Data;
 
 @Data
 public class EndpointRepresentation {
@@ -29,9 +28,11 @@ public class EndpointRepresentation {
     private String roleId;
     private Integer version;
     private String cacheProfileId;
+
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
-        this.roleId = endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
+        this.roleId =
+            endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
         this.websocket = endpoint.isWebsocket();
         this.shared = endpoint.isShared();
         this.secured = endpoint.isSecured();
@@ -43,10 +44,14 @@ public class EndpointRepresentation {
         this.createdBy = endpoint.getCreatedBy();
         this.createdAt = endpoint.getCreatedAt() != null ? endpoint.getCreatedAt().getTime() : null;
         this.modifiedBy = endpoint.getModifiedBy();
-        this.modifiedAt = endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
+        this.modifiedAt =
+            endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
         this.version = endpoint.getVersion();
         this.csrfEnabled = endpoint.isCsrfEnabled();
-        this.corsProfileId = endpoint.getCorsProfileId() != null ? endpoint.getCorsProfileId().getDomainId() : null;
-        this.cacheProfileId = endpoint.getCacheProfileId()!=null?endpoint.getCacheProfileId().getDomainId():null;;
+        this.corsProfileId =
+            endpoint.getCorsProfileId() != null ? endpoint.getCorsProfileId().getDomainId() : null;
+        this.cacheProfileId =
+            endpoint.getCacheProfileId() != null ? endpoint.getCacheProfileId().getDomainId() :
+                null;
     }
 }

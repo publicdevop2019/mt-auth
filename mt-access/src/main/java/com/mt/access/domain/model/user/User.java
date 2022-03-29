@@ -6,9 +6,14 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.DomainEventPublisher;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import javax.persistence.Column;
+import javax.persistence.Embedded;
+import javax.persistence.Entity;
+import javax.persistence.PreUpdate;
+import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,13 +21,8 @@ import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-
 /**
- * root has ROLE_ROOT, ROLE_ADMIN, ROLE_USER
- * admin has ROLE_ADMIN, ROLE_USER
- * user has ROLE_USER
+ * user aggregate.
  */
 @Entity
 @Table(name = "user_")
@@ -30,10 +30,6 @@ import javax.validation.constraints.NotNull;
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 public class User extends Auditable {
-    @Id
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Long id;
     @Setter(AccessLevel.PRIVATE)
     @Embedded
     @Getter
@@ -57,12 +53,14 @@ public class User extends Auditable {
     private PasswordResetCode pwdResetToken;
 
     public User(UserEmail userEmail, UserPassword password, UserId userId) {
+        super();
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);
         setLocked(false);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        DomainRegistry.getUserValidationService().validate(this, new HttpValidationNotificationHandler());
+        DomainRegistry.getUserValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
     }
 
     @Override
@@ -72,7 +70,8 @@ public class User extends Auditable {
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {
         this.pwdResetToken = pwdResetToken;
-        DomainEventPublisher.instance().publish(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
     }
 
 
@@ -83,14 +82,20 @@ public class User extends Auditable {
 
     @PreUpdate
     private void preUpdate() {
-        DomainEventPublisher.instance().publish(new UserUpdated(getUserId()));
+        CommonDomainRegistry.getDomainEventRepository().append(new UserUpdated(getUserId()));
     }
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof User)) return false;
-        if (!super.equals(o)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof User)) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
         User user = (User) o;
         return Objects.equal(userId, user.userId);
     }

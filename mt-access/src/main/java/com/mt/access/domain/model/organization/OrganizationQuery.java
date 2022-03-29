@@ -4,10 +4,13 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import lombok.Getter;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 
 @Getter
 public class OrganizationQuery extends QueryCriteria {
@@ -19,8 +22,10 @@ public class OrganizationQuery extends QueryCriteria {
 
     public OrganizationQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, ID, NAME);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids = Arrays.stream(e.split("\\.")).map(OrganizationId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
+            Arrays.stream(e.split("\\.")).map(OrganizationId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(NAME))
+            .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(new QueryConfig(config));
         this.sort = Sort.byId(true);

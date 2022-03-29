@@ -9,6 +9,7 @@ public class UserAuthorityChanged extends DomainEvent {
 
     public static final String USER_AUTHORITY_CHANGED = "user_authority_changed";
     public static final String name = "USER_AUTHORITY_CHANGED";
+
     public UserAuthorityChanged(UserId userId) {
         super(userId);
         setTopic(USER_AUTHORITY_CHANGED);

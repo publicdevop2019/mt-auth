@@ -12,85 +12,88 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.SubscribeForEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import org.springframework.stereotype.Service;
-
-import javax.transaction.Transactional;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class CacheProfileApplicationService {
 
     public static final String CACHE_PROFILE = "CACHE_PROFILE";
 
-    @SubscribeForEvent
     @Transactional
     public String create(CreateCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             CacheProfile cacheProfile = new CacheProfile(
-                    command.getName(),
-                    command.getDescription(),
-                    cacheProfileId,
-                    command.getCacheControl().stream().map(CacheControlValue::valueOfLabel).collect(Collectors.toSet()),
-                    command.getExpires(),
-                    command.getMaxAge(),
-                    command.getSmaxAge(),
-                    command.getVary(),
-                    command.isAllowCache(),
-                    command.isEtag(),
-                    command.isWeakValidation()
-                    );
+                command.getName(),
+                command.getDescription(),
+                cacheProfileId,
+                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
+                    .collect(Collectors.toSet()),
+                command.getExpires(),
+                command.getMaxAge(),
+                command.getSmaxAge(),
+                command.getVary(),
+                command.isAllowCache(),
+                command.isEtag(),
+                command.isWeakValidation()
+            );
             DomainRegistry.getCacheProfileRepository().add(cacheProfile);
             return null;
         }, CACHE_PROFILE);
         return cacheProfileId.getDomainId();
     }
 
-    public SumPagedRep<CacheProfile> cacheProfiles(String queryParam, String pageParam, String config) {
-        return DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery(new CacheProfileQuery(queryParam, pageParam, config));
+    public SumPagedRep<CacheProfile> cacheProfiles(String queryParam, String pageParam,
+                                                   String config) {
+        return DomainRegistry.getCacheProfileRepository()
+            .cacheProfileOfQuery(new CacheProfileQuery(queryParam, pageParam, config));
     }
-    @SubscribeForEvent
+
     @Transactional
     public void update(String id, ReplaceCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<CacheProfile> cacheProfile1 = DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
-            cacheProfile1.ifPresent(e->{
-                e.update(
-                        command.getName(),
-                        command.getDescription(),
-                        new CacheProfileId(command.getId()),
-                        command.getCacheControl().stream().map(CacheControlValue::valueOfLabel).collect(Collectors.toSet()),
-                        command.getExpires(),
-                        command.getMaxAge(),
-                        command.getSmaxAge(),
-                        command.getVary(),
-                        command.isAllowCache(),
-                        command.isEtag(),
-                        command.isWeakValidation()
-                );
-            });
+            Optional<CacheProfile> cacheProfile1 =
+                DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+            cacheProfile1.ifPresent(e -> e.update(
+                command.getName(),
+                command.getDescription(),
+                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
+                    .collect(Collectors.toSet()),
+                command.getExpires(),
+                command.getMaxAge(),
+                command.getSmaxAge(),
+                command.getVary(),
+                command.isAllowCache(),
+                command.isEtag(),
+                command.isWeakValidation()
+            ));
             return null;
         }, CACHE_PROFILE);
     }
-    @SubscribeForEvent
+
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper().idempotent(changeId, (ignored) -> {
-            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
-            if (cacheProfile.isPresent()) {
-                CacheProfile profile = cacheProfile.get();
-                PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(profile);
-                PatchCacheProfileCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer().applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
-                profile.update(
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(changeId, (ignored) -> {
+                Optional<CacheProfile> cacheProfile =
+                    DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+                if (cacheProfile.isPresent()) {
+                    CacheProfile profile = cacheProfile.get();
+                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(profile);
+                    PatchCacheProfileCommand afterPatch =
+                        CommonDomainRegistry.getCustomObjectSerializer()
+                            .applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
+                    profile.update(
                         afterPatch.getName(),
                         afterPatch.getDescription(),
-                        cacheProfileId,
-                        afterPatch.getCacheControl().stream().map(CacheControlValue::valueOfLabel).collect(Collectors.toSet()),
+                        afterPatch.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
+                            .collect(Collectors.toSet()),
                         afterPatch.getExpires(),
                         afterPatch.getMaxAge(),
                         afterPatch.getSmaxAge(),
@@ -98,17 +101,18 @@ public class CacheProfileApplicationService {
                         profile.isAllowCache(),
                         afterPatch.isEtag(),
                         afterPatch.isWeakValidation()
-                );
-            }
-            return null;
-        }, CACHE_PROFILE);
+                    );
+                }
+                return null;
+            }, CACHE_PROFILE);
     }
-    @SubscribeForEvent
+
     @Transactional
     public void remove(String id, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+            Optional<CacheProfile> cacheProfile =
+                DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
             cacheProfile.ifPresent(e -> {
                 e.removeAllReference();
                 DomainRegistry.getCacheProfileRepository().remove(e);

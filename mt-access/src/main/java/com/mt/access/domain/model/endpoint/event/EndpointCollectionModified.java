@@ -6,6 +6,7 @@ public class EndpointCollectionModified extends DomainEvent {
 
     public static final String ENDPOINT_COLLECTION_MODIFIED = "endpoint_collection_modified";
     public static final String name = "ENDPOINT_COLLECTION_MODIFIED";
+
     public EndpointCollectionModified() {
         super();
         setInternal(false);

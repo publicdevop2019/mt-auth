@@ -5,12 +5,17 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Getter
 public class ClientQuery extends QueryCriteria {
@@ -94,27 +99,34 @@ public class ClientQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-                ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
-                GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS, ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID, CLIENT_TYPE);
+            ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
+            GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS,
+            ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID, CLIENT_TYPE);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
-            clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
+            clientIds =
+                Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(CLIENT_TYPE)).ifPresent(e -> clientTypeSearch = e);
         Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> {
-            projectIds = Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
+            projectIds =
+                Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(CLIENT_ID)).ifPresent(e -> {
-            clientIds = Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
+            clientIds =
+                Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(RESOURCE_INDICATOR)).ifPresent(e -> {
             resourceFlag = e.equalsIgnoreCase("1");
         });
         Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> name = e);
-        Optional.ofNullable(stringStringMap.get(GRANT_TYPE_ENUMS)).ifPresent(e -> grantTypeSearch = e);
+        Optional.ofNullable(stringStringMap.get(GRANT_TYPE_ENUMS))
+            .ifPresent(e -> grantTypeSearch = e);
         Optional.ofNullable(stringStringMap.get(RESOURCE_IDS)).ifPresent(e -> {
-            resources = Arrays.stream(e.split("\\$")).map(ClientId::new).collect(Collectors.toSet());
+            resources =
+                Arrays.stream(e.split("\\$")).map(ClientId::new).collect(Collectors.toSet());
         });
-        Optional.ofNullable(stringStringMap.get(ACCESS_TOKEN_VALIDITY_SECONDS)).ifPresent(e -> accessTokenSecSearch = e);
+        Optional.ofNullable(stringStringMap.get(ACCESS_TOKEN_VALIDITY_SECONDS))
+            .ifPresent(e -> accessTokenSecSearch = e);
     }
 
 

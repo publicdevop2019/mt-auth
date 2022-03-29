@@ -10,12 +10,13 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnProperty(
-        value = "mt.service_discovery",
-        havingValue = "true",
-        matchIfMissing = true)
+    value = "mt.service_discovery",
+    havingValue = "true",
+    matchIfMissing = true)
 public class EurekaServiceDiscovery implements ServiceDiscovery {
     @Autowired
     private EurekaClient discoveryClient;
+
     @Override
     public String getApplicationUrl(String appName) {
         Application application1 = discoveryClient.getApplication(appName.toUpperCase());

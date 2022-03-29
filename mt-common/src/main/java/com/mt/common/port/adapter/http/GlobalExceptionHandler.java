@@ -7,7 +7,11 @@ import com.mt.common.domain.model.jwt.IllegalJwtException;
 import com.mt.common.domain.model.jwt.JwtTokenExtractException;
 import com.mt.common.domain.model.jwt.JwtTokenRetrievalException;
 import com.mt.common.domain.model.logging.ErrorMessage;
-import com.mt.common.domain.model.restful.exception.*;
+import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
+import com.mt.common.domain.model.restful.exception.AggregateOutdatedException;
+import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
+import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
+import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
@@ -28,55 +32,58 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
-            TransactionSystemException.class,
-            IllegalArgumentException.class,
-            ObjectOptimisticLockingFailureException.class,
-            JwtTokenExtractException.class,
-            UnsupportedQueryException.class,
-            UnsupportedPatchOperationException.class,
-            UpdateFiledValueException.class,
-            RollbackNotSupportedException.class,
-            UpdateQueryBuilder.PatchCommandExpectNotMatchException.class,
-            AggregateNotExistException.class,
-            JacksonObjectSerializer.UnableToJsonPatchException.class,
-            ChangeNotFoundException.class,
-            AggregateOutdatedException.class,
-            IllegalJwtException.class,
-            QueryUtility.QueryParseException.class,
-            PageConfig.PagingParseException.class,
-            QueryUtility.UnknownQueryValueException.class,
-            NoUpdatableFieldException.class
+        TransactionSystemException.class,
+        IllegalArgumentException.class,
+        ObjectOptimisticLockingFailureException.class,
+        JwtTokenExtractException.class,
+        UnsupportedQueryException.class,
+        UnsupportedPatchOperationException.class,
+        UpdateFiledValueException.class,
+        RollbackNotSupportedException.class,
+        UpdateQueryBuilder.PatchCommandExpectNotMatchException.class,
+        AggregateNotExistException.class,
+        JacksonObjectSerializer.UnableToJsonPatchException.class,
+        ChangeNotFoundException.class,
+        AggregateOutdatedException.class,
+        IllegalJwtException.class,
+        QueryUtility.QueryParseException.class,
+        PageConfig.PagingParseException.class,
+        QueryUtility.UnknownQueryValueException.class,
+        NoUpdatableFieldException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
-        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST, request);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.BAD_REQUEST,
+            request);
     }
 
     @ExceptionHandler(value = {
-            RuntimeException.class,
-            JwtTokenRetrievalException.class,
-            JacksonObjectSerializer.UnableToDeepCopyCollectionException.class,
-            JacksonObjectSerializer.UnableToDeserializeCollectionException.class,
-            JacksonObjectSerializer.UnableToSerializeCollectionException.class,
-            JacksonObjectSerializer.UnableToDeSerializeException.class,
-            JacksonObjectSerializer.UnableToSerializeException.class,
+        RuntimeException.class,
+        JwtTokenRetrievalException.class,
+        JacksonObjectSerializer.UnableToDeepCopyCollectionException.class,
+        JacksonObjectSerializer.UnableToDeserializeCollectionException.class,
+        JacksonObjectSerializer.UnableToSerializeCollectionException.class,
+        JacksonObjectSerializer.UnableToDeSerializeException.class,
+        JacksonObjectSerializer.UnableToSerializeException.class,
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
-        return handleExceptionInternal(ex, errorMessage, httpHeaders, HttpStatus.INTERNAL_SERVER_ERROR, request);
+        return handleExceptionInternal(ex, errorMessage, httpHeaders,
+            HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
     //@note duplicate key exception should result in 400
     @ExceptionHandler(value = {
-            DataIntegrityViolationException.class,
+        DataIntegrityViolationException.class,
     })
     protected ResponseEntity<Object> handle200Exception(RuntimeException ex, WebRequest request) {
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.set(CommonConstant.HTTP_HEADER_SUPPRESS, CommonConstant.HTTP_HEADER_SUPPRESS_REASON_INTEGRITY_VIOLATION);
+        httpHeaders.set(CommonConstant.HTTP_HEADER_SUPPRESS,
+            CommonConstant.HTTP_HEADER_SUPPRESS_REASON_INTEGRITY_VIOLATION);
         return handleExceptionInternal(ex, null, httpHeaders, HttpStatus.OK, request);
     }
 }

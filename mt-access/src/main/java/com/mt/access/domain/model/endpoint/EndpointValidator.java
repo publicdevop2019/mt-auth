@@ -20,31 +20,32 @@ public class EndpointValidator {
     }
 
     private void onlyGetCanHaveCacheConfig() {
-        if(endpoint.getCacheProfileId()!=null){
-            if (endpoint.isWebsocket()||!"get".equalsIgnoreCase(endpoint.getMethod())) {
+        if (endpoint.getCacheProfileId() != null) {
+            if (endpoint.isWebsocket() || !"get".equalsIgnoreCase(endpoint.getMethod())) {
                 handler.handleError("cache can only configured for http get calls");
             }
         }
     }
 
     private void csrf() {
-        if (endpoint.isWebsocket()&&endpoint.isCsrfEnabled()) {
+        if (endpoint.isWebsocket() && endpoint.isCsrfEnabled()) {
             handler.handleError("websocket endpoints can not have csrf enabled");
         }
     }
+
     private void ifSecureThenRoleGroupIdMustExist() {
-        if (endpoint.isSecured()&&endpoint.getPermissionId()==null) {
+        if (endpoint.isSecured() && endpoint.getPermissionId() == null) {
             handler.handleError("secured endpoint must have role group id");
         }
     }
 
     private void httpMethod() {
         if (!endpoint.isWebsocket()) {
-            if (endpoint.getMethod() == null || endpoint.getMethod().isBlank())
+            if (endpoint.getMethod() == null || endpoint.getMethod().isBlank()) {
                 handler.handleError("non websocket endpoints must have method");
+            }
         }
     }
-
 
 
 }

@@ -6,24 +6,20 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
+import java.util.Collections;
+import java.util.Set;
+import javax.persistence.Convert;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import javax.persistence.Convert;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.util.Collections;
-import java.util.Set;
 
 @Entity
 @Table
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
-    @Id
-    private Long id;
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
@@ -31,6 +27,7 @@ public class Notification extends Auditable {
     private String title;
 
     public Notification(HangingTxDetected deserialize) {
+        super();
         id = deserialize.getId();
         notificationId = new NotificationId();
         timestamp = deserialize.getTimestamp();
@@ -39,6 +36,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(NewUserRegistered event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
@@ -47,6 +45,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(ProjectCreated event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
@@ -55,6 +54,7 @@ public class Notification extends Auditable {
     }
 
     public Notification(ProxyCacheCheckFailedEvent event) {
+        super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();

@@ -1,16 +1,17 @@
 package com.mt.common.resource;
 
+import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
+import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
+import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
+
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.application.idempotent.ChangeRecordApplicationService;
-import com.mt.common.application.idempotent.representation.ChangeRecordRepresentation;
-import com.mt.common.domain.model.idempotent.ChangeRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
-
-import static com.mt.common.CommonConstant.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
@@ -18,10 +19,12 @@ import static com.mt.common.CommonConstant.*;
 public class ChangeRecordResource {
 
     @GetMapping("root")
-    public ResponseEntity<?> readForRootByQuery(@RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-                                                @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-                                                @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
-        return ResponseEntity.ok(changeRecordApplicationService().changeRecords(queryParam, pageParam, skipCount));
+    public ResponseEntity<?> readForRootByQuery(
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        return ResponseEntity
+            .ok(changeRecordApplicationService().changeRecords(queryParam, pageParam, skipCount));
     }
 
     private ChangeRecordApplicationService changeRecordApplicationService() {

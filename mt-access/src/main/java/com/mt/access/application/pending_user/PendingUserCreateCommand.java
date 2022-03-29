@@ -1,8 +1,7 @@
 package com.mt.access.application.pending_user;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class PendingUserCreateCommand implements Serializable {

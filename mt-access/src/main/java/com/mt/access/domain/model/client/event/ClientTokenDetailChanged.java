@@ -9,6 +9,7 @@ public class ClientTokenDetailChanged extends DomainEvent {
 
     public static final String CLIENT_TOKEN_DETAIL_CHANGED = "client_token_detail_changed";
     public static final String name = "CLIENT_TOKEN_DETAIL_CHANGED";
+
     public ClientTokenDetailChanged(ClientId clientId) {
         super(clientId);
         setTopic(CLIENT_TOKEN_DETAIL_CHANGED);

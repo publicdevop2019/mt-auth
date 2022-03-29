@@ -17,17 +17,22 @@ package com.mt.common.port.adapter.persistence.domain_event;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.notification.PublishedEventTracker;
 import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
+import java.util.ArrayList;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * improved event tracker, rarely it will not send events properly
+ * .e.g insert 1,2,3,5 and 4 later, 4 will be missed.
  */
 @Repository
-public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedEventTrackerRepository, JpaRepository<PublishedEventTracker, Long> {
+public interface SpringDataJpaPublishedEventTrackerRepository
+    extends PublishedEventTrackerRepository, JpaRepository<PublishedEventTracker, Long> {
+    Logger log = LoggerFactory.getLogger(SpringDataJpaPublishedEventTrackerRepository.class);
+
     default PublishedEventTracker publishedNotificationTracker() {
         Iterable<PublishedEventTracker> all = findAll();
         List<PublishedEventTracker> objects = new ArrayList<>(1);
@@ -35,36 +40,13 @@ public interface SpringDataJpaPublishedEventTrackerRepository extends PublishedE
         return objects.isEmpty() ? new PublishedEventTracker() : objects.get(0);
     }
 
-    /**
-     * publish event since id 1
-     * when 2,3,5 event got published and 4 got missed
-     * skip will only happen once due to id is not consistent when rollback
-     */
-    default void trackMostRecentPublishedNotification(PublishedEventTracker tracker, List<StoredEvent> events) {
-        int lastIndex = events.size() - 1;
+    default void trackMostRecentPublishedNotification(PublishedEventTracker tracker,
+                                                      List<StoredEvent> eventList) {
+        int lastIndex = eventList.size() - 1;
         if (lastIndex >= 0) {
-            long mostRecentId = events.get(lastIndex).getId(); //5
-            //only update tracker when event count pass check
-            //5-1 compare to 3
-            if ((mostRecentId - tracker.getLastPublishedId()) == events.size()|| tracker.isSkipped()) {
-                tracker.setLastPublishedId(mostRecentId);
-                tracker.setSkipped(false);
-                save(tracker);
-            }else{
-                // find last publish id which should be 3
-                tracker.setSkipped(true);
-                for(long i=tracker.getLastPublishedId();i<=mostRecentId;i++){
-                    long nextIndex=i;
-                    nextIndex++;
-                    long finalNextIndex = nextIndex;
-                    if(events.stream().noneMatch(e->e.getId()== finalNextIndex)){
-                        tracker.setLastPublishedId(i);
-                        save(tracker);
-                        break;
-                    }
-                }
-            }
-
+            long mostRecentId = eventList.get(lastIndex).getId();
+            tracker.setLastPublishedId(mostRecentId);
+            save(tracker);
         }
     }
 

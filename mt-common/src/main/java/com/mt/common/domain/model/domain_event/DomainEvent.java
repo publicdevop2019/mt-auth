@@ -1,14 +1,13 @@
 package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domainId.DomainId;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-
+import com.mt.common.domain.model.domain_id.DomainId;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 
 @Getter
 @Setter(AccessLevel.PROTECTED)

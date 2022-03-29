@@ -1,7 +1,6 @@
 package com.mt.common.infrastructure;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.MapperFeature;
@@ -12,11 +11,19 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.io.*;
-import java.util.*;
 
 @Slf4j
 @Service
@@ -104,13 +111,14 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
     @Override
     public <T> Collection<T> deserializeCollection(String str, Class<T> clazz) {
         CollectionType javaType = objectMapper.getTypeFactory()
-                .constructCollectionType(List.class, clazz);
+            .constructCollectionType(List.class, clazz);
         try {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
             Collection<T> o = objectMapper.readValue(str, javaType);
-            if (o == null)
+            if (o == null) {
                 return Collections.emptyList();
+            }
             return o;
         } catch (IOException e) {
             log.error("error during object mapper collection deserialize", e);
@@ -119,15 +127,8 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
     }
 
     @Override
-    public <T> Collection<T> deepCopyCollection(Collection<T> object,Class<T> clazz) {
-            return deserializeCollection(serializeCollection(object),clazz);
-//        try {
-//            return objectMapper.readValue(objectMapper.writeValueAsString(object), new TypeReference<Collection<T>>() {
-//            });
-//        } catch (IOException e) {
-//            log.error("error during object mapper list deep copy", e);
-//            throw new UnableToDeepCopyCollectionException();
-//        }
+    public <T> Collection<T> deepCopyCollection(Collection<T> object, Class<T> clazz) {
+        return deserializeCollection(serializeCollection(object), clazz);
     }
 
 
@@ -148,6 +149,7 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
 
     public static class UnableToDeSerializeException extends RuntimeException {
     }
+
     public static class UnableToDeSerializeToMapException extends RuntimeException {
     }
 

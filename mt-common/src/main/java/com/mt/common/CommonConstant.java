@@ -3,7 +3,8 @@ package com.mt.common;
 public class CommonConstant {
     public static final String HTTP_HEADER_ERROR_ID = "errorId";
     public static final String HTTP_HEADER_SUPPRESS = "suppressEx";
-    public static final String HTTP_HEADER_SUPPRESS_REASON_INTEGRITY_VIOLATION = "integrityViolation";
+    public static final String HTTP_HEADER_SUPPRESS_REASON_INTEGRITY_VIOLATION =
+        "integrityViolation";
     public static final String HTTP_PARAM_QUERY = "query";
     public static final String HTTP_PARAM_PAGE = "page";
     public static final String HTTP_PARAM_SKIP_COUNT = "config";
