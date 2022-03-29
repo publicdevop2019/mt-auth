@@ -193,7 +193,7 @@
                         <version>1.6</version>
                         <executions>
                             <execution>
-                                <phase>site</phase>
+                                <phase>install</phase>
                                 <goals>
                                     <goal>sign</goal>
                                 </goals>
