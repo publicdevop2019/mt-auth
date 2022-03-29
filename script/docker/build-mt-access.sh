@@ -1,5 +1,5 @@
 cd ../../
-git checkout master
+git checkout main
 git fetch
 git pull
 docker build -f mt-access/Dockerfile . -t publicdevop2019/mt-access:latest --no-cache
