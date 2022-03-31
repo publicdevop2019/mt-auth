@@ -1,4 +1,4 @@
-.example-container {
+.body-container {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -7,40 +7,115 @@
   left: 0;
   right: 0;
   }
-.example-container2 {
+.form-body {
   display: flex;
   flex-direction: column;
-  max-width: 30%;
-  margin: auto
   }
-  @media only screen and (max-width: 600px) {
-    .mobile-view {
-      max-width: 90%;
-    }
+@media only screen and (max-width: 600px) {
+  .mobile-view {
+    max-width: 90%;
   }
-  .example-container > * {
-    width: 100%;
+}
+@media only screen and (max-width: 1067px) {
+  .app-body {
+    margin-top: 48px !important;
   }
+  .app-msg {
+    margin-bottom: 48px !important;
+  }
+  .app-msg-body{
+    margin: 0px 24px 0px 24px !important;
+  }
+  .app-header{
+    margin: 12px 24px 0px 24px !important;
+  }
+}
+.example-container > * {
+  width: 100%;
+}
+
+.example-right-align {
+  text-align: right;
+}
   
-  .example-right-align {
-    text-align: right;
-  }
-  
-  input.example-right-align::-webkit-outer-spin-button,
-  input.example-right-align::-webkit-inner-spin-button {
-    display: none;
-  }
-  
-  input.example-right-align {
-    -moz-appearance: textfield;
-  }
-  .forget-pwd{
-    margin-top: 16px;
-    font: 16px;
-    color: blue;
-    text-decoration: underline;
-    
-  }
-  .forget-pwd:hover{
-    cursor: pointer;
-  }
+input.example-right-align::-webkit-outer-spin-button,
+input.example-right-align::-webkit-inner-spin-button {
+  display: none;
+}
+
+input.example-right-align {
+  -moz-appearance: textfield;
+}
+.forget-pwd{
+  margin-top: 16px;
+  font: 16px;
+  color: #007EFF;
+  cursor: pointer;
+}
+.forget-pwd:hover{
+  cursor: pointer;
+}
+.page-form{
+  width: 320px;
+  margin-left: 24px;
+  margin-right: 24px;
+}
+.app-msg{
+  max-width: 700px;
+  font-size: 14px;
+}
+.app-body{
+  display: flex;
+  justify-content: center;
+  margin-top: 240px;
+  flex-wrap: wrap;
+}
+.app-header{
+  display: flex;
+  justify-content: space-between;
+  margin: 12px 100px 0px 100px;
+}
+.app-name{
+  font-weight: 600;
+}
+.app-msg-body{
+  margin: 0px 0px 0px 24px;
+}
+.register-email{
+  display: flex;
+  align-items: center;
+}
+.register-email-btn{
+  margin-left: 12px;
+  height: 36px;
+}
+.register-msg{
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.register-login-msg{
+  display: flex;
+  font-size: 14px;
+  font-weight: 300;
+  align-items: center;
+}
+.register-login-msg-link{
+  color: #007EFF;
+  font-weight: 600;
+  margin-left: 4px;
+  cursor: pointer;
+}
+.forget-pwd-msg{
+  font-size: 14px;
+  font-weight: 400;
+  margin-bottom: 12px;
+}
+.login-msg{
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}

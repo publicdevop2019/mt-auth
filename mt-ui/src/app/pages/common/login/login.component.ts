@@ -18,7 +18,7 @@ import * as UUID from 'uuid/v1';
 export class LoginComponent implements OnInit {
   nextUrl: string = '/dashboard';
   forgetPwd: boolean = false;
-  isRegister: boolean = false;
+  isRegister: boolean = true;
   emailErrorMsg: string = undefined;
   activationCodeErrorMsg: string = undefined;
   tokenErrorMsg: string = undefined;
@@ -37,8 +37,6 @@ export class LoginComponent implements OnInit {
     activationCode: new FormControl('', []),
     token: new FormControl('', []),
   });
-  hide = true;
-  hide2 = true;
   private validator = new UserValidator()
   constructor(public httpProxy: HttpProxyService, private route: Router, public dialog: MatDialog, private router: ActivatedRoute, public translate: TranslateService) {
     this.httpProxy.refreshInprogress = false;
