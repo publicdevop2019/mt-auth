@@ -3,6 +3,7 @@ package com.mt.access.application.notification;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.notification.representation.NotificationWebSocketRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
@@ -62,6 +63,18 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(ProxyCacheCheckFailedEvent event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(event.getId().toString(), (command) -> {
+                Notification notification = new Notification(event);
+                DomainRegistry.getNotificationRepository().add(notification);
+                DomainRegistry.getNotificationService()
+                    .notify(new NotificationWebSocketRepresentation(notification).value());
+                return null;
+            }, NOTIFICATION);
+    }
+
+    @Transactional
+    public void handle(CrossDomainValidationService.ValidationFailedEvent event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);

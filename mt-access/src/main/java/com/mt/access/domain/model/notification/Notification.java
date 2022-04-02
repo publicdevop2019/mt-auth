@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.notification;
 
+import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -59,5 +60,14 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = "PROXY_CHECK_FAILED";
+    }
+
+    public Notification(CrossDomainValidationService.ValidationFailedEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = "VALIDATION_FAILED";
+        descriptions = Collections.singleton(event.getMessage());
     }
 }

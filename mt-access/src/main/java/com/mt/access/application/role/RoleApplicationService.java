@@ -10,6 +10,7 @@ import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
+import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
@@ -99,7 +100,7 @@ public class RoleApplicationService {
     /**
      * create role, permissions must belong to root node.
      *
-     * @param command create command
+     * @param command  create command
      * @param changeId change id
      * @return role created id
      */
@@ -196,6 +197,26 @@ public class RoleApplicationService {
                     e.removeExternalPermission(permissionId);
                     DomainRegistry.getRoleRepository().add(e);
                 });
+                return null;
+            }, ROLE);
+    }
+
+    /**
+     * clean up role after client delete.
+     *
+     * @param event clientDeleted event
+     */
+    @Transactional
+    public void handle(ClientDeleted event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                log.debug("handle client removed event");
+                ClientId clientId = new ClientId(event.getDomainId().getDomainId());
+                RoleQuery roleQuery = RoleQuery.clientId(clientId);
+                Set<Role> allByQuery = QueryUtility
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                        roleQuery);
+                allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
                 return null;
             }, ROLE);
     }

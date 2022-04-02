@@ -44,13 +44,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
-public class ScheduledValidationService {
+public class CrossDomainValidationService {
     @Autowired
     CleanUpThreadPoolExecutor taskExecutor;
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
+//    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void validate() {
         taskExecutor.execute(() -> CommonDomainRegistry.getSchedulerDistLockService()
             .executeIfLockSuccess("validation_task", 15, (nullValue) -> {

@@ -1,11 +1,13 @@
 package com.mt.access.port.adapter.messaging;
 
 import static com.mt.access.domain.model.client.event.ClientCreated.CLIENT_CREATED;
+import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
 import static com.mt.access.domain.model.endpoint.event.EndpointShareRemoved.ENDPOINT_SHARED_REMOVED;
 import static com.mt.access.domain.model.permission.event.ProjectPermissionCreated.PROJECT_PERMISSION_CREATED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.event.ClientCreated;
+import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -49,5 +51,18 @@ public class RoleDomainEventSubscriber {
                     .deserialize(event.getEventBody(), EndpointShareRemoved.class);
                 ApplicationServiceRegistry.getRoleApplicationService().handle(deserialize);
             });
+    }
+
+    /**
+     * client deleted role handler.
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    private void listener3() {
+        CommonDomainRegistry.getEventStreamService()
+            .subscribe(appName, true, "role_" + CLIENT_DELETED + "_handler", (event) -> {
+                ClientDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), ClientDeleted.class);
+                ApplicationServiceRegistry.getRoleApplicationService().handle(deserialize);
+            }, CLIENT_DELETED);
     }
 }
