@@ -210,12 +210,13 @@ public class RoleApplicationService {
     public void handle(ClientDeleted event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(event.getId().toString(), (ignored) -> {
-                log.debug("handle client removed event");
+                log.debug("handle client removed event {}", event.getDomainId().getDomainId());
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleQuery roleQuery = RoleQuery.clientId(clientId);
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
                         roleQuery);
+                log.debug("role to be removed {}", allByQuery.size());
                 allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
                 return null;
             }, ROLE);
