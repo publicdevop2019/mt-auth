@@ -22,6 +22,7 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
@@ -153,15 +154,17 @@ public class RoleApplicationService {
     }
 
     /**
-     * create placeholder role when new client created.
+     * create placeholder role when new client created,
+     * use saga lock to make sure event get consumed correctly.
+     * e.g client deleted consumed first then client created consumed next
      *
      * @param event client created event
      */
-
     @Transactional
+    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientCreated event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotentMsg(event.getChangeId(), (ignored) -> {
                 log.debug("handle client created event");
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
@@ -179,9 +182,33 @@ public class RoleApplicationService {
                     Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
                 DomainRegistry.getRoleRepository().add(userRole);
                 return null;
-            }, ROLE);
+            }, (cmd) -> null, ROLE);
     }
 
+
+    /**
+     * clean up role after client delete,
+     * use saga lock to make sure event get consumed correctly.
+     * e.g client deleted consumed first then client created consumed next
+     *
+     * @param event clientDeleted event
+     */
+    @Transactional
+    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    public void handle(ClientDeleted event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotentMsg(event.getChangeId(), (ignored) -> {
+                log.debug("handle client removed event {}", event.getDomainId().getDomainId());
+                ClientId clientId = new ClientId(event.getDomainId().getDomainId());
+                RoleQuery roleQuery = RoleQuery.clientId(clientId);
+                Set<Role> allByQuery = QueryUtility
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                        roleQuery);
+                log.debug("role to be removed {}", allByQuery.size());
+                allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
+                return null;
+            }, (cmd) -> null, ROLE);
+    }
 
     @Transactional
     public void handle(EndpointShareRemoved deserialize) {
@@ -201,24 +228,4 @@ public class RoleApplicationService {
             }, ROLE);
     }
 
-    /**
-     * clean up role after client delete.
-     *
-     * @param event clientDeleted event
-     */
-    @Transactional
-    public void handle(ClientDeleted event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(event.getId().toString(), (ignored) -> {
-                log.debug("handle client removed event {}", event.getDomainId().getDomainId());
-                ClientId clientId = new ClientId(event.getDomainId().getDomainId());
-                RoleQuery roleQuery = RoleQuery.clientId(clientId);
-                Set<Role> allByQuery = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
-                        roleQuery);
-                log.debug("role to be removed {}", allByQuery.size());
-                allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
-                return null;
-            }, ROLE);
-    }
 }
