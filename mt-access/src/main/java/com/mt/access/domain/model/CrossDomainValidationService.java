@@ -51,7 +51,6 @@ public class CrossDomainValidationService {
     private PlatformTransactionManager transactionManager;
 
     @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
-//    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void validate() {
         taskExecutor.execute(() -> CommonDomainRegistry.getSchedulerDistLockService()
             .executeIfLockSuccess("validation_task", 15, (nullValue) -> {

@@ -724,4 +724,7 @@ export const zhHans = {
     "NEW_USER_MSG_2": "新用户？",
     "ACTIVATION_CODE_HINT": "默认：123456",
     "ENTER_PASSWORD_RESET_TOKEN_HINT": "默认：123456789",
+    "SYSTEM_VALIDATION_FAILED": "系统数据校验失败",
+    "SECURE_ENDPOINT_CREATED": "安全端口创建",
+    "SECURE_ENDPOINT_REMOVED": "安全端移除",
 }

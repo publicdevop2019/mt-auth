@@ -34,11 +34,18 @@ public interface SpringDataJpaPermissionRepository
         save(permission);
     }
 
+    default void removeAll(Set<Permission> permission) {
+        permission.forEach(e -> {
+            e.softDelete();
+            save(e);
+        });
+    }
+
     default Set<EndpointId> allApiPermissionLinkedEpId() {
         return allApiPermissionLinkedEpId_();
     }
 
-    @Query("select distinct p.name from Permission p where p.type='API'")
+    @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
     Set<EndpointId> allApiPermissionLinkedEpId_();
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {

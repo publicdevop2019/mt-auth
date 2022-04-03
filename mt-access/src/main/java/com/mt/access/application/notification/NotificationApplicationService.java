@@ -18,7 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotificationApplicationService {
 
-    public static final String NOTIFICATION = "notification";
+    public static final String NOTIFICATION = "Notification";
 
     public SumPagedRep<Notification> notificationsOf(String pageParam, String skipCount) {
         return DomainRegistry.getNotificationRepository()

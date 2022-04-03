@@ -188,9 +188,7 @@ public class EndpointApplicationService {
                         .findFirst();
                 if (endpoint.isPresent()) {
                     Endpoint endpoint1 = endpoint.get();
-                    DomainRegistry.getEndpointRepository().remove(endpoint1);
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new EndpointCollectionModified());
+                    endpoint1.remove();
                 }
                 return null;
             }, ENDPOINT);
@@ -214,10 +212,7 @@ public class EndpointApplicationService {
                 if (!collect.toArray(a)[0].equals(projectId1)) {
                     throw new AccessDeniedException();
                 }
-                DomainRegistry.getEndpointRepository().remove(allByQuery);
-                CommonDomainRegistry.getDomainEventRepository().append(
-                    new EndpointCollectionModified()
-                );
+                Endpoint.remove(allByQuery);
                 return null;
             }, ENDPOINT);
     }

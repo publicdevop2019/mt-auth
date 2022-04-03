@@ -15,7 +15,6 @@ public class AppConstant {
     public static final String ACCOUNT_USERNAME_USER = "user1@duoshu.org";
     public static final String ACCOUNT_PASSWORD_USER = "root";
     public static final String SVC_NAME_AUTH = "/auth-svc";
-    public static final String SVC_NAME_PROFILE = "/profile-svc";
     public static final String SVC_NAME_TEST = "/test-svc";
     public static final String OBJECT_MARKET_REDIRECT_URI = "http://localhost:4200/account";
     public static final String GRANT_TYPE_PASSWORD = "password";
@@ -28,7 +27,6 @@ public class AppConstant {
     public static String proxyUrl = "http://192.168.2.23:" + 8111;
     public static String accessUrl = "http://192.168.2.23:" + 8080;
     public static String testUrl = "http://192.168.2.23:" + 9999;
-    public static String fileUploadUrl = "http://192.168.2.23:" + 9999;
     public static final String CLIENT_MNGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = proxyUrl + SVC_NAME_AUTH + "/oauth/token";
     public static final String USERS_ADMIN = "/mngmt/users";
