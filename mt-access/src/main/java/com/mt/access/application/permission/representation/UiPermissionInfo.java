@@ -3,6 +3,7 @@ package com.mt.access.application.permission.representation;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.project.ProjectId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -13,7 +14,7 @@ public class UiPermissionInfo {
 
     public UiPermissionInfo(Set<Permission> ui) {
         Set<ProjectId> collect =
-            ui.stream().map(Permission::getTenantId).collect(Collectors.toSet());
+            ui.stream().map(Permission::getTenantId).filter(Objects::nonNull).collect(Collectors.toSet());
         projectPermissionInfo = collect.stream().map(e -> {
             Set<Permission> collect1 =
                 ui.stream().filter(ee -> ee.getTenantId().equals(e)).collect(Collectors.toSet());

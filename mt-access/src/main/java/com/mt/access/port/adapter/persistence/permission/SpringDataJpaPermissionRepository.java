@@ -67,10 +67,14 @@ public interface SpringDataJpaPermissionRepository
                 .ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Permission_.PROJECT_ID, queryContext));
-            Optional.ofNullable(query.getTenantIds()).ifPresent(e -> QueryUtility
-                .addDomainIdInPredicate(
-                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
-                    Permission_.TENANT_ID, queryContext));
+            Optional.ofNullable(query.getTenantIds()).ifPresent(e -> {
+                if (!e.isEmpty()) {
+                    QueryUtility
+                        .addDomainIdInPredicate(
+                            e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                            Permission_.TENANT_ID, queryContext);
+                }
+            });
             Optional.ofNullable(query.getNames()).ifPresent(
                 e -> QueryUtility.addStringInPredicate(e, Permission_.NAME, queryContext));
             Optional.ofNullable(query.getShared()).ifPresent(

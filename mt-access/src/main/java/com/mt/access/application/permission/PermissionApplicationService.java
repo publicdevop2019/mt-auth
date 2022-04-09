@@ -4,6 +4,7 @@ import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.reservedName;
+import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
@@ -268,7 +269,7 @@ public class PermissionApplicationService {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         return QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
-                PermissionQuery.uiPermissionQuery(tenantIds, reservedName));
+                PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
     }
 
 }

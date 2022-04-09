@@ -13,6 +13,9 @@ public class RoleIdSetConverter implements AttributeConverter<Set<RoleId>, Strin
         if (attribute == null) {
             return null;
         }
+        if (attribute.isEmpty()) {
+            return null;
+        }
         return String
             .join(",", attribute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
     }

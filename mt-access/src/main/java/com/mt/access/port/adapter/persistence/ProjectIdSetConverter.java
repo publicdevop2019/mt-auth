@@ -13,6 +13,9 @@ public class ProjectIdSetConverter implements AttributeConverter<Set<ProjectId>,
         if (attribute == null) {
             return null;
         }
+        if (attribute.isEmpty()) {
+            return null;
+        }
         return String
             .join(",", attribute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
     }
