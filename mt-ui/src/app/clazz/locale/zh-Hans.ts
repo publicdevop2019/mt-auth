@@ -735,4 +735,5 @@ export const zhHans = {
     "BASIC_INFO": "基本信息",
     "COMMON_PERMISSIONS": "权限",
     "API_PERMISSIONS": "API权限",
+    "EXTERNAL_PERMISSION_UPDATED": "外部权限变更",
 }

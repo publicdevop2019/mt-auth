@@ -21,25 +21,29 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class LogFilter extends GenericFilter {
+    private static final String UUID = "UUID";
+    private static final String CLIENT_IP = "CLIENT_IP";
+    private static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
                          FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) servletRequest;
-        String uuid = httpRequest.getHeader("UUID");
+        String uuid = httpRequest.getHeader(UUID);
         if (null == uuid) {
-            MDC.put("UUID", UUID.randomUUID().toString());
+            MDC.put(UUID, java.util.UUID.randomUUID().toString());
         } else {
-            MDC.put("UUID", uuid);
+            MDC.put(UUID, uuid);
         }
-        String ipFromHeader = httpRequest.getHeader("X-FORWARDED-FOR");
+        String ipFromHeader = httpRequest.getHeader(X_FORWARDED_FOR);
         if (ipFromHeader != null && ipFromHeader.length() > 0) {
-            MDC.put("CLIENT_IP", ipFromHeader);
+            MDC.put(CLIENT_IP, ipFromHeader);
         } else {
-            MDC.put("CLIENT_IP", servletRequest.getRemoteAddr());
+            MDC.put(CLIENT_IP, servletRequest.getRemoteAddr());
         }
         filterChain.doFilter(servletRequest, servletResponse);
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-        httpResponse.setHeader("UUID", MDC.get("UUID"));
+        httpResponse.setHeader(UUID, MDC.get(UUID));
         MDC.clear();
     }
 }

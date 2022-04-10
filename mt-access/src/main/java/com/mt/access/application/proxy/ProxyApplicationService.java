@@ -21,7 +21,8 @@ public class ProxyApplicationService {
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @Scheduled(fixedRate = 60 * 1000, initialDelay = 180 * 1000)
+    @Scheduled(fixedRate = 60 * 1000)
+//    @Scheduled(fixedRate = 60 * 1000, initialDelay = 180 * 1000)
     protected void checkSum() {
         taskExecutor.execute(() -> CommonDomainRegistry.getSchedulerDistLockService()
             .executeIfLockSuccess("check_sum", 45, (nullValue) -> {
@@ -30,9 +31,9 @@ public class ProxyApplicationService {
                     @Override
                     protected void doInTransactionWithoutResult(
                         TransactionStatus transactionStatus) {
-                        log.debug("start of checking proxy cache value");
+                        log.debug("[checking proxy cache value] started");
                         DomainRegistry.getProxyService().checkSum();
-                        log.debug("end of checking proxy cache value");
+                        log.debug("[checking proxy cache value] completed");
                     }
                 });
             }));
