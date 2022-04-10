@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
@@ -14,7 +14,7 @@ export interface IJobStatus {
 })
 export class JobComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'lastExecution'];
-  dataSource: MatTableDataSource<{ name: string, lastExecution: number }> = new MatTableDataSource();
+  dataSource: MatTableDataSource<{ name: string, lastExecution: string }> = new MatTableDataSource();
   batchJobConfirmed: boolean;
   intervalRef: NodeJS.Timer;
   constructor(public httpProxy: HttpProxyService, private translate: TranslateService) {
@@ -28,7 +28,9 @@ export class JobComponent implements OnInit, OnDestroy {
   }
   getStatus() {
     this.httpProxy.getJobStatus().subscribe(next => {
-      this.dataSource.data = next;
+      this.dataSource.data = next.map(e => {
+        return { name: e.name, lastExecution: this.parseDate(e.lastExecution) }
+      });
     }, () => {
       clearInterval(this.intervalRef)
     })
