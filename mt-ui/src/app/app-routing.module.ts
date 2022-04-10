@@ -35,6 +35,7 @@ import { UpdatePwdComponent } from './pages/common/update-pwd/update-pwd.compone
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
+import { JobComponent } from './pages/mgnmt/job/job.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -46,6 +47,7 @@ const routes: Routes = [
       { path: 'welcome', component: WelcomeComponent },
       { path: 'projects', component: SummaryProjectComponent },
       { path: 'registry', component: RegistryComponent },
+      { path: 'jobs', component: JobComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'resource-owners', component: SummaryResourceOwnerComponent },

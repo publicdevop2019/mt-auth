@@ -1,6 +1,8 @@
 package com.mt.access.port.adapter.web_socket;
 
 import com.mt.access.domain.model.NotificationService;
+import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class WebSocketNotificationService implements NotificationService {
         taskExecutor.execute(() -> {
             log.debug("start of renewing ws connects");
             notificationWsHandler.broadcast("_renew");
+            CommonApplicationServiceRegistry.getJobApplicationService()
+                .createOrUpdateJob(JobDetail.wsRenew());
+            log.debug("end of renewing ws connects");
         });
     }
 }

@@ -122,6 +122,7 @@ import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';
 import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
+import { JobComponent } from './pages/mgnmt/job/job.component';
 
 @NgModule({
   declarations: [
@@ -193,6 +194,7 @@ import { TenantSearchComponent } from './components/tenant-search/tenant-search.
     MngmtEndpointComponent,
     MngmtClientComponent,
     RegistryComponent,
+    JobComponent,
   ],
   imports: [
     BrowserAnimationsModule,

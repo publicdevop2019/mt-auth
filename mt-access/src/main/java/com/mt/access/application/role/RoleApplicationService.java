@@ -82,9 +82,10 @@ public class RoleApplicationService {
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(roleId);
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getRoleRepository().remove(e);
+            Optional<Role> role = DomainRegistry.getRoleRepository().getById(roleId);
+            role.ifPresent(e -> {
+                e.remove();
+
             });
             return null;
         }, ROLE);

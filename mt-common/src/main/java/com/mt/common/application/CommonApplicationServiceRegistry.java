@@ -2,6 +2,7 @@ package com.mt.common.application;
 
 import com.mt.common.application.domain_event.StoredEventApplicationService;
 import com.mt.common.application.idempotent.ChangeRecordApplicationService;
+import com.mt.common.application.job.JobApplicationService;
 import com.mt.common.domain.model.idempotent.IdempotentService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,14 @@ public class CommonApplicationServiceRegistry {
     private static StoredEventApplicationService storedEventApplicationService;
     @Getter
     private static IdempotentService idempotentService;
+    @Getter
+    private static JobApplicationService jobApplicationService;
+
+    @Autowired
+    public void setJobApplicationService(
+        JobApplicationService jobApplicationService) {
+        CommonApplicationServiceRegistry.jobApplicationService = jobApplicationService;
+    }
 
     @Autowired
     public void setStoredEventApplicationService(

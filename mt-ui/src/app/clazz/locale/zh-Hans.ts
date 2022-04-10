@@ -736,4 +736,11 @@ export const zhHans = {
     "COMMON_PERMISSIONS": "权限",
     "API_PERMISSIONS": "API权限",
     "EXTERNAL_PERMISSION_UPDATED": "外部权限变更",
+    "JOB_STATUS": "任务",
+    "PROXY_VALIDATION": "验证代理缓存值",
+    "DATA_VALIDATION": "数据校验",
+    "EVENT_SCAN": "事件扫描发布",
+    "KEEP_WS_CONNECTION": "刷新web socket链接",
+    "MISSED_EVENT_SCAN": "二次事件扫描发布",
+    "LAST_EXE_TIME": "最后执行时间",
 }

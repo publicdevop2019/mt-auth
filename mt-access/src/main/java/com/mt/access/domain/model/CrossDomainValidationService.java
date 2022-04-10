@@ -22,9 +22,11 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import java.util.Optional;
@@ -69,6 +71,8 @@ public class CrossDomainValidationService {
                         validateProjectAndUser();
                         validateEndpointAndPermission();
                         validateRoleAndPermission();
+                        CommonApplicationServiceRegistry.getJobApplicationService()
+                            .createOrUpdateJob(JobDetail.dataValidation());
                         log.debug("end of validation existing data");
                     }
                 });
