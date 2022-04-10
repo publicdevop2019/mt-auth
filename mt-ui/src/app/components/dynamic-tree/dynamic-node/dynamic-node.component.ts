@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ISumRep } from 'src/app/clazz/summary.component';
 import { TreeNodeDirective } from '../../../directive/tree-node.directive';
-import { INode } from '../../tree/tree.component';
+import { INode } from '../dynamic-tree.component';
 
 @Component({
   selector: 'app-dynamic-node',
@@ -16,7 +16,6 @@ export class DynamicNodeComponent implements OnInit {
   @Input() loadChildren: (id: string) => Observable<ISumRep<INode>>;
   @Input() fg?: FormGroup;
   @ViewChild(TreeNodeDirective, { static: false }) treeNodeHost: TreeNodeDirective;
-  @Input() edit: boolean = false
   expanded: boolean = false
   loaded: boolean = false
   level: number = 0
@@ -95,7 +94,6 @@ export class DynamicNodeComponent implements OnInit {
           componentRef.instance.level = this.level + 1;
           componentRef.instance.fg = this.fg;
           componentRef.instance.flatNodes = this.flatNodes;
-          componentRef.instance.edit = this.edit;
         })
         next.data.forEach(e => {
           this.flatNodes.push(e)

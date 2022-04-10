@@ -91,7 +91,7 @@ public class RoleResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getRoleApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getRoleApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

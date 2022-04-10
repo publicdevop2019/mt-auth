@@ -1,5 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
@@ -11,6 +13,7 @@ import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.compo
 import { IPermission } from 'src/app/clazz/validation/aggregate/permission/interface-permission';
 import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { ISearchConfig } from 'src/app/components/search/search.component';
+import { ISearchEvent } from 'src/app/components/tenant-search/tenant-search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
@@ -31,8 +34,12 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
   public apiRootId: string;
   private formCreatedOb2: Observable<string>;
-  columnList:any={};
+  columnList: any = {};
   sheetComponent = PermissionComponent;
+  apiDataSource: MatTableDataSource<IPermission>;
+  apiTotoalItemCount = 0;
+  apiPageNumber: number = 0;
+  apiPageSize: number = 11;
   public loadRoot;
   public loadChildren = (id: string) => {
     if (id === this.apiRootId) {
@@ -68,21 +75,24 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     public route: ActivatedRoute,
     private translate: TranslateService
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub=this.projectId.subscribe(next => {
+    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 5);
+    const sub = this.projectId.subscribe(next => {
       this.entitySvc.setProjectId(next);
-      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null");
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON.PROJECT,parentId:null");
       this.loadChildren = (id: string) => {
         return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
       }
     });
     const sub2 = this.canDo('VIEW_PERMISSION').subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: '', resetPage: true })
+        this.doSearch({ value: 'types:COMMON', resetPage: true })
+        this.entitySvc.readEntityByQuery(this.apiPageNumber, this.apiPageSize, 'types:API').subscribe(next => {
+          this.updateApiSummaryData(next)
+        })
       }
     })
     const sub3 = this.canDo('EDIT_PERMISSION').subscribe(b => {
-      this.columnList = b.result? {
+      this.columnList = b.result ? {
         id: 'ID',
         name: 'NAME',
         description: 'DESCRIPTION',
@@ -90,7 +100,7 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
         edit: 'EDIT',
         clone: 'CLONE',
         delete: 'DELETE',
-      }:{
+      } : {
         id: 'ID',
         name: 'NAME',
         description: 'DESCRIPTION',
@@ -118,5 +128,27 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
   };
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
+  }
+  doSearchWrapperCommon(config: ISearchEvent) {
+    config.value = "types:COMMON"
+    this.doSearch(config)
+  }
+  private updateApiSummaryData(next: ISumRep<IPermission>) {
+    if (next.data) {
+      this.apiDataSource = new MatTableDataSource(next.data);
+      this.apiTotoalItemCount = next.totalItemCount;
+    } else {
+      this.apiDataSource = new MatTableDataSource([]);
+      this.apiTotoalItemCount = 0;
+    }
+  }
+  displayedApiColumns() {
+    return['id','name']
+  };
+  apiPageHandler(e: PageEvent) {
+    this.apiPageNumber = e.pageIndex;
+    this.entitySvc.readEntityByQuery(this.apiPageNumber, this.apiPageSize, 'types:API').subscribe(next => {
+      this.updateApiSummaryData(next);
+    });
   }
 }

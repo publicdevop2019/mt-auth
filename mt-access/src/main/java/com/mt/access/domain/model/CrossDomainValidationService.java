@@ -23,8 +23,8 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import java.util.Optional;
@@ -68,10 +68,19 @@ public class CrossDomainValidationService {
                         validateProjectAndRole();
                         validateProjectAndUser();
                         validateEndpointAndPermission();
+                        validateRoleAndPermission();
                         log.debug("end of validation existing data");
                     }
                 });
             }));
+    }
+
+    /**
+     * make sure role's permission id exit.
+     */
+    //@todo
+    private void validateRoleAndPermission() {
+
     }
 
     private void validateEndpointAndPermission() {

@@ -9,6 +9,7 @@ public class RoleCreateCommand {
     private String parentId;
     private String projectId;
     private String description;
-    private Set<String> permissionIds;
+    private Set<String> apiPermissionIds;
+    private Set<String> commonPermissionIds;
     private Set<String> externalPermissionIds;
 }

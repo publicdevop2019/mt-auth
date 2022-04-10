@@ -25,7 +25,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class RoleApplicationService {
 
 
     @Transactional
-    public void replace(String id, RoleUpdateCommand command, String changeId) {
+    public void update(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
@@ -69,14 +68,7 @@ public class RoleApplicationService {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.replace(command.getName(), command.getDescription(),
-                        command.getPermissionIds().stream().map(PermissionId::new)
-                            .collect(Collectors.toSet()),
-                        command.getExternalPermissionIds() != null
-                            ?
-                            command.getExternalPermissionIds().stream().map(PermissionId::new)
-                                .collect(Collectors.toSet()) : null
-                    );
+                    e.update(command);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -118,7 +110,9 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    command.getPermissionIds().stream().map(PermissionId::new)
+                    command.getCommonPermissionIds().stream().map(PermissionId::new)
+                        .collect(Collectors.toSet()),
+                    command.getApiPermissionIds().stream().map(PermissionId::new)
                         .collect(Collectors.toSet()),
                     RoleType.USER,
                     command.getParentId() != null ? new RoleId(command.getParentId()) : null,
@@ -178,8 +172,8 @@ public class RoleApplicationService {
                 if (first.isEmpty()) {
                     throw new IllegalStateException("unable to find root client role");
                 }
-                Role userRole = Role.autoCreate(projectId, roleId, clientId.getDomainId(), null,
-                    Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
+                Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
+                    first.get().getRoleId());
                 DomainRegistry.getRoleRepository().add(userRole);
                 return null;
             }, (cmd) -> null, ROLE);
@@ -210,12 +204,18 @@ public class RoleApplicationService {
             }, (cmd) -> null, ROLE);
     }
 
+    /**
+     * clean up role after endpoint shared removed.
+     * make sure after endpoint shared removed, all referred role has this permission removed
+     *
+     * @param event EndpointSharedRemoved event
+     */
     @Transactional
-    public void handle(EndpointShareRemoved deserialize) {
+    public void handle(EndpointShareRemoved event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint shared removed event");
-                PermissionId permissionId = deserialize.getPermissionId();
+                PermissionId permissionId = event.getPermissionId();
                 RoleQuery roleQuery = new RoleQuery(permissionId);
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),

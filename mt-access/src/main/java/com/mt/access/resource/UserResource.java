@@ -143,7 +143,8 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         queryParam = Utility.updateProjectId(queryParam, projectId);

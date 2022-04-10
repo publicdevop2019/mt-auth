@@ -119,7 +119,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
       parentId: formGroup.get('parentId').value,
       name: formGroup.get('name').value,
       projectId: formGroup.get('projectId').value,
-      linkedApiIds: formGroup.get('apiId').value,
+      linkedApiIds: formGroup.get('apiId').value?formGroup.get('apiId').value:[],
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

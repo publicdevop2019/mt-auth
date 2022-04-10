@@ -2,8 +2,19 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
-import { INode } from '../tree/tree.component';
-
+export interface IFlatNode {
+  expandable: boolean;
+  name: string;
+  level: number;
+}
+export interface INode {
+  id: string;
+  name: string;
+  editable?: boolean;
+  noChildren?: boolean;
+  parentId?: string,
+  nodes?: INode[],
+}
 @Component({
   selector: 'app-dynamic-tree',
   templateUrl: './dynamic-tree.component.html',
@@ -12,7 +23,6 @@ import { INode } from '../tree/tree.component';
 export class DynamicTreeComponent implements OnInit {
   rootNodes: INode[] = []
   public flatNodes: INode[] = []
-  @Input() edit: boolean
   @Input() loadRoot: Observable<ISumRep<INode>>
   @Input() loadChildren: (id: string) => Observable<ISumRep<INode>>;
   @Input() fg: FormGroup;

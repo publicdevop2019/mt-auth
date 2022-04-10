@@ -11,6 +11,7 @@ export interface IProjectUser {
     email?: string;
     projectId: string;
     roles: string[];
+    roleDetails?: {id:string,name:string}[];
     version:number;
 }
 export interface IPendingResourceOwner {

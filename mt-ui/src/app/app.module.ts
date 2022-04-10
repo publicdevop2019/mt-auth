@@ -62,7 +62,6 @@ import { OperationConfirmDialogComponent } from './components/operation-confirm-
 import { ProgressSpinnerComponent } from './components/progress-spinner/progress-spinner.component';
 import { SearchComponent } from './components/search/search.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
-import { TreeComponent } from './components/tree/tree.component';
 import { TreeNodeDirective } from './directive/tree-node.directive';
 import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
 import { MngmtEndpointComponent } from './pages/mgnmt/endpoint/endpoint.component';
@@ -140,7 +139,6 @@ import { TenantSearchComponent } from './components/tenant-search/tenant-search.
     SummaryEndpointComponent,
     EndpointComponent,
     BackButtonComponent,
-    TreeComponent,
     UpdatePwdComponent,
     OperationConfirmDialogComponent,
     SettingComponent,
@@ -254,7 +252,6 @@ import { TenantSearchComponent } from './components/tenant-search/tenant-search.
     RoleComponent,
     CorsComponent,
     BatchUpdateCorsComponent,
-    TreeComponent,
     CacheComponent],
   providers: [
     {
