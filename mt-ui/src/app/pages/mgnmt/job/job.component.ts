@@ -16,7 +16,7 @@ export class JobComponent implements OnInit, OnDestroy {
   displayedColumns: string[] = ['name', 'lastExecution'];
   dataSource: MatTableDataSource<{ name: string, lastExecution: string }> = new MatTableDataSource();
   batchJobConfirmed: boolean;
-  intervalRef: NodeJS.Timer;
+  intervalRef: any;
   constructor(public httpProxy: HttpProxyService, private translate: TranslateService) {
     this.getStatus()
     this.intervalRef = setInterval(() => {
