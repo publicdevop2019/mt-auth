@@ -13,6 +13,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.PasswordResetCode;
+import com.mt.access.domain.model.user.UpdateLoginInfoCommand;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
@@ -25,10 +26,12 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
 import java.util.Optional;
+import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -188,6 +191,11 @@ public class UserApplicationService implements UserDetailsService {
             client = DomainRegistry.getUserRepository().userOfId(new UserId(username));
         }
         return client.map(UserSpringRepresentation::new).orElse(null);
+    }
+
+    @Transactional
+    public void updateLastLoginInfo(UpdateLoginInfoCommand command) {
+        DomainRegistry.getUserService().updateLastLogin(command);
     }
 
     public static class DefaultUserDeleteException extends RuntimeException {

@@ -171,9 +171,9 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        Optional<User> user =
+        Optional<UserProfileRepresentation> user =
             ApplicationServiceRegistry.getUserRelationApplicationService().myProfile();
-        return user.map(value -> ResponseEntity.ok(new UserProfileRepresentation(value)))
+        return user.map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
