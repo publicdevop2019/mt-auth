@@ -1,7 +1,13 @@
 <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
 </mat-icon>
 <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
-<h4>{{'SELECT_ROLES'|translate}}</h4>
-<app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"[fg]="formGroup" [edit]="true"></app-dynamic-tree>
+<h4 style="margin-bottom: 4px;">{{'SELECT_ROLES'|translate}}</h4>
+<mat-chip-list >
+    <mat-chip *ngFor="let e of roles()" [removable]="true">
+        {{parseId(e)}}
+        <mat-icon matChipRemove (click)="removeRole(e)">cancel</mat-icon>
+    </mat-chip>
+</mat-chip-list>
+<app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"[fg]="formGroup"></app-dynamic-tree>
 <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
     (click)="update()">{{'UPDATE'|translate}}</button>

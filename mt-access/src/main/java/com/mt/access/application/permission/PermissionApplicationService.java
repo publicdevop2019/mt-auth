@@ -4,6 +4,7 @@ import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.reservedName;
+import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
@@ -17,6 +18,7 @@ import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
@@ -226,15 +228,48 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
+    /**
+     * remove permission after secure endpoint removed.
+     *
+     * @param event SecureEndpointRemoved event
+     */
+    @Transactional
+    public void handle(SecureEndpointRemoved event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                log.debug("handle secured endpoint remove event");
+                Set<PermissionId> permissionIds = event.getPermissionIds();
+                PermissionQuery permissionQuery = new PermissionQuery(permissionIds);
+                Set<Permission> allByQuery = QueryUtility
+                    .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                        permissionQuery);
+                DomainRegistry.getPermissionRepository().removeAll(allByQuery);
+                return null;
+            }, PERMISSION);
+    }
+
+    /**
+     * get shared permissions.
+     *
+     * @param queryParam query string
+     * @param pageParam  page config
+     * @return paged permission
+     */
     public SumPagedRep<Permission> sharedPermissions(String queryParam, String pageParam) {
         PermissionQuery permissionQuery = PermissionQuery.sharedQuery(queryParam, pageParam);
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
     }
 
+    /**
+     * get permissions for ui usage.
+     *
+     * @return permission set
+     */
     public Set<Permission> ui() {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         return QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
-                PermissionQuery.uiPermissionQuery(tenantIds, reservedName));
+                PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
     }
+
 }

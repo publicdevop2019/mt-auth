@@ -5,6 +5,7 @@ import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
@@ -12,6 +13,7 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
+import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserQuery;
@@ -130,8 +132,14 @@ public class UserRelationApplicationService {
             }).orElseGet(Optional::empty);
     }
 
-    public Optional<User> myProfile() {
+    public Optional<UserProfileRepresentation> myProfile() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        return DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        return user.flatMap((e) -> {
+            UserProfileRepresentation userProfileRepresentation =
+                new UserProfileRepresentation(e, loginInfo.get());
+            return Optional.of(userProfileRepresentation);
+        });
     }
 }

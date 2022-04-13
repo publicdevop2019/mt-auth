@@ -3,12 +3,14 @@ package com.mt.access.port.adapter.messaging;
 import static com.mt.access.domain.model.endpoint.event.EndpointShareAdded.ENDPOINT_SHARED_ADDED;
 import static com.mt.access.domain.model.endpoint.event.EndpointShareRemoved.ENDPOINT_SHARED_REMOVED;
 import static com.mt.access.domain.model.endpoint.event.SecureEndpointCreated.SECURE_ENDPOINT_CREATED;
+import static com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved.SECURE_ENDPOINT_REMOVED;
 import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -60,5 +62,18 @@ public class PermissionDomainEventSubscriber {
                     .deserialize(event.getEventBody(), EndpointShareRemoved.class);
                 ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
             }, ENDPOINT_SHARED_REMOVED);
+    }
+
+    /**
+     * secured endpoint deleted permission handler.
+     */
+    @EventListener(ApplicationReadyEvent.class)
+    private void listener4() {
+        CommonDomainRegistry.getEventStreamService()
+            .subscribe(appName, true, "permission_" + SECURE_ENDPOINT_REMOVED + "_handler", (event) -> {
+                SecureEndpointRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), SecureEndpointRemoved.class);
+                ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
+            }, SECURE_ENDPOINT_REMOVED);
     }
 }

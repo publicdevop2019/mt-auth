@@ -10,6 +10,7 @@ import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
+import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
@@ -21,9 +22,9 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,7 +59,7 @@ public class RoleApplicationService {
 
 
     @Transactional
-    public void replace(String id, RoleUpdateCommand command, String changeId) {
+    public void update(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
@@ -67,14 +68,7 @@ public class RoleApplicationService {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.replace(command.getName(), command.getDescription(),
-                        command.getPermissionIds().stream().map(PermissionId::new)
-                            .collect(Collectors.toSet()),
-                        command.getExternalPermissionIds() != null
-                            ?
-                            command.getExternalPermissionIds().stream().map(PermissionId::new)
-                                .collect(Collectors.toSet()) : null
-                    );
+                    e.update(command);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -88,9 +82,10 @@ public class RoleApplicationService {
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Role> corsProfile = DomainRegistry.getRoleRepository().getById(roleId);
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getRoleRepository().remove(e);
+            Optional<Role> role = DomainRegistry.getRoleRepository().getById(roleId);
+            role.ifPresent(e -> {
+                e.remove();
+
             });
             return null;
         }, ROLE);
@@ -99,7 +94,7 @@ public class RoleApplicationService {
     /**
      * create role, permissions must belong to root node.
      *
-     * @param command create command
+     * @param command  create command
      * @param changeId change id
      * @return role created id
      */
@@ -116,7 +111,9 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    command.getPermissionIds().stream().map(PermissionId::new)
+                    command.getCommonPermissionIds().stream().map(PermissionId::new)
+                        .collect(Collectors.toSet()),
+                    command.getApiPermissionIds().stream().map(PermissionId::new)
                         .collect(Collectors.toSet()),
                     RoleType.USER,
                     command.getParentId() != null ? new RoleId(command.getParentId()) : null,
@@ -152,15 +149,17 @@ public class RoleApplicationService {
     }
 
     /**
-     * create placeholder role when new client created.
+     * create placeholder role when new client created,
+     * use saga lock to make sure event get consumed correctly.
+     * e.g client deleted consumed first then client created consumed next
      *
      * @param event client created event
      */
-
     @Transactional
+    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientCreated event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotentMsg(event.getChangeId(), (ignored) -> {
                 log.debug("handle client created event");
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
@@ -174,20 +173,50 @@ public class RoleApplicationService {
                 if (first.isEmpty()) {
                     throw new IllegalStateException("unable to find root client role");
                 }
-                Role userRole = Role.autoCreate(projectId, roleId, clientId.getDomainId(), null,
-                    Collections.emptySet(), RoleType.CLIENT, first.get().getRoleId(), null);
+                Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
+                    first.get().getRoleId());
                 DomainRegistry.getRoleRepository().add(userRole);
                 return null;
-            }, ROLE);
+            }, (cmd) -> null, ROLE);
     }
 
 
+    /**
+     * clean up role after client delete,
+     * use saga lock to make sure event get consumed correctly.
+     * e.g client deleted consumed first then client created consumed next
+     *
+     * @param event clientDeleted event
+     */
     @Transactional
-    public void handle(EndpointShareRemoved deserialize) {
+    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    public void handle(ClientDeleted event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotentMsg(event.getChangeId(), (ignored) -> {
+                log.debug("handle client removed event {}", event.getDomainId().getDomainId());
+                ClientId clientId = new ClientId(event.getDomainId().getDomainId());
+                RoleQuery roleQuery = RoleQuery.clientId(clientId);
+                Set<Role> allByQuery = QueryUtility
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                        roleQuery);
+                log.debug("role to be removed {}", allByQuery.size());
+                allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
+                return null;
+            }, (cmd) -> null, ROLE);
+    }
+
+    /**
+     * clean up role after endpoint shared removed.
+     * make sure after endpoint shared removed, all referred role has this permission removed
+     *
+     * @param event EndpointSharedRemoved event
+     */
+    @Transactional
+    public void handle(EndpointShareRemoved event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint shared removed event");
-                PermissionId permissionId = deserialize.getPermissionId();
+                PermissionId permissionId = event.getPermissionId();
                 RoleQuery roleQuery = new RoleQuery(permissionId);
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
@@ -199,4 +228,5 @@ public class RoleApplicationService {
                 return null;
             }, ROLE);
     }
+
 }

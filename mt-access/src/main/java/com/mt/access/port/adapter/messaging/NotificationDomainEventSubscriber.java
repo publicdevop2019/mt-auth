@@ -1,11 +1,13 @@
 package com.mt.access.port.adapter.messaging;
 
+import static com.mt.access.domain.model.CrossDomainValidationService.ValidationFailedEvent.SYSTEM_VALIDATION_FAILED;
 import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.project.event.ProjectCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -60,6 +62,17 @@ public class NotificationDomainEventSubscriber {
                 ProxyCacheCheckFailedEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), ProxyCacheCheckFailedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener4() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, SYSTEM_VALIDATION_FAILED, (event) -> {
+                CrossDomainValidationService.ValidationFailedEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), CrossDomainValidationService.ValidationFailedEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

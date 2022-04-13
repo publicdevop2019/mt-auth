@@ -1,11 +1,49 @@
 <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
 </mat-icon>
-<lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
-<h4>{{'SELECT_PERMISIONS'|translate}}</h4>
-<app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"[fg]="permissionFg" #tree [edit]="true"></app-dynamic-tree>
-<lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
-<button mat-raised-button color="primary" *ngIf="bottomSheet.context === 'edit'" class="app-btn"
-    (click)="update()">{{'UPDATE'|translate}}</button>
-<button mat-raised-button color="primary" class="app-btn"
-    (click)="create()"
-    *ngIf="bottomSheet.context === 'clone' || bottomSheet.context === 'new'" >{{'CREATE'|translate}}</button>
+<ng-container *ngIf="bottomSheet.context === 'clone' || bottomSheet.context === 'new'">
+    <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+    <h4>{{'SELECT_PERMISIONS'|translate}}</h4>
+    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="commonPermissionFg">
+    </app-dynamic-tree>
+    <h4>{{'SELECT_API_PERMISIONS'|translate}}</h4>
+    <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg">
+    </app-dynamic-tree>
+    <lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
+    <button mat-raised-button color="primary" class="app-btn" (click)="create()">{{'CREATE'|translate}}</button>
+</ng-container>
+<ng-container *ngIf="bottomSheet.context === 'edit'">
+    <mat-tab-group mat-align-tabs="start" dynamicHeight>
+        <mat-tab label="{{'BASIC_INFO'|translate}}"  #basicTab>
+            <div style="margin-top: 16px;">
+                <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            </div>
+        </mat-tab>
+        <mat-tab label="{{'COMMON_PERMISSIONS'|translate}}" #commonTab>
+            <div style="margin-top: 16px;">
+                <mat-chip-list >
+                    <mat-chip *ngFor="let e of commonPermissions()" [removable]="true">
+                        {{parseId(e)}}
+                        <mat-icon matChipRemove (click)="commonRemove(e)">cancel</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
+                <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="commonPermissionFg" #treeCommon
+                   ></app-dynamic-tree>
+            </div>
+        </mat-tab>
+        <mat-tab label="{{'API_PERMISSIONS'|translate}}" #apiTab>
+            <div style="margin-top: 16px;">
+                <mat-chip-list >
+                    <mat-chip *ngFor="let e of apiPermissions()" [removable]="true">
+                        {{parseId(e)}}
+                        <mat-icon matChipRemove (click)="apiRemove(e)">cancel</mat-icon>
+                    </mat-chip>
+                </mat-chip-list>
+                <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg"
+                   ></app-dynamic-tree>
+                <lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
+    <button mat-raised-button color="primary" *ngIf="bottomSheet.context === 'edit'" class="app-btn"
+        (click)="update()">{{'UPDATE'|translate}}</button>
+</ng-container>

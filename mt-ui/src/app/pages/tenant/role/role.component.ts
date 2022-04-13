@@ -1,15 +1,17 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatTab, MatTabGroup } from '@angular/material/tabs';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, Subscription } from 'rxjs';
-import { take, tap } from 'rxjs/operators';
+import { map, take, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator-role';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { DynamicTreeComponent, INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG, FORM_CONFIG_SHARED } from 'src/app/form-configs/role.config';
 import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
@@ -26,9 +28,19 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   bottomSheet: IBottomSheet<INewRole>;
   public loadRoot = undefined;
   public loadChildren;
-  public permissionFg: FormGroup = new FormGroup({})
+  public loadRootApi = undefined;
+  public loadChildrenApi;
+  public commonPermissionFg: FormGroup = new FormGroup({})
+  public apiPermissionFg: FormGroup = new FormGroup({})
   public apiRootId: string;
   public formIdShared: string = 'shared_api';
+  @ViewChild("basicTab") basicTabControl: MatTab;
+  @ViewChild("commonTab") commonTabControl: MatTab;
+  @ViewChild("apiTab") apiTabControl: MatTab;
+  _tree: DynamicTreeComponent;
+  @ViewChild("treeCommon") set tree(v: DynamicTreeComponent) {
+    this._tree = v;
+  }
   public formInfoShared: IForm = JSON.parse(JSON.stringify(FORM_CONFIG_SHARED));
   constructor(
     public entitySvc: MyRoleService,
@@ -50,9 +62,35 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
     this.fis.queryProvider[this.formIdShared + '_' + 'sharedApi'] = this.getShared();
 
-    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null").pipe(tap(() => this.cdr.markForCheck()));
+    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:COMMON.PROJECT").pipe(map(e => {
+      e.data.forEach(ee => {
+        if (ee.type === 'PROJECT') {
+          (ee as INode).editable = false;
+        } else {
+          (ee as INode).editable = true;
+        }
+      })
+      return e
+    })).pipe(tap(() => {
+      this.cdr.markForCheck()
+    }));
     this.loadChildren = (id: string) => {
-      return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id)
+      return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
+        e.data.forEach(ee => {
+          (ee as INode).editable = true;
+        })
+        return e
+      }))
+    }
+    this.loadRootApi = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:API_ROOT").pipe(tap(() => this.cdr.markForCheck()));
+    this.loadChildrenApi = (id: string) => {
+      return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
+        e.data.forEach(ee => {
+          (ee as INode).editable = true;
+          (ee as INode).noChildren = true;
+        })
+        return e
+      }))
     }
     this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
@@ -78,20 +116,20 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   reusme(): void {
     if (this.bottomSheet.context === 'edit') {
       if (this.aggregate.parentId || (this.aggregate.externalPermissionIds && this.aggregate.externalPermissionIds.length > 0)) {
-        let var0:Observable<any>[]=[];
-        if(this.aggregate.parentId){
+        let var0: Observable<any>[] = [];
+        if (this.aggregate.parentId) {
           var0.push(this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
         }
-        if((this.aggregate.externalPermissionIds && this.aggregate.externalPermissionIds.length > 0)){
+        if ((this.aggregate.externalPermissionIds && this.aggregate.externalPermissionIds.length > 0)) {
           var0.push(this.sharedPermSvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.externalPermissionIds.join('.')))
         }
         combineLatest(var0).subscribe(next => {
-          if(this.aggregate.parentId){
+          if (this.aggregate.parentId) {
             this.fis.updateOption(this.formId, 'parentId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
-            if(next.length>1){
+            if (next.length > 1) {
               this.fis.updateOption(this.formIdShared, 'sharedApi', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
             }
-          }else{
+          } else {
             this.fis.updateOption(this.formIdShared, 'sharedApi', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
           }
           this.resumeForm()
@@ -110,12 +148,21 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     }
     this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
     this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.aggregate.projectId);
-    this.fis.formGroupCollection[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
-    (this.aggregate.permissionIds || []).forEach(p => {
-      if (!this.permissionFg.get(p)) {
-        this.permissionFg.addControl(p, new FormControl('checked'))
+    this.fis.formCreated(this.formIdShared).subscribe(_ => {
+      this.fis.formGroupCollection[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
+    });
+    (this.aggregate.apiPermissionIds || []).forEach(p => {
+      if (!this.apiPermissionFg.get(p)) {
+        this.apiPermissionFg.addControl(p, new FormControl('checked'))
       } else {
-        this.permissionFg.get(p).setValue('checked', { emitEvent: false })
+        this.apiPermissionFg.get(p).setValue('checked', { emitEvent: false })
+      }
+    });
+    (this.aggregate.commonPermissionIds || []).forEach(p => {
+      if (!this.commonPermissionFg.get(p)) {
+        this.commonPermissionFg.addControl(p, new FormControl('checked'))
+      } else {
+        this.commonPermissionFg.get(p).setValue('checked', { emitEvent: false })
       }
     })
     this.cdr.markForCheck()
@@ -130,21 +177,56 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   convertToPayload(cmpt: RoleComponent): INewRole {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
     let formGroup2 = cmpt.fis.formGroupCollection[cmpt.formIdShared];
-    const value = cmpt.permissionFg.value
+    const common = cmpt.commonPermissionFg.value
+    const api = cmpt.apiPermissionFg.value
     return {
       id: formGroup.get('id').value,//value is ignored
-      name: cmpt.bottomSheet.context === 'edit' ? (cmpt.aggregate.systemCreate ? cmpt.aggregate.originalName : formGroup.get('name').value) : formGroup.get('name').value,
+      name: formGroup.get('name').value,
       parentId: formGroup.get('parentId').value || null,
       projectId: formGroup.get('projectId').value,
-      permissionIds: Object.keys(value).filter(e => value[e] === 'checked').filter(e => e),
-      externalPermissionIds: formGroup2.get('sharedApi').value,
+      commonPermissionIds: Object.keys(common).filter(e => common[e] === 'checked').filter(e => e),
+      apiPermissionIds: Object.keys(api).filter(e => api[e] === 'checked').filter(e => e),
+      externalPermissionIds: formGroup2.get('sharedApi').value ? formGroup2.get('sharedApi').value : [],
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
-      version: cmpt.aggregate && cmpt.aggregate.version
+      version: cmpt.aggregate && cmpt.aggregate.version//value is ignored
+    }
+  }
+  convertToUpdatePayload(cmpt: RoleComponent): any {
+    const formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    const formGroup2 = cmpt.fis.formGroupCollection[cmpt.formIdShared];
+    const common = cmpt.commonPermissionFg.value
+    const api = cmpt.apiPermissionFg.value
+    let type = ''
+    if (cmpt.basicTabControl.isActive) {
+      type = 'BASIC'
+      return {
+        type: type,
+        name: cmpt.aggregate.systemCreate ? cmpt.aggregate.originalName : formGroup.get('name').value,
+        parentId: formGroup.get('parentId').value || null,
+        description: formGroup.get('description').value ? formGroup.get('description').value : null,
+        version: cmpt.aggregate && cmpt.aggregate.version
+      }
+    } else if (cmpt.apiTabControl.isActive) {
+      type = 'API_PERMISSION'
+      return {
+        type: type,
+        apiPermissionIds: Object.keys(api).filter(e => api[e] === 'checked').filter(e => e),
+        externalPermissionIds: formGroup2.get('sharedApi').value ? formGroup2.get('sharedApi').value : [],
+        version: cmpt.aggregate && cmpt.aggregate.version
+      }
+    } else if (cmpt.commonTabControl.isActive) {
+      type = 'COMMON_PERMISSION'
+      return {
+        type: type,
+        commonPermissionIds: Object.keys(common).filter(e => common[e] === 'checked').filter(e => e),
+        version: cmpt.aggregate && cmpt.aggregate.version
+      }
     }
   }
   update() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'update', this.fis, this, this.errorMapper))
-      this.entitySvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+    if (this.validateHelper.validate(this.validator, this.convertToUpdatePayload, 'update', this.fis, this, this.errorMapper)) {
+      this.entitySvc.update(this.aggregate.id, this.convertToUpdatePayload(this), this.changeId)
+    }
   }
   create() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'create', this.fis, this, this.errorMapper)) {
@@ -158,5 +240,22 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
         formId: cmpt.formId
       }
     })
+  }
+  commonRemove(key: string) {
+    this.commonPermissionFg.get(key).setValue('unchecked')
+  }
+  commonPermissions() {
+    const common = this.commonPermissionFg.value
+    return Object.keys(common).filter(e => common[e] === 'checked').filter(e => e)
+  }
+  apiRemove(key: string) {
+    this.apiPermissionFg.get(key).setValue('unchecked')
+  }
+  apiPermissions() {
+    const api = this.apiPermissionFg.value
+    return Object.keys(api).filter(e => api[e] === 'checked').filter(e => e)
+  }
+  parseId(id: string) {
+    return this.aggregate.permissionDetails.find(e => e.id === id)?.name || id
   }
 }

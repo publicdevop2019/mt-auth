@@ -39,11 +39,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class PermissionResource {
 
     @PostMapping(path = "projects/{projectId}/permissions")
-    public ResponseEntity<Void> createForRoot(@PathVariable String projectId,
-                                              @RequestBody PermissionCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> createForRoot(
+        @PathVariable String projectId,
+        @RequestBody PermissionCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         command.setProjectId(projectId);

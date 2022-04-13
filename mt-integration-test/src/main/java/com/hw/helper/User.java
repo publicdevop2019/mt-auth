@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 @Data
-public class ResourceOwner {
+public class User {
 
     protected String id;
 

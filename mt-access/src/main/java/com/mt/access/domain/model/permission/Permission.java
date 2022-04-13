@@ -67,31 +67,33 @@ public class Permission extends Auditable {
     public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
     public static final String PROJECT_INFO_MNGMT = "PROJECT_INFO_MNGMT";
     public static final Set<String> reservedName = new HashSet<>();
+    public static final Set<String> reservedUIPermissionName = new HashSet<>();
 
     static {
         reservedName.add(API_ACCESS);
-        reservedName.add(VIEW_PROJECT_INFO);
-        reservedName.add(VIEW_CLIENT);
-        reservedName.add(EDIT_CLIENT);
-        reservedName.add(CREATE_CLIENT);
-        reservedName.add(VIEW_API);
-        reservedName.add(EDIT_API);
-        reservedName.add(CREATE_API);
-        reservedName.add(CREATE_PERMISSION);
-        reservedName.add(VIEW_PERMISSION);
-        reservedName.add(EDIT_PERMISSION);
-        reservedName.add(VIEW_TENANT_USER);
-        reservedName.add(EDIT_TENANT_USER);
-        reservedName.add(EDIT_ROLE);
-        reservedName.add(CREATE_ROLE);
-        reservedName.add(VIEW_ROLE);
-        reservedName.add(USER_MNGMT);
-        reservedName.add(PERMISSION_MNGMT);
-        reservedName.add(ROLE_MNGMT);
-        reservedName.add(API_MNGMT);
-        reservedName.add(CLIENT_MNGMT);
-        reservedName.add(EDIT_PROJECT_INFO);
-        reservedName.add(PROJECT_INFO_MNGMT);
+        reservedUIPermissionName.add(VIEW_PROJECT_INFO);
+        reservedUIPermissionName.add(VIEW_CLIENT);
+        reservedUIPermissionName.add(EDIT_CLIENT);
+        reservedUIPermissionName.add(CREATE_CLIENT);
+        reservedUIPermissionName.add(VIEW_API);
+        reservedUIPermissionName.add(EDIT_API);
+        reservedUIPermissionName.add(CREATE_API);
+        reservedUIPermissionName.add(CREATE_PERMISSION);
+        reservedUIPermissionName.add(VIEW_PERMISSION);
+        reservedUIPermissionName.add(EDIT_PERMISSION);
+        reservedUIPermissionName.add(VIEW_TENANT_USER);
+        reservedUIPermissionName.add(EDIT_TENANT_USER);
+        reservedUIPermissionName.add(EDIT_ROLE);
+        reservedUIPermissionName.add(CREATE_ROLE);
+        reservedUIPermissionName.add(VIEW_ROLE);
+        reservedUIPermissionName.add(USER_MNGMT);
+        reservedUIPermissionName.add(PERMISSION_MNGMT);
+        reservedUIPermissionName.add(ROLE_MNGMT);
+        reservedUIPermissionName.add(API_MNGMT);
+        reservedUIPermissionName.add(CLIENT_MNGMT);
+        reservedUIPermissionName.add(EDIT_PROJECT_INFO);
+        reservedUIPermissionName.add(PROJECT_INFO_MNGMT);
+        reservedName.addAll(reservedUIPermissionName);
 
     }
 

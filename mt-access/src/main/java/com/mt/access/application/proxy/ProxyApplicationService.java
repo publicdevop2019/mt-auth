@@ -2,7 +2,9 @@ package com.mt.access.application.proxy;
 
 import com.mt.access.application.proxy.representation.CheckSumRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,9 +32,11 @@ public class ProxyApplicationService {
                     @Override
                     protected void doInTransactionWithoutResult(
                         TransactionStatus transactionStatus) {
-                        log.debug("start of checking proxy cache value");
+                        log.debug("[checking proxy cache value] started");
                         DomainRegistry.getProxyService().checkSum();
-                        log.debug("end of checking proxy cache value");
+                        CommonApplicationServiceRegistry.getJobApplicationService()
+                            .createOrUpdateJob(JobDetail.proxyValidation());
+                        log.debug("[checking proxy cache value] completed");
                     }
                 });
             }));

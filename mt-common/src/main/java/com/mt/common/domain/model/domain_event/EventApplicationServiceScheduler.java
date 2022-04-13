@@ -1,6 +1,8 @@
 package com.mt.common.domain.model.domain_event;
 
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.notification.PublishedEventTracker;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -42,6 +44,8 @@ public class EventApplicationServiceScheduler {
                     CommonDomainRegistry.getPublishedEventTrackerRepository()
                         .trackMostRecentPublishedNotification(eventTracker, storedEvents);
                 }
+                CommonApplicationServiceRegistry.getJobApplicationService()
+                    .createOrUpdateJob(JobDetail.eventScan());
             });
     }
 
@@ -64,6 +68,8 @@ public class EventApplicationServiceScheduler {
                     }
                     log.debug("end of publish not send event");
                 }
+                CommonApplicationServiceRegistry.getJobApplicationService()
+                    .createOrUpdateJob(JobDetail.missingEventScan());
             });
     }
 

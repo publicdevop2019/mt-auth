@@ -40,6 +40,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         DataIntegrityViolationException.class,
         CoolDownException.class,
         UnknownBizTypeException.class,
+        IllegalStateException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),

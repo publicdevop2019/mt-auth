@@ -34,11 +34,18 @@ public interface SpringDataJpaPermissionRepository
         save(permission);
     }
 
+    default void removeAll(Set<Permission> permission) {
+        permission.forEach(e -> {
+            e.softDelete();
+            save(e);
+        });
+    }
+
     default Set<EndpointId> allApiPermissionLinkedEpId() {
         return allApiPermissionLinkedEpId_();
     }
 
-    @Query("select distinct p.name from Permission p where p.type='API'")
+    @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
     Set<EndpointId> allApiPermissionLinkedEpId_();
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
@@ -60,10 +67,14 @@ public interface SpringDataJpaPermissionRepository
                 .ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Permission_.PROJECT_ID, queryContext));
-            Optional.ofNullable(query.getTenantIds()).ifPresent(e -> QueryUtility
-                .addDomainIdInPredicate(
-                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
-                    Permission_.TENANT_ID, queryContext));
+            Optional.ofNullable(query.getTenantIds()).ifPresent(e -> {
+                if (!e.isEmpty()) {
+                    QueryUtility
+                        .addDomainIdInPredicate(
+                            e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                            Permission_.TENANT_ID, queryContext);
+                }
+            });
             Optional.ofNullable(query.getNames()).ifPresent(
                 e -> QueryUtility.addStringInPredicate(e, Permission_.NAME, queryContext));
             Optional.ofNullable(query.getShared()).ifPresent(

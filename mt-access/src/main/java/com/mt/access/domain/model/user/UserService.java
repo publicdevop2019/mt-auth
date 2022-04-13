@@ -58,4 +58,13 @@ public class UserService {
         }
         DomainRegistry.getUserRepository().batchLock(commands);
     }
+
+    public void updateLastLogin(UpdateLoginInfoCommand command) {
+        UserId userId = command.getUserId();
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        loginInfo.ifPresentOrElse(e -> e.updateLastLogin(command), () -> {
+            LoginInfo loginInfo1 = new LoginInfo(command);
+            DomainRegistry.getLoginInfoRepository().add(loginInfo1);
+        });
+    }
 }

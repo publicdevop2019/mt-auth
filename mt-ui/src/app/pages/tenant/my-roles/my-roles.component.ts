@@ -1,11 +1,13 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { PageEvent } from '@angular/material/paginator';
+import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { IForm, IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -20,7 +22,9 @@ export interface INewRole extends IIdBasedEntity {
   systemCreate?: boolean,
   projectId: string,
   roleType?: 'USER' | 'CLIENT' | 'PROJECT' | 'CLIENT_ROOT',
-  permissionIds: string[],
+  apiPermissionIds: string[],
+  permissionDetails?: {id:string,name:string}[],
+  commonPermissionIds: string[],
   externalPermissionIds?: string[],
   description?: string
 }
@@ -36,8 +40,12 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
   columnList: any={};
   sheetComponent = RoleComponent;
-  public loadRoot
-  public loadChildren
+  public loadRoot;
+  public loadChildren;
+  sysDataSource: MatTableDataSource<INewRole>;
+  sysTotoalItemCount = 0;
+  sysPageNumber: number = 0;
+  sysPageSize: number = 10;
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -61,7 +69,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
     const sub=this.projectId.subscribe(pId => {
       this.entitySvc.setProjectId(pId);
-      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null")
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null,types:USER.PROJECT")
       this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
     });
     this.subs.add(sub)
@@ -76,7 +84,10 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
     });
     const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: '', resetPage: true })
+        this.doSearch({ value: 'types:USER', resetPage: true })
+        this.entitySvc.readEntityByQuery(this.sysPageNumber, this.sysPageSize, 'types:CLIENT.PROJECT').subscribe(next => {
+          this.updateSysSummaryData(next)
+        })
       }
     })
     const sub3 = this.canDo('EDIT_ROLE').subscribe(b => {
@@ -110,5 +121,24 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
   }
   editable(row: INewRole) {
     return row.roleType !== 'CLIENT_ROOT' && row.roleType !== 'PROJECT'
+  }
+  doSearchWrapperCommon(config: ISearchEvent) {
+    config.value = "types:USER"
+    this.doSearch(config)
+  }
+  private updateSysSummaryData(next: ISumRep<INewRole>) {
+    if (next.data) {
+      this.sysDataSource = new MatTableDataSource(next.data);
+      this.sysTotoalItemCount = next.totalItemCount;
+    } else {
+      this.sysDataSource = new MatTableDataSource([]);
+      this.sysTotoalItemCount = 0;
+    }
+  }
+  sysPageHandler(e: PageEvent) {
+    this.sysPageNumber = e.pageIndex;
+    this.entitySvc.readEntityByQuery(this.sysPageNumber, this.sysPageSize, 'types:CLIENT.PROJECT').subscribe(next => {
+      this.updateSysSummaryData(next);
+    });
   }
 }

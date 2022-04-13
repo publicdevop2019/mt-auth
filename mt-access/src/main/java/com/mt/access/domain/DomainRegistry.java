@@ -29,6 +29,7 @@ import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.ticket.TicketService;
+import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
@@ -109,6 +110,14 @@ public class DomainRegistry {
     @Autowired
     public void setProxyService(ProxyService proxyService) {
         DomainRegistry.proxyService = proxyService;
+    }
+
+    @Getter
+    private static LoginInfoRepository loginInfoRepository;
+
+    @Autowired
+    public void setLoginInfoRepository(LoginInfoRepository proxyService) {
+        DomainRegistry.loginInfoRepository = proxyService;
     }
 
     @Autowired

@@ -237,11 +237,16 @@ public class ClientApplicationService implements ClientDetailsService {
             }, CLIENT);
     }
 
+    /**
+     * update project all client's external resource list after project external permission updated.
+     *
+     * @param event ExternalPermissionUpdated
+     */
     @Transactional
-    public void handle(ExternalPermissionUpdated deserialize) {
+    public void handle(ExternalPermissionUpdated event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
-                ProjectId projectId = new ProjectId(deserialize.getDomainId().getDomainId());
+            .idempotent(event.getId().toString(), (ignored) -> {
+                ProjectId projectId = new ProjectId(event.getDomainId().getDomainId());
                 Set<Client> projectClients = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
                         new ClientQuery(projectId));

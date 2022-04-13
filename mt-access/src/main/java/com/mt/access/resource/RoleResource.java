@@ -35,11 +35,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoleResource {
 
     @PostMapping(path = "projects/{projectId}/roles")
-    public ResponseEntity<Void> createForRoot(@PathVariable String projectId,
-                                              @RequestBody RoleCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> createForRoot(
+        @PathVariable String projectId,
+        @RequestBody RoleCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         command.setProjectId(projectId);
@@ -80,27 +81,27 @@ public class RoleResource {
     }
 
     @PutMapping("projects/{projectId}/roles/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable String projectId,
-                                                   @PathVariable(name = "id") String id,
-                                                   @RequestBody RoleUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+    public ResponseEntity<Void> replaceForRootById(
+        @PathVariable String projectId,
+        @PathVariable(name = "id") String id,
+        @RequestBody RoleUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getRoleApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getRoleApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{projectId}/roles/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String projectId,
-                                                  @PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+    public ResponseEntity<Void> deleteForRootById(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         ApplicationServiceRegistry.getRoleApplicationService().remove(projectId, id, changeId);

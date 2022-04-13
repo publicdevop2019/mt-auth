@@ -22,9 +22,11 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import java.util.Optional;
@@ -44,13 +46,13 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
-public class ScheduledValidationService {
+public class CrossDomainValidationService {
     @Autowired
     CleanUpThreadPoolExecutor taskExecutor;
     @Autowired
     private PlatformTransactionManager transactionManager;
 
-    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
     public void validate() {
         taskExecutor.execute(() -> CommonDomainRegistry.getSchedulerDistLockService()
             .executeIfLockSuccess("validation_task", 15, (nullValue) -> {
@@ -68,10 +70,21 @@ public class ScheduledValidationService {
                         validateProjectAndRole();
                         validateProjectAndUser();
                         validateEndpointAndPermission();
+                        validateRoleAndPermission();
+                        CommonApplicationServiceRegistry.getJobApplicationService()
+                            .createOrUpdateJob(JobDetail.dataValidation());
                         log.debug("end of validation existing data");
                     }
                 });
             }));
+    }
+
+    /**
+     * make sure role's permission id exit.
+     */
+    //@todo
+    private void validateRoleAndPermission() {
+
     }
 
     private void validateEndpointAndPermission() {

@@ -6,6 +6,7 @@ import com.mt.common.domain.model.distributed_lock.SchedulerDistLockService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
+import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
@@ -31,6 +32,13 @@ public class CommonDomainRegistry {
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
     @Getter
     private static SchedulerDistLockService schedulerDistLockService;
+    @Getter
+    private static JobRepository jobRepository;
+
+    @Autowired
+    public void setJobRepository(JobRepository jobRepository) {
+        CommonDomainRegistry.jobRepository = jobRepository;
+    }
 
     @Autowired
     public void setSchedulerDistLockService(SchedulerDistLockService schedulerDistLockService) {

@@ -12,6 +12,8 @@ public interface PermissionRepository {
 
     void remove(Permission e);
 
+    void removeAll(Set<Permission> e);
+
     Optional<Permission> getById(PermissionId id);
 
     Set<EndpointId> allApiPermissionLinkedEpId();

@@ -13,6 +13,9 @@ public class PermissionIdSetConverter implements AttributeConverter<Set<Permissi
         if (attribute == null) {
             return null;
         }
+        if (attribute.isEmpty()) {
+            return null;
+        }
         return String
             .join(",", attribute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
     }

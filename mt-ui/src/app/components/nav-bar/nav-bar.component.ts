@@ -34,6 +34,13 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
+      link: 'jobs',
+      display: 'JOB_STATUS',
+      icon: 'work_history',
+      params: {
+      },
+    },
+    {
       link: 'projects',
       display: 'PROJECT_DASHBOARD',
       icon: 'blur_on',

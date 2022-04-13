@@ -17,6 +17,7 @@
     <cache alias="clientResourceRegion" uses-template="myDefaults"/>
     <cache alias="clientExtResourceRegion" uses-template="myDefaults"/>
     <cache alias="linkedPermissionIdsRegion" uses-template="myDefaults"/>
+    <cache alias="loginRegion" uses-template="myDefaults"/>
 
     <cache-template name="myDefaults">
         <expiry>

@@ -57,6 +57,14 @@ public class PermissionQuery extends QueryCriteria {
         this.sort = PermissionSort.byId(true);
     }
 
+    public PermissionQuery(Set<PermissionId> permissionId, PermissionType type) {
+        ids = permissionId;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = PermissionSort.byId(true);
+        this.types = Collections.singleton(type);
+    }
+
     public PermissionQuery(ProjectId projectId, String name) {
         projectIds = new HashSet<>();
         projectIds.add(projectId);

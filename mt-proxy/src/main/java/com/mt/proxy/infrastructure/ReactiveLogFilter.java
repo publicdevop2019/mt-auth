@@ -1,4 +1,4 @@
-package com.mt.proxy.infrastructure.spring_cloud_gateway;
+package com.mt.proxy.infrastructure;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -10,17 +10,23 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+/**
+ * log filter which work both internal & external api calls.
+ * note: scg filter will not work for internal api calls
+ */
 @Slf4j
 @Component
-public class ScgLogFilter implements GlobalFilter, Ordered {
+public class ReactiveLogFilter implements WebFilter, Ordered {
 
     public static final String REQ_UUID = "UUID";
     public static final String REQ_CLIENT_IP = "CLIENT_IP";
 
     @Override
-    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         //clear previous value
         MDC.put(REQ_UUID, null);
         ServerHttpRequest request = exchange.getRequest();
@@ -69,7 +75,7 @@ public class ScgLogFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return -99;
+        return Ordered.HIGHEST_PRECEDENCE;
     }
 
     private ServerHttpResponse uuidResponseDecorator(ServerWebExchange exchange) {

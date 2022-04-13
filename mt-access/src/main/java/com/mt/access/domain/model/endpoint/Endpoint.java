@@ -9,6 +9,7 @@ import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
+import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -16,6 +17,9 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -139,6 +143,19 @@ public class Endpoint extends Auditable {
         }
     }
 
+    public static void remove(Set<Endpoint> endpointSet) {
+        DomainRegistry.getEndpointRepository().remove(endpointSet);
+        CommonDomainRegistry.getDomainEventRepository().append(
+            new EndpointCollectionModified()
+        );
+        Set<Endpoint> collect =
+            endpointSet.stream().filter(Endpoint::isSecured).collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new SecureEndpointRemoved(collect));
+        }
+    }
+
     public void update(
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
@@ -200,5 +217,15 @@ public class Endpoint extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hashCode(super.hashCode(), endpointId);
+    }
+
+    public void remove() {
+        DomainRegistry.getEndpointRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new EndpointCollectionModified());
+        if (secured) {
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new SecureEndpointRemoved(Collections.singleton(this)));
+        }
     }
 }

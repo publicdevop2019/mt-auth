@@ -16,6 +16,8 @@ public class ClientCreated extends DomainEvent {
     private RoleId roleId;
     @Getter
     private ProjectId projectId;
+    @Getter
+    private String changeId;
 
     public ClientCreated(Client client) {
         super(client.getClientId());
@@ -23,5 +25,6 @@ public class ClientCreated extends DomainEvent {
         setName(name);
         this.roleId = client.getRoleId();
         this.projectId = client.getProjectId();
+        this.changeId = client.getClientId().getDomainId();
     }
 }

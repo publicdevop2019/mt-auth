@@ -1,9 +1,16 @@
 package com.hw.integration.identityaccess.proxy;
 
+import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
+import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
+import static com.hw.helper.AppConstant.proxyUrl;
+import static com.hw.helper.utility.TestContext.mapper;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.hw.helper.OutgoingReqInterceptor;
-import com.hw.helper.UserAction;
+import com.hw.helper.AppConstant;
+import com.hw.helper.utility.OAuth2Utility;
+import com.hw.helper.utility.TestContext;
+import com.hw.helper.utility.UserUtility;
+import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
@@ -12,90 +19,85 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
-
-import static com.hw.helper.UserAction.*;
-import static com.hw.helper.UserAction.ACCOUNT_PASSWORD_ROOT;
-
 /**
- * this integration auth requires oauth2service to be running
+ * this integration auth requires oauth2service to be running.
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-@SpringBootTest
 public class RevokeTokenTest {
     public static final String PROXY_BLACKLIST = "/auth-svc/mngmt/revoke-tokens";
-    public static final String USERS_ADMIN = "/mngmt/users";
 
-    private ObjectMapper mapper = new ObjectMapper();
-    @Autowired
-    private UserAction action;
-    UUID uuid;
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override
         protected void failed(Throwable e, Description description) {
-            action.saveResult(description, uuid);
-            log.error("test failed, method {}, uuid {}", description.getMethodName(), uuid);
+            log.error("test failed, method {}, id {}", description.getMethodName(),
+                TestContext.getTestId());
         }
     };
 
     @Before
     public void setUp() {
-        uuid = UUID.randomUUID();
-        action.restTemplate.getRestTemplate().setInterceptors(Collections.singletonList(new OutgoingReqInterceptor(uuid)));
+        TestContext.init();
+        log.info("test id {}", TestContext.getTestId());
     }
 
     @Test
-    public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints() throws JsonProcessingException, InterruptedException {
+    public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()
+        throws JsonProcessingException, InterruptedException {
         Thread.sleep(10000);
-        String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
-        String url2 = UserAction.proxyUrl + SVC_NAME_TEST + "/get/test";
+        String url = proxyUrl + PROXY_BLACKLIST;
+        String url2 = proxyUrl + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
          * before client get blacklisted, client is able to access auth server non token endpoint
          */
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-                action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
+            OAuth2Utility.getOAuth2PasswordToken(
+                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         String bearer1 = tokenResponse1.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        ResponseEntity<String> exchange1 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        ResponseEntity<String> exchange1 = TestContext.getRestTemplate()
+            .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
 
 
         /**
          * block client
          */
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPasswordRoot();
-        String bearer = tokenResponse.getBody().getValue();
 
         HashMap<String, String> stringStringHashMap = new HashMap<>();
-        stringStringHashMap.put("id", CLIENT_ID_LOGIN_ID);
+        stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
         stringStringHashMap.put("type", "CLIENT");
         String s = mapper.writeValueAsString(stringStringHashMap);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
+        headers.setBearerAuth(UserUtility.getJwtAdmin());
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
-        ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
          * after client get blacklisted, client with old token will get 401
          */
-        ResponseEntity<String> exchange2 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        ResponseEntity<String> exchange2 =
+            TestContext.getRestTemplate().exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
 
         /**
@@ -104,39 +106,42 @@ public class RevokeTokenTest {
          */
         Thread.sleep(1000);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
-                action.getJwtPasswordWithClient(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, ACCOUNT_USERNAME_ROOT, ACCOUNT_PASSWORD_ROOT);
+            OAuth2Utility.getOAuth2PasswordToken(
+                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
-        ResponseEntity<String> exchange3 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
+        ResponseEntity<String> exchange3 =
+            TestContext.getRestTemplate().exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
     }
 
     @Test
     public void only_root_user_can_add_blacklist_client() throws JsonProcessingException {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = action.getJwtPasswordRoot();
-        String bearer = tokenResponse.getBody().getValue();
 
-        String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
+        String url = proxyUrl + PROXY_BLACKLIST;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
-        stringStringHashMap.put("id", CLIENT_ID_LOGIN_ID);
+        stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
         stringStringHashMap.put("type", "CLIENT");
         String s = mapper.writeValueAsString(stringStringHashMap);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
+        headers.setBearerAuth(UserUtility.getJwtAdmin());
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
-        ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
-    public void receive_request_blacklist_user_then_block_user_old_request() throws JsonProcessingException, InterruptedException {
-        String url2 = UserAction.proxyUrl + UserAction.SVC_NAME_TEST + "/get/test";
+    public void receive_request_blacklist_user_then_block_user_old_request()
+        throws JsonProcessingException, InterruptedException {
+        String url2 = proxyUrl + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
          * user can login & call resourceOwner api
          */
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = action.getJwtPasswordRoot();
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = UserUtility.getJwtPasswordAdmin();
 
         String bearer0 = pwdTokenResponse.getBody().getValue();
         String refreshToken = pwdTokenResponse.getBody().getRefreshToken().getValue();
@@ -144,31 +149,37 @@ public class RevokeTokenTest {
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer0);
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        ResponseEntity<String> exchange2 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
+            .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
 
         /**
          * blacklist admin account
          */
 
-        String url = UserAction.proxyUrl + PROXY_BLACKLIST ;
+        String url = proxyUrl + PROXY_BLACKLIST;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", userId);
         stringStringHashMap.put("type", "USER");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer0);
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(mapper.writeValueAsString(stringStringHashMap), headers);
-        ResponseEntity<String> exchange = action.restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
+        HttpEntity<String> hashMapHttpEntity =
+            new HttpEntity<>(mapper.writeValueAsString(stringStringHashMap), headers);
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
          * resourceOwner request get blocked, even refresh token should not work
          */
-        ResponseEntity<String> exchange1 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        ResponseEntity<String> exchange1 = TestContext.getRestTemplate()
+            .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
 
-        ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse = getRefreshTokenResponse(refreshToken, CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET);
+        ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
+            getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
+                AppConstant.EMPTY_CLIENT_SECRET);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse.getStatusCode());
 
         /**
@@ -176,23 +187,25 @@ public class RevokeTokenTest {
          * add thread sleep to prevent token get revoked and generate within a second
          */
         Thread.sleep(1000);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 = action.getJwtPasswordRoot();
-        String bearer3 = tokenResponse3.getBody().getValue();
-        headers1.setBearerAuth(bearer3);
+        headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
-        ResponseEntity<String> exchange3 = action.restTemplate.exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
+        ResponseEntity<String> exchange3 = TestContext.getRestTemplate()
+            .exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
 
     }
 
-    private ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(String refreshToken, String clientId, String clientSecret) {
+    private ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(String refreshToken,
+                                                                             String clientId,
+                                                                             String clientSecret) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "refresh_token");
         params.add("refresh_token", refreshToken);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        return action.restTemplate.exchange(UserAction.PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
+        return TestContext.getRestTemplate()
+            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
     }
 
 }

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Set;
 
 @Data
-public class SecurityProfile {
+public class EndpointInfo {
     private String resourceId;
 
     private String lookupPath;
