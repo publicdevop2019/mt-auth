@@ -1,6 +1,9 @@
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xmlns="http://www.ehcache.org/v3"
         xsi:schemaLocation="http://www.ehcache.org/v3 http://www.ehcache.org/schema/ehcache-core-3.0.xsd">
+    <heap-store>
+        <max-object-size unit="MB">200</max-object-size>
+    </heap-store>
 
     <cache alias="userRelationRegion" uses-template="myDefaults"/>
     <cache alias="userRegion" uses-template="myDefaults"/>
@@ -18,15 +21,34 @@
     <cache alias="clientExtResourceRegion" uses-template="myDefaults"/>
     <cache alias="linkedPermissionIdsRegion" uses-template="myDefaults"/>
     <cache alias="loginRegion" uses-template="myDefaults"/>
-
-    <cache-template name="myDefaults">
+    <cache alias="jobRegion" uses-template="myDefaults"/>
+<!--  start of config hibernate query cache size to avoid OOM issue
+    ref:https://stackoverflow.com/questions/57820519/what-is-the-standardquerycache-alternative-in-hibernate-5-4-4
+    ref2:https://github.com/hibernate/hibernate-orm/blob/main/documentation/src/main/asciidoc/userguide/chapters/caching/Caching.adoc
+-->
+    <cache alias="default-query-results-region" uses-template="myDefaults" >
+        <resources>
+            <heap unit="MB">20</heap>
+            <offheap unit="MB">30</offheap>
+        </resources>
+    </cache>
+    <cache alias="default-update-timestamps-region" uses-template="myDefaults" >
+        <expiry>
+            <none/>
+        </expiry>
+        <resources>
+            <heap unit="MB">20</heap>
+            <offheap unit="MB">30</offheap>
+        </resources>
+    </cache>
+<!--  end  -->
+    <cache-template name="myDefaults" >
         <expiry>
             <ttl unit="seconds">10</ttl>
         </expiry>
         <resources>
-            <heap unit="entries">200</heap>
+            <heap unit="MB">5</heap>
             <offheap unit="MB">10</offheap>
         </resources>
     </cache-template>
-
 </config>
