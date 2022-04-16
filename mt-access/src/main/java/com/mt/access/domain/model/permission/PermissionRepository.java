@@ -17,4 +17,6 @@ public interface PermissionRepository {
     Optional<Permission> getById(PermissionId id);
 
     Set<EndpointId> allApiPermissionLinkedEpId();
+
+    Set<PermissionId> allPermissionId();
 }

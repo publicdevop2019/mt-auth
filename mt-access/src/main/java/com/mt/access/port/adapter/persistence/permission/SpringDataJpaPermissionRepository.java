@@ -45,8 +45,15 @@ public interface SpringDataJpaPermissionRepository
         return allApiPermissionLinkedEpId_();
     }
 
+    default Set<PermissionId> allPermissionId() {
+        return allPermissionId_();
+    }
+
     @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
     Set<EndpointId> allApiPermissionLinkedEpId_();
+
+    @Query("select distinct p.permissionId from Permission p where p.deleted=0")
+    Set<PermissionId> allPermissionId_();
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
         return QueryBuilderRegistry.getPermissionAdaptor().execute(permissionQuery);

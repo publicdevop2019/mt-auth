@@ -82,9 +82,21 @@ public class CrossDomainValidationService {
     /**
      * make sure role's permission id exit.
      */
-    //@todo
     private void validateRoleAndPermission() {
-
+        Set<Role> allByQuery = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e), RoleQuery.all());
+        Set<PermissionId> collect =
+            allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream())
+                .collect(Collectors.toSet());
+        Set<PermissionId> permissionIds =
+            DomainRegistry.getPermissionRepository().allPermissionId();
+        if (collect.stream().anyMatch(e -> !permissionIds.contains(e))) {
+            Set<PermissionId> collect1 = collect.stream().filter(e -> !permissionIds.contains(e))
+                .collect(Collectors.toSet());
+            log.debug("unable to find permission ids {} for role", collect1);
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ValidationFailedEvent("unable to find all permission for role"));
+        }
     }
 
     private void validateEndpointAndPermission() {

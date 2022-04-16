@@ -132,12 +132,20 @@ public class RoleQuery extends QueryCriteria {
         return roleQuery;
     }
 
-    public static RoleQuery clientId(ClientId clientId) {
+    public static RoleQuery forClientId(ClientId clientId) {
         RoleQuery roleQuery = new RoleQuery();
         Set<RoleType> roleTypes = new HashSet<>();
         roleTypes.add(RoleType.CLIENT);
         roleQuery.types = roleTypes;
         roleQuery.names = Collections.singleton(clientId.getDomainId());
+        roleQuery.setPageConfig(PageConfig.defaultConfig());
+        roleQuery.setQueryConfig(QueryConfig.skipCount());
+        roleQuery.sort = RoleSort.byId(true);
+        return roleQuery;
+    }
+
+    public static RoleQuery all() {
+        RoleQuery roleQuery = new RoleQuery();
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
         roleQuery.sort = RoleSort.byId(true);

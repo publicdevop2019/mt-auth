@@ -195,7 +195,7 @@ public class RoleApplicationService {
             .idempotentMsg(event.getChangeId(), (ignored) -> {
                 log.debug("handle client removed event {}", event.getDomainId().getDomainId());
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
-                RoleQuery roleQuery = RoleQuery.clientId(clientId);
+                RoleQuery roleQuery = RoleQuery.forClientId(clientId);
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
                         roleQuery);
