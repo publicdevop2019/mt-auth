@@ -46,4 +46,9 @@ public class DomainId implements Serializable {
     public int hashCode() {
         return Objects.hashCode(domainId);
     }
+
+    @Override
+    public String toString() {
+        return getDomainId();
+    }
 }

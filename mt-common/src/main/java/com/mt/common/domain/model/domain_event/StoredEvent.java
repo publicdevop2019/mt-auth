@@ -2,6 +2,7 @@ package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -54,4 +55,25 @@ public class StoredEvent implements Serializable {
         this.send = true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        StoredEvent that = (StoredEvent) o;
+        return internal == that.internal && send == that.send &&
+            Objects.equals(eventBody, that.eventBody) &&
+            Objects.equals(id, that.id) &&
+            Objects.equals(timestamp, that.timestamp) &&
+            Objects.equals(name, that.name) && Objects.equals(topic, that.topic) &&
+            Objects.equals(domainId, that.domainId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(eventBody, id, timestamp, name, internal, send, topic, domainId);
+    }
 }
