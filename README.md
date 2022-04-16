@@ -23,7 +23,7 @@
 - 异步日志
 - API层面缓存，跨域，CSRF防护，GZip，隐藏系统错误返回信息等
 - 请求日志记录
-# 架构
+# 项目示意图
 ![arthitecture](./doc/arthitecture/architecture.jpg)
 # 技术栈
 | 模块                       | 概述                                  | 技术栈                                  |  
