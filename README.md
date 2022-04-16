@@ -24,7 +24,7 @@
 - API层面缓存，跨域，CSRF防护，GZip，隐藏系统错误返回信息等
 - 请求日志记录
 # 架构
-![arthitecture](https://github.com/publicdevop2019/mt-auth/blob/main/doc/arthitecture/arthitecture.jpg?raw=true)
+![arthitecture](https://github.com/publicdevop2019/mt-auth/blob/main/doc/arthitecture/architecture.jpg)
 # 技术栈
 | 模块                       | 概述                                  | 技术栈                                  |  
 |:---------------------------|:--------------------------------------|:--------------------------------------|
