@@ -2,6 +2,7 @@ package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import java.util.Objects;
 import javax.persistence.Cacheable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -33,5 +34,22 @@ public class Position extends Auditable {
 
     public void replace(String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Position position = (Position) o;
+        return Objects.equals(positionId, position.positionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(positionId);
     }
 }

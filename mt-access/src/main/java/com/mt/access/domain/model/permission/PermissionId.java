@@ -16,8 +16,4 @@ public class PermissionId extends DomainId implements Serializable {
         super(domainId);
     }
 
-    @Override
-    public String toString() {
-        return getDomainId();
-    }
 }

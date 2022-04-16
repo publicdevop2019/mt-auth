@@ -156,6 +156,16 @@ public class Endpoint extends Auditable {
         }
     }
 
+    public void remove() {
+        DomainRegistry.getEndpointRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new EndpointCollectionModified());
+        if (secured) {
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new SecureEndpointRemoved(Collections.singleton(this)));
+        }
+    }
+
     public void update(
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
@@ -219,13 +229,4 @@ public class Endpoint extends Auditable {
         return Objects.hashCode(super.hashCode(), endpointId);
     }
 
-    public void remove() {
-        DomainRegistry.getEndpointRepository().remove(this);
-        CommonDomainRegistry.getDomainEventRepository()
-            .append(new EndpointCollectionModified());
-        if (secured) {
-            CommonDomainRegistry.getDomainEventRepository()
-                .append(new SecureEndpointRemoved(Collections.singleton(this)));
-        }
-    }
 }
