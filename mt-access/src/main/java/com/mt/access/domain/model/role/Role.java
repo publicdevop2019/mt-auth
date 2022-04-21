@@ -6,6 +6,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
+import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
@@ -115,10 +116,29 @@ public class Role extends Auditable {
                                       Set<PermissionId> permissionIds,
                                       RoleType type, @Nullable RoleId parentId,
                                       @Nullable ProjectId tenantId) {
-        Role role =
-            new Role(projectId, roleId, name, null, permissionIds, Collections.emptySet(), type,
-                parentId, tenantId,
-                null);
+        Role role;
+        if (!permissionIds.isEmpty()) {
+            Set<Permission> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                    new PermissionQuery(permissionIds));
+            Set<PermissionId> apiPermissionIds =
+                allByQuery.stream().filter(e -> e.getType().equals(PermissionType.API)).map(
+                    Permission::getPermissionId).collect(Collectors.toSet());
+            Set<PermissionId> commonPermissionIds =
+                allByQuery.stream().filter(e -> e.getType().equals(PermissionType.COMMON)).map(
+                    Permission::getPermissionId).collect(Collectors.toSet());
+            role =
+                new Role(projectId, roleId, name, null, commonPermissionIds, apiPermissionIds, type,
+                    parentId, tenantId,
+                    null);
+
+        } else {
+            role =
+                new Role(projectId, roleId, name, null, Collections.emptySet(),
+                    Collections.emptySet(), type,
+                    parentId, tenantId,
+                    null);
+        }
         role.systemCreate = true;
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         return role;
