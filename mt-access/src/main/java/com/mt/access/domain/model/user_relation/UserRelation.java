@@ -3,11 +3,13 @@ package com.mt.access.domain.model.user_relation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.OrganizationId;
 import com.mt.access.domain.model.position.PositionId;
+import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
 import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -109,6 +111,8 @@ public class UserRelation extends Auditable {
         //to target project
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
+        Project project = DomainRegistry.getProjectRepository().getById(tenantId).get();
+        CommonDomainRegistry.getDomainEventRepository().append(new ProjectOnboardingComplete(project));
     }
 
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,

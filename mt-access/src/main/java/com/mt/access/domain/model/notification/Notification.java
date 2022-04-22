@@ -1,9 +1,10 @@
 package com.mt.access.domain.model.notification;
 
 import com.mt.access.domain.model.CrossDomainValidationService;
-import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
+import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
@@ -45,7 +46,7 @@ public class Notification extends Auditable {
         descriptions = Collections.singleton(event.getEmail().getEmail());
     }
 
-    public Notification(ProjectCreated event) {
+    public Notification(ProjectOnboardingComplete event) {
         super();
         id = event.getId();
         notificationId = new NotificationId();

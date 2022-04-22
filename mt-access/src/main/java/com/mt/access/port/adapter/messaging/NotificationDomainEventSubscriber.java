@@ -1,16 +1,18 @@
 package com.mt.access.port.adapter.messaging;
 
 import static com.mt.access.domain.model.CrossDomainValidationService.ValidationFailedEvent.SYSTEM_VALIDATION_FAILED;
-import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
+import static com.mt.access.domain.model.project.event.StartNewProjectOnboarding.START_NEW_PROJECT_ONBOARDING;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
+import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
-import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
+import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -48,11 +50,11 @@ public class NotificationDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
         CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true,
-            "notification_" + PROJECT_CREATED + "_handler", (event) -> {
-                ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), ProjectCreated.class);
+            "notification_" + PROJECT_ONBOARDING_COMPLETED + "_handler", (event) -> {
+                ProjectOnboardingComplete deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                    .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            }, PROJECT_CREATED);
+            }, PROJECT_ONBOARDING_COMPLETED);
     }
 
     @EventListener(ApplicationReadyEvent.class)

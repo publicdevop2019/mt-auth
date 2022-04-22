@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.project;
 
-import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -35,7 +35,7 @@ public class Project extends Auditable {
         this.projectId = projectId;
         this.name = name;
         this.setCreatedBy(userId.getDomainId());
-        CommonDomainRegistry.getDomainEventRepository().append(new ProjectCreated(this));
+        CommonDomainRegistry.getDomainEventRepository().append(new StartNewProjectOnboarding(this));
     }
 
     public void replace(String name) {

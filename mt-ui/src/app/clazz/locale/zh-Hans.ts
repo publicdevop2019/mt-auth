@@ -743,4 +743,6 @@ export const zhHans = {
     "KEEP_WS_CONNECTION": "刷新web socket链接",
     "MISSED_EVENT_SCAN": "二次事件扫描发布",
     "LAST_EXE_TIME": "最后执行时间",
+    "START_NEW_PROJECT_ONBOARDING": "开始创建新项目",
+    "PROJECT_ONBOARDING_COMPLETED": "新项目创建成功",
 }
