@@ -8,9 +8,4 @@ import lombok.Data;
 public class UpdateUserCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private boolean locked;
-
-    private Set<String> grantedAuthorities;
-
-    private boolean subscription;
-    private Integer version;
 }

@@ -79,7 +79,7 @@ public class UserResource {
                                                    String changeId) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        ApplicationServiceRegistry.getUserApplicationService().update(id, command, changeId);
+        ApplicationServiceRegistry.getUserApplicationService().adminLock(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -177,7 +177,15 @@ public class UserResource {
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
-
+    /**
+     * update user role for project.
+     *
+     * @param projectId project id
+     * @param id        user id
+     * @param jwt       jwt
+     * @param command   update command
+     * @return http response 200
+     */
     @PutMapping(path = "projects/{projectId}/users/{id}")
     public ResponseEntity<UserTenantRepresentation> replaceUserDetailForProject(
         @PathVariable String projectId,
