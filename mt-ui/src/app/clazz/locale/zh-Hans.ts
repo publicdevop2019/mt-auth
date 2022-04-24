@@ -752,4 +752,5 @@ export const zhHans = {
     "PREF_LANGUAGE": "语言",
     "ENGLISH": "英语",
     "CHINESE": "中文",
+    "WELCOME_MSG": "欢迎",
 }
