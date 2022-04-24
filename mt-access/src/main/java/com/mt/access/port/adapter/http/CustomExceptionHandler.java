@@ -16,6 +16,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -53,6 +54,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handle403Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
             HttpStatus.FORBIDDEN, request);
+    }
+
+    @ExceptionHandler(value = {
+        InvalidTokenException.class,
+    })
+    protected ResponseEntity<Object> handle401Exception(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
+            HttpStatus.UNAUTHORIZED, request);
     }
 
     @ExceptionHandler(value = {

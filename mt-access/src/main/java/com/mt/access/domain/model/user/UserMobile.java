@@ -4,14 +4,20 @@ import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
+import lombok.Getter;
 
 public class UserMobile {
     @Column
     @NotNull
+    @Getter
     String countryCode;
     @Column
     @NotNull
+    @Getter
     String mobileNumber;
+
+    private UserMobile() {
+    }
 
     /**
      * user's mobile info, only support mobile number >=10 and <=11.

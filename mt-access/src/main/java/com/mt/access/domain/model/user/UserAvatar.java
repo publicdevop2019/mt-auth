@@ -1,14 +1,19 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Validator;
+import javax.persistence.Column;
 import lombok.Data;
 
 @Data
 public class UserAvatar {
-    private String avatarLink;
+    @Column(name = "avatar_link")
+    private String value;
 
-    public UserAvatar(String avatarLink) {
-        this.avatarLink = avatarLink;
-        Validator.isHttpUrl(avatarLink);
+    private UserAvatar() {
+    }
+
+    public UserAvatar(String value) {
+        this.value = value;
+        Validator.isHttpUrl(value);
     }
 }

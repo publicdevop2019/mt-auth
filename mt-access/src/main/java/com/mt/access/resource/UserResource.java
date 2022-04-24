@@ -13,6 +13,7 @@ import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.UserAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
@@ -166,8 +167,14 @@ public class UserResource {
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
     }
 
+    /**
+     * read current user profile.
+     *
+     * @param jwt user jwt
+     * @return user profile
+     */
     @GetMapping(path = "users/profile")
-    public ResponseEntity<UserProfileRepresentation> findUserForProject3(
+    public ResponseEntity<UserProfileRepresentation> getMyProfile(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
@@ -175,6 +182,17 @@ public class UserResource {
             ApplicationServiceRegistry.getUserRelationApplicationService().myProfile();
         return user.map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.ok().build());
+    }
+
+    @PutMapping(path = "users/profile")
+    public ResponseEntity<Void> findUserForProject3(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestBody UserUpdateProfileCommand command
+    ) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        ApplicationServiceRegistry.getUserRelationApplicationService().updateProfile(command);
+        return ResponseEntity.ok().build();
     }
 
     /**

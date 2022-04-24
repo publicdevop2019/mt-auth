@@ -15,6 +15,11 @@ public class UserProfileRepresentation {
     private Long lastLoginAt;
     private String ipAddress;
     private String agent;
+    private String language;
+    private String countryCode;
+    private String mobileNumber;
+    private String avatarLink;
+    private String username;
 
 
     public UserProfileRepresentation(User user,
@@ -26,6 +31,19 @@ public class UserProfileRepresentation {
             lastLoginAt = loginInfo.getLoginAt().getTime();
             ipAddress = loginInfo.getIpAddress();
             agent = loginInfo.getAgent();
+        }
+        if (user.getUserName() != null) {
+            this.username = user.getUserName().getValue();
+        }
+        if (user.getUserAvatar() != null) {
+            this.avatarLink = user.getUserAvatar().getValue();
+        }
+        if (user.getLanguage() != null) {
+            this.language = user.getLanguage().name();
+        }
+        if (user.getMobile() != null) {
+            this.countryCode = user.getMobile().getCountryCode();
+            this.mobileNumber = user.getMobile().getMobileNumber();
         }
     }
 }

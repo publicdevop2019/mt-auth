@@ -137,7 +137,7 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
       shared: !!formGroup.get('shared').value,
       csrfEnabled: !!formGroup.get('csrf').value,
       corsProfileId: noEmptyString(formGroup.get("corsProfile").value),
-      cacheProfileId: noEmptyString(formGroup.get("cacheProfile").value),
+      cacheProfileId: formGroup.get('method').value === 'GET' ? noEmptyString(formGroup.get("cacheProfile").value) : null,
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

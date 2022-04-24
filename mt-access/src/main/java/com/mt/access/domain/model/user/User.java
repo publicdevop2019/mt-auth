@@ -2,13 +2,13 @@ package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
@@ -52,7 +52,7 @@ public class User extends Auditable {
     private UserName userName;
     @Getter
     @Setter
-    @Convert(converter = PermissionType.DbConverter.class)
+    @Convert(converter = Language.DbConverter.class)
     private Language language;
     @Embedded
     @Getter
@@ -128,4 +128,21 @@ public class User extends Auditable {
         return Objects.hashCode(super.hashCode(), userId);
     }
 
+    public void update(@Nullable UserAvatar userAvatar, UserMobile mobile,
+                       @Nullable UserName userName,
+                       @Nullable Language language) {
+        if (userAvatar != null) {
+            this.userAvatar = userAvatar;
+        }
+        if (userName != null) {
+            if (this.userName.getValue() != null) {
+                throw new IllegalStateException("username can only be set once");
+            }
+            this.userName = userName;
+        }
+        if (language != null) {
+            this.language = language;
+        }
+        this.mobile = mobile;
+    }
 }

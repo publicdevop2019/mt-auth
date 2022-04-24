@@ -745,4 +745,11 @@ export const zhHans = {
     "LAST_EXE_TIME": "最后执行时间",
     "START_NEW_PROJECT_ONBOARDING": "开始创建新项目",
     "PROJECT_ONBOARDING_COMPLETED": "新项目创建成功",
+    "AVATAR": "头像",
+    "USERNAME": "用户名",
+    "COUNTRY_CODE": "国家",
+    "MOBILE_NUMBER": "手机号",
+    "PREF_LANGUAGE": "语言",
+    "ENGLISH": "英语",
+    "CHINESE": "中文",
 }
