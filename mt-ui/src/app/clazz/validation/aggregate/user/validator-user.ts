@@ -18,6 +18,8 @@ export class UserValidator extends IAggregateValidator {
         this.appCreateUserCommandValidator.set('email', this.emailValidator);
         this.appCreateUserCommandValidator.set('activationCode', this.activationCodeValidator);
         this.appCreateUserCommandValidator.set('password', this.passwordValidator);
+        this.appCreateUserCommandValidator.set('mobileNumber', this.mobileNumberValidator);
+        this.appCreateUserCommandValidator.set('countryCode', this.countryCodeValidator);
 
         this.appForgetUserPasswordCommandValidator.set('email', this.emailValidator);
 
@@ -27,7 +29,7 @@ export class UserValidator extends IAggregateValidator {
 
         this.adminUpdateUserCommandValidator.set('locked', this.lockedValidator);
     }
-    public validate(client: IAuthUser|IPendingResourceOwner|IForgetPasswordRequest, context: string): ErrorMessage[] {
+    public validate(client: IAuthUser | IPendingResourceOwner | IForgetPasswordRequest, context: string): ErrorMessage[] {
         if (context === 'adminUpdateUserCommandValidator')
             return this.validationWPlatform(client, this.adminUpdateUserCommandValidator)
         if (context === 'userUpdatePwdCommandValidator')
@@ -44,6 +46,22 @@ export class UserValidator extends IAggregateValidator {
     passwordValidator = (key: string, payload: IResourceOwnerUpdatePwd) => {
         let results: ErrorMessage[] = [];
         StringValidator.notEmpty(payload[key], results, key)
+        const pwd: string = payload[key]
+        if (pwd.search(/[a-z]/i) < 0) {
+            results.push({ type: 'pwd', key: key, message: 'PWD_LETTER' })
+        }
+        if (pwd.search(/[0-9]/i) < 0) {
+            results.push({ type: 'pwd', key: key, message: 'PWD_NUMBER' })
+        }
+        if (pwd.search(/^\S*$/) < 0) {
+            results.push({ type: 'pwd', key: key, message: 'PWD_WHITESPACE' })
+        }
+        if (pwd.search(/^(?=.*[~`!@#$%^&*()--+={}\[\]|\\:;"'<>,.?/_₹]).*$/) < 0) {
+            results.push({ type: 'pwd', key: key, message: 'PWD_SPECIAL_CHAR' })
+        }
+        if (pwd.length < 10 || pwd.length > 16) {
+            results.push({ type: 'pwd', key: key, message: 'PWD_LENGTH' })
+        }
         return results
     }
     currentPwdValidator = (key: string, payload: IResourceOwnerUpdatePwd) => {
@@ -56,10 +74,21 @@ export class UserValidator extends IAggregateValidator {
         StringValidator.isEmail(payload[key], results, key)
         return results
     }
+    mobileNumberValidator = (key: string, payload: IPendingResourceOwner) => {
+        let results: ErrorMessage[] = [];
+        StringValidator.lessThanOrEqualTo(payload[key], 11, results, key)
+        StringValidator.greaterThanOrEqualTo(payload[key], 10, results, key)
+        return results
+    }
+    countryCodeValidator = (key: string, payload: IPendingResourceOwner) => {
+        let results: ErrorMessage[] = [];
+        StringValidator.notBlank(payload[key], results, key)
+        StringValidator.belongsTo(payload[key], ['1', '86'], results, key)
+        return results
+    }
     activationCodeValidator = (key: string, payload: IPendingResourceOwner) => {
         let results: ErrorMessage[] = [];
-        NumberValidator.isInteger(+payload[key], results, key)
-        NumberValidator.greaterThan(+payload[key], 99999, results, key)
+        StringValidator.notBlank(payload[key], results, key)
         return results
     }
     tokenValidator = (key: string, payload: IPendingResourceOwner) => {

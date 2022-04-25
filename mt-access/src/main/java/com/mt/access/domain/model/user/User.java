@@ -8,7 +8,9 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import javax.annotation.Nullable;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.PreUpdate;
@@ -16,7 +18,6 @@ import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
@@ -26,7 +27,6 @@ import org.hibernate.annotations.Where;
  */
 @Entity
 @Table(name = "user_")
-@NoArgsConstructor
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 public class User extends Auditable {
@@ -38,7 +38,23 @@ public class User extends Auditable {
     @Getter
     @Setter
     private UserPassword password;
-
+    @Embedded
+    @Getter
+    @Setter
+    private UserMobile mobile;
+    @Embedded
+    @Getter
+    @Setter
+    @Nullable
+    private UserAvatar userAvatar;
+    @Embedded
+    @Getter
+    @Setter
+    private UserName userName;
+    @Getter
+    @Setter
+    @Convert(converter = Language.DbConverter.class)
+    private Language language;
     @Embedded
     @Getter
     @Setter(AccessLevel.PRIVATE)
@@ -52,15 +68,24 @@ public class User extends Auditable {
     @Embedded
     private PasswordResetCode pwdResetToken;
 
-    public User(UserEmail userEmail, UserPassword password, UserId userId) {
+    private User(UserEmail userEmail, UserPassword password, UserId userId, UserMobile mobile) {
         super();
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);
         setLocked(false);
+        setMobile(mobile);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private User() {
+    }
+
+    public static User newUser(UserEmail userEmail, UserPassword password, UserId userId,
+                               UserMobile mobile) {
+        return new User(userEmail, password, userId, mobile);
     }
 
     @Override
@@ -75,9 +100,8 @@ public class User extends Auditable {
     }
 
 
-    public void replace(boolean locked) {
+    public void lockUser(boolean locked) {
         setLocked(locked);
-        validate(new HttpValidationNotificationHandler());
     }
 
     @PreUpdate
@@ -105,4 +129,19 @@ public class User extends Auditable {
         return Objects.hashCode(super.hashCode(), userId);
     }
 
+    public void update(UserMobile mobile,
+                       @Nullable UserName userName,
+                       @Nullable Language language) {
+        if (userName != null) {
+            if (this.userName != null && this.userName.getValue() != null
+                && !this.userName.equals(userName)) {
+                throw new IllegalStateException("username can only be set once");
+            }
+            this.userName = userName;
+        }
+        if (language != null) {
+            this.language = language;
+        }
+        this.mobile = mobile;
+    }
 }

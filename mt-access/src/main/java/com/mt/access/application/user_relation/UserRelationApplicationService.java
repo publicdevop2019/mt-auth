@@ -5,6 +5,7 @@ import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -15,7 +16,10 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.User;
+import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserMobile;
+import com.mt.access.domain.model.user.UserName;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
@@ -141,5 +145,15 @@ public class UserRelationApplicationService {
                 new UserProfileRepresentation(e, loginInfo.get());
             return Optional.of(userProfileRepresentation);
         });
+    }
+
+    @Transactional
+    public void updateProfile(UserUpdateProfileCommand command) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        user.ifPresent(e -> e.update(
+            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+            command.getUsername() != null ? new UserName(command.getUsername()) : null,
+            command.getLanguage()));
     }
 }

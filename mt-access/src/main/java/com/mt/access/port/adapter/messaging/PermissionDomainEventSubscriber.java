@@ -4,14 +4,14 @@ import static com.mt.access.domain.model.endpoint.event.EndpointShareAdded.ENDPO
 import static com.mt.access.domain.model.endpoint.event.EndpointShareRemoved.ENDPOINT_SHARED_REMOVED;
 import static com.mt.access.domain.model.endpoint.event.SecureEndpointCreated.SECURE_ENDPOINT_CREATED;
 import static com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved.SECURE_ENDPOINT_REMOVED;
-import static com.mt.access.domain.model.project.event.ProjectCreated.PROJECT_CREATED;
+import static com.mt.access.domain.model.project.event.StartNewProjectOnboarding.START_NEW_PROJECT_ONBOARDING;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
-import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,9 +27,10 @@ public class PermissionDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true, PROJECT_CREATED, (event) -> {
-            ProjectCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                .deserialize(event.getEventBody(), ProjectCreated.class);
+        CommonDomainRegistry.getEventStreamService().of(appName, true,
+            START_NEW_PROJECT_ONBOARDING, (event) -> {
+            StartNewProjectOnboarding deserialize = CommonDomainRegistry.getCustomObjectSerializer()
+                .deserialize(event.getEventBody(), StartNewProjectOnboarding.class);
             ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
         });
     }

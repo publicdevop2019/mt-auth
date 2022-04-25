@@ -3,8 +3,9 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
-import { logout } from 'src/app/clazz/utility';
+import { Subscription } from 'rxjs';
+import { map, take } from 'rxjs/operators';
+import { createImageFromBlob, logout } from 'src/app/clazz/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
@@ -116,7 +117,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-project',
       display: 'MY_PROJECT',
       icon: 'blur_on',
-      authName: ['VIEW_PROJECT_INFO','EDIT_PROJECT_INFO'],
+      authName: ['VIEW_PROJECT_INFO', 'EDIT_PROJECT_INFO'],
       params: {
       },
     },
@@ -124,7 +125,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-client',
       display: 'MY_CLIENTS',
       icon: 'apps',
-      authName: ['CREATE_CLIENT','EDIT_CLIENT','VIEW_CLIENT'],
+      authName: ['CREATE_CLIENT', 'EDIT_CLIENT', 'VIEW_CLIENT'],
       params: {
       },
     },
@@ -132,7 +133,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-api',
       display: 'MY_API',
       icon: 'mediation',
-      authName: ['CREATE_API','EDIT_API','VIEW_API'],
+      authName: ['CREATE_API', 'EDIT_API', 'VIEW_API'],
       params: {
       },
     },
@@ -140,7 +141,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-permission',
       display: 'MY_PERMISSION_DASHBOARD',
       icon: 'policy',
-      authName: ['CREATE_PERMISSION','EDIT_PERMISSION','VIEW_PERMISSION'],
+      authName: ['CREATE_PERMISSION', 'EDIT_PERMISSION', 'VIEW_PERMISSION'],
       params: {
       },
     },
@@ -148,7 +149,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-role',
       display: 'MY_ROLE_DASHBOARD',
       icon: 'person',
-      authName: ['CREATE_ROLE','EDIT_ROLE','VIEW_ROLE'],
+      authName: ['CREATE_ROLE', 'EDIT_ROLE', 'VIEW_ROLE'],
       params: {
       },
     },
@@ -156,7 +157,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-user',
       display: 'MY_USER_DASHBOARD',
       icon: 'people',
-      authName: ['EDIT_TENANT_USER','VIEW_TENANT_USER'],
+      authName: ['EDIT_TENANT_USER', 'VIEW_TENANT_USER'],
       params: {
       },
     },
@@ -209,6 +210,7 @@ export class NavBarComponent implements OnInit {
   ];
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;
+  name: string;
   constructor(
     public projectSvc: ProjectService,
     public authSvc: AuthService,
@@ -228,6 +230,7 @@ export class NavBarComponent implements OnInit {
   openedHandler(panelName: string) {
     localStorage.setItem(panelName, 'true')
   }
+
   closedHander(panelName: string) {
     localStorage.setItem(panelName, 'false')
   }
@@ -236,7 +239,10 @@ export class NavBarComponent implements OnInit {
   }
   ngOnDestroy(): void {
     this.mobileQuery.removeListener(this._mobileQueryListener);
+    this.sub.unsubscribe()
   }
+  avatar: string | ArrayBuffer;
+  sub: Subscription;
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects = next.data;
@@ -244,11 +250,24 @@ export class NavBarComponent implements OnInit {
     this.projectSvc.findUIPermission().subscribe(next => {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
     })
-    this.httpProxySvc.getMyProfile().subscribe(next => this.authSvc.currentUser = next)
     this.msgSvc.connectToMonitor();
+    this.authSvc.currentUser.subscribe(next => {
+      this.name = next.username || next.email
+    })
+    this.sub = this.authSvc.avatarUpdated$.subscribe(() => {
+      this.getAvatar()
+    })
+    this.getAvatar()
+  }
+  getAvatar() {
+    this.httpProxySvc.getAvatar().subscribe(blob => {
+      createImageFromBlob(blob, (reader) => {
+        this.avatar = reader.result
+      })
+    })
   }
   getPermissionId(projectId: string, name: string[]) {
-    return this.projectSvc.permissionDetail.pipe(map(_=>_.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes( e.name)).map(e=>e.id)))
+    return this.projectSvc.permissionDetail.pipe(map(_ => _.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
     logout()

@@ -7,17 +7,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ProjectCreated extends DomainEvent {
-    public static final String PROJECT_CREATED = "project_created";
-    public static final String name = "PROJECT_CREATED";
+public class StartNewProjectOnboarding extends DomainEvent {
+    public static final String START_NEW_PROJECT_ONBOARDING = "start_new_project_onboarding";
+    public static final String name = "START_NEW_PROJECT_ONBOARDING";
     @Getter
     private UserId creator;
     @Getter
     private String projectName;
 
-    public ProjectCreated(Project project) {
+    public StartNewProjectOnboarding(Project project) {
         super(project.getProjectId());
-        setTopic(PROJECT_CREATED);
+        setTopic(START_NEW_PROJECT_ONBOARDING);
         setName(name);
         projectName = project.getName();
         this.creator = new UserId(project.getCreatedBy());

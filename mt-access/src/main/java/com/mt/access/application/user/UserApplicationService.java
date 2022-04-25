@@ -11,12 +11,16 @@ import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
+import com.mt.access.domain.model.image.Image;
+import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.PasswordResetCode;
 import com.mt.access.domain.model.user.UpdateLoginInfoCommand;
 import com.mt.access.domain.model.user.User;
+import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.event.UserDeleted;
@@ -26,14 +30,13 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
 import java.util.Optional;
-import javax.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -53,6 +56,7 @@ public class UserApplicationService implements UserDetailsService {
                         new UserEmail(command.getEmail()),
                         new UserPassword(command.getPassword()),
                         new ActivationCode(command.getActivationCode()),
+                        new UserMobile(command.getCountryCode(), command.getMobileNumber()),
                         userId
                     );
                     return userId1.getDomainId();
@@ -72,14 +76,14 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
-    public void update(String id, UpdateUserCommand command, String changeId) {
+    public void adminLock(String id, UpdateUserCommand command, String changeId) {
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
             ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
                 .idempotent(changeId, (ignored) -> {
-                    user1.replace(
+                    user1.lockUser(
                         command.isLocked()
                     );
                     return null;
@@ -121,7 +125,7 @@ public class UserApplicationService implements UserDetailsService {
                     UserPatchingCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
-                    original.replace(
+                    original.lockUser(
                         afterPatch.isLocked()
                     );
                 }
@@ -196,6 +200,32 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public void updateLastLoginInfo(UpdateLoginInfoCommand command) {
         DomainRegistry.getUserService().updateLastLogin(command);
+    }
+
+    public Optional<Image> profileAvatar() {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        return user.flatMap((e) -> {
+            if (e.getUserAvatar() != null) {
+                String value = e.getUserAvatar().getValue();
+                return ApplicationServiceRegistry.getImageApplicationService().queryById(value);
+            } else {
+                return Optional.empty();
+            }
+        });
+    }
+
+    @Transactional
+    public ImageId createProfileAvatar(MultipartFile file, String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        if (user.isEmpty()) {
+            throw new IllegalArgumentException("cannot find user " + userId);
+        }
+        ImageId imageId =
+            ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
+        user.get().setUserAvatar(new UserAvatar(imageId));
+        return imageId;
     }
 
     public static class DefaultUserDeleteException extends RuntimeException {

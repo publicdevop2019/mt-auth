@@ -5,6 +5,7 @@ import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
 import com.mt.access.application.email_delivery.EmailDeliveryApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
+import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
 import com.mt.access.application.organization.OrganizationApplicationService;
 import com.mt.access.application.pending_user.PendingUserApplicationService;
@@ -73,6 +74,14 @@ public class ApplicationServiceRegistry {
     private static NotificationApplicationService notificationApplicationService;
     @Getter
     private static RegistryApplicationService registryApplicationService;
+    @Getter
+    private static ImageApplicationService imageApplicationService;
+
+    @Autowired
+    public void setImageApplicationService(
+        ImageApplicationService imageApplicationService) {
+        ApplicationServiceRegistry.imageApplicationService = imageApplicationService;
+    }
 
     @Autowired
     public void setRegistryApplicationService(

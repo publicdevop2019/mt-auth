@@ -3,7 +3,6 @@ package com.mt.access.application.permission;
 import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
-import static com.mt.access.domain.model.permission.Permission.reservedName;
 import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.github.fge.jsonpatch.JsonPatch;
@@ -24,7 +23,7 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.project.event.ProjectCreated;
+import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -174,7 +173,7 @@ public class PermissionApplicationService {
 
 
     @Transactional
-    public void handle(ProjectCreated deserialize) {
+    public void handle(StartNewProjectOnboarding deserialize) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle project created event");

@@ -11,11 +11,17 @@ public class EnumConverter<E extends Enum<E>> implements AttributeConverter<E, S
 
     @Override
     public String convertToDatabaseColumn(E orderState) {
-        return orderState.name();
+        if (orderState != null) {
+            return orderState.name();
+        }
+        return null;
     }
 
     @Override
     public E convertToEntityAttribute(String s) {
-        return E.valueOf(type, s);
+        if (s != null) {
+            return E.valueOf(type, s);
+        }
+        return null;
     }
 }

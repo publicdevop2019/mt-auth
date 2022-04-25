@@ -47,8 +47,12 @@
             <ttl unit="seconds">10</ttl>
         </expiry>
         <resources>
-            <heap unit="MB">5</heap>
-            <offheap unit="MB">10</offheap>
+            <heap unit="MB">19</heap>
+            <offheap unit="MB">20</offheap>
         </resources>
+<!--        increase max object graph size after config hibernate query cache size-->
+        <heap-store-settings>
+            <max-object-graph-size>2000</max-object-graph-size>
+        </heap-store-settings>
     </cache-template>
 </config>

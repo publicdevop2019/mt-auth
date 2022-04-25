@@ -1,3 +1,4 @@
+import { P } from '@angular/cdk/keycodes';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -25,26 +26,33 @@ export interface IPatch {
 export interface IPatchCommand extends IPatch {
     expect: number,
 }
-export interface IUser{
-    id:string
-    email:string
-    createdAt:string
+export interface IUser {
+    id: string
+    email: string
+    createdAt: string
+    agent: string
+    countryCode: string
+    mobileNumber: string
+    lastLoginAt: number
+    ipAddress: string
+    username: string
+    language: string
+    avatarLink: string
+}
+export interface IUpdateUser {
+    countryCode: string
+    mobileNumber: string
+    username?: string
+    language: string
 }
 @Injectable({
     providedIn: 'root'
 })
 export class HttpProxyService {
-    getRegistryStatus() {
-      return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
-    }
-    getJobStatus() {
-      return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs',{headers:{'loading':'false'}})
-    }
     inProgress = false;
     refreshInprogress = false;
     private AUTH_SVC_NAME = '/auth-svc';
     private TOKEN_EP = this.AUTH_SVC_NAME + '/oauth/token';
-    private FILE_UPLOAD_SVC_NAME = '/file-upload-svc';
     set currentUserAuthInfo(token: ITokenResponse) {
         if (token === undefined || token === null) {
             localStorage.setItem('jwt', undefined);
@@ -63,6 +71,12 @@ export class HttpProxyService {
     // OAuth2 pwd flow
     constructor(private _httpClient: HttpClient) {
     }
+    getRegistryStatus() {
+        return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
+    }
+    getJobStatus() {
+        return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
+    }
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
@@ -70,6 +84,9 @@ export class HttpProxyService {
     }
     getMyProfile() {
         return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
+    }
+    updateMyProfile(profile: IUpdateUser) {
+        return this._httpClient.put<IUpdateUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile', profile);
     }
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
@@ -83,10 +100,13 @@ export class HttpProxyService {
             formData.append('file', file, file.name);
             let headerConfig = new HttpHeaders();
             headerConfig = headerConfig.set('changeId', UUID())
-            this._httpClient.post<void>(environment.serverUri + this.FILE_UPLOAD_SVC_NAME + '/files/app', formData, { observe: 'response', headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/avatar', formData, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));
             });
         })
+    };
+    getAvatar() {
+        return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };
     batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
         let headerConfig = new HttpHeaders();
@@ -116,7 +136,7 @@ export class HttpProxyService {
         let headers = this._getAuthHeader(false);
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers }).pipe(switchMap(token => this._getActivationCode(this._getToken(token), payload, changeId)))
     };
-    autoApprove(projectId:string,clientId: string): Observable<boolean> {
+    autoApprove(projectId: string, clientId: string): Observable<boolean> {
         return new Observable<boolean>(e => {
             this._httpClient.get<IAutoApprove>(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/clients/${clientId}/autoApprove`).subscribe(next => {
                 e.next(next.autoApprove)
@@ -321,14 +341,14 @@ export class HttpProxyService {
         headers && Object.keys(headers).forEach(e => {
             headerConfig = headerConfig.set(e, headers[e] + '')
         })
-        return this._httpClient.get<S>(entityRepo+ '/' + id, { headers: headerConfig });
+        return this._httpClient.get<S>(entityRepo + '/' + id, { headers: headerConfig });
     };
     readEntityByQuery<T>(entityRepo: string, num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
         let headerConfig = new HttpHeaders();
         headers && Object.keys(headers).forEach(e => {
             headerConfig = headerConfig.set(e, headers[e] + '')
         })
-        return this._httpClient.get<ISumRep<T>>(entityRepo  + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
+        return this._httpClient.get<ISumRep<T>>(entityRepo + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
     }
     getUIPermission() {
         return this._httpClient.get<IProjectPermissionInfo>(environment.serverUri + '/auth-svc/permissions/ui')
@@ -346,7 +366,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.put(entityRepo  + '/' + id, entity, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.put(entityRepo + '/' + id, entity, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

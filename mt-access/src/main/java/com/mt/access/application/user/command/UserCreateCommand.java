@@ -13,4 +13,6 @@ public class UserCreateCommand implements Serializable {
     private String activationCode;
 
     private String password;
+    private String countryCode;
+    private String mobileNumber;
 }

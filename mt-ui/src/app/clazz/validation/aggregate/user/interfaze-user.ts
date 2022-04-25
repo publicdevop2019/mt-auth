@@ -18,6 +18,8 @@ export interface IPendingResourceOwner {
     email: string;
     password?: string;
     activationCode?: string;
+    mobileNumber?: string;
+    countryCode?: string;
 }
 export interface IForgetPasswordRequest {
     email: string;

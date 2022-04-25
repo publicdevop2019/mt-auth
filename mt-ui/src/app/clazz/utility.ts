@@ -26,3 +26,12 @@ export function uniqueString(input: string[]) {
 export function uniqueObject<T>(input: T[], field: string) {
     return input.filter((e, i) => input.findIndex(ee => ee[field] === e[field]) === i)
 }
+export function createImageFromBlob(image: Blob, callback: (reader: FileReader) => void) {
+    let reader = new FileReader();
+    reader.addEventListener("load", () => {
+        callback(reader)
+    }, false);
+    if (image) {
+        reader.readAsDataURL(image);
+    }
+}
