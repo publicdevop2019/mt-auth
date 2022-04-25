@@ -42,7 +42,7 @@ public class NewUserService {
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {
-            return null;
+            throw new IllegalStateException("pending user not found, maybe not registered?");
         }
     }
 }

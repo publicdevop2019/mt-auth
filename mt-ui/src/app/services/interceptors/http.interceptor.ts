@@ -25,10 +25,11 @@ export class CustomHttpInterceptor implements HttpInterceptor {
          * skip Bearer header for public urls
          */
       } else {
-        if(req.headers.get('ignore_400')){
+        const ignore=req.headers.get('ignore_400')
+        req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` }, headers: req.headers.delete('ignore_400') });
+        if(ignore){
           (req as any).ignoreError = true;
         }
-        req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` }, headers: req.headers.delete('ignore_400') });
       }
     return next.handle(req)
       .pipe(catchError((error: HttpErrorResponse) => {

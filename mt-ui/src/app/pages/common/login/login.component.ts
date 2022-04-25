@@ -3,6 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ValidatorHelper } from 'src/app/clazz/validateHelper';
 import { IForgetPasswordRequest, IPendingResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
@@ -22,13 +23,14 @@ export class LoginComponent implements OnInit {
   emailErrorMsg: string = undefined;
   activationCodeErrorMsg: string = undefined;
   tokenErrorMsg: string = undefined;
+  mobileNumberError: string = undefined;
+  countryCodeError: string = undefined;
   passwordErrorMsg: string = undefined;
   confirmgPasswordErrorMsg: string = undefined;
   activationCodeChangeId = UUID();
   registerChangeId = UUID();
   tokenChangeId = UUID();
   resetChangeId = UUID();
-  // emailMatcher=new MyErrorStateMatcher(this.errorMsgs)
   loginOrRegForm = new FormGroup({
     isRegister: new FormControl('', []),
     email: new FormControl('', []),
@@ -36,6 +38,8 @@ export class LoginComponent implements OnInit {
     confirmPwd: new FormControl('', []),
     activationCode: new FormControl('', []),
     token: new FormControl('', []),
+    countryCode: new FormControl('', []),
+    mobileNumber: new FormControl('', []),
   });
   private validator = new UserValidator()
   constructor(public httpProxy: HttpProxyService, private route: Router, public dialog: MatDialog, private router: ActivatedRoute, public translate: TranslateService) {
@@ -47,13 +51,19 @@ export class LoginComponent implements OnInit {
       }
     })
   }
-
+  mobileNums: IOption[] = [
+    {
+      label: '+1', value: '1'
+    },
+    {
+      label: '+86', value: '86'
+    },
+  ]
   ngOnInit() {
   }
   login() {
     let error: ErrorMessage[] = [];
     StringValidator.isEmail(this.loginOrRegForm.get('email').value, error, 'email')
-    StringValidator.hasValidWhiteListValue(this.loginOrRegForm.get('pwd').value, error, 'pwd')
     if (error.length > 0) {
       if (error.some(e => e.key === 'email')) {
         this.emailErrorMsg = error.find(e => e.key === 'email').message;
@@ -89,7 +99,8 @@ export class LoginComponent implements OnInit {
     }
   }
   register() {
-    let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm),'appCreateUserCommandValidator');
+    let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
+    console.dir(error)
     if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
       this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
       this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
@@ -98,6 +109,14 @@ export class LoginComponent implements OnInit {
       if (error.some(e => e.key === 'email')) {
         this.emailErrorMsg = error.find(e => e.key === 'email').message;
         this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
+      }
+      if (error.some(e => e.key === 'countryCode')) {
+        this.countryCodeError = 'INVALID_COUNTRY_CODE';
+        this.loginOrRegForm.get('countryCode').setErrors({ wrongValue: true });
+      }
+      if (error.some(e => e.key === 'mobileNumber')) {
+        this.mobileNumberError = 'INVALID_MOBILE';
+        this.loginOrRegForm.get('mobileNumber').setErrors({ wrongValue: true });
       }
       if (error.some(e => e.key === 'activationCode')) {
         this.activationCodeErrorMsg = error.find(e => e.key === 'activationCode').message;
@@ -109,7 +128,7 @@ export class LoginComponent implements OnInit {
       }
 
       this.loginOrRegForm.valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm),'appCreateUserCommandValidator');
+        let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
         if (error.some(e => e.key === 'email')) {
           this.emailErrorMsg = error.find(e => e.key === 'email').message;
           this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
@@ -146,12 +165,12 @@ export class LoginComponent implements OnInit {
 
   }
   getCode() {
-    let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm),'appCreatePendingUserCommandValidator');
+    let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm), 'appCreatePendingUserCommandValidator');
     if (error.length > 0) {
       this.emailErrorMsg = error[0].message;
       this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
       this.loginOrRegForm.get('email').valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm),'appCreatePendingUserCommandValidator');
+        let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm), 'appCreatePendingUserCommandValidator');
         if (error.length > 0) {
           this.emailErrorMsg = error[0].message;
           this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
@@ -167,12 +186,12 @@ export class LoginComponent implements OnInit {
     }
   }
   getToken() {
-    let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm),'appForgetUserPasswordCommandValidator');
+    let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm), 'appForgetUserPasswordCommandValidator');
     if (error.length > 0) {
       this.emailErrorMsg = error[0].message;
       this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
       this.loginOrRegForm.get('email').valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm),'appForgetUserPasswordCommandValidator');
+        let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm), 'appForgetUserPasswordCommandValidator');
         if (error.length > 0) {
           this.emailErrorMsg = error[0].message;
           this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
@@ -188,7 +207,7 @@ export class LoginComponent implements OnInit {
     }
   }
   changePassword() {
-    let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm),'appResetUserPasswordCommandValidator');
+    let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm), 'appResetUserPasswordCommandValidator');
     if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
       this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
       this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
@@ -208,7 +227,7 @@ export class LoginComponent implements OnInit {
       }
 
       this.loginOrRegForm.valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm),'appResetUserPasswordCommandValidator');
+        let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm), 'appResetUserPasswordCommandValidator');
         if (error.some(e => e.key === 'email')) {
           this.emailErrorMsg = error.find(e => e.key === 'email').message;
           this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
@@ -260,6 +279,8 @@ export class LoginComponent implements OnInit {
       email: fg.get('email').value,
       password: fg.get('pwd').value,
       activationCode: fg.get('activationCode').value,
+      mobileNumber: fg.get('mobileNumber').value,
+      countryCode: fg.get('countryCode').value,
     };
   }
   private getResetPayload(fg: FormGroup): IForgetPasswordRequest {

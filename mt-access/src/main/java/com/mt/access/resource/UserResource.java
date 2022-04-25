@@ -49,6 +49,13 @@ public class UserResource {
     public static final String CONTENT_TYPE = "content-type";
     public static final String LOCATION = "Location";
 
+    /**
+     * register new user.
+     *
+     * @param command  register command
+     * @param changeId changeId
+     * @return void
+     */
     @PostMapping(path = "users")
     public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command,
                                              @RequestHeader(HTTP_HEADER_CHANGE_ID)

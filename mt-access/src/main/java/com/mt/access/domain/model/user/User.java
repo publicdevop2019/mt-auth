@@ -133,7 +133,8 @@ public class User extends Auditable {
                        @Nullable UserName userName,
                        @Nullable Language language) {
         if (userName != null) {
-            if (this.userName.getValue() != null && !this.userName.equals(userName)) {
+            if (this.userName != null && this.userName.getValue() != null
+                && !this.userName.equals(userName)) {
                 throw new IllegalStateException("username can only be set once");
             }
             this.userName = userName;
