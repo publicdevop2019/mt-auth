@@ -5,7 +5,8 @@
             <button mat-icon-button (click)="snav.toggle();">
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
-            <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{getName()|async}}</div>
+            <img *ngIf="avatar" mat-card-avatar [src]="avatar" style="height: 24px; width: 24px; padding-right: 8px;"/>
+            <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}</div>
         </div>
         <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
             <mat-icon matBadge="{{msgSvc.latestMessage.length}}" matBadgeOverlap="false" matBadgeSize="small"

@@ -25,7 +25,10 @@ export class CustomHttpInterceptor implements HttpInterceptor {
          * skip Bearer header for public urls
          */
       } else {
-        req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` }});
+        if(req.headers.get('ignore_400')){
+          (req as any).ignoreError = true;
+        }
+        req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` }, headers: req.headers.delete('ignore_400') });
       }
     return next.handle(req)
       .pipe(catchError((error: HttpErrorResponse) => {
@@ -81,7 +84,9 @@ export class CustomHttpInterceptor implements HttpInterceptor {
             return throwError(error);
           }));
         } else if (error.status === 400) {
-          this.openSnackbar('INVALID_REQUEST');
+          if (!(req as any).ignoreError) {
+            this.openSnackbar('INVALID_REQUEST');
+          }
           return throwError(error);
         } else if (error.status === 0) {
           this.openSnackbar('NETWORK_CONNECTION_FAILED');

@@ -44,7 +44,6 @@ export interface IUpdateUser {
     mobileNumber: string
     username?: string
     language: string
-    avatarLink: string
 }
 @Injectable({
     providedIn: 'root'
@@ -54,7 +53,6 @@ export class HttpProxyService {
     refreshInprogress = false;
     private AUTH_SVC_NAME = '/auth-svc';
     private TOKEN_EP = this.AUTH_SVC_NAME + '/oauth/token';
-    private FILE_UPLOAD_SVC_NAME = '/file-upload-svc';
     set currentUserAuthInfo(token: ITokenResponse) {
         if (token === undefined || token === null) {
             localStorage.setItem('jwt', undefined);
@@ -102,10 +100,13 @@ export class HttpProxyService {
             formData.append('file', file, file.name);
             let headerConfig = new HttpHeaders();
             headerConfig = headerConfig.set('changeId', UUID())
-            this._httpClient.post<void>(environment.serverUri + this.FILE_UPLOAD_SVC_NAME + '/files/app', formData, { observe: 'response', headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/avatar', formData, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));
             });
         })
+    };
+    getAvatar() {
+        return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };
     batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
         let headerConfig = new HttpHeaders();

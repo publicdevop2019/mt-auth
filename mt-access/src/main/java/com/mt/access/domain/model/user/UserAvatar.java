@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.common.domain.model.validate.Validator;
+import com.mt.access.domain.model.image.ImageId;
 import javax.persistence.Column;
 import lombok.Data;
 
@@ -12,8 +12,7 @@ public class UserAvatar {
     private UserAvatar() {
     }
 
-    public UserAvatar(String value) {
-        this.value = value;
-        Validator.isHttpUrl(value);
+    public UserAvatar(ImageId imageId) {
+        this.value = imageId.getDomainId();
     }
 }

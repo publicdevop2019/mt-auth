@@ -1,36 +1,72 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
+import { Subscription } from 'rxjs';
+import { createImageFromBlob } from 'src/app/clazz/utility';
 import { FORM_CONFIG } from 'src/app/form-configs/my-profile.config';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService, IUpdateUser, IUser } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-my-profile',
   templateUrl: './my-profile.component.html',
   styleUrls: ['./my-profile.component.css']
 })
-export class MyProfileComponent implements OnInit {
+export class MyProfileComponent implements OnInit, OnDestroy {
   formId: string = "myProfile";
   formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
-  constructor(public authSvc: AuthService, private fis: FormInfoService, private httpSvc: HttpProxyService,private interceptor:CustomHttpInterceptor) { }
-  currentUser: IUser
+  currentUser: IUser;
+  subs: Subscription;
+  constructor(
+    public authSvc: AuthService,
+    private fis: FormInfoService,
+    private httpSvc: HttpProxyService,
+    private interceptor: CustomHttpInterceptor,
+    private cdr: ChangeDetectorRef,
+  ) { }
+  ngOnDestroy(): void {
+    this.subs.unsubscribe();
+  }
   ngOnInit(): void {
-    this.fis.formCreated(this.formId).subscribe(()=>{
+    this.subs = this.fis.$uploadFile.subscribe(next => {
+      this._uploadFile(next.files);
+    })
+    this.fis.formCreated(this.formId).subscribe(() => {
       this.authSvc.currentUser.subscribe(next => {
         this.currentUser = next;
-        if(this.currentUser.username){
-          this.fis.disableIfMatch(this.formId,['username'])
+        if (this.currentUser.username) {
+          this.fis.disableIfMatch(this.formId, ['username'])
         }
+        this.httpSvc.getAvatar().subscribe(blob => {
+          createImageFromBlob(blob, (reader) => {
+            this.fis.restore(this.formId, {
+              avatar: reader.result,
+            })
+          })
+        })
         this.fis.restore(this.formId, {
           language: next.language,
           mobileNumber: next.mobileNumber,
           mobileCountryCode: next.countryCode,
           username: next.username || '',
-          avatar: next.avatarLink,
         })
       });
+    })
+  }
+
+  private _uploadFile(files: FileList) {
+    this.httpSvc.uploadFile(files.item(0)).subscribe(() => {
+      this.authSvc.avatarUpdated$.next()
+      this.httpSvc.getAvatar().subscribe(blob => {
+        createImageFromBlob(blob, (reader) => {
+          this.fis.restore(this.formId, {
+            avatar: reader.result,
+          })
+        })
+      })
+      this.cdr.detectChanges();
     })
   }
   update() {
@@ -40,11 +76,10 @@ export class MyProfileComponent implements OnInit {
       mobileNumber: form.get('mobileNumber').value ? form.get('mobileNumber').value : null,
       username: form.get('username').value ? form.get('username').value : null,
       language: form.get('language').value ? form.get('language').value : null,
-      avatarLink: form.get('avatar').value ? form.get('avatar').value : null,
     }
-    this.httpSvc.updateMyProfile(next).subscribe(_=>{
+    this.httpSvc.updateMyProfile(next).subscribe(_ => {
       this.interceptor.openSnackbar('OPERATION_SUCCESS')
-    },error=>{
+    }, error => {
       this.interceptor.openSnackbar('OPERATION_FAILED')
     })
   }

@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class UserUpdateProfileCommand {
-    private String avatarLink;
-
     private String countryCode;
 
     private String mobileNumber;

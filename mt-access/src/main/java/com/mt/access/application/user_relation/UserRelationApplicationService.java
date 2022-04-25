@@ -152,7 +152,6 @@ public class UserRelationApplicationService {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         user.ifPresent(e -> e.update(
-            command.getAvatarLink() != null ? new UserAvatar(command.getAvatarLink()) : null,
             new UserMobile(command.getCountryCode(), command.getMobileNumber()),
             command.getUsername() != null ? new UserName(command.getUsername()) : null,
             command.getLanguage()));

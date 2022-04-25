@@ -45,6 +45,7 @@ public class User extends Auditable {
     @Embedded
     @Getter
     @Setter
+    @Nullable
     private UserAvatar userAvatar;
     @Embedded
     @Getter
@@ -128,14 +129,11 @@ public class User extends Auditable {
         return Objects.hashCode(super.hashCode(), userId);
     }
 
-    public void update(@Nullable UserAvatar userAvatar, UserMobile mobile,
+    public void update(UserMobile mobile,
                        @Nullable UserName userName,
                        @Nullable Language language) {
-        if (userAvatar != null) {
-            this.userAvatar = userAvatar;
-        }
         if (userName != null) {
-            if (this.userName.getValue() != null) {
+            if (this.userName.getValue() != null && !this.userName.equals(userName)) {
                 throw new IllegalStateException("username can only be set once");
             }
             this.userName = userName;

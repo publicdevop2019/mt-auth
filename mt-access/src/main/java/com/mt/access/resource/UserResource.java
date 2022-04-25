@@ -19,6 +19,8 @@ import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.application.user_relation.UpdateUserRelationCommand;
+import com.mt.access.domain.model.image.Image;
+import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
@@ -26,6 +28,7 @@ import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,11 +41,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(produces = "application/json")
 public class UserResource {
-
+    public static final String CONTENT_TYPE = "content-type";
+    public static final String LOCATION = "Location";
 
     @PostMapping(path = "users")
     public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command,
@@ -168,7 +173,7 @@ public class UserResource {
     }
 
     /**
-     * read current user profile.
+     * read my profile.
      *
      * @param jwt user jwt
      * @return user profile
@@ -184,6 +189,54 @@ public class UserResource {
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
+    /**
+     * get my profile avatar.
+     *
+     * @param jwt user jwt
+     * @return binary
+     */
+    @GetMapping(path = "users/profile/avatar")
+    public ResponseEntity<byte[]> getMyProfileAvatar(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        Optional<Image> avatar =
+            ApplicationServiceRegistry.getUserApplicationService().profileAvatar();
+        return avatar.map(e -> {
+            HttpHeaders responseHeaders = new HttpHeaders();
+            responseHeaders.set(CONTENT_TYPE,
+                e.getContentType());
+            responseHeaders.setContentDispositionFormData(e.getOriginalName(), e.getOriginalName());
+            return ResponseEntity.ok().headers(responseHeaders).body(e.getSource());
+        }).orElseGet(() -> ResponseEntity.badRequest().build());
+    }
+
+    /**
+     * update or create my profile avatar.
+     *
+     * @param jwt user jwt
+     * @return void
+     */
+    @PostMapping(path = "users/profile/avatar")
+    public ResponseEntity<Void> getMyProfileAvatar(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam("file") MultipartFile file,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        ImageId imageId = ApplicationServiceRegistry.getUserApplicationService()
+            .createProfileAvatar(file, changeId);
+        return ResponseEntity.ok().header(LOCATION, imageId.getDomainId()).build();
+    }
+
+    /**
+     * update my profile.
+     *
+     * @param jwt     user jwt
+     * @param command update command
+     * @return void
+     */
     @PutMapping(path = "users/profile")
     public ResponseEntity<Void> findUserForProject3(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,

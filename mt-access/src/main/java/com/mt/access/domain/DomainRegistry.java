@@ -17,6 +17,7 @@ import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
+import com.mt.access.domain.model.image.ImageRepository;
 import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
@@ -106,6 +107,14 @@ public class DomainRegistry {
     private static NotificationRepository notificationRepository;
     @Getter
     private static ProxyService proxyService;
+
+    @Getter
+    private static ImageRepository imageRepository;
+
+    @Autowired
+    public void setImageRepository(ImageRepository imageRepository) {
+        DomainRegistry.imageRepository = imageRepository;
+    }
 
     @Autowired
     public void setProxyService(ProxyService proxyService) {
