@@ -10,17 +10,9 @@ import org.springframework.security.oauth2.common.OAuth2AccessToken;
 @Slf4j
 public class UpdateLoginInfoCommand {
     private static final String[] HEADERS_TO_TRY = {
+        "X-Real-IP",
         "X-Forwarded-For",
-        "Proxy-Client-IP",
-        "WL-Proxy-Client-IP",
-        "HTTP_X_FORWARDED_FOR",
-        "HTTP_X_FORWARDED",
-        "HTTP_X_CLUSTER_CLIENT_IP",
-        "HTTP_CLIENT_IP",
-        "HTTP_FORWARDED_FOR",
-        "HTTP_FORWARDED",
-        "HTTP_VIA",
-        "REMOTE_ADDR"};
+    };
     private final String ipAddress;
     private final String agent;
     private final UserId userId;
@@ -41,9 +33,11 @@ public class UpdateLoginInfoCommand {
 
     private String getClientIpAddress(HttpServletRequest request) {
         log.debug("--start of get client ip address");
-        request.getHeaderNames().asIterator().forEachRemaining(e -> {
-            log.debug("header name [{}] and value: {}", e, request.getHeader(e));
-        });
+        if (log.isTraceEnabled()) {
+            request.getHeaderNames().asIterator().forEachRemaining(e -> {
+                log.debug("header name [{}] and value: {}", e, request.getHeader(e));
+            });
+        }
         for (String header : HEADERS_TO_TRY) {
             String ip = request.getHeader(header);
             if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
