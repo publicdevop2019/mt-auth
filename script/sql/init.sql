@@ -325,7 +325,7 @@ CREATE TABLE `job_detail` (
 
 LOCK TABLES `job_detail` WRITE;
 /*!40000 ALTER TABLE `job_detail` DISABLE KEYS */;
-INSERT INTO `job_detail` VALUES (864879623798785,'KEEP_WS_CONNECTION','2022-04-25 15:37:51','0J8IKO7PH9MO'),(864879623798788,'EVENT_SCAN','2022-04-25 15:25:43','0J8IKO7PH9MR'),(864879655256067,'MISSED_EVENT_SCAN','2022-04-25 15:34:16','0J8IKO887I82'),(864879659450369,'DATA_VALIDATION','2022-04-25 15:37:25','0J8IKO8APEKG'),(864879718696211,'PROXY_VALIDATION','2022-04-25 15:37:17','0J8IKO99Z8YA');
+INSERT INTO `job_detail` VALUES (864879623798785,'KEEP_WS_CONNECTION','2022-04-28 03:40:09','0J8IKO7PH9MO'),(864879623798788,'EVENT_SCAN','2022-04-28 03:37:21','0J8IKO7PH9MR'),(864879655256067,'MISSED_EVENT_SCAN','2022-04-28 03:38:39','0J8IKO887I82'),(864879659450369,'DATA_VALIDATION','2022-04-28 03:39:47','0J8IKO8APEKG'),(864879718696211,'PROXY_VALIDATION','2022-04-28 03:36:59','0J8IKO99Z8YA');
 /*!40000 ALTER TABLE `job_detail` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -355,6 +355,33 @@ INSERT INTO `linked_permission_ids_map` VALUES (862170928644096,'0Y8HSHJC34BW'),
 UNLOCK TABLES;
 
 --
+-- Table structure for table `login_history`
+--
+
+DROP TABLE IF EXISTS `login_history`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `login_history` (
+  `id` bigint NOT NULL,
+  `login_at` datetime DEFAULT NULL,
+  `domain_id` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(255) DEFAULT NULL,
+  `agent` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `login_history`
+--
+
+LOCK TABLES `login_history` WRITE;
+/*!40000 ALTER TABLE `login_history` DISABLE KEYS */;
+INSERT INTO `login_history` VALUES (865660920922138,'2022-04-28 03:39:34','0U8AZTODP4H0','127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'),(865660924592268,'2022-04-28 03:39:42','0U8AZTODP4H0','127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
+/*!40000 ALTER TABLE `login_history` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `login_info`
 --
 
@@ -378,7 +405,6 @@ CREATE TABLE `login_info` (
 
 LOCK TABLES `login_info` WRITE;
 /*!40000 ALTER TABLE `login_info` DISABLE KEYS */;
-INSERT INTO `login_info` VALUES (864937262972928,'2022-04-25 15:35:42','0U8AZTODP4H0','192.168.2.23','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'),(865481029320704,'2022-04-25 00:08:06','0U8HPG93IED3','192.168.2.23','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'),(865518046674973,'2022-04-25 00:04:41','0U8HQPGY38JL','192.168.2.23','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'),(865525700755456,'2022-04-25 04:01:33','0U8ISWYD8HKW','192.168.2.23','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36'),(865547417288716,'2022-04-25 15:31:24','0U8IT6ZKOEMK','192.168.2.23','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.88 Safari/537.36');
 /*!40000 ALTER TABLE `login_info` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -411,7 +437,6 @@ CREATE TABLE `notification` (
 
 LOCK TABLES `notification` WRITE;
 /*!40000 ALTER TABLE `notification` DISABLE KEYS */;
-INSERT INTO `notification` VALUES (865471700141160,'2022-04-23 23:26:25','NOT_HTTP',0,'2022-04-23 23:26:25','NOT_HTTP',0,NULL,_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8IS88LWKQN',1650756264799,'PROXY_CHECK_FAILED'),(865471731598273,'2022-04-23 23:26:24','NOT_HTTP',0,'2022-04-23 23:26:24','NOT_HTTP',0,NULL,_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8IS88LWJU3',1650756324534,'PROXY_CHECK_FAILED'),(865471763056459,'2022-04-23 23:27:58','NOT_HTTP',0,'2022-04-23 23:27:58','NOT_HTTP',0,NULL,_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8IS89F8USQ',1650756384670,'PROXY_CHECK_FAILED'),(865525563392005,'2022-04-25 03:56:42','NOT_HTTP',0,'2022-04-25 03:56:42','NOT_HTTP',0,'test@test.com',_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8ISWYDUYO0',1650859000753,'NEW_USER_REGISTER'),(865547338645508,'2022-04-25 15:32:02','NOT_HTTP',0,'2022-04-25 15:32:02','NOT_HTTP',0,'test2@test.com',_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8IT704CDC2',1650900533790,'NEW_USER_REGISTER'),(865547406279036,'2022-04-25 15:32:02','NOT_HTTP',0,'2022-04-25 15:32:02','NOT_HTTP',0,'test3@test.com',_binary '�\�\0sr\06com.mt.access.domain.model.notification.NotificationIdc«\�!\�\Z?\0\0xr\0-com.mt.common.domain.model.domain_id.DomainId����phj!\0L\0domainIdt\0Ljava/lang/String;xpt\04S8IT704NLDS',1650900662376,'NEW_USER_REGISTER');
 /*!40000 ALTER TABLE `notification` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -787,4 +812,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-04-25 15:38:14
+-- Dump completed on 2022-04-28  3:40:31

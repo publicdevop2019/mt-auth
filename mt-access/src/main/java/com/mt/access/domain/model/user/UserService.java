@@ -66,5 +66,7 @@ public class UserService {
             LoginInfo loginInfo1 = new LoginInfo(command);
             DomainRegistry.getLoginInfoRepository().add(loginInfo1);
         });
+        LoginHistory loginHistory = new LoginHistory(command);
+        DomainRegistry.getLoginHistoryRepository().add(loginHistory);
     }
 }

@@ -21,6 +21,7 @@
     <cache alias="clientExtResourceRegion" uses-template="myDefaults"/>
     <cache alias="linkedPermissionIdsRegion" uses-template="myDefaults"/>
     <cache alias="loginRegion" uses-template="myDefaults"/>
+    <cache alias="loginHistoryRegion" uses-template="myDefaults"/>
     <cache alias="jobRegion" uses-template="myDefaults"/>
 <!--  start of config hibernate query cache size to avoid OOM issue
     ref:https://stackoverflow.com/questions/57820519/what-is-the-standardquerycache-alternative-in-hibernate-5-4-4
