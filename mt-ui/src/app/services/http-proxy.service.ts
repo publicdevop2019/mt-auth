@@ -77,6 +77,9 @@ export class HttpProxyService {
     getJobStatus() {
         return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
     }
+    resetValidationJob() {
+        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/job/validation/reset',null)
+    }
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)

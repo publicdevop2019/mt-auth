@@ -3,6 +3,7 @@ package com.mt.access.application;
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
+import com.mt.access.application.cross_domain_validation.CrossDomainValidationApplicationService;
 import com.mt.access.application.email_delivery.EmailDeliveryApplicationService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
@@ -76,6 +77,15 @@ public class ApplicationServiceRegistry {
     private static RegistryApplicationService registryApplicationService;
     @Getter
     private static ImageApplicationService imageApplicationService;
+    @Getter
+    private static CrossDomainValidationApplicationService crossDomainValidationApplicationService;
+
+    @Autowired
+    public void setCrossDomainValidationApplicationService(
+        CrossDomainValidationApplicationService crossDomainValidationApplicationService) {
+        ApplicationServiceRegistry.crossDomainValidationApplicationService =
+            crossDomainValidationApplicationService;
+    }
 
     @Autowired
     public void setImageApplicationService(

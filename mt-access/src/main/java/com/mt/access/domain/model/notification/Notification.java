@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.notification;
 
 import com.mt.access.domain.model.CrossDomainValidationService;
-import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;

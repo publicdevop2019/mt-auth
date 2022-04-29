@@ -3,6 +3,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime } from 'luxon';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 export interface IJobStatus {
   name: string
   lastExecution: number
@@ -13,11 +14,11 @@ export interface IJobStatus {
   styleUrls: ['./job.component.css']
 })
 export class JobComponent implements OnInit, OnDestroy {
-  displayedColumns: string[] = ['name', 'lastExecution'];
+  displayedColumns: string[] = ['name', 'lastExecution','action'];
   dataSource: MatTableDataSource<{ name: string, lastExecution: string }> = new MatTableDataSource();
   batchJobConfirmed: boolean;
   intervalRef: any;
-  constructor(public httpProxy: HttpProxyService, private translate: TranslateService) {
+  constructor(private interceptor: CustomHttpInterceptor, public httpProxy: HttpProxyService, private translate: TranslateService) {
     this.getStatus()
     this.intervalRef = setInterval(() => {
       this.getStatus()
@@ -50,5 +51,12 @@ export class JobComponent implements OnInit, OnDestroy {
     }
     const parsed = DateTime.fromMillis(value).setLocale(resolved).toRelativeCalendar({ unit: resolvedUnit });
     return parsed;
+  }
+  resetJob() {
+    this.httpProxy.resetValidationJob().subscribe(() => {
+      this.interceptor.openSnackbar('OPERATION_SUCCESS');
+    }, () => {
+      this.interceptor.openSnackbar('OPERATION_FAILED')
+    })
   }
 }

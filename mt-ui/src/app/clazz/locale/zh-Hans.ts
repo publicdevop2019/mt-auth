@@ -782,4 +782,6 @@ export const zhHans = {
     "VALIDATION_FAILED": "数据校验失败",
     "MESSAGES": "消息",
     "NOTIFICATION_PROJECT_NAME": "项目名称",
+    "JOB_ACTION": "操作",
+    "RESET_JOB": "重置",
 }

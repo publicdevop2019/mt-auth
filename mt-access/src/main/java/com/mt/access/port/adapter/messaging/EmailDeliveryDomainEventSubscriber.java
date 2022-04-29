@@ -1,6 +1,9 @@
 package com.mt.access.port.adapter.messaging;
 
+import static com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck.CROSS_DOMAIN_VALIDATION_FAILURE_CHECK;
+
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -37,6 +40,17 @@ public class EmailDeliveryDomainEventSubscriber {
                 PendingUserActivationCodeUpdated deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), PendingUserActivationCodeUpdated.class);
+                ApplicationServiceRegistry.getEmailDeliverApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener2() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(appName, true, CROSS_DOMAIN_VALIDATION_FAILURE_CHECK, (event) -> {
+                CrossDomainValidationFailureCheck deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), CrossDomainValidationFailureCheck.class);
                 ApplicationServiceRegistry.getEmailDeliverApplicationService().handle(deserialize);
             });
     }

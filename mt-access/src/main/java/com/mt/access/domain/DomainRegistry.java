@@ -1,6 +1,7 @@
 package com.mt.access.domain;
 
 import com.mt.access.domain.model.ComputePermissionService;
+import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
@@ -15,6 +16,7 @@ import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
+import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
@@ -126,6 +128,20 @@ public class DomainRegistry {
     private static LoginInfoRepository loginInfoRepository;
     @Getter
     private static LoginHistoryRepository loginHistoryRepository;
+    @Getter
+    private static ValidationResultRepository validationResultRepository;
+    @Getter
+    private static CrossDomainValidationService crossDomainValidationService;
+
+    @Autowired
+    public void setCrossDomainValidationService(CrossDomainValidationService crossDomainValidationService) {
+        DomainRegistry.crossDomainValidationService = crossDomainValidationService;
+    }
+
+    @Autowired
+    public void setValidationResultRepository(ValidationResultRepository validationResultRepository) {
+        DomainRegistry.validationResultRepository = validationResultRepository;
+    }
 
     @Autowired
     public void setLoginHistoryRepository(LoginHistoryRepository loginHistoryRepository) {
