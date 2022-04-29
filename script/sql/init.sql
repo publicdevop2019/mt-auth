@@ -377,7 +377,6 @@ CREATE TABLE `login_history` (
 
 LOCK TABLES `login_history` WRITE;
 /*!40000 ALTER TABLE `login_history` DISABLE KEYS */;
-INSERT INTO `login_history` VALUES (865660920922138,'2022-04-28 03:39:34','0U8AZTODP4H0','127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36'),(865660924592268,'2022-04-28 03:39:42','0U8AZTODP4H0','127.0.0.1','Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36');
 /*!40000 ALTER TABLE `login_history` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -502,7 +501,6 @@ CREATE TABLE `pending_user` (
 
 LOCK TABLES `pending_user` WRITE;
 /*!40000 ALTER TABLE `pending_user` DISABLE KEYS */;
-INSERT INTO `pending_user` VALUES (865525560770582,'2022-04-25 03:56:36','0C8B00098WLD',0,'2022-04-25 03:56:36','0C8B00098WLD',0,'123456','test@test.com','test@test.com'),(865546410131472,'2022-04-25 14:59:23','0C8B00098WLD',0,'2022-04-25 14:59:23','0C8B00098WLD',0,'123456','test2@test.com','test2@test.com'),(865547388977164,'2022-04-25 15:30:30','0C8B00098WLD',0,'2022-04-25 15:30:30','0C8B00098WLD',0,'123456','test3@test.com','test3@test.com');
 /*!40000 ALTER TABLE `pending_user` ENABLE KEYS */;
 UNLOCK TABLES;
 

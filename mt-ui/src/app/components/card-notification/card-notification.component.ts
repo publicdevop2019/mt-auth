@@ -9,6 +9,8 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class CardNotificationComponent implements OnInit {
   @Input() value: INotification;
+  @Input() length: number;
+  @Input() index: number;
   parsedDate: string;
   constructor(public translate: TranslateService) {
   }

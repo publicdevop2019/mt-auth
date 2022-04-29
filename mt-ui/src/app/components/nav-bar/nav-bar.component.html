@@ -18,13 +18,11 @@
         <ng-container *ngIf="msgSvc.latestMessage.length===0">
             <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
         </ng-container>
-        <mat-list role="list" *ngIf="msgSvc.latestMessage.length!==0">
-            <ng-container>
-                <mat-list-item role="listitem" *ngFor="let el of msgSvc.latestMessage">
-                    <app-card-notification [value]="el"></app-card-notification>
-                </mat-list-item>
+        <ng-container *ngIf="msgSvc.latestMessage.length!==0">
+            <ng-container *ngFor="let el of msgSvc.latestMessage; let i = index">
+                <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length" [index]="i"></app-card-notification>
             </ng-container>
-        </mat-list>
+        </ng-container>
     </mat-menu>
     <mat-sidenav-container class="example-sidenav-container"
         [style.marginTop.px]="mobileQuery.matches ? deviceSvc.topBar : 0">

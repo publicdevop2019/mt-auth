@@ -8,6 +8,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -30,6 +31,7 @@ import org.hibernate.annotations.Where;
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 public class User extends Auditable {
+    private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
     @Setter(AccessLevel.PRIVATE)
     @Embedded
     @Getter
@@ -101,6 +103,10 @@ public class User extends Auditable {
 
 
     public void lockUser(boolean locked) {
+        if (Arrays.stream(ROOT_ACCOUNTS)
+            .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
+            throw new IllegalArgumentException("root account cannot be locked");
+        }
         setLocked(locked);
     }
 

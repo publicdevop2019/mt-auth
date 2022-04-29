@@ -32,8 +32,8 @@ public class UpdateLoginInfoCommand {
     }
 
     private String getClientIpAddress(HttpServletRequest request) {
-        log.debug("--start of get client ip address");
         if (log.isTraceEnabled()) {
+            log.debug("--start of get client ip address");
             request.getHeaderNames().asIterator().forEachRemaining(e -> {
                 log.debug("header name [{}] and value: {}", e, request.getHeader(e));
             });
@@ -44,7 +44,9 @@ public class UpdateLoginInfoCommand {
                 return ip;
             }
         }
-        log.debug("--start of get client ip address");
+        if (log.isTraceEnabled()) {
+            log.debug("--end of get client ip address");
+        }
         return request.getRemoteAddr();
     }
 }
