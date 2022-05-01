@@ -10,6 +10,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DDD domain id
+ * can be any form e.g. test@test.com or 0CABCEDFGHI
+ */
 @NoArgsConstructor
 @MappedSuperclass
 public class DomainId implements Serializable {
