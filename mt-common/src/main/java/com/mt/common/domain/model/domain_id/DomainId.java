@@ -13,8 +13,8 @@ import lombok.Setter;
 /**
  * DDD domain id
  * can be any form e.g. test@test.com or 0CABCEDFGHI
+ * it serve as an identifier in a domain
  */
-@NoArgsConstructor
 @MappedSuperclass
 public class DomainId implements Serializable {
     @Getter
@@ -22,15 +22,15 @@ public class DomainId implements Serializable {
     @Setter(AccessLevel.PROTECTED)
     private String domainId;
 
-    public DomainId(String domainId) {
+    protected DomainId() {
+    }
+
+    protected DomainId(String domainId) {
         if (domainId == null) {
             throw new IllegalStateException("null domain id is not allowed");
         }
         if (domainId.isBlank() || domainId.isEmpty()) {
             throw new IllegalStateException("empty or blank domain id is not allowed");
-        }
-        if (this.domainId != null) {
-            throw new IllegalStateException("domain id already present");
         }
         this.domainId = domainId;
     }

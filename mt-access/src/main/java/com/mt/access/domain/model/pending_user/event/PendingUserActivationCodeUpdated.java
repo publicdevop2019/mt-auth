@@ -27,7 +27,7 @@ public class PendingUserActivationCodeUpdated extends DomainEvent {
     }
 
     private void setEmail(RegistrationEmail registrationEmail) {
-        this.email = registrationEmail.getEmail();
+        this.email = registrationEmail.getDomainId();
     }
 
     private void setCode(ActivationCode activationCode) {

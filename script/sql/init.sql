@@ -488,11 +488,9 @@ CREATE TABLE `pending_user` (
   `modified_by` varchar(255) DEFAULT NULL,
   `version` int DEFAULT NULL,
   `activation_code` varchar(255) DEFAULT NULL,
-  `email` varchar(255) DEFAULT NULL,
-  `domain_id` varchar(255) NOT NULL,
+  `domain_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_7qfdexq4310wsu41qkihb6vf6` (`domain_id`),
-  UNIQUE KEY `UKjj1emkwcgmfwdbrftunxxaanh` (`email`,`deleted`)
+  UNIQUE KEY `UKjj1emkwcgmfwdbrftunxxaanh` (`domain_id`,`deleted`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

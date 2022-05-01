@@ -37,6 +37,6 @@ public class MallNotificationEvent extends DomainEvent {
     }
 
     public void setOrderId(String orderId) {
-        setDomainId(new DomainId(orderId));
+//        setDomainId(new DomainId(orderId));
     }
 }
