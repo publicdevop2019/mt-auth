@@ -423,10 +423,11 @@ CREATE TABLE `notification` (
   `modified_by` varchar(255) DEFAULT NULL,
   `version` int DEFAULT NULL,
   `descriptions` varchar(255) DEFAULT NULL,
-  `notification_id` tinyblob,
+  `domain_id` varchar(255) NOT NULL,
   `timestamp` bigint DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_domain_id` (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

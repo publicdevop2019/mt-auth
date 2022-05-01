@@ -10,6 +10,7 @@ import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
 import java.util.Set;
 import javax.persistence.Convert;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.AccessLevel;
@@ -21,6 +22,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
+    @Embedded
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)

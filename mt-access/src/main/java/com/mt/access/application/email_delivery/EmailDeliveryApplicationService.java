@@ -5,7 +5,7 @@ import com.mt.access.domain.model.email_delivery.BizType;
 import com.mt.access.domain.model.email_delivery.CoolDownException;
 import com.mt.access.domain.model.email_delivery.EmailDelivery;
 import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
-import com.mt.access.domain.model.email_delivery.MessageRepository;
+import com.mt.access.domain.model.email_delivery.EmailDeliveryRepository;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import freemarker.template.Configuration;
@@ -39,7 +39,7 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
 public class EmailDeliveryApplicationService {
     @Autowired
-    private MessageRepository messageRepository;
+    private EmailDeliveryRepository emailDeliveryRepository;
     @Autowired
     private JavaMailSender sender;
     @Autowired
@@ -79,13 +79,13 @@ public class EmailDeliveryApplicationService {
         }
         TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
         Optional<EmailDelivery> message = transactionTemplate
-            .execute(status -> messageRepository.findByDeliverToAndBizType(email, bizType));
+            .execute(status -> emailDeliveryRepository.getEmailDelivery(email, bizType));
         if (message != null && message.isPresent()) {
             transactionTemplate.execute(new TransactionCallbackWithoutResult() {
                 @Override
                 protected void doInTransactionWithoutResult(TransactionStatus status) {
                     Optional<EmailDelivery> byDeliverToAndBizType =
-                        messageRepository.findByDeliverToAndBizType(email, bizType);
+                        emailDeliveryRepository.getEmailDelivery(email, bizType);
                     continueDeliverShared(email, byDeliverToAndBizType.get(), templateUrl, subject,
                         model);
                 }
@@ -122,7 +122,7 @@ public class EmailDeliveryApplicationService {
             protected void doInTransactionWithoutResult(TransactionStatus status) {
                 log.info("after db save, read from db again");
                 Optional<EmailDelivery> byDeliverTo =
-                    messageRepository.findByDeliverToAndBizType(email, bizType);
+                    emailDeliveryRepository.getEmailDelivery(email, bizType);
                 if (byDeliverTo.isPresent()) {
                     log.info("found previously saved entity");
                     continueDeliverShared(email, byDeliverTo.get(), templateUrl, subject, model);
