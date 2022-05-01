@@ -18,6 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
@@ -44,8 +45,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         CoolDownException.class,
         UnknownBizTypeException.class,
         IllegalStateException.class,
-        FileUploadException.class,
-        InternalAuthenticationServiceException.class,
+        FileUploadException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
@@ -62,6 +62,8 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
         InvalidTokenException.class,
+        InvalidClientException.class,
+        InternalAuthenticationServiceException.class,
     })
     protected ResponseEntity<Object> handle401Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
