@@ -11,5 +11,6 @@ public class PendingResourceOwner {
     private String activationCode;
 
     private String password;
-
+    private String mobileNumber;
+    private String countryCode;
 }

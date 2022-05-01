@@ -20,5 +20,6 @@ public class User {
 
     private Set<String> resourceId;
     private Integer version;
-
+    private String mobileNumber;
+    private String countryCode;
 }
