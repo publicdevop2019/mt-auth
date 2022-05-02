@@ -14,15 +14,18 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.CurrentPassword;
+import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.PasswordResetCode;
-import com.mt.access.domain.model.user.UpdateLoginInfoCommand;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserLoginRequest;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserQuery;
+import com.mt.access.domain.model.user.UserSession;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
@@ -30,12 +33,19 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -44,7 +54,8 @@ public class UserApplicationService implements UserDetailsService {
 
     public static final String USER = "User";
     public static final String DEFAULT_USERID = "0U8AZTODP4H0";
-
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
@@ -197,9 +208,15 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    @Transactional
-    public void updateLastLoginInfo(UpdateLoginInfoCommand command) {
-        DomainRegistry.getUserService().updateLastLogin(command);
+    private void updateLastLoginInfo(UserLoginRequest command) {
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        template.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(
+                TransactionStatus transactionStatus) {
+                DomainRegistry.getUserService().updateLastLogin(command);
+            }
+        });
     }
 
     public Optional<Image> profileAvatar() {
@@ -228,6 +245,49 @@ public class UserApplicationService implements UserDetailsService {
         return imageId;
     }
 
+    public LoginResult userLogin(String ipAddress, String agentInfo, String grantType,
+                                 String username, @Nullable String mfa, @Nullable String mfaId) {
+        if ("password".equalsIgnoreCase(grantType)) {
+            UserEmail userEmail = new UserEmail(username);
+            Optional<User> user =
+                DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
+            if (user.isEmpty()) {
+                throw new IllegalArgumentException("user not found");
+            }
+            UserId userId = user.get().getUserId();
+            boolean mfaRequired =
+                DomainRegistry.getUserService().isMFARequired(userId, new UserSession(ipAddress));
+            if (!mfaRequired) {
+                //if mfa not required, record current login info
+                recordLoginInfo(ipAddress, agentInfo, userId);
+                return LoginResult.allow();
+            } else {
+                if (mfa != null) {
+                    if (DomainRegistry.getUserService().validateMfa(userId, mfa, mfaId)) {
+                        recordLoginInfo(ipAddress, agentInfo, userId);
+                        return LoginResult.allow();
+                    } else {
+                        return LoginResult.mfaMissMatch();
+                    }
+                } else {
+                    TransactionTemplate template = new TransactionTemplate(transactionManager);
+                    MfaId execute = template.execute(
+                        transactionStatus -> DomainRegistry.getUserService().triggerMfa(userId));
+                    return LoginResult
+                        .mfaMissing(execute);
+                }
+            }
+        }
+        return LoginResult.allow();
+    }
+
+    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
+        UserLoginRequest userLoginRequest =
+            new UserLoginRequest(ipAddress, userId, agentInfo);
+        updateLastLoginInfo(userLoginRequest);
+    }
+
     public static class DefaultUserDeleteException extends RuntimeException {
     }
+
 }

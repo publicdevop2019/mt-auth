@@ -34,6 +34,7 @@ import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
+import com.mt.access.domain.model.user.MfaCodeService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
@@ -110,9 +111,23 @@ public class DomainRegistry {
     private static NotificationRepository notificationRepository;
     @Getter
     private static ProxyService proxyService;
-
+    @Getter
+    private static MfaCodeService mfaCodeService;
     @Getter
     private static ImageRepository imageRepository;
+    @Getter
+    private static LoginInfoRepository loginInfoRepository;
+    @Getter
+    private static LoginHistoryRepository loginHistoryRepository;
+    @Getter
+    private static ValidationResultRepository validationResultRepository;
+    @Getter
+    private static CrossDomainValidationService crossDomainValidationService;
+
+    @Autowired
+    public void setMfaCodeService(MfaCodeService mfaCodeService) {
+        DomainRegistry.mfaCodeService = mfaCodeService;
+    }
 
     @Autowired
     public void setImageRepository(ImageRepository imageRepository) {
@@ -124,22 +139,15 @@ public class DomainRegistry {
         DomainRegistry.proxyService = proxyService;
     }
 
-    @Getter
-    private static LoginInfoRepository loginInfoRepository;
-    @Getter
-    private static LoginHistoryRepository loginHistoryRepository;
-    @Getter
-    private static ValidationResultRepository validationResultRepository;
-    @Getter
-    private static CrossDomainValidationService crossDomainValidationService;
-
     @Autowired
-    public void setCrossDomainValidationService(CrossDomainValidationService crossDomainValidationService) {
+    public void setCrossDomainValidationService(
+        CrossDomainValidationService crossDomainValidationService) {
         DomainRegistry.crossDomainValidationService = crossDomainValidationService;
     }
 
     @Autowired
-    public void setValidationResultRepository(ValidationResultRepository validationResultRepository) {
+    public void setValidationResultRepository(
+        ValidationResultRepository validationResultRepository) {
         DomainRegistry.validationResultRepository = validationResultRepository;
     }
 

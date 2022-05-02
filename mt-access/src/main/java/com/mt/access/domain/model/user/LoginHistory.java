@@ -37,7 +37,7 @@ public class LoginHistory {
     @Getter
     private String agent;
 
-    public LoginHistory(UpdateLoginInfoCommand command) {
+    public LoginHistory(UserLoginRequest command) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.userId = command.getUserId();
         loginAt = Date.from(Instant.now());
