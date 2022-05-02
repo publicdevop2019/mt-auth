@@ -3,6 +3,7 @@ package com.mt.access.port.adapter.messaging;
 import static com.mt.access.domain.model.CrossDomainValidationService.ValidationFailedEvent.SYSTEM_VALIDATION_FAILED;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
+import static com.mt.access.domain.model.user.event.UserMfaNotificationEvent.USER_MFA_NOTIFICATION;
 import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 
@@ -10,6 +11,7 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
+import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
@@ -73,6 +75,17 @@ public class NotificationDomainEventSubscriber {
                 CrossDomainValidationService.ValidationFailedEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), CrossDomainValidationService.ValidationFailedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener5() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, USER_MFA_NOTIFICATION, (event) -> {
+                UserMfaNotificationEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), UserMfaNotificationEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

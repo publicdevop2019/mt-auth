@@ -21,6 +21,8 @@ import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
 import com.mt.access.domain.model.notification.NotificationRepository;
+import com.mt.access.domain.model.notification.SmsNotificationService;
+import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
@@ -106,8 +108,6 @@ public class DomainRegistry {
     @Getter
     private static PermissionCheckService permissionCheckService;
     @Getter
-    private static NotificationService notificationService;
-    @Getter
     private static NotificationRepository notificationRepository;
     @Getter
     private static ProxyService proxyService;
@@ -123,6 +123,20 @@ public class DomainRegistry {
     private static ValidationResultRepository validationResultRepository;
     @Getter
     private static CrossDomainValidationService crossDomainValidationService;
+    @Getter
+    private static SmsNotificationService smsNotificationService;
+    @Getter
+    private static WsPushNotificationService wsPushNotificationService;
+
+    @Autowired
+    public void setWsPushNotificationService(WsPushNotificationService wsPushNotificationService) {
+        DomainRegistry.wsPushNotificationService = wsPushNotificationService;
+    }
+
+    @Autowired
+    public void setSmsNotificationService(SmsNotificationService smsNotificationService) {
+        DomainRegistry.smsNotificationService = smsNotificationService;
+    }
 
     @Autowired
     public void setMfaCodeService(MfaCodeService mfaCodeService) {
@@ -159,11 +173,6 @@ public class DomainRegistry {
     @Autowired
     public void setLoginInfoRepository(LoginInfoRepository loginInfoRepository) {
         DomainRegistry.loginInfoRepository = loginInfoRepository;
-    }
-
-    @Autowired
-    public void setNotificationService(NotificationService userNotificationService) {
-        DomainRegistry.notificationService = userNotificationService;
     }
 
     @Autowired

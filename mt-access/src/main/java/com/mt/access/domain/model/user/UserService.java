@@ -117,7 +117,8 @@ public class UserService {
         User user1 = user.get();
         MfaInfo mfaInfo = MfaInfo.create();
         user1.setMfaInfo(mfaInfo);
-        CommonDomainRegistry.getDomainEventRepository().append(new UserMfaNotificationEvent(user1));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new UserMfaNotificationEvent(user1, mfaInfo));
         return mfaInfo.getId();
     }
 }

@@ -3,6 +3,7 @@ package com.mt.access.domain.model.notification;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
+import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -71,5 +72,13 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = "VALIDATION_FAILED";
         descriptions = Collections.singleton(event.getMessage());
+    }
+
+    public Notification(UserMfaNotificationEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = "USER_MFA_REQUIRED";
     }
 }

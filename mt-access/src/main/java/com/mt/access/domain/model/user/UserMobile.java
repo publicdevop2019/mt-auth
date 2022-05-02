@@ -1,12 +1,13 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Validator;
+import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 
-public class UserMobile {
+public class UserMobile implements Serializable {
     @Column
     @NotNull
     @Getter
@@ -50,5 +51,9 @@ public class UserMobile {
     @Override
     public int hashCode() {
         return Objects.hash(countryCode, mobileNumber);
+    }
+
+    public String value() {
+        return countryCode + " " + mobileNumber;
     }
 }
