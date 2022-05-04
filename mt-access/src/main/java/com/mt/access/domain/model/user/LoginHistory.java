@@ -3,6 +3,7 @@ package com.mt.access.domain.model.user;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.time.Instant;
 import java.util.Date;
+import java.util.Objects;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -45,4 +46,23 @@ public class LoginHistory {
         agent = command.getAgent();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LoginHistory that = (LoginHistory) o;
+        return Objects.equals(id, that.id) && Objects.equals(userId, that.userId) &&
+            Objects.equals(loginAt, that.loginAt) &&
+            Objects.equals(ipAddress, that.ipAddress) &&
+            Objects.equals(agent, that.agent);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, userId, loginAt, ipAddress, agent);
+    }
 }

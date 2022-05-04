@@ -46,7 +46,7 @@ public class TokenResource {
         String clientIpAddress = getClientIpAddress(servletRequest);
         LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
-                parameters.get("username"), parameters.get("mfa"), parameters.get("mfaId"));
+                parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
         if (loginResult.isAllowed()) {
             return tokenEndpoint.postAccessToken(principal, parameters);
         } else {

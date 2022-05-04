@@ -9,7 +9,7 @@ import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ITokenResponse } from '../clazz/validation/interfaze-common';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
@@ -189,13 +189,23 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    login(loginFG: FormGroup): Observable<ITokenResponse> {
+    login(loginFG: FormGroup): Observable<ITokenResponse|IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
         formData.append('username', loginFG.get('email').value);
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse|IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+    }
+    mfaLogin(loginFG: FormGroup,code:string,id:string): Observable<ITokenResponse|IMfaResponse> {
+        const formData = new FormData();
+        formData.append('grant_type', 'password');
+        formData.append('username', loginFG.get('email').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse|IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
     }
     register(registerFG: IPendingResourceOwner, changeId: string): Observable<any> {
         const formData = new FormData();

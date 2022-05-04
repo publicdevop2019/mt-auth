@@ -123,6 +123,7 @@ import { AuthorizeComponent } from './pages/common/authorize/authorize.component
 import { RequirePermissionDirective } from './directive/require-permission.directive';
 import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
 import { JobComponent } from './pages/mgnmt/job/job.component';
+import { MfaComponent } from './pages/common/mfa/mfa.component';
 
 @NgModule({
   declarations: [
@@ -195,6 +196,7 @@ import { JobComponent } from './pages/mgnmt/job/job.component';
     MngmtClientComponent,
     RegistryComponent,
     JobComponent,
+    MfaComponent,
   ],
   imports: [
     BrowserAnimationsModule,

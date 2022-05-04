@@ -784,4 +784,8 @@ export const zhHans = {
     "NOTIFICATION_PROJECT_NAME": "项目名称",
     "JOB_ACTION": "操作",
     "RESET_JOB": "重置",
+    "RESEND": "重新发送",
+    "MFA_MSG_1": "为了验证您的身份，请输入验证码",
+    "MFA_CODE_HINT": "默认: 654321",
+    "MFA_CODE": "验证码",
 }

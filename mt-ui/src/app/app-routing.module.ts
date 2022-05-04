@@ -36,9 +36,11 @@ import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { JobComponent } from './pages/mgnmt/job/job.component';
+import { MfaComponent } from './pages/common/mfa/mfa.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'mfa', component: MfaComponent },
   { path: 'authorize', component: AuthorizeComponent, canActivate: [AuthService] },
   {
     path: 'dashboard', component: NavBarComponent, canActivateChild: [AuthService],

@@ -27,3 +27,7 @@ export interface IAuditable {
   createdAt: string;
   createdBy: string;
 }
+export interface IMfaResponse {
+  mfaId: string;
+  message: string;
+}

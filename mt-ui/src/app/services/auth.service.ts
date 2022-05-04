@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { FormGroup } from '@angular/forms';
 import { Router, CanActivateChild, CanActivate, ActivatedRouteSnapshot, RouterStateSnapshot, Params } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
@@ -10,6 +11,9 @@ import { HttpProxyService, IUser } from './http-proxy.service';
 export class AuthService implements CanActivateChild, CanActivate {
   public avatarUpdated$: Subject<void> = new Subject();
   private currentUser$: Observable<IUser>;
+  public loginFormValue:FormGroup;
+  public loginNextUrl:string;
+  public mfaId:string;
   public get currentUser() {
     if (!this.currentUser$) {
       this.currentUser$ = this.httpProxy.getMyProfile().pipe(
