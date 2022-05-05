@@ -37,13 +37,13 @@ import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
@@ -247,23 +247,23 @@ public class UserApplicationService implements UserDetailsService {
 
     public LoginResult userLogin(String ipAddress, String agentInfo, String grantType,
                                  String username, @Nullable String mfa, @Nullable String mfaId) {
-        if ("password".equalsIgnoreCase(grantType)) {
+        if ("password".equalsIgnoreCase(grantType) && username != null) {
             UserEmail userEmail = new UserEmail(username);
             Optional<User> user =
                 DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
             if (user.isEmpty()) {
-                throw new IllegalArgumentException("user not found");
+                throw new InternalAuthenticationServiceException("user not found");
             }
             UserId userId = user.get().getUserId();
             boolean mfaRequired =
-                DomainRegistry.getUserService().isMFARequired(userId, new UserSession(ipAddress));
+                DomainRegistry.getMfaService().isMFARequired(userId, new UserSession(ipAddress));
             if (!mfaRequired) {
                 //if mfa not required, record current login info
                 recordLoginInfo(ipAddress, agentInfo, userId);
                 return LoginResult.allow();
             } else {
                 if (mfa != null) {
-                    if (DomainRegistry.getUserService().validateMfa(userId, mfa, mfaId)) {
+                    if (DomainRegistry.getMfaService().validateMfa(userId, mfa, mfaId)) {
                         recordLoginInfo(ipAddress, agentInfo, userId);
                         return LoginResult.allow();
                     } else {
@@ -272,7 +272,7 @@ public class UserApplicationService implements UserDetailsService {
                 } else {
                     TransactionTemplate template = new TransactionTemplate(transactionManager);
                     MfaId execute = template.execute(
-                        transactionStatus -> DomainRegistry.getUserService().triggerMfa(userId));
+                        transactionStatus -> DomainRegistry.getMfaService().triggerMfa(userId));
                     return LoginResult
                         .mfaMissing(execute);
                 }

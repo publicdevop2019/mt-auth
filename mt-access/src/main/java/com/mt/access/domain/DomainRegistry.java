@@ -37,6 +37,7 @@ import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeService;
+import com.mt.access.domain.model.user.MfaService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
@@ -127,6 +128,13 @@ public class DomainRegistry {
     private static SmsNotificationService smsNotificationService;
     @Getter
     private static WsPushNotificationService wsPushNotificationService;
+    @Getter
+    private static MfaService mfaService;
+
+    @Autowired
+    public void setMfaService(MfaService mfaService) {
+        DomainRegistry.mfaService = mfaService;
+    }
 
     @Autowired
     public void setWsPushNotificationService(WsPushNotificationService wsPushNotificationService) {
