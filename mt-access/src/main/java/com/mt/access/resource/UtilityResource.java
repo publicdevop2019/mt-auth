@@ -13,17 +13,49 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class UtilityResource {
+    /**
+     * clean hibernate second level cache.
+     * this should be executed after manually database change
+     *
+     * @return void
+     */
     @PostMapping(path = "cache/clean")
     public ResponseEntity<Void> createForApp() {
         CommonDomainRegistry.getHibernateCacheService().clearCache();
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * get eureka registry information.
+     *
+     * @return registry info
+     */
     @GetMapping(path = "registry")
     public ResponseEntity<List<RegistryCardRepresentation>> registryStatus() {
         List<RegistryCardRepresentation> info =
             ApplicationServiceRegistry.getRegistryApplicationService().getInfo();
         RegistryCardRepresentation.updateDetails(info);
         return ResponseEntity.ok(info);
+    }
+
+    /**
+     * do nothing api, used to attach csrf cookie in response by mt-proxy.
+     *
+     * @return void
+     */
+    @GetMapping(path = "csrf")
+    public ResponseEntity<Void> csrf() {
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * do nothing api, used to check if token expire,
+     * if yes, will trigger redirect to login page.
+     *
+     * @return void
+     */
+    @GetMapping(path = "expire/check")
+    public ResponseEntity<Void> expireCheck() {
+        return ResponseEntity.ok().build();
     }
 }

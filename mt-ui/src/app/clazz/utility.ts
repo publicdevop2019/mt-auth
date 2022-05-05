@@ -1,11 +1,16 @@
 import { Router } from '@angular/router';
+import { HttpProxyService } from '../services/http-proxy.service';
 
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");
     if (parts.length == 2) return parts.pop().split(";").shift();
 }
-export function logout(router?: Router) {
+export function logout(router?: Router, httpProxy?: HttpProxyService) {
+    if (httpProxy) {
+        httpProxy.clearLogoutCheck()
+    }
+    httpProxy.currentUserAuthInfo = undefined;
     sessionStorage.clear();
     localStorage.removeItem('jwt');
     document.cookie = "jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"

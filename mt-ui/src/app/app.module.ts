@@ -297,7 +297,11 @@ import { MfaComponent } from './pages/common/mfa/mfa.component';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private translate: TranslateService, private fis: FormInfoService) {
+  constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService) {
+    if (this.httpSvc.currentUserAuthInfo) {
+      console.dir('already logged in, setting timer')
+      this.httpSvc.updateLogoutTimer()
+    }
     let lang = this.translate.currentLang
     if (lang === 'zhHans')
       this.fis.i18nLabel = zhHans

@@ -788,4 +788,5 @@ export const zhHans = {
     "MFA_MSG_1": "为了验证您的身份，请输入验证码",
     "MFA_CODE_HINT": "默认: 654321",
     "MFA_CODE": "验证码",
+    "USER_MFA_REQUIRED": "用户多因素认证触发",
 }

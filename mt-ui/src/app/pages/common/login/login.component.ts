@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { ValidatorHelper } from 'src/app/clazz/validateHelper';
 import { IForgetPasswordRequest, IPendingResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { IMfaResponse, ITokenResponse } from 'src/app/clazz/validation/interfaze-common';
@@ -116,7 +115,6 @@ export class LoginComponent implements OnInit {
   }
   register() {
     let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
-    console.dir(error)
     if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
       this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
       this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
