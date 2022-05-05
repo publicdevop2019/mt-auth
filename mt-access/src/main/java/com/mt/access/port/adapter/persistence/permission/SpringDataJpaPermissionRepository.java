@@ -70,6 +70,8 @@ public interface SpringDataJpaPermissionRepository
                     Permission_.PERMISSION_ID, queryContext));
             Optional.ofNullable(query.getParentId()).ifPresent(e -> QueryUtility
                 .addDomainIdIsPredicate(e.getDomainId(), Permission_.PARENT_ID, queryContext));
+            Optional.ofNullable(query.getParentIdNull()).ifPresent(e -> QueryUtility
+                .addDomainIdIsNullPredicate(Permission_.PARENT_ID, queryContext));
             Optional.ofNullable(query.getProjectIds())
                 .ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),

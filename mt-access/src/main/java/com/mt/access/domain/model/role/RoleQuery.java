@@ -29,6 +29,7 @@ public class RoleQuery extends QueryCriteria {
     private RoleSort sort;
     private Set<RoleId> ids;
     private RoleId parentId;
+    private Boolean parentIdNull;
     private Set<ProjectId> projectIds;
     private Set<String> names;
     private Set<RoleType> types;
@@ -42,7 +43,13 @@ public class RoleQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(NAME))
             .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PARENT_ID))
-            .ifPresent(e -> parentId = new RoleId(e));
+            .ifPresent(e -> {
+                if ("null".equalsIgnoreCase(e)) {
+                    parentIdNull = true;
+                } else {
+                    parentId = new RoleId(e);
+                }
+            });
         Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> projectIds =
             Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {

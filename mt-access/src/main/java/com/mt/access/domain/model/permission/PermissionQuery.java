@@ -30,6 +30,7 @@ public class PermissionQuery extends QueryCriteria {
     @Setter
     private Set<ProjectId> tenantIds;
     private PermissionId parentId;
+    private Boolean parentIdNull;
     @Setter
     private Set<String> names;
     private Set<PermissionType> types;
@@ -121,7 +122,13 @@ public class PermissionQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(NAME))
             .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL))
-            .ifPresent(e -> parentId = new PermissionId((e)));
+            .ifPresent(e -> {
+                if ("null".equalsIgnoreCase(e)) {
+                    parentIdNull = true;
+                } else {
+                    parentId = new PermissionId(e);
+                }
+            });
         Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> projectIds =
             Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {
