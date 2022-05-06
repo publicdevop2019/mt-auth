@@ -152,6 +152,10 @@ public class User extends Auditable {
         if (language != null) {
             this.language = language;
         }
-        this.mobile = mobile;
+        if (!this.mobile.equals(mobile)) {
+            DomainRegistry.getAuditService()
+                .logCurrentUserAction("update mobile number", null);
+            this.mobile = mobile;
+        }
     }
 }

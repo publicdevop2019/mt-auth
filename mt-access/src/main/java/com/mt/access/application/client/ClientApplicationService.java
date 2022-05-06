@@ -11,6 +11,7 @@ import com.mt.access.application.client.command.ClientPatchCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
@@ -47,6 +48,7 @@ public class ClientApplicationService implements ClientDetailsService {
     public static final String CLIENT = "Client";
 
     @Transactional
+    @AuditLog(actionName = "create client")
     public String tenantCreate(ClientCreateCommand command, String operationId) {
         ClientId clientId = new ClientId();
         DomainRegistry.getPermissionCheckService()
@@ -117,6 +119,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     @Transactional
+    @AuditLog(actionName = "update client")
     public void tenantReplace(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService()
@@ -155,6 +158,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     @Transactional
+    @AuditLog(actionName = "remove client")
     public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), EDIT_CLIENT);
@@ -177,6 +181,7 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
     @Transactional
+    @AuditLog(actionName = "patch client")
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CLIENT);

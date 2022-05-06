@@ -8,6 +8,7 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
@@ -59,6 +60,7 @@ public class RoleApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "update role")
     public void update(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
@@ -77,6 +79,7 @@ public class RoleApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "remove role")
     public void remove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
@@ -100,6 +103,7 @@ public class RoleApplicationService {
      */
 
     @Transactional
+    @AuditLog(actionName = "create role")
     public String create(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
         DomainRegistry.getPermissionCheckService()

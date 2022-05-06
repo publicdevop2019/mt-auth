@@ -136,24 +136,4 @@ public class UserRelationApplicationService {
             }).orElseGet(Optional::empty);
     }
 
-    public Optional<UserProfileRepresentation> myProfile() {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
-        return user.flatMap((e) -> {
-            UserProfileRepresentation userProfileRepresentation =
-                new UserProfileRepresentation(e, loginInfo.get());
-            return Optional.of(userProfileRepresentation);
-        });
-    }
-
-    @Transactional
-    public void updateProfile(UserUpdateProfileCommand command) {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        user.ifPresent(e -> e.update(
-            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-            command.getUsername() != null ? new UserName(command.getUsername()) : null,
-            command.getLanguage()));
-    }
 }

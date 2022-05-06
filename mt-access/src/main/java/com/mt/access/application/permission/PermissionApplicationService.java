@@ -11,6 +11,7 @@ import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
@@ -59,6 +60,7 @@ public class PermissionApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "update permission")
     public void replace(String id, PermissionUpdateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
@@ -93,6 +95,7 @@ public class PermissionApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "remove permission")
     public void remove(String projectId, String id, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
@@ -109,6 +112,7 @@ public class PermissionApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "patch permission")
     public void patch(String projectId, String id, JsonPatch command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
@@ -136,6 +140,7 @@ public class PermissionApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "create permission")
     public String create(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
         DomainRegistry.getPermissionCheckService()

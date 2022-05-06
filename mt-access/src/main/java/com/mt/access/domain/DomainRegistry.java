@@ -12,6 +12,7 @@ import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.UserValidationService;
 import com.mt.access.domain.model.activation_code.ActivationCodeService;
+import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
@@ -130,6 +131,13 @@ public class DomainRegistry {
     private static WsPushNotificationService wsPushNotificationService;
     @Getter
     private static MfaService mfaService;
+    @Getter
+    private static AuditService auditService;
+
+    @Autowired
+    public void setAuditService(AuditService auditService) {
+        DomainRegistry.auditService = auditService;
+    }
 
     @Autowired
     public void setMfaService(MfaService mfaService) {

@@ -191,7 +191,7 @@ public class UserResource {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         Optional<UserProfileRepresentation> user =
-            ApplicationServiceRegistry.getUserRelationApplicationService().myProfile();
+            ApplicationServiceRegistry.getUserApplicationService().myProfile();
         return user.map(ResponseEntity::ok)
             .orElseGet(() -> ResponseEntity.ok().build());
     }
@@ -251,7 +251,7 @@ public class UserResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        ApplicationServiceRegistry.getUserRelationApplicationService().updateProfile(command);
+        ApplicationServiceRegistry.getUserApplicationService().updateProfile(command);
         return ResponseEntity.ok().build();
     }
 
