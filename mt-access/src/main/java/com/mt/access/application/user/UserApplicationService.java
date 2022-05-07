@@ -35,9 +35,11 @@ import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +86,11 @@ public class UserApplicationService implements UserDetailsService {
     public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
         return DomainRegistry.getUserRepository()
             .usersOfQuery(new UserQuery(queryParam, pageParam, config));
+    }
+
+    public Set<User> users(Set<UserId> userIdSet) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository()
+            .usersOfQuery(e), new UserQuery(userIdSet));
     }
 
     public Optional<User> user(String id) {

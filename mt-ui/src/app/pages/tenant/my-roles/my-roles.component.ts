@@ -1,12 +1,15 @@
-import { Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
+import { pid } from 'process';
+import { map, tap } from 'rxjs/operators';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
+import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
@@ -70,7 +73,22 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
     const sub=this.projectId.subscribe(pId => {
       this.entitySvc.setProjectId(pId);
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null,types:USER.PROJECT")
-      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
+      .pipe(map(e => {
+        e.data.forEach(ee => {
+          if (pId === '0P8HE307W6IO') {
+            (ee as INode).enableI18n = true;
+          }
+        })
+        return e
+      }));
+      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
+        e.data.forEach(ee => {
+          if (pId === '0P8HE307W6IO') {
+            (ee as INode).enableI18n = true;
+          }
+        })
+        return e
+      }));
     });
     this.subs.add(sub)
     this.fis.formCreated(this.formId2).subscribe(() => {

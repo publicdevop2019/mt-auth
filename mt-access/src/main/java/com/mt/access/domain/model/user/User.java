@@ -95,6 +95,13 @@ public class User extends Auditable {
         return new User(userEmail, password, userId, mobile);
     }
 
+    public String getDisplayName() {
+        if (userName != null) {
+            return userName.getValue();
+        }
+        return email.getEmail();
+    }
+
     @Override
     public void validate(@NotNull ValidationNotificationHandler handler) {
         (new UserValidator(this, handler)).validate();

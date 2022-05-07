@@ -11,6 +11,7 @@ export interface INode {
   id: string;
   name: string;
   editable?: boolean;
+  enableI18n?: boolean;
   noChildren?: boolean;
   parentId?: string,
   nodes?: INode[],

@@ -66,10 +66,13 @@
                             <ng-container matColumnDef="name">
                                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
                                 <td mat-cell *matCellDef="let row">
-                                    <app-editable-field *ngIf="row.roleType==='USER'" [inputValue]="row.name"
+                                    <ng-container *ngIf="row.systemCreate">
+                                        {{row.name |translate}}
+                                    </ng-container>
+                                    <app-editable-field *ngIf="row.roleType==='USER' && !row.systemCreate" [inputValue]="row.name"
                                         (newValue)="doPatch(row.id,$event,'name')">
                                     </app-editable-field>
-                                    <div *ngIf="row.roleType!=='USER'">
+                                    <div *ngIf="row.roleType!=='USER' && !row.systemCreate">
                                         {{row.name}}
                                     </div>
                                 </td>

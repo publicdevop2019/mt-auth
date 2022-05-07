@@ -4,4 +4,5 @@ export interface IProjectSimple extends IIdBasedEntity{
     name:string
     createdBy?:string,
     createdAt?:string
+    creatorName?:string
 }

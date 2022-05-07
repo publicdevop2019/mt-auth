@@ -4,8 +4,10 @@ import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.VIEW_ROLE;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
+import com.mt.access.application.role.command.RolePatchCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -23,6 +25,7 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -77,6 +80,28 @@ public class RoleApplicationService {
             }, ROLE);
     }
 
+    @Transactional
+    @AuditLog(actionName = "update role")
+    public void patch(String projectId, String id, JsonPatch command, String changeId) {
+        RoleId roleId = new RoleId(id);
+        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(changeId, (change) -> {
+                Optional<Role> first =
+                    DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
+                first.ifPresent(e -> {
+                    RolePatchCommand beforePatch = new RolePatchCommand(e);
+                    RolePatchCommand afterPatch =
+                        CommonDomainRegistry.getCustomObjectSerializer()
+                            .applyJsonPatch(command, beforePatch, RolePatchCommand.class);
+                    e.patch(afterPatch.getName());
+                    DomainRegistry.getRoleRepository().add(e);
+                });
+                return null;
+            }, ROLE);
+    }
+
 
     @Transactional
     @AuditLog(actionName = "remove role")
@@ -86,10 +111,7 @@ public class RoleApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Role> role = DomainRegistry.getRoleRepository().getById(roleId);
-            role.ifPresent(e -> {
-                e.remove();
-
-            });
+            role.ifPresent(Role::remove);
             return null;
         }, ROLE);
     }

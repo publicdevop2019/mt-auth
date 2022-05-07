@@ -121,16 +121,16 @@ public class PermissionApplicationService {
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
-                Optional<Permission> corsProfile =
+                Optional<Permission> permission =
                     DomainRegistry.getPermissionRepository().getByQuery(permissionQuery)
                         .findFirst();
-                if (corsProfile.isPresent()) {
-                    Permission corsProfile1 = corsProfile.get();
-                    PermissionPatchCommand beforePatch = new PermissionPatchCommand(corsProfile1);
+                if (permission.isPresent()) {
+                    Permission permission1 = permission.get();
+                    PermissionPatchCommand beforePatch = new PermissionPatchCommand(permission1);
                     PermissionPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, PermissionPatchCommand.class);
-                    corsProfile1.patch(
+                    permission1.patch(
                         afterPatch.getName()
                     );
                 }

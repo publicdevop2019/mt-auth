@@ -56,9 +56,12 @@ public class ProjectResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        SumPagedRep<Project> clients = ApplicationServiceRegistry.getProjectApplicationService()
+        SumPagedRep<Project> queryProjects = ApplicationServiceRegistry.getProjectApplicationService()
             .adminQueryProjects(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
+        SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
+            new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
+        ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);
+        return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
     }
 
     @GetMapping(path = "projects/tenant")
@@ -71,7 +74,9 @@ public class ProjectResource {
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         SumPagedRep<Project> clients =
             ApplicationServiceRegistry.getProjectApplicationService().findTenantProjects(pageParam);
-        return ResponseEntity.ok(new SumPagedRep<>(clients, ProjectCardRepresentation::new));
+        SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
+            new SumPagedRep<>(clients, ProjectCardRepresentation::new);
+        return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
     }
 
     @GetMapping("projects/{id}")

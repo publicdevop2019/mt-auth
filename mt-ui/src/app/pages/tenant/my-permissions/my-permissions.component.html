@@ -64,7 +64,7 @@
                                     <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
                                     <td mat-cell *matCellDef="let row">
                                         <ng-container *ngIf="row.systemCreate">
-                                            {{row.name}}
+                                            {{row.name |translate}}
                                         </ng-container>
                                         <ng-container *ngIf="!row.systemCreate">
                                             <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
