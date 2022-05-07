@@ -299,7 +299,6 @@ import { MfaComponent } from './pages/common/mfa/mfa.component';
 export class AppModule {
   constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService) {
     if (this.httpSvc.currentUserAuthInfo) {
-      console.dir('already logged in, setting timer')
       this.httpSvc.updateLogoutTimer()
     }
     let lang = this.translate.currentLang
