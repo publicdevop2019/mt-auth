@@ -10,7 +10,9 @@ export function logout(router?: Router, httpProxy?: HttpProxyService) {
     if (httpProxy) {
         httpProxy.clearLogoutCheck()
     }
-    httpProxy.currentUserAuthInfo = undefined;
+    if(httpProxy){
+        httpProxy.currentUserAuthInfo = undefined;
+    }
     sessionStorage.clear();
     localStorage.removeItem('jwt');
     document.cookie = "jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"

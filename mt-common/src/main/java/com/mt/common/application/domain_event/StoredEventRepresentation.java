@@ -15,12 +15,12 @@ public class StoredEventRepresentation {
     private boolean internal;
     private String domainId;
 
-    public StoredEventRepresentation(StoredEvent o) {
-        setEventBody(o.getEventBody());
-        setId(o.getId());
-        setTimestamp(o.getTimestamp());
-        setName(ClassUtility.getShortName(o.getName()));
-        setInternal(o.isInternal());
-        setDomainId(o.getDomainId());
+    public StoredEventRepresentation(StoredEvent event) {
+        setEventBody(event.getEventBody());
+        setId(event.getId());
+        setTimestamp(event.getTimestamp());
+        setName(ClassUtility.getShortName(event.getName()));
+        setInternal(event.isInternal());
+        setDomainId(event.getDomainId());
     }
 }

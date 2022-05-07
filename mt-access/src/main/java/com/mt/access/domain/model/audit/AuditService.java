@@ -4,9 +4,12 @@ import static com.mt.access.domain.model.audit.AuditLogAspectConfig.AUDIT_PREFIX
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.model.domain_event.StoredEvent;
+import com.mt.common.domain.model.restful.SumPagedRep;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.config.BeanDefinition;
@@ -18,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuditService {
     private static final String EVENT_NAME = "name";
-    private final List<String> auditEventNames = new ArrayList<>();
+    private final Set<String> auditEventNames = new HashSet<>();
 
     @PostConstruct
     public void scanAuditEvent() {
@@ -36,6 +39,12 @@ public class AuditService {
                 e.printStackTrace();
             }
         }
+    }
+
+    public SumPagedRep<StoredEvent> getAuditEvent(String queryParam, String pageParam,
+                                                  String skipCount) {
+        return CommonApplicationServiceRegistry.getStoredEventApplicationService()
+            .query(auditEventNames, queryParam, pageParam, skipCount);
     }
 
     public void logUserAction(String userEmail, String action, String detail) {

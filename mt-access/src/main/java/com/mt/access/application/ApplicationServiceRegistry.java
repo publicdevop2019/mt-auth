@@ -1,5 +1,6 @@
 package com.mt.access.application;
 
+import com.mt.access.application.audit.AuditApplicationService;
 import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
@@ -79,6 +80,8 @@ public class ApplicationServiceRegistry {
     private static ImageApplicationService imageApplicationService;
     @Getter
     private static CrossDomainValidationApplicationService crossDomainValidationApplicationService;
+    @Getter
+    private static AuditApplicationService auditApplicationService;
 
     @Autowired
     public void setCrossDomainValidationApplicationService(
@@ -91,6 +94,12 @@ public class ApplicationServiceRegistry {
     public void setImageApplicationService(
         ImageApplicationService imageApplicationService) {
         ApplicationServiceRegistry.imageApplicationService = imageApplicationService;
+    }
+
+    @Autowired
+    public void setAuditApplicationService(
+        AuditApplicationService auditApplicationService) {
+        ApplicationServiceRegistry.auditApplicationService = auditApplicationService;
     }
 
     @Autowired

@@ -21,6 +21,7 @@ public class StoredEventQuery extends QueryCriteria {
     private Set<Long> ids;
     private Boolean send;
     private Set<String> domainIds;
+    private Set<String> names;
     private DomainEventSort sort;
 
     public StoredEventQuery(String queryParam, String pageParam, String skipCount) {
@@ -28,7 +29,15 @@ public class StoredEventQuery extends QueryCriteria {
         setPageConfig(PageConfig.limited(pageParam, 200));
         updateQueryParam(queryParam);
         setSort(pageConfig);
+    }
 
+    public StoredEventQuery(Set<String> name, String queryParam, String pageParam,
+                            String skipCount) {
+        setQueryConfig(new QueryConfig(skipCount));
+        setPageConfig(PageConfig.limited(pageParam, 200));
+        this.names = name;
+        updateQueryParam(queryParam);
+        setSort(pageConfig);
     }
 
     public static StoredEventQuery notSend() {

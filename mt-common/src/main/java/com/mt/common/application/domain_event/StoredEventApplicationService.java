@@ -5,6 +5,7 @@ import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +21,13 @@ public class StoredEventApplicationService {
 
     public SumPagedRep<StoredEvent> query(String queryParam, String pageParam, String skipCount) {
         StoredEventQuery storedEventQuery = new StoredEventQuery(queryParam, pageParam, skipCount);
+        return CommonDomainRegistry.getDomainEventRepository().query(storedEventQuery);
+    }
+
+    public SumPagedRep<StoredEvent> query(Set<String> names, String queryParam, String pageParam,
+                                          String skipCount) {
+        StoredEventQuery storedEventQuery =
+            new StoredEventQuery(names, queryParam, pageParam, skipCount);
         return CommonDomainRegistry.getDomainEventRepository().query(storedEventQuery);
     }
 }

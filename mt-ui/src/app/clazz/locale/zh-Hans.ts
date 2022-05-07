@@ -815,4 +815,5 @@ export const zhHans = {
     "VIEW_PERMISSION": "查看权限",
     "VIEW_TENANT_USER": "查看用户",
     "EDIT_TENANT_USER": "编辑用户",
+    "AUDIT_EVENT": "审计事件",
 }

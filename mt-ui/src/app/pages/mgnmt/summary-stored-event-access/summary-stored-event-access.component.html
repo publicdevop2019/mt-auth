@@ -1,7 +1,8 @@
 <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'AUTH_CENTER' |translate}} /
     {{'EVENT_DASHBOARD'|translate}}</h2>
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:end;">
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
+    <mat-slide-toggle [formControl]="auditTrigger">{{'AUDIT_EVENT'|translate}}</mat-slide-toggle>
     <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
 </div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">

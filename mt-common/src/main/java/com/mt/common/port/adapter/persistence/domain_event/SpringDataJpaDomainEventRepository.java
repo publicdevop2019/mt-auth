@@ -44,6 +44,8 @@ public interface SpringDataJpaDomainEventRepository
                 QueryUtility.prepareContext(StoredEvent.class, query);
             Optional.ofNullable(query.getIds())
                 .ifPresent(e -> QueryUtility.addLongInPredicate(e, StoredEvent_.ID, queryContext));
+            Optional.ofNullable(query.getNames())
+                .ifPresent(e -> QueryUtility.addStringInPredicate(e, StoredEvent_.NAME, queryContext));
             Optional.ofNullable(query.getDomainIds()).ifPresent(
                 e -> QueryUtility.addStringInPredicate(e, StoredEvent_.DOMAIN_ID, queryContext));
             Optional.ofNullable(query.getSend()).ifPresent(

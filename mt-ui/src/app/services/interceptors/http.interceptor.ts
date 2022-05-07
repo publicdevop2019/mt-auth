@@ -25,9 +25,9 @@ export class CustomHttpInterceptor implements HttpInterceptor {
          * skip Bearer header for public urls
          */
       } else {
-        const ignore=req.headers.get('ignore_400')
+        const ignore = req.headers.get('ignore_400')
         req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` }, headers: req.headers.delete('ignore_400') });
-        if(ignore){
+        if (ignore) {
           (req as any).ignoreError = true;
         }
       }
@@ -41,7 +41,7 @@ export class CustomHttpInterceptor implements HttpInterceptor {
           }
           if (req.url.indexOf('oauth/token') > -1 && req.method === 'POST' && req.body && (req.body as FormData).get('grant_type') === 'refresh_token') {
             this.openSnackbar('SESSION_EXPIRED');
-            logout(this.router,this._httpProxy);
+            logout(this.router, this._httpProxy);
             return throwError(error);
           }
           if (this._httpProxy.refreshInprogress) {
@@ -66,6 +66,9 @@ export class CustomHttpInterceptor implements HttpInterceptor {
         }
         else if (this._errorStatus.indexOf(error.status) > -1) {
           this.openSnackbar('SERVER_RETURN_5XX');
+          // if (req.url.indexOf('oauth/token') > -1 && req.method === 'POST') {
+          //   clearInterval(this._httpProxy.logoutCheck)
+          // }
         } else if (error.status === 404) {
           this.openSnackbar('URL_NOT_FOUND');
           return throwError(error);

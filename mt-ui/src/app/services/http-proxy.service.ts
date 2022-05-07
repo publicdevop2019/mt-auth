@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
+import { logout } from '../clazz/utility';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
@@ -79,9 +80,13 @@ export class HttpProxyService {
             clearInterval(this.logoutCheck)
         }
         const expireAfterSeconds = this.getRefreshExpireTime(this.currentUserAuthInfo)
-        this.logoutCheck = setInterval(() => {
-            this.expireCheck().subscribe()
-        }, (expireAfterSeconds + 31) * 1000)
+        if (expireAfterSeconds >= 0) {
+            this.logoutCheck = setInterval(() => {
+                this.expireCheck().subscribe()
+            }, (expireAfterSeconds + 31) * 1000)
+        } else {
+            logout()
+        }
     }
     clearLogoutCheck() {
         if (this.logoutCheck) {

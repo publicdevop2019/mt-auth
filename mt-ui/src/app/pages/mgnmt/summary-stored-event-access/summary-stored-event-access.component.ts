@@ -1,6 +1,7 @@
 import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { Component, OnDestroy } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -43,7 +44,7 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
       searchValue: 'id',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -51,10 +52,11 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
       searchValue: 'domainId',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     }
-  ]
+  ];
+  auditTrigger = new FormControl();
   constructor(
     public entitySvc: StoredEventAccessService,
     public deviceSvc: DeviceService,
@@ -63,8 +65,17 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     private overlay: Overlay,
     private overlaySvc: OverlayService,
     fis: FormInfoService,
-    ) {
-      super(entitySvc, deviceSvc, bottomSheet,fis, 1);
+  ) {
+    super(entitySvc, deviceSvc, bottomSheet, fis, 1);
+    this.auditTrigger.valueChanges.subscribe(next => {
+      if (next) {
+        this.entitySvc.entityRepo = this.entitySvc.auditRepo;
+      } else {
+        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+      }
+      this.entitySvc.pageNumber = 0;
+      this.deviceSvc.refreshSummary.next();
+    })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {
     this.overlaySvc.data = data;
@@ -80,7 +91,7 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     })
 
   }
-  doRetry(id:string){
+  doRetry(id: string) {
     this.entitySvc.retry(id).subscribe()
   }
 }
