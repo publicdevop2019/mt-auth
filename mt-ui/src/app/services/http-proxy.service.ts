@@ -76,7 +76,7 @@ export class HttpProxyService {
     }
     updateLogoutTimer() {
         if (this.logoutCheck) {
-            setInterval(this.logoutCheck)
+            clearInterval(this.logoutCheck)
         }
         const expireAfterSeconds = this.getRefreshExpireTime(this.currentUserAuthInfo)
         this.logoutCheck = setInterval(() => {
