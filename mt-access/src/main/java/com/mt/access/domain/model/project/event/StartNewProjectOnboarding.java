@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.project.event;
 
+import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -7,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class StartNewProjectOnboarding extends DomainEvent {
+public class StartNewProjectOnboarding extends DomainEvent implements AuditEvent {
     public static final String START_NEW_PROJECT_ONBOARDING = "start_new_project_onboarding";
     public static final String name = "START_NEW_PROJECT_ONBOARDING";
     @Getter

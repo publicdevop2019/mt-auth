@@ -2,6 +2,7 @@ package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -111,6 +112,7 @@ public class User extends Auditable {
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
             throw new IllegalArgumentException("root account cannot be locked");
         }
+        CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
     }
 

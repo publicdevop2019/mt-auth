@@ -1,11 +1,12 @@
 package com.mt.access.domain.model.user.event;
 
+import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserDeleted extends DomainEvent {
+public class UserDeleted extends DomainEvent implements AuditEvent {
 
     public static final String USER_DELETED = "user_deleted";
     public static final String name = "USER_DELETED";
