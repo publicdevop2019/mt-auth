@@ -4,12 +4,39 @@ import static com.mt.access.domain.model.audit.AuditLogAspectConfig.AUDIT_PREFIX
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.UserId;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
+import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 public class AuditService {
+    private static final String EVENT_NAME = "name";
+    private final List<String> auditEventNames = new ArrayList<>();
+
+    @PostConstruct
+    public void scanAuditEvent() {
+        log.debug("scanning audit event in package");
+        ClassPathScanningCandidateComponentProvider scanner =
+            new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(AuditEvent.class));
+        for (BeanDefinition bd : scanner.findCandidateComponents("com.mt")) {
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(bd.getBeanClassName());
+                Field name = clazz.getField(EVENT_NAME);
+                auditEventNames.add(String.valueOf(name.get(null)));
+            } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void logUserAction(String userEmail, String action, String detail) {
         log.info("{} user: {} action : {} detail: {}", AUDIT_PREFIX, userEmail, action, detail);

@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class CacheProfileUpdated extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class CacheProfileUpdated extends DomainEvent {
 
     public static final String CACHE_PROFILE_UPDATED = "cache_profile_updated";
     public static final String name = "CACHE_PROFILE_UPDATED";

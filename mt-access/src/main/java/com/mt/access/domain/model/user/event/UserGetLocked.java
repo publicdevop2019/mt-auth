@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserGetLocked extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class UserGetLocked extends DomainEvent {
 
     public static final String USER_GET_LOCKED = "user_get_locked";
     public static final String name = "USER_GET_LOCKED";

@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserAuthorityChanged extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class UserAuthorityChanged extends DomainEvent {
 
     public static final String USER_AUTHORITY_CHANGED = "user_authority_changed";
     public static final String name = "USER_AUTHORITY_CHANGED";

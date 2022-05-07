@@ -7,7 +7,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PendingUserCreated extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class PendingUserCreated extends DomainEvent {
     public static final String name = "PENDING_USER_CREATED";
     public static final String PENDING_USER_CREATED = "pending_user_created";
 

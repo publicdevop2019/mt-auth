@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class CorsProfileUpdated extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class CorsProfileUpdated extends DomainEvent {
 
     public static final String CORS_PROFILE_UPDATED = "cors_profile_updated";
     public static final String name = "CORS_PROFILE_UPDATED";

@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class UserDeleted extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class UserDeleted extends DomainEvent {
 
     public static final String USER_DELETED = "user_deleted";
     public static final String name = "USER_DELETED";

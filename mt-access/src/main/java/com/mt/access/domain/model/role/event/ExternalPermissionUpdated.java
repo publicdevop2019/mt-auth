@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class ExternalPermissionUpdated extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class ExternalPermissionUpdated extends DomainEvent {
     public static final String EXTERNAL_PERMISSION_UPDATED = "external_permission_updated";
     public static final String name = "EXTERNAL_PERMISSION_UPDATED";
     @Getter

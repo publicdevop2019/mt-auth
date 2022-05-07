@@ -6,7 +6,8 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ClientGrantTypeChanged extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class ClientGrantTypeChanged extends DomainEvent {
 
     public static final String CLIENT_GRANT_TYPE_CHANGED = "client_grant_type_changed";
     public static final String name = "CLIENT_GRANT_TYPE_CHANGED";

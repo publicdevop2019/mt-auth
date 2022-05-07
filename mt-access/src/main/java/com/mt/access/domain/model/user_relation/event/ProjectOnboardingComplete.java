@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ProjectOnboardingComplete extends DomainEvent implements AuditEvent {
+public class ProjectOnboardingComplete extends DomainEvent {
     public static final String PROJECT_ONBOARDING_COMPLETED = "project_onboarding_completed";
     public static final String name = "PROJECT_ONBOARDING_COMPLETED";
     @Getter

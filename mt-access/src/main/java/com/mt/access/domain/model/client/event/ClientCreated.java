@@ -9,7 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class ClientCreated extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class ClientCreated extends DomainEvent {
 
     public static final String CLIENT_CREATED = "client_created";
     public static final String name = "CLIENT_CREATED";

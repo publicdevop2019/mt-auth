@@ -8,7 +8,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class NewUserRegistered extends DomainEvent implements AuditEvent {
+@AuditEvent
+public class NewUserRegistered extends DomainEvent {
 
     public static final String USER_CREATED = "user_created";
     public static final String name = "USER_CREATED";
