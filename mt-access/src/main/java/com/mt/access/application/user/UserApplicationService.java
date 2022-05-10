@@ -8,34 +8,51 @@ import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdateProfileCommand;
+import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.CurrentPassword;
+import com.mt.access.domain.model.user.LoginInfo;
+import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.PasswordResetCode;
-import com.mt.access.domain.model.user.UpdateLoginInfoCommand;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserLoginRequest;
 import com.mt.access.domain.model.user.UserMobile;
+import com.mt.access.domain.model.user.UserName;
 import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserQuery;
+import com.mt.access.domain.model.user.UserSession;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import javax.annotation.Nullable;
+import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -44,7 +61,8 @@ public class UserApplicationService implements UserDetailsService {
 
     public static final String USER = "User";
     public static final String DEFAULT_USERID = "0U8AZTODP4H0";
-
+    @Autowired
+    private PlatformTransactionManager transactionManager;
 
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
@@ -70,13 +88,22 @@ public class UserApplicationService implements UserDetailsService {
             .usersOfQuery(new UserQuery(queryParam, pageParam, config));
     }
 
+    public Set<User> users(Set<UserId> userIdSet) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository()
+            .usersOfQuery(e), new UserQuery(userIdSet));
+    }
+
     public Optional<User> user(String id) {
         return DomainRegistry.getUserRepository().userOfId(new UserId(id));
     }
 
 
     @Transactional
+    @AuditLog(actionName = "lock user")
     public void adminLock(String id, UpdateUserCommand command, String changeId) {
+        DomainRegistry.getAuditService()
+            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "lock user",
+                "with user id :" + id);
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
@@ -94,7 +121,11 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
+    @AuditLog(actionName = "lock user")
     public void delete(String id, String changeId) {
+        DomainRegistry.getAuditService()
+            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "delete user",
+                "with user id :" + id);
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
@@ -114,7 +145,11 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
+    @AuditLog(actionName = "patch user")
     public void patch(String id, JsonPatch command, String changeId) {
+        DomainRegistry.getAuditService()
+            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch user",
+                "with user id :" + id);
         UserId userId = new UserId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
@@ -135,7 +170,11 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
+    @AuditLog(actionName = "patch many user")
     public void patchBatch(List<PatchCommand> commands, String changeId) {
+        DomainRegistry.getAuditService()
+            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch many use",
+                commands.toString());
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().batchLock(commands);
@@ -145,6 +184,7 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
+    @AuditLog(actionName = "update password")
     public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -164,6 +204,8 @@ public class UserApplicationService implements UserDetailsService {
 
     @Transactional
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
+        DomainRegistry.getAuditService()
+            .logUserAction(command.getEmail(), "forget password");
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().forgetPassword(new UserEmail(command.getEmail()));
@@ -174,6 +216,8 @@ public class UserApplicationService implements UserDetailsService {
 
     @Transactional
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
+        DomainRegistry.getAuditService()
+            .logUserAction(command.getEmail(), "reset password");
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),
@@ -197,9 +241,15 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    @Transactional
-    public void updateLastLoginInfo(UpdateLoginInfoCommand command) {
-        DomainRegistry.getUserService().updateLastLogin(command);
+    private void updateLastLoginInfo(UserLoginRequest command) {
+        TransactionTemplate template = new TransactionTemplate(transactionManager);
+        template.execute(new TransactionCallbackWithoutResult() {
+            @Override
+            protected void doInTransactionWithoutResult(
+                TransactionStatus transactionStatus) {
+                DomainRegistry.getUserService().updateLastLogin(command);
+            }
+        });
     }
 
     public Optional<Image> profileAvatar() {
@@ -216,6 +266,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     @Transactional
+    @AuditLog(actionName = "create avatar")
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -228,6 +279,71 @@ public class UserApplicationService implements UserDetailsService {
         return imageId;
     }
 
+    public LoginResult userLogin(String ipAddress, String agentInfo, String grantType,
+                                 String username, @Nullable String mfa, @Nullable String mfaId) {
+        if ("password".equalsIgnoreCase(grantType) && username != null) {
+            UserEmail userEmail = new UserEmail(username);
+            Optional<User> user =
+                DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
+            if (user.isEmpty()) {
+                throw new InternalAuthenticationServiceException("user not found");
+            }
+            UserId userId = user.get().getUserId();
+            boolean mfaRequired =
+                DomainRegistry.getMfaService().isMFARequired(userId, new UserSession(ipAddress));
+            if (!mfaRequired) {
+                //if mfa not required, record current login info
+                recordLoginInfo(ipAddress, agentInfo, userId);
+                return LoginResult.allow();
+            } else {
+                if (mfa != null) {
+                    if (DomainRegistry.getMfaService().validateMfa(userId, mfa, mfaId)) {
+                        recordLoginInfo(ipAddress, agentInfo, userId);
+                        return LoginResult.allow();
+                    } else {
+                        return LoginResult.mfaMissMatch();
+                    }
+                } else {
+                    TransactionTemplate template = new TransactionTemplate(transactionManager);
+                    MfaId execute = template.execute(
+                        transactionStatus -> DomainRegistry.getMfaService().triggerMfa(userId));
+                    return LoginResult
+                        .mfaMissing(execute);
+                }
+            }
+        }
+        return LoginResult.allow();
+    }
+
+    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
+        UserLoginRequest userLoginRequest =
+            new UserLoginRequest(ipAddress, userId, agentInfo);
+        updateLastLoginInfo(userLoginRequest);
+    }
+
+    public Optional<UserProfileRepresentation> myProfile() {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        return user.flatMap((e) -> {
+            UserProfileRepresentation userProfileRepresentation =
+                new UserProfileRepresentation(e, loginInfo.get());
+            return Optional.of(userProfileRepresentation);
+        });
+    }
+
+    @Transactional
+    @AuditLog(actionName = "update profile")
+    public void updateProfile(UserUpdateProfileCommand command) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        user.ifPresent(e -> e.update(
+            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+            command.getUsername() != null ? new UserName(command.getUsername()) : null,
+            command.getLanguage()));
+    }
+
     public static class DefaultUserDeleteException extends RuntimeException {
     }
+
 }

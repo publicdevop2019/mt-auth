@@ -12,6 +12,7 @@ import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.AccessDeniedException;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
@@ -68,6 +69,7 @@ public class EndpointApplicationService {
     }
 
     @Transactional
+    @AuditLog(actionName = "create api")
     public String create(String projectId, EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId1 = new ProjectId(projectId);
@@ -138,6 +140,7 @@ public class EndpointApplicationService {
     }
 
     @Transactional
+    @AuditLog(actionName = "update api")
     public void update(String id, EndpointUpdateCommand command, String changeId) {
         log.debug("start of update endpoint");
         EndpointQuery endpointQuery =
@@ -176,6 +179,7 @@ public class EndpointApplicationService {
     }
 
     @Transactional
+    @AuditLog(actionName = "remove api")
     public void removeEndpoint(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
@@ -195,6 +199,7 @@ public class EndpointApplicationService {
     }
 
     @Transactional
+    @AuditLog(actionName = "remove api with query")
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
@@ -218,6 +223,7 @@ public class EndpointApplicationService {
     }
 
     @Transactional
+    @AuditLog(actionName = "patch api")
     public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);

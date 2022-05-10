@@ -54,6 +54,8 @@ public class EmailDelivery extends Auditable {
             return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
         } else if (bizType.equals(BizType.NEW_USER_CODE)) {
             return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
+        } else if (bizType.equals(BizType.ADMIN_NOTIFICATION)) {
+            return System.currentTimeMillis() > lastSuccessTime.getTime() + 60 * 1000;
         } else {
             throw new UnknownBizTypeException();
         }

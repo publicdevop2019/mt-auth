@@ -1,0 +1,19 @@
+.body-container {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.form-body {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.page-form {
+    width: 320px;
+}

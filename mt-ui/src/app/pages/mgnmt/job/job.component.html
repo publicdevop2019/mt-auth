@@ -15,6 +15,13 @@
         {{row.lastExecution}}
       </td>
     </ng-container>
+    <ng-container matColumnDef="action">
+      <th mat-header-cell *matHeaderCellDef> {{'JOB_ACTION'|translate}} </th>
+      <td mat-cell *matCellDef="let row">
+        <button *ngIf="row.name==='DATA_VALIDATION'" mat-raised-button color="primary"
+        (click)="resetJob()">{{'RESET_JOB'|translate}}</button>
+      </td>
+    </ng-container>
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>

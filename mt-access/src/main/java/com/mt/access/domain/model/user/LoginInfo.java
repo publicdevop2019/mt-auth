@@ -38,7 +38,7 @@ public class LoginInfo {
     @Getter
     private String agent;
 
-    public LoginInfo(UpdateLoginInfoCommand command) {
+    public LoginInfo(UserLoginRequest command) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.userId = command.getUserId();
         loginAt = Date.from(Instant.now());
@@ -46,7 +46,7 @@ public class LoginInfo {
         agent = command.getAgent();
     }
 
-    public void updateLastLogin(UpdateLoginInfoCommand command) {
+    public void updateLastLogin(UserLoginRequest command) {
         loginAt = Date.from(Instant.now());
         ipAddress = command.getIpAddress();
         agent = command.getAgent();

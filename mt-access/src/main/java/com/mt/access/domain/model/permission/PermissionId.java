@@ -2,18 +2,20 @@ package com.mt.access.domain.model.permission;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_id.GeneratedDomainId;
 import java.io.Serializable;
 
-public class PermissionId extends DomainId implements Serializable {
+public class PermissionId extends GeneratedDomainId implements Serializable {
     public PermissionId() {
         super();
-        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        String s = Long.toString(id, 36);
-        setDomainId("0Y" + s.toUpperCase());
     }
 
     public PermissionId(String domainId) {
         super(domainId);
     }
 
+    @Override
+    protected String getPrefix() {
+        return "0Y";
+    }
 }

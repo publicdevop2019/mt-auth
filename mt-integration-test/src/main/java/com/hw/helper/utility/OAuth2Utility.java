@@ -11,6 +11,7 @@ import static com.hw.helper.AppConstant.proxyUrl;
 
 import com.hw.helper.AppConstant;
 import com.jayway.jsonpath.JsonPath;
+import java.util.Objects;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,8 @@ import org.springframework.util.MultiValueMap;
  * utility for oauth2.
  */
 public class OAuth2Utility {
+
+    public static final String MFA_CODE = "654321";
 
     /**
      * get oauth2 password response.
@@ -155,7 +158,7 @@ public class OAuth2Utility {
     }
 
     /**
-     * get oauth2 password response.
+     * get oauth2 password response, also taken care of mfa if required.
      *
      * @param grantType    grant type
      * @param clientId     client id
@@ -176,6 +179,48 @@ public class OAuth2Utility {
         params.add("username", username);
         params.add("password", userPwd);
         params.add("scope", "not_used");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(clientId, clientSecret);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
+            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request,
+                DefaultOAuth2AccessToken.class);
+        if (Objects.requireNonNull(exchange.getBody()).getValue() != null) {
+            return exchange;
+        } else {
+            String mfaId = (String) exchange.getBody().getAdditionalInformation().get("mfaId");
+            return getOAuth2WithUserMfa(grantType, clientId, clientSecret, username, userPwd,
+                mfaId, MFA_CODE);
+        }
+    }
+
+    /**
+     * get oauth2 password response with mfa info.
+     *
+     * @param grantType    grant type
+     * @param clientId     client id
+     * @param clientSecret client secret
+     * @param username     login username
+     * @param userPwd      login password
+     * @return oauth2 token raw response
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithUserMfa(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String username,
+        String userPwd,
+        String mfaId,
+        String mfaCode
+    ) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", grantType);
+        params.add("username", username);
+        params.add("password", userPwd);
+        params.add("scope", "not_used");
+        params.add("mfa_id", mfaId);
+        params.add("mfa_code", mfaCode);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

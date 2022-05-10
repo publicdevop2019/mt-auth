@@ -3,7 +3,9 @@ package com.mt.access.application.endpoint.command;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.restful.TypedClass;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
+@EqualsAndHashCode(callSuper = true)
 @Data
 public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
     private String description;

@@ -6,6 +6,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
+import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
@@ -20,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -92,6 +94,21 @@ public class RoleResource {
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getRoleApplicationService().update(id, command, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping(path = "projects/{projectId}/roles/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<Void> patchForRootById(
+        @PathVariable String projectId,
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        ApplicationServiceRegistry.getRoleApplicationService()
+            .patch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

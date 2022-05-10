@@ -1,6 +1,7 @@
 package com.mt.access.domain;
 
 import com.mt.access.domain.model.ComputePermissionService;
+import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
@@ -11,14 +12,18 @@ import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.UserValidationService;
 import com.mt.access.domain.model.activation_code.ActivationCodeService;
+import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
+import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
 import com.mt.access.domain.model.notification.NotificationRepository;
+import com.mt.access.domain.model.notification.SmsNotificationService;
+import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
@@ -32,6 +37,8 @@ import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
+import com.mt.access.domain.model.user.MfaCodeService;
+import com.mt.access.domain.model.user.MfaService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
@@ -103,14 +110,54 @@ public class DomainRegistry {
     @Getter
     private static PermissionCheckService permissionCheckService;
     @Getter
-    private static NotificationService notificationService;
-    @Getter
     private static NotificationRepository notificationRepository;
     @Getter
     private static ProxyService proxyService;
-
+    @Getter
+    private static MfaCodeService mfaCodeService;
     @Getter
     private static ImageRepository imageRepository;
+    @Getter
+    private static LoginInfoRepository loginInfoRepository;
+    @Getter
+    private static LoginHistoryRepository loginHistoryRepository;
+    @Getter
+    private static ValidationResultRepository validationResultRepository;
+    @Getter
+    private static CrossDomainValidationService crossDomainValidationService;
+    @Getter
+    private static SmsNotificationService smsNotificationService;
+    @Getter
+    private static WsPushNotificationService wsPushNotificationService;
+    @Getter
+    private static MfaService mfaService;
+    @Getter
+    private static AuditService auditService;
+
+    @Autowired
+    public void setAuditService(AuditService auditService) {
+        DomainRegistry.auditService = auditService;
+    }
+
+    @Autowired
+    public void setMfaService(MfaService mfaService) {
+        DomainRegistry.mfaService = mfaService;
+    }
+
+    @Autowired
+    public void setWsPushNotificationService(WsPushNotificationService wsPushNotificationService) {
+        DomainRegistry.wsPushNotificationService = wsPushNotificationService;
+    }
+
+    @Autowired
+    public void setSmsNotificationService(SmsNotificationService smsNotificationService) {
+        DomainRegistry.smsNotificationService = smsNotificationService;
+    }
+
+    @Autowired
+    public void setMfaCodeService(MfaCodeService mfaCodeService) {
+        DomainRegistry.mfaCodeService = mfaCodeService;
+    }
 
     @Autowired
     public void setImageRepository(ImageRepository imageRepository) {
@@ -122,10 +169,17 @@ public class DomainRegistry {
         DomainRegistry.proxyService = proxyService;
     }
 
-    @Getter
-    private static LoginInfoRepository loginInfoRepository;
-    @Getter
-    private static LoginHistoryRepository loginHistoryRepository;
+    @Autowired
+    public void setCrossDomainValidationService(
+        CrossDomainValidationService crossDomainValidationService) {
+        DomainRegistry.crossDomainValidationService = crossDomainValidationService;
+    }
+
+    @Autowired
+    public void setValidationResultRepository(
+        ValidationResultRepository validationResultRepository) {
+        DomainRegistry.validationResultRepository = validationResultRepository;
+    }
 
     @Autowired
     public void setLoginHistoryRepository(LoginHistoryRepository loginHistoryRepository) {
@@ -135,11 +189,6 @@ public class DomainRegistry {
     @Autowired
     public void setLoginInfoRepository(LoginInfoRepository loginInfoRepository) {
         DomainRegistry.loginInfoRepository = loginInfoRepository;
-    }
-
-    @Autowired
-    public void setNotificationService(NotificationService userNotificationService) {
-        DomainRegistry.notificationService = userNotificationService;
     }
 
     @Autowired

@@ -342,4 +342,8 @@ public class Role extends Auditable {
         }
         DomainRegistry.getRoleRepository().remove(this);
     }
+
+    public void patch(String name) {
+        updateName(name);
+    }
 }

@@ -1,4 +1,4 @@
-import { Component, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
@@ -7,11 +7,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, of } from 'rxjs';
-import { switchMap, take } from 'rxjs/operators';
+import { map, switchMap, take, tap } from 'rxjs/operators';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { IPermission } from 'src/app/clazz/validation/aggregate/permission/interface-permission';
 import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
+import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ISearchEvent } from 'src/app/components/tenant-search/tenant-search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
@@ -73,14 +74,21 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public route: ActivatedRoute,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 5);
     const sub = this.projectId.subscribe(next => {
       this.entitySvc.setProjectId(next);
-      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON.PROJECT,parentId:null");
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON.PROJECT,parentId:null")
       this.loadChildren = (id: string) => {
-        return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id)
+        return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id) .pipe(map(e => {
+          e.data.forEach(ee => {
+            if (next === '0P8HE307W6IO') {
+              (ee as INode).enableI18n = true;
+            }
+          })
+          return e
+        }));
       }
     });
     const sub2 = this.canDo('VIEW_PERMISSION').subscribe(b => {

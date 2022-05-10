@@ -1,17 +1,19 @@
 package com.mt.access.domain.model.notification;
 
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_id.GeneratedDomainId;
+import java.io.Serializable;
 
-public class NotificationId extends DomainId {
+public class NotificationId extends GeneratedDomainId implements Serializable {
     public NotificationId() {
         super();
-        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        String s = Long.toString(id, 36);
-        setDomainId("4S" + s.toUpperCase());
     }
 
     public NotificationId(String domainId) {
         super(domainId);
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "4S";
     }
 }

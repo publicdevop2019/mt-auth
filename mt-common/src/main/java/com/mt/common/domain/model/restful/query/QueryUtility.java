@@ -223,13 +223,7 @@ public class QueryUtility {
     public static <T> void addDomainIdIsPredicate(String value, String sqlFieldName,
                                                   QueryContext<T> queryContext) {
         if ("null".equalsIgnoreCase(value)) {
-            queryContext.getPredicates().add(queryContext.getCriteriaBuilder().isNull(
-                queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
-                    .as(String.class)));
-            Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(
-                queryContext.getCriteriaBuilder().isNull(
-                    queryContext.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
-                        .as(String.class))));
+            throw new IllegalArgumentException("should never reached here");
         } else {
             queryContext.getPredicates().add(queryContext.getCriteriaBuilder().equal(
                 queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
@@ -240,6 +234,17 @@ public class QueryUtility {
                         .as(String.class), value)));
 
         }
+    }
+
+    public static <T> void addDomainIdIsNullPredicate(String sqlFieldName,
+                                                      QueryContext<T> queryContext) {
+        queryContext.getPredicates().add(queryContext.getCriteriaBuilder().isNull(
+            queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
+                .as(String.class)));
+        Optional.ofNullable(queryContext.getCountPredicates()).ifPresent(e -> e.add(
+            queryContext.getCriteriaBuilder().isNull(
+                queryContext.getCountRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
+                    .as(String.class))));
     }
 
     public static <T> void addStringLikePredicate(String value, String sqlFieldName,

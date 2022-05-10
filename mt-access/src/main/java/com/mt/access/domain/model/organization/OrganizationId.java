@@ -1,18 +1,19 @@
 package com.mt.access.domain.model.organization;
 
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_id.GeneratedDomainId;
 import java.io.Serializable;
 
-public class OrganizationId extends DomainId implements Serializable {
+public class OrganizationId extends GeneratedDomainId implements Serializable {
     public OrganizationId() {
         super();
-        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        String s = Long.toString(id, 36);
-        setDomainId("0O" + s.toUpperCase());
     }
 
     public OrganizationId(String domainId) {
         super(domainId);
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "0G";
     }
 }

@@ -26,7 +26,7 @@ public class EventApplicationServiceScheduler {
     @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
     public void streaming() {
         CommonDomainRegistry.getSchedulerDistLockService()
-            .executeIfLockSuccess("event_emitter", 2000, (nullValue) -> {
+            .executeIfLockSuccess("event_emitter", 5, (nullValue) -> {
                 PublishedEventTracker eventTracker =
                     CommonDomainRegistry.getPublishedEventTrackerRepository()
                         .publishedNotificationTracker();

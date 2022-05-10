@@ -1,6 +1,7 @@
 package com.mt.common.domain.model.domain_id;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
@@ -9,7 +10,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@NoArgsConstructor
+/**
+ * DDD domain id
+ * can be any form e.g. test@test.com or 0CABCEDFGHI
+ * it serve as an identifier in a domain
+ */
 @MappedSuperclass
 public class DomainId implements Serializable {
     @Getter
@@ -17,15 +22,15 @@ public class DomainId implements Serializable {
     @Setter(AccessLevel.PROTECTED)
     private String domainId;
 
-    public DomainId(String domainId) {
+    protected DomainId() {
+    }
+
+    protected DomainId(String domainId) {
         if (domainId == null) {
             throw new IllegalStateException("null domain id is not allowed");
         }
         if (domainId.isBlank() || domainId.isEmpty()) {
             throw new IllegalStateException("empty or blank domain id is not allowed");
-        }
-        if (this.domainId != null) {
-            throw new IllegalStateException("domain id already present");
         }
         this.domainId = domainId;
     }

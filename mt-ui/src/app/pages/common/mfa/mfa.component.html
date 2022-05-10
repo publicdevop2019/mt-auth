@@ -1,0 +1,19 @@
+<div class="body-container ">
+    <div style=" margin-top: 200px;">
+        <div style="margin-bottom: 24px; font-weight: 600;">{{'MFA_MSG_1'|translate}}</div>
+        <form [formGroup]="mfaForm" class="page-form">
+            <div class="form-body">
+                <mat-form-field>
+                    <mat-label>{{'MFA_CODE'| translate}}</mat-label>
+                    <input matInput formControlName="mfaCode">
+                    <mat-hint>{{'MFA_CODE_HINT'|translate}}</mat-hint>
+                    <mat-error>{{mfaCodeErrorMsg | translate}}</mat-error>
+                </mat-form-field>
+                <!-- <button mat-raised-button (click)="resend()" style="height: 36px; width: 150px; margin-left: 16px;"
+                    color="primary">{{'RESEND'|translate}}</button> -->
+            </div>
+            <button mat-raised-button (click)="confirm()" color="primary" style="width: 100%; margin-top: 16px;">{{'CONFIRM'|
+                translate}}</button>
+        </form>
+    </div>
+</div>

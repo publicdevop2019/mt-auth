@@ -270,7 +270,7 @@ export class NavBarComponent implements OnInit {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
-    logout()
+    logout(undefined,this.httpProxySvc)
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;

@@ -4,11 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { ValidatorHelper } from 'src/app/clazz/validateHelper';
 import { IForgetPasswordRequest, IPendingResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
+import { IMfaResponse, ITokenResponse } from 'src/app/clazz/validation/interfaze-common';
 import { ErrorMessage, StringValidator } from 'src/app/clazz/validation/validator-common';
 import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
+import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import * as UUID from 'uuid/v1';
 @Component({
@@ -42,7 +43,14 @@ export class LoginComponent implements OnInit {
     mobileNumber: new FormControl('', []),
   });
   private validator = new UserValidator()
-  constructor(public httpProxy: HttpProxyService, private route: Router, public dialog: MatDialog, private router: ActivatedRoute, public translate: TranslateService) {
+  constructor(
+    public httpProxy: HttpProxyService,
+    private route: Router,
+    public dialog: MatDialog,
+    private router: ActivatedRoute,
+    public translate: TranslateService,
+    public authSvc: AuthService
+  ) {
     this.httpProxy.refreshInprogress = false;
     this.router.queryParamMap.subscribe(queryMaps => {
       if (queryMaps.get('redirect_uri') !== null) {
@@ -93,14 +101,20 @@ export class LoginComponent implements OnInit {
       })
     } else {
       this.httpProxy.login(this.loginOrRegForm).subscribe(next => {
-        this.httpProxy.currentUserAuthInfo = next;
-        this.route.navigate([this.nextUrl], { queryParams: this.router.snapshot.queryParams });
+        if ((next as IMfaResponse).mfaId) {
+          this.authSvc.loginFormValue = this.loginOrRegForm;
+          this.authSvc.loginNextUrl = this.nextUrl;
+          this.authSvc.mfaId = (next as IMfaResponse).mfaId;
+          this.route.navigate(['/mfa'], { queryParams: this.router.snapshot.queryParams });
+        } else {
+          this.httpProxy.currentUserAuthInfo = next as ITokenResponse;
+          this.route.navigate([this.nextUrl], { queryParams: this.router.snapshot.queryParams });
+        }
       })
     }
   }
   register() {
     let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
-    console.dir(error)
     if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
       this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
       this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });

@@ -1,6 +1,6 @@
 package com.mt.access.port.adapter.web_socket;
 
-import com.mt.access.domain.model.NotificationService;
+import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class WebSocketNotificationService implements NotificationService {
+public class WebSocketNotificationService implements WsPushNotificationService {
     @Autowired
     SpringBootSimpleWebSocketConfig.NotificationWsHandler notificationWsHandler;
     @Autowired

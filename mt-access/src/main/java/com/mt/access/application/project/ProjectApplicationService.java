@@ -9,6 +9,7 @@ import com.mt.access.application.project.command.ProjectPatchCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.AccessDeniedException;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.Project;
@@ -75,6 +76,7 @@ public class ProjectApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "update project")
     public void replace(String id, ProjectUpdateCommand command, String changeId) {
         ProjectId projectId = new ProjectId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
@@ -92,6 +94,7 @@ public class ProjectApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "remove project")
     public void removeProject(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
@@ -106,6 +109,7 @@ public class ProjectApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "patch project")
     public void patch(String id, JsonPatch command, String changeId) {
         ProjectId projectId = new ProjectId(id);
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
@@ -128,6 +132,7 @@ public class ProjectApplicationService {
 
 
     @Transactional
+    @AuditLog(actionName = "create project")
     public String create(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
         return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()

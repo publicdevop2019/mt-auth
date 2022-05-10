@@ -13,7 +13,6 @@ export class CORSProfileValidator extends IAggregateValidator {
         this.validators.set('maxAge', this.maxAge);
     }
     public validate(payload: ICorsProfile, context: string): ErrorMessage[] {
-        console.dir(payload)
         return this.validationWPlatform(payload, this.validators)
     }
     allowOrigin = (key: string, payload: ICorsProfile) => {

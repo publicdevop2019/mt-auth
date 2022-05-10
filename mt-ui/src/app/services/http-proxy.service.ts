@@ -8,8 +8,9 @@ import { environment } from 'src/environments/environment';
 import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
+import { logout } from '../clazz/utility';
 import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ITokenResponse } from '../clazz/validation/interfaze-common';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
@@ -49,6 +50,7 @@ export interface IUpdateUser {
     providedIn: 'root'
 })
 export class HttpProxyService {
+    public logoutCheck = undefined;
     inProgress = false;
     refreshInprogress = false;
     private AUTH_SVC_NAME = '/auth-svc';
@@ -58,8 +60,10 @@ export class HttpProxyService {
             localStorage.setItem('jwt', undefined);
         } else {
             localStorage.setItem('jwt', JSON.stringify(token));
+            this.updateLogoutTimer();
         }
     };
+
     get currentUserAuthInfo(): ITokenResponse | undefined {
         const jwtTokenStr: string = localStorage.getItem('jwt');
         if (jwtTokenStr !== 'undefined' && jwtTokenStr !== undefined) {
@@ -71,11 +75,38 @@ export class HttpProxyService {
     // OAuth2 pwd flow
     constructor(private _httpClient: HttpClient) {
     }
+    updateLogoutTimer() {
+        if (this.logoutCheck) {
+            clearInterval(this.logoutCheck)
+        }
+        const expireAfterSeconds = this.getRefreshExpireTime(this.currentUserAuthInfo)
+        if (expireAfterSeconds >= 0) {
+            this.logoutCheck = setInterval(() => {
+                this.expireCheck().subscribe()
+            }, (expireAfterSeconds + 31) * 1000)
+        } else {
+            logout()
+        }
+    }
+    clearLogoutCheck() {
+        if (this.logoutCheck) {
+            clearInterval(this.logoutCheck)
+        }
+    }
+    private getRefreshExpireTime(token: ITokenResponse) {
+        const encodedBody = token.refresh_token.split('.')[1];
+        const decoded = atob(encodedBody)
+        const exp: number = +(JSON.parse(decoded) as any).exp
+        return exp - Math.ceil(new Date().getTime() / 1000);
+    }
     getRegistryStatus() {
         return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
     }
     getJobStatus() {
         return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
+    }
+    resetValidationJob() {
+        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/job/validation/reset', null)
     }
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
@@ -90,6 +121,9 @@ export class HttpProxyService {
     }
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
+    }
+    expireCheck() {
+        return this._httpClient.get<void>(environment.serverUri + this.AUTH_SVC_NAME + '/expire/check');
     }
     retry(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/retry', null);
@@ -186,13 +220,23 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    login(loginFG: FormGroup): Observable<ITokenResponse> {
+    login(loginFG: FormGroup): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
         formData.append('username', loginFG.get('email').value);
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+    }
+    mfaLogin(loginFG: FormGroup, code: string, id: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        formData.append('grant_type', 'password');
+        formData.append('username', loginFG.get('email').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
     }
     register(registerFG: IPendingResourceOwner, changeId: string): Observable<any> {
         const formData = new FormData();

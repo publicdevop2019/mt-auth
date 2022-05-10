@@ -55,6 +55,8 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     Role_.ROLE_ID, queryContext));
             Optional.ofNullable(query.getParentId()).ifPresent(e -> QueryUtility
                 .addDomainIdIsPredicate(e.getDomainId(), Role_.PARENT_ID, queryContext));
+            Optional.ofNullable(query.getParentIdNull()).ifPresent(e -> QueryUtility
+                .addDomainIdIsNullPredicate(Role_.PARENT_ID, queryContext));
             Optional.ofNullable(query.getProjectIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),

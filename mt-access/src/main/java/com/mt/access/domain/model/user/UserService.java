@@ -2,11 +2,15 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
+import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -59,7 +63,7 @@ public class UserService {
         DomainRegistry.getUserRepository().batchLock(commands);
     }
 
-    public void updateLastLogin(UpdateLoginInfoCommand command) {
+    public void updateLastLogin(UserLoginRequest command) {
         UserId userId = command.getUserId();
         Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
         loginInfo.ifPresentOrElse(e -> e.updateLastLogin(command), () -> {
@@ -69,4 +73,6 @@ public class UserService {
         LoginHistory loginHistory = new LoginHistory(command);
         DomainRegistry.getLoginHistoryRepository().add(loginHistory);
     }
+
+
 }

@@ -2,12 +2,14 @@ package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -30,6 +32,7 @@ import org.hibernate.annotations.Where;
 @Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 public class User extends Auditable {
+    private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
     @Setter(AccessLevel.PRIVATE)
     @Embedded
     @Getter
@@ -67,6 +70,10 @@ public class User extends Auditable {
     @Getter
     @Embedded
     private PasswordResetCode pwdResetToken;
+    @Getter
+    @Setter
+    @Embedded
+    private MfaInfo mfaInfo;
 
     private User(UserEmail userEmail, UserPassword password, UserId userId, UserMobile mobile) {
         super();
@@ -88,6 +95,13 @@ public class User extends Auditable {
         return new User(userEmail, password, userId, mobile);
     }
 
+    public String getDisplayName() {
+        if (userName != null) {
+            return userName.getValue();
+        }
+        return email.getEmail();
+    }
+
     @Override
     public void validate(@NotNull ValidationNotificationHandler handler) {
         (new UserValidator(this, handler)).validate();
@@ -101,6 +115,11 @@ public class User extends Auditable {
 
 
     public void lockUser(boolean locked) {
+        if (Arrays.stream(ROOT_ACCOUNTS)
+            .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
+            throw new IllegalArgumentException("root account cannot be locked");
+        }
+        CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
     }
 
@@ -142,6 +161,10 @@ public class User extends Auditable {
         if (language != null) {
             this.language = language;
         }
-        this.mobile = mobile;
+        if (!this.mobile.equals(mobile)) {
+            DomainRegistry.getAuditService()
+                .logCurrentUserAction("update mobile number", null);
+            this.mobile = mobile;
+        }
     }
 }

@@ -23,7 +23,6 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -108,7 +107,8 @@ public class UserTest {
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         forgetPasswordRequest.setToken("123456789");
-        forgetPasswordRequest.setNewPassword(UUID.randomUUID().toString().replaceAll("-", ""));
+        forgetPasswordRequest.setNewPassword(
+            "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         String s2 = mapper.writeValueAsString(forgetPasswordRequest);
         HttpHeaders header2 = new HttpHeaders();
         header2.setContentType(MediaType.APPLICATION_JSON);
@@ -131,7 +131,8 @@ public class UserTest {
         UserUpdatePwd resourceOwnerUpdatePwd = new UserUpdatePwd();
         resourceOwnerUpdatePwd.setCurrentPwd(user.getPassword());
         resourceOwnerUpdatePwd.setEmail(user.getEmail());
-        resourceOwnerUpdatePwd.setPassword(UUID.randomUUID().toString().replaceAll("-", ""));
+        resourceOwnerUpdatePwd.setPassword(
+            "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         ResponseEntity<DefaultOAuth2AccessToken> createResponse = UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
         String url = UrlUtility.getAccessUrl("/users" + "/pwd");

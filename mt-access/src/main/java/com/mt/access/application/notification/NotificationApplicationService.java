@@ -5,9 +5,9 @@ import com.mt.access.application.notification.representation.NotificationWebSock
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.notification.Notification;
-import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
+import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -32,7 +32,7 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getNotificationService()
+                DomainRegistry.getWsPushNotificationService()
                     .notify(new NotificationWebSocketRepresentation(notification).value());
                 return null;
             }, NOTIFICATION);
@@ -44,7 +44,7 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getNotificationService()
+                DomainRegistry.getWsPushNotificationService()
                     .notify(new NotificationWebSocketRepresentation(notification).value());
                 return null;
             }, NOTIFICATION);
@@ -56,7 +56,7 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getNotificationService()
+                DomainRegistry.getWsPushNotificationService()
                     .notify(new NotificationWebSocketRepresentation(notification).value());
                 return null;
             }, NOTIFICATION);
@@ -68,7 +68,7 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getNotificationService()
+                DomainRegistry.getWsPushNotificationService()
                     .notify(new NotificationWebSocketRepresentation(notification).value());
                 return null;
             }, NOTIFICATION);
@@ -80,8 +80,20 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getNotificationService()
+                DomainRegistry.getWsPushNotificationService()
                     .notify(new NotificationWebSocketRepresentation(notification).value());
+                return null;
+            }, NOTIFICATION);
+    }
+
+    @Transactional
+    public void handle(UserMfaNotificationEvent event) {
+        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            .idempotent(event.getId().toString(), (command) -> {
+                Notification notification = new Notification(event);
+                DomainRegistry.getNotificationRepository().add(notification);
+                DomainRegistry.getSmsNotificationService()
+                    .notify(event.getMobile(), event.getCode().getValue());
                 return null;
             }, NOTIFICATION);
     }

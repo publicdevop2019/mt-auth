@@ -398,6 +398,9 @@ public class Permission extends Auditable {
             .contains(this.type)) {
             throw new IllegalStateException("api, api root and project type's cannot be changed");
         }
+        if (isSystemCreate()) {
+            throw new IllegalStateException("system created permission cannot be changed");
+        }
         this.name = name;
     }
 

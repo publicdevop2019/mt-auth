@@ -22,9 +22,7 @@ export class UserService extends EntityCommonService<IAuthUser, IAuthUser>{
   updateMyPwd(resourceOwner: IResourceOwnerUpdatePwd, changeId: string): void {
     this.httpProxy.updateResourceOwnerPwd(resourceOwner, changeId).subscribe(result => {
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_LOGIN') : this.interceptor.openSnackbar('OPERATION_FAILED');
-      /** clear authentication info */
-      this.httpProxy.currentUserAuthInfo = undefined;
-      logout()
+      logout(undefined,this.httpProxy)
     });
   }
   batchUpdateUserStatus(ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {

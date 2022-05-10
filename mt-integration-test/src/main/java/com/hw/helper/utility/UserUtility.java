@@ -59,7 +59,9 @@ public class UserUtility {
     public static User userCreateDraft(String username, String password) {
         User user = new User();
         user.setEmail(username);
-        user.setPassword(password);
+        user.setPassword("P1!" + password.substring(0, 10));
+        user.setMobileNumber("1231231234");
+        user.setCountryCode("1");
         return user;
     }
 
@@ -101,6 +103,9 @@ public class UserUtility {
         headers.setBearerAuth(registerToken);
         headers.set("changeId", UUID.randomUUID().toString());
         pendingResourceOwner.setEmail(user.getEmail());
+        pendingResourceOwner.setMobileNumber(user.getMobileNumber());
+        pendingResourceOwner.setCountryCode(user.getCountryCode());
+
         HttpEntity<PendingResourceOwner> request = new HttpEntity<>(pendingResourceOwner, headers);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl("/pending-users"), HttpMethod.POST, request,

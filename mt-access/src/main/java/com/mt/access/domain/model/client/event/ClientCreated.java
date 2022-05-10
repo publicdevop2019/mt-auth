@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.client.event;
 
+import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
+@AuditEvent
 public class ClientCreated extends DomainEvent {
 
     public static final String CLIENT_CREATED = "client_created";

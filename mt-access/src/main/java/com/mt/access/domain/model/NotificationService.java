@@ -1,5 +1,14 @@
 package com.mt.access.domain.model;
 
-public interface NotificationService {
-    void notify(String message);
+import com.mt.access.domain.model.user.UserMobile;
+
+public class NotificationService {
+    void pushMsgToLoginAdmins(String message) {
+
+    }
+
+    void sendSmsToUser(UserMobile userMobile, String message) {
+
+    }
+
 }

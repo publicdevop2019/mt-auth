@@ -7,6 +7,8 @@ import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUp
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -22,12 +24,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NoArgsConstructor
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "pendingUserRegion")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"email", "deleted"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "deleted"}))
 public class PendingUser extends Auditable {
     @Column
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
+//    @AttributeOverrides({
+//        @AttributeOverride(name = "domainId", column = @Column(name = "email"))
+//    })
     private RegistrationEmail registrationEmail;
 
     @Column

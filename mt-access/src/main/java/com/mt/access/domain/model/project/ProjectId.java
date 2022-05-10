@@ -2,17 +2,20 @@ package com.mt.access.domain.model.project;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_id.GeneratedDomainId;
 import java.io.Serializable;
 
-public class ProjectId extends DomainId implements Serializable {
+public class ProjectId extends GeneratedDomainId implements Serializable {
     public ProjectId() {
         super();
-        Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        String s = Long.toString(id, 36);
-        setDomainId("0P" + s.toUpperCase());
     }
 
     public ProjectId(String domainId) {
         super(domainId);
+    }
+
+    @Override
+    protected String getPrefix() {
+        return "0P";
     }
 }
