@@ -2,7 +2,6 @@ manytree:
   mt-access:
     appId: 0C8AZTODP4HT
   url:
-    eureka:
     endpoint: endpoints/proxy
     clients: clients/proxy
   domain-name: duoshu.org
@@ -61,7 +60,7 @@ logging:
 eureka:
   client:
     serviceUrl:
-      defaultZone: ${EUREKA_URI:${manytree.url.eureka}}
+      defaultZone:
   instance:
     preferIpAddress: true
     ip-address:
