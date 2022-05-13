@@ -50,7 +50,7 @@ public class NotificationDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
         CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true,
-            "notification_" + PROJECT_ONBOARDING_COMPLETED + "_handler", (event) -> {
+            null, (event) -> {
                 ProjectOnboardingComplete deserialize = CommonDomainRegistry.getCustomObjectSerializer()
                     .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
