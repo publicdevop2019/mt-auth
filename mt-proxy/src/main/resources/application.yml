@@ -64,3 +64,4 @@ eureka:
   instance:
     preferIpAddress: true
     ip-address:
+    leaseRenewalIntervalInSeconds: 5
