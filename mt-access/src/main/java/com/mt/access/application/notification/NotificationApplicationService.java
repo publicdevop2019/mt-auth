@@ -56,8 +56,6 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                DomainRegistry.getWsPushNotificationService()
-                    .notify(new NotificationWebSocketRepresentation(notification).value());
                 return null;
             }, NOTIFICATION);
     }
@@ -97,4 +95,15 @@ public class NotificationApplicationService {
                 return null;
             }, NOTIFICATION);
     }
+
+    /**
+     * trigger websocket notification to all session.
+     *
+     * @param event project complete event
+     */
+    public void notify(ProjectOnboardingComplete event) {
+        DomainRegistry.getWsPushNotificationService()
+            .notify(new NotificationWebSocketRepresentation(new Notification(event)).value());
+    }
+
 }
