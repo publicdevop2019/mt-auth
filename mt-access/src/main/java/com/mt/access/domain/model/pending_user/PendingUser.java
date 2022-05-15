@@ -30,9 +30,6 @@ public class PendingUser extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
-//    @AttributeOverrides({
-//        @AttributeOverride(name = "domainId", column = @Column(name = "email"))
-//    })
     private RegistrationEmail registrationEmail;
 
     @Column

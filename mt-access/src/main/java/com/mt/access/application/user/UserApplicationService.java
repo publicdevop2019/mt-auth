@@ -290,7 +290,7 @@ public class UserApplicationService implements UserDetailsService {
             }
             UserId userId = user.get().getUserId();
             boolean mfaRequired =
-                DomainRegistry.getMfaService().isMFARequired(userId, new UserSession(ipAddress));
+                DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
             if (!mfaRequired) {
                 //if mfa not required, record current login info
                 recordLoginInfo(ipAddress, agentInfo, userId);

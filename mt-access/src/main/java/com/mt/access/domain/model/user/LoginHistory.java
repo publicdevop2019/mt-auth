@@ -55,9 +55,12 @@ public class LoginHistory {
             return false;
         }
         LoginHistory that = (LoginHistory) o;
-        return Objects.equals(id, that.id) && Objects.equals(userId, that.userId) &&
-            Objects.equals(loginAt, that.loginAt) &&
-            Objects.equals(ipAddress, that.ipAddress) &&
+        return Objects.equals(id, that.id) && Objects.equals(userId, that.userId)
+            &&
+            Objects.equals(loginAt, that.loginAt)
+            &&
+            Objects.equals(ipAddress, that.ipAddress)
+            &&
             Objects.equals(agent, that.agent);
     }
 

@@ -112,7 +112,8 @@ public class UserRelation extends Auditable {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
         Project project = DomainRegistry.getProjectRepository().getById(tenantId).get();
-        CommonDomainRegistry.getDomainEventRepository().append(new ProjectOnboardingComplete(project));
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new ProjectOnboardingComplete(project));
     }
 
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,

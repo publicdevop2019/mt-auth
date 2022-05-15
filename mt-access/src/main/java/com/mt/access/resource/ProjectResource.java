@@ -56,8 +56,9 @@ public class ProjectResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        SumPagedRep<Project> queryProjects = ApplicationServiceRegistry.getProjectApplicationService()
-            .adminQueryProjects(queryParam, pageParam, skipCount);
+        SumPagedRep<Project> queryProjects =
+            ApplicationServiceRegistry.getProjectApplicationService()
+                .adminQueryProjects(queryParam, pageParam, skipCount);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
         ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);

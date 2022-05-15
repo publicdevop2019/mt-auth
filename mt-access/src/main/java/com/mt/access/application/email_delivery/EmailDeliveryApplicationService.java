@@ -4,8 +4,8 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.email_delivery.BizType;
 import com.mt.access.domain.model.email_delivery.CoolDownException;
 import com.mt.access.domain.model.email_delivery.EmailDelivery;
-import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
 import com.mt.access.domain.model.email_delivery.EmailDeliveryRepository;
+import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import freemarker.template.Configuration;

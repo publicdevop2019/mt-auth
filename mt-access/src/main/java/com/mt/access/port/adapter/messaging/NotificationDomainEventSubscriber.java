@@ -51,8 +51,9 @@ public class NotificationDomainEventSubscriber {
     protected void listener2() {
         CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true,
             "notification_" + PROJECT_ONBOARDING_COMPLETED + "_handler", (event) -> {
-                ProjectOnboardingComplete deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
+                ProjectOnboardingComplete deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             }, PROJECT_ONBOARDING_COMPLETED);
     }
@@ -61,8 +62,9 @@ public class NotificationDomainEventSubscriber {
     protected void listener6() {
         CommonDomainRegistry.getEventStreamService().subscribe(AppInfo.MT_ACCESS_APP_ID, true,
             null, (event) -> {
-                ProjectOnboardingComplete deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
+                ProjectOnboardingComplete deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().notify(deserialize);
             }, PROJECT_ONBOARDING_COMPLETED);
     }
@@ -84,7 +86,8 @@ public class NotificationDomainEventSubscriber {
             .of(AppInfo.MT_ACCESS_APP_ID, true, SYSTEM_VALIDATION_FAILED, (event) -> {
                 CrossDomainValidationService.ValidationFailedEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), CrossDomainValidationService.ValidationFailedEvent.class);
+                        .deserialize(event.getEventBody(),
+                            CrossDomainValidationService.ValidationFailedEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

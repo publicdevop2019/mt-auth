@@ -61,10 +61,14 @@ public class LoginInfo {
             return false;
         }
         LoginInfo loginInfo = (LoginInfo) o;
-        return Objects.equals(id, loginInfo.id) &&
-            Objects.equals(userId, loginInfo.userId) &&
-            Objects.equals(loginAt, loginInfo.loginAt) &&
-            Objects.equals(ipAddress, loginInfo.ipAddress) &&
+        return Objects.equals(id, loginInfo.id)
+            &&
+            Objects.equals(userId, loginInfo.userId)
+            &&
+            Objects.equals(loginAt, loginInfo.loginAt)
+            &&
+            Objects.equals(ipAddress, loginInfo.ipAddress)
+            &&
             Objects.equals(agent, loginInfo.agent);
     }
 
