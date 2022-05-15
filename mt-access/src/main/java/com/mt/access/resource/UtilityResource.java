@@ -4,12 +4,13 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.registry.RegistryCardRepresentation;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+@Slf4j
 @RestController
 @RequestMapping(produces = "application/json")
 public class UtilityResource {
@@ -56,6 +57,17 @@ public class UtilityResource {
      */
     @GetMapping(path = "expire/check")
     public ResponseEntity<Void> expireCheck() {
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * ribbon health check.
+     *
+     * @return void
+     */
+    @GetMapping(path = "health")
+    public ResponseEntity<Void> healthCheck() {
+        log.debug("health check triggered");
         return ResponseEntity.ok().build();
     }
 }

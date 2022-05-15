@@ -24,6 +24,9 @@ spring:
       httpclient:
         connect-timeout: 10000
         response-timeout: 15s
+  loadbalancer:
+    ribbon:
+      enabled: false
   security:
     oauth2:
       resourceserver:
