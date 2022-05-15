@@ -64,11 +64,16 @@ public class StoredEvent implements Serializable {
             return false;
         }
         StoredEvent that = (StoredEvent) o;
-        return internal == that.internal && send == that.send &&
-            Objects.equals(eventBody, that.eventBody) &&
-            Objects.equals(id, that.id) &&
-            Objects.equals(timestamp, that.timestamp) &&
-            Objects.equals(name, that.name) && Objects.equals(topic, that.topic) &&
+        return internal == that.internal && send == that.send
+            &&
+            Objects.equals(eventBody, that.eventBody)
+            &&
+            Objects.equals(id, that.id)
+            &&
+            Objects.equals(timestamp, that.timestamp)
+            &&
+            Objects.equals(name, that.name) && Objects.equals(topic, that.topic)
+            &&
             Objects.equals(domainId, that.domainId);
     }
 

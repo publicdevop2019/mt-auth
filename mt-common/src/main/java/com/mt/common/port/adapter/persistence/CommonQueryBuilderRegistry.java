@@ -24,6 +24,7 @@ public class CommonQueryBuilderRegistry {
         SpringDataJpaJobRepository.JpaCriteriaApiJobAdaptor jobAdaptor) {
         CommonQueryBuilderRegistry.jobAdaptor = jobAdaptor;
     }
+
     @Autowired
     public void setChangeRecordQueryBuilder(
         SpringDataJpaChangeRecordRepository.SpringDataJpaCriteriaApiChangeRecordAdaptor
