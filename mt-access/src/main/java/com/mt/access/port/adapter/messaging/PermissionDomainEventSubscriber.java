@@ -29,7 +29,6 @@ public class PermissionDomainEventSubscriber {
     private void listener0() {
         CommonDomainRegistry.getEventStreamService().of(appName, true,
             START_NEW_PROJECT_ONBOARDING, (event) -> {
-//            throw new IllegalArgumentException("test");
                 StartNewProjectOnboarding deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), StartNewProjectOnboarding.class);
