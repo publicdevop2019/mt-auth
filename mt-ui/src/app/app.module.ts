@@ -124,6 +124,9 @@ import { RequirePermissionDirective } from './directive/require-permission.direc
 import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
 import { JobComponent } from './pages/mgnmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
+import { DocumentComponent } from './pages/document/document.component';
+import { DesignComponent } from './pages/document/design/design.component';
+import { LunchComponent } from './pages/document/lunch/lunch.component';
 
 @NgModule({
   declarations: [
@@ -197,6 +200,9 @@ import { MfaComponent } from './pages/common/mfa/mfa.component';
     RegistryComponent,
     JobComponent,
     MfaComponent,
+    DocumentComponent,
+    DesignComponent,
+    LunchComponent,
   ],
   imports: [
     BrowserAnimationsModule,

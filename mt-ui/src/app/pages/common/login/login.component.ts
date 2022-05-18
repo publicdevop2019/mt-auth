@@ -329,4 +329,10 @@ export class LoginComponent implements OnInit {
       )
     }
   }
+  openDoc(){
+    window.open('./docs', '_blank').focus();
+  }
+  openGithub(){
+    window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
+  }
 }

@@ -37,10 +37,22 @@ import { AuthService } from './services/auth.service';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { JobComponent } from './pages/mgnmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
+import { DocumentComponent } from './pages/document/document.component';
+import { LunchComponent } from './pages/document/lunch/lunch.component';
+import { DesignComponent } from './pages/document/design/design.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'mfa', component: MfaComponent },
+  {
+    path: 'docs', component: DocumentComponent,
+    children: [
+      { path: '', redirectTo: 'lunch', pathMatch: 'full' },
+      { path: 'lunch', component: LunchComponent },
+      { path: 'design', component: DesignComponent },
+      { path: '**', component: LunchComponent }
+    ]
+  },
   { path: 'authorize', component: AuthorizeComponent, canActivate: [AuthService] },
   {
     path: 'dashboard', component: NavBarComponent, canActivateChild: [AuthService],
@@ -58,25 +70,25 @@ const routes: Routes = [
       { path: 'role-profiles', component: SummaryRoleComponent },
       { path: 'cors-profiles', component: SummaryCorsComponent },
       { path: 'events-access', component: SummaryStoredEventAccessComponent },
-      { path: 'settings', component: SettingComponent},
-      { path: 'message-center', component: MessageCenterComponent},
-      { path: 'revoke-token', component: SummaryRevokeTokenComponent},
-      { path: 'cache-mngr', component: CacheControlComponent},
-      { path: 'my-profile', component: MyProfileComponent},
-      { path: 'new-project', component: NewProjectComponent},
-      { path: 'api-center', component: ApiCenterComponent},
-      { path: 'org-profiles', component: SummaryOrgComponent},
-      { path: 'permission-profiles', component: SummaryPermissionComponent},
-      { path: 'position-profiles', component: SummaryPositionComponent},
-      { path: ':id/my-client', component: MyClientsComponent},
-      { path: ':id/my-api', component: MyApisComponent},
-      { path: ':id/my-permission', component: MyPermissionsComponent},
-      { path: ':id/my-role', component: MyRolesComponent},
-      { path: ':id/my-org', component: MyOrgsComponent},
-      { path: ':id/my-position', component: MyPositionsComponent},
-      { path: ':id/my-project', component: MyProjectComponent},
-      { path: ':id/my-user', component: MyUsersComponent},
-      { path: ':id/add-admin', component: AddAdminComponent},
+      { path: 'settings', component: SettingComponent },
+      { path: 'message-center', component: MessageCenterComponent },
+      { path: 'revoke-token', component: SummaryRevokeTokenComponent },
+      { path: 'cache-mngr', component: CacheControlComponent },
+      { path: 'my-profile', component: MyProfileComponent },
+      { path: 'new-project', component: NewProjectComponent },
+      { path: 'api-center', component: ApiCenterComponent },
+      { path: 'org-profiles', component: SummaryOrgComponent },
+      { path: 'permission-profiles', component: SummaryPermissionComponent },
+      { path: 'position-profiles', component: SummaryPositionComponent },
+      { path: ':id/my-client', component: MyClientsComponent },
+      { path: ':id/my-api', component: MyApisComponent },
+      { path: ':id/my-permission', component: MyPermissionsComponent },
+      { path: ':id/my-role', component: MyRolesComponent },
+      { path: ':id/my-org', component: MyOrgsComponent },
+      { path: ':id/my-position', component: MyPositionsComponent },
+      { path: ':id/my-project', component: MyProjectComponent },
+      { path: ':id/my-user', component: MyUsersComponent },
+      { path: ':id/add-admin', component: AddAdminComponent },
       { path: '**', component: NotFoundComponent }
     ]
   },

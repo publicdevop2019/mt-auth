@@ -817,4 +817,7 @@ export const zhHans = {
     "EDIT_TENANT_USER": "编辑用户",
     "AUDIT_EVENT": "审计事件",
     "CROSS_DOMAIN_VALIDATION_FAILURE_CHECK": "系统校验连续失败",
+    "GET_START": "快速开始",
+    "DESIGN_DOC": "设计文档",
+    "APP_DOC": "文档",
 }
