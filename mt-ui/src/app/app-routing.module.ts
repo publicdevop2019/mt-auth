@@ -38,8 +38,9 @@ import { AuthorizeComponent } from './pages/common/authorize/authorize.component
 import { JobComponent } from './pages/mgnmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
 import { DocumentComponent } from './pages/document/document.component';
-import { LunchComponent } from './pages/document/lunch/lunch.component';
+import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { DesignComponent } from './pages/document/design/design.component';
+import { BuildComponent } from './pages/document/build/build.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -50,6 +51,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'deploy', pathMatch: 'full' },
       { path: 'deploy', component: LunchComponent },
       { path: 'design', component: DesignComponent },
+      { path: 'build', component: BuildComponent },
       { path: '**', component: LunchComponent }
     ]
   },

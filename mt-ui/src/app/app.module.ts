@@ -126,7 +126,8 @@ import { JobComponent } from './pages/mgnmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
 import { DocumentComponent } from './pages/document/document.component';
 import { DesignComponent } from './pages/document/design/design.component';
-import { LunchComponent } from './pages/document/lunch/lunch.component';
+import { LunchComponent } from './pages/document/deploy/deploy.component';
+import { BuildComponent } from './pages/document/build/build.component';
 
 @NgModule({
   declarations: [
@@ -203,6 +204,7 @@ import { LunchComponent } from './pages/document/lunch/lunch.component';
     DocumentComponent,
     DesignComponent,
     LunchComponent,
+    BuildComponent,
   ],
   imports: [
     BrowserAnimationsModule,

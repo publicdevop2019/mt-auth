@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'app-lunch',
-  templateUrl: './lunch.component.html',
-  styleUrls: ['./lunch.component.css']
+  selector: 'app-deploy',
+  templateUrl: './deploy.component.html',
+  styleUrls: ['./deploy.component.css']
 })
 export class LunchComponent implements OnInit {
 

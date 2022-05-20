@@ -1,4 +1,7 @@
-<h2>本地单点部署<div style="font-size: 12px;"><span style="color: red;">*</span>您需要熟悉一些linux指令</div></h2>
+<h1><div style="font-size: 12px;"><span style="color: red;">*</span>您需要熟悉一些linux指令</div>
+    <div style="font-size: 12px;"><span style="color: red;">*</span>苹果M1芯片暂不支持</div>
+</h1>
+<h2>1. 本地单点部署</h2>
 <div>1.安装Docker</div>
 <ul>
     <li>
@@ -46,4 +49,14 @@
         前端成功安装并启动后，访问<a href="http://localhost:4300">http://localhost:4300</a>
     </li>
 </ul>
-
+<h2>2. 服务器集群部署</h2>
+<div>1.请自行部署MySQL,RabbitMQ与Redis, 或者参考本地单点部署</div>
+<div>2.配置mt-auth启动脚本</div>
+<ul>
+    <li>
+        启动mt-access, 脚本请移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/cluster/mt-access-start.sh">这里</a>, <span style="color: red;">*</span>启动mt-access后请等待150秒再启动mt-proxy
+    </li>
+    <li>
+        启动mt-proxy, 脚本请移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/cluster/mt-proxy-start.sh">这里</a>
+    </li>
+</ul>

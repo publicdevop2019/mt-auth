@@ -1,9 +1,11 @@
 # ----配置 开始-----
 # 节点ID，每一个节点应有唯一ID，最大值为64
 INSTANCE_ID=0
-# 邮件账户名
+# 管理员邮箱
+ADMIN_EMAIL=
+# 邮件通知账户名
 EMAIL_ID=
-# 邮件密码
+# 邮件通知密码
 EMAIL_PWD=
 # MySQL IP
 DATABASE_IP=127.0.0.1
@@ -21,7 +23,7 @@ DB_CONFIG="--aws-instance-uri=$DATABASE_IP --spring.datasource.username=$DATABAS
 LOG_CONFIG='--logging.level.com.mt.common.domain.model.domain_event=DEBUG -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
 REGISTRY_CONFIG="--eureka.client.serviceUrl.defaultZone=$REGISTRY_LIST --eureka.instance.ip-address=$INSTANCE_IP"
 INFRA_CONFIG="--mt.url.support.dis_lock=redis://$INFRA_IP:6378 --mt.url.support.mq=$INFRA_IP --spring.redis.host=$INFRA_IP --spring.redis.port=6379 --instanceId=$INSTANCE_ID"
-MAIL_CONFIG="--spring.mail.username=$EMAIL_ID --spring.mail.password=$EMAIL_PWD"
+MAIL_CONFIG="--spring.mail.username=$EMAIL_ID --spring.mail.password=$EMAIL_PWD --mt.email.admin=$ADMIN_EMAIL"
 PROFILE=--spring.profiles.active=prod
 VM_CONFIG='-Xmx500m -Xms500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/logs/$(date +"%Y_%m_%d_%I_%M_%p%z")_heapdump.hprof'
 SERVER_CONFIG=--server.tomcat.accept-count=100\ --server.tomcat.max-connections=10000\ --server.tomcat.max-threads=10

@@ -12,8 +12,15 @@ export class DocumentComponent implements OnInit {
   private _mobileQueryListener: () => void;
   documentList: INavElement[] = [
     {
-      link: 'lunch',
-      display: 'GET_START',
+      link: 'deploy',
+      display: 'DEPLOYMENT',
+      icon: 'dashboard',
+      params: {
+      },
+    },
+    {
+      link: 'build',
+      display: 'BUILD',
       icon: 'dashboard',
       params: {
       },
