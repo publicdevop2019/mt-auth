@@ -47,8 +47,8 @@ const routes: Routes = [
   {
     path: 'docs', component: DocumentComponent,
     children: [
-      { path: '', redirectTo: 'lunch', pathMatch: 'full' },
-      { path: 'lunch', component: LunchComponent },
+      { path: '', redirectTo: 'deploy', pathMatch: 'full' },
+      { path: 'deploy', component: LunchComponent },
       { path: 'design', component: DesignComponent },
       { path: '**', component: LunchComponent }
     ]

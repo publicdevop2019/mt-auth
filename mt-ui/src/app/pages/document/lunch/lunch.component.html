@@ -1,10 +1,53 @@
-<h2>通过Docker部署</h2>
+<h2>本地单点部署<div style="font-size: 12px;"><span style="color: red;">*</span>您需要熟悉一些linux指令</div></h2>
 <div>1.安装Docker</div>
+<ul>
+    <li>
+        <a href="https://docs.docker.com/get-docker/">官方安装文档</a>
+    </li>
+</ul>
 <div>2.安装MySQL</div>
-<div>3.安装RabbitMQ</div>
-<div>4.安装Redis</div>
-<!-- # 系统需求(单实例)
-- MySQL 1G
-- RabbitMQ + Redis 500M
-- mt-access + mt-proxy 2G
-- nginx 500M -->
+<ul>
+    <li><a href="https://dev.mysql.com/doc/refman/8.0/en/installing.html">官方安装文档</a></li>
+    <li>安装成功后请创建auth_prod数据库并导入<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/sql/init.sql">数据</a>, 示例 mysql -u root -p auth_prod &lt; init.sql</li>
+</ul>
+<div>3.配置Redis与RabbitMQ容器</div>
+<ul>
+    <li>
+        新建一个configs文件夹
+    </li>
+    <li>
+        将<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/redis.conf">配置文件redis.conf</a>复制到configs
+    </li>
+    <li>
+        启动容器，脚本请移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/infra.sh">这里</a>
+    </li>
+
+</ul>
+<div>4.配置mt-auth启动脚本</div>
+<ul>
+    <li>
+        启动mt-access, 脚本请移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/local-standalone/mt-access-start.sh">这里</a>, <span style="color: red;">*</span>启动mt-access后请等待150秒再启动mt-proxy
+    </li>
+    <li>
+        启动mt-proxy, 脚本请移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/local-standalone/mt-proxy-start.sh">这里</a>
+    </li>
+</ul>
+<div>5.最后(可选)</div>
+<ul>
+    <li>
+        脚本配置完成后，您可以直接移步<a href="https://github.com/publicdevop2019/mt-auth/tree/main/script/deploy/local-standalone/start.sh">这里</a>
+    </li>
+</ul>
+<div>6.启动前端</div>
+<ul>
+    <li>
+        cd ./mt-ui
+    </li>
+    <li>
+        npm install && npm start
+    </li>
+    <li>
+        前端成功安装并启动后，访问<a href="http://localhost:4300">http://localhost:4300</a>
+    </li>
+</ul>
+
