@@ -25,7 +25,6 @@ MAIL_CONFIG="--spring.mail.username=$EMAIL_ID --spring.mail.password=$EMAIL_PWD"
 PROFILE=--spring.profiles.active=prod
 VM_CONFIG='-Xmx500m -Xms500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/logs/$(date +"%Y_%m_%d_%I_%M_%p%z")_heapdump.hprof'
 SERVER_CONFIG=--server.tomcat.accept-count=100\ --server.tomcat.max-connections=10000\ --server.tomcat.max-threads=10
-# [注] /home/ubuntu/logs/access为系统日志路径，请自行调整
-DOCKER_CONFIG='-td --rm -v /home/ubuntu/logs/access:/logs -p 8080:8080 --log-opt max-size=10m --log-opt max-file=5'
+DOCKER_CONFIG='-td --rm -v ~/logs/access:/logs -p 8080:8080 --log-opt max-size=10m --log-opt max-file=5'
 IMAGE_CONFIG='--name access publicdevop2019/mt-access:latest -jar Access.jar'
-docker run $DOCKER_CONFIG $IMAGE_CONFIG $SERVER_CONFIG $DB_CONFIG $REGISTRY_CONFIG $LOG_CONFIG $INFRA_CONFIG $PROFILE $MAIL_CONFIG $VM_CONFIG
+# docker run $DOCKER_CONFIG $IMAGE_CONFIG $SERVER_CONFIG $DB_CONFIG $REGISTRY_CONFIG $LOG_CONFIG $INFRA_CONFIG $PROFILE $MAIL_CONFIG $VM_CONFIG

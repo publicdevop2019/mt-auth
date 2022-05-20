@@ -8,6 +8,6 @@ docker run -td --rm -v ~/db/cache:/data --name redis-cache -p 6379:6379 $DOCKER_
 # 启动redis分布式锁
 # [注]这里 ~/configs 为包含 redis.conf的文件夹, 请自行调整
 # [注]这里 ~/db/lock 为映射地址, 请自行调整 
-docker run -td --rm -v ~/db/lock:/data -v ~/configs:/usr/local/etc/redis --name redis-lock -p 6378:6379 $DOCKER_LOGFILE_LIMIT redis:6.0.8 /usr/local/etc/redis/redis.conf
+docker run -td --rm -v ~/db/lock:/data -v $PWD/./configs:/usr/local/etc/redis --name redis-lock -p 6378:6379 $DOCKER_LOGFILE_LIMIT redis:6.0.8 /usr/local/etc/redis/redis.conf
 # 启动RabbitMQ消息中间件
 docker run -td --rm --name rabbitmq -p 15672:15672 -p 5672:5672 $DOCKER_LOGFILE_LIMIT rabbitmq:3-management
