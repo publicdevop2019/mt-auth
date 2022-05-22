@@ -1,28 +1,37 @@
 <section style="width: 248px; margin: 0px 16px 0px 16px;"
     [ngStyle]="{'margin-bottom.px': (length>1 && index!==length-1)? 8 : 0}">
-    <div style="display: flex; font-size: 12px; align-items: center; justify-content: space-between;">
-        <div style="display: flex;align-items: center;">
-            <mat-icon [color]="'primary'" style="font-size: 16px; height: 16px; width: 16px;">message</mat-icon>
-            <div style="margin-left: 8px">{{'MESSAGES'|translate}}</div>
+    <div style="display:flex;justify-content: space-between;">
+        <div style="display:flex;flex-direction: column;flex:1">
+            <div style="display: flex; font-size: 12px; align-items: center; justify-content: space-between;">
+                <div style="display: flex;align-items: center;">
+                    <mat-icon [color]="'primary'" style="font-size: 16px; height: 16px; width: 16px;">message</mat-icon>
+                    <div style="margin-left: 8px">{{'MESSAGES'|translate}}</div>
+                </div>
+                <div>{{parsedDate}}</div>
+            </div>
+            <div style="margin-left: 24px;">
+                <div style="font-weight: 700;font-size: 14px;">{{value.title | translate}}</div>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
+                    <ng-container *ngIf="value.title==='VALIDATION_FAILED'">
+                        {{value.descriptions[0]|translate}}
+                    </ng-container>
+                    <ng-container *ngIf="value.title==='NEW_PROJECT_CREATED'">
+                        <div>
+                            {{'NOTIFICATION_PROJECT_NAME'|translate}}:<span style="padding-left: 4px;">{{value.descriptions[0]}}</span>
+                        </div>
+                    </ng-container>
+                    <ng-container *ngIf="value.title!=='VALIDATION_FAILED' && value.title!=='NEW_PROJECT_CREATED'">
+                        <div *ngFor="let a of value.descriptions">
+                            {{a}}
+                        </div>
+                    </ng-container>
+                </div>
+            </div>
         </div>
-        <div>{{parsedDate}}</div>
-    </div>
-    <div style="margin-left: 24px;">
-        <div style="font-weight: 700;font-size: 14px;">{{value.title | translate}}</div>
-        <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-            <ng-container *ngIf="value.title==='VALIDATION_FAILED'">
-                {{value.descriptions[0]|translate}}
-            </ng-container>
-            <ng-container *ngIf="value.title==='NEW_PROJECT_CREATED'">
-                <div>
-                    {{'NOTIFICATION_PROJECT_NAME'|translate}}:<span style="padding-left: 4px;">{{value.descriptions[0]}}</span>
-                </div>
-            </ng-container>
-            <ng-container *ngIf="value.title!=='VALIDATION_FAILED' && value.title!=='NEW_PROJECT_CREATED'">
-                <div *ngFor="let a of value.descriptions">
-                    {{a}}
-                </div>
-            </ng-container>
+        <div>
+            <button  mat-icon-button style="margin-right: -8px;margin-left: 8px;">
+                <mat-icon [color]="'primary'" (click)="dismissMsg($event)">close</mat-icon>
+            </button>
         </div>
     </div>
 </section>

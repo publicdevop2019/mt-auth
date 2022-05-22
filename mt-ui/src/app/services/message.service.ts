@@ -24,6 +24,16 @@ export class MessageService extends EntityCommonService<INotification, INotifica
         super(httpProxy, interceptor, deviceSvc);
     }
     public latestMessage: INotification[] = [];
+    dismiss(value: INotification) {
+        this.httpProxySvc.dismissNotification(value.id).subscribe(() => {
+            this.latestMessage = this.latestMessage.filter(e => e.id !== value.id)
+        })
+    }
+    pullUnAckMessage() {
+        this.readEntityByQuery(0, 200,'unAck:1').subscribe(next => {
+            this.latestMessage = next.data
+        })
+    }
     saveMessage(message: string) {
         this.latestMessage.push(JSON.parse(message));
     }

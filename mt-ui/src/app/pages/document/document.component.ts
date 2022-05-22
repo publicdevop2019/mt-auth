@@ -14,21 +14,21 @@ export class DocumentComponent implements OnInit {
     {
       link: 'deploy',
       display: 'DEPLOYMENT',
-      icon: 'dashboard',
+      icon: 'directions_run',
       params: {
       },
     },
     {
       link: 'build',
       display: 'BUILD',
-      icon: 'dashboard',
+      icon: 'build',
       params: {
       },
     },
     {
       link: 'design',
       display: 'DESIGN_DOC',
-      icon: 'blur_on',
+      icon: 'description',
       params: {
       },
     },

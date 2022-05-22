@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { INotification } from 'src/app/services/message.service';
+import { INotification, MessageService } from 'src/app/services/message.service';
 import { DateTime } from "luxon";
 import { TranslateService } from '@ngx-translate/core';
 @Component({
@@ -12,7 +12,7 @@ export class CardNotificationComponent implements OnInit {
   @Input() length: number;
   @Input() index: number;
   parsedDate: string;
-  constructor(public translate: TranslateService) {
+  constructor(public translate: TranslateService,private msgSvg:MessageService) {
   }
   ngOnInit(): void {
     let resolved: string;
@@ -27,5 +27,9 @@ export class CardNotificationComponent implements OnInit {
     }
     const parsed = DateTime.fromMillis(this.value.date).setLocale(resolved).toRelativeCalendar({ unit: resolvedUnit });
     this.parsedDate = parsed;
+  }
+  dismissMsg(event:Event){
+    event.stopPropagation();
+    this.msgSvg.dismiss(this.value)
   }
 }

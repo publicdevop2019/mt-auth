@@ -29,6 +29,7 @@ public class Notification extends Auditable {
     @Convert(converter = StringSetConverter.class)
     private Set<String> descriptions;
     private String title;
+    private boolean ack = false;
 
     public Notification(HangingTxDetected deserialize) {
         super();

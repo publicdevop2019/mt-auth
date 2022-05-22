@@ -9,11 +9,13 @@ import lombok.NoArgsConstructor;
 @Getter
 public class NotificationRepresentation {
     private Long date;
+    private String id;
     private String title;
     private Set<String> descriptions;
 
     public NotificationRepresentation(Notification notification) {
         date = notification.getTimestamp();
+        id = notification.getNotificationId().getDomainId();
         descriptions = notification.getDescriptions();
         title = notification.getTitle();
     }

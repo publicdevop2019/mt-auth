@@ -5,6 +5,8 @@ import com.mt.access.application.notification.representation.NotificationWebSock
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.notification.Notification;
+import com.mt.access.domain.model.notification.NotificationId;
+import com.mt.access.domain.model.notification.NotificationQuery;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
@@ -21,9 +23,12 @@ public class NotificationApplicationService {
 
     public static final String NOTIFICATION = "Notification";
 
-    public SumPagedRep<Notification> notificationsOf(String pageParam, String skipCount) {
+    public SumPagedRep<Notification> notificationsOf(String queryParam, String pageParam,
+                                                     String skipCount) {
+        NotificationQuery notificationQuery =
+            new NotificationQuery(queryParam, pageParam, skipCount);
         return DomainRegistry.getNotificationRepository()
-            .latestNotifications(PageConfig.limited(pageParam, 200), new QueryConfig(skipCount));
+            .latestNotifications(notificationQuery);
     }
 
     @Transactional
@@ -106,4 +111,15 @@ public class NotificationApplicationService {
             .notify(new NotificationWebSocketRepresentation(new Notification(event)).value());
     }
 
+    /**
+     * acknowledge notification,
+     * no idempotent wrapper required bcz itself is native idempotent.
+     *
+     * @param id notification id
+     */
+    @Transactional
+    public void acknowledge(String id) {
+        DomainRegistry.getNotificationRepository()
+            .acknowledge(new NotificationId(id));
+    }
 }

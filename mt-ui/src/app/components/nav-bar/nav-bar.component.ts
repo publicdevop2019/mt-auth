@@ -251,6 +251,7 @@ export class NavBarComponent implements OnInit {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
     })
     this.msgSvc.connectToMonitor();
+    this.msgSvc.pullUnAckMessage()
     this.authSvc.currentUser.subscribe(next => {
       this.name = next.username || next.email
     })

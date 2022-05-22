@@ -426,6 +426,7 @@ CREATE TABLE `notification` (
   `domain_id` varchar(255) NOT NULL,
   `timestamp` bigint DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
+  `ack` bit(1) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK_domain_id` (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
