@@ -5,8 +5,6 @@ import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.user.command.UserUpdateProfileCommand;
-import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
@@ -14,12 +12,8 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
-import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.User;
-import com.mt.access.domain.model.user.UserAvatar;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.domain.model.user.UserMobile;
-import com.mt.access.domain.model.user.UserName;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
@@ -136,4 +130,16 @@ public class UserRelationApplicationService {
             }).orElseGet(Optional::empty);
     }
 
+    /**
+     * find user relation for project id.
+     *
+     * @param id project id
+     * @return boolean if relation can be found or not
+     */
+    public boolean projectRelationExist(String id) {
+        ProjectId projectId = new ProjectId(id);
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<UserRelation> userRelation = getUserRelation(userId, projectId);
+        return userRelation.isPresent();
+    }
 }

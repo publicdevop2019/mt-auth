@@ -99,3 +99,6 @@ th.mat-sort-header-sorted {
   margin-bottom: 24px !important;
   border-left: 2px solid #673ab7 !important;
 }
+.mat-menu-panel{
+  overflow-x: hidden !important;
+}

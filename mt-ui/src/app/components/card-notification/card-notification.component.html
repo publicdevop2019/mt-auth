@@ -11,8 +11,8 @@
             </div>
             <div style="margin-left: 24px;">
                 <div style="font-weight: 700;font-size: 14px;">{{value.title | translate}}</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
-                    <ng-container *ngIf="value.title==='VALIDATION_FAILED'">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; max-width: 150px;">
+                    <ng-container *ngIf="value.title==='VALIDATION_FAILED'" >
                         {{value.descriptions[0]|translate}}
                     </ng-container>
                     <ng-container *ngIf="value.title==='NEW_PROJECT_CREATED'">

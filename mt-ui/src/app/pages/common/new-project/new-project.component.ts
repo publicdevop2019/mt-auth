@@ -14,14 +14,16 @@ import { ProjectService } from 'src/app/services/project.service';
   styleUrls: ['./new-project.component.css']
 })
 export class NewProjectComponent extends Aggregate<NewProjectComponent, IProjectSimple> implements OnInit {
-  showNotes:boolean=false
+  showNotes: boolean = false
+  createLoading: boolean = false
+  public systemError: boolean = false;
   constructor(
     private projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     cdr: ChangeDetectorRef
   ) {
-    super('newProjectForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new ProjectValidator('CLIENT'), undefined, {from:undefined,context:'new',params:{}}, fis, cdr);
+    super('newProjectForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new ProjectValidator('CLIENT'), undefined, { from: undefined, context: 'new', params: {} }, fis, cdr);
   }
   ngOnInit(): void {
   }
@@ -33,9 +35,33 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
       version: 0
     }
   }
+  private count: number = 1;
   create(): void {
-    this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next=>{
-      this.showNotes=true;
+    this.createLoading=true;
+    this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next => {
+      let pull = setInterval(() => {
+        this.projectSvc.ready(next).subscribe(next => {
+          this.count++;
+          if (next && next.status) {
+            clearInterval(pull)
+            this.showNotes = true;
+            this.createLoading=false;
+          }
+          if (this.count === 6) {
+            clearInterval(pull);
+            this.systemError = true
+            this.createLoading=false;
+          }
+        },()=>{
+          this.count++;
+          if (this.count === 6) {
+            clearInterval(pull);
+            this.systemError = true
+            this.createLoading=false;
+          }
+        })
+
+      }, 5000)
     })
   }
   update(): void {
@@ -44,7 +70,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   errorMapper(original: ErrorMessage[], cmpt: NewProjectComponent): ErrorMessage[] {
     throw new Error('Method not implemented.');
   }
-  dismiss(){
-    this.showNotes=false;
+  dismiss() {
+    this.showNotes = false;
   }
 }

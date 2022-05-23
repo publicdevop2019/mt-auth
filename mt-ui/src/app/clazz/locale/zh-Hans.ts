@@ -821,4 +821,6 @@ export const zhHans = {
     "BUILD": "构建",
     "DESIGN_DOC": "设计文档",
     "APP_DOC": "文档",
+    "NEW_PROJECT_ERROR_NOTE": "系统仍在处理您的请求中，请稍后重新登录查看",
+    "CREATING_PROJECT": "请稍等，我们正在创建您的项目",
 }
