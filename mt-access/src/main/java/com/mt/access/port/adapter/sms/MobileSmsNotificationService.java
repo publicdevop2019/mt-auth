@@ -1,4 +1,4 @@
-package com.mt.access.port.adapter.third_party;
+package com.mt.access.port.adapter.sms;
 
 import com.mt.access.domain.model.notification.SmsNotificationService;
 import lombok.extern.slf4j.Slf4j;

@@ -11,17 +11,17 @@
             </div>
             <div style="margin-left: 24px;">
                 <div style="font-weight: 700;font-size: 14px;">{{value.title | translate}}</div>
-                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px; max-width: 150px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 14px;">
                     <ng-container *ngIf="value.title==='VALIDATION_FAILED'" >
-                        {{value.descriptions[0]|translate}}
+                        <div class="max-length">{{value.descriptions[0]|translate}}</div>
                     </ng-container>
                     <ng-container *ngIf="value.title==='NEW_PROJECT_CREATED'">
-                        <div>
+                        <div class="max-length">
                             {{'NOTIFICATION_PROJECT_NAME'|translate}}:<span style="padding-left: 4px;">{{value.descriptions[0]}}</span>
                         </div>
                     </ng-container>
                     <ng-container *ngIf="value.title!=='VALIDATION_FAILED' && value.title!=='NEW_PROJECT_CREATED'">
-                        <div *ngFor="let a of value.descriptions">
+                        <div *ngFor="let a of value.descriptions" class="max-length">
                             {{a}}
                         </div>
                     </ng-container>

@@ -5,7 +5,7 @@ import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
 import com.mt.access.application.cross_domain_validation.CrossDomainValidationApplicationService;
-import com.mt.access.application.email_delivery.EmailDeliveryApplicationService;
+import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
@@ -71,7 +71,7 @@ public class ApplicationServiceRegistry {
     @Getter
     private static UserRelationApplicationService userRelationApplicationService;
     @Getter
-    private static EmailDeliveryApplicationService emailDeliverApplicationService;
+    private static CoolDownService emailDeliverApplicationService;
     @Getter
     private static NotificationApplicationService notificationApplicationService;
     @Getter
@@ -110,7 +110,7 @@ public class ApplicationServiceRegistry {
 
     @Autowired
     public void setEmailDeliverApplicationService(
-        EmailDeliveryApplicationService emailDeliverApplicationService) {
+        CoolDownService emailDeliverApplicationService) {
         ApplicationServiceRegistry.emailDeliverApplicationService = emailDeliverApplicationService;
     }
 

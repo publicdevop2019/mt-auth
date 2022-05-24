@@ -37,6 +37,10 @@ public interface SpringDataJpaNotificationRepository
             .addBooleanEqualPredicate(
                 false,
                 Notification_.ACK, queryContext));
+        Optional.ofNullable(query.getType()).ifPresent(e -> QueryUtility
+            .addEnumLiteralEqualPredicate(
+                e,
+                Notification_.TYPE, queryContext));
         Order order = null;
         if (query.getSort().isTimestamp()) {
             order = QueryUtility.getOrder(Notification_.CREATED_AT, queryContext,

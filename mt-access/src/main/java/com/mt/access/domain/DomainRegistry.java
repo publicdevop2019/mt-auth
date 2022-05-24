@@ -21,9 +21,12 @@ import com.mt.access.domain.model.cross_domain_validation.ValidationResultReposi
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
+import com.mt.access.domain.model.notification.EmailNotificationService;
 import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
+import com.mt.access.domain.model.operation_cool_down.CoolDownService;
+import com.mt.access.domain.model.operation_cool_down.OperationCoolDownRepository;
 import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
@@ -128,15 +131,36 @@ public class DomainRegistry {
     @Getter
     private static SmsNotificationService smsNotificationService;
     @Getter
+    private static EmailNotificationService emailNotificationService;
+    @Getter
     private static WsPushNotificationService wsPushNotificationService;
     @Getter
     private static MfaService mfaService;
     @Getter
     private static AuditService auditService;
+    @Getter
+    private static OperationCoolDownRepository operationCoolDownRepository;
+    @Getter
+    private static CoolDownService coolDownService;
+
+    @Autowired
+    public void setCoolDownService(CoolDownService coolDownService) {
+        DomainRegistry.coolDownService = coolDownService;
+    }
 
     @Autowired
     public void setAuditService(AuditService auditService) {
         DomainRegistry.auditService = auditService;
+    }
+
+    @Autowired
+    public void setOperationCoolDownRepository(OperationCoolDownRepository operationCoolDownRepository) {
+        DomainRegistry.operationCoolDownRepository = operationCoolDownRepository;
+    }
+
+    @Autowired
+    public void setEmailNotificationService(EmailNotificationService emailNotificationService) {
+        DomainRegistry.emailNotificationService = emailNotificationService;
     }
 
     @Autowired

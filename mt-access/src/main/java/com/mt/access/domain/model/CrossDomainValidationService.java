@@ -30,7 +30,6 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -38,17 +37,15 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 
 @Service
 @Slf4j
 public class CrossDomainValidationService {
+    @Value("${mt.email.admin}")
+    private String adminEmail;
+
     public void validate() {
         log.debug("start of validate job");
         Optional<ValidationResult> validationResult1 =
@@ -63,7 +60,7 @@ public class CrossDomainValidationService {
             if (!validationResult.hasNotified()) {
                 validationResult.markAsNotified();
                 CommonDomainRegistry.getDomainEventRepository()
-                    .append(new CrossDomainValidationFailureCheck());
+                    .append(new CrossDomainValidationFailureCheck(adminEmail));
             }
             log.debug("end of validate job, job is paused due to continuous failure");
             return;

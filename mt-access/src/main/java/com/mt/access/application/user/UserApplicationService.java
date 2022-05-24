@@ -16,6 +16,7 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
+import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.LoginResult;
@@ -208,6 +209,8 @@ public class UserApplicationService implements UserDetailsService {
             .logUserAction(command.getEmail(), "forget password");
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(changeId, (ignored) -> {
+                DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
+                    OperationType.PWD_RESET);
                 DomainRegistry.getUserService().forgetPassword(new UserEmail(command.getEmail()));
                 return null;
             }, USER);

@@ -136,6 +136,13 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
+    /**
+     * send forget pwd email to user email on system.
+     *
+     * @param command  forget pwd command
+     * @param changeId change id
+     * @return void
+     */
     @PostMapping(path = "users/forgetPwd")
     public ResponseEntity<Void> forgetPwd(@RequestBody UserForgetPasswordCommand command,
                                           @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
