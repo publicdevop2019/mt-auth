@@ -10,7 +10,7 @@ public interface NotificationRepository {
 
     void acknowledge(NotificationId notificationId);
 
-    SumPagedRep<Notification> latestNotifications(NotificationQuery notificationQuery);
+    SumPagedRep<Notification> notificationsOfQuery(NotificationQuery notificationQuery);
 
     Optional<Notification> notificationOfId(NotificationId notificationId);
 }

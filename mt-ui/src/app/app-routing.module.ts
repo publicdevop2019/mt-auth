@@ -41,6 +41,7 @@ import { DocumentComponent } from './pages/document/document.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { BuildComponent } from './pages/document/build/build.component';
+import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -82,6 +83,7 @@ const routes: Routes = [
       { path: 'org-profiles', component: SummaryOrgComponent },
       { path: 'permission-profiles', component: SummaryPermissionComponent },
       { path: 'position-profiles', component: SummaryPositionComponent },
+      { path: 'sys-message-center', component: SummaryNotificationComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-api', component: MyApisComponent },
       { path: ':id/my-permission', component: MyPermissionsComponent },

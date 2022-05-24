@@ -28,6 +28,13 @@ export class NavBarComponent implements OnInit {
   mobileQuery: MediaQueryList;
   menuAuthMangement: INavElement[] = [
     {
+      link: 'message-center',
+      display: 'MESSAGE_DASHBOARD',
+      icon: 'message',
+      params: {
+      },
+    },
+    {
       link: 'registry',
       display: 'REGISTRY_STATUS',
       icon: 'receipt',
@@ -105,12 +112,13 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'message-center',
-      display: 'MESSAGE_DASHBOARD',
-      icon: 'message',
+      link: 'sys-message-center',
+      display: 'SYSTEM_MESSAGE_DASHBOARD',
+      icon: 'email',
       params: {
       },
     },
+
   ];
   menuAuth: INavElement[] = [
     {

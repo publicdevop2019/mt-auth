@@ -54,7 +54,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "NEW_USER_REGISTER";
+        title = NewUserRegistered.name;
         type = NotificationType.BELL;
         status = NotificationStatus.PENDING;
         descriptions = Collections.singleton(event.getEmail().getEmail());
@@ -65,7 +65,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "NEW_PROJECT_CREATED";
+        title = ProjectOnboardingComplete.name;
         type = NotificationType.BELL;
         status = NotificationStatus.PENDING;
         descriptions = Collections.singleton(event.getProjectName());
@@ -78,7 +78,7 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         type = NotificationType.BELL;
         status = NotificationStatus.PENDING;
-        title = "PROXY_CHECK_FAILED";
+        title = ProxyCacheCheckFailedEvent.name;
     }
 
     public Notification(CrossDomainValidationService.ValidationFailedEvent event) {
@@ -86,7 +86,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "VALIDATION_FAILED";
+        title = CrossDomainValidationService.ValidationFailedEvent.name;
         type = NotificationType.BELL;
         status = NotificationStatus.PENDING;
         descriptions = Collections.singleton(event.getMessage());
@@ -97,7 +97,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "USER_MFA_REQUIRED";
+        title = UserMfaNotificationEvent.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.SMS;
     }
@@ -107,7 +107,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "USER_PWD_RESET_CODE_UPDATED";
+        title = UserPwdResetCodeUpdated.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.EMAIL;
     }
@@ -117,7 +117,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "PENDING_USER_ACTIVATION_CODE_UPDATED";
+        title = PendingUserActivationCodeUpdated.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.EMAIL;
     }
@@ -127,7 +127,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = "CROSS_DOMAIN_VALIDATION_FAILED";
+        title = CrossDomainValidationFailureCheck.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.EMAIL;
     }

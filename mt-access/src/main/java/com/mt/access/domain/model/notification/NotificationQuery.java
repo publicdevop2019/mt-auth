@@ -14,13 +14,16 @@ import lombok.Getter;
 public class NotificationQuery extends QueryCriteria {
     private static final String UN_ACK = "unAck";
     private final Sort sort;
+    private Set<NotificationType> type;
+    private Set<NotificationId> ids;
     private Boolean isUnAck;
-    private final Set<NotificationType> type;
 
     public NotificationQuery(NotificationType type, String queryParam, String pageParam,
                              String skipCount) {
         updateQueryParam(queryParam);
-        this.type = Collections.singleton(type);
+        if (type != null) {
+            this.type = Collections.singleton(type);
+        }
         setPageConfig(PageConfig.limited(pageParam, 200));
         setQueryConfig(new QueryConfig(skipCount));
         this.sort = Sort.byLatestTimestamp();
@@ -29,6 +32,13 @@ public class NotificationQuery extends QueryCriteria {
     public NotificationQuery(String queryParam, String pageParam,
                              String skipCount) {
         this(null, queryParam, pageParam, skipCount);
+    }
+
+    public NotificationQuery(NotificationId notificationId) {
+        ids = Collections.singleton(notificationId);
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = Sort.byId();
     }
 
     private void updateQueryParam(String queryParam) {
@@ -43,10 +53,18 @@ public class NotificationQuery extends QueryCriteria {
     public static class Sort {
         private boolean isAsc;
         private boolean isTimestamp = false;
+        private boolean isId = false;
 
         public static Sort byLatestTimestamp() {
             Sort sort = new Sort();
             sort.isTimestamp = true;
+            sort.isAsc = false;
+            return sort;
+        }
+
+        public static Sort byId() {
+            Sort sort = new Sort();
+            sort.isId = true;
             sort.isAsc = false;
             return sort;
         }

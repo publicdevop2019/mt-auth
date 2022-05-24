@@ -192,7 +192,7 @@ public class RoleApplicationService {
                 RoleId roleId = event.getRoleId();
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
-                        new RoleQuery(projectId, new RoleId("null")));
+                        RoleQuery.getRootRole(projectId));
                 Optional<Role> first =
                     allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
                         .findFirst();

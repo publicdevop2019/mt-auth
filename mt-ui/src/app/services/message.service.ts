@@ -8,7 +8,7 @@ import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
 import { copyOf } from './utility';
-export interface INotification extends IIdBasedEntity {
+export interface IBellNotification extends IIdBasedEntity {
     title: string,
     descriptions: string[],
     date: number
@@ -16,15 +16,15 @@ export interface INotification extends IIdBasedEntity {
 @Injectable({
     providedIn: 'root'
 })
-export class MessageService extends EntityCommonService<INotification, INotification>{
+export class MessageService extends EntityCommonService<IBellNotification, IBellNotification>{
     private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/mngmt/notifications';
+    private ENTITY_NAME = '/mngmt/notifications/bell';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
     constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);
     }
-    public latestMessage: INotification[] = [];
-    dismiss(value: INotification) {
+    public latestMessage: IBellNotification[] = [];
+    dismiss(value: IBellNotification) {
         this.httpProxySvc.dismissNotification(value.id).subscribe(() => {
             this.latestMessage = this.latestMessage.filter(e => e.id !== value.id)
         })

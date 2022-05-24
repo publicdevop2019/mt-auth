@@ -8,7 +8,6 @@ import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.operation_cool_down.OperationNotCoolDownException;
 import com.mt.access.domain.model.notification.EmailNotificationException;
-import com.mt.access.domain.model.operation_cool_down.UnknownBizTypeException;
 import com.mt.access.domain.model.image.FileUploadException;
 import com.mt.common.domain.model.logging.ErrorMessage;
 import org.springframework.core.Ordered;
@@ -43,7 +42,6 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         Origin.InvalidOriginValueException.class,
         DataIntegrityViolationException.class,
         OperationNotCoolDownException.class,
-        UnknownBizTypeException.class,
         IllegalStateException.class,
         FileUploadException.class
     })

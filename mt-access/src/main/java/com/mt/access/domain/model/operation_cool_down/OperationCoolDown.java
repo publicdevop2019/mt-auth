@@ -1,10 +1,12 @@
 package com.mt.access.domain.model.operation_cool_down;
 
+import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import java.time.Instant;
 import java.util.Date;
 import javax.persistence.Column;
+import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -18,20 +20,22 @@ import lombok.Setter;
 @Entity
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"executor", "operationType"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"executor",
+    "opt_type"}), name = "opt_cool_down")
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
 public class OperationCoolDown extends Auditable {
     /**
      * person who execute this operation, can be email or user id.
      */
-    @Column
+    @Column(name = "executor")
     private String executor;
 
-    @Column
+    @Column(name = "opt_type")
+    @Convert(converter = OperationType.DbConverter.class)
     private OperationType operationType;
 
-    @Column
+    @Column(name = "last_opt_at")
     private Date lastOperateAt;
 
     /**

@@ -34,7 +34,7 @@ public class NotificationApplicationService {
         NotificationQuery notificationQuery =
             new NotificationQuery(NotificationType.BELL, queryParam, pageParam, skipCount);
         return DomainRegistry.getNotificationRepository()
-            .latestNotifications(notificationQuery);
+            .notificationsOfQuery(notificationQuery);
     }
 
     public SumPagedRep<Notification> notificationsOf(String queryParam, String pageParam,
@@ -42,7 +42,7 @@ public class NotificationApplicationService {
         NotificationQuery notificationQuery =
             new NotificationQuery(queryParam, pageParam, skipCount);
         return DomainRegistry.getNotificationRepository()
-            .latestNotifications(notificationQuery);
+            .notificationsOfQuery(notificationQuery);
     }
 
     @Transactional

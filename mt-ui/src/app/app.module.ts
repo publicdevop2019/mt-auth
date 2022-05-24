@@ -128,6 +128,7 @@ import { DocumentComponent } from './pages/document/document.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
+import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
 
 @NgModule({
   declarations: [
@@ -205,6 +206,7 @@ import { BuildComponent } from './pages/document/build/build.component';
     DesignComponent,
     LunchComponent,
     BuildComponent,
+    SummaryNotificationComponent,
   ],
   imports: [
     BrowserAnimationsModule,
