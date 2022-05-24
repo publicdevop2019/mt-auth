@@ -779,7 +779,6 @@ export const zhHans = {
     "EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT": "无法找到权限对应的API",
     "ENDPOINT_PERMISSION_CAN_BE_FOUND_IN_PERMISSION": "无法找到API对应的权限",
     "UNABLE_TO_FIND_ALL_PERMISSION_FOR_ROLE": "无法找到角色中的权限",
-    "VALIDATION_FAILED": "数据校验失败",
     "MESSAGES": "消息",
     "NOTIFICATION_PROJECT_NAME": "项目名称",
     "JOB_ACTION": "操作",
@@ -829,4 +828,6 @@ export const zhHans = {
     "SEND_EMAIL_NOTIFICATION_EVENT": "发送邮件通知",
     "SMS": "短信",
     "DELIVERED": "已发送",
+    "BELL": "站内信",
+    "HANGING_TX_DETECTED": "检测到悬挂事件",
 }

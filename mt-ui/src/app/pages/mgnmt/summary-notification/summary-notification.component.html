@@ -35,10 +35,10 @@
         <ng-container matColumnDef="message">
             <th mat-header-cell *matHeaderCellDef> {{columnList['message']|translate}} </th>
             <td mat-cell *matCellDef="let row">
-                <ng-container *ngIf="row.title==='VALIDATION_FAILED'">
+                <ng-container *ngIf="row.title==='SYSTEM_VALIDATION_FAILED'">
                     {{row.descriptions[0]|translate}}
                 </ng-container>
-                <ng-container *ngIf="row.title!=='VALIDATION_FAILED'">
+                <ng-container *ngIf="row.title!=='SYSTEM_VALIDATION_FAILED'">
                     {{row.descriptions.join(',')}}
                 </ng-container>
             </td>
