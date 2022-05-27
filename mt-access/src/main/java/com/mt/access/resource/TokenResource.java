@@ -62,21 +62,17 @@ public class TokenResource {
     }
 
     private String getClientIpAddress(HttpServletRequest request) {
-        if (log.isTraceEnabled()) {
-            log.debug("--start of get client ip address");
-            request.getHeaderNames().asIterator().forEachRemaining(e -> {
-                log.debug("header name [{}] and value: {}", e, request.getHeader(e));
-            });
-        }
+        log.trace("--start of get client ip address");
+        request.getHeaderNames().asIterator().forEachRemaining(e -> {
+            log.trace("header name [{}] and value: {}", e, request.getHeader(e));
+        });
         for (String header : HEADERS_TO_TRY) {
             String ip = request.getHeader(header);
             if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
                 return ip;
             }
         }
-        if (log.isTraceEnabled()) {
-            log.debug("--end of get client ip address");
-        }
+        log.trace("--end of get client ip address");
         return request.getRemoteAddr();
     }
 }
