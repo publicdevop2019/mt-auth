@@ -97,7 +97,8 @@ public class RoleResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "projects/{projectId}/roles/{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "projects/{projectId}/roles/{id}",
+        consumes = "application/json-patch+json")
     public ResponseEntity<Void> patchForRootById(
         @PathVariable String projectId,
         @PathVariable(name = "id") String id,

@@ -10,7 +10,6 @@ import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DeliverCallback;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
@@ -26,6 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMqEventStreamService implements SagaEventStreamService {
 
+    private final boolean autoAck = false;
     @Value("${spring.application.name}")
     private String appName;
     @Resource
@@ -63,34 +63,47 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         String routingKeyWithoutTopic =
             subscribedApplicationName + "." + (internal ? "internal" : "external") + ".";
         String queueName;
+        boolean autoDelete = false;
         if (fixedQueueName != null) {
             queueName = fixedQueueName;
         } else {
+            //auto delete random generated queue
+            autoDelete = true;
             long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-            queueName = Long.toString(id, 36);
-        }
-        DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-            log.trace("mq message received");
-            String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
-            StoredEvent event =
-                CommonDomainRegistry.getCustomObjectSerializer().deserialize(s, StoredEvent.class);
-            log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()),
-                event.getId());
-            try {
-                consumer.accept(event);
-            } catch (Exception ex) {
-                log.error("error during consume, catch error to maintain connection", ex);
+            String s;
+            if (topics.length == 1) {
+                s = MqHelper.handlerOf(appName, topics[0]);
+            } else {
+                s = MqHelper.handlerOf(appName, "combined_events");
             }
-            log.trace("mq message consumed");
-        };
+            queueName = Long.toString(id, 36) + "_" + s;
+        }
         try {
             Channel channel = connectionSub.createChannel();
-            channel.queueDeclare(queueName, true, false, false, null);
+            channel.queueDeclare(queueName, true, false, autoDelete, null);
+            //@todo find out proper prefetch value, this requires test in prod env
+            channel.basicQos(10);
             checkExchange(channel);
             for (String topic : topics) {
                 channel.queueBind(queueName, EXCHANGE_NAME, routingKeyWithoutTopic + topic);
             }
-            channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
+            channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
+                log.trace("mq message received");
+                String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                StoredEvent event =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(s, StoredEvent.class);
+                log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()),
+                    event.getId());
+                try {
+                    consumer.accept(event);
+                    long deliveryTag = delivery.getEnvelope().getDeliveryTag();
+                    channel.basicAck(deliveryTag, false);
+                } catch (Exception ex) {
+                    log.error("error during consume, catch error to maintain connection", ex);
+                }
+                log.trace("mq message consumed");
+            }, consumerTag -> {
             });
         } catch (IOException e) {
             log.error("unable create queue for {} with routing key {} and queue name {}",

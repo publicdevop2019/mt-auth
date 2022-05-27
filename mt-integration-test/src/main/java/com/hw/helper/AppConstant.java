@@ -24,9 +24,9 @@ public class AppConstant {
     public static final String AUTHORIZE_RESPONSE_TYPE = "code";
     public static final String PROJECT_ID = "0P8HPG99R56P";
     public static final String CLIENTS = "/projects/0P8HE307W6IO/clients";
-    public static String proxyUrl = "http://192.168.2.23:" + 8111;
-    public static String accessUrl = "http://192.168.2.23:" + 8080;
-    public static String testUrl = "http://192.168.2.23:" + 9999;
+    public static String proxyUrl = "http://192.168.2.108:" + 8111;
+    public static String accessUrl = "http://192.168.2.108:" + 8080;
+    public static String testUrl = "http://192.168.2.108:" + 9999;
     public static final String CLIENT_MNGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = proxyUrl + SVC_NAME_AUTH + "/oauth/token";
     public static final String USERS_ADMIN = "/mngmt/users";

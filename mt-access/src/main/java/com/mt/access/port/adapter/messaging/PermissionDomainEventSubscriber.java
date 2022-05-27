@@ -29,10 +29,11 @@ public class PermissionDomainEventSubscriber {
     private void listener0() {
         CommonDomainRegistry.getEventStreamService().of(appName, true,
             START_NEW_PROJECT_ONBOARDING, (event) -> {
-            StartNewProjectOnboarding deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                .deserialize(event.getEventBody(), StartNewProjectOnboarding.class);
-            ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
-        });
+                StartNewProjectOnboarding deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), StartNewProjectOnboarding.class);
+                ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
+            });
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -71,10 +72,13 @@ public class PermissionDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener4() {
         CommonDomainRegistry.getEventStreamService()
-            .subscribe(appName, true, "permission_" + SECURE_ENDPOINT_REMOVED + "_handler", (event) -> {
-                SecureEndpointRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), SecureEndpointRemoved.class);
-                ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
-            }, SECURE_ENDPOINT_REMOVED);
+            .subscribe(appName, true, "permission_" + SECURE_ENDPOINT_REMOVED + "_handler",
+                (event) -> {
+                    SecureEndpointRemoved deserialize =
+                        CommonDomainRegistry.getCustomObjectSerializer()
+                            .deserialize(event.getEventBody(), SecureEndpointRemoved.class);
+                    ApplicationServiceRegistry.getPermissionApplicationService()
+                        .handle(deserialize);
+                }, SECURE_ENDPOINT_REMOVED);
     }
 }

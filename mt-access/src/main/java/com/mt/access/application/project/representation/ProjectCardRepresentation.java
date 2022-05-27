@@ -28,7 +28,8 @@ public class ProjectCardRepresentation {
         Set<UserId> collect = sumPagedRep.getData().stream().map(e -> new UserId(e.getCreatedBy()))
             .collect(Collectors.toSet());
         Set<User> users = ApplicationServiceRegistry.getUserApplicationService().users(collect);
-        sumPagedRep.getData().forEach(e -> users.stream().filter(ee -> ee.getUserId().getDomainId().equals(e.getCreatedBy()))
-            .findAny().ifPresent(ee -> e.setCreatorName(ee.getDisplayName())));
+        sumPagedRep.getData().forEach(
+            e -> users.stream().filter(ee -> ee.getUserId().getDomainId().equals(e.getCreatedBy()))
+                .findAny().ifPresent(ee -> e.setCreatorName(ee.getDisplayName())));
     }
 }

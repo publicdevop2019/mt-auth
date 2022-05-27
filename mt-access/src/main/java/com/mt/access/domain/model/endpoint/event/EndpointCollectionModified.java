@@ -2,6 +2,7 @@ package com.mt.access.domain.model.endpoint.event;
 
 import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+
 @AuditEvent
 public class EndpointCollectionModified extends DomainEvent {
 

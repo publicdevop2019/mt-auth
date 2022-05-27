@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
 @Slf4j
 @RestController
 @RequestMapping(produces = "application/json")
@@ -67,7 +68,7 @@ public class UtilityResource {
      */
     @GetMapping(path = "health")
     public ResponseEntity<Void> healthCheck() {
-        log.debug("health check triggered");
+        log.trace("health check triggered");
         return ResponseEntity.ok().build();
     }
 }

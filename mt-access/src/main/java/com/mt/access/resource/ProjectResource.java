@@ -15,6 +15,8 @@ import com.mt.access.application.project.representation.ProjectRepresentation;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -56,8 +58,9 @@ public class ProjectResource {
     ) {
         JwtCurrentUserService.JwtThreadLocal.unset();
         JwtCurrentUserService.JwtThreadLocal.set(jwt);
-        SumPagedRep<Project> queryProjects = ApplicationServiceRegistry.getProjectApplicationService()
-            .adminQueryProjects(queryParam, pageParam, skipCount);
+        SumPagedRep<Project> queryProjects =
+            ApplicationServiceRegistry.getProjectApplicationService()
+                .adminQueryProjects(queryParam, pageParam, skipCount);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
         ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);
@@ -90,6 +93,27 @@ public class ProjectResource {
             ApplicationServiceRegistry.getProjectApplicationService().project(id);
         return client.map(value -> ResponseEntity.ok(new ProjectRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
+    }
+
+    /**
+     * api to check if project created successfully.
+     *
+     * @param id  project id
+     * @param jwt user jwt token
+     * @return project creation status
+     */
+    @GetMapping("projects/{id}/ready")
+    public ResponseEntity<Map<String, Boolean>> checkIfProjectReady(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        JwtCurrentUserService.JwtThreadLocal.unset();
+        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        boolean b =
+            ApplicationServiceRegistry.getUserRelationApplicationService().projectRelationExist(id);
+        Map<String, Boolean> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put("status", b);
+        return ResponseEntity.ok(objectObjectHashMap);
     }
 
 

@@ -14,7 +14,8 @@ public class UiPermissionInfo {
 
     public UiPermissionInfo(Set<Permission> ui) {
         Set<ProjectId> collect =
-            ui.stream().map(Permission::getTenantId).filter(Objects::nonNull).collect(Collectors.toSet());
+            ui.stream().map(Permission::getTenantId).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
         projectPermissionInfo = collect.stream().map(e -> {
             Set<Permission> collect1 =
                 ui.stream().filter(ee -> ee.getTenantId().equals(e)).collect(Collectors.toSet());

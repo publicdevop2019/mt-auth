@@ -2,7 +2,6 @@ package com.mt.common.domain.model.event;
 
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.domain_id.DomainId;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.Getter;
@@ -37,6 +36,6 @@ public class MallNotificationEvent extends DomainEvent {
     }
 
     public void setOrderId(String orderId) {
-//        setDomainId(new DomainId(orderId));
+    //setDomainId(new DomainId(orderId));
     }
 }

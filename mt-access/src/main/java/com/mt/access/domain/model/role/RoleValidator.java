@@ -35,7 +35,8 @@ public class RoleValidator {
                     new PermissionQuery(permissionIds, type));
             if (log.isDebugEnabled() && allByQuery.size() != permissionIds.size()) {
                 Set<PermissionId> collect =
-                    allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet());
+                    allByQuery.stream().map(Permission::getPermissionId)
+                        .collect(Collectors.toSet());
                 Set<PermissionId> collect1 =
                     permissionIds.stream().filter(e -> !collect.contains(e))
                         .collect(Collectors.toSet());

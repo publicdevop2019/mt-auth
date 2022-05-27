@@ -102,6 +102,9 @@ export class HttpProxyService {
     getRegistryStatus() {
         return this._httpClient.get<IRegistryInstance[]>(environment.serverUri + this.AUTH_SVC_NAME + '/registry')
     }
+    checkPorjectReady(projectId: string) {
+        return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
+    }
     getJobStatus() {
         return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
     }
@@ -139,6 +142,9 @@ export class HttpProxyService {
             });
         })
     };
+    dismissNotification(id: string) {
+        return this._httpClient.post(environment.serverUri + `/auth-svc/mngmt/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
+    }
     getAvatar() {
         return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };
@@ -371,9 +377,14 @@ export class HttpProxyService {
         re.push(startAt)
         return re;
     }
-    createEntity(entityRepo: string, entity: any, changeId: string): Observable<string> {
+    createEntity(entityRepo: string, entity: any, changeId: string, headers?: { [key: string]: string }): Observable<string> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
+        if(headers){
+            Object.keys(headers).forEach(key => {
+                headerConfig = headerConfig.set(key, headers[key])
+            })
+        }
         return new Observable<string>(e => {
             this._httpClient.post(entityRepo, entity, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));

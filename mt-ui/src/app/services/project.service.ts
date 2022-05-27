@@ -37,7 +37,10 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
     return this.httpProxySvc.getUIPermission()
   };
   create(s: IProjectSimple, changeId: string) {
-    return this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId)
+    return this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId,{ 'loading': 'false' })
+  };
+  ready(projectId: string) {
+    return this.httpProxySvc.checkPorjectReady(projectId)
   };
   getMyProject(projectId: string) {
     return this.httpProxySvc.readEntityById<IProjectSimple>(environment.serverUri + '/auth-svc/projects', projectId)

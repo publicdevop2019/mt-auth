@@ -28,6 +28,13 @@ export class NavBarComponent implements OnInit {
   mobileQuery: MediaQueryList;
   menuAuthMangement: INavElement[] = [
     {
+      link: 'message-center',
+      display: 'MESSAGE_DASHBOARD',
+      icon: 'message',
+      params: {
+      },
+    },
+    {
       link: 'registry',
       display: 'REGISTRY_STATUS',
       icon: 'receipt',
@@ -105,12 +112,13 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'message-center',
-      display: 'MESSAGE_DASHBOARD',
-      icon: 'message',
+      link: 'sys-message-center',
+      display: 'SYSTEM_MESSAGE_DASHBOARD',
+      icon: 'email',
       params: {
       },
     },
+
   ];
   menuAuth: INavElement[] = [
     {
@@ -251,6 +259,7 @@ export class NavBarComponent implements OnInit {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
     })
     this.msgSvc.connectToMonitor();
+    this.msgSvc.pullUnAckMessage()
     this.authSvc.currentUser.subscribe(next => {
       this.name = next.username || next.email
     })

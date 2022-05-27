@@ -6,9 +6,8 @@ import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.client.RedirectUrl;
 import com.mt.access.domain.model.cors_profile.Origin;
-import com.mt.access.domain.model.email_delivery.CoolDownException;
-import com.mt.access.domain.model.email_delivery.GmailDeliveryException;
-import com.mt.access.domain.model.email_delivery.UnknownBizTypeException;
+import com.mt.access.domain.model.operation_cool_down.OperationNotCoolDownException;
+import com.mt.access.domain.model.notification.EmailNotificationException;
 import com.mt.access.domain.model.image.FileUploadException;
 import com.mt.common.domain.model.logging.ErrorMessage;
 import org.springframework.core.Ordered;
@@ -42,8 +41,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         RedirectUrl.InvalidRedirectUrlException.class,
         Origin.InvalidOriginValueException.class,
         DataIntegrityViolationException.class,
-        CoolDownException.class,
-        UnknownBizTypeException.class,
+        OperationNotCoolDownException.class,
         IllegalStateException.class,
         FileUploadException.class
     })
@@ -71,7 +69,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(value = {
-        GmailDeliveryException.class,
+        EmailNotificationException.class,
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),

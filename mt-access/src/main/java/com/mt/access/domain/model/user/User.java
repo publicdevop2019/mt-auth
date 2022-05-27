@@ -4,7 +4,6 @@ import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.access.domain.model.user.event.UserUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
@@ -15,7 +14,6 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.PreUpdate;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -121,11 +119,6 @@ public class User extends Auditable {
         }
         CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
-    }
-
-    @PreUpdate
-    private void preUpdate() {
-        CommonDomainRegistry.getDomainEventRepository().append(new UserUpdated(getUserId()));
     }
 
     @Override

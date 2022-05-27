@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MfaService {
-    public boolean isMFARequired(UserId userId, UserSession userSession) {
+    public boolean isMfaRequired(UserId userId, UserSession userSession) {
         Set<LoginHistory> loginHistorySet =
             DomainRegistry.getLoginHistoryRepository().getLast100Login(userId);
         Map<String, Integer> ipCount = new HashMap<>();

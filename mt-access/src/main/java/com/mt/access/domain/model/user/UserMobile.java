@@ -44,7 +44,8 @@ public class UserMobile implements Serializable {
             return false;
         }
         UserMobile that = (UserMobile) o;
-        return Objects.equals(countryCode, that.countryCode) &&
+        return Objects.equals(countryCode, that.countryCode)
+            &&
             Objects.equals(mobileNumber, that.mobileNumber);
     }
 

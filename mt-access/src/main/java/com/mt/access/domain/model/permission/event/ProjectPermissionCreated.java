@@ -3,11 +3,9 @@ package com.mt.access.domain.model.permission.event;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
