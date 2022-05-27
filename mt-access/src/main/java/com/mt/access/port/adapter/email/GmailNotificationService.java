@@ -13,8 +13,6 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.DefaultResourceLoader;
-import org.springframework.core.io.Resource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -35,15 +33,8 @@ public class GmailNotificationService implements EmailNotificationService {
         MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage);
         Template t;
         Configuration freemarkerConfiguration = new Configuration(Configuration.VERSION_2_3_28);
-        File file;
         try {
-            file = ResourceUtils.getFile("classpath:email/templates");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("unable find email templates");
-        }
-        try {
-            freemarkerConfiguration.setDirectoryForTemplateLoading(file);
+            freemarkerConfiguration.setClassForTemplateLoading(this.getClass(), "/email/templates");
             t = freemarkerConfiguration.getTemplate(templateUrl);
             String text = FreeMarkerTemplateUtils.processTemplateIntoString(t, model);
             mimeMessageHelper.setTo(deliverTo);
