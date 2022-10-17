@@ -37,6 +37,9 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   }
   private count: number = 1;
   create(): void {
+    if(!this.fis.formGroupCollection[this.formId].get('projectName')){
+      return;
+    }
     this.createLoading=true;
     this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next => {
       let pull = setInterval(() => {

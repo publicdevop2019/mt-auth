@@ -11,5 +11,10 @@ export class WelcomeComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
+  openGit(){
+    window.open('./docs', '_blank').focus();
+  }
+  openGitee(){
+    window.open('./docs', '_blank').focus();
+  }
 }

@@ -146,11 +146,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         log.debug("publish next event id {} with routing key {}", event.getId(), routingKey);
         try (Channel channel = connectionPub.createChannel()) {
             checkExchange(channel);
+            channel.confirmSelect();
             channel.basicPublish(EXCHANGE_NAME, routingKey,
                 null,
                 CommonDomainRegistry.getCustomObjectSerializer().serialize(event)
                     .getBytes(StandardCharsets.UTF_8));
-        } catch (IOException | TimeoutException e) {
+            channel.waitForConfirmsOrDie(5_000);
+        } catch (IOException | TimeoutException | InterruptedException e) {
             log.error("unable to publish message to rabbitmq", e);
         }
     }

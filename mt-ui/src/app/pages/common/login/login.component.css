@@ -1,12 +1,23 @@
 .body-container {
   display: flex;
   flex-direction: column;
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  }
+  justify-content: center;
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.app-header{
+  display: flex;
+  justify-content: space-between;
+  margin: 16px 32px 0px 32px;
+  align-items: baseline;
+}
+.app-body{
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin: 200px 32px 48px 32px;
+}
 .form-body {
   display: flex;
   flex-direction: column;
@@ -14,6 +25,7 @@
 @media only screen and (max-width: 1067px) {
   .app-body {
     margin-top: 48px !important;
+    justify-content: center;
   }
   .app-msg {
     margin-bottom: 48px !important;
@@ -59,27 +71,17 @@ input.example-right-align {
   max-width: 700px;
   font-size: 14px;
 }
-.app-body{
-  display: flex;
-  justify-content: center;
-  margin-top: 240px;
-  flex-wrap: wrap;
-}
-.app-header{
-  display: flex;
-  justify-content: space-between;
-  margin: 12px 100px 0px 100px;
-  align-items: baseline;
-}
+
 .app-name{
   font-weight: 600;
 }
 .app-msg-body{
-  margin: 0px 0px 0px 24px;
+  margin: 0px 24px;
 }
 .register-email{
   display: flex;
   align-items: center;
+  margin-top: 8px;
 }
 .register-email-btn{
   margin-left: 12px;

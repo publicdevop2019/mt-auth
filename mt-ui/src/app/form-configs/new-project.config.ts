@@ -6,7 +6,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
-            "label": "NAME",
+            "label": "PLS_ENTER_PROJECT_NAME",
             "key": "projectName",
             "position": {
                 "row": "0",
