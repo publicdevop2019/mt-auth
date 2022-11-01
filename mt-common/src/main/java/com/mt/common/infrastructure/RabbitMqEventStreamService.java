@@ -12,12 +12,17 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -25,35 +30,69 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMqEventStreamService implements SagaEventStreamService {
 
+    public static final Map<Thread, Channel> pubChannel = new HashMap<>();
+    public static final Map<Thread, Channel> subChannel = new HashMap<>();
     private final boolean autoAck = false;
     @Value("${spring.application.name}")
     private String appName;
     @Resource
     private Environment env;
-    private Connection connectionPub;
-    private Connection connectionSub;
+    private final Connection connectionPub;
+    private final Connection connectionSub;
 
     public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
-        log.debug("start of configure rabbitmq with url {}", url);
+        log.debug("initializing event stream service with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(url);
         try {
-            connectionPub = factory.newConnection();
             connectionSub = factory.newConnection();
         } catch (IOException | TimeoutException e) {
-            log.error("unable to publish message to rabbitmq", e);
-            try {
-                connectionPub.close();
-            } catch (IOException ex) {
-                log.error("error during close pub connection", ex);
-            }
+            log.error("unable to create subscribe connection", e);
+            throw new EventStreamException();
+        }
+        try {
+            connectionPub = factory.newConnection();
+        } catch (IOException | TimeoutException e) {
+            log.error("unable to create publish connection", e);
             try {
                 connectionSub.close();
             } catch (IOException ex) {
-                log.error("error during close sub connection", ex);
+                log.error("error during close subscribe connection", ex);
             }
+            throw new EventStreamException();
         }
-        log.debug("end of configure rabbitmq");
+        log.debug("event stream service initialize success");
+    }
+
+    /**
+     * release resource
+     */
+    public void releaseResource() {
+        log.info("closing event stream resource");
+        try {
+            connectionSub.close();
+        } catch (IOException ex) {
+            log.error("error during close subscribe connection", ex);
+        }
+        try {
+            connectionPub.close();
+        } catch (IOException ex) {
+            log.error("error during close publish connection", ex);
+        }
+        subChannel.values().forEach(e -> {
+            try {
+                e.close();
+            } catch (TimeoutException | IOException ex) {
+                log.error("error during close subscribe channel", ex);
+            }
+        });
+        pubChannel.values().forEach(e -> {
+            try {
+                e.close();
+            } catch (TimeoutException | IOException ex) {
+                log.error("error during close subscribe channel", ex);
+            }
+        });
     }
 
     @Override
@@ -78,8 +117,20 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }
             queueName = Long.toString(id, 36) + "_" + s;
         }
+        Thread thread = Thread.currentThread();
+        Channel channel = subChannel.get(thread);
+        if (channel == null) {
+            try {
+                channel = connectionSub.createChannel();
+            } catch (IOException e) {
+                log.error(
+                    "unable create subscribe channel for {} with routing key {} and queue name {}",
+                    subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+                throw new EventStreamException();
+            }
+            subChannel.put(thread, channel);
+        }
         try {
-            Channel channel = connectionSub.createChannel();
             channel.queueDeclare(queueName, true, false, autoDelete, null);
             //@todo find out proper prefetch value, this requires test in prod env
             channel.basicQos(10);
@@ -87,6 +138,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             for (String topic : topics) {
                 channel.queueBind(queueName, EXCHANGE_NAME, routingKeyWithoutTopic + topic);
             }
+        } catch (IOException e) {
+            log.error("unable create queue for {} with routing key {} and queue name {}",
+                subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+            throw new EventStreamException();
+        }
+        Channel finalChannel = channel;
+        try {
             channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
                 log.trace("mq message received");
                 String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
@@ -98,7 +156,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 try {
                     consumer.accept(event);
                     long deliveryTag = delivery.getEnvelope().getDeliveryTag();
-                    channel.basicAck(deliveryTag, false);
+                    finalChannel.basicAck(deliveryTag, false);
                 } catch (Exception ex) {
                     log.error("error during consume, catch error to maintain connection", ex);
                 }
@@ -106,8 +164,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }, consumerTag -> {
             });
         } catch (IOException e) {
-            log.error("unable create queue for {} with routing key {} and queue name {}",
+            log.error("unable consume message for {} with routing key {} and queue name {}",
                 subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+            throw new EventStreamException();
         }
     }
 
@@ -144,7 +203,20 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     public void next(String appName, boolean internal, String topic, StoredEvent event) {
         String routingKey = appName + "." + (internal ? "internal" : "external") + "." + topic;
         log.debug("publish next event id {} with routing key {}", event.getId(), routingKey);
-        try (Channel channel = connectionPub.createChannel()) {
+        Thread thread = Thread.currentThread();
+
+        Channel channel = pubChannel.get(thread);
+        if (channel == null) {
+            try {
+                channel = connectionPub.createChannel();
+            } catch (IOException e) {
+                log.error("unable create channel for {} with routing key {}",
+                    appName, routingKey, e);
+                throw new EventStreamException();
+            }
+            pubChannel.put(thread, channel);
+        }
+        try {
             checkExchange(channel);
             channel.confirmSelect();
             channel.basicPublish(EXCHANGE_NAME, routingKey,
@@ -153,7 +225,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     .getBytes(StandardCharsets.UTF_8));
             channel.waitForConfirmsOrDie(5_000);
         } catch (IOException | TimeoutException | InterruptedException e) {
-            log.error("unable to publish message to rabbitmq", e);
+            log.error("unable publish message for {} with routing key {}",
+                appName, routingKey, e);
+            throw new EventStreamException();
         }
     }
 
@@ -162,7 +236,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         next(appName, event.isInternal(), event.getTopic(), event);
     }
 
+
     private void checkExchange(Channel channel) throws IOException {
         channel.exchangeDeclare(EXCHANGE_NAME, "topic");
+    }
+
+    private static class EventStreamException extends RuntimeException {
     }
 }

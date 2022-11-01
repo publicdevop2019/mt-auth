@@ -3,7 +3,7 @@ package com.mt.access.application.cross_domain_validation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResult;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.infrastructure.CleanUpThreadPoolExecutor;
+import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Service
 public class CrossDomainValidationApplicationService {
     @Autowired
-    CleanUpThreadPoolExecutor taskExecutor;
+    CustomThreadPoolExecutor taskExecutor;
     @Autowired
     private PlatformTransactionManager transactionManager;
 

@@ -12,6 +12,7 @@ import com.mt.access.application.organization.command.OrganizationCreateCommand;
 import com.mt.access.application.organization.command.OrganizationUpdateCommand;
 import com.mt.access.application.organization.representation.OrganizationCardRepresentation;
 import com.mt.access.application.organization.representation.OrganizationRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.Organization;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -40,8 +41,7 @@ public class OrganizationResource {
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                   String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getOrganizationApplicationService()
                 .create(command, changeId)).build();
@@ -54,8 +54,7 @@ public class OrganizationResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Organization> clients =
             ApplicationServiceRegistry.getOrganizationApplicationService()
                 .query(queryParam, pageParam, skipCount);
@@ -66,8 +65,7 @@ public class OrganizationResource {
     public ResponseEntity<OrganizationRepresentation> readForRootById(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Organization> client =
             ApplicationServiceRegistry.getOrganizationApplicationService().getById(id);
         return client.map(value -> ResponseEntity.ok(new OrganizationRepresentation(value)))
@@ -81,8 +79,7 @@ public class OrganizationResource {
                                                        String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                        String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService()
             .replace(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -94,8 +91,7 @@ public class OrganizationResource {
                                                       String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                       String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
@@ -107,8 +103,7 @@ public class OrganizationResource {
                                                      String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                      String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -107,7 +107,7 @@ public class CrossDomainValidationService {
         DomainRegistry.getValidationResultRepository().add(validationResult);
         CommonApplicationServiceRegistry.getJobApplicationService()
             .createOrUpdateJob(JobDetail.dataValidation());
-        log.debug("end of validation existing data");
+        log.debug("end of validate existing data");
     }
 
     /**

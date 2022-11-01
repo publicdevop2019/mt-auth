@@ -13,36 +13,58 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 @Service
 public class JwtCurrentUserService implements CurrentUserService {
 
+    @Autowired
+    private UserJwt userJwt;
+
+    /**
+     * debug usage
+     * userJwt.value will not work due to spring unable to inject value.
+     * @return raw jwt
+     */
+    public String getRawJwt(){
+        return userJwt.get();
+    }
     @Override
     public Set<String> userPermissionIds() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         List<String> permissionIds = JwtUtility.getPermissionIds(jwt);
         return new HashSet<>(permissionIds);
     }
 
-
     @Override
     public boolean isClient() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         return JwtUtility.getUserId(jwt) == null && JwtUtility.getClientId(jwt) != null;
     }
 
     @Override
     public boolean isUser() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         return JwtUtility.getUserId(jwt) != null;
     }
 
     @Override
+    public void setUser(Object jwt) {
+        userJwt.setValue((String) jwt);
+    }
+
+    @Override
     public Authentication getAuthentication() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         try {
             Collection<? extends GrantedAuthority> au =
                 JwtUtility.getPermissionIds(jwt).stream().map(e -> (GrantedAuthority) () -> e)
@@ -57,19 +79,19 @@ public class JwtCurrentUserService implements CurrentUserService {
 
     @Override
     public UserId getUserId() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         return new UserId(JwtUtility.getUserId(jwt));
     }
 
     @Override
     public ClientId getClientId() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         return new ClientId(JwtUtility.getClientId(jwt));
     }
 
     @Override
     public Set<ProjectId> getTenantIds() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         List<String> ids = JwtUtility.getField("tenantId", jwt);
         return ids == null ? Collections.emptySet() :
             ids.stream().map(ProjectId::new).collect(Collectors.toSet());
@@ -77,25 +99,15 @@ public class JwtCurrentUserService implements CurrentUserService {
 
     @Override
     public Set<PermissionId> getPermissionIds() {
-        String jwt = JwtThreadLocal.get();
+        String jwt = userJwt.get();
         List<String> permissionIds = JwtUtility.getPermissionIds(jwt);
         return permissionIds.stream().map(PermissionId::new).collect(Collectors.toSet());
     }
 
-    public static class JwtThreadLocal {
-        public static final ThreadLocal<String> jwtThreadLocal = new ThreadLocal<>();
-
-        public static void set(String user) {
-            jwtThreadLocal.set(user);
-        }
-
-        public static void unset() {
-            jwtThreadLocal.remove();
-        }
-
-        public static String get() {
-            return jwtThreadLocal.get();
-        }
+    @Bean
+    @RequestScope
+    public UserJwt userJwt() {
+        return new UserJwt();
     }
 
     private static class MyAuthentication implements Authentication, Serializable {
@@ -124,7 +136,7 @@ public class JwtCurrentUserService implements CurrentUserService {
 
         /**
          * required for authorization code flow.
-         * */
+         */
         @Override
         public Object getPrincipal() {
             return userId;
@@ -145,4 +157,20 @@ public class JwtCurrentUserService implements CurrentUserService {
             return null;
         }
     }
+
+    @Getter
+    @Setter
+    @Slf4j
+    private static class UserJwt {
+        private String value;
+
+        public UserJwt() {
+            log.debug("creating new UserJwt");
+        }
+
+        public String get() {
+            return value;
+        }
+    }
+
 }

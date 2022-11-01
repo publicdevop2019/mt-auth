@@ -9,6 +9,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.revoke_token.RevokeTokenCardRepresentation;
 import com.mt.access.application.revoke_token.RevokeTokenCreateCommand;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -30,8 +31,7 @@ public class RevokeTokenResource {
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                   String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getRevokeTokenApplicationService().create(command, changeId);
         return ResponseEntity.ok().build();
     }

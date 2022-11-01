@@ -13,6 +13,7 @@ import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.application.permission.representation.PermissionCardRepresentation;
 import com.mt.access.application.permission.representation.PermissionRepresentation;
 import com.mt.access.application.permission.representation.UiPermissionInfo;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
@@ -45,8 +46,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getPermissionApplicationService().create(command, changeId))
@@ -61,8 +61,7 @@ public class PermissionResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
@@ -77,8 +76,7 @@ public class PermissionResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .sharedPermissions(queryParam, pageParam);
@@ -91,8 +89,7 @@ public class PermissionResource {
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Permission> client =
             ApplicationServiceRegistry.getPermissionApplicationService().getById(projectId, id);
         return client.map(value -> ResponseEntity.ok(new PermissionRepresentation(value)))
@@ -107,8 +104,7 @@ public class PermissionResource {
                                                        String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                        String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getPermissionApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -121,8 +117,7 @@ public class PermissionResource {
                                                       String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                       String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
             .remove(projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -131,8 +126,7 @@ public class PermissionResource {
     @GetMapping(path = "permissions/ui")
     public ResponseEntity<UiPermissionInfo> getPermission(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Set<Permission> ui = ApplicationServiceRegistry.getPermissionApplicationService().ui();
         return ResponseEntity.ok(new UiPermissionInfo(ui));
     }
@@ -146,8 +140,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
             .patch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();

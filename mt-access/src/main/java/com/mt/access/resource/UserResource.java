@@ -19,6 +19,7 @@ import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.application.user_relation.UpdateUserRelationCommand;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.user.User;
@@ -28,6 +29,8 @@ import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.List;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -42,7 +45,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
+@Slf4j
 @RestController
 @RequestMapping(produces = "application/json")
 public class UserResource {
@@ -90,8 +93,7 @@ public class UserResource {
                                                @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
                                                @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                    String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().adminLock(id, command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -111,8 +113,7 @@ public class UserResource {
                                                       String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                       String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -130,8 +131,7 @@ public class UserResource {
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                   String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updatePassword(command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -165,21 +165,18 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
-
     @GetMapping(path = "projects/{projectId}/users/{id}")
     public ResponseEntity<UserTenantRepresentation> findUserForProject2(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserTenantRepresentation> user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
                 .tenantUserDetail(projectId, id);
@@ -195,8 +192,7 @@ public class UserResource {
     @GetMapping(path = "users/profile")
     public ResponseEntity<UserProfileRepresentation> getMyProfile(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserProfileRepresentation> user =
             ApplicationServiceRegistry.getUserApplicationService().myProfile();
         return user.map(ResponseEntity::ok)
@@ -212,8 +208,7 @@ public class UserResource {
     @GetMapping(path = "users/profile/avatar")
     public ResponseEntity<byte[]> getMyProfileAvatar(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Image> avatar =
             ApplicationServiceRegistry.getUserApplicationService().profileAvatar();
         return avatar.map(e -> {
@@ -237,8 +232,7 @@ public class UserResource {
         @RequestParam("file") MultipartFile file,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ImageId imageId = ApplicationServiceRegistry.getUserApplicationService()
             .createProfileAvatar(file, changeId);
         return ResponseEntity.ok().header(LOCATION, imageId.getDomainId()).build();
@@ -256,8 +250,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestBody UserUpdateProfileCommand command
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updateProfile(command);
         return ResponseEntity.ok().build();
     }
@@ -278,8 +271,7 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestBody UpdateUserRelationCommand command
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .update(projectId, id, command);
         return ResponseEntity.ok().build();

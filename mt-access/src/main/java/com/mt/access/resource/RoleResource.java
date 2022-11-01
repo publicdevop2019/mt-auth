@@ -12,6 +12,7 @@ import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.application.role.representation.RoleCardRepresentation;
 import com.mt.access.application.role.representation.RoleRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
@@ -43,8 +44,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getRoleApplicationService().create(command, changeId))
@@ -59,8 +59,7 @@ public class RoleResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<Role> clients = ApplicationServiceRegistry.getRoleApplicationService()
             .getByQuery(queryParam, pageParam, skipCount);
@@ -74,8 +73,7 @@ public class RoleResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Role> client =
             ApplicationServiceRegistry.getRoleApplicationService().getById(projectId, id);
         return client.map(value -> ResponseEntity.ok(new RoleRepresentation(value)))
@@ -90,8 +88,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getRoleApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -106,8 +103,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getRoleApplicationService()
             .patch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
@@ -120,8 +116,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getRoleApplicationService().remove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }

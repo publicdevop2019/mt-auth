@@ -3,6 +3,7 @@ package com.mt.access.resource;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,8 +26,7 @@ public class AuthorizeCodeResource {
     @PostMapping("/authorize")
     public Map<String, String> authorize(@RequestParam Map<String, String> parameters,
                                          @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ApplicationServiceRegistry.getAuthorizeCodeApplicationService()
             .authorize(parameters);
     }

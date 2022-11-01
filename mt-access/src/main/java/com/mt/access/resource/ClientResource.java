@@ -15,6 +15,7 @@ import com.mt.access.application.client.representation.ClientAutoApproveRepresen
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientProxyRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -44,8 +45,7 @@ public class ClientResource {
         @RequestBody ClientCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getClientApplicationService()
@@ -60,8 +60,7 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String projectId
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
             .tenantQuery(queryParam, pageParam, skipCount);
@@ -78,8 +77,7 @@ public class ClientResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
             .adminQuery(queryParam, pageParam, skipCount);
         SumPagedRep<ClientCardRepresentation> rep =
@@ -93,8 +91,7 @@ public class ClientResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION)
             String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
         return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value)))
@@ -119,8 +116,7 @@ public class ClientResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION)
             String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().tenantQuery(id, projectId);
         return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value)))
@@ -135,8 +131,7 @@ public class ClientResource {
                                                        String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                        String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantReplace(id, command, changeId);
@@ -150,8 +145,7 @@ public class ClientResource {
                                                       String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                       String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -166,8 +160,7 @@ public class ClientResource {
                                                      String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                      String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .patch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
@@ -178,8 +171,7 @@ public class ClientResource {
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId, id);
         return client.map(value -> ResponseEntity.ok(new ClientAutoApproveRepresentation(value)))

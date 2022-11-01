@@ -15,6 +15,7 @@ import com.mt.access.application.endpoint.representation.EndpointCardRepresentat
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -42,8 +43,7 @@ public class EndpointResource {
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                   String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .create(projectId, command, changeId)).build();
@@ -60,8 +60,7 @@ public class EndpointResource {
             String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false)
             String config) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantQuery(queryParam, pageParam, config);
@@ -77,8 +76,7 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
             .adminQuery(queryParam, pageParam, config);
         SumPagedRep<EndpointCardRepresentation> endpointCardRepresentationSumPagedRep =
@@ -91,8 +89,7 @@ public class EndpointResource {
     public ResponseEntity<EndpointRepresentation> readForRootByQuery3(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Endpoint> endpoint =
             ApplicationServiceRegistry.getEndpointApplicationService().adminEndpoint(id);
         return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
@@ -104,7 +101,6 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
         SumPagedRep<EndpointProxyCardRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .internalQuery(queryParam, pageParam, config);
@@ -115,8 +111,7 @@ public class EndpointResource {
     public ResponseEntity<EndpointRepresentation> readForRootById(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
         @PathVariable String id) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Endpoint> endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantEndpoint(projectId, id);
         return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
@@ -129,8 +124,7 @@ public class EndpointResource {
         @RequestBody EndpointUpdateCommand command,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getEndpointApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -140,8 +134,7 @@ public class EndpointResource {
     public ResponseEntity<Void> deleteForRootById(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
         @PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .removeEndpoint(projectId, id, changeId);
         return ResponseEntity.ok().build();
@@ -152,8 +145,7 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .removeEndpoints(projectId, queryParam, changeId);
         return ResponseEntity.ok().build();
@@ -166,8 +158,7 @@ public class EndpointResource {
         @PathVariable(name = "id") String id,
         @RequestBody JsonPatch patch,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .patchEndpoint(projectId, id, patch, changeId);
         return ResponseEntity.ok().build();
@@ -175,7 +166,6 @@ public class EndpointResource {
 
     @PostMapping(path = "mngmt/endpoints/event/reload")
     public ResponseEntity<Void> postForRoot(@RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
         ApplicationServiceRegistry.getEndpointApplicationService().reloadEndpointCache(changeId);
         return ResponseEntity.ok().build();
     }
@@ -185,7 +175,6 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
         SumPagedRep<Endpoint> shared = ApplicationServiceRegistry.getEndpointApplicationService()
             .getShared(queryParam, pageParam, config);
         SumPagedRep<EndpointSharedCardRepresentation> rep =

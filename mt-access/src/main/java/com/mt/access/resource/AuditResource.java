@@ -6,6 +6,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.application.domain_event.StoredEventRepresentation;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -29,8 +30,7 @@ public class AuditResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok(ApplicationServiceRegistry.getAuditApplicationService()
             .auditEvents(queryParam, pageParam, skipCount));
     }

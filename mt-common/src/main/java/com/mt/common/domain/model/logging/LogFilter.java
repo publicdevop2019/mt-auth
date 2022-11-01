@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.logging;
 
 import java.io.IOException;
-import java.util.UUID;
 import javax.servlet.FilterChain;
 import javax.servlet.GenericFilter;
 import javax.servlet.ServletException;
@@ -15,8 +14,9 @@ import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
-
-//set UUID & CLIENT_IP for logging purpose,
+/**
+ * set UUID & CLIENT_IP for logging purpose.
+ */
 @Component
 @Slf4j
 @Order(Ordered.HIGHEST_PRECEDENCE)
@@ -41,9 +41,17 @@ public class LogFilter extends GenericFilter {
         } else {
             MDC.put(CLIENT_IP, servletRequest.getRemoteAddr());
         }
-        filterChain.doFilter(servletRequest, servletResponse);
+        String mdcUuid = MDC.get(UUID);
+        try {
+            filterChain.doFilter(servletRequest, servletResponse);
+        }finally {
+            //MDC is based on ThreadLocal, it has potential data leak & memory leak
+            //problem, which requires to clear it after work finish including exceptions
+            MDC.clear();
+        }
         HttpServletResponse httpResponse = (HttpServletResponse) servletResponse;
-        httpResponse.setHeader(UUID, MDC.get(UUID));
-        MDC.clear();
+        if (httpResponse.getHeader(UUID) == null) {
+            httpResponse.setHeader(UUID, mdcUuid);
+        }
     }
 }

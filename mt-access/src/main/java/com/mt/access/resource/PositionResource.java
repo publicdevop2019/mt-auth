@@ -12,6 +12,7 @@ import com.mt.access.application.position.command.PositionCreateCommand;
 import com.mt.access.application.position.command.PositionUpdateCommand;
 import com.mt.access.application.position.representation.PositionCardRepresentation;
 import com.mt.access.application.position.representation.PositionRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.position.Position;
 import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -40,8 +41,7 @@ public class PositionResource {
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                   String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getPositionApplicationService().create(command, changeId))
             .build();
@@ -54,8 +54,7 @@ public class PositionResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Position> clients = ApplicationServiceRegistry.getPositionApplicationService()
             .query(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, PositionCardRepresentation::new));
@@ -66,8 +65,7 @@ public class PositionResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Position> client =
             ApplicationServiceRegistry.getPositionApplicationService().getById(id);
         return client.map(value -> ResponseEntity.ok(new PositionRepresentation(value)))
@@ -81,8 +79,7 @@ public class PositionResource {
                                                        String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                        String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -93,8 +90,7 @@ public class PositionResource {
                                                       String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                       String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
@@ -106,8 +102,7 @@ public class PositionResource {
                                                      String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                      String jwt) {
-        JwtCurrentUserService.JwtThreadLocal.unset();
-        JwtCurrentUserService.JwtThreadLocal.set(jwt);
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
