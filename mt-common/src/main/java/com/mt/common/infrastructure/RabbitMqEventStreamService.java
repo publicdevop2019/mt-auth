@@ -8,21 +8,21 @@ import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -33,12 +33,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
     private final boolean autoAck = false;
+    private final Connection connectionPub;
+    private final Connection connectionSub;
+    ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms = new ConcurrentSkipListMap<>();
     @Value("${spring.application.name}")
     private String appName;
     @Resource
     private Environment env;
-    private final Connection connectionPub;
-    private final Connection connectionSub;
 
     public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
         log.debug("initializing event stream service with url {}", url);
@@ -153,12 +154,20 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         .deserialize(s, StoredEvent.class);
                 log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()),
                     event.getId());
+                long deliveryTag = delivery.getEnvelope().getDeliveryTag();
+                boolean consumeSuccess = true;
                 try {
                     consumer.accept(event);
-                    long deliveryTag = delivery.getEnvelope().getDeliveryTag();
-                    finalChannel.basicAck(deliveryTag, false);
                 } catch (Exception ex) {
-                    log.error("error during consume, catch error to maintain connection", ex);
+                    log.error(
+                        "error during consume, catch error to maintain connection, requeue message",
+                        ex);
+                    consumeSuccess = false;
+                }
+                if (consumeSuccess) {
+                    finalChannel.basicAck(deliveryTag, false);
+                } else {
+                    finalChannel.basicNack(deliveryTag, false, true);
                 }
                 log.trace("mq message consumed");
             }, consumerTag -> {
@@ -209,6 +218,52 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         if (channel == null) {
             try {
                 channel = connectionPub.createChannel();
+                //async publish confirm for best performance
+                channel.confirmSelect();
+                ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
+                    Consumer<StoredEvent> markAsSent=(storedEvent)->{
+                        Long id = storedEvent.getId();
+                        log.debug("marking {} event as sent", id);
+                        CommonDomainRegistry.getDomainEventRepository().getById(id).ifPresentOrElse(
+                            StoredEvent::sendToMQ,
+                            () -> log.error("event with id {} not found, which should not happen",
+                                id)
+                        );
+                    };
+                    if (multiple) {
+                        log.debug("ack callback with multiple confirm");
+                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                            outstandingConfirms.headMap(
+                                sequenceNumber, true
+                            );
+                        confirmed.values().forEach(markAsSent);
+                        confirmed.clear();
+                    } else {
+                        log.debug("ack callback with single confirm");
+                        StoredEvent storedEvent = outstandingConfirms.get(sequenceNumber);
+                        markAsSent.accept(storedEvent);
+                        outstandingConfirms.remove(sequenceNumber);
+                    }
+                };
+                //in case of failure, just clear outstandingConfirms and do nothing
+                ConfirmCallback nAckCallback = (sequenceNumber, multiple) -> {
+                    StoredEvent body = outstandingConfirms.get(sequenceNumber);
+                    log.error(
+                        "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
+                        body, sequenceNumber, multiple);
+                    if (multiple) {
+                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                            outstandingConfirms.headMap(
+                                sequenceNumber, true
+                            );
+                        confirmed.clear();
+                    } else {
+                        outstandingConfirms.remove(sequenceNumber);
+                    }
+                };
+                channel.addConfirmListener(
+                    ackCallback,
+                    nAckCallback);
             } catch (IOException e) {
                 log.error("unable create channel for {} with routing key {}",
                     appName, routingKey, e);
@@ -217,14 +272,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             pubChannel.put(thread, channel);
         }
         try {
+            String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
             checkExchange(channel);
-            channel.confirmSelect();
+            outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
             channel.basicPublish(EXCHANGE_NAME, routingKey,
-                null,
-                CommonDomainRegistry.getCustomObjectSerializer().serialize(event)
-                    .getBytes(StandardCharsets.UTF_8));
-            channel.waitForConfirmsOrDie(5_000);
-        } catch (IOException | TimeoutException | InterruptedException e) {
+                null, body.getBytes(StandardCharsets.UTF_8)
+            );
+        } catch (IOException e) {
             log.error("unable publish message for {} with routing key {}",
                 appName, routingKey, e);
             throw new EventStreamException();

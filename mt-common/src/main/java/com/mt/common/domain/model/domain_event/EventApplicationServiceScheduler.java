@@ -39,7 +39,6 @@ public class EventApplicationServiceScheduler {
                         log.trace("publishing event {} with id {}", event.getName(), event.getId());
                         CommonDomainRegistry.getEventStreamService()
                             .next(appName, event.isInternal(), event.getTopic(), event);
-                        event.sendToMQ();
                     }
                     CommonDomainRegistry.getPublishedEventTrackerRepository()
                         .trackMostRecentPublishedNotification(eventTracker, storedEvents);
