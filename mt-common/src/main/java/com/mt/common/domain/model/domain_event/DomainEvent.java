@@ -17,6 +17,7 @@ public class DomainEvent implements Serializable {
     private Long id;
 
     private Long timestamp;
+
     private String name = this.getClass().getName();
 
     private DomainId domainId;

@@ -14,6 +14,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Value;
 
 @Entity
 @Table
@@ -35,6 +36,10 @@ public class StoredEvent implements Serializable {
     private boolean send = false;
     private String topic;
     private String domainId;
+
+    @Value("${spring.application.name}")
+    private String applicationId;
+    private boolean routable = true;
 
     public StoredEvent(DomainEvent event) {
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
@@ -80,5 +85,9 @@ public class StoredEvent implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(eventBody, id, timestamp, name, internal, send, topic, domainId);
+    }
+
+    public void markAsUnroutable() {
+        this.routable = false;
     }
 }

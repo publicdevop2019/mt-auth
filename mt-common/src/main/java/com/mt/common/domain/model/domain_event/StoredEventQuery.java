@@ -18,8 +18,10 @@ import lombok.NoArgsConstructor;
 public class StoredEventQuery extends QueryCriteria {
     public static final String ID = "id";
     public static final String DOMAIN_ID = "domainId";
+    public static final String ROUTABLE = "routable";
     private Set<Long> ids;
     private Boolean send;
+    private Boolean routable;
     private Set<String> domainIds;
     private Set<String> names;
     private DomainEventSort sort;
@@ -54,6 +56,9 @@ public class StoredEventQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             this.ids =
                 Arrays.stream(e.split("\\.")).map(Long::parseLong).collect(Collectors.toSet());
+        });
+        Optional.ofNullable(stringStringMap.get(ROUTABLE)).ifPresent(e -> {
+            this.routable = e.equals("1");
         });
         Optional.ofNullable(stringStringMap.get(DOMAIN_ID)).ifPresent(e -> {
             this.domainIds = Arrays.stream(e.split("\\.")).collect(Collectors.toSet());

@@ -38,7 +38,7 @@ public class EventApplicationServiceScheduler {
                     for (StoredEvent event : storedEvents) {
                         log.trace("publishing event {} with id {}", event.getName(), event.getId());
                         CommonDomainRegistry.getEventStreamService()
-                            .next(appName, event.isInternal(), event.getTopic(), event);
+                            .next(event);
                     }
                     CommonDomainRegistry.getPublishedEventTrackerRepository()
                         .trackMostRecentPublishedNotification(eventTracker, storedEvents);
@@ -62,7 +62,7 @@ public class EventApplicationServiceScheduler {
                     for (StoredEvent event : allByQuery) {
                         log.debug("publishing event {} with id {}", event.getName(), event.getId());
                         CommonDomainRegistry.getEventStreamService()
-                            .next(appName, event.isInternal(), event.getTopic(), event);
+                            .next(event);
                         event.sendToMQ();
                     }
                     log.debug("end of publish not send event");

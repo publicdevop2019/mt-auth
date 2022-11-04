@@ -23,6 +23,8 @@ public class CommonConstant {
     public static final String CACHE_QUERY_PREFIX = "-query";
     public static final String CACHE_ID_PREFIX = "-id";
     public static final String EXCHANGE_NAME = "mt_global_exchange";
+    public static final String EXCHANGE_NAME_ALT = "mt_global_exchange_alt";
+    public static final String QUEUE_NAME_ALT = "unhandled_msg";
     public static final String DOMAIN_ID = "domainId";
     public static final String VERSION = "version";
     public static final String APP_ID_PROXY = "0C8AZTODP4HT";

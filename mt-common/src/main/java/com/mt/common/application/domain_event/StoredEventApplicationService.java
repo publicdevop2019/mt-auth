@@ -7,6 +7,7 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class StoredEventApplicationService {
@@ -29,5 +30,11 @@ public class StoredEventApplicationService {
         StoredEventQuery storedEventQuery =
             new StoredEventQuery(names, queryParam, pageParam, skipCount);
         return CommonDomainRegistry.getDomainEventRepository().query(storedEventQuery);
+    }
+
+    @Transactional
+    public void markAsUnroutable(StoredEvent event) {
+        CommonDomainRegistry.getDomainEventRepository().getById(event.getId()).ifPresent(
+            StoredEvent::markAsUnroutable);
     }
 }

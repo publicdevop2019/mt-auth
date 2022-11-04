@@ -22,6 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json")
 
 public class StoredEventResource {
+    /**
+     * retry a stored event
+     * @param id stored event id
+     * @return void
+     */
     @PostMapping("mngmt/events/{id}/retry")
     public ResponseEntity<?> publish(@PathVariable(name = "id") long id) {
         CommonApplicationServiceRegistry.getStoredEventApplicationService().retry(id);
