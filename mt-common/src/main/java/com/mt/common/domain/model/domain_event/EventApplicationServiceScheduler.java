@@ -22,11 +22,15 @@ public class EventApplicationServiceScheduler {
     @Value("${spring.application.name}")
     private String appName;
 
+    /**
+     * if unlock failed then event tracker will not update,
+     * same event will get emit multiple times due to this unlock issue
+     */
     @Transactional
     @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
     public void streaming() {
         CommonDomainRegistry.getSchedulerDistLockService()
-            .executeIfLockSuccess("event_emitter", 5, (nullValue) -> {
+            .executeIfLockSuccess("event_emitter", 7, (nullValue) -> {
                 PublishedEventTracker eventTracker =
                     CommonDomainRegistry.getPublishedEventTrackerRepository()
                         .publishedNotificationTracker();

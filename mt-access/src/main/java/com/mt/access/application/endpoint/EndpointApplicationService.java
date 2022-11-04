@@ -64,7 +64,7 @@ public class EndpointApplicationService {
             }
             log.debug("sending reload proxy endpoint message");
             CommonDomainRegistry.getEventStreamService()
-                .next(appName, false, "started_access", new AppStarted());
+                .next(appName, false, "started_access", AppStarted.create());
         }
     }
 

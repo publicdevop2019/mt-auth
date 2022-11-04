@@ -19,7 +19,7 @@ public class StartNewProjectOnboarding extends DomainEvent {
 
     public StartNewProjectOnboarding(Project project) {
         super(project.getProjectId());
-        setTopic(START_NEW_PROJECT_ONBOARDING);
+        setTopic(START_NEW_PROJECT_ONBOARDING+"_1");
         setName(name);
         projectName = project.getName();
         this.creator = new UserId(project.getCreatedBy());

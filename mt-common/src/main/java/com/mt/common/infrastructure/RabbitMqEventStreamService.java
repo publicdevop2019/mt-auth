@@ -10,14 +10,12 @@ import com.mt.common.domain.model.clazz.ClassUtility;
 import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
-import com.mt.common.domain.model.restful.SumPagedRep;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -242,13 +240,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 channel.confirmSelect();
                 ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
                     Consumer<StoredEvent> markAsSent = (storedEvent) -> {
-                        Long id = storedEvent.getId();
-                        log.debug("marking {} event as sent", id);
-                        CommonDomainRegistry.getDomainEventRepository().getById(id).ifPresentOrElse(
-                            StoredEvent::sendToMQ,
-                            () -> log.error("event with id {} not found, which should not happen",
-                                id)
-                        );
+                        CommonApplicationServiceRegistry.getStoredEventApplicationService().markAsSent(storedEvent);
                     };
                     if (multiple) {
                         log.debug("ack callback with multiple confirm");
@@ -315,7 +307,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         Map<String, Object> args = new HashMap<>();
         args.put("alternate-exchange", EXCHANGE_NAME_ALT);
         channel.exchangeDeclare(EXCHANGE_NAME, "topic", true, false, args);
-        channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout");
+        channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout", true, false, null);
         channel.queueDeclare(QUEUE_NAME_ALT, true, false, false, null);
         channel.queueBind(QUEUE_NAME_ALT, EXCHANGE_NAME_ALT, "");
     }
@@ -323,11 +315,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @EventListener(ApplicationReadyEvent.class)
     private void unroutableMsgListener() {
         log.debug("subscribe for unroutable msg");
-        this
-            .subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT,false, (event) -> {
+        this.subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT, false, (event) -> {
                 CommonApplicationServiceRegistry.getStoredEventApplicationService()
                     .markAsUnroutable(event);
-            },"");
+            }, "");
     }
 
     private static class EventStreamException extends RuntimeException {

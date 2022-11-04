@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.beans.factory.annotation.Value;
 
 @Entity
 @Table
@@ -37,7 +36,6 @@ public class StoredEvent implements Serializable {
     private String topic;
     private String domainId;
 
-    @Value("${spring.application.name}")
     private String applicationId;
     private boolean routable = true;
 
@@ -47,6 +45,7 @@ public class StoredEvent implements Serializable {
         this.name = event.getName();
         this.internal = event.isInternal();
         this.topic = event.getTopic();
+        this.applicationId = CommonDomainRegistry.getApplicationInfoService().getApplicationId();
         if (event.getDomainId() != null) {
             this.domainId = event.getDomainId().getDomainId();
         }
