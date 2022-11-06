@@ -28,7 +28,7 @@ import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.AppStarted;
+import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -64,7 +64,7 @@ public class EndpointApplicationService {
             }
             log.debug("sending reload proxy endpoint message");
             CommonDomainRegistry.getEventStreamService()
-                .next(appName, false, "started_access", AppStarted.create());
+                .next(appName, false, "started_access", ApplicationStartedEvent.create());
         }
     }
 

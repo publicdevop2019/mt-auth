@@ -39,6 +39,7 @@ package-lock.json
 ### Removed from public ###
 *.db
 **/logs
+**/reports
 HELP.md
 mvnw
 mvnw.cmd

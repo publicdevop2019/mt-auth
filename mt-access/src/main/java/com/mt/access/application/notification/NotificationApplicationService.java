@@ -18,7 +18,7 @@ import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.UnrountableMessageEvent;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
@@ -222,7 +222,7 @@ public class NotificationApplicationService {
     }
 
     @Transactional
-    public void handle(UnrountableMessageEvent event) {
+    public void handle(UnrountableMsgReceivedEvent event) {
         ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);

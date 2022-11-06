@@ -9,7 +9,7 @@ import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.domain_event.UnrountableMessageEvent;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
@@ -133,12 +133,12 @@ public class Notification extends Auditable {
         type = NotificationType.EMAIL;
     }
 
-    public Notification(UnrountableMessageEvent event) {
+    public Notification(UnrountableMsgReceivedEvent event) {
         super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = UnrountableMessageEvent.name;
+        title = UnrountableMsgReceivedEvent.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.BELL;
         descriptions = Collections.singleton(event.getTopic());

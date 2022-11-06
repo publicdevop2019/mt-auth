@@ -8,6 +8,8 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +28,6 @@ public class EndpointMqListener {
         try {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();
-            channel.exchangeDeclare(MT_GLOBAL_EXCHANGE, "topic");
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.started_access");

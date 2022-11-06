@@ -28,9 +28,21 @@ public class SchedulerDistLockService {
                 try {
                     log.trace("acquire lock success for {}", key);
                     function.accept(null);
-                } finally {
+                } catch (Exception exception) {
+                    log.trace("exception during job {}", key);
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                        log.trace("release lock with key: {}", key);
+                        return;
+                    } else {
+                        throw new LockReleasedBeforeJobCompleteException();
+                    }
+                }
+                if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                     log.trace("release lock with key: {}", key);
+                } else {
+                    throw new LockReleasedBeforeJobCompleteException();
                 }
             } else {
                 log.trace("acquire lock failed for {}", key);
@@ -38,5 +50,8 @@ public class SchedulerDistLockService {
         } catch (InterruptedException e) {
             log.error("error during acquire lock", e);
         }
+    }
+
+    private static class LockReleasedBeforeJobCompleteException extends RuntimeException {
     }
 }

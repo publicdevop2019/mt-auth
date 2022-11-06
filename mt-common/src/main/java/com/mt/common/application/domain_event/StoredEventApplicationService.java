@@ -3,7 +3,7 @@ package com.mt.common.application.domain_event;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
-import com.mt.common.domain.model.domain_event.UnrountableMessageEvent;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class StoredEventApplicationService {
     @Transactional
     public void markAsUnroutable(StoredEvent event) {
         Long id = event.getId();
-        CommonDomainRegistry.getDomainEventRepository().append(new UnrountableMessageEvent(event));
+        CommonDomainRegistry.getDomainEventRepository().append(new UnrountableMsgReceivedEvent(event));
         if (id != null) {
             CommonDomainRegistry.getDomainEventRepository().getById(event.getId()).ifPresent(
                 StoredEvent::markAsUnroutable);
