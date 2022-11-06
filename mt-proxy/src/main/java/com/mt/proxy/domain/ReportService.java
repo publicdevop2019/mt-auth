@@ -34,6 +34,9 @@ import org.springframework.web.client.RestTemplate;
 @Slf4j
 @Service
 public class ReportService {
+    public static final String REPORT_EXTENSION = ".txt";
+    public static final String REPORT_DIR = "./reports";
+    private static final String SENT_SUFFIX = "_send";
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EurekaClient eurekaClient;
@@ -71,6 +74,7 @@ public class ReportService {
     /**
      * flush stored record to file
      */
+    @Scheduled(fixedRate = 20 * 1000, initialDelay = 20 * 1000)
 //    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void flush() {
         log.debug("start of flushing api reports");
@@ -83,12 +87,14 @@ public class ReportService {
             }
             record.clear();
             log.debug("total records found {}", copy.size());
-            File dir = new File("./reports");
+            File dir = new File(REPORT_DIR);
             if (!dir.exists()) {
                 dir.mkdirs();
             }
             File csvOutputFile =
-                new File("./reports/api_report_" + Instant.now().getEpochSecond() + ".txt");
+                new File(
+                    REPORT_DIR + "/report_" + Instant.now().getEpochSecond() + getFileCount(dir) +
+                        REPORT_EXTENSION);
             try (PrintWriter pw = new PrintWriter(csvOutputFile)) {
                 AtomicInteger count = new AtomicInteger(0);
                 copy.stream().map(e -> "id:" + count.getAndIncrement() + "," + e)
@@ -103,10 +109,16 @@ public class ReportService {
         log.debug("end of flushing api reports");
     }
 
+    private String getFileCount(File dir) {
+        File[] files = dir.listFiles();
+        return "_" + (files == null ? "0" : String.valueOf(files.length));
+    }
+
     /**
      * send file to mt-auth for analysis
      */
-    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 20 * 1000)
+    @Scheduled(fixedRate = 20 * 1000, initialDelay = 20 * 1000)
+//    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void uploadReport() {
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
@@ -116,10 +128,10 @@ public class ReportService {
             String url = homePageUrl + endpointUrl;
             //read all unsend files
             File dir =
-                new File("./reports");
+                new File(REPORT_DIR);
             File[] files = dir.listFiles();
             if (files != null) {
-                Arrays.stream(files).filter(e -> !e.getName().contains("_send"))
+                Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
                     .forEach(unsendFile -> {
                         int andDecrement = maxFileSend.getAndDecrement();
                         if (andDecrement > 0) {
@@ -136,7 +148,7 @@ public class ReportService {
                                     line = reader.readLine();
                                 }
                             } catch (IOException e) {
-                                log.error("error during file read",e);
+                                log.error("error during file read", e);
                             }
                             if (!requestBody.isEmpty()) {
                                 HttpHeaders headers1 = new HttpHeaders();
@@ -151,7 +163,8 @@ public class ReportService {
                                     //rename file
                                     boolean b = unsendFile
                                         .renameTo(
-                                            new File(originalPath.replace(".txt", "_send.txt")));
+                                            new File(originalPath.replace(".txt", SENT_SUFFIX +
+                                                REPORT_EXTENSION)));
                                     if (!b) {
                                         throw new ReportRenameException();
                                     }

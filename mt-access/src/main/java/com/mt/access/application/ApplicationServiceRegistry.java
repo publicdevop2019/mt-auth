@@ -5,7 +5,6 @@ import com.mt.access.application.cache_profile.CacheProfileApplicationService;
 import com.mt.access.application.client.ClientApplicationService;
 import com.mt.access.application.cors_profile.CorsProfileApplicationService;
 import com.mt.access.application.cross_domain_validation.CrossDomainValidationApplicationService;
-import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
@@ -16,11 +15,13 @@ import com.mt.access.application.position.PositionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
 import com.mt.access.application.registry.RegistryApplicationService;
+import com.mt.access.application.report.ReportApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
+import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import com.mt.common.domain.model.idempotent.IdempotentService;
 import lombok.Getter;
@@ -82,6 +83,15 @@ public class ApplicationServiceRegistry {
     private static CrossDomainValidationApplicationService crossDomainValidationApplicationService;
     @Getter
     private static AuditApplicationService auditApplicationService;
+    @Getter
+    private static ReportApplicationService reportApplicationService;
+
+    @Autowired
+    public void setReportApplicationService(
+        ReportApplicationService reportApplicationService) {
+        ApplicationServiceRegistry.reportApplicationService =
+            reportApplicationService;
+    }
 
     @Autowired
     public void setCrossDomainValidationApplicationService(

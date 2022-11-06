@@ -371,6 +371,7 @@ public class EndpointApplicationService {
         return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
     }
 
+
     public static class InvalidClientIdException extends RuntimeException {
     }
 }

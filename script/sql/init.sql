@@ -16,6 +16,33 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `access_record`
+--
+
+DROP TABLE IF EXISTS `access_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `access_record` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `instance_id` varchar(255) NOT NULL,
+  `record_id` varchar(255) NOT NULL,
+  `record` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_combined_record` (`name`,`instance_id`,`record_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `access_record`
+--
+
+LOCK TABLES `access_record` WRITE;
+/*!40000 ALTER TABLE `access_record` DISABLE KEYS */;
+/*!40000 ALTER TABLE `access_record` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `cache_profile`
 --
 
@@ -840,4 +867,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-04  8:25:20
+-- Dump completed on 2022-11-06  9:52:17

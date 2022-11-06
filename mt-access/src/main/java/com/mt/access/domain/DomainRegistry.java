@@ -6,7 +6,6 @@ import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
 import com.mt.access.domain.model.NewUserService;
-import com.mt.access.domain.model.NotificationService;
 import com.mt.access.domain.model.PendingUserValidationService;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.RemoteProxyService;
@@ -18,6 +17,7 @@ import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
+import com.mt.access.domain.model.report.AccessRecordRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
@@ -142,6 +142,13 @@ public class DomainRegistry {
     private static OperationCoolDownRepository operationCoolDownRepository;
     @Getter
     private static CoolDownService coolDownService;
+    @Getter
+    private static AccessRecordRepository accessRecordRepository;
+
+    @Autowired
+    public void setAccessRecordRepository(AccessRecordRepository accessRecordRepository) {
+        DomainRegistry.accessRecordRepository = accessRecordRepository;
+    }
 
     @Autowired
     public void setCoolDownService(CoolDownService coolDownService) {
