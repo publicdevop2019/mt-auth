@@ -130,7 +130,7 @@ public class RoleApplicationService {
         RoleId roleId = new RoleId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Role role = Role.createRoleForTenant(
                     new ProjectId(command.getProjectId()),

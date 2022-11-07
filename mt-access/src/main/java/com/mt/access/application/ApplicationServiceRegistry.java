@@ -18,6 +18,7 @@ import com.mt.access.application.registry.RegistryApplicationService;
 import com.mt.access.application.report.ReportApplicationService;
 import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
+import com.mt.access.application.sub_request.SubRequestApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
@@ -85,6 +86,8 @@ public class ApplicationServiceRegistry {
     private static AuditApplicationService auditApplicationService;
     @Getter
     private static ReportApplicationService reportApplicationService;
+    @Getter
+    private static SubRequestApplicationService subRequestApplicationService;
 
     @Autowired
     public void setReportApplicationService(
@@ -208,6 +211,11 @@ public class ApplicationServiceRegistry {
     @Autowired
     public void setUserApplicationService(UserApplicationService userApplicationService) {
         ApplicationServiceRegistry.userApplicationService = userApplicationService;
+    }
+    @Autowired
+    public void setSubRequestApplicationService(
+        SubRequestApplicationService subRequestApplicationService) {
+        ApplicationServiceRegistry.subRequestApplicationService = subRequestApplicationService;
     }
 
     /**

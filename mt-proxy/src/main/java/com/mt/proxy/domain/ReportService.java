@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,8 +75,7 @@ public class ReportService {
     /**
      * flush stored record to file
      */
-    @Scheduled(fixedRate = 20 * 1000, initialDelay = 20 * 1000)
-//    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void flush() {
         log.debug("start of flushing api reports");
         int size = record.size();
@@ -117,8 +117,7 @@ public class ReportService {
     /**
      * send file to mt-auth for analysis
      */
-    @Scheduled(fixedRate = 20 * 1000, initialDelay = 20 * 1000)
-//    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void uploadReport() {
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
@@ -131,6 +130,12 @@ public class ReportService {
                 new File(REPORT_DIR);
             File[] files = dir.listFiles();
             if (files != null) {
+                int size =
+                    (int) Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
+                        .count();
+                    if(size==0){
+                        log.debug("no unsent report found");
+                    }
                 Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
                     .forEach(unsendFile -> {
                         int andDecrement = maxFileSend.getAndDecrement();

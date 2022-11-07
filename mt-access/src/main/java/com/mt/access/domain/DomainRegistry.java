@@ -17,7 +17,6 @@ import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.ClientValidationService;
 import com.mt.access.domain.model.cors_profile.CorsProfileRepository;
 import com.mt.access.domain.model.cross_domain_validation.ValidationResultRepository;
-import com.mt.access.domain.model.report.AccessRecordRepository;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.EndpointService;
 import com.mt.access.domain.model.image.ImageRepository;
@@ -34,9 +33,11 @@ import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
+import com.mt.access.domain.model.report.AccessRecordRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
+import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
@@ -144,6 +145,13 @@ public class DomainRegistry {
     private static CoolDownService coolDownService;
     @Getter
     private static AccessRecordRepository accessRecordRepository;
+    @Getter
+    private static SubRequestRepository subRequestRepository;
+
+    @Autowired
+    public void setSubRequestRepository(SubRequestRepository subRequestRepository) {
+        DomainRegistry.subRequestRepository = subRequestRepository;
+    }
 
     @Autowired
     public void setAccessRecordRepository(AccessRecordRepository accessRecordRepository) {
@@ -161,7 +169,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setOperationCoolDownRepository(OperationCoolDownRepository operationCoolDownRepository) {
+    public void setOperationCoolDownRepository(
+        OperationCoolDownRepository operationCoolDownRepository) {
         DomainRegistry.operationCoolDownRepository = operationCoolDownRepository;
     }
 

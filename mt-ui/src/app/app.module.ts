@@ -129,6 +129,7 @@ import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
+import { SubRequestComponent } from './pages/common/sub-request/sub-request.component';
 
 @NgModule({
   declarations: [
@@ -207,6 +208,7 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
     LunchComponent,
     BuildComponent,
     SummaryNotificationComponent,
+    SubRequestComponent,
   ],
   imports: [
     BrowserAnimationsModule,

@@ -19,14 +19,14 @@ public class SendBellNotificationEvent extends DomainEvent {
     private String title;
     private Set<String> descriptions;
 
-    public SendBellNotificationEvent(Notification notification2) {
+    public SendBellNotificationEvent(Notification notification) {
         super();
         setTopic(SEND_BELL_NOTIFICATION_EVENT);
         setName(name);
-        setDomainId(notification2.getNotificationId());
-        date = notification2.getTimestamp();
-        descriptions = notification2.getDescriptions();
-        title = notification2.getTitle();
+        setDomainId(notification.getNotificationId());
+        date = notification.getTimestamp();
+        this.descriptions = notification.getDescriptions();
+        title = notification.getTitle();
     }
 
     public String value() {

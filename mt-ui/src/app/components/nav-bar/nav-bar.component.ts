@@ -3,13 +3,14 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { EEXIST } from 'constants';
 import { Subscription } from 'rxjs';
 import { map, take } from 'rxjs/operators';
 import { createImageFromBlob, logout } from 'src/app/clazz/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
-import { MessageService } from 'src/app/services/message.service';
+import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { IProjectPermission, IProjectPermissionInfo, ProjectService } from 'src/app/services/project.service';
 export interface INavElement {
   link: string;
@@ -279,7 +280,7 @@ export class NavBarComponent implements OnInit {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
-    logout(undefined,this.httpProxySvc)
+    logout(undefined, this.httpProxySvc)
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;
@@ -296,5 +297,8 @@ export class NavBarComponent implements OnInit {
   }
   hasAuth() {
     return !!this.projectSvc.totalProjects.find(e => e.id === '0P8HE307W6IO')
+  }
+  filterDuplicate(msgs: IBellNotification[]) {
+    return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
   }
 }

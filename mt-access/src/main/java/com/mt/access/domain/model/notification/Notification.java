@@ -141,7 +141,6 @@ public class Notification extends Auditable {
         title = UnrountableMsgReceivedEvent.name;
         status = NotificationStatus.PENDING;
         type = NotificationType.BELL;
-        descriptions = Collections.singleton(event.getTopic());
     }
 
     public void markAsDelivered() {

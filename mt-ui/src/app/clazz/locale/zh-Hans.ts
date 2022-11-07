@@ -831,4 +831,10 @@ export const zhHans = {
     "BELL": "站内信",
     "HANGING_TX_DETECTED": "检测到悬挂事件",
     "PLS_ENTER_PROJECT_NAME": "请输入项目名称",
+    "UNROUTABLE_MSG_EVENT": "事件无法路由",
+    "CHECK_EVENT_FOR_DETAILS": "查看事件获取更多信息",
+    "SUBSCRIBE": "订阅",
+    "MAX_INVOKE_PER_SEC": "每秒钟最大请求数",
+    "MAX_INVOKE_PER_MIN": "每分钟最大请求数",
+    "SUB_API": "订阅API",
 }

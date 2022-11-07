@@ -7,6 +7,7 @@ import com.mt.common.domain.model.notification.PublishedEventTracker;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -19,8 +20,23 @@ import org.springframework.transaction.annotation.Transactional;
 @EnableScheduling
 public class EventApplicationServiceScheduler {
 
+    private static boolean pauseJob = false;
     @Value("${spring.application.name}")
     private String appName;
+    @Value("${fixedRate.in.milliseconds.notification}")
+    private int frequency;
+    @Value("${fixedRate.in.seconds.notification.lock}")
+    private int lockInSeconds;
+
+    @PostConstruct
+    private void checkValue() {
+        //notification rate must be bigger than lockInSeconds
+        if (frequency/1000 <= lockInSeconds) {
+            pauseJob = true;
+            throw new IllegalArgumentException(
+                "notification rate must be bigger than lockInSeconds, job is paused");
+        }
+    }
 
     /**
      * if unlock failed then event tracker will not update,
@@ -29,27 +45,30 @@ public class EventApplicationServiceScheduler {
     @Transactional
     @Scheduled(fixedRateString = "${fixedRate.in.milliseconds.notification}")
     public void streaming() {
-        CommonDomainRegistry.getSchedulerDistLockService()
-            .executeIfLockSuccess("event_emitter", 7, (nullValue) -> {
-                PublishedEventTracker eventTracker =
-                    CommonDomainRegistry.getPublishedEventTrackerRepository()
-                        .publishedNotificationTracker();
-                List<StoredEvent> storedEvents = CommonDomainRegistry.getDomainEventRepository()
-                    .top50StoredEventsSince(eventTracker.getLastPublishedId());
-                if (!storedEvents.isEmpty()) {
-                    log.trace("publish event since id {}", eventTracker.getLastPublishedId());
-                    log.trace("total domain event found {}", storedEvents.size());
-                    for (StoredEvent event : storedEvents) {
-                        log.trace("publishing event {} with id {}", event.getName(), event.getId());
-                        CommonDomainRegistry.getEventStreamService()
-                            .next(event);
+        if (!pauseJob) {
+            CommonDomainRegistry.getSchedulerDistLockService()
+                .executeIfLockSuccess("event_emitter", lockInSeconds, (nullValue) -> {
+                    PublishedEventTracker eventTracker =
+                        CommonDomainRegistry.getPublishedEventTrackerRepository()
+                            .publishedNotificationTracker();
+                    List<StoredEvent> storedEvents = CommonDomainRegistry.getDomainEventRepository()
+                        .top50StoredEventsSince(eventTracker.getLastPublishedId());
+                    if (!storedEvents.isEmpty()) {
+                        log.trace("publish event since id {}", eventTracker.getLastPublishedId());
+                        log.trace("total domain event found {}", storedEvents.size());
+                        for (StoredEvent event : storedEvents) {
+                            log.trace("publishing event {} with id {}", event.getName(),
+                                event.getId());
+                            CommonDomainRegistry.getEventStreamService()
+                                .next(event);
+                        }
+                        CommonDomainRegistry.getPublishedEventTrackerRepository()
+                            .trackMostRecentPublishedNotification(eventTracker, storedEvents);
                     }
-                    CommonDomainRegistry.getPublishedEventTrackerRepository()
-                        .trackMostRecentPublishedNotification(eventTracker, storedEvents);
-                }
-                CommonApplicationServiceRegistry.getJobApplicationService()
-                    .createOrUpdateJob(JobDetail.eventScan());
-            });
+                    CommonApplicationServiceRegistry.getJobApplicationService()
+                        .createOrUpdateJob(JobDetail.eventScan());
+                });
+        }
     }
 
     @Transactional

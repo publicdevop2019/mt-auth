@@ -17,6 +17,7 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -156,57 +157,68 @@ public class NotificationApplicationService {
 
     /**
      * send bell notification to admin sessions
-     * no idempotent wrapper required bcz itself is native idempotent.
      *
-     * @param deserialize send bell notification event
+     * @param event send bell notification event
      */
     @Transactional
-    public void handle(SendBellNotificationEvent deserialize) {
-        log.debug("sending bell notifications with {}",deserialize.getTitle());
-        DomainRegistry.getWsPushNotificationService()
-            .notify(deserialize.value());
-        try {
-            DomainRegistry.getNotificationRepository()
-                .notificationOfId(new NotificationId(deserialize.getDomainId().getDomainId()))
-                .ifPresent(
-                    Notification::markAsDelivered);
-        } catch (Exception ex) {
-            log.warn(
-                "ignore exception when trying to update same notification entity");
-        }
+    public void handle(SendBellNotificationEvent event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                log.debug("sending bell notifications with {}", event.getTitle());
+                DomainRegistry.getWsPushNotificationService()
+                    .notify(event.value());
+                try {
+                    DomainRegistry.getNotificationRepository()
+                        .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
+                        .ifPresent(
+                            Notification::markAsDelivered);
+                } catch (Exception ex) {
+                    log.warn(
+                        "ignore exception when trying to update same notification entity");
+                }
+                return null;
+            }, NOTIFICATION);
+
     }
 
     /**
      * send sms to mobile
-     * no idempotent wrapper required bcz itself is native idempotent.
      *
-     * @param deserialize send bell notification event
+     * @param event send bell notification event
      */
     @Transactional
-    public void handle(SendSmsNotificationEvent deserialize) {
-        DomainRegistry.getSmsNotificationService()
-            .notify(deserialize.getMobile(), deserialize.getCode());
-        DomainRegistry.getNotificationRepository()
-            .notificationOfId(new NotificationId(deserialize.getDomainId().getDomainId()))
-            .ifPresent(
-                Notification::markAsDelivered);
+    public void handle(SendSmsNotificationEvent event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                DomainRegistry.getSmsNotificationService()
+                    .notify(event.getMobile(), event.getCode());
+                DomainRegistry.getNotificationRepository()
+                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
+                    .ifPresent(
+                        Notification::markAsDelivered);
+                return null;
+            }, NOTIFICATION);
+
     }
 
     /**
      * send email notification
-     * no idempotent wrapper required bcz itself is native idempotent.
      *
      * @param event send email notification event
      */
     @Transactional
     public void handle(SendEmailNotificationEvent event) {
-        DomainRegistry.getEmailNotificationService()
-            .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
-                event.getParams());
-        DomainRegistry.getNotificationRepository()
-            .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-            .ifPresent(
-                Notification::markAsDelivered);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                DomainRegistry.getEmailNotificationService()
+                    .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
+                        event.getParams());
+                DomainRegistry.getNotificationRepository()
+                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
+                    .ifPresent(
+                        Notification::markAsDelivered);
+                return null;
+            }, NOTIFICATION);
     }
 
     /**
@@ -223,7 +235,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(UnrountableMsgReceivedEvent event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);

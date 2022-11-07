@@ -9,7 +9,7 @@
             <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}</div>
         </div>
         <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
-            <mat-icon matBadge="{{msgSvc.latestMessage.length}}" matBadgeOverlap="false" matBadgeSize="small"
+            <mat-icon matBadge="{{filterDuplicate(msgSvc.latestMessage).length}}" matBadgeOverlap="false" matBadgeSize="small"
                 matBadgeColor="accent">notifications_none
             </mat-icon>
         </button>
@@ -19,7 +19,7 @@
             <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
         </ng-container>
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
-            <ng-container *ngFor="let el of msgSvc.latestMessage; let i = index">
+            <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
                 <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length" [index]="i"></app-card-notification>
             </ng-container>
         </ng-container>
