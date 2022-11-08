@@ -1,5 +1,7 @@
 package com.mt.access.application.sub_request;
 
+import static com.mt.access.domain.model.permission.Permission.PROCESS_SUB_REQ;
+
 import com.mt.access.application.sub_request.command.CreateSubRequestCommand;
 import com.mt.access.application.sub_request.command.RejectSubRequestCommand;
 import com.mt.access.application.sub_request.command.UpdateSubRequestCommand;
@@ -15,6 +17,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
+import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +26,12 @@ public class SubRequestApplicationService {
 
     public static final String SUB_REQUEST = "SUB_REQUEST";
 
-    public SumPagedRep<SubRequest> query(String pageParam) {
-        return DomainRegistry.getSubRequestRepository().getByQuery(new SubRequestQuery(pageParam));
+    public SumPagedRep<SubRequest> query(String queryParam, String pageParam) {
+        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(tenantIds, PROCESS_SUB_REQ);
+        return DomainRegistry.getSubRequestRepository()
+            .getByQuery(new SubRequestQuery(queryParam, pageParam));
     }
 
     /**
@@ -45,13 +52,17 @@ public class SubRequestApplicationService {
                 if (endpoint.isEmpty()) {
                     throw new IllegalArgumentException("unable to find related endpoint");
                 }
-                ProjectId projectId = endpoint.get().getProjectId();
+                ProjectId epProjectId = endpoint.get().getProjectId();
+                ProjectId targetProjectId = new ProjectId(command.getProjectId());
+                if (epProjectId.equals(targetProjectId)) {
+                    throw new IllegalArgumentException("cannot subscribe to itself");
+                }
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
                     endpointId,
                     command.getMaxInvokePerSec(),
                     command.getMaxInvokePerMin(),
-                    projectId
+                    epProjectId
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
                 return subRequest.getSubRequestId().getDomainId();
@@ -59,7 +70,7 @@ public class SubRequestApplicationService {
     }
 
     /**
-     * update sub request
+     * update sub request.
      *
      * @param id       sub request id
      * @param command  update command
@@ -67,36 +78,41 @@ public class SubRequestApplicationService {
      */
     @Transactional
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                Optional<SubRequest> byId =
-                    DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
-                byId.ifPresent(
-                    e -> e.update(command.getMaxInvokePerSec(), command.getMaxInvokePerMin()));
-                return null;
-            }, SUB_REQUEST);
+        Optional<SubRequest> byId =
+            DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
+        byId.ifPresent(ee -> {
+            DomainRegistry.getPermissionCheckService().sameCreatedBy(ee);
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (ignored) -> {
+                    ee.update(command.getMaxInvokePerSec(), command.getMaxInvokePerMin());
+                    return null;
+                }, SUB_REQUEST);
+        });
     }
 
     /**
-     * cancel sub request
+     * cancel sub request.
      *
      * @param id       sub request id
      * @param changeId unique change id
      */
     @Transactional
     public void cancel(String id, String changeId) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                Optional<SubRequest> byId =
-                    DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
-                byId.ifPresent(
-                    SubRequest::cancel);
-                return null;
-            }, SUB_REQUEST);
+        SubRequestId subRequestId = new SubRequestId(id);
+        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
+        byId.ifPresent(e -> {
+            DomainRegistry.getPermissionCheckService().sameCreatedBy(e);
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (ignored) -> {
+                    byId.ifPresent(
+                        SubRequest::cancel);
+                    return null;
+                }, SUB_REQUEST);
+        });
     }
 
     /**
-     * approve sub request
+     * approve sub request.
      *
      * @param id       sub request id
      * @param changeId unique change id
@@ -104,18 +120,23 @@ public class SubRequestApplicationService {
     @Transactional
     @AuditLog(actionName = "approve sub request")
     public void approve(String id, String changeId) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                Optional<SubRequest> byId =
-                    DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
-                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                byId.ifPresent(e -> e.approve(userId));
-                return null;
-            }, SUB_REQUEST);
+        SubRequestId subRequestId = new SubRequestId(id);
+        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
+        byId.ifPresent(e -> {
+            ProjectId endpointProjectId = e.getEndpointProjectId();
+            DomainRegistry.getPermissionCheckService()
+                .canAccess(endpointProjectId, PROCESS_SUB_REQ);
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (ignored) -> {
+                    UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                    byId.ifPresent(e1 -> e1.approve(userId));
+                    return null;
+                }, SUB_REQUEST);
+        });
     }
 
     /**
-     * reject sub request
+     * reject sub request.
      *
      * @param id       sub request id
      * @param command  reject command
@@ -124,13 +145,18 @@ public class SubRequestApplicationService {
     @Transactional
     @AuditLog(actionName = "reject sub request")
     public void reject(String id, RejectSubRequestCommand command, String changeId) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                Optional<SubRequest> byId =
-                    DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
-                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                byId.ifPresent(e -> e.reject(command.getRejectionReason(), userId));
-                return null;
-            }, SUB_REQUEST);
+        SubRequestId subRequestId = new SubRequestId(id);
+        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
+        byId.ifPresent(e -> {
+            ProjectId endpointProjectId = e.getEndpointProjectId();
+            DomainRegistry.getPermissionCheckService()
+                .canAccess(endpointProjectId, PROCESS_SUB_REQ);
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (ignored) -> {
+                    UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                    byId.ifPresent(reject -> reject.reject(command.getRejectionReason(), userId));
+                    return null;
+                }, SUB_REQUEST);
+        });
     }
 }

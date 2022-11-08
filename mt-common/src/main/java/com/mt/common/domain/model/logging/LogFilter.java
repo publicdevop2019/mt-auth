@@ -15,7 +15,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * set UUID & CLIENT_IP for logging purpose.
+ * set UUID and CLIENT_IP for logging purpose.
  */
 @Component
 @Slf4j

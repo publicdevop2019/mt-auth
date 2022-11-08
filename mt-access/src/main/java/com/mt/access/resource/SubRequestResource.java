@@ -3,6 +3,8 @@ package com.mt.access.resource;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
+import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
+import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.sub_request.SubRequestRepresentation;
@@ -29,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json")
 public class SubRequestResource {
     /**
-     * get all my subscription requests
+     * get all subscription requests
      *
      * @param jwt       user jwt
      * @param pageParam page size and page number
@@ -38,11 +40,12 @@ public class SubRequestResource {
     @GetMapping(path = "subscription/request")
     public ResponseEntity<SumPagedRep<SubRequestRepresentation>> getMySubscriptionRequests(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-        @RequestParam(value = HTTP_PARAM_PAGE) String pageParam
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<SubRequest> result =
-            ApplicationServiceRegistry.getSubRequestApplicationService().query(pageParam);
+            ApplicationServiceRegistry.getSubRequestApplicationService().query(queryParam,pageParam);
         return ResponseEntity.ok(new SumPagedRep<>(result, SubRequestRepresentation::new));
     }
 

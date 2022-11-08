@@ -24,7 +24,7 @@ public class SubRequestRepresentation {
         maxInvokePerSec = subRequest.getMaxInvokePerSec();
         maxInvokePerMin = subRequest.getMaxInvokePerMin();
         approvedBy = subRequest.getApprovedBy().getDomainId();
-        status = subRequest.getStatus().name();
+        status = subRequest.getSubRequestStatus().name();
         rejectionReason = subRequest.getRejectionReason();
         createdBy = subRequest.getCreatedBy();
         updateAt = subRequest.getModifiedAt().getTime();

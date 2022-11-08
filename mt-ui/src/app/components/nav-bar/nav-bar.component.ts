@@ -3,15 +3,14 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { EEXIST } from 'constants';
 import { Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { createImageFromBlob, logout } from 'src/app/clazz/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
-import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
-import { IProjectPermission, IProjectPermissionInfo, ProjectService } from 'src/app/services/project.service';
+import { ProjectService } from 'src/app/services/project.service';
 export interface INavElement {
   link: string;
   icon?: string;

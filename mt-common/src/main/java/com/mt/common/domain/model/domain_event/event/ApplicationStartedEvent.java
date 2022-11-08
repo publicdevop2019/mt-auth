@@ -13,6 +13,8 @@ public class ApplicationStartedEvent {
         DomainEvent domainEvent = new DomainEvent();
         domainEvent.setName("ApplicationStarted");
         domainEvent.setDomainId(new AnyDomainId("SYSTEM"));
-        return new StoredEvent(domainEvent);
+        StoredEvent storedEvent = new StoredEvent(domainEvent);
+        storedEvent.setIdExplicitly(-1);
+        return storedEvent;
     }
 }

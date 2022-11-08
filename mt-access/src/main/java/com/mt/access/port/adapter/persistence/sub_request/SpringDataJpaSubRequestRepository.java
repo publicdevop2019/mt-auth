@@ -9,6 +9,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -43,6 +44,18 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     SubRequest_.SUB_REQUEST_ID, queryContext));
+            Optional.ofNullable(query.getCreatedBy()).ifPresent(e -> QueryUtility
+                .addDomainIdIsPredicate(
+                    e.getDomainId(),
+                    SubRequest_.CREATED_BY, queryContext));
+            Optional.ofNullable(query.getEpProjectIds()).ifPresent(e -> QueryUtility
+                .addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    SubRequest_.ENDPOINT_PROJECT_ID, queryContext));
+            Optional.ofNullable(query.getSubRequestStatus()).ifPresent(e -> QueryUtility
+                .addEnumLiteralEqualPredicate(
+                    Collections.singleton(e),
+                    SubRequest_.SUB_REQUEST_STATUS, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility

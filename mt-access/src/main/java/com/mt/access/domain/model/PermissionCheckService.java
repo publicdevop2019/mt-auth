@@ -4,7 +4,9 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
 import java.util.Objects;
@@ -45,5 +47,12 @@ public class PermissionCheckService {
 
     public void canAccess(@NotNull ProjectId id, String permissionName) {
         canAccess(Collections.singleton(id), permissionName);
+    }
+
+    public void sameCreatedBy(Auditable e) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        if (!new UserId(e.getCreatedBy()).equals(userId)) {
+            throw new AccessDeniedException();
+        }
     }
 }

@@ -66,11 +66,13 @@ public class Permission extends Auditable {
     public static final String CLIENT_MNGMT = "CLIENT_MNGMT";
     public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
     public static final String PROJECT_INFO_MNGMT = "PROJECT_INFO_MNGMT";
+    public static final String PROCESS_SUB_REQ = "PROCESS_SUB_REQ";
     public static final Set<String> reservedName = new HashSet<>();
     public static final Set<String> reservedUIPermissionName = new HashSet<>();
 
     static {
         reservedName.add(API_ACCESS);
+        reservedUIPermissionName.add(PROCESS_SUB_REQ);
         reservedUIPermissionName.add(VIEW_PROJECT_INFO);
         reservedUIPermissionName.add(VIEW_CLIENT);
         reservedUIPermissionName.add(EDIT_CLIENT);

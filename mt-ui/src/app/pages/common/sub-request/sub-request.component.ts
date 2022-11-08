@@ -6,13 +6,16 @@ import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { ProjectValidator } from 'src/app/clazz/validation/aggregate/project/validator-project';
+import { SubRequestValidator } from 'src/app/clazz/validation/aggregate/sub-request/validator-sub-request';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/sub-request.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { SubRequestService } from 'src/app/services/sub-request.service';
 import { CacheComponent } from '../../mgnmt/cache/cache.component';
-interface ISubRequest extends IIdBasedEntity {
-  projectName: string,
+export interface ISubRequest extends IIdBasedEntity {
+  endpointId: string,
+  projectId: string,
   maxInvokePerSecond: number,
   maxInvokePerMinute: number,
 }
@@ -22,42 +25,45 @@ interface ISubRequest extends IIdBasedEntity {
   styleUrls: ['./sub-request.component.css']
 })
 export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequest> implements OnInit {
-  convertToPayload(cmpt: SubRequestComponent): ISubRequest {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    return {
-      id: this.data,
-      projectName: formGroup.get('projectId').value,
-      maxInvokePerSecond: +formGroup.get('maxInvokePerSec').value,
-      maxInvokePerMinute: +formGroup.get('maxInvokePerMin').value,
-      version: 0
-    }
-  }
-  create(): void {
-    throw new Error('Method not implemented.');
-  }
-  update(): void {
-    throw new Error('Method not implemented.');
-  }
-  
   constructor(
     private projectSvc: ProjectService,
+    private subReqSvc: SubRequestService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     cdr: ChangeDetectorRef,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<SubRequestComponent>,
   ) {
-    super('newSubRequestForm', JSON.parse(JSON.stringify(FORM_CONFIG)), undefined, bottomSheetRef, data, fis, cdr);
+    super('newSubRequestForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new SubRequestValidator('CLIENT'), bottomSheetRef, data, fis, cdr);
     this.fis.queryProvider[this.formId + '_' + 'projectId'] = this.getMyProject();
   }
-
-    getMyProject(){
-      return {
-        readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-          return this.projectSvc.findTenantProjects(num, size)
-        }
-      } as IQueryProvider
+  convertToPayload(cmpt: SubRequestComponent): ISubRequest {
+    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    return {
+      id: '',
+      endpointId: cmpt.data.from.id,
+      projectId: formGroup.get('projectId').value,
+      maxInvokePerSecond: +formGroup.get('maxInvokePerSec').value,
+      maxInvokePerMinute: +formGroup.get('maxInvokePerMin').value,
+      version: 0
     }
+  }
+  update() {
+    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'updateSubReqValidator', this.fis, this, this.errorMapper))
+    this.subReqSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+  }
+  create() {
+    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'createSubReqValidator', this.fis, this, this.errorMapper))
+    this.subReqSvc.create(this.convertToPayload(this), this.changeId)
+  }
+
+  getMyProject() {
+    return {
+      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
+        return this.projectSvc.findTenantProjects(num, size)
+      }
+    } as IQueryProvider
+  }
   ngOnInit(): void {
   }
   errorMapper(original: ErrorMessage[], cmpt: SubRequestComponent) {
