@@ -837,4 +837,5 @@ export const zhHans = {
     "MAX_INVOKE_PER_SEC": "每秒钟最大请求数",
     "MAX_INVOKE_PER_MIN": "每分钟最大请求数",
     "SUB_API": "订阅API",
+    "SUB_REQ_MNGMT": "管理订阅请求",
 }

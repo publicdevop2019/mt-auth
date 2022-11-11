@@ -1,6 +1,7 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
@@ -13,12 +14,30 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ComputePermissionService {
+    /**
+     * compute user permission id set
+     * common permission will be used to find linked api permission
+     *
+     * @param userRelation user relation to project
+     * @return permission id collection
+     */
     public Set<PermissionId> compute(UserRelation userRelation) {
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(
             q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery(q),
             new RoleQuery(standaloneRoles));
-        return allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream()
-        ).collect(Collectors.toSet());
+        Set<PermissionId> commonPermissionIds =
+            allByQuery.stream().flatMap(e -> e.getCommonPermissionIds().stream())
+                .collect(Collectors.toSet());
+        Set<PermissionId> collect =
+            allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream()
+            ).collect(Collectors.toSet());
+        if (!commonPermissionIds.isEmpty()) {
+            Set<PermissionId> linkedApiPermissionFor =
+                DomainRegistry.getPermissionRepository()
+                    .getLinkedApiPermissionFor(commonPermissionIds);
+            collect.addAll(linkedApiPermissionFor);
+        }
+        return collect;
     }
 }

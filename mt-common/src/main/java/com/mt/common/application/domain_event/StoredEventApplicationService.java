@@ -2,6 +2,7 @@ package com.mt.common.application.domain_event;
 
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
@@ -42,6 +43,7 @@ public class StoredEventApplicationService {
     /**
      * mark target event as unroutable and create unroutable event received event
      * need to note that idempotency is required.
+     *
      * @param event unroutable event
      */
     @Transactional
@@ -65,6 +67,7 @@ public class StoredEventApplicationService {
 
     /**
      * mark event as sent, no idempotency required bcz by nature it is.
+     *
      * @param storedEvent stored event
      */
     @Transactional
@@ -75,9 +78,13 @@ public class StoredEventApplicationService {
             CommonDomainRegistry.getDomainEventRepository().getById(id)
                 .ifPresentOrElse(
                     StoredEvent::sendToMQ,
-                    () -> log.error(
-                        "event with id {} not found, which should not happen",
-                        id)
+                    () -> {
+                        if (!AnyDomainId.isSystemId(storedEvent.getDomainId())) {
+                            log.error(
+                                "event with id {} not found, which should not happen",
+                                id);
+                        }
+                    }
                 );
         }
     }

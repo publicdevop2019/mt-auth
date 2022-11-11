@@ -1,6 +1,6 @@
 package com.mt.access.application.sub_request;
 
-import static com.mt.access.domain.model.permission.Permission.PROCESS_SUB_REQ;
+import static com.mt.access.domain.model.permission.Permission.SUB_REQ_MNGMT;
 
 import com.mt.access.application.sub_request.command.CreateSubRequestCommand;
 import com.mt.access.application.sub_request.command.RejectSubRequestCommand;
@@ -29,7 +29,7 @@ public class SubRequestApplicationService {
     public SumPagedRep<SubRequest> query(String queryParam, String pageParam) {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(tenantIds, PROCESS_SUB_REQ);
+            .canAccess(tenantIds, SUB_REQ_MNGMT);
         return DomainRegistry.getSubRequestRepository()
             .getByQuery(new SubRequestQuery(queryParam, pageParam));
     }
@@ -125,7 +125,7 @@ public class SubRequestApplicationService {
         byId.ifPresent(e -> {
             ProjectId endpointProjectId = e.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, PROCESS_SUB_REQ);
+                .canAccess(endpointProjectId, SUB_REQ_MNGMT);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -150,7 +150,7 @@ public class SubRequestApplicationService {
         byId.ifPresent(e -> {
             ProjectId endpointProjectId = e.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, PROCESS_SUB_REQ);
+                .canAccess(endpointProjectId, SUB_REQ_MNGMT);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();

@@ -2,6 +2,7 @@ package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,4 +20,6 @@ public interface PermissionRepository {
     Set<EndpointId> allApiPermissionLinkedEpId();
 
     Set<PermissionId> allPermissionId();
+
+    Set<PermissionId> getLinkedApiPermissionFor(Set<PermissionId> e);
 }

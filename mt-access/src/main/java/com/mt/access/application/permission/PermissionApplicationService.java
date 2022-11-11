@@ -183,8 +183,7 @@ public class PermissionApplicationService {
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle project created event");
                 ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
-                ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
-                Permission.onboardNewProject(projectId, tenantProjectId, deserialize.getCreator());
+                Permission.onboardNewProject(tenantProjectId, deserialize.getCreator());
                 return null;
             }, PERMISSION);
     }
