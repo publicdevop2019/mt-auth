@@ -152,4 +152,15 @@ public class ProjectApplicationService {
         return DomainRegistry.getProjectRepository()
             .getByQuery(new ProjectQuery(tenantIds, pageParam));
     }
+
+    /**
+     * used for representation query and other internal query
+     *
+     * @param projectIds project id needs to query
+     * @return all project matched
+     */
+    public Set<Project> internalQuery(Set<ProjectId> projectIds) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository()
+            .getByQuery(e), new ProjectQuery(projectIds));
+    }
 }

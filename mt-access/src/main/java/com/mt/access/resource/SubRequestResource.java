@@ -4,13 +4,12 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
-import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.sub_request.SubRequestRepresentation;
 import com.mt.access.application.sub_request.command.CreateSubRequestCommand;
 import com.mt.access.application.sub_request.command.RejectSubRequestCommand;
 import com.mt.access.application.sub_request.command.UpdateSubRequestCommand;
+import com.mt.access.application.sub_request.representation.SubRequestRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -45,8 +44,13 @@ public class SubRequestResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<SubRequest> result =
-            ApplicationServiceRegistry.getSubRequestApplicationService().query(queryParam,pageParam);
-        return ResponseEntity.ok(new SumPagedRep<>(result, SubRequestRepresentation::new));
+            ApplicationServiceRegistry.getSubRequestApplicationService()
+                .query(queryParam, pageParam);
+        SumPagedRep<SubRequestRepresentation> resp =
+            new SumPagedRep<>(result, SubRequestRepresentation::new);
+        SubRequestRepresentation.updateEndpointNames(resp);
+        SubRequestRepresentation.updateProjectNames(resp);
+        return ResponseEntity.ok(resp);
     }
 
     /**

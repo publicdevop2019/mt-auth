@@ -130,6 +130,10 @@ import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
 import { SubRequestComponent } from './pages/common/sub-request/sub-request.component';
+import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
+import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
+import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
+import { SubReqRejectDialogComponent } from './components/sub-req-reject-dialog/sub-req-reject-dialog.component';
 
 @NgModule({
   declarations: [
@@ -209,6 +213,10 @@ import { SubRequestComponent } from './pages/common/sub-request/sub-request.comp
     BuildComponent,
     SummaryNotificationComponent,
     SubRequestComponent,
+    MySubReqComponent,
+    PendingSubReqComponent,
+    MySubsComponent,
+    SubReqRejectDialogComponent,
   ],
   imports: [
     BrowserAnimationsModule,

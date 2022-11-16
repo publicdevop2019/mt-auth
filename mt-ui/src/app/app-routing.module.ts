@@ -42,6 +42,9 @@ import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
+import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
+import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
+import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -80,6 +83,9 @@ const routes: Routes = [
       { path: 'my-profile', component: MyProfileComponent },
       { path: 'new-project', component: NewProjectComponent },
       { path: 'api-center', component: ApiCenterComponent },
+      { path: 'my-sub-request', component: MySubReqComponent },
+      { path: 'pending-sub-request', component: PendingSubReqComponent },
+      { path: 'my-subs', component: MySubsComponent },
       { path: 'org-profiles', component: SummaryOrgComponent },
       { path: 'permission-profiles', component: SummaryPermissionComponent },
       { path: 'position-profiles', component: SummaryPositionComponent },

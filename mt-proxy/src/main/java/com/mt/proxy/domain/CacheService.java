@@ -107,7 +107,7 @@ public class CacheService {
             });
         CacheConfiguration configuration =
             getMostSpecificSecurityProfile(profile, path).stream().findFirst().orElse(null);
-        log.debug("found {} for path {} with method {}", configuration, path,
+        log.debug("found config for path {} with method {}", path,
             exchange.getRequest().getMethodValue());
         return configuration;
     }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UpdateSubRequestCommand {
-    private int maxInvokePerSec;
-    private int maxInvokePerMin;
+    private int maxInvokePerSecond;
+    private int maxInvokePerMinute;
 }

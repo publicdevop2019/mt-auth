@@ -45,7 +45,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     SubRequest_.SUB_REQUEST_ID, queryContext));
             Optional.ofNullable(query.getCreatedBy()).ifPresent(e -> QueryUtility
-                .addDomainIdIsPredicate(
+                .addStringEqualPredicate(
                     e.getDomainId(),
                     SubRequest_.CREATED_BY, queryContext));
             Optional.ofNullable(query.getEpProjectIds()).ifPresent(e -> QueryUtility

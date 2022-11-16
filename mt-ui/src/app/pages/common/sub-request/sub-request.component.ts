@@ -1,18 +1,15 @@
-import { ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IIdBasedEntity } from 'src/app/clazz/summary.component';
-import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
-import { ProjectValidator } from 'src/app/clazz/validation/aggregate/project/validator-project';
 import { SubRequestValidator } from 'src/app/clazz/validation/aggregate/sub-request/validator-sub-request';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/sub-request.config';
+import { CreateSubRequestService } from 'src/app/services/create-sub-request.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { SubRequestService } from 'src/app/services/sub-request.service';
-import { CacheComponent } from '../../mgnmt/cache/cache.component';
 export interface ISubRequest extends IIdBasedEntity {
   endpointId: string,
   projectId: string,
@@ -24,10 +21,10 @@ export interface ISubRequest extends IIdBasedEntity {
   templateUrl: './sub-request.component.html',
   styleUrls: ['./sub-request.component.css']
 })
-export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequest> implements OnInit {
+export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequest> implements OnInit, OnDestroy {
   constructor(
     private projectSvc: ProjectService,
-    private subReqSvc: SubRequestService,
+    private subReqSvc: CreateSubRequestService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     cdr: ChangeDetectorRef,
@@ -36,6 +33,21 @@ export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequ
   ) {
     super('newSubRequestForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new SubRequestValidator('CLIENT'), bottomSheetRef, data, fis, cdr);
     this.fis.queryProvider[this.formId + '_' + 'projectId'] = this.getMyProject();
+
+    this.fis.formCreated(this.formId).subscribe(() => {
+      if (!this.isCreate()) {
+        this.fis.hideIfMatch(this.formId, ['projectId'])
+        this.fis.formGroupCollection[this.formId].get('maxInvokePerSec').setValue(this.aggregate.maxInvokePerSecond)
+        this.fis.formGroupCollection[this.formId].get('maxInvokePerMin').setValue(this.aggregate.maxInvokePerMinute)
+        this.cdr.markForCheck()
+      }
+    })
+  }
+  isCreate() {
+    return this.aggregate && this.aggregate.endpointId === undefined
+  }
+  ngOnDestroy(): void {
+    this.cleanUp()
   }
   convertToPayload(cmpt: SubRequestComponent): ISubRequest {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
@@ -49,12 +61,13 @@ export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequ
     }
   }
   update() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'updateSubReqValidator', this.fis, this, this.errorMapper))
-    this.subReqSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'updateSubReqValidator', this.fis, this, this.errorMapper)) {
+      this.subReqSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+    }
   }
   create() {
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'createSubReqValidator', this.fis, this, this.errorMapper))
-    this.subReqSvc.create(this.convertToPayload(this), this.changeId)
+      this.subReqSvc.create(this.convertToPayload(this), this.changeId)
   }
 
   getMyProject() {

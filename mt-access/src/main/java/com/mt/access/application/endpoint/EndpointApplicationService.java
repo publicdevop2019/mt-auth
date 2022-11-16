@@ -27,6 +27,7 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -369,6 +370,16 @@ public class EndpointApplicationService {
                 .collect(Collectors.toList());
         EndpointProxyCardRepresentation.updateDetail(collect);
         return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
+    }
+
+    /**
+     * internal query endpoints
+     * @param endpointIds endpoint ids
+     * @return matched endpoints
+     */
+    public Set<Endpoint> internalQuery(Set<EndpointId> endpointIds) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository()
+            .endpointsOfQuery(e), new EndpointQuery(endpointIds));
     }
 
 

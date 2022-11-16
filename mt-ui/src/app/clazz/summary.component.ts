@@ -143,8 +143,8 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     }
     if (hasValue(id)) {
       if (bypassQuery) {
-        const data = this.dataSource.data.find(e => e.id === id)!
-        doNext(data)
+          const data = this.dataSource.data.find(e => e.id === id)!
+          doNext(data)
       } else {
         this.entitySvc.readById(id).subscribe(next => {
           doNext(next)

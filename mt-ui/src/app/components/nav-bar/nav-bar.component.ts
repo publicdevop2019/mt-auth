@@ -215,6 +215,27 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+    {
+      link: 'my-sub-request',
+      display: 'MY_SUB_REQUEST',
+      icon: 'request_page',
+      params: {
+      },
+    },
+    {
+      link: 'pending-sub-request',
+      display: 'PENDING_SUB_REQUEST',
+      icon: 'request_quote',
+      params: {
+      },
+    },
+    {
+      link: 'my-subs',
+      display: 'MY_SUBS',
+      icon: 'contact_page',
+      params: {
+      },
+    },
   ];
   private _mobileQueryListener: () => void;
   @ViewChild("snav", { static: true }) snav: MatSidenav;

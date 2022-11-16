@@ -60,8 +60,8 @@ public class SubRequestApplicationService {
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
                     endpointId,
-                    command.getMaxInvokePerSec(),
-                    command.getMaxInvokePerMin(),
+                    command.getMaxInvokePerSecond(),
+                    command.getMaxInvokePerMinute(),
                     epProjectId
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
@@ -84,7 +84,7 @@ public class SubRequestApplicationService {
             DomainRegistry.getPermissionCheckService().sameCreatedBy(ee);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
-                    ee.update(command.getMaxInvokePerSec(), command.getMaxInvokePerMin());
+                    ee.update(command.getMaxInvokePerSecond(), command.getMaxInvokePerMinute());
                     return null;
                 }, SUB_REQUEST);
         });

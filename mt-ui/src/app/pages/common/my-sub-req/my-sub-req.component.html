@@ -1,0 +1,75 @@
+<h2 class="flex-row-space-between">{{'MY_SUB_REQUEST' |translate}}</h2>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+<app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
+</div>
+<div class="mat-elevation-z8">
+<div class="table-container">
+    <table mat-table [dataSource]="dataSource">
+
+        <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.id"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="projectName">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['projectName']|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.projectName"></app-copy-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="endpointName">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['endpointName']|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                <app-copy-field [inputValue]="row.endpointName"></app-copy-field>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['status']|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                {{"SUB_REQ_"+row.status|translate}}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="rejectionReason">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['rejectionReason']|translate}} </th>
+            <td mat-cell *matCellDef="let row">
+                {{row.status==='REJECTED'?row.rejectionReason:'N/A'}}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="update">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['update']|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+              
+                <ng-container *ngIf="row.status==='PENDING'">
+                    <mat-icon (click)="openBottomSheet(row.id,false,true)" [color]="'primary'">edit
+                    </mat-icon>
+                </ng-container>
+                <ng-container *ngIf="row.status!=='PENDING'">
+                    <mat-icon [color]="'warn'">block</mat-icon>
+                </ng-container>
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="cancel">
+            <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['cancel']|translate}}</th>
+            <td mat-cell *matCellDef="let row" class="table-icon">
+                <ng-container *ngIf="row.status==='PENDING'">
+                    <mat-icon (click)="cancel(row.id)" [color]="'warn'">delete_outline</mat-icon>
+                </ng-container>
+                <ng-container *ngIf="row.status!=='PENDING'">
+                    <mat-icon [color]="'warn'">block</mat-icon>
+                </ng-container>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+    </table>
+</div>
+
+<mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
+    [pageSize]="pageSize" (page)="pageHandler($event)">
+</mat-paginator>
+</div>

@@ -33,7 +33,14 @@ public class SubRequestQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, TYPE);
         String s = stringStringMap.get(TYPE);
         if (s == null || s.isBlank()) {
-            SubRequestQueryType subRequestQueryType = SubRequestQueryType.valueOf(s);
+            throw new IllegalArgumentException("type is required");
+        } else {
+            SubRequestQueryType subRequestQueryType;
+            try {
+                subRequestQueryType = SubRequestQueryType.valueOf(s.toUpperCase());
+            } catch (NullPointerException ex) {
+                throw new IllegalArgumentException("missing sub request query type");
+            }
             if (subRequestQueryType.equals(SubRequestQueryType.MY_REQUEST)) {
                 this.createdBy = DomainRegistry.getCurrentUserService().getUserId();
             } else if (subRequestQueryType.equals(SubRequestQueryType.PENDING_APPROVAL)) {
@@ -43,8 +50,7 @@ public class SubRequestQuery extends QueryCriteria {
                 this.createdBy = DomainRegistry.getCurrentUserService().getUserId();
                 this.subRequestStatus = SubRequestStatus.APPROVED;
             }
-        } else {
-            throw new IllegalArgumentException("type is required");
+
         }
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.countRequired());

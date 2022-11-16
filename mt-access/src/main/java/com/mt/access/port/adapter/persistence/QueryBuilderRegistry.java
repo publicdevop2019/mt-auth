@@ -58,6 +58,12 @@ public class QueryBuilderRegistry {
 
 
     @Autowired
+    public void setJpaCriteriaApiSubRequestAdaptor(
+        SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor subRequestAdaptor) {
+        QueryBuilderRegistry.subRequestAdaptor = subRequestAdaptor;
+    }
+
+    @Autowired
     public void setJpaCriteriaApiUserRelationAdaptor(
         SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor userRelationAdaptor) {
         QueryBuilderRegistry.userRelationAdaptor = userRelationAdaptor;

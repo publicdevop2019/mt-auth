@@ -122,6 +122,21 @@ export class HttpProxyService {
     updateMyProfile(profile: IUpdateUser) {
         return this._httpClient.put<IUpdateUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile', profile);
     }
+    cancelSubRequest(id: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/cancel`, undefined, { headers: headerConfig });
+    }
+    approveSubRequest(id: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/approve`, undefined, { headers: headerConfig });
+    }
+    rejectSubRequest(id: string, changeId: string, rejectionReason: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/reject`, { rejectionReason: rejectionReason }, { headers: headerConfig });
+    }
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
     }
@@ -380,7 +395,7 @@ export class HttpProxyService {
     createEntity(entityRepo: string, entity: any, changeId: string, headers?: { [key: string]: string }): Observable<string> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        if(headers){
+        if (headers) {
             Object.keys(headers).forEach(key => {
                 headerConfig = headerConfig.set(key, headers[key])
             })
