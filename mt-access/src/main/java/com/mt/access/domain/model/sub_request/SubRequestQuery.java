@@ -7,6 +7,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class SubRequestQuery extends QueryCriteria {
     private final Sort sort;
     private Set<SubRequestId> ids;
     private UserId createdBy;
-    private SubRequestStatus subRequestStatus;
+    private Set<SubRequestStatus> subRequestStatuses;
     private Set<ProjectId> epProjectIds;
 
     public SubRequestQuery(SubRequestId id) {
@@ -27,6 +28,13 @@ public class SubRequestQuery extends QueryCriteria {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = Sort.byId(true);
+    }
+
+    private SubRequestQuery(UserId creatorUserId, String pageParam) {
+        setPageConfig(PageConfig.limited(pageParam, 50));
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = Sort.byId(true);
+        this.createdBy = creatorUserId;
     }
 
     public SubRequestQuery(String queryParam, String pageParam) {
@@ -43,24 +51,29 @@ public class SubRequestQuery extends QueryCriteria {
             }
             if (subRequestQueryType.equals(SubRequestQueryType.MY_REQUEST)) {
                 this.createdBy = DomainRegistry.getCurrentUserService().getUserId();
+                Set<SubRequestStatus> enums = new HashSet<>();
+                enums.add(SubRequestStatus.PENDING);
+                enums.add(SubRequestStatus.REJECTED);
+                enums.add(SubRequestStatus.CANCELLED);
+                this.subRequestStatuses = enums;
             } else if (subRequestQueryType.equals(SubRequestQueryType.PENDING_APPROVAL)) {
                 this.epProjectIds = DomainRegistry.getCurrentUserService().getTenantIds();
-                this.subRequestStatus = SubRequestStatus.PENDING;
-            } else if (subRequestQueryType.equals(SubRequestQueryType.MY_SUBSCRIPTIONS)) {
-                this.createdBy = DomainRegistry.getCurrentUserService().getUserId();
-                this.subRequestStatus = SubRequestStatus.APPROVED;
+                this.subRequestStatuses = Collections.singleton(SubRequestStatus.PENDING);
             }
-
         }
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.countRequired());
         this.sort = Sort.byId(true);
     }
 
+    public static SubRequestQuery subscriptions(String pageParam) {
+        return new SubRequestQuery(DomainRegistry.getCurrentUserService().getUserId(), pageParam);
+    }
+
+
     public enum SubRequestQueryType {
         MY_REQUEST,
         PENDING_APPROVAL,
-        MY_SUBSCRIPTIONS
     }
 
     @Getter

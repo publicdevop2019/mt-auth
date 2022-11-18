@@ -125,17 +125,17 @@ export class HttpProxyService {
     cancelSubRequest(id: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/cancel`, undefined, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscriptions/requests/${id}/cancel`, undefined, { headers: headerConfig });
     }
     approveSubRequest(id: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/approve`, undefined, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscriptions/requests/${id}/approve`, undefined, { headers: headerConfig });
     }
     rejectSubRequest(id: string, changeId: string, rejectionReason: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscription/request/${id}/reject`, { rejectionReason: rejectionReason }, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscriptions/requests/${id}/reject`, { rejectionReason: rejectionReason }, { headers: headerConfig });
     }
     checkSum() {
         return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');

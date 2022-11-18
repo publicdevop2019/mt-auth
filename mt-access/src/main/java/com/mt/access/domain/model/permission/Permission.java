@@ -361,6 +361,7 @@ public class Permission extends Auditable {
                     new PermissionId("0Y8M0IQQ5FK0"),
                     new PermissionId("0Y8M0IR20GBI"),
                     new PermissionId("0Y8M0IRD8ZSN"),
+                    new PermissionId("0Y8M4M3J9HJ4"),
                     new PermissionId("0Y8M0IRN8L4W")
                 )
                     .collect(Collectors.toSet()));

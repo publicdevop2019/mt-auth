@@ -9,6 +9,8 @@ public interface SubRequestRepository {
 
     SumPagedRep<SubRequest> getByQuery(SubRequestQuery query);
 
+    SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query);
+
     void remove(SubRequest e);
 
     Optional<SubRequest> getById(SubRequestId id);

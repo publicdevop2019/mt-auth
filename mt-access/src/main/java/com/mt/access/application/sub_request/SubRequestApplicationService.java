@@ -26,12 +26,34 @@ public class SubRequestApplicationService {
 
     public static final String SUB_REQUEST = "SUB_REQUEST";
 
+    /**
+     * query subscription request based on given params
+     *
+     * @param queryParam query info
+     * @param pageParam  page info
+     * @return paginated data
+     */
     public SumPagedRep<SubRequest> query(String queryParam, String pageParam) {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         DomainRegistry.getPermissionCheckService()
             .canAccess(tenantIds, SUB_REQ_MNGMT);
+        SubRequestQuery subRequestQuery = new SubRequestQuery(queryParam, pageParam);
         return DomainRegistry.getSubRequestRepository()
-            .getByQuery(new SubRequestQuery(queryParam, pageParam));
+            .getByQuery(subRequestQuery);
+    }
+
+    /**
+     * get subscriptions with pagination
+     *
+     * @param pageParam page info
+     * @return paginated data
+     */
+    public SumPagedRep<SubRequest> subscriptions(String pageParam) {
+        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(tenantIds, SUB_REQ_MNGMT);
+        SubRequestQuery subRequestQuery = SubRequestQuery.subscriptions(pageParam);
+        return DomainRegistry.getSubRequestRepository().getMySubscriptions(subRequestQuery);
     }
 
     /**

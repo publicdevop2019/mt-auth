@@ -9,12 +9,17 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.Collections;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
+
 
 public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     JpaRepository<SubRequest, Long> {
@@ -35,6 +40,24 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
 
+    default SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query) {
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        TypedQuery<SubRequest> getMySubscriptions =
+            entityManager.createNamedQuery("getMySubscriptions", SubRequest.class);
+        getMySubscriptions.setHint("org.hibernate.cacheable", true);
+        getMySubscriptions.setParameter("createdBy", query.getCreatedBy().getDomainId());
+        List<SubRequest> data = getMySubscriptions
+            .setFirstResult(BigDecimal.valueOf(query.getPageConfig().getOffset()).intValue())
+            .setMaxResults(query.getPageConfig().getPageSize())
+            .getResultList();
+        TypedQuery<Long> getMySubscriptionsCount =
+            entityManager.createNamedQuery("getMySubscriptionsCount", Long.class);
+        getMySubscriptionsCount.setHint("org.hibernate.cacheable", true);
+        getMySubscriptionsCount.setParameter("createdBy", query.getCreatedBy().getDomainId());
+        Long count = getMySubscriptionsCount.getSingleResult();
+        return new SumPagedRep<>(data, count);
+    }
+
     @Component
     class JpaCriteriaApiSubRequestAdaptor {
         public SumPagedRep<SubRequest> execute(SubRequestQuery query) {
@@ -52,9 +75,9 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     SubRequest_.ENDPOINT_PROJECT_ID, queryContext));
-            Optional.ofNullable(query.getSubRequestStatus()).ifPresent(e -> QueryUtility
+            Optional.ofNullable(query.getSubRequestStatuses()).ifPresent(e -> QueryUtility
                 .addEnumLiteralEqualPredicate(
-                    Collections.singleton(e),
+                    e,
                     SubRequest_.SUB_REQUEST_STATUS, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
@@ -66,4 +89,5 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
             return QueryUtility.pagedQuery(query, queryContext);
         }
     }
+
 }

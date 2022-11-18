@@ -849,5 +849,7 @@ export const zhHans = {
     "SUB_REQ_APPROVED": "已批准",
     "ENTER_REJECTION_REASON": "请输入拒绝原因",
     "SUB_REQ_REJECTED": "已拒绝",
+    "SUB_REQ_CANCELLED": "已取消",
     "REJECTION_REASON": "拒绝原因",
+    "ENDPOINT_STATUS": "API状态",
 }

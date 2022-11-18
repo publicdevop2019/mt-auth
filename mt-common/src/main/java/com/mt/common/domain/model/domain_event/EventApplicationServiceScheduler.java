@@ -31,7 +31,7 @@ public class EventApplicationServiceScheduler {
     @PostConstruct
     private void checkValue() {
         //notification rate must be bigger than lockInSeconds
-        if (frequency/1000 <= lockInSeconds) {
+        if (frequency <= lockInSeconds * 1000) {
             pauseJob = true;
             throw new IllegalArgumentException(
                 "notification rate must be bigger than lockInSeconds, job is paused");

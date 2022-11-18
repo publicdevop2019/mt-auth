@@ -10,6 +10,7 @@ import com.mt.access.application.sub_request.command.CreateSubRequestCommand;
 import com.mt.access.application.sub_request.command.RejectSubRequestCommand;
 import com.mt.access.application.sub_request.command.UpdateSubRequestCommand;
 import com.mt.access.application.sub_request.representation.SubRequestRepresentation;
+import com.mt.access.application.sub_request.representation.SubscriptionRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -36,7 +37,7 @@ public class SubRequestResource {
      * @param pageParam page size and page number
      * @return paginated subscription request
      */
-    @GetMapping(path = "subscription/request")
+    @GetMapping(path = "subscriptions/requests")
     public ResponseEntity<SumPagedRep<SubRequestRepresentation>> getMySubscriptionRequests(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -54,6 +55,29 @@ public class SubRequestResource {
     }
 
     /**
+     * get all subscriptions regardless of project
+     *
+     * @param jwt       user jwt
+     * @param pageParam page size and page number
+     * @return paginated subscription request
+     */
+    @GetMapping(path = "subscriptions")
+    public ResponseEntity<SumPagedRep<SubscriptionRepresentation>> getMySubscription(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        SumPagedRep<SubRequest> result =
+            ApplicationServiceRegistry.getSubRequestApplicationService()
+                .subscriptions(pageParam);
+        SumPagedRep<SubscriptionRepresentation> resp =
+            new SumPagedRep<>(result, SubscriptionRepresentation::new);
+        SubscriptionRepresentation.updateProjectNames(resp);
+        SubscriptionRepresentation.updateEndpointDetails(resp);
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
      * create subscription requests
      *
      * @param jwt      user jwt
@@ -61,7 +85,7 @@ public class SubRequestResource {
      * @param changeId unique change id
      * @return void
      */
-    @PostMapping(path = "subscription/request")
+    @PostMapping(path = "subscriptions/requests")
     public ResponseEntity<Void> create(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -83,7 +107,7 @@ public class SubRequestResource {
      * @param changeId unique change id
      * @return void
      */
-    @PutMapping(path = "subscription/request/{id}")
+    @PutMapping(path = "subscriptions/requests/{id}")
     public ResponseEntity<Void> update(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -104,7 +128,7 @@ public class SubRequestResource {
      * @param changeId unique change id
      * @return void
      */
-    @PostMapping(path = "subscription/request/{id}/cancel")
+    @PostMapping(path = "subscriptions/requests/{id}/cancel")
     public ResponseEntity<Void> cancel(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -124,7 +148,7 @@ public class SubRequestResource {
      * @param changeId unique change id
      * @return void
      */
-    @PostMapping(path = "subscription/request/{id}/approve")
+    @PostMapping(path = "subscriptions/requests/{id}/approve")
     public ResponseEntity<Void> approve(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -144,7 +168,7 @@ public class SubRequestResource {
      * @param changeId unique change id
      * @return void
      */
-    @PostMapping(path = "subscription/request/{id}/reject")
+    @PostMapping(path = "subscriptions/requests/{id}/reject")
     public ResponseEntity<Void> reject(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
