@@ -263,6 +263,7 @@ public class Permission extends Auditable {
         Permission p3 = Permission
             .autoCreateForProject(projectId, new PermissionId(), EDIT_PROJECT_INFO,
                 PermissionType.COMMON, projectMgntId, tenantId, null);
+        //client mngmnt
         PermissionId clientMgntId = new PermissionId();
         Permission p4 = Permission
             .autoCreateForProject(projectId, clientMgntId, CLIENT_MNGMT, PermissionType.COMMON,
@@ -280,7 +281,7 @@ public class Permission extends Auditable {
                 clientMgntId, tenantId, Stream
                     .of(new PermissionId("0Y8HHJ47NBD8"), new PermissionId("0Y8HHJ47NBD7"),
                         new PermissionId("0Y8HHJ47NBDQ")).collect(Collectors.toSet()));
-
+        //api mngmnt
         PermissionId apiMgntId = new PermissionId();
         Permission p11 = Permission
             .autoCreateForProject(projectId, apiMgntId, API_MNGMT, PermissionType.COMMON, rootId,
@@ -295,7 +296,7 @@ public class Permission extends Auditable {
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_API,
                 apiMgntId, tenantId, Stream
                     .of(new PermissionId("0Y8HHJ47NBDV"), new PermissionId("0Y8HHJ47NBDN"),
-                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8HHJ47NBDW"))
+                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8HHJ47NBDW"), new PermissionId("0Y8M4UTZLTLI"))
                     .collect(Collectors.toSet()));
         Permission p16 = Permission
             .autoCreateForProject(projectId, new PermissionId(), CREATE_API, PermissionType.COMMON,

@@ -5,8 +5,8 @@ import static com.mt.access.domain.model.permission.Permission.EDIT_API;
 import static com.mt.access.domain.model.permission.Permission.VIEW_API;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
+import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
@@ -27,7 +27,7 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.project.ProjectQuery;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -75,7 +75,7 @@ public class EndpointApplicationService {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_API);
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 String resourceId = command.getResourceId();
                 Optional<Client> client =
@@ -149,7 +149,7 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
@@ -186,7 +186,7 @@ public class EndpointApplicationService {
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery)
@@ -204,7 +204,7 @@ public class EndpointApplicationService {
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
@@ -229,7 +229,7 @@ public class EndpointApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository()
                     .endpointsOfQuery(new EndpointQuery(endpointId, projectId1)).findFirst();
@@ -259,7 +259,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void reloadEndpointCache(String changeId) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getEndpointService().reloadEndpointCache();
                 return null;
@@ -268,7 +268,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(ClientDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle delete client event");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
@@ -285,7 +285,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CorsProfileRemoved deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cors profile removed");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
@@ -307,7 +307,7 @@ public class EndpointApplicationService {
      */
     @Transactional
     public void handle(CorsProfileUpdated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle cors profile updated");
                 CorsProfileId corsProfileId =
@@ -324,7 +324,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CacheProfileRemoved deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cache profile removed");
                 CacheProfileId profileId =
@@ -343,7 +343,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CacheProfileUpdated deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cache profile updated");
                 CacheProfileId profileId =
@@ -374,12 +374,31 @@ public class EndpointApplicationService {
 
     /**
      * internal query endpoints
+     *
      * @param endpointIds endpoint ids
      * @return matched endpoints
      */
     public Set<Endpoint> internalQuery(Set<EndpointId> endpointIds) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository()
             .endpointsOfQuery(e), new EndpointQuery(endpointIds));
+    }
+
+    @Transactional
+    public void expireEndpoint(EndpointExpireCommand command, String projectId, String id,
+                               String changeId) {
+        log.debug("start of expire endpoint");
+        EndpointId endpointId = new EndpointId(id);
+        EndpointQuery endpointQuery =
+            new EndpointQuery(endpointId, new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                Optional<Endpoint> endpoint =
+                    DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+                endpoint.ifPresent(e -> e.expire(command.getExpireReason()));
+                return null;
+            }, ENDPOINT);
     }
 
 

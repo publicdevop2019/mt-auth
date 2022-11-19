@@ -106,6 +106,9 @@ public class Endpoint extends Auditable {
 
     private boolean shared = false;
 
+    private boolean expired = false;
+    private String expireReason;
+
 
     public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId,
                     String name, String description,
@@ -157,6 +160,9 @@ public class Endpoint extends Auditable {
     }
 
     public void remove() {
+        if(shared && !expired){
+            throw new IllegalStateException("shared endpoint must be expired first before deletion");
+        }
         DomainRegistry.getEndpointRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new EndpointCollectionModified());
@@ -171,6 +177,9 @@ public class Endpoint extends Auditable {
         String name, String description, String path, String method,
         boolean isWebsocket,
         boolean csrfEnabled, CorsProfileId corsProfileId, boolean shared) {
+        if(expired){
+            throw new IllegalStateException("expired endpoint cannot be updated");
+        }
         setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
@@ -229,4 +238,13 @@ public class Endpoint extends Auditable {
         return Objects.hashCode(super.hashCode(), endpointId);
     }
 
+    public void expire(String expireReason) {
+        if (this.shared) {
+            this.expired = true;
+            Validator.notBlank(expireReason);
+            this.expireReason = expireReason;
+        }else{
+            throw new IllegalStateException("only shared endpoint can be expired");
+        }
+    }
 }

@@ -10,6 +10,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
+import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
@@ -150,6 +151,19 @@ public class EndpointResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .removeEndpoints(projectId, queryParam, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("projects/{projectId}/endpoints/{id}/expire")
+    public ResponseEntity<Void> expireEndpoint(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestBody EndpointExpireCommand command
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getEndpointApplicationService()
+            .expireEndpoint(command,projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 

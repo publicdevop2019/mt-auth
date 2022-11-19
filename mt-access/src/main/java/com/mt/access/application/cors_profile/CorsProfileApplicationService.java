@@ -84,7 +84,7 @@ public class CorsProfileApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CorsProfileId corsProfileId = new CorsProfileId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<CorsProfile> corsProfile =
                     DomainRegistry.getCorsProfileRepository().corsProfileOfId(corsProfileId);

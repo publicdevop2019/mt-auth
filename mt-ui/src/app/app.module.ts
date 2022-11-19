@@ -133,8 +133,8 @@ import { SubRequestComponent } from './pages/common/sub-request/sub-request.comp
 import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
 import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
-import { SubReqRejectDialogComponent } from './components/sub-req-reject-dialog/sub-req-reject-dialog.component';
-
+import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
+import {MatTooltipModule} from '@angular/material/tooltip';
 @NgModule({
   declarations: [
     AppComponent,
@@ -216,7 +216,7 @@ import { SubReqRejectDialogComponent } from './components/sub-req-reject-dialog/
     MySubReqComponent,
     PendingSubReqComponent,
     MySubsComponent,
-    SubReqRejectDialogComponent,
+    EnterReasonDialogComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -235,6 +235,7 @@ import { SubReqRejectDialogComponent } from './components/sub-req-reject-dialog/
     MatCheckboxModule,
     MatRadioModule,
     MatExpansionModule,
+    MatTooltipModule,
     MatCardModule,
     MatPaginatorModule,
     MatMenuModule,

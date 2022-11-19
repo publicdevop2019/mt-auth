@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
-import { switchMap, switchMapTo } from 'rxjs/operators';
+import { filter, switchMap, switchMapTo } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { SubReqRejectDialogComponent } from 'src/app/components/sub-req-reject-dialog/sub-req-reject-dialog.component';
+import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
 import { IMySubReq } from '../my-sub-req/my-sub-req.component';
@@ -51,8 +51,8 @@ export class PendingSubReqComponent extends SummaryEntityComponent<IMySubReq, IM
     })
   }
   reject(id: string) {
-    const dialogRef = this.dialog.open(SubReqRejectDialogComponent, { data: {} });
-    dialogRef.afterClosed().pipe(switchMap((e: string) => {
+    const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
+    dialogRef.afterClosed().pipe(filter(e=>e)).pipe(switchMap((e: string) => {
       return this.entitySvc.rejectSubRequest(id, e)
     })).subscribe(() => {
       this.entitySvc.notify(true)

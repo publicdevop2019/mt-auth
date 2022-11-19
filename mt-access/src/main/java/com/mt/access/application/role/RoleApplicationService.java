@@ -68,7 +68,7 @@ public class RoleApplicationService {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
@@ -86,7 +86,7 @@ public class RoleApplicationService {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
@@ -160,7 +160,7 @@ public class RoleApplicationService {
      */
     @Transactional
     public void handle(ProjectPermissionCreated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle project permission created event");
                 ProjectId tenantProjectId = event.getProjectId();
@@ -184,7 +184,7 @@ public class RoleApplicationService {
     @Transactional
     @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientCreated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
                 log.debug("handle client created event");
                 ProjectId projectId = event.getProjectId();
@@ -217,7 +217,7 @@ public class RoleApplicationService {
     @Transactional
     @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientDeleted event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
                 log.debug("handle client removed event {}", event.getDomainId().getDomainId());
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
@@ -239,7 +239,7 @@ public class RoleApplicationService {
      */
     @Transactional
     public void handle(EndpointShareRemoved event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint shared removed event");
                 PermissionId permissionId = event.getPermissionId();

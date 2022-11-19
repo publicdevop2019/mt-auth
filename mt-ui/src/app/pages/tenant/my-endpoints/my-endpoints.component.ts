@@ -17,9 +17,10 @@ import { ProjectService } from 'src/app/services/project.service';
 import { uniqueObject } from 'src/app/clazz/utility';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { combineLatest, ReplaySubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-
+import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
+import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -104,6 +105,8 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         edit: 'EDIT',
         clone: 'CLONE',
         delete: 'DELETE',
+        expire: 'EXPIRE',
+        expireReason: 'EXPIRE_REASON',
       } : {
         id: 'ID',
         name: 'NAME',
@@ -131,5 +134,16 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
       },
     });
+  }
+  doExpireById(id:string){
+    const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
+    dialogRef.afterClosed().pipe(filter(e=>e)).pipe(switchMap((reason: string) => {
+      return this.entitySvc.expireEndpoint(id,reason,UUID())
+    })).subscribe(() => {
+      this.entitySvc.notify(true)
+      this.entitySvc.refreshPage()
+    }, () => {
+      this.entitySvc.notify(false)
+    })
   }
 }

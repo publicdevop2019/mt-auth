@@ -33,6 +33,7 @@ import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserSession;
 import com.mt.access.domain.model.user.event.UserDeleted;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -68,7 +69,7 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
         UserId userId = new UserId();
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(operationId,
                 (change) -> {
                     UserId userId1 = DomainRegistry.getNewUserService().create(
@@ -109,7 +110,7 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     user1.lockUser(
                         command.isLocked()
@@ -132,7 +133,7 @@ public class UserApplicationService implements UserDetailsService {
         if (user.isPresent()) {
             User user1 = user.get();
             if (!DEFAULT_USERID.equals(user1.getUserId().getDomainId())) {
-                ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+                CommonApplicationServiceRegistry.getIdempotentService()
                     .idempotent(changeId, (ignored) -> {
                         DomainRegistry.getUserRepository().remove(user1);
                         return null;
@@ -152,7 +153,7 @@ public class UserApplicationService implements UserDetailsService {
             .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
                 if (user.isPresent()) {
@@ -176,7 +177,7 @@ public class UserApplicationService implements UserDetailsService {
         DomainRegistry.getAuditService()
             .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch many use",
                 commands.toString());
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().batchLock(commands);
                 return null;
@@ -191,7 +192,7 @@ public class UserApplicationService implements UserDetailsService {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
             User user1 = user.get();
-            ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+            CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     DomainRegistry.getUserService()
                         .updatePassword(user1, new CurrentPassword(command.getCurrentPwd()),
@@ -207,7 +208,7 @@ public class UserApplicationService implements UserDetailsService {
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
             .logUserAction(command.getEmail(), "forget password");
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
                     OperationType.PWD_RESET);
@@ -221,7 +222,7 @@ public class UserApplicationService implements UserDetailsService {
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
             .logUserAction(command.getEmail(), "reset password");
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),
                     new UserPassword(command.getNewPassword()),

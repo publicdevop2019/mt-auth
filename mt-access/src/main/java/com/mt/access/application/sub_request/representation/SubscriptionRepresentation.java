@@ -12,11 +12,12 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SubscriptionRepresentation extends BasicSubRequest{
+public class SubscriptionRepresentation extends BasicSubRequest {
     private final String id;
     private final int maxInvokePerSecond;
     private final int maxInvokePerMinute;
-    private String endpointStatus;
+    private boolean expired = false;
+    private String expireReason;
 
     public SubscriptionRepresentation(SubRequest subRequest) {
         super(subRequest);
@@ -27,6 +28,7 @@ public class SubscriptionRepresentation extends BasicSubRequest{
 
     /**
      * update view with endpoint name and status
+     *
      * @param list paginated data
      */
     public static void updateEndpointDetails(SumPagedRep<SubscriptionRepresentation> list) {
@@ -38,9 +40,10 @@ public class SubscriptionRepresentation extends BasicSubRequest{
                 ApplicationServiceRegistry.getEndpointApplicationService().internalQuery(collect);
             list.getData().forEach(e -> collect2.stream().filter(ee ->
                 ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
-                .ifPresent(eee -> {
-                    e.setEndpointName(eee.getName());
-                    e.setEndpointStatus("TODO");
+                .ifPresent(ep -> {
+                    e.setEndpointName(ep.getName());
+                    e.setExpired(ep.isExpired());
+                    e.setExpireReason(ep.getExpireReason());
                 }));
         }
     }

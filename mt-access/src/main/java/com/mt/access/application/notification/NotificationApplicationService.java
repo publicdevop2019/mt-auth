@@ -49,7 +49,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(HangingTxDetected event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -61,7 +61,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(NewUserRegistered event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -73,7 +73,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(ProjectOnboardingComplete event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -85,7 +85,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(ProxyCacheCheckFailedEvent event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -97,7 +97,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(CrossDomainValidationService.ValidationFailedEvent event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -109,7 +109,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(UserMfaNotificationEvent event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -121,7 +121,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(UserPwdResetCodeUpdated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -133,7 +133,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(PendingUserActivationCodeUpdated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -145,7 +145,7 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(CrossDomainValidationFailureCheck event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);

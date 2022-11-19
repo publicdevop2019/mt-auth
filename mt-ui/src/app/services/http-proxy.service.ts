@@ -265,6 +265,11 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._createUser(this._getToken(token), registerFG, changeId)))
     }
+    expireEndpoint(projectId: string, id: string, reason: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/expire`, { expireReason: reason }, { headers: headerConfig })
+    }
     private _getAuthHeader(islogin: boolean, token?: string): HttpHeaders {
         return islogin ? new HttpHeaders().append('Authorization',
             'Basic ' + btoa(environment.loginClientId + ':' + environment.clientSecret)) :

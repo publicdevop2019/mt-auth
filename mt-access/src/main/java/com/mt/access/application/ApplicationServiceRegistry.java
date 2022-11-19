@@ -59,8 +59,6 @@ public class ApplicationServiceRegistry {
     @Getter
     private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
     @Getter
-    private static IdempotentService applicationServiceIdempotentWrapper;
-    @Getter
     private static CacheProfileApplicationService cacheProfileApplicationService;
     @Getter
     private static ProxyApplicationService proxyApplicationService;
@@ -241,13 +239,6 @@ public class ApplicationServiceRegistry {
     public void setPendingUserApplicationService(
         PendingUserApplicationService pendingUserApplicationService) {
         ApplicationServiceRegistry.pendingUserApplicationService = pendingUserApplicationService;
-    }
-
-    @Autowired
-    public void setClientIdempotentApplicationService(
-        IdempotentService clientIdempotentApplicationService) {
-        ApplicationServiceRegistry.applicationServiceIdempotentWrapper =
-            clientIdempotentApplicationService;
     }
 
 

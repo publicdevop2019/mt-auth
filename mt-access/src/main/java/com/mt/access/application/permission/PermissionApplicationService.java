@@ -67,7 +67,7 @@ public class PermissionApplicationService {
             new PermissionQuery(permissionId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Permission> first =
                     DomainRegistry.getPermissionRepository().getByQuery(permissionQuery)
@@ -119,7 +119,7 @@ public class PermissionApplicationService {
             new PermissionQuery(permissionId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Permission> permission =
                     DomainRegistry.getPermissionRepository().getByQuery(permissionQuery)
@@ -145,7 +145,7 @@ public class PermissionApplicationService {
         PermissionId permissionId = new PermissionId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_PERMISSION);
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Set<PermissionId> linkedPermId = null;
                 if (command.getLinkedApiIds() != null && !command.getLinkedApiIds().isEmpty()) {
@@ -179,7 +179,7 @@ public class PermissionApplicationService {
 
     @Transactional
     public void handle(StartNewProjectOnboarding deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle project created event");
                 ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
@@ -191,7 +191,7 @@ public class PermissionApplicationService {
 
     @Transactional
     public void handle(SecureEndpointCreated deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint created event");
                 EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
@@ -206,7 +206,7 @@ public class PermissionApplicationService {
 
     @Transactional
     public void handle(EndpointShareAdded deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint shared added event");
                 PermissionId permissionId = deserialize.getPermissionId();
@@ -220,7 +220,7 @@ public class PermissionApplicationService {
 
     @Transactional
     public void handle(EndpointShareRemoved deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint shared remove event");
                 PermissionId permissionId = deserialize.getPermissionId();
@@ -238,7 +238,7 @@ public class PermissionApplicationService {
      */
     @Transactional
     public void handle(SecureEndpointRemoved event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle secured endpoint remove event");
                 Set<PermissionId> permissionIds = event.getPermissionIds();

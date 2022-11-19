@@ -18,6 +18,7 @@ import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.infrastructure.AppConstant;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
@@ -46,7 +47,7 @@ public class UserRelationApplicationService {
 
     @Transactional
     public void handle(NewProjectRoleCreated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle new project role created event");
                 RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());

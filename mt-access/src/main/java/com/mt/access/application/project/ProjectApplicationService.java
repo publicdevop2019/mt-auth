@@ -79,7 +79,7 @@ public class ProjectApplicationService {
     @AuditLog(actionName = "update project")
     public void replace(String id, ProjectUpdateCommand command, String changeId) {
         ProjectId projectId = new ProjectId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Project> first =
                     DomainRegistry.getProjectRepository().getByQuery(new ProjectQuery(projectId))
@@ -112,7 +112,7 @@ public class ProjectApplicationService {
     @AuditLog(actionName = "patch project")
     public void patch(String id, JsonPatch command, String changeId) {
         ProjectId projectId = new ProjectId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Project> corsProfile =
                     DomainRegistry.getProjectRepository().getById(projectId);
@@ -135,7 +135,7 @@ public class ProjectApplicationService {
     @AuditLog(actionName = "create project")
     public String create(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 Project project = new Project(projectId, command.getName(), userId);
