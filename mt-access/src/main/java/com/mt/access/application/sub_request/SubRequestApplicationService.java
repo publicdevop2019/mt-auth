@@ -9,12 +9,16 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
+import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
@@ -180,5 +184,22 @@ public class SubRequestApplicationService {
                     return null;
                 }, SUB_REQUEST);
         });
+    }
+
+    /**
+     * send bell notification to all endpoint subscriber
+     * @param event endpoint expired event
+     */
+    @Transactional
+    public void handle(EndpointExpired event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                DomainId domainId = event.getDomainId();
+                EndpointId endpointId = new EndpointId(domainId.getDomainId());
+                Set<UserId> subscribers=DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
+                CommonDomainRegistry.getDomainEventRepository().append(new SubscriberEndpointExpireEvent(endpointId,subscribers));
+                return null;
+            }, SUB_REQUEST);
+
     }
 }

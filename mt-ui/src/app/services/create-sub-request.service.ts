@@ -15,4 +15,9 @@ export class CreateSubRequestService extends EntityCommonService<ISubRequest, IS
   constructor(public httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }
+  create(s: ISubRequest, changeId: string) {
+    this.httpProxySvc.createEntity(this.entityRepo, s, changeId).subscribe(next => {
+        this.notify(!!next)
+    });
+};
 }

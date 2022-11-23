@@ -44,7 +44,7 @@
         <ng-container matColumnDef="endpointStatus">
             <th mat-header-cell *matHeaderCellDef> {{columnList['endpointStatus']|translate}} </th>
             <td mat-cell *matCellDef="let row">
-                {{row.endpointStatus|translate}}
+                <mat-icon *ngIf="row.expired" style="padding-right:8px;" [color]="'warn'" matTooltip="{{getReason(row.expireReason)|async}}">error</mat-icon>
             </td>
         </ng-container>
 

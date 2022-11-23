@@ -1,10 +1,13 @@
 package com.mt.access.port.adapter.persistence.sub_request;
 
+import com.mt.access.domain.model.cors_profile.CorsProfileId;
+import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.sub_request.SubRequest_;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -12,12 +15,13 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 
@@ -39,6 +43,11 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     default SumPagedRep<SubRequest> getByQuery(SubRequestQuery query) {
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
+    default Set<UserId> getEndpointSubscriber(EndpointId endpointId){
+        return getEndpointSubscriber_(endpointId);
+    }
+    @Query("select distinct sr.createdBy from SubRequest sr where sr.endpointId = ?1 and sr.subRequestStatus='APPROVED'")
+    Set<UserId> getEndpointSubscriber_(EndpointId id);
 
     default SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query) {
         EntityManager entityManager = QueryUtility.getEntityManager();

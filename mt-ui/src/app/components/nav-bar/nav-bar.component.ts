@@ -208,6 +208,8 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+  ];
+  menuEp: INavElement[] = [
     {
       link: 'api-center',
       display: 'API_CENTER',

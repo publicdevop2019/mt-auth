@@ -13,6 +13,7 @@ import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
@@ -235,6 +236,18 @@ public class NotificationApplicationService {
 
     @Transactional
     public void handle(UnrountableMsgReceivedEvent event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (command) -> {
+                Notification notification = new Notification(event);
+                DomainRegistry.getNotificationRepository().add(notification);
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new SendBellNotificationEvent(notification));
+                return null;
+            }, NOTIFICATION);
+    }
+
+    @Transactional
+    public void handle(SubscriberEndpointExpireEvent event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (command) -> {
                 Notification notification = new Notification(event);

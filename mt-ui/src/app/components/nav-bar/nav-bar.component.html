@@ -35,6 +35,21 @@
                     <mat-icon style="padding-right:8px" *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display| translate}}
                 </mat-list-item>
             </mat-nav-list>
+            <mat-expansion-panel (opened)="openedHandler('api_nav')" (closed)="closedHander('api_nav')"
+                [expanded]="navExpand('api_nav')">
+                <mat-expansion-panel-header>
+                    <mat-panel-title style="font-weight: 600;">
+                        {{'ENDPOINT_CENTER'| translate}}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-nav-list>
+                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
+                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuEp">
+                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                        {{nav.display| translate}}
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-expansion-panel>
             <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')" *ngIf="hasAuth()"
                 [expanded]="navExpand('admin_nav')">
                 <mat-expansion-panel-header>

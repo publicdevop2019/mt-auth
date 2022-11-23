@@ -6,6 +6,7 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
@@ -239,10 +240,14 @@ public class Endpoint extends Auditable {
     }
 
     public void expire(String expireReason) {
+        if(this.expired){
+            throw new IllegalStateException("endpoint can only expire once");
+        }
         if (this.shared) {
             this.expired = true;
             Validator.notBlank(expireReason);
             this.expireReason = expireReason;
+            CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
         }else{
             throw new IllegalStateException("only shared endpoint can be expired");
         }

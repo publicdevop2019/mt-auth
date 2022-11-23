@@ -396,7 +396,9 @@ public class EndpointApplicationService {
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
-                endpoint.ifPresent(e -> e.expire(command.getExpireReason()));
+                endpoint.ifPresent(e -> {
+                    e.expire(command.getExpireReason());
+                });
                 return null;
             }, ENDPOINT);
     }
