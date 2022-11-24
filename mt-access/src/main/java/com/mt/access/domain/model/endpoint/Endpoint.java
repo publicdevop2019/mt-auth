@@ -107,6 +107,12 @@ public class Endpoint extends Auditable {
 
     private boolean shared = false;
 
+    private boolean external = false;
+
+    private int maxInvokePerSec = 0;
+
+    private int maxInvokePerMin = 0;
+
     private boolean expired = false;
     private String expireReason;
 
@@ -115,7 +121,8 @@ public class Endpoint extends Auditable {
                     String name, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled,
-                    CorsProfileId corsProfileId, boolean shared
+                    CorsProfileId corsProfileId, boolean shared,
+                    boolean external, int maxInvokePerSec, int maxInvokePerMinute
     ) {
         super();
         PermissionId permissionId = null;
@@ -136,7 +143,7 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        this.shared = shared;
+        setShared(shared);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
@@ -145,6 +152,9 @@ public class Endpoint extends Auditable {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointCreated(getProjectId(), this));
         }
+        this.external = external;
+        this.maxInvokePerSec = maxInvokePerSec;
+        this.maxInvokePerMin = maxInvokePerMinute;
     }
 
     public static void remove(Set<Endpoint> endpointSet) {
@@ -161,8 +171,9 @@ public class Endpoint extends Auditable {
     }
 
     public void remove() {
-        if(shared && !expired){
-            throw new IllegalStateException("shared endpoint must be expired first before deletion");
+        if (shared && !expired) {
+            throw new IllegalStateException(
+                "shared endpoint must be expired first before deletion");
         }
         DomainRegistry.getEndpointRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository()
@@ -177,8 +188,8 @@ public class Endpoint extends Auditable {
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
         boolean isWebsocket,
-        boolean csrfEnabled, CorsProfileId corsProfileId, boolean shared) {
-        if(expired){
+        boolean csrfEnabled, CorsProfileId corsProfileId) {
+        if (expired) {
             throw new IllegalStateException("expired endpoint cannot be updated");
         }
         setName(name);
@@ -189,16 +200,13 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        setShared(shared);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
     }
 
     private void setShared(boolean shared) {
-        if (this.shared && !shared) {
-            CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareRemoved(this));
-        } else if (!this.shared && shared) {
+        if (shared) {
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareAdded(this));
         }
         this.shared = shared;
@@ -240,7 +248,7 @@ public class Endpoint extends Auditable {
     }
 
     public void expire(String expireReason) {
-        if(this.expired){
+        if (this.expired) {
             throw new IllegalStateException("endpoint can only expire once");
         }
         if (this.shared) {
@@ -248,7 +256,7 @@ public class Endpoint extends Auditable {
             Validator.notBlank(expireReason);
             this.expireReason = expireReason;
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
-        }else{
+        } else {
             throw new IllegalStateException("only shared endpoint can be expired");
         }
     }

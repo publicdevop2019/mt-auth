@@ -69,7 +69,9 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
             this.fis.disableIfMatch(this.formId, ['isSecured'])//internal api does not require user authentication
             this.fis.formGroupCollection[this.formId].get('isSecured').setValue('', { emitEvent: false })
           } else {
-            this.fis.enableIfMatch(this.formId, ['isSecured'])
+            if(!this.aggregate){
+              this.fis.enableIfMatch(this.formId, ['isSecured'])
+            }
           }
         })
         this.fis.formGroupCollection[this.basicFormId].get('method').valueChanges.subscribe(next => {
@@ -168,8 +170,8 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     let secureFormGroup = cmpt.fis.formGroupCollection[cmpt.secureFormId];
     let perFormGroup = cmpt.fis.formGroupCollection[cmpt.performanceFormId];
     let catalogFormGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    const secured = !!catalogFormGroup.get('isSecured').value;
-    const external = !!catalogFormGroup.get('isExternal').value;
+    const secured = catalogFormGroup.get('isSecured').value === 'yes';
+    const external = catalogFormGroup.get('isExternal').value === 'yes';
     return {
       id: catalogFormGroup.get('id').value,
       description: basicFormGroup.get('description').value ? basicFormGroup.get('description').value : null,
@@ -180,7 +182,7 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
       secured: secured,
       external: external,
       websocket: basicFormGroup.get('isWebsocket').value === 'yes',
-      shared: !!catalogFormGroup.get('isShared').value,
+      shared: catalogFormGroup.get('isShared').value === 'yes',
       csrfEnabled: !!secureFormGroup.get('csrf').value,
       corsProfileId: noEmptyString(secureFormGroup.get("corsProfile").value),
       cacheProfileId: basicFormGroup.get('method').value === 'GET' ? noEmptyString(perFormGroup.get("cacheProfile").value) : null,

@@ -20,21 +20,24 @@ public class EndpointRepresentation {
     private Set<String> userRoles;
     private boolean secured;
     private boolean shared;
+    private boolean external;
+    private int maxInvokePerSecond;
+    private int maxInvokePerMinute;
     private boolean userOnly;
     private boolean clientOnly;
     private boolean websocket;
     private boolean csrfEnabled;
     private String corsProfileId;
-    private String roleId;
     private Integer version;
     private String cacheProfileId;
 
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
-        this.roleId =
-            endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
         this.websocket = endpoint.isWebsocket();
         this.shared = endpoint.isShared();
+        this.external = endpoint.isExternal();
+        this.maxInvokePerMinute = endpoint.getMaxInvokePerMin();
+        this.maxInvokePerSecond = endpoint.getMaxInvokePerSec();
         this.secured = endpoint.isSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();

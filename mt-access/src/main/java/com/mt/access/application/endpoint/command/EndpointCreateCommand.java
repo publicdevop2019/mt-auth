@@ -16,6 +16,8 @@ public class EndpointCreateCommand implements Serializable {
     private String cacheProfileId;
     private String resourceId;
     private String path;
-
+    private boolean external;
+    private int maxInvokePerSecond;
+    private int maxInvokePerMinute;
     private String method;
 }

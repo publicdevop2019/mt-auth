@@ -100,7 +100,10 @@ public class EndpointApplicationService {
                         command.getCorsProfileId() != null
                             ?
                             new CorsProfileId(command.getCorsProfileId()) : null,
-                        command.isShared()
+                        command.isShared(),
+                        command.isExternal(),
+                        command.getMaxInvokePerSecond(),
+                        command.getMaxInvokePerMinute()
                     );
                     DomainRegistry.getEndpointRepository().add(endpoint);
                     return endpointId.getDomainId();
@@ -167,8 +170,7 @@ public class EndpointApplicationService {
                         command.isCsrfEnabled(),
                         command.getCorsProfileId() != null
                             ?
-                            new CorsProfileId(command.getCorsProfileId()) : null,
-                        command.isShared()
+                            new CorsProfileId(command.getCorsProfileId()) : null
                     );
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
@@ -247,8 +249,7 @@ public class EndpointApplicationService {
                         afterPatch.getMethod(),
                         endpoint1.isWebsocket(),
                         endpoint1.isCsrfEnabled(),
-                        endpoint1.getCorsProfileId(),
-                        endpoint1.isShared()
+                        endpoint1.getCorsProfileId()
                     );
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
