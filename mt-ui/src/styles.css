@@ -20,9 +20,9 @@ body {
 .mat-expansion-panel {
   border-radius: 0px !important;
 }
-.mat-stepper-horizontal, .mat-stepper-vertical {
+/* .mat-stepper-horizontal, .mat-stepper-vertical {
   background-color: #fafafa;
-}
+} */
 /* start of table */
 table {
   width: 100%;

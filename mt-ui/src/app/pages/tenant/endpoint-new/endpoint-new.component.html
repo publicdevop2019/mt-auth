@@ -1,0 +1,48 @@
+<mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
+</mat-icon>
+<mat-horizontal-stepper >
+    <mat-step label="{{'CATALOG_EP_INFO'|translate}}"> 
+        <div style="width: 200px;">
+            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        </div>
+        <mat-card *ngIf="isInternalPrivate" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div>{{'INTERNAL_PRIVATE_NOTE'|translate}}</div>
+        </mat-card>
+        <mat-card *ngIf="isInternalShared" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div>{{'INTERNAL_SHARED_NOTE'|translate}}</div>
+        </mat-card>
+        <mat-card *ngIf="isExternalPublic" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div>{{'EXTERNAL_PUBLIC_NOTE'|translate}}</div>
+        </mat-card>
+        <mat-card *ngIf="isExternalProtected" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div>{{'EXTERNAL_PROTECTED_NOTE'|translate}}</div>
+        </mat-card>
+        <mat-card *ngIf="isExternalShared && (isExternalProtected || isExternalPublic)" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div *ngIf="isExternalPublic">{{'EXTERNAL_SHARED_PUBLIC_NOTE'|translate}}</div>
+            <div *ngIf="isExternalProtected">{{'EXTERNAL_SHARED_PROTECT_NOTE'|translate}}</div>
+        </mat-card>
+    </mat-step>
+    <mat-step label="{{'BASIC_EP_INFO'|translate}}">
+            <lib-factory [formId]="basicFormId" [formInfo]="basicFormInfo"></lib-factory>
+    </mat-step>
+    <mat-step label="{{'SECURITY_EP_INFO'|translate}}">
+        <lib-factory [formId]="secureFormId" [formInfo]="secureFormInfo"></lib-factory>
+    </mat-step>
+    <mat-step label="{{'PERFORMANCE_EP_INFO'|translate}}">
+        <lib-factory [formId]="performanceFormId" [formInfo]="performanceFormInfo"></lib-factory>
+        <mat-card *ngIf="performanceWarnning" style="display: flex; align-items: center; margin-bottom: 8px;">
+            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+            <div>{{'SHARED_RATE_LIMIT_MSG'|translate}}</div>
+        </mat-card>
+    </mat-step>
+</mat-horizontal-stepper>
+
+<button mat-raised-button color="primary" *ngIf="bottomSheet.context === 'edit'" class="app-btn"
+    (click)="update()">{{'UPDATE'|translate}}</button>
+<button mat-raised-button color="primary" class="app-btn" (click)="create()"
+    *ngIf="bottomSheet.context === 'clone' || bottomSheet.context === 'new'">{{'CREATE'|translate}}</button>

@@ -73,7 +73,6 @@ import { NewProjectComponent } from './pages/common/new-project/new-project.comp
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
 import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
-import { EndpointComponent } from './pages/tenant/endpoint/endpoint.component';
 import { ClientComponent } from './pages/tenant/client/client.component';
 import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
@@ -134,7 +133,8 @@ import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.componen
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
 import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
-import {MatTooltipModule} from '@angular/material/tooltip';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -149,7 +149,6 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     MsgBoxComponent,
     AuthorizeComponent,
     SummaryEndpointComponent,
-    EndpointComponent,
     BackButtonComponent,
     UpdatePwdComponent,
     OperationConfirmDialogComponent,
@@ -217,6 +216,8 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     PendingSubReqComponent,
     MySubsComponent,
     EnterReasonDialogComponent,
+    EndpointNewComponent,
+
   ],
   imports: [
     BrowserAnimationsModule,
@@ -270,7 +271,7 @@ import {MatTooltipModule} from '@angular/material/tooltip';
     ClientComponent,
     MngmtEndpointComponent,
     MngmtClientComponent,
-    EndpointComponent,
+    EndpointNewComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

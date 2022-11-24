@@ -10,13 +10,15 @@ export interface IEndpoint extends IIdBasedEntity {
   websocket: boolean;
   secured: boolean;
   shared: boolean;
+  external: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
   projectId?: string;
   cacheProfileId?: string;
   expired?: boolean;
   expireReason?: string;
-
+  maxInvokePerSecond?: number,
+  maxInvokePerMinute?: number,
 }
 export const HTTP_METHODS = [
   { label: 'HTTP_GET', value: "GET" },
