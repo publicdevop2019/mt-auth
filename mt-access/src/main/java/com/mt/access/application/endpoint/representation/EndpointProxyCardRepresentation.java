@@ -36,6 +36,8 @@ public class EndpointProxyCardRepresentation
     private boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
+    private int maxInvokePerSecond;
+    private int maxInvokePerMinute;
     @JsonIgnore
     private transient CorsProfileId corsProfileId;
     @JsonIgnore
@@ -56,6 +58,8 @@ public class EndpointProxyCardRepresentation
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
+        this.maxInvokePerSecond = endpoint.getMaxInvokePerSec();
+        this.maxInvokePerMinute = endpoint.getMaxInvokePerMin();
         this.permissionId =
             endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }

@@ -25,6 +25,12 @@ public class DomainRegistry {
     private static RetrieveJwtPublicKeyService retrieveJwtPublicKeyService;
     @Getter
     private static EndpointService endpointService;
+    @Getter
+    private static CsrfService csrfService;
+    @Getter
+    private static CorsService corsService;
+    @Getter
+    private static CacheService cacheService;
 
     @Autowired
     public void setRetrieveRegisterApplicationService(
@@ -72,6 +78,21 @@ public class DomainRegistry {
     @Autowired
     public void setLoadEndpointService(EndpointService roadEndpointService) {
         DomainRegistry.endpointService = roadEndpointService;
+    }
+
+    @Autowired
+    public void setCsrfService(CsrfService csrfService) {
+        DomainRegistry.csrfService = csrfService;
+    }
+
+    @Autowired
+    public void setCorsService(CorsService corsService) {
+        DomainRegistry.corsService = corsService;
+    }
+
+    @Autowired
+    public void setCacheService(CacheService cacheService) {
+        DomainRegistry.cacheService = cacheService;
     }
 
 }

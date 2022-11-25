@@ -1,5 +1,8 @@
 package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
+import static com.mt.proxy.domain.Utility.isWebSocket;
+
+import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +29,7 @@ public class ScgCacheFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         Mono<Void> responseCacheHandler = Mono.fromRunnable(() -> {
-            CacheService.CacheConfiguration cacheConfiguration =
+            CacheConfiguration cacheConfiguration =
                 cacheService.getCacheConfiguration(exchange, false);
             if (cacheConfiguration != null) {
                 //remove existing cache header
@@ -55,7 +58,7 @@ public class ScgCacheFilter implements GlobalFilter, Ordered {
                 }
             }
         });
-        if (!ScgEndpointFilter.isWebSocket(request.getHeaders())
+        if (!isWebSocket(request.getHeaders())
             &&
             HttpMethod.GET.equals(request.getMethod())) {
             return chain.filter(exchange).then(responseCacheHandler);

@@ -29,6 +29,8 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
+    private int maxInvokePerSecond;
+    private int maxInvokePerMinute;
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
         if (secured && permissionId == null) {
@@ -39,6 +41,14 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         }
         Set<String> roles = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
         return roles.contains(permissionId);
+    }
+
+    public boolean hasCorsInfo() {
+        return getCorsConfig() != null;
+    }
+
+    public boolean hasCacheInfo() {
+        return getCacheConfig() != null;
     }
 
     @Override
