@@ -67,6 +67,22 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         return new SumPagedRep<>(data, count);
     }
 
+    default SumPagedRep<SubRequest> getAllSubscriptions(SubRequestQuery query) {
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        TypedQuery<SubRequest> getAllSubscriptions =
+            entityManager.createNamedQuery("getAllSubscriptions", SubRequest.class);
+        getAllSubscriptions.setHint("org.hibernate.cacheable", true);
+        List<SubRequest> data = getAllSubscriptions
+            .setFirstResult(BigDecimal.valueOf(query.getPageConfig().getOffset()).intValue())
+            .setMaxResults(query.getPageConfig().getPageSize())
+            .getResultList();
+        TypedQuery<Long> getAllSubscriptionsCount =
+            entityManager.createNamedQuery("getAllSubscriptionsCount", Long.class);
+        getAllSubscriptionsCount.setHint("org.hibernate.cacheable", true);
+        Long count = getAllSubscriptionsCount.getSingleResult();
+        return new SumPagedRep<>(data, count);
+    }
+
     @Component
     class JpaCriteriaApiSubRequestAdaptor {
         public SumPagedRep<SubRequest> execute(SubRequestQuery query) {

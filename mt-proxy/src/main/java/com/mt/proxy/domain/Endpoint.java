@@ -20,6 +20,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String id;
     private String description;
     private String resourceId;
+    private String projectId;
     private String path;
     private String method;
 
@@ -29,8 +30,8 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
-    private int maxInvokePerSecond;
-    private int maxInvokePerMinute;
+    private int replenishRate;
+    private int burstCapacity;
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
         if (secured && permissionId == null) {

@@ -37,6 +37,12 @@ public class SubRequestQuery extends QueryCriteria {
         this.createdBy = creatorUserId;
     }
 
+    private SubRequestQuery(String pageParam) {
+        setPageConfig(PageConfig.limited(pageParam, 50));
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = Sort.byId(true);
+    }
+
     public SubRequestQuery(String queryParam, String pageParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, TYPE);
         String s = stringStringMap.get(TYPE);
@@ -66,8 +72,11 @@ public class SubRequestQuery extends QueryCriteria {
         this.sort = Sort.byId(true);
     }
 
-    public static SubRequestQuery subscriptions(String pageParam) {
+    public static SubRequestQuery mySubscriptions(String pageParam) {
         return new SubRequestQuery(DomainRegistry.getCurrentUserService().getUserId(), pageParam);
+    }
+    public static SubRequestQuery internalSubscriptions(String pageParam) {
+        return new SubRequestQuery(pageParam);
     }
 
 

@@ -2,13 +2,11 @@ package com.mt.access.port.adapter.messaging;
 
 import static com.mt.access.domain.model.client.event.ClientCreated.CLIENT_CREATED;
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
-import static com.mt.access.domain.model.endpoint.event.EndpointShareRemoved.ENDPOINT_SHARED_REMOVED;
 import static com.mt.access.domain.model.permission.event.ProjectPermissionCreated.PROJECT_PERMISSION_CREATED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
-import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -41,16 +39,6 @@ public class RoleDomainEventSubscriber {
                 .deserialize(event.getEventBody(), ClientCreated.class);
             ApplicationServiceRegistry.getRoleApplicationService().handle(deserialize);
         });
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener2() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, ENDPOINT_SHARED_REMOVED, (event) -> {
-                EndpointShareRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), EndpointShareRemoved.class);
-                ApplicationServiceRegistry.getRoleApplicationService().handle(deserialize);
-            });
     }
 
     /**

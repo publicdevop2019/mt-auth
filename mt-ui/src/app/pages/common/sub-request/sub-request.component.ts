@@ -13,8 +13,8 @@ import { ProjectService } from 'src/app/services/project.service';
 export interface ISubRequest extends IIdBasedEntity {
   endpointId: string,
   projectId: string,
-  maxInvokePerSecond: number,
-  maxInvokePerMinute: number,
+  replenishRate: number,
+  burstCapacity: number,
 }
 @Component({
   selector: 'app-sub-request',
@@ -37,8 +37,8 @@ export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequ
     this.fis.formCreated(this.formId).subscribe(() => {
       if (!this.isCreate()) {
         this.fis.hideIfMatch(this.formId, ['projectId'])
-        this.fis.formGroupCollection[this.formId].get('maxInvokePerSec').setValue(this.aggregate.maxInvokePerSecond)
-        this.fis.formGroupCollection[this.formId].get('maxInvokePerMin').setValue(this.aggregate.maxInvokePerMinute)
+        this.fis.formGroupCollection[this.formId].get('replenishRate').setValue(this.aggregate.replenishRate)
+        this.fis.formGroupCollection[this.formId].get('burstCapacity').setValue(this.aggregate.burstCapacity)
         this.cdr.markForCheck()
       }
     })
@@ -55,8 +55,8 @@ export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequ
       id: '',
       endpointId: cmpt.data.from.id,
       projectId: formGroup.get('projectId').value,
-      maxInvokePerSecond: +formGroup.get('maxInvokePerSec').value,
-      maxInvokePerMinute: +formGroup.get('maxInvokePerMin').value,
+      replenishRate: +formGroup.get('replenishRate').value,
+      burstCapacity: +formGroup.get('burstCapacity').value,
       version: 0
     }
   }

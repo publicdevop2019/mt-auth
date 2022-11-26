@@ -342,12 +342,6 @@ public class Role extends Auditable {
         return Objects.hash(super.hashCode(), roleId);
     }
 
-    public void removeExternalPermission(PermissionId permissionId) {
-        externalPermissionIds =
-            externalPermissionIds.stream().filter(ee -> !ee.equals(permissionId))
-                .collect(Collectors.toSet());
-    }
-
     public void remove() {
         if (this.systemCreate) {
             throw new IllegalStateException("cannot delete system created role");

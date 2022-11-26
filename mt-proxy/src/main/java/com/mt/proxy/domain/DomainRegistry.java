@@ -1,5 +1,7 @@
 package com.mt.proxy.domain;
 
+import com.mt.proxy.domain.rate_limit.RateLimitService;
+import com.mt.proxy.domain.rate_limit.SubscriptionService;
 import com.mt.proxy.infrastructure.CheckSumService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +33,14 @@ public class DomainRegistry {
     private static CorsService corsService;
     @Getter
     private static CacheService cacheService;
+    @Getter
+    private static RegisteredApplicationService registeredApplicationService;
+    @Getter
+    private static RetrieveSubscriptionService retrieveSubscriptionService;
+    @Getter
+    private static SubscriptionService subscriptionService;
+    @Getter
+    private static RateLimitService rateLimitService;
 
     @Autowired
     public void setRetrieveRegisterApplicationService(
@@ -93,6 +103,26 @@ public class DomainRegistry {
     @Autowired
     public void setCacheService(CacheService cacheService) {
         DomainRegistry.cacheService = cacheService;
+    }
+
+    @Autowired
+    public void setRegisteredApplicationService(RegisteredApplicationService registeredApplicationService) {
+        DomainRegistry.registeredApplicationService = registeredApplicationService;
+    }
+
+    @Autowired
+    public void setRetrieveSubscriptionService(RetrieveSubscriptionService retrieveSubscriptionService) {
+        DomainRegistry.retrieveSubscriptionService = retrieveSubscriptionService;
+    }
+
+    @Autowired
+    public void setSubscriptionService(SubscriptionService subscriptionService) {
+        DomainRegistry.subscriptionService = subscriptionService;
+    }
+
+    @Autowired
+    public void setRateLimitService(RateLimitService rateLimitService) {
+        DomainRegistry.rateLimitService = rateLimitService;
     }
 
 }

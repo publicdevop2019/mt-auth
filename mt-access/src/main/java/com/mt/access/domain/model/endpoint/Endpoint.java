@@ -8,7 +8,6 @@ import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
-import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -109,9 +108,9 @@ public class Endpoint extends Auditable {
 
     private boolean external = false;
 
-    private int maxInvokePerSec = 0;
+    private int replenishRate = 0;
 
-    private int maxInvokePerMin = 0;
+    private int burstCapacity = 0;
 
     private boolean expired = false;
     private String expireReason;
@@ -122,7 +121,7 @@ public class Endpoint extends Auditable {
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled,
                     CorsProfileId corsProfileId, boolean shared,
-                    boolean external, int maxInvokePerSec, int maxInvokePerMinute
+                    boolean external, int replenishRate, int burstCapacity
     ) {
         super();
         PermissionId permissionId = null;
@@ -153,8 +152,8 @@ public class Endpoint extends Auditable {
                 .append(new SecureEndpointCreated(getProjectId(), this));
         }
         this.external = external;
-        this.maxInvokePerSec = maxInvokePerSec;
-        this.maxInvokePerMin = maxInvokePerMinute;
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
     }
 
     public static void remove(Set<Endpoint> endpointSet) {
@@ -188,7 +187,10 @@ public class Endpoint extends Auditable {
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
         boolean isWebsocket,
-        boolean csrfEnabled, CorsProfileId corsProfileId) {
+        boolean csrfEnabled, CorsProfileId corsProfileId,
+        int replenishRate,
+        int burstCapacity
+    ) {
         if (expired) {
             throw new IllegalStateException("expired endpoint cannot be updated");
         }
@@ -200,6 +202,8 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());

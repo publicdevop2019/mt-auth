@@ -12,7 +12,6 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.NamedQuery;
-import javax.persistence.QueryHint;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +29,8 @@ import org.hibernate.annotations.Where;
     region = "subRequestRegion")
 @NamedQuery(name = "getMySubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getMySubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
+@NamedQuery(name = "getAllSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
+@NamedQuery(name = "getAllSubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 public class SubRequest extends Auditable {
     @Convert(converter = SubRequestStatus.DbConverter.class)
     private SubRequestStatus subRequestStatus = SubRequestStatus.PENDING;
@@ -50,8 +51,8 @@ public class SubRequest extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "endpointProjectId"))
     })
     private ProjectId endpointProjectId;
-    private int maxInvokePerSec;
-    private int maxInvokePerMin;
+    private int replenishRate;
+    private int burstCapacity;
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "approvedBy"))
@@ -67,22 +68,22 @@ public class SubRequest extends Auditable {
 
     public SubRequest(ProjectId projectId,
                       EndpointId endpointId,
-                      int maxInvokePerSec,
-                      int maxInvokePerMin,
+                      int replenishRate,
+                      int burstCapacity,
                       ProjectId endpointProjectId
     ) {
         this.subRequestId = new SubRequestId();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
         this.endpointId = endpointId;
-        this.maxInvokePerSec = maxInvokePerSec;
-        this.maxInvokePerMin = maxInvokePerMin;
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
         this.endpointProjectId = endpointProjectId;
     }
 
-    public void update(int maxInvokePerSec, int maxInvokePerMin) {
-        this.maxInvokePerSec = maxInvokePerSec;
-        this.maxInvokePerMin = maxInvokePerMin;
+    public void update(int replenishRate, int burstCapacity) {
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
     }
 
     public void approve(UserId userId) {

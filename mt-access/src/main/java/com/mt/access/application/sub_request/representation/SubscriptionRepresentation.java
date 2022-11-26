@@ -14,16 +14,16 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 public class SubscriptionRepresentation extends BasicSubRequest {
     private final String id;
-    private final int maxInvokePerSecond;
-    private final int maxInvokePerMinute;
+    private final int replenishRate;
+    private final int burstCapacity;
     private boolean expired = false;
     private String expireReason;
 
     public SubscriptionRepresentation(SubRequest subRequest) {
         super(subRequest);
         id = subRequest.getSubRequestId().getDomainId();
-        maxInvokePerSecond = subRequest.getMaxInvokePerSec();
-        maxInvokePerMinute = subRequest.getMaxInvokePerMin();
+        replenishRate = subRequest.getReplenishRate();
+        burstCapacity = subRequest.getBurstCapacity();
     }
 
     /**

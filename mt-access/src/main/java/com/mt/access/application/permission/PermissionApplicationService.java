@@ -6,7 +6,6 @@ import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
@@ -16,7 +15,6 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
-import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.Permission;
@@ -25,7 +23,6 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
-import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -213,20 +210,6 @@ public class PermissionApplicationService {
                 Optional<Permission> byId =
                     DomainRegistry.getPermissionRepository().getById(permissionId);
                 byId.ifPresent(e -> e.setShared(true));
-                return null;
-            }, PERMISSION);
-    }
-
-
-    @Transactional
-    public void handle(EndpointShareRemoved deserialize) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
-                log.debug("handle endpoint shared remove event");
-                PermissionId permissionId = deserialize.getPermissionId();
-                Optional<Permission> byId =
-                    DomainRegistry.getPermissionRepository().getById(permissionId);
-                byId.ifPresent(e -> e.setShared(false));
                 return null;
             }, PERMISSION);
     }

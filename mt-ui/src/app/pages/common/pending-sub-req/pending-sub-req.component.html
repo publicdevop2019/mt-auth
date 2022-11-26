@@ -27,17 +27,17 @@
             </td>
         </ng-container>
 
-        <ng-container matColumnDef="maxInvokePerSec">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['maxInvokePerSec']|translate}} </th>
+        <ng-container matColumnDef="replenishRate">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['replenishRate']|translate}} </th>
             <td mat-cell *matCellDef="let row">
-                {{row.maxInvokePerSecond}}
+                {{row.replenishRate}}
             </td>
         </ng-container>
 
-        <ng-container matColumnDef="maxInvokePerMin">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['maxInvokePerMin']|translate}} </th>
+        <ng-container matColumnDef="burstCapacity">
+            <th mat-header-cell *matHeaderCellDef> {{columnList['burstCapacity']|translate}} </th>
             <td mat-cell *matCellDef="let row">
-                {{row.maxInvokePerMinute}}
+                {{row.burstCapacity}}
             </td>
         </ng-container>
         <ng-container matColumnDef="approve">

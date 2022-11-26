@@ -5,6 +5,7 @@ import static com.mt.proxy.domain.Utility.isWebSocket;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
@@ -12,12 +13,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CsrfService {
-    private final Set<Endpoint> bypassList = new HashSet<>();
+    private Set<Endpoint> bypassList = new HashSet<>();
 
     public void refresh(Set<Endpoint> endpoints) {
         log.debug("refresh csrf config");
         bypassList.clear();
-        endpoints.stream().filter(e -> !e.isCsrfEnabled()).forEach(bypassList::add);
+        bypassList =
+            endpoints.stream().filter(e -> !e.isCsrfEnabled()).collect(Collectors.toSet());
         log.debug("refresh csrf config completed");
     }
 

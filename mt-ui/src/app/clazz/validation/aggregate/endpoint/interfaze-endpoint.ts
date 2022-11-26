@@ -17,8 +17,8 @@ export interface IEndpoint extends IIdBasedEntity {
   cacheProfileId?: string;
   expired?: boolean;
   expireReason?: string;
-  maxInvokePerSecond?: number,
-  maxInvokePerMinute?: number,
+  replenishRate?: number,
+  burstCapacity?: number,
 }
 export const HTTP_METHODS = [
   { label: 'HTTP_GET', value: "GET" },

@@ -56,8 +56,19 @@ public class SubRequestApplicationService {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         DomainRegistry.getPermissionCheckService()
             .canAccess(tenantIds, SUB_REQ_MNGMT);
-        SubRequestQuery subRequestQuery = SubRequestQuery.subscriptions(pageParam);
+        SubRequestQuery subRequestQuery = SubRequestQuery.mySubscriptions(pageParam);
         return DomainRegistry.getSubRequestRepository().getMySubscriptions(subRequestQuery);
+    }
+
+    /**
+     * get subscriptions with pagination for proxy
+     *
+     * @param pageParam page info
+     * @return paginated data
+     */
+    public SumPagedRep<SubRequest> internalSubscriptions(String pageParam) {
+        SubRequestQuery subRequestQuery = SubRequestQuery.internalSubscriptions(pageParam);
+        return DomainRegistry.getSubRequestRepository().getAllSubscriptions(subRequestQuery);
     }
 
     /**
@@ -86,8 +97,8 @@ public class SubRequestApplicationService {
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
                     endpointId,
-                    command.getMaxInvokePerSecond(),
-                    command.getMaxInvokePerMinute(),
+                    command.getBurstCapacity(),
+                    command.getReplenishRate(),
                     epProjectId
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
@@ -110,7 +121,7 @@ public class SubRequestApplicationService {
             DomainRegistry.getPermissionCheckService().sameCreatedBy(ee);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
-                    ee.update(command.getMaxInvokePerSecond(), command.getMaxInvokePerMinute());
+                    ee.update(command.getBurstCapacity(), command.getReplenishRate());
                     return null;
                 }, SUB_REQUEST);
         });

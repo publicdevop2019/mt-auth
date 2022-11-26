@@ -3,6 +3,7 @@ manytree:
     appId: 0C8AZTODP4HT
   url:
     endpoint: endpoints/proxy
+    subscription: subscriptions/proxy
     report: reports/proxy
     clients: clients/proxy
   domain-name: duoshu.org

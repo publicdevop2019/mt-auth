@@ -28,8 +28,8 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
-            "label": "MAX_INVOKE_PER_SEC",
-            "key": "maxInvokePerSec",
+            "label": "REPLENISH_RATE",
+            "key": "replenishRate",
             "position": {
                 "row": "1",
                 "column": "0"
@@ -39,8 +39,8 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
-            "label": "MAX_INVOKE_PER_MIN",
-            "key": "maxInvokePerMin",
+            "label": "BURST_CAPACITY",
+            "key": "burstCapacity",
             "position": {
                 "row": "2",
                 "column": "0"

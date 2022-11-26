@@ -10,8 +10,8 @@ export interface IMySubscription extends IIdBasedEntity {
   endpointName: string,
   projectId: string,
   projectName: string,
-  maxInvokePerSecond: number,
-  maxInvokePerMinute: number,
+  replenishRate: number,
+  burstCapacity: number,
   endpointStatus: string,
 }
 @Injectable({

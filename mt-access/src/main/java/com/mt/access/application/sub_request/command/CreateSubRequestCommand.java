@@ -6,6 +6,6 @@ import lombok.Data;
 public class CreateSubRequestCommand {
     private String endpointId;
     private String projectId;
-    private int maxInvokePerSecond;
-    private int maxInvokePerMinute;
+    private int burstCapacity;
+    private int replenishRate;
 }

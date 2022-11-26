@@ -6,27 +6,23 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.StandardEnvironment;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
 public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyService {
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Autowired
-    private StandardEnvironment environment;
-    @Autowired
     private JwtService jwtService;
+    @Autowired
+    private HttpHelper httpHelper;
 
     @Override
     public JWKSet loadKeys() {
-        ResponseEntity<String> exchange = restTemplate
-            .exchange(jwtService.resolveAccessUrl(), HttpMethod.GET, null, String.class);
+        ResponseEntity<String> exchange = httpHelper.getRestTemplate()
+            .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null, String.class);
         try {
             return JWKSet.parse(exchange.getBody());
         } catch (ParseException e) {

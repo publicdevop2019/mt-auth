@@ -85,12 +85,12 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
           if (next === 'yes') {
             this.fis.hideIfMatch(this.basicFormId, ['method'])
             this.fis.hideIfMatch(this.secureFormId, ['csrf', 'cors'])
-            this.fis.hideIfMatch(this.performanceFormId, ['maxInvokePerSec', 'maxInvokePerMin'])
+            this.fis.hideIfMatch(this.performanceFormId, ['replenishRate', 'burstCapacity'])
             this.performanceWarnning=false;
           } else {
             this.fis.showIfMatch(this.basicFormId, ['method'])
             this.fis.showIfMatch(this.secureFormId, ['csrf', 'cors'])
-            this.fis.showIfMatch(this.performanceFormId, ['maxInvokePerSec', 'maxInvokePerMin'])
+            this.fis.showIfMatch(this.performanceFormId, ['replenishRate', 'burstCapacity'])
             this.performanceWarnning=true;
           }
         })
@@ -147,8 +147,8 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
           this.fis.formGroupCollection[this.formId].get("isShared").setValue(this.aggregate.shared?'yes':'no');
           this.fis.formGroupCollection[this.formId].get("isExternal").setValue(this.aggregate.external?'yes':'no');
           this.fis.formGroupCollection[this.secureFormId].get("csrf").setValue(this.aggregate.csrfEnabled);
-          this.fis.formGroupCollection[this.performanceFormId].get("maxInvokePerSec").setValue(this.aggregate.maxInvokePerSecond);
-          this.fis.formGroupCollection[this.performanceFormId].get("maxInvokePerMin").setValue(this.aggregate.maxInvokePerMinute);
+          this.fis.formGroupCollection[this.performanceFormId].get("replenishRate").setValue(this.aggregate.replenishRate);
+          this.fis.formGroupCollection[this.performanceFormId].get("burstCapacity").setValue(this.aggregate.burstCapacity);
           this.fis.formGroupCollection[this.basicFormId].get("isWebsocket").setValue(this.aggregate.websocket ? 'yes' : 'no');
           if (this.aggregate.corsProfileId) {
             this.fis.formGroupCollection[this.secureFormId].get("cors").setValue(true);
@@ -186,8 +186,8 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
       csrfEnabled: !!secureFormGroup.get('csrf').value,
       corsProfileId: noEmptyString(secureFormGroup.get("corsProfile").value),
       cacheProfileId: basicFormGroup.get('method').value === 'GET' ? noEmptyString(perFormGroup.get("cacheProfile").value) : null,
-      maxInvokePerSecond: +perFormGroup.get("maxInvokePerSec").value,
-      maxInvokePerMinute: +perFormGroup.get("maxInvokePerMin").value,
+      replenishRate: +perFormGroup.get("replenishRate").value,
+      burstCapacity: +perFormGroup.get("burstCapacity").value,
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

@@ -55,7 +55,7 @@ public class SubRequestResource {
     }
 
     /**
-     * get all subscriptions regardless of project
+     * get all subscriptions regardless of project for user's project
      *
      * @param jwt       user jwt
      * @param pageParam page size and page number
@@ -74,6 +74,24 @@ public class SubRequestResource {
             new SumPagedRep<>(result, SubscriptionRepresentation::new);
         SubscriptionRepresentation.updateProjectNames(resp);
         SubscriptionRepresentation.updateEndpointDetails(resp);
+        return ResponseEntity.ok(resp);
+    }
+
+    /**
+     * get all subscriptions for proxy
+     *
+     * @param pageParam page size and page number
+     * @return paginated subscription request
+     */
+    @GetMapping(path = "subscriptions/proxy")
+    public ResponseEntity<SumPagedRep<SubscriptionRepresentation>> getTotalSubscription(
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
+    ) {
+        SumPagedRep<SubRequest> result =
+            ApplicationServiceRegistry.getSubRequestApplicationService()
+                .internalSubscriptions(pageParam);
+        SumPagedRep<SubscriptionRepresentation> resp =
+            new SumPagedRep<>(result, SubscriptionRepresentation::new);
         return ResponseEntity.ok(resp);
     }
 

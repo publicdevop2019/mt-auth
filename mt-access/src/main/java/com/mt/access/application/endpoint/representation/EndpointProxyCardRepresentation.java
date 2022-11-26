@@ -29,6 +29,7 @@ public class EndpointProxyCardRepresentation
     private String id;
     private String description;
     private String resourceId;
+    private String projectId;
     private String path;
     private String method;
     private boolean websocket;
@@ -36,8 +37,8 @@ public class EndpointProxyCardRepresentation
     private boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
-    private int maxInvokePerSecond;
-    private int maxInvokePerMinute;
+    private int replenishRate;
+    private int burstCapacity;
     @JsonIgnore
     private transient CorsProfileId corsProfileId;
     @JsonIgnore
@@ -51,6 +52,7 @@ public class EndpointProxyCardRepresentation
         this.description = endpoint.getDescription();
         this.websocket = endpoint.isWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
+        this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.secured = endpoint.isSecured();
@@ -58,8 +60,8 @@ public class EndpointProxyCardRepresentation
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
-        this.maxInvokePerSecond = endpoint.getMaxInvokePerSec();
-        this.maxInvokePerMinute = endpoint.getMaxInvokePerMin();
+        this.replenishRate = endpoint.getReplenishRate();
+        this.burstCapacity = endpoint.getBurstCapacity();
         this.permissionId =
             endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }

@@ -1,8 +1,9 @@
 package com.mt.proxy.port.adapter.http;
 
-import com.mt.proxy.domain.RegisteredApplication;
-import com.mt.proxy.domain.RetrieveRegisterApplicationService;
+import com.mt.proxy.domain.RetrieveSubscriptionService;
 import com.mt.proxy.domain.SumPagedRep;
+import com.mt.proxy.domain.rate_limit.Subscription;
+import java.util.Collections;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,22 +13,19 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class HttpRetrieveRegisteredApplicationService
-    implements RetrieveRegisterApplicationService {
+public class HttpRetrieveSubscriptionService implements RetrieveSubscriptionService {
 
-    @Value("${manytree.url.clients}")
-    private String url;
+    @Value("${manytree.url.subscription}")
+    private String subscriptionUrl;
     @Autowired
     private HttpHelper httpHelper;
 
     @Override
-    public Set<RegisteredApplication> fetchAll() {
-        String homePageUrl = httpHelper.resolveAccessPath();
-        String url = homePageUrl + this.url;
-        return httpHelper.loadAllData(url, 40, false,
+    public Set<Subscription> loadAllSubscriptions() {
+        String base = httpHelper.resolveAccessPath();
+        String url = base + subscriptionUrl;
+        return httpHelper.loadAllData(url, 40, true,
             new ParameterizedTypeReference<>() {
             });
     }
-
-
 }

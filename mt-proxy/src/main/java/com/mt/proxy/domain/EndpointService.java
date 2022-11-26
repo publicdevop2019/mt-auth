@@ -62,8 +62,7 @@ public class EndpointService {
         return next;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void loadAllEndpoints() {
+    public void refreshCache() {
         cached = DomainRegistry.getRetrieveEndpointService().loadAllEndpoints();
         DomainRegistry.getCsrfService().refresh(cached);
         DomainRegistry.getCorsService().refresh(cached);
@@ -188,5 +187,13 @@ public class EndpointService {
      */
     public Optional<Endpoint> findEndpoint(String requestUri, String method, boolean websocket) {
         return findEndpoint(null, requestUri, method, websocket);
+    }
+
+    /**
+     * return cached endpoint collection.
+     * @return endpoint set
+     */
+    public Set<Endpoint> getCachedEndpoints() {
+        return cached;
     }
 }

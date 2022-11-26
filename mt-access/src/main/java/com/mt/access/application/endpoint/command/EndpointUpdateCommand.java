@@ -17,7 +17,8 @@ public class EndpointUpdateCommand implements Serializable {
     private String resourceId;
     private String cacheProfileId;
     private String projectId;
-
+    private int replenishRate;
+    private int burstCapacity;
     private String path;
 
     private String method;

@@ -17,7 +17,7 @@ public class EndpointCreateCommand implements Serializable {
     private String resourceId;
     private String path;
     private boolean external;
-    private int maxInvokePerSecond;
-    private int maxInvokePerMinute;
+    private int replenishRate;
+    private int burstCapacity;
     private String method;
 }

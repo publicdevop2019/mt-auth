@@ -19,8 +19,8 @@ export class MySubsComponent extends SummaryEntityComponent<IMySubscription, IMy
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',
     endpointName: 'API_NAME',
-    maxInvokePerSec: 'MAX_INVOKE_PER_SEC',
-    maxInvokePerMin: 'MAX_INVOKE_PER_MIN',
+    replenishRate: 'REPLENISH_RATE',
+    burstCapacity: 'BURST_CAPACITY',
     endpointStatus: 'ENDPOINT_STATUS',
   }
   sheetComponent = SubRequestComponent;

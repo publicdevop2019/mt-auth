@@ -21,8 +21,8 @@ public class EndpointRepresentation {
     private boolean secured;
     private boolean shared;
     private boolean external;
-    private int maxInvokePerSecond;
-    private int maxInvokePerMinute;
+    private int replenishRate;
+    private int burstCapacity;
     private boolean userOnly;
     private boolean clientOnly;
     private boolean websocket;
@@ -36,8 +36,8 @@ public class EndpointRepresentation {
         this.websocket = endpoint.isWebsocket();
         this.shared = endpoint.isShared();
         this.external = endpoint.isExternal();
-        this.maxInvokePerMinute = endpoint.getMaxInvokePerMin();
-        this.maxInvokePerSecond = endpoint.getMaxInvokePerSec();
+        this.burstCapacity = endpoint.getBurstCapacity();
+        this.replenishRate = endpoint.getReplenishRate();
         this.secured = endpoint.isSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
