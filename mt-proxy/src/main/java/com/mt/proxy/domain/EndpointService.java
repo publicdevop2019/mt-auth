@@ -146,6 +146,7 @@ public class EndpointService {
         //sort before generate check sum
         SortedSet<Endpoint> objects = new TreeSet<>();
         cached.stream().sorted().forEach(objects::add);
+        cached.forEach(Endpoint::sortSubscription);
         return DomainRegistry.getCheckSumService().getChecksum(objects);
     }
 

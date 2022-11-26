@@ -31,9 +31,9 @@ public class ProxyService {
                 .collect(Collectors.toSet());
         EndpointProxyCacheRepresentation.updateDetail(new ArrayList<>(collect));
         //sort before generate check sum
-        TreeSet<EndpointProxyCacheRepresentation> endpointProxyCacheRepresentations = new TreeSet<>();
-        collect.stream().sorted().forEach(endpointProxyCacheRepresentations::add);
-        CheckSumValue checkSumValue = new CheckSumValue(endpointProxyCacheRepresentations);
+        TreeSet<EndpointProxyCacheRepresentation> sorted = new TreeSet<>();
+        collect.stream().sorted().forEach(sorted::add);
+        CheckSumValue checkSumValue = new CheckSumValue(sorted);
         return new CheckSumRepresentation(checkSumValue, cacheEndpointSum);
     }
 

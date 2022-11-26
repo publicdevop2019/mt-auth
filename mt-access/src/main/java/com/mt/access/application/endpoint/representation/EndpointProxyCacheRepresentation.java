@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -64,7 +65,7 @@ public class EndpointProxyCacheRepresentation
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
-        this.subscriptions = new TreeSet<>();
+        this.subscriptions = new HashSet<>();
         //add owner project
         this.subscriptions.add(new ProjectSubscription(this.projectId, endpoint.getReplenishRate(),
             endpoint.getBurstCapacity()));
@@ -136,6 +137,9 @@ public class EndpointProxyCacheRepresentation
                     .filter(e -> e.getEndpointId().getDomainId().equals(rep.getId())).map(
                         ProjectSubscription::new).collect(Collectors.toSet());
                 rep.subscriptions.addAll(collect);
+                SortedSet<ProjectSubscription> objects = new TreeSet<>();
+                rep.subscriptions.stream().sorted().forEach(objects::add);
+                rep.subscriptions = objects;
             });
 
         }
@@ -195,7 +199,8 @@ public class EndpointProxyCacheRepresentation
     }
 
     @Data
-    private static class ProjectSubscription  implements Serializable, Comparable<ProjectSubscription> {
+    private static class ProjectSubscription
+        implements Serializable, Comparable<ProjectSubscription> {
         private String projectId;
         private int replenishRate;
         private int burstCapacity;
@@ -210,24 +215,6 @@ public class EndpointProxyCacheRepresentation
             this.projectId = e.getProjectId().getDomainId();
             this.replenishRate = e.getReplenishRate();
             this.burstCapacity = e.getBurstCapacity();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            ProjectSubscription that = (ProjectSubscription) o;
-            return replenishRate == that.replenishRate && burstCapacity == that.burstCapacity &&
-                Objects.equals(projectId, that.projectId);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(projectId, replenishRate, burstCapacity);
         }
 
         @Override

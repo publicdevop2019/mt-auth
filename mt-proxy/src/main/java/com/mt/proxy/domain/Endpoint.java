@@ -1,9 +1,11 @@
 package com.mt.proxy.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.TreeSet;
 import lombok.Data;
 import lombok.Getter;
@@ -31,7 +33,13 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
-    private TreeSet<Subscription> subscriptions;
+    private SortedSet<Subscription> subscriptions;
+
+    public void sortSubscription() {
+        SortedSet<Subscription> objects = new TreeSet<>();
+        subscriptions.stream().sorted().forEach(objects::add);
+        subscriptions = objects;
+    }
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
         if (secured && permissionId == null) {
@@ -75,6 +83,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         return this.getId().compareTo(o.getId());
     }
 
+    @JsonIgnore//avoid serialization problem
     public Subscription getSelfSubscription() {
         return this.subscriptions.stream().filter(e -> e.getProjectId().equals(this.projectId))
             .findFirst().orElse(null);
@@ -116,31 +125,12 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     }
 
     @Data
-    public static class Subscription implements Serializable, Comparable<Subscription>{
+    public static class Subscription implements Serializable, Comparable<Subscription> {
         private String projectId;
         private int replenishRate;
         private int burstCapacity;
 
         public Subscription() {
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || getClass() != o.getClass()) {
-                return false;
-            }
-            Subscription that = (Subscription) o;
-            return java.util.Objects.equals(projectId, that.projectId) &&
-                java.util.Objects.equals(replenishRate, that.replenishRate) &&
-                java.util.Objects.equals(burstCapacity, that.burstCapacity);
-        }
-
-        @Override
-        public int hashCode() {
-            return java.util.Objects.hash(projectId, replenishRate, burstCapacity);
         }
 
         @Override
