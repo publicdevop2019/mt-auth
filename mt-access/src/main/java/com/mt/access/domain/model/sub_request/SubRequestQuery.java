@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.sub_request;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.query.PageConfig;
@@ -18,6 +19,7 @@ public class SubRequestQuery extends QueryCriteria {
     private static final String TYPE = "type";
     private final Sort sort;
     private Set<SubRequestId> ids;
+    private Set<EndpointId> epIds;
     private UserId createdBy;
     private Set<SubRequestStatus> subRequestStatuses;
     private Set<ProjectId> epProjectIds;
@@ -72,9 +74,17 @@ public class SubRequestQuery extends QueryCriteria {
         this.sort = Sort.byId(true);
     }
 
+    public SubRequestQuery(Set<EndpointId> epIds) {
+        this.epIds = epIds;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        this.sort = Sort.byId(true);
+    }
+
     public static SubRequestQuery mySubscriptions(String pageParam) {
         return new SubRequestQuery(DomainRegistry.getCurrentUserService().getUserId(), pageParam);
     }
+
     public static SubRequestQuery internalSubscriptions(String pageParam) {
         return new SubRequestQuery(pageParam);
     }

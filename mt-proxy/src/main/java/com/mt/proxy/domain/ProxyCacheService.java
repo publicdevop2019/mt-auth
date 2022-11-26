@@ -12,6 +12,5 @@ public class ProxyCacheService {
     public void reloadProxyCache() {
         DomainRegistry.getEndpointService().refreshCache();
         DomainRegistry.getRegisteredApplicationService().refreshCache();
-        DomainRegistry.getSubscriptionService().refreshCache();
     }
 }

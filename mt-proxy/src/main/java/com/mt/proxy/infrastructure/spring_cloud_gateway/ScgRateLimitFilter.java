@@ -25,7 +25,7 @@ public class ScgRateLimitFilter implements GlobalFilter, Ordered {
         String method = exchange.getRequest().getMethodValue();
         RateLimitResult rateLimitResult = DomainRegistry.getRateLimitService()
             .withinRateLimit(path, method,
-                exchange.getRequest().getHeaders(), exchange.getRequest().getRemoteAddress());
+                exchange.getRequest().getHeaders());
         if (!rateLimitResult.getAllowed()) {
             response.setStatusCode(HttpStatus.TOO_MANY_REQUESTS);
             response.getHeaders()

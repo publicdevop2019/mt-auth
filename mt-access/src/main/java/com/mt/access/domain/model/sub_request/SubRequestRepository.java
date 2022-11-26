@@ -1,5 +1,7 @@
 package com.mt.access.domain.model.sub_request;
 
+import com.mt.access.domain.model.client.Client;
+import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.position.PositionQuery;
 import com.mt.access.domain.model.user.UserId;
@@ -14,11 +16,11 @@ public interface SubRequestRepository {
 
     SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query);
 
-    SumPagedRep<SubRequest> getAllSubscriptions(SubRequestQuery query);
-
     void remove(SubRequest e);
 
     Optional<SubRequest> getById(SubRequestId id);
 
     Set<UserId> getEndpointSubscriber(EndpointId endpointId);
+
+    SumPagedRep<SubRequest> getSubscription(SubRequestQuery query);
 }

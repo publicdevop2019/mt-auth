@@ -18,13 +18,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class RateLimitService {
+    public static final String RATE_LIMITER = "rate_limiter.";
     @Autowired
     RedisTemplate<String, String> redisTemplate;
     @Autowired
     private RedisScript<List<Long>> script;
 
     public RateLimitResult withinRateLimit(String path, String method,
-                                           HttpHeaders headers, InetSocketAddress address) {
+                                           HttpHeaders headers) {
         boolean webSocket = Utility.isWebSocket(headers);
         if (webSocket) {
             return RateLimitResult.alwaysAllow();
@@ -36,7 +37,7 @@ public class RateLimitService {
         }
         Endpoint endpoint = optionalEndpoint.get();
 
-        Subscription subscription;
+        Endpoint.Subscription subscription;
         String tokenKey;
         if (endpoint.isSecured()) {
             //for protected
@@ -44,16 +45,15 @@ public class RateLimitService {
             if (authorization != null && !authorization.isEmpty()) {
                 String bearer_ = authorization.get(0).replace("Bearer ", "");
                 try {
-                    String userId = DomainRegistry.getJwtService().getUserId(bearer_);
                     String projectId = DomainRegistry.getJwtService().getProjectId(bearer_);
                     subscription =
-                        DomainRegistry.getSubscriptionService()
-                            .getSubscriptionInfo(endpoint, projectId);
+                        endpoint.getSubscriptions().stream().filter(e->e.getProjectId().equals(projectId))
+                            .findFirst().orElse(null);
                     if (subscription == null) {
                         log.error("unable to find related subscription");
                         return RateLimitResult.deny();
                     }
-                    tokenKey = endpoint.getId() + "." + projectId + "." + userId;
+                    tokenKey = RATE_LIMITER + endpoint.getId() + "." + projectId;
                 } catch (ParseException e) {
                     log.error("unable to extract user id and project id");
                     return RateLimitResult.deny();
@@ -64,15 +64,14 @@ public class RateLimitService {
             }
         } else {
             //for public endpoint
-            String ip = address.getAddress().getHostAddress().replace(".", "_");
-            tokenKey = "rate_limiter." + endpoint.getId() + "." + ip;
+            tokenKey = RATE_LIMITER + endpoint.getId();
             subscription =
-                DomainRegistry.getSubscriptionService().getSubscriptionInfo(endpoint, null);
+                endpoint.getSelfSubscription();
         }
         return checkLimit(tokenKey, subscription);
     }
 
-    private RateLimitResult checkLimit(String tokenKey, Subscription subscription) {
+    private RateLimitResult checkLimit(String tokenKey, Endpoint.Subscription subscription) {
         RateLimitResult result;
         try {
             List<Long> execute = redisTemplate.execute(script,
@@ -80,9 +79,9 @@ public class RateLimitService {
                 String.valueOf(subscription.getReplenishRate()),
                 String.valueOf(subscription.getBurstCapacity()),
                 String.valueOf(Instant.now().getEpochSecond()));
-            result=RateLimitResult.parse(execute);
+            result = RateLimitResult.parse(execute);
         } catch (Exception ex) {
-            log.error("error during redis script",ex);
+            log.error("error during redis script", ex);
             result = RateLimitResult.deny();
         }
         return result;

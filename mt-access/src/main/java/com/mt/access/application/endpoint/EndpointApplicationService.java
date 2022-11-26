@@ -9,7 +9,7 @@ import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
-import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -365,15 +365,15 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    public SumPagedRep<EndpointProxyCardRepresentation> internalQuery(String queryParam,
-                                                                      String pageParam,
-                                                                      String config) {
+    public SumPagedRep<EndpointProxyCacheRepresentation> internalQuery(String queryParam,
+                                                                       String pageParam,
+                                                                       String config) {
         SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
             .endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
-        List<EndpointProxyCardRepresentation> collect =
-            endpoints.getData().stream().map(EndpointProxyCardRepresentation::new)
+        List<EndpointProxyCacheRepresentation> collect =
+            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
                 .collect(Collectors.toList());
-        EndpointProxyCardRepresentation.updateDetail(collect);
+        EndpointProxyCacheRepresentation.updateDetail(collect);
         return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
     }
 

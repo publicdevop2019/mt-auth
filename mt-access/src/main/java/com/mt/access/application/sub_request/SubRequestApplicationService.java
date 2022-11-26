@@ -61,17 +61,6 @@ public class SubRequestApplicationService {
     }
 
     /**
-     * get subscriptions with pagination for proxy
-     *
-     * @param pageParam page info
-     * @return paginated data
-     */
-    public SumPagedRep<SubRequest> internalSubscriptions(String pageParam) {
-        SubRequestQuery subRequestQuery = SubRequestQuery.internalSubscriptions(pageParam);
-        return DomainRegistry.getSubRequestRepository().getAllSubscriptions(subRequestQuery);
-    }
-
-    /**
      * create sub request
      *
      * @param command  create command

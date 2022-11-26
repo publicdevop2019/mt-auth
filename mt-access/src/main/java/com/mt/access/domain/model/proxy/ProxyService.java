@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.proxy;
 
-import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.proxy.representation.CheckSumRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -26,14 +26,14 @@ public class ProxyService {
         Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
             (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
             new EndpointQuery());
-        Set<EndpointProxyCardRepresentation> collect =
-            allByQuery.stream().map(EndpointProxyCardRepresentation::new)
+        Set<EndpointProxyCacheRepresentation> collect =
+            allByQuery.stream().map(EndpointProxyCacheRepresentation::new)
                 .collect(Collectors.toSet());
-        EndpointProxyCardRepresentation.updateDetail(new ArrayList<>(collect));
+        EndpointProxyCacheRepresentation.updateDetail(new ArrayList<>(collect));
         //sort before generate check sum
-        TreeSet<EndpointProxyCardRepresentation> endpointProxyCardRepresentations = new TreeSet<>();
-        collect.stream().sorted().forEach(endpointProxyCardRepresentations::add);
-        CheckSumValue checkSumValue = new CheckSumValue(endpointProxyCardRepresentations);
+        TreeSet<EndpointProxyCacheRepresentation> endpointProxyCacheRepresentations = new TreeSet<>();
+        collect.stream().sorted().forEach(endpointProxyCacheRepresentations::add);
+        CheckSumValue checkSumValue = new CheckSumValue(endpointProxyCacheRepresentations);
         return new CheckSumRepresentation(checkSumValue, cacheEndpointSum);
     }
 
