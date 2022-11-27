@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -25,6 +26,7 @@ public class PermissionQuery extends QueryCriteria {
     private static final String PROJECT_IDS = "projectIds";
     private static final String TYPES = "types";
     private PermissionSort sort;
+    @Setter(AccessLevel.PRIVATE)
     private Set<PermissionId> ids;
     private Set<ProjectId> projectIds;
     @Setter
@@ -104,9 +106,20 @@ public class PermissionQuery extends QueryCriteria {
         return permissionQuery;
     }
 
-    public static PermissionQuery sharedQuery(String queryParam, String pageParam) {
+    /**
+     * query permission that is related to shared endpoints and subscribed by user
+     *
+     * @param subPermissionIds subscribed permission ids
+     * @param queryParam query param
+     * @param pageParam page param
+     * @return PermissionQuery
+     */
+    public static PermissionQuery subscribeSharedQuery(
+        Set<PermissionId> subPermissionIds,
+        String queryParam, String pageParam) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.updateQueryParam(queryParam);
+        permissionQuery.setIds(subPermissionIds);
         permissionQuery.setPageConfig(PageConfig.limited(pageParam, 50));
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
         permissionQuery.sort = PermissionSort.byId(true);

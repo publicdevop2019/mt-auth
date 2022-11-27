@@ -6,6 +6,7 @@ import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
@@ -235,14 +236,21 @@ public class PermissionApplicationService {
     }
 
     /**
-     * get shared permissions.
+     * get subscribed endpoint permissions
      *
      * @param queryParam query string
      * @param pageParam  page config
      * @return paged permission
      */
     public SumPagedRep<Permission> sharedPermissions(String queryParam, String pageParam) {
-        PermissionQuery permissionQuery = PermissionQuery.sharedQuery(queryParam, pageParam);
+        Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
+            .internalSubscribedEndpointIds();
+        Set<Endpoint> endpoints =
+            ApplicationServiceRegistry.getEndpointApplicationService().internalQuery(endpointIds);
+        Set<PermissionId> subPermissionIds =
+            endpoints.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
+        PermissionQuery permissionQuery =
+            PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
     }
 

@@ -22,6 +22,7 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
   columnList = {
     id: 'ID',
     name: 'NAME',
+    type: 'TYPE',
     description: 'DESCRIPTION',
     projectId: 'API_PROJECT_ID',
     path: 'URL',

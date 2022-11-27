@@ -43,11 +43,18 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     default SumPagedRep<SubRequest> getByQuery(SubRequestQuery query) {
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
+    default Set<EndpointId> getSubscribeEndpointIds(UserId userId){
+        return getSubscribeEndpointIds_(userId.getDomainId());
+    }
     default Set<UserId> getEndpointSubscriber(EndpointId endpointId){
         return getEndpointSubscriber_(endpointId);
     }
+
     @Query("select distinct sr.createdBy from SubRequest sr where sr.endpointId = ?1 and sr.subRequestStatus='APPROVED'")
     Set<UserId> getEndpointSubscriber_(EndpointId id);
+
+    @Query("select distinct sr.endpointId from SubRequest sr where sr.createdBy = ?1 and sr.subRequestStatus='APPROVED'")
+    Set<EndpointId> getSubscribeEndpointIds_(String userId);
 
     default SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query) {
         EntityManager entityManager = QueryUtility.getEntityManager();

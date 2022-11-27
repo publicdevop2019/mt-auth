@@ -62,6 +62,16 @@ public class SubRequestApplicationService {
     }
 
     /**
+     * get endpoint id that is subscribed
+     *
+     * @return unique endpoint ids
+     */
+    public Set<EndpointId> internalSubscribedEndpointIds() {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        return DomainRegistry.getSubRequestRepository().getSubscribeEndpointIds(userId);
+    }
+
+    /**
      * create sub request
      *
      * @param command  create command
@@ -79,17 +89,17 @@ public class SubRequestApplicationService {
                 if (endpoint.isEmpty()) {
                     throw new IllegalArgumentException("unable to find related endpoint");
                 }
-                ProjectId epProjectId = endpoint.get().getProjectId();
-                ProjectId targetProjectId = new ProjectId(command.getProjectId());
-                if (epProjectId.equals(targetProjectId)) {
-                    throw new IllegalArgumentException("cannot subscribe to itself");
-                }
+                Endpoint endpoint1 = endpoint.get();
+                ProjectId epProjectId = endpoint1.getProjectId();
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
                     endpointId,
                     command.getBurstCapacity(),
                     command.getReplenishRate(),
-                    epProjectId
+                    epProjectId,
+                    endpoint1.isExpired(),
+                    endpoint1.isSecured(),
+                    endpoint1.isShared()
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
                 return subRequest.getSubRequestId().getDomainId();

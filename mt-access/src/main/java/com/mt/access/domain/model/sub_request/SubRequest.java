@@ -70,8 +70,20 @@ public class SubRequest extends Auditable {
                       EndpointId endpointId,
                       int replenishRate,
                       int burstCapacity,
-                      ProjectId endpointProjectId
-    ) {
+                      ProjectId endpointProjectId,
+                      boolean expired, boolean secured, boolean shared) {
+        if (projectId.equals(endpointProjectId)) {
+            throw new IllegalArgumentException("cannot subscribe to itself");
+        }
+        if (expired) {
+            throw new IllegalArgumentException("cannot subscribe to expired endpoint");
+        }
+        if (!secured) {
+            throw new IllegalArgumentException("public endpoint does not need subscribe");
+        }
+        if (!shared) {
+            throw new IllegalArgumentException("cannot subscribe to endpoint that is not shared");
+        }
         this.subRequestId = new SubRequestId();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;

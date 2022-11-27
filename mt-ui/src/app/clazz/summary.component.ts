@@ -143,8 +143,8 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     }
     if (hasValue(id)) {
       if (bypassQuery) {
-          const data = this.dataSource.data.find(e => e.id === id)!
-          doNext(data)
+        const data = this.dataSource.data.find(e => e.id === id)!
+        doNext(data)
       } else {
         this.entitySvc.readById(id).subscribe(next => {
           doNext(next)
@@ -250,6 +250,10 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
 
     if (config.resetPage) {
       this.entitySvc.pageNumber = 0;
+      if (!config.value) {//reset sort as well
+        this.sortBy = undefined;
+        this.sortOrder = undefined;
+      }
     }
     this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
