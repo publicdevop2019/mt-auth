@@ -37,6 +37,8 @@ public class EndpointMqListener {
                 MT_ACCESS_ID + ".external.endpoint_collection_modified");
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.client_path_changed");
+            channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
+                MT_ACCESS_ID + ".external.sub_req_approved");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 log.debug("start refresh cached endpoints");
                 try {

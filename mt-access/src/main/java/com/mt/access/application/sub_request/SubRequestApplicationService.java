@@ -14,6 +14,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
+import com.mt.access.domain.model.sub_request.event.SubRequestApprovedEvent;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
@@ -156,6 +157,7 @@ public class SubRequestApplicationService {
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                     byId.ifPresent(e1 -> e1.approve(userId));
+                    CommonDomainRegistry.getDomainEventRepository().append(new SubRequestApprovedEvent(e.getSubRequestId()));
                     return null;
                 }, SUB_REQUEST);
         });
