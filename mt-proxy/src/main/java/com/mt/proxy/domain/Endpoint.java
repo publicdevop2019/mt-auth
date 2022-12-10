@@ -1,9 +1,12 @@
 package com.mt.proxy.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,6 +23,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String id;
     private String description;
     private String resourceId;
+    private String projectId;
     private String path;
     private String method;
 
@@ -29,6 +33,13 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
+    private SortedSet<Subscription> subscriptions;
+
+    public void sortSubscription() {
+        SortedSet<Subscription> objects = new TreeSet<>();
+        subscriptions.stream().sorted().forEach(objects::add);
+        subscriptions = objects;
+    }
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
         if (secured && permissionId == null) {
@@ -39,6 +50,14 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         }
         Set<String> roles = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
         return roles.contains(permissionId);
+    }
+
+    public boolean hasCorsInfo() {
+        return getCorsConfig() != null;
+    }
+
+    public boolean hasCacheInfo() {
+        return getCacheConfig() != null;
     }
 
     @Override
@@ -62,6 +81,12 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @Override
     public int compareTo(Endpoint o) {
         return this.getId().compareTo(o.getId());
+    }
+
+    @JsonIgnore//avoid serialization problem
+    public Subscription getSelfSubscription() {
+        return this.subscriptions.stream().filter(e -> e.getProjectId().equals(this.projectId))
+            .findFirst().orElse(null);
     }
 
     @Getter
@@ -96,6 +121,21 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
 
 
         public CacheConfig() {
+        }
+    }
+
+    @Data
+    public static class Subscription implements Serializable, Comparable<Subscription> {
+        private String projectId;
+        private int replenishRate;
+        private int burstCapacity;
+
+        public Subscription() {
+        }
+
+        @Override
+        public int compareTo(Subscription o) {
+            return this.getProjectId().compareTo(o.getProjectId());
         }
     }
 }

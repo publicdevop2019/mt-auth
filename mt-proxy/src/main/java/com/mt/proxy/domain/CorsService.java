@@ -1,15 +1,15 @@
 package com.mt.proxy.domain;
 
-import static com.mt.proxy.domain.CacheService.getMostSpecificSecurityProfile;
+import static com.mt.proxy.domain.Utility.isWebSocket;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,28 +17,29 @@ import org.springframework.web.server.ServerWebExchange;
 @Slf4j
 @Service
 public class CorsService implements CorsConfigurationSource {
-    private final Map<MethodPathKey, CorsConfiguration> corsConfigurations = new HashMap<>();
+    private final Map<Endpoint, CorsConfiguration> corsConfigurations = new HashMap<>();
     @Autowired
     private EndpointService endpointService;
 
     public void refresh(Set<Endpoint> cached) {
         log.debug("refresh cors config");
         corsConfigurations.clear();
-        cached.stream().filter(this::hasCorsInfo).forEach(endpoint -> {
-            CorsConfiguration corsConfiguration = new CorsConfiguration();
-            initializeCorsConfig(corsConfiguration, endpoint);
-            corsConfigurations.put(new MethodPathKey(endpoint.getMethod(), endpoint.getPath()),
-                corsConfiguration);
+        cached.forEach(endpoint -> {
+            if (endpoint.hasCorsInfo()) {
+                CorsConfiguration corsConfiguration = new CorsConfiguration();
+                updateCorsConfig(corsConfiguration, endpoint);
+                corsConfigurations.put(endpoint,
+                    corsConfiguration);
+            } else {
+                corsConfigurations.put(endpoint,
+                    null);
+            }
         });
         log.debug("refresh cors config completed, cors configuration count is {}",
             corsConfigurations.size());
     }
 
-    private boolean hasCorsInfo(Endpoint e) {
-        return e.getCorsConfig() != null;
-    }
-
-    private void initializeCorsConfig(CorsConfiguration configuration, Endpoint endpoint) {
+    private void updateCorsConfig(CorsConfiguration configuration, Endpoint endpoint) {
         Endpoint.CorsConfig corsConfig = endpoint.getCorsConfig();
         if (corsConfig != null) {
             corsConfig.getOrigin().forEach(configuration::addAllowedOrigin);
@@ -52,8 +53,33 @@ public class CorsService implements CorsConfigurationSource {
 
     @Override
     public CorsConfiguration getCorsConfiguration(ServerWebExchange exchange) {
-        AntPathMatcher pathMater = endpointService.getPathMater();
-        Map<MethodPathKey, CorsConfiguration> profile = new HashMap<>();
+        String method;
+        method = getTargetMethod(exchange);
+        if (method == null) {
+            return null;
+        }
+        String path = exchange.getRequest().getPath().value();
+        Optional<Endpoint> endpoint = DomainRegistry.getEndpointService()
+            .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
+        if (endpoint.isEmpty()) {
+            log.debug("unable to find cors config due to missing endpoint");
+            return null;
+        }
+        CorsConfiguration corsConfiguration = corsConfigurations.get(endpoint.get());
+        if (corsConfiguration != null) {
+            log.debug("mismatch cors config could also result 403");
+            log.trace("found {} for path {} with method {}", corsConfiguration,
+                exchange.getRequest().getPath().value(), exchange.getRequest().getMethodValue());
+        }
+        return corsConfiguration;
+    }
+
+    /**
+     * get target method when OPTION request received
+     * @param exchange exchange
+     * @return target method
+     */
+    private String getTargetMethod(ServerWebExchange exchange) {
         String targetMethod;
         if ("options".equalsIgnoreCase(exchange.getRequest().getMethodValue())) {
             if (exchange.getRequest().getHeaders().getAccessControlRequestMethod() == null) {
@@ -65,23 +91,6 @@ public class CorsService implements CorsConfigurationSource {
         } else {
             targetMethod = exchange.getRequest().getMethodValue();
         }
-        String finalTargetMethod = targetMethod;
-        this.corsConfigurations.entrySet().stream()
-            .filter(entry ->
-                pathMater.match(entry.getKey().getPath(), exchange.getRequest().getPath().value())
-                    &&
-                    finalTargetMethod.equalsIgnoreCase(entry.getKey().getMethod()))
-            .forEach(e -> {
-                profile.put(e.getKey(), e.getValue());
-            });
-        String s = exchange.getRequest().getPath().toString();
-        CorsConfiguration corsConfiguration =
-            getMostSpecificSecurityProfile(profile, s).stream().findFirst().orElse(null);
-        log.debug("found {} for path {} with method {}", corsConfiguration,
-            exchange.getRequest().getPath().value(), exchange.getRequest().getMethodValue());
-        if (corsConfiguration != null) {
-            log.debug("mismatch cors config could also result 403");
-        }
-        return corsConfiguration;
+        return targetMethod;
     }
 }

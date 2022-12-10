@@ -24,15 +24,13 @@ import reactor.core.publisher.Mono;
 @Service
 @Slf4j
 public class ScgRouteService implements ApplicationEventPublisherAware {
-    @Autowired
-    RedisRateLimiter redisRateLimiter;
     private ApplicationEventPublisher publisher;
     @Autowired
     private RouteDefinitionWriter routeDefinitionWriter;
 
     public void refreshRoutes(Set<RegisteredApplication> registeredApplicationSet) {
         Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null)
-            .map(e -> e.getId()).collect(Collectors.toSet());
+            .map(RegisteredApplication::getId).collect(Collectors.toSet());
         collect.forEach(e -> {
             routeDefinitionWriter.delete(Mono.just(e)).subscribe(null, (error) -> {
                 log.debug("ignore not found ex when delete routes");
@@ -54,15 +52,7 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
             filterParams.put("regexp", "/" + e.getBasePath() + "(?<segment>/?.*)");
             filterParams.put("replacement", "${segment}");
             filter.setArgs(filterParams);
-            FilterDefinition filter2 = new FilterDefinition();
-            filter2.setName("RequestRateLimiter");
-            Map<String, String> filterParams2 = new HashMap<>(8);
-            filterParams2.put("redis-rate-limiter.replenishRate", "50");
-            filterParams2.put("redis-rate-limiter.burstCapacity", "100");
-            filterParams2.put("rate-limiter", "#{@redisRateLimiter}");
-            filterParams2.put("key-resolver", "#{@userKeyResolver}");
-            filter2.setArgs(filterParams2);
-            definition.setFilters(List.of(filter, filter2));
+            definition.setFilters(List.of(filter));
             routeDefinitionWriter.save(Mono.just(definition)).subscribe();
         });
         this.publisher.publishEvent(new RefreshRoutesEvent(this));

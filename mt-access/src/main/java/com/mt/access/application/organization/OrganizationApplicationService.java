@@ -36,7 +36,7 @@ public class OrganizationApplicationService {
     @Transactional
     public void replace(String id, OrganizationUpdateCommand command, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Organization> first = DomainRegistry.getOrganizationRepository()
                     .getByQuery(new OrganizationQuery(organizationId)).findFirst();
@@ -66,7 +66,7 @@ public class OrganizationApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Organization> corsProfile =
                     DomainRegistry.getOrganizationRepository().getById(organizationId);
@@ -89,7 +89,7 @@ public class OrganizationApplicationService {
     @Transactional
     public String create(OrganizationCreateCommand command, String changeId) {
         OrganizationId organizationId = new OrganizationId();
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Organization organization = new Organization(organizationId, command.getName());
                 DomainRegistry.getOrganizationRepository().add(organization);

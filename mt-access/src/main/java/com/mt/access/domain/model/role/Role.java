@@ -232,6 +232,9 @@ public class Role extends Auditable {
                 userRole.getRoleId(), tenantProjectId, permissionIdSet, creator));
     }
 
+    public Set<PermissionId> getCommonPermissionIds() {
+        return commonPermissionIds == null ? Collections.emptySet() : commonPermissionIds;
+    }
 
     public Set<PermissionId> getTotalPermissionIds() {
         Set<PermissionId> objects = new HashSet<>();
@@ -247,6 +250,15 @@ public class Role extends Auditable {
         return objects;
     }
 
+    /**
+     * update role permission or basic information based on command
+     * 1. basic information update like description and parent id
+     * 2. explicitly update api permission (not recommend to use)
+     * 3. explicitly update shared permission
+     * 4. update common permission
+     *
+     * @param command update command
+     */
     public void update(RoleUpdateCommand command) {
         if (command.getType().equals(UpdateType.BASIC)) {
             setName(command.getName());
@@ -328,12 +340,6 @@ public class Role extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), roleId);
-    }
-
-    public void removeExternalPermission(PermissionId permissionId) {
-        externalPermissionIds =
-            externalPermissionIds.stream().filter(ee -> !ee.equals(permissionId))
-                .collect(Collectors.toSet());
     }
 
     public void remove() {

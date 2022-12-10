@@ -1,5 +1,8 @@
 package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
+import static com.mt.proxy.domain.Utility.isWebSocket;
+
+import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -100,12 +103,12 @@ public class ScgETagFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
-        if (!ScgEndpointFilter.isWebSocket(request.getHeaders())
+        if (!isWebSocket(request.getHeaders())
             &&
             HttpMethod.GET.equals(request.getMethod())) {
             //check etag first
             log.debug("start of etag filter");
-            CacheService.CacheConfiguration cacheConfiguration =
+            CacheConfiguration cacheConfiguration =
                 cacheService.getCacheConfiguration(exchange, true);
             if (cacheConfiguration != null) {
                 ServerHttpResponse decoratedResponse = updateResponseWithETag(exchange);

@@ -11,6 +11,7 @@ import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
 import java.util.List;
 import java.util.Optional;
 import javax.persistence.criteria.Order;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataJpaDomainEventRepository
     extends CrudRepository<StoredEvent, Long>, DomainEventRepository {
+
     List<StoredEvent> findTop50ByIdGreaterThanOrderById(long id);
 
     default List<StoredEvent> top50StoredEventsSince(long lastId) {
@@ -51,6 +53,8 @@ public interface SpringDataJpaDomainEventRepository
                 e -> QueryUtility.addStringInPredicate(e, StoredEvent_.DOMAIN_ID, queryContext));
             Optional.ofNullable(query.getSend()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.SEND, queryContext));
+            Optional.ofNullable(query.getRoutable()).ifPresent(
+                e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.ROUTABLE, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order =

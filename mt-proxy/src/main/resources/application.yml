@@ -3,8 +3,11 @@ manytree:
     appId: 0C8AZTODP4HT
   url:
     endpoint: endpoints/proxy
+    subscription: subscriptions/proxy
+    report: reports/proxy
     clients: clients/proxy
   domain-name: duoshu.org
+  instance-id: 0
 mt:
   url:
     support:
@@ -23,7 +26,7 @@ spring:
     gateway:
       httpclient:
         connect-timeout: 10000
-        response-timeout: 15s
+        response-timeout: 30s
   loadbalancer:
     ribbon:
       enabled: false

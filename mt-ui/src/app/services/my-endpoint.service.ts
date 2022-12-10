@@ -9,7 +9,10 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 })
 export class MyEndpointService extends TenantEntityService<IEndpoint, IEndpoint>{
   entityName: string = 'endpoints';
-  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-    super(httpProxy, interceptor,deviceSvc);
+  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+    super(httpProxy, interceptor, deviceSvc);
+  }
+  expireEndpoint(id: string, reason: string, changeId: string) {
+    return this.httpProxySvc.expireEndpoint(this.projectId, id, reason, changeId)
   }
 }

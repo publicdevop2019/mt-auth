@@ -25,7 +25,7 @@ public class CustomThreadPoolExecutor extends ThreadPoolExecutor {
 
     @Override
     protected void afterExecute(Runnable r, Throwable t) {
-        log.debug("clean up after execute");
+        log.trace("clean up after execute");
         MDC.clear();
     }
 }

@@ -1,7 +1,7 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { HTTP_METHODS } from '../clazz/validation/aggregate/endpoint/interfaze-endpoint';
 
-export const FORM_CONFIG: IForm = {
+export const CATALOG_FORM_CONFIG: IForm = {
     "repeatable": false,
     "inputs": [
         {
@@ -13,6 +13,68 @@ export const FORM_CONFIG: IForm = {
                 "row": "0",
                 "column": "0"
             }
+        },
+        {
+            "type": "radio",
+            "display": true,
+            "label": "IS_EXTERNAL",
+            "key": "isExternal",
+            "position": {
+                "row": "1",
+                "column": "0"
+            },
+            direction:'row',
+            "options": [
+                { label: 'NO', value: "no" },
+                { label: 'YES', value: "yes" },
+            ],
+        },
+        {
+            "type": "radio",
+            "display": true,
+            "label": "IS_SHARED",
+            "key": "isShared",
+            "position": {
+                "row": "2",
+                "column": "0"
+            },
+            direction:'row',
+            "options": [
+                { label: 'NO', value: "no" },
+                { label: 'YES', value: "yes" },
+            ],
+        },
+        {
+            "type": "radio",
+            "display": true,
+            // disabled:true,//this has a bug
+            "label": "IS_SECURED",
+            "key": "isSecured",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
+            direction:'row',
+            "options": [
+                { label: 'NO', value: "no" },
+                { label: 'YES', value: "yes" },
+            ],
+        },
+    ],
+}
+export const BASIC_FORM_CONFIG: IForm = {
+    "repeatable": false,
+    "inputs": [
+        {
+            "type": "text",
+            "display": true,
+            "label": "NAME",
+            "key": "name",
+            "position": {
+                "row": "0",
+                "column": "0"
+            },
+            required: true,
         },
         {
             "type": "paginated-select",
@@ -27,44 +89,12 @@ export const FORM_CONFIG: IForm = {
             required: true,
         },
         {
-            "type": "text",
-            "display": true,
-            "label": "NAME",
-            "key": "name",
-            "position": {
-                "row": "2",
-                "column": "0"
-            },
-            required: true,
-        },
-        {
-            "type": "text",
-            "display": true,
-            "label": "ENTER_DESCRIPTION",
-            "key": "description",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
-        },
-        {
-            "type": "text",
-            "display": true,
-            "label": "ENTER_ENDPOINT",
-            "key": "path",
-            "position": {
-                "row": "4",
-                "column": "0"
-            },
-            required: true,
-        },
-        {
             "type": "radio",
             "display": true,
             "label": "IS_WEBSOCKET",
             "key": "isWebsocket",
             "position": {
-                "row": "5",
+                "row": "2",
                 "column": "0"
             },
             "options": [
@@ -73,24 +103,50 @@ export const FORM_CONFIG: IForm = {
             ],
         },
         {
+            "type": "text",
+            "display": true,
+            "label": "ENTER_ENDPOINT",
+            "key": "path",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
+            required: true,
+        },
+        {
             "type": "select",
             "display": false,
             "label": "SELECT_METHOD",
             "key": "method",
             "position": {
-                "row": "6",
+                "row": "4",
                 "column": "0"
             },
             "options": HTTP_METHODS,
             required: true,
         },
         {
+            "type": "text",
+            "display": true,
+            "label": "ENTER_DESCRIPTION",
+            "key": "description",
+            "position": {
+                "row": "5",
+                "column": "0"
+            },
+        },
+    ],
+}
+export const SECURE_FORM_CONFIG: IForm = {
+    "repeatable": false,
+    "inputs": [
+        {
             "type": "checkbox",
             "display": true,
             "label": "",
             "key": "csrf",
             "position": {
-                "row": "7",
+                "row": "0",
                 "column": "0"
             },
             "options": [
@@ -103,7 +159,7 @@ export const FORM_CONFIG: IForm = {
             "label": "",
             "key": "cors",
             "position": {
-                "row": "8",
+                "row": "1",
                 "column": "0"
             },
             "options": [
@@ -116,49 +172,47 @@ export const FORM_CONFIG: IForm = {
             "label": "SELECT_CORS_PROFILE",
             "key": "corsProfile",
             "position": {
-                "row": "9",
+                "row": "2",
                 "column": "0"
             },
             "options": [],
             required: true,
         },
-        {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "secured",
-            "position": {
-                "row": "10",
-                "column": "0"
-            },
-            "options": [
-                { label: 'PROTECTED_ENDPOINT', value: "true" },
-            ],
-        },
-        {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "shared",
-            "position": {
-                "row": "11",
-                "column": "0"
-            },
-            "options": [
-                { label: 'SHARED_API', value: "true" },
-            ],
-        },
+    ],
+}
+export const PERFORMANCE_FORM_CONFIG: IForm = {
+    "repeatable": false,
+    "inputs": [
         {
             "type": "paginated-select",
             "display": false,
             "label": "SELECT_CACHE_PROFILE",
             "key": "cacheProfile",
             "position": {
-                "row": "12",
+                "row": "0",
                 "column": "0"
             },
             "options": [],
-            required: false,
+        },
+        {
+            "type": "text",
+            "display": false,
+            "label": "REPLENISH_RATE",
+            "key": "replenishRate",
+            "position": {
+                "row": "1",
+                "column": "0"
+            },
+        },
+        {
+            "type": "text",
+            "display": false,
+            "label": "BURST_CAPACITY",
+            "key": "burstCapacity",
+            "position": {
+                "row": "2",
+                "column": "0"
+            },
         },
     ],
 }

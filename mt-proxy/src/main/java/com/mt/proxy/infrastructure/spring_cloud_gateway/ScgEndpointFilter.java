@@ -1,5 +1,7 @@
 package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
+import static com.mt.proxy.domain.Utility.isWebSocket;
+
 import com.mt.proxy.domain.DomainRegistry;
 import java.text.ParseException;
 import java.util.List;
@@ -19,11 +21,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class ScgEndpointFilter implements GlobalFilter, Ordered {
-    public static boolean isWebSocket(HttpHeaders headers) {
-        log.debug("upgrade header value is {}", headers.getUpgrade());
-        log.trace("all header value is {}", headers);
-        return "websocket".equals(headers.getUpgrade());
-    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {

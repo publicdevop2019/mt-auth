@@ -47,7 +47,7 @@ public class CrossDomainValidationService {
     private String adminEmail;
 
     public void validate() {
-        log.debug("start of validate job");
+        log.trace("start of validate job");
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().get();
         ValidationResult validationResult;

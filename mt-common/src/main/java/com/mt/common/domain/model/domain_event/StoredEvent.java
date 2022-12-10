@@ -36,12 +36,16 @@ public class StoredEvent implements Serializable {
     private String topic;
     private String domainId;
 
+    private String applicationId;
+    private boolean routable = true;
+
     public StoredEvent(DomainEvent event) {
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
         this.timestamp = event.getTimestamp();
         this.name = event.getName();
         this.internal = event.isInternal();
         this.topic = event.getTopic();
+        this.applicationId = CommonDomainRegistry.getApplicationInfoService().getApplicationId();
         if (event.getDomainId() != null) {
             this.domainId = event.getDomainId().getDomainId();
         }
@@ -80,5 +84,9 @@ public class StoredEvent implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(eventBody, id, timestamp, name, internal, send, topic, domainId);
+    }
+
+    public void markAsUnroutable() {
+        this.routable = false;
     }
 }

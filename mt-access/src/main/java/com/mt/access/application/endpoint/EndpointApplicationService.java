@@ -5,11 +5,11 @@ import static com.mt.access.domain.model.permission.Permission.EDIT_API;
 import static com.mt.access.domain.model.permission.Permission.VIEW_API;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
+import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
-import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -27,8 +27,9 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.AppStarted;
+import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -64,7 +65,7 @@ public class EndpointApplicationService {
             }
             log.debug("sending reload proxy endpoint message");
             CommonDomainRegistry.getEventStreamService()
-                .next(appName, false, "started_access", new AppStarted());
+                .next(appName, false, "started_access", ApplicationStartedEvent.create());
         }
     }
 
@@ -74,7 +75,7 @@ public class EndpointApplicationService {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_API);
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 String resourceId = command.getResourceId();
                 Optional<Client> client =
@@ -99,7 +100,10 @@ public class EndpointApplicationService {
                         command.getCorsProfileId() != null
                             ?
                             new CorsProfileId(command.getCorsProfileId()) : null,
-                        command.isShared()
+                        command.isShared(),
+                        command.isExternal(),
+                        command.getReplenishRate(),
+                        command.getBurstCapacity()
                     );
                     DomainRegistry.getEndpointRepository().add(endpoint);
                     return endpointId.getDomainId();
@@ -148,7 +152,7 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
@@ -167,7 +171,8 @@ public class EndpointApplicationService {
                         command.getCorsProfileId() != null
                             ?
                             new CorsProfileId(command.getCorsProfileId()) : null,
-                        command.isShared()
+                        command.getReplenishRate(),
+                        command.getBurstCapacity()
                     );
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
@@ -185,7 +190,7 @@ public class EndpointApplicationService {
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery)
@@ -203,7 +208,7 @@ public class EndpointApplicationService {
     public void removeEndpoints(String projectId, String queryParam, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
@@ -228,7 +233,7 @@ public class EndpointApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository()
                     .endpointsOfQuery(new EndpointQuery(endpointId, projectId1)).findFirst();
@@ -247,7 +252,8 @@ public class EndpointApplicationService {
                         endpoint1.isWebsocket(),
                         endpoint1.isCsrfEnabled(),
                         endpoint1.getCorsProfileId(),
-                        endpoint1.isShared()
+                        endpoint1.getReplenishRate(),
+                        endpoint1.getBurstCapacity()
                     );
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
@@ -258,7 +264,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void reloadEndpointCache(String changeId) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getEndpointService().reloadEndpointCache();
                 return null;
@@ -267,7 +273,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(ClientDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle delete client event");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
@@ -284,7 +290,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CorsProfileRemoved deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cors profile removed");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
@@ -306,7 +312,7 @@ public class EndpointApplicationService {
      */
     @Transactional
     public void handle(CorsProfileUpdated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle cors profile updated");
                 CorsProfileId corsProfileId =
@@ -323,7 +329,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CacheProfileRemoved deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cache profile removed");
                 CacheProfileId profileId =
@@ -342,7 +348,7 @@ public class EndpointApplicationService {
 
     @Transactional
     public void handle(CacheProfileUpdated deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 log.debug("handle cache profile updated");
                 CacheProfileId profileId =
@@ -359,17 +365,49 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    public SumPagedRep<EndpointProxyCardRepresentation> internalQuery(String queryParam,
-                                                                      String pageParam,
-                                                                      String config) {
+    public SumPagedRep<EndpointProxyCacheRepresentation> internalQuery(String queryParam,
+                                                                       String pageParam,
+                                                                       String config) {
         SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
             .endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
-        List<EndpointProxyCardRepresentation> collect =
-            endpoints.getData().stream().map(EndpointProxyCardRepresentation::new)
+        List<EndpointProxyCacheRepresentation> collect =
+            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
                 .collect(Collectors.toList());
-        EndpointProxyCardRepresentation.updateDetail(collect);
+        EndpointProxyCacheRepresentation.updateDetail(collect);
         return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
     }
+
+    /**
+     * internal query endpoints
+     *
+     * @param endpointIds endpoint ids
+     * @return matched endpoints
+     */
+    public Set<Endpoint> internalQuery(Set<EndpointId> endpointIds) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository()
+            .endpointsOfQuery(e), new EndpointQuery(endpointIds));
+    }
+
+    @Transactional
+    public void expireEndpoint(EndpointExpireCommand command, String projectId, String id,
+                               String changeId) {
+        log.debug("start of expire endpoint");
+        EndpointId endpointId = new EndpointId(id);
+        EndpointQuery endpointQuery =
+            new EndpointQuery(endpointId, new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                Optional<Endpoint> endpoint =
+                    DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+                endpoint.ifPresent(e -> {
+                    e.expire(command.getExpireReason());
+                });
+                return null;
+            }, ENDPOINT);
+    }
+
 
     public static class InvalidClientIdException extends RuntimeException {
     }

@@ -79,7 +79,7 @@ public class CacheProfileApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<CacheProfile> cacheProfile =
                     DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);

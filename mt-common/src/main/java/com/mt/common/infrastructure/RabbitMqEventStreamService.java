@@ -1,7 +1,10 @@
 package com.mt.common.infrastructure;
 
 import static com.mt.common.CommonConstant.EXCHANGE_NAME;
+import static com.mt.common.CommonConstant.EXCHANGE_NAME_ALT;
+import static com.mt.common.CommonConstant.QUEUE_NAME_ALT;
 
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.clazz.ClassUtility;
 import com.mt.common.domain.model.domain_event.MqHelper;
@@ -23,6 +26,8 @@ import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
@@ -97,8 +102,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public void subscribe(String subscribedApplicationName, boolean internal,
-                          @Nullable String fixedQueueName, Consumer<StoredEvent> consumer,
+    public void subscribe(String subscribedApplicationName,
+                          boolean internal,
+                          @Nullable String fixedQueueName,
+                          Consumer<StoredEvent> consumer,
                           String... topics) {
         String routingKeyWithoutTopic =
             subscribedApplicationName + "." + (internal ? "internal" : "external") + ".";
@@ -118,6 +125,16 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }
             queueName = Long.toString(id, 36) + "_" + s;
         }
+        subscribe(null, routingKeyWithoutTopic, queueName, autoDelete, consumer, topics);
+    }
+
+    @Override
+    public void subscribe(@Nullable String exchangeName,
+                          String routingKey,
+                          String queueName,
+                          boolean autoDelete,
+                          Consumer<StoredEvent> consumer,
+                          String... topics) {
         Thread thread = Thread.currentThread();
         Channel channel = subChannel.get(thread);
         if (channel == null) {
@@ -125,8 +142,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 channel = connectionSub.createChannel();
             } catch (IOException e) {
                 log.error(
-                    "unable create subscribe channel for {} with routing key {} and queue name {}",
-                    subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+                    "unable create subscribe channel with routing key {} and queue name {}",
+                    routingKey, queueName, e);
                 throw new EventStreamException();
             }
             subChannel.put(thread, channel);
@@ -137,11 +154,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             channel.basicQos(10);
             checkExchange(channel);
             for (String topic : topics) {
-                channel.queueBind(queueName, EXCHANGE_NAME, routingKeyWithoutTopic + topic);
+                channel.queueBind(queueName, exchangeName == null ? EXCHANGE_NAME : exchangeName,
+                    routingKey + topic);
             }
         } catch (IOException e) {
-            log.error("unable create queue for {} with routing key {} and queue name {}",
-                subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+            log.error("unable create queue with routing key {} and queue name {}", routingKey,
+                queueName, e);
             throw new EventStreamException();
         }
         Channel finalChannel = channel;
@@ -173,8 +191,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }, consumerTag -> {
             });
         } catch (IOException e) {
-            log.error("unable consume message for {} with routing key {} and queue name {}",
-                subscribedApplicationName, routingKeyWithoutTopic, queueName, e);
+            log.error("unable consume message with routing key {} and queue name {}", routingKey,
+                queueName, e);
             throw new EventStreamException();
         }
     }
@@ -209,8 +227,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public void next(String appName, boolean internal, String topic, StoredEvent event) {
-        String routingKey = appName + "." + (internal ? "internal" : "external") + "." + topic;
+    public void next(String appId, boolean internal, String topic, StoredEvent event) {
+        String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
         log.debug("publish next event id {} with routing key {}", event.getId(), routingKey);
         Thread thread = Thread.currentThread();
 
@@ -221,14 +239,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 //async publish confirm for best performance
                 channel.confirmSelect();
                 ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
-                    Consumer<StoredEvent> markAsSent=(storedEvent)->{
-                        Long id = storedEvent.getId();
-                        log.debug("marking {} event as sent", id);
-                        CommonDomainRegistry.getDomainEventRepository().getById(id).ifPresentOrElse(
-                            StoredEvent::sendToMQ,
-                            () -> log.error("event with id {} not found, which should not happen",
-                                id)
-                        );
+                    Consumer<StoredEvent> markAsSent = (storedEvent) -> {
+                        CommonApplicationServiceRegistry.getStoredEventApplicationService().markAsSent(storedEvent);
                     };
                     if (multiple) {
                         log.debug("ack callback with multiple confirm");
@@ -266,7 +278,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     nAckCallback);
             } catch (IOException e) {
                 log.error("unable create channel for {} with routing key {}",
-                    appName, routingKey, e);
+                    appId, routingKey, e);
                 throw new EventStreamException();
             }
             pubChannel.put(thread, channel);
@@ -275,24 +287,38 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
             checkExchange(channel);
             outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
-            channel.basicPublish(EXCHANGE_NAME, routingKey,
+            channel.basicPublish(EXCHANGE_NAME, routingKey, true,
                 null, body.getBytes(StandardCharsets.UTF_8)
             );
         } catch (IOException e) {
+            //when msg has no matching route and alternate exchange is also down
             log.error("unable publish message for {} with routing key {}",
-                appName, routingKey, e);
+                appId, routingKey, e);
             throw new EventStreamException();
         }
     }
 
     @Override
     public void next(StoredEvent event) {
-        next(appName, event.isInternal(), event.getTopic(), event);
+        next(event.getApplicationId(), event.isInternal(), event.getTopic(), event);
     }
 
-
     private void checkExchange(Channel channel) throws IOException {
-        channel.exchangeDeclare(EXCHANGE_NAME, "topic");
+        Map<String, Object> args = new HashMap<>();
+        args.put("alternate-exchange", EXCHANGE_NAME_ALT);
+        channel.exchangeDeclare(EXCHANGE_NAME, "topic", true, false, args);
+        channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout", true, false, null);
+        channel.queueDeclare(QUEUE_NAME_ALT, true, false, false, null);
+        channel.queueBind(QUEUE_NAME_ALT, EXCHANGE_NAME_ALT, "");
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void unroutableMsgListener() {
+        log.debug("subscribe for unroutable msg");
+        this.subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT, false, (event) -> {
+                CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                    .markAsUnroutable(event);
+            }, "");
     }
 
     private static class EventStreamException extends RuntimeException {

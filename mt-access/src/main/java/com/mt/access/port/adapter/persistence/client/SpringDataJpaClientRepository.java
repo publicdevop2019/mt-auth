@@ -271,7 +271,7 @@ public interface SpringDataJpaClientRepository
             }
         }
 
-        public static class ResourceIdsPredicateConverter {
+        private static class ResourceIdsPredicateConverter {
             public static Predicate getPredicate(Set<ClientId> query, CriteriaBuilder cb,
                                                  Root<Client> root) {
                 Join<Object, Object> tags = root.join(Client_.RESOURCES);

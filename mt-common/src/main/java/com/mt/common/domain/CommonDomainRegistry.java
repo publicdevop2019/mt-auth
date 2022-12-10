@@ -2,6 +2,7 @@ package com.mt.common.domain;
 
 
 import com.mt.common.domain.model.cache.HibernateCacheService;
+import com.mt.common.domain.model.constant.ApplicationInfoService;
 import com.mt.common.domain.model.distributed_lock.SchedulerDistLockService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
@@ -34,6 +35,13 @@ public class CommonDomainRegistry {
     private static SchedulerDistLockService schedulerDistLockService;
     @Getter
     private static JobRepository jobRepository;
+    @Getter
+    private static ApplicationInfoService applicationInfoService;
+
+    @Autowired
+    public void setApplicationInfoService(ApplicationInfoService applicationInfoService) {
+        CommonDomainRegistry.applicationInfoService = applicationInfoService;
+    }
 
     @Autowired
     public void setJobRepository(JobRepository jobRepository) {

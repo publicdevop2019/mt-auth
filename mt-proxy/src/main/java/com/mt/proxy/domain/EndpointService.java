@@ -1,5 +1,7 @@
 package com.mt.proxy.domain;
 
+import static com.mt.proxy.domain.Utility.antPathMatcher;
+
 import java.text.ParseException;
 import java.util.HashSet;
 import java.util.List;
@@ -10,44 +12,43 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.util.AntPathMatcher;
 
 @Slf4j
 @Service
 public class EndpointService {
 
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private Set<Endpoint> cached = new HashSet<>();
-    @Autowired
-    private CsrfService csrfService;
-    @Autowired
-    private CorsService corsService;
-    @Autowired
-    private CacheService cacheService;
 
-    public static Optional<Endpoint> getMostSpecificSecurityProfile(List<Endpoint> collect1,
-                                                                    String requestUri) {
+    /**
+     * return most specific endpoint from multiple endpoints.
+     * e.g /** vs /**\/**
+     *
+     * @param endpoints  list of endpoints
+     * @param requestUri path
+     * @return optional most specific endpoint
+     */
+    private static Optional<Endpoint> getClosestEndpoint(List<Endpoint> endpoints,
+                                                         String requestUri) {
         Optional<Endpoint> next;
-        if (collect1.size() == 1) {
-            next = Optional.of(collect1.get(0));
+        if (endpoints.size() == 1) {
+            next = Optional.of(endpoints.get(0));
         } else {
-            List<Endpoint> exactMatch = collect1.stream().filter(e -> !e.getPath().contains("/**"))
+            List<Endpoint> exactMatch = endpoints.stream().filter(e -> !e.getPath().contains("/**"))
                 .collect(Collectors.toList());
             if (exactMatch.size() == 1) {
                 next = Optional.of(exactMatch.get(0));
             } else {
                 List<Endpoint> collect2 =
-                    collect1.stream().filter(e -> !e.getPath().endsWith("/**"))
+                    endpoints.stream().filter(e -> !e.getPath().endsWith("/**"))
                         .collect(Collectors.toList());
                 if (collect2.size() == 1) {
                     next = Optional.of(collect2.get(0));
                 } else {
                     //return longest
-                    next = collect1.stream()
+                    next = endpoints.stream()
                         .sorted((a, b) -> b.getPath().length() - a.getPath().length()).findFirst();
                 }
             }
@@ -61,16 +62,11 @@ public class EndpointService {
         return next;
     }
 
-    @EventListener(ApplicationReadyEvent.class)
-    public void loadAllEndpoints() {
+    public void refreshCache() {
         cached = DomainRegistry.getRetrieveEndpointService().loadAllEndpoints();
-        csrfService.refresh(cached);
-        corsService.refresh(cached);
-        cacheService.refresh(cached);
-    }
-
-    public AntPathMatcher getPathMater() {
-        return antPathMatcher;
+        DomainRegistry.getCsrfService().refresh(cached);
+        DomainRegistry.getCorsService().refresh(cached);
+        DomainRegistry.getCacheService().refresh(cached);
     }
 
     public boolean checkAccess(String requestUri, String method, @Nullable String authHeader,
@@ -122,31 +118,18 @@ public class EndpointService {
         String jwtRaw = authHeader.replace("Bearer ", "");
         Set<String> resourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
 
-        //fetch security profile
+        //fetch endpoint
         if (resourceIds == null || resourceIds.isEmpty()) {
             log.debug("return 403 due to resourceIds is null or empty");
             return false;
         }
-        List<Endpoint> collect =
+        Set<Endpoint> sameResourceId =
             cached.stream().filter(e -> resourceIds.contains(e.getResourceId()))
-                .collect(Collectors.toList());
-        //fetch security rule by endpoint & method
-        List<Endpoint> collect1;
-        if (websocket) {
-            collect1 = collect.stream()
-                .filter(e -> antPathMatcher.match(e.getPath(), requestUri) && e.isWebsocket())
-                .collect(Collectors.toList());
-        } else {
-            collect1 = collect.stream().filter(
-                e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
-                .collect(Collectors.toList());
-        }
-
-        Optional<Endpoint> mostSpecificSecurityProfile =
-            getMostSpecificSecurityProfile(collect1, requestUri);
+                .collect(Collectors.toSet());
+        Optional<Endpoint> endpoint = findEndpoint(sameResourceId, requestUri, method, websocket);
         boolean passed;
-        if (mostSpecificSecurityProfile.isPresent()) {
-            passed = mostSpecificSecurityProfile.get().allowAccess(jwtRaw);
+        if (endpoint.isPresent()) {
+            passed = endpoint.get().allowAccess(jwtRaw);
         } else {
             log.debug("return 403 due to endpoint not found or duplicate endpoints");
             return false;
@@ -163,6 +146,55 @@ public class EndpointService {
         //sort before generate check sum
         SortedSet<Endpoint> objects = new TreeSet<>();
         cached.stream().sorted().forEach(objects::add);
+        cached.forEach(Endpoint::sortSubscription);
         return DomainRegistry.getCheckSumService().getChecksum(objects);
+    }
+
+    /**
+     * return matching endpoint info from given endpoint collection or cache
+     *
+     * @param cache      endpoints to search, if null will use cached endpoints
+     * @param requestUri url path
+     * @param method     method
+     * @param websocket  if websocket
+     * @return optional matching endpoint object
+     */
+    public Optional<Endpoint> findEndpoint(@Nullable Set<Endpoint> cache,
+                                           String requestUri, String method,
+                                           boolean websocket) {
+        Set<Endpoint> from;
+        from = cache == null ? cached : cache;
+        //fetch security rule by endpoint & method
+        List<Endpoint> next;
+        if (websocket) {
+            next = from.stream()
+                .filter(e -> antPathMatcher.match(e.getPath(), requestUri) && e.isWebsocket())
+                .collect(Collectors.toList());
+        } else {
+            next = from.stream().filter(
+                e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
+                .collect(Collectors.toList());
+        }
+        return getClosestEndpoint(next, requestUri);
+    }
+
+    /**
+     * return matching endpoint info from endpoint collection
+     *
+     * @param requestUri url path
+     * @param method     method
+     * @param websocket  if websocket
+     * @return optional matching endpoint object
+     */
+    public Optional<Endpoint> findEndpoint(String requestUri, String method, boolean websocket) {
+        return findEndpoint(null, requestUri, method, websocket);
+    }
+
+    /**
+     * return cached endpoint collection.
+     * @return endpoint set
+     */
+    public Set<Endpoint> getCachedEndpoints() {
+        return cached;
     }
 }

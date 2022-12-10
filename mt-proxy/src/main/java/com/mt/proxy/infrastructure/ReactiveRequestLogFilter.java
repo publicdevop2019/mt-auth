@@ -1,10 +1,13 @@
 package com.mt.proxy.infrastructure;
 
+import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
+import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
+
+import com.mt.proxy.domain.ReportService;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -20,11 +23,9 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveLogFilter implements WebFilter, Ordered {
-
-    public static final String REQ_UUID = "UUID";
-    public static final String REQ_CLIENT_IP = "CLIENT_IP";
-
+public class ReactiveRequestLogFilter implements WebFilter, Ordered {
+    @Autowired
+    ReportService reportService;
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         //clear previous value
@@ -63,12 +64,14 @@ public class ReactiveLogFilter implements WebFilter, Ordered {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange.mutate().request(httpRequest).build());
             }
+            reportService.logRequestDetails(exchange.getRequest());
             return chain
                 .filter(exchange.mutate().request(httpRequest).response(decoratedResponse).build());
         } else {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange);
             }
+            reportService.logRequestDetails(exchange.getRequest());
             return chain.filter(exchange.mutate().response(decoratedResponse).build());
         }
     }

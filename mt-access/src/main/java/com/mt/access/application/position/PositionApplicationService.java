@@ -36,7 +36,7 @@ public class PositionApplicationService {
     @Transactional
     public void replace(String id, PositionUpdateCommand command, String changeId) {
         PositionId positionId = new PositionId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Position> first =
                     DomainRegistry.getPositionRepository().getByQuery(new PositionQuery(positionId))
@@ -67,7 +67,7 @@ public class PositionApplicationService {
     @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         PositionId positionId = new PositionId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Position> corsProfile =
                     DomainRegistry.getPositionRepository().getById(positionId);
@@ -89,7 +89,7 @@ public class PositionApplicationService {
     @Transactional
     public String create(PositionCreateCommand command, String changeId) {
         PositionId positionId = new PositionId();
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Position position = new Position(positionId, command.getName());
                 DomainRegistry.getPositionRepository().add(position);

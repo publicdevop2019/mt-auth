@@ -1,19 +1,24 @@
-export interface IEndpoint {
+import { IIdBasedEntity } from "src/app/clazz/summary.component";
+
+export interface IEndpoint extends IIdBasedEntity {
   resourceId: string;
   resourceName?: string;
   description?: string;
   name: string;
   path: string;
   method?: string;
-  id: string;
   websocket: boolean;
   secured: boolean;
   shared: boolean;
+  external: boolean;
   csrfEnabled: boolean;
   corsProfileId?: string;
   projectId?: string;
   cacheProfileId?: string;
-  version: number;
+  expired?: boolean;
+  expireReason?: string;
+  replenishRate?: number,
+  burstCapacity?: number,
 }
 export const HTTP_METHODS = [
   { label: 'HTTP_GET', value: "GET" },

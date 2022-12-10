@@ -73,7 +73,6 @@ import { NewProjectComponent } from './pages/common/new-project/new-project.comp
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
 import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
-import { EndpointComponent } from './pages/tenant/endpoint/endpoint.component';
 import { ClientComponent } from './pages/tenant/client/client.component';
 import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
@@ -129,7 +128,13 @@ import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
-
+import { SubRequestComponent } from './pages/common/sub-request/sub-request.component';
+import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
+import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
+import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
+import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -144,7 +149,6 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
     MsgBoxComponent,
     AuthorizeComponent,
     SummaryEndpointComponent,
-    EndpointComponent,
     BackButtonComponent,
     UpdatePwdComponent,
     OperationConfirmDialogComponent,
@@ -207,6 +211,13 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
     LunchComponent,
     BuildComponent,
     SummaryNotificationComponent,
+    SubRequestComponent,
+    MySubReqComponent,
+    PendingSubReqComponent,
+    MySubsComponent,
+    EnterReasonDialogComponent,
+    EndpointNewComponent,
+
   ],
   imports: [
     BrowserAnimationsModule,
@@ -225,6 +236,7 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
     MatCheckboxModule,
     MatRadioModule,
     MatExpansionModule,
+    MatTooltipModule,
     MatCardModule,
     MatPaginatorModule,
     MatMenuModule,
@@ -259,7 +271,7 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
     ClientComponent,
     MngmtEndpointComponent,
     MngmtClientComponent,
-    EndpointComponent,
+    EndpointNewComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

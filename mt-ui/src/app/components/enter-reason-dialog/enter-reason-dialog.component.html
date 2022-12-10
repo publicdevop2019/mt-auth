@@ -1,0 +1,11 @@
+<mat-dialog-content>
+    <h3>{{'ENTER_REASON'|translate}}</h3>
+    <mat-form-field appearance="fill">
+        <mat-label>{{'ENTER_REASON'|translate}}</mat-label>
+        <input matInput [(ngModel)]="data.reason">
+      </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions style="justify-content: space-around;">
+    <button (click)="onNoClick()" mat-button >{{'CANCEL'|translate}}</button>
+    <button mat-raised-button [mat-dialog-close]="data.reason" cdkFocusInitial color="primary">{{'CONFIRM'|translate}}</button>
+  </mat-dialog-actions>

@@ -1,6 +1,6 @@
 package com.mt.proxy.domain;
 
-import com.netflix.discovery.EurekaClient;
+import com.mt.proxy.port.adapter.http.HttpHelper;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
@@ -29,18 +29,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class JwtService {
-    @Value("${manytree.mt-access.appId}")
-    private String appName;
     @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
     private String jwtKeyUrl;
-    @Autowired
-    private EurekaClient eurekaClient;
     private RSAPublicKey publicKey;
+    @Autowired
+    private HttpHelper httpHelper;
 
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
-        String url = resolveAccessUrl();
-        return new NimbusReactiveJwtDecoder(url);
+        return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -54,18 +51,8 @@ public class JwtService {
         }
     }
 
-    public String resolveAccessUrl() {
-        if (eurekaClient.getApplication(appName) != null) {
-            log.debug("update property value with resolve access path");
-            String homePageUrl =
-                eurekaClient.getApplication(appName).getInstances().get(0).getHomePageUrl();
-            return homePageUrl + jwtKeyUrl;
-
-        } else {
-            log.error("jwt public key config update failed due to service is not ready");
-            throw new IllegalStateException(
-                "jwt public key config update failed due to service is not ready");
-        }
+    public String getJwtKeyUrl() {
+        return httpHelper.resolveAccessPath() + jwtKeyUrl;
     }
 
     public boolean verify(String jwt) {
@@ -139,5 +126,9 @@ public class JwtService {
         }
         List<String> resourceIds = (List<String>) jwtClaimsSet.getClaim(field);
         return new HashSet<>(resourceIds);
+    }
+
+    public String getProjectId(String jwtRaw) throws ParseException {
+        return getClaims(jwtRaw, "projectId").stream().findAny().get();
     }
 }

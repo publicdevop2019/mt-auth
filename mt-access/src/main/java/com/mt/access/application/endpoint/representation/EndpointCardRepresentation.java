@@ -22,8 +22,10 @@ public class EndpointCardRepresentation {
     private boolean websocket;
     private boolean csrfEnabled;
     private boolean secured;
+    private boolean shared;
+    private boolean expired;
+    private String expireReason;
     private String corsProfileId;
-    private String roleId;
     private String cacheProfileId;
 
     public EndpointCardRepresentation(Endpoint endpoint) {
@@ -38,10 +40,11 @@ public class EndpointCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.roleId =
-            endpoint.getPermissionId() != null ? endpoint.getPermissionId().getDomainId() : null;
         this.secured = endpoint.isSecured();
         this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.shared = endpoint.isShared();
+        this.expired = endpoint.isExpired();
+        this.expireReason = endpoint.getExpireReason();
         this.corsProfileId =
             endpoint.getCorsProfileId() != null ? endpoint.getCorsProfileId().getDomainId() : null;
     }

@@ -4,22 +4,21 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
+import { filter, map, switchMap, take } from 'rxjs/operators';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
+import { uniqueObject } from 'src/app/clazz/utility';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
-import { ISearchConfig } from 'src/app/components/search/search.component';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
-import { EndpointComponent } from 'src/app/pages/tenant/endpoint/endpoint.component';
+import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
+import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { uniqueObject } from 'src/app/clazz/utility';
-import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { combineLatest, ReplaySubject } from 'rxjs';
-import { map, take } from 'rxjs/operators';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-
+import * as UUID from 'uuid/v1';
+import { EndpointNewComponent } from '../endpoint-new/endpoint-new.component';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -28,7 +27,7 @@ import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.compo
 export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
   columnList: any={};
-  sheetComponent = EndpointComponent;
+  sheetComponent = EndpointNewComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
@@ -104,6 +103,8 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         edit: 'EDIT',
         clone: 'CLONE',
         delete: 'DELETE',
+        expire: 'EXPIRE',
+        expireReason: 'EXPIRE_REASON',
       } : {
         id: 'ID',
         name: 'NAME',
@@ -131,5 +132,16 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
       },
     });
+  }
+  doExpireById(id:string){
+    const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
+    dialogRef.afterClosed().pipe(filter(e=>e)).pipe(switchMap((reason: string) => {
+      return this.entitySvc.expireEndpoint(id,reason,UUID())
+    })).subscribe(() => {
+      this.entitySvc.notify(true)
+      this.entitySvc.refreshPage()
+    }, () => {
+      this.entitySvc.notify(false)
+    })
   }
 }

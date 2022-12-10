@@ -10,6 +10,7 @@ import com.mt.access.port.adapter.persistence.position.SpringDataJpaPositionRepo
 import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectRepository;
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
+import com.mt.access.port.adapter.persistence.sub_request.SpringDataJpaSubRequestRepository;
 import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRepository;
 import com.mt.access.port.adapter.persistence.user.UpdateUserQueryBuilder;
 import com.mt.access.port.adapter.persistence.user_relation.SpringDataJpaUserRelationRepository;
@@ -42,6 +43,8 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor;
     @Getter
+    private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor subRequestAdaptor;
+    @Getter
     private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor
         userRelationAdaptor;
     @Getter
@@ -53,6 +56,12 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor;
 
+
+    @Autowired
+    public void setJpaCriteriaApiSubRequestAdaptor(
+        SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor subRequestAdaptor) {
+        QueryBuilderRegistry.subRequestAdaptor = subRequestAdaptor;
+    }
 
     @Autowired
     public void setJpaCriteriaApiUserRelationAdaptor(

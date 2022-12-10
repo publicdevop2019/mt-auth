@@ -10,14 +10,14 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
+import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
-import com.mt.access.application.endpoint.representation.EndpointProxyCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import org.springframework.http.ResponseEntity;
@@ -101,7 +101,7 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
-        SumPagedRep<EndpointProxyCardRepresentation> endpoints =
+        SumPagedRep<EndpointProxyCacheRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .internalQuery(queryParam, pageParam, config);
         return ResponseEntity.ok(endpoints);
@@ -148,6 +148,19 @@ public class EndpointResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
             .removeEndpoints(projectId, queryParam, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("projects/{projectId}/endpoints/{id}/expire")
+    public ResponseEntity<Void> expireEndpoint(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestBody EndpointExpireCommand command
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getEndpointApplicationService()
+            .expireEndpoint(command,projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 

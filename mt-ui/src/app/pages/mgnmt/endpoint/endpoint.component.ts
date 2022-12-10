@@ -9,7 +9,7 @@ import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
-import { FORM_CONFIG } from 'src/app/form-configs/endpoint.config';
+import { MNGMNT_EP_FORM_CONFIG } from 'src/app/form-configs/mngmnt-endpoint.config';
 import { CacheService } from 'src/app/services/cache.service';
 import { CORSProfileService } from 'src/app/services/cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
@@ -33,7 +33,7 @@ export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IE
     bottomSheetRef: MatBottomSheetRef<MngmtEndpointComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('mngmtApi', JSON.parse(JSON.stringify(FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
+    super('mngmtApi', JSON.parse(JSON.stringify(MNGMNT_EP_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     this.fis.formCreated(this.formId)
       .subscribe(next => {

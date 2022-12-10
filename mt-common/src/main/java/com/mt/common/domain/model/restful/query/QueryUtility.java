@@ -27,6 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+/**
+ * utility class which provide support for jpa criteria api support,
+ * use this when you deal with queries like "select * from table where order by"
+ */
 @Slf4j
 @Component
 public class QueryUtility {
@@ -50,6 +54,14 @@ public class QueryUtility {
         return data;
     }
 
+    /**
+     * query entity with soft delete
+     *
+     * @param queryCriteria jpa query criteria
+     * @param context       jpa context
+     * @param <T>           entity type
+     * @return paginated entities
+     */
     public static <T> SumPagedRep<T> pagedQuery(QueryCriteria queryCriteria,
                                                 QueryContext<T> context) {
         //add soft delete
@@ -61,7 +73,14 @@ public class QueryUtility {
         return nativePagedQuery(queryCriteria, context);
     }
 
-    //without soft delete check
+    /**
+     * query entity without soft delete
+     *
+     * @param queryCriteria jpa query criteria
+     * @param context       jpa context
+     * @param <T>           entity type
+     * @return paginated entities
+     */
     public static <T> SumPagedRep<T> nativePagedQuery(QueryCriteria queryCriteria,
                                                       QueryContext<T> context) {
         Predicate and =
@@ -86,6 +105,17 @@ public class QueryUtility {
         return query1.getSingleResult();
     }
 
+    /**
+     * query entity using "select * from entityTable where whereClause order by orderByClause"
+     * which is most frequently used
+     *
+     * @param predicate jpa predicate
+     * @param order     query order
+     * @param page      query page info
+     * @param context   jpa context
+     * @param <T>       entity type
+     * @return list of entities
+     */
     private static <T> List<T> select(Predicate predicate, List<Order> order, PageConfig page,
                                       QueryContext<T> context) {
         CriteriaQuery<T> query = context.getQuery();
@@ -316,6 +346,9 @@ public class QueryUtility {
         });
     }
 
+    public static EntityManager getEntityManager() {
+        return QueryUtility.em;
+    }
 
     @Autowired
     public void setEntityManager(EntityManager em) {

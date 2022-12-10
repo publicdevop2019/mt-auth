@@ -25,11 +25,11 @@ public class WebSocketNotificationService implements WsPushNotificationService {
     @Scheduled(fixedRate = 25 * 1000)
     protected void autoRenew() {
         taskExecutor.execute(() -> {
-            log.debug("start of renewing ws connects");
+            log.trace("start of renewing ws connects");
             notificationWsHandler.broadcast("_renew");
             CommonApplicationServiceRegistry.getJobApplicationService()
                 .createOrUpdateJob(JobDetail.wsRenew());
-            log.debug("end of renewing ws connects");
+            log.trace("end of renewing ws connects");
         });
     }
 }

@@ -2,7 +2,7 @@
 <Configuration status="warn">
     <Properties>
         <Property name="location">./logs</Property>
-        <Property name="name">SystemTest</Property>
+        <Property name="name">integration-test</Property>
     </Properties>
 
     <Appenders>

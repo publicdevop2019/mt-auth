@@ -4,13 +4,13 @@ import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { map, take } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { createImageFromBlob, logout } from 'src/app/clazz/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
-import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
-import { MessageService } from 'src/app/services/message.service';
-import { IProjectPermission, IProjectPermissionInfo, ProjectService } from 'src/app/services/project.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { IBellNotification, MessageService } from 'src/app/services/message.service';
+import { ProjectService } from 'src/app/services/project.service';
 export interface INavElement {
   link: string;
   icon?: string;
@@ -208,10 +208,33 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+  ];
+  menuEp: INavElement[] = [
     {
       link: 'api-center',
       display: 'API_CENTER',
       icon: 'mediation',
+      params: {
+      },
+    },
+    {
+      link: 'my-sub-request',
+      display: 'MY_SUB_REQUEST',
+      icon: 'request_page',
+      params: {
+      },
+    },
+    {
+      link: 'pending-sub-request',
+      display: 'PENDING_SUB_REQUEST',
+      icon: 'request_quote',
+      params: {
+      },
+    },
+    {
+      link: 'my-subs',
+      display: 'MY_SUBS',
+      icon: 'contact_page',
       params: {
       },
     },
@@ -279,7 +302,7 @@ export class NavBarComponent implements OnInit {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
-    logout(undefined,this.httpProxySvc)
+    logout(undefined, this.httpProxySvc)
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;
@@ -296,5 +319,8 @@ export class NavBarComponent implements OnInit {
   }
   hasAuth() {
     return !!this.projectSvc.totalProjects.find(e => e.id === '0P8HE307W6IO')
+  }
+  filterDuplicate(msgs: IBellNotification[]) {
+    return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
   }
 }

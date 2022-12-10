@@ -11,6 +11,7 @@ import { DeviceService } from 'src/app/services/device.service';
 import { ClientService } from 'src/app/services/mngmt-client.service';
 import { SharedEndpointService } from 'src/app/services/shared-endpoint.service';
 import { MngmtEndpointComponent } from '../../mgnmt/endpoint/endpoint.component';
+import { SubRequestComponent } from '../sub-request/sub-request.component';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
@@ -21,12 +22,15 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
   columnList = {
     id: 'ID',
     name: 'NAME',
+    type: 'TYPE',
     description: 'DESCRIPTION',
     projectId: 'API_PROJECT_ID',
     path: 'URL',
     method: 'METHOD',
+    action: 'SUBSCRIBE',
   }
   httpMethodList = CONST_HTTP_METHOD;
+  sheetComponent = SubRequestComponent;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
     {
@@ -45,7 +49,6 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
     },
   ]
   searchConfigs: ISearchConfig[] =this.initSearchConfig
-  sheetComponent = MngmtEndpointComponent;
   constructor(
     public entitySvc: SharedEndpointService,
     public deviceSvc: DeviceService,

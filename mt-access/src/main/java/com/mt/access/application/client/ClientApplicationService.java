@@ -26,6 +26,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
+import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_id.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -53,7 +54,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientId clientId = new ClientId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_CLIENT);
-        return ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(operationId,
                 (change) -> {
                     Client client = new Client(
@@ -124,7 +125,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), EDIT_CLIENT);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 ClientQuery clientQuery =
                     new ClientQuery(clientId, new ProjectId(command.getProjectId()));
@@ -162,7 +163,7 @@ public class ClientApplicationService implements ClientDetailsService {
     public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), EDIT_CLIENT);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
                 Optional<Client> client =
@@ -186,7 +187,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CLIENT);
         ClientId clientId = new ClientId(id);
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, projectId1);
                 Optional<Client> client =
@@ -224,7 +225,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Transactional
     public void handle(ClientAsResourceDeleted deserialize) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
                 //remove deleted client from resource_map
                 DomainId domainId = deserialize.getDomainId();
@@ -249,7 +250,7 @@ public class ClientApplicationService implements ClientDetailsService {
      */
     @Transactional
     public void handle(ExternalPermissionUpdated event) {
-        ApplicationServiceRegistry.getApplicationServiceIdempotentWrapper()
+        CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 ProjectId projectId = new ProjectId(event.getDomainId().getDomainId());
                 Set<Client> projectClients = QueryUtility

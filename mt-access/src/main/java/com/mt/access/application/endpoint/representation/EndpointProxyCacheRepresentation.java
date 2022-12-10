@@ -13,22 +13,29 @@ import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.sub_request.SubRequest;
+import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EndpointProxyCardRepresentation
-    implements Serializable, Comparable<EndpointProxyCardRepresentation> {
+public class EndpointProxyCacheRepresentation
+    implements Serializable, Comparable<EndpointProxyCacheRepresentation> {
     private String id;
     private String description;
     private String resourceId;
+    private String projectId;
     private String path;
     private String method;
     private boolean websocket;
@@ -43,12 +50,14 @@ public class EndpointProxyCardRepresentation
     @JsonIgnore
     private transient CacheProfileId cacheProfileId;
     private String permissionId;
+    private Set<ProjectSubscription> subscriptions;
 
-    public EndpointProxyCardRepresentation(Endpoint endpoint) {
+    public EndpointProxyCacheRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
         this.websocket = endpoint.isWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
+        this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.secured = endpoint.isSecured();
@@ -56,24 +65,31 @@ public class EndpointProxyCardRepresentation
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
+        this.subscriptions = new HashSet<>();
+        //add owner project
+        this.subscriptions.add(new ProjectSubscription(this.projectId, endpoint.getReplenishRate(),
+            endpoint.getBurstCapacity()));
         this.permissionId =
             endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }
 
-    public static void updateDetail(List<EndpointProxyCardRepresentation> original) {
+    public static void updateDetail(List<EndpointProxyCacheRepresentation> original) {
         if (!original.isEmpty()) {
             Set<ClientId> clients =
-                original.stream().map(EndpointProxyCardRepresentation::getClientId)
+                original.stream().map(EndpointProxyCacheRepresentation::getClientId)
                     .collect(Collectors.toSet());
             Set<CacheProfileId> cache =
-                original.stream().map(EndpointProxyCardRepresentation::getCacheProfileId)
+                original.stream().map(EndpointProxyCacheRepresentation::getCacheProfileId)
                     .filter(Objects::nonNull).collect(Collectors.toSet());
             Set<CorsProfileId> cors =
-                original.stream().map(EndpointProxyCardRepresentation::getCorsProfileId)
+                original.stream().map(EndpointProxyCacheRepresentation::getCorsProfileId)
                     .filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<EndpointId> epIds =
+                original.stream().map(e -> new EndpointId(e.id)).collect(Collectors.toSet());
             Set<CorsProfile> corsFetched = null;
             Set<CacheProfile> cacheFetched = null;
             Set<Client> clientFetched = null;
+            Set<SubRequest> suReqFetched = null;
             if (cors.size() > 0) {
                 corsFetched = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(query),
@@ -89,9 +105,15 @@ public class EndpointProxyCardRepresentation
                     (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
                     new ClientQuery(clients));
             }
+            if (epIds.size() > 0) {
+                suReqFetched = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getSubRequestRepository().getSubscription(query),
+                    new SubRequestQuery(epIds));
+            }
             Set<CacheProfile> finalCacheFetched = cacheFetched;
             Set<CorsProfile> finalCorsFetched = corsFetched;
             Set<Client> finalClientFetched = clientFetched;
+            Set<SubRequest> finalSuReqFetched = suReqFetched;
             original.forEach(rep -> {
                 if (finalCacheFetched != null) {
                     finalCacheFetched.stream()
@@ -106,18 +128,25 @@ public class EndpointProxyCardRepresentation
                     finalClientFetched.stream()
                         .filter(e -> e.getClientId().equals(rep.clientId))
                         .findFirst().ifPresent(e -> {
-                            if (e.getPath() != null) {
-                                rep.setPath("/" + e.getPath() + "/" + rep.getPath());
-                            }
-                        });
+                        if (e.getPath() != null) {
+                            rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                        }
+                    });
                 }
+                Set<ProjectSubscription> collect = finalSuReqFetched.stream()
+                    .filter(e -> e.getEndpointId().getDomainId().equals(rep.getId())).map(
+                        ProjectSubscription::new).collect(Collectors.toSet());
+                rep.subscriptions.addAll(collect);
+                SortedSet<ProjectSubscription> objects = new TreeSet<>();
+                rep.subscriptions.stream().sorted().forEach(objects::add);
+                rep.subscriptions = objects;
             });
 
         }
     }
 
     @Override
-    public int compareTo(EndpointProxyCardRepresentation o) {
+    public int compareTo(EndpointProxyCacheRepresentation o) {
         return this.getId().compareTo(o.getId());
     }
 
@@ -166,6 +195,31 @@ public class EndpointProxyCardRepresentation
             vary = cacheProfile.getVary();
             etag = cacheProfile.isEtag();
             weakValidation = cacheProfile.isWeakValidation();
+        }
+    }
+
+    @Data
+    private static class ProjectSubscription
+        implements Serializable, Comparable<ProjectSubscription> {
+        private String projectId;
+        private int replenishRate;
+        private int burstCapacity;
+
+        public ProjectSubscription(String projectId, int replenishRate, int burstCapacity) {
+            this.projectId = projectId;
+            this.replenishRate = replenishRate;
+            this.burstCapacity = burstCapacity;
+        }
+
+        public ProjectSubscription(SubRequest e) {
+            this.projectId = e.getProjectId().getDomainId();
+            this.replenishRate = e.getReplenishRate();
+            this.burstCapacity = e.getBurstCapacity();
+        }
+
+        @Override
+        public int compareTo(ProjectSubscription o) {
+            return this.getProjectId().compareTo(o.getProjectId());
         }
     }
 }

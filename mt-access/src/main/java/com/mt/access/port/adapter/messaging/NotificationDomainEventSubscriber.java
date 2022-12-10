@@ -7,10 +7,12 @@ import static com.mt.access.domain.model.notification.event.SendEmailNotificatio
 import static com.mt.access.domain.model.notification.event.SendSmsNotificationEvent.SEND_SMS_NOTIFICATION_EVENT;
 import static com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated.PENDING_USER_ACTIVATION_CODE_UPDATED;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
+import static com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent.SUBSCRIBER_ENDPOINT_EXPIRE;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
 import static com.mt.access.domain.model.user.event.UserMfaNotificationEvent.USER_MFA_NOTIFICATION;
 import static com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated.USER_PWD_RESET_CODE_UPDATED;
 import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
+import static com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent.UNROUTABLE_MSG_EVENT;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 
 import com.mt.access.application.ApplicationServiceRegistry;
@@ -21,12 +23,14 @@ import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -106,6 +110,8 @@ public class NotificationDomainEventSubscriber {
 
     /**
      * subscribe for bell notification event for all instance.
+     * this is due to websocket is stored separately in each instance
+     * and we need to send bell to all of them
      */
     @EventListener(ApplicationReadyEvent.class)
     protected void listener6() {
@@ -152,17 +158,6 @@ public class NotificationDomainEventSubscriber {
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    protected void listener10() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, SEND_BELL_NOTIFICATION_EVENT, (event) -> {
-                SendBellNotificationEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), SendBellNotificationEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
     protected void listener11() {
         CommonDomainRegistry.getEventStreamService()
             .of(AppInfo.MT_ACCESS_APP_ID, true, SEND_EMAIL_NOTIFICATION_EVENT, (event) -> {
@@ -173,6 +168,7 @@ public class NotificationDomainEventSubscriber {
             });
     }
 
+
     @EventListener(ApplicationReadyEvent.class)
     protected void listener12() {
         CommonDomainRegistry.getEventStreamService()
@@ -180,6 +176,28 @@ public class NotificationDomainEventSubscriber {
                 SendSmsNotificationEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), SendSmsNotificationEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener13() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, UNROUTABLE_MSG_EVENT, (event) -> {
+                UnrountableMsgReceivedEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), UnrountableMsgReceivedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener14() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, SUBSCRIBER_ENDPOINT_EXPIRE, (event) -> {
+                SubscriberEndpointExpireEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), SubscriberEndpointExpireEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

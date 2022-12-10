@@ -49,8 +49,15 @@ public interface SpringDataJpaPermissionRepository
         return allPermissionId_();
     }
 
+    default Set<PermissionId> getLinkedApiPermissionFor(Set<PermissionId> e){
+        return getLinkedApiPermissionFor_(e);
+    };
+
     @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
     Set<EndpointId> allApiPermissionLinkedEpId_();
+
+    @Query("select c from Permission p join p.linkedApiPermissionIds c where p.permissionId in ?1 and p.deleted=0")
+    Set<PermissionId> getLinkedApiPermissionFor_(Set<PermissionId> e);
 
     @Query("select distinct p.permissionId from Permission p where p.deleted=0")
     Set<PermissionId> allPermissionId_();

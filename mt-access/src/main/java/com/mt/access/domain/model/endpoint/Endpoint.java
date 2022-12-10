@@ -6,8 +6,8 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
-import com.mt.access.domain.model.endpoint.event.EndpointShareRemoved;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -106,12 +106,22 @@ public class Endpoint extends Auditable {
 
     private boolean shared = false;
 
+    private boolean external = false;
+
+    private int replenishRate = 0;
+
+    private int burstCapacity = 0;
+
+    private boolean expired = false;
+    private String expireReason;
+
 
     public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId,
                     String name, String description,
                     String path, EndpointId endpointId, String method,
                     boolean secured, boolean isWebsocket, boolean csrfEnabled,
-                    CorsProfileId corsProfileId, boolean shared
+                    CorsProfileId corsProfileId, boolean shared,
+                    boolean external, int replenishRate, int burstCapacity
     ) {
         super();
         PermissionId permissionId = null;
@@ -132,7 +142,7 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        this.shared = shared;
+        setShared(shared);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
@@ -141,6 +151,9 @@ public class Endpoint extends Auditable {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointCreated(getProjectId(), this));
         }
+        this.external = external;
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
     }
 
     public static void remove(Set<Endpoint> endpointSet) {
@@ -157,6 +170,10 @@ public class Endpoint extends Auditable {
     }
 
     public void remove() {
+        if (shared && !expired) {
+            throw new IllegalStateException(
+                "shared endpoint must be expired first before deletion");
+        }
         DomainRegistry.getEndpointRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new EndpointCollectionModified());
@@ -170,7 +187,13 @@ public class Endpoint extends Auditable {
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
         boolean isWebsocket,
-        boolean csrfEnabled, CorsProfileId corsProfileId, boolean shared) {
+        boolean csrfEnabled, CorsProfileId corsProfileId,
+        int replenishRate,
+        int burstCapacity
+    ) {
+        if (expired) {
+            throw new IllegalStateException("expired endpoint cannot be updated");
+        }
         setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
@@ -179,16 +202,15 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        setShared(shared);
+        this.replenishRate = replenishRate;
+        this.burstCapacity = burstCapacity;
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
     }
 
     private void setShared(boolean shared) {
-        if (this.shared && !shared) {
-            CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareRemoved(this));
-        } else if (!this.shared && shared) {
+        if (shared) {
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareAdded(this));
         }
         this.shared = shared;
@@ -229,4 +251,17 @@ public class Endpoint extends Auditable {
         return Objects.hashCode(super.hashCode(), endpointId);
     }
 
+    public void expire(String expireReason) {
+        if (this.expired) {
+            throw new IllegalStateException("endpoint can only expire once");
+        }
+        if (this.shared) {
+            this.expired = true;
+            Validator.notBlank(expireReason);
+            this.expireReason = expireReason;
+            CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
+        } else {
+            throw new IllegalStateException("only shared endpoint can be expired");
+        }
+    }
 }

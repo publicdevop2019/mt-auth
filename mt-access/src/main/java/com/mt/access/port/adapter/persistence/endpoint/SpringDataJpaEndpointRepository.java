@@ -17,7 +17,10 @@ import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
@@ -102,8 +105,23 @@ public interface SpringDataJpaEndpointRepository
                 e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
             Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility
                 .addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
+            //query shared endpoints including public endpoints
             Optional.ofNullable(endpointQuery.getIsShared()).ifPresent(
-                e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.SHARED, queryContext));
+                e -> {
+                    if (e) {
+                        queryContext.getPredicates().add(
+                            EndpointSharedPredicateConverter
+                                .getPredicate(queryContext.getCriteriaBuilder(),
+                                    queryContext.getRoot()));
+                        Optional.ofNullable(queryContext.getCountPredicates())
+                            .ifPresent(ee -> ee.add(
+                                EndpointSharedPredicateConverter
+                                    .getPredicate(queryContext.getCriteriaBuilder(),
+                                        queryContext.getCountRoot())));
+                    }
+                }
+            );
+
             Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.SECURED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility
@@ -131,6 +149,13 @@ public interface SpringDataJpaEndpointRepository
             return QueryUtility.pagedQuery(endpointQuery, queryContext);
         }
 
-
+        private static class EndpointSharedPredicateConverter {
+            public static Predicate getPredicate(CriteriaBuilder cb,
+                                                 Root<Endpoint> root) {
+                Predicate aTrue = cb.isTrue(root.get(Endpoint_.SHARED));
+                Predicate aFalse = cb.isFalse(root.get(Endpoint_.SECURED));
+                return cb.or(aTrue, aFalse);
+            }
+        }
     }
 }
