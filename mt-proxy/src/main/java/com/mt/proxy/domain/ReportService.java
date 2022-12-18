@@ -16,8 +16,8 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +32,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * log request & response access record
+ */
 @Slf4j
 @Service
 public class ReportService {
@@ -41,6 +44,8 @@ public class ReportService {
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EurekaClient eurekaClient;
+    @Autowired
+    private EndpointService endpointService;
     @Value("${manytree.mt-access.appId}")
     private String appName;
     @Value("${manytree.instance-id}")
@@ -50,16 +55,21 @@ public class ReportService {
     @Autowired
     private RestTemplate restTemplate;
 
-    public void logResponseDetail(ServerHttpResponse response,
-                                  ServerHttpRequest request) {
+    /**
+     * log response access record.
+     * response is linked to request via uuid, method & path is not logged because
+     * fetch value requires reflection which is a performance concern
+     *
+     * @param response ServerHttpResponse
+     */
+    public void logResponseDetail(ServerHttpResponse response) {
         long responseTimestamp = Instant.now().getEpochSecond();
         int responseStatusCode = response.getStatusCode().value();
+        long contentLength = response.getHeaders().getContentLength();
         String uuid = MDC.get(REQ_UUID);
-        String path = request.getPath().toString();
-        String method = request.getMethod().toString();
-        record.add("type:response,timestamp:" + responseTimestamp
-            + ",statusCode:" + responseStatusCode + ",uuid:" + uuid + ",method:" + method +
-            ",path:" + path);
+        record.add("type:response,timestamp:" + responseTimestamp +
+            ",uuid:" + uuid + ",statusCode:" + responseStatusCode + ",contentLength:" +
+            contentLength);
     }
 
     public void logRequestDetails(ServerHttpRequest request) {
@@ -68,8 +78,16 @@ public class ReportService {
         String uuid = MDC.get(REQ_UUID);
         String path = request.getPath().toString();
         String method = request.getMethod().toString();
-        record.add("type:request,timestamp:" + requestTimestamp
-            + ",clientIp:" + clientIp + ",uuid:" + uuid + ",method:" + method + ",path:" + path);
+        Optional<Endpoint> endpoint = endpointService.findEndpoint(path, method, false);
+        if (endpoint.isPresent()) {
+            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + uuid
+                + ",clientIp:" + clientIp + ",method:" + method + ",path:" + path + ",endpointId:" +
+                endpoint.get().getId());
+        } else {
+            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + uuid
+                + ",clientIp:" + clientIp + ",method:" + method + ",path:" + path +
+                ",endpointId:not_found");
+        }
     }
 
     /**
@@ -133,9 +151,9 @@ public class ReportService {
                 int size =
                     (int) Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
                         .count();
-                    if(size==0){
-                        log.debug("no unsent report found");
-                    }
+                if (size == 0) {
+                    log.debug("no unsent report found");
+                }
                 Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
                     .forEach(unsendFile -> {
                         int andDecrement = maxFileSend.getAndDecrement();

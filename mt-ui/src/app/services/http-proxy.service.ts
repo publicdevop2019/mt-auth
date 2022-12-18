@@ -270,6 +270,9 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/expire`, { expireReason: reason }, { headers: headerConfig })
     }
+    viewEndpointReport(projectId: string, id: string) {
+        return this._httpClient.get(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:ALL_TIME`)
+    }
     private _getAuthHeader(islogin: boolean, token?: string): HttpHeaders {
         return islogin ? new HttpHeaders().append('Authorization',
             'Basic ' + btoa(environment.loginClientId + ':' + environment.clientSecret)) :

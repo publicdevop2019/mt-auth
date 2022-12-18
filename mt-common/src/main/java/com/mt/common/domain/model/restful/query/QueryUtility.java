@@ -130,6 +130,12 @@ public class QueryUtility {
         return query1.getResultList();
     }
 
+    /**
+     * parse give raw query string, throw {@link QueryParseException} if string is not key value pair and {@link UnknownQueryValueException} if keys are not found
+     * @param rawQuery raw query string e.g. "key=value,key2=value2"
+     * @param supportedFields allowed keys
+     * @return parsed string map
+     */
     public static Map<String, String> parseQuery(String rawQuery, String... supportedFields) {
         Map<String, String> stringStringMap = Optional.ofNullable(rawQuery).map(e -> {
             Map<String, String> parsed = new HashMap<>();

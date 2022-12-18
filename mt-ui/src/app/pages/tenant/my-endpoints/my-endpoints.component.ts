@@ -26,7 +26,7 @@ import { EndpointNewComponent } from '../endpoint-new/endpoint-new.component';
 })
 export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
-  columnList: any={};
+  columnList: any = {};
   sheetComponent = EndpointNewComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
@@ -65,31 +65,31 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         this.doSearch({ value: '', resetPage: true })
       }
     })
-    const sub4 = this.canDo('VIEW_API','VIEW_CLIENT').subscribe(b => {
-        if (b.result) {
-          //prepare search
-          this.clientSvc.setProjectId(b.projectId)
-          this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
-            .subscribe(next => {
-              if (next.data)
-                this.searchConfigs = [...this.initSearchConfig, {
-                  searchLabel: 'PARENT_CLIENT',
-                  searchValue: 'resourceId',
-                  type: 'dropdown',
-                  multiple: {
-                    delimiter: '.'
-                  },
-                  source: next.data.map(e => {
-                    return {
-                      label: e.name,
-                      value: e.id
-                    }
-                  })
-                },];
-            });
-        } else {
-          this.searchConfigs = [...this.initSearchConfig]
-        }
+    const sub4 = this.canDo('VIEW_API', 'VIEW_CLIENT').subscribe(b => {
+      if (b.result) {
+        //prepare search
+        this.clientSvc.setProjectId(b.projectId)
+        this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
+          .subscribe(next => {
+            if (next.data)
+              this.searchConfigs = [...this.initSearchConfig, {
+                searchLabel: 'PARENT_CLIENT',
+                searchValue: 'resourceId',
+                type: 'dropdown',
+                multiple: {
+                  delimiter: '.'
+                },
+                source: next.data.map(e => {
+                  return {
+                    label: e.name,
+                    value: e.id
+                  }
+                })
+              },];
+          });
+      } else {
+        this.searchConfigs = [...this.initSearchConfig]
+      }
     })
     this.subs.add(sub4);
     const sub3 = this.canDo('EDIT_API').subscribe(b => {
@@ -105,6 +105,7 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         delete: 'DELETE',
         expire: 'EXPIRE',
         expireReason: 'EXPIRE_REASON',
+        report: 'VIEW_REPORT',
       } : {
         id: 'ID',
         name: 'NAME',
@@ -133,15 +134,18 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       },
     });
   }
-  doExpireById(id:string){
+  doExpireById(id: string) {
     const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
-    dialogRef.afterClosed().pipe(filter(e=>e)).pipe(switchMap((reason: string) => {
-      return this.entitySvc.expireEndpoint(id,reason,UUID())
+    dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((reason: string) => {
+      return this.entitySvc.expireEndpoint(id, reason, UUID())
     })).subscribe(() => {
       this.entitySvc.notify(true)
       this.entitySvc.refreshPage()
     }, () => {
       this.entitySvc.notify(false)
     })
+  }
+  viewReport(id: string) {
+    this.entitySvc.viewReport(id).subscribe(next => { console.dir(next) })
   }
 }

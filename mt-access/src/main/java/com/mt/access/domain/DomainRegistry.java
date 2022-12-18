@@ -33,7 +33,12 @@ import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
-import com.mt.access.domain.model.report.AccessRecordRepository;
+import com.mt.access.domain.model.report.DataProcessTrackerRepository;
+import com.mt.access.domain.model.report.FormattedAccessRecord;
+import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
+import com.mt.access.domain.model.report.RawAccessRecordEtlService;
+import com.mt.access.domain.model.report.RawAccessRecordRepository;
+import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
@@ -144,9 +149,35 @@ public class DomainRegistry {
     @Getter
     private static CoolDownService coolDownService;
     @Getter
-    private static AccessRecordRepository accessRecordRepository;
+    private static RawAccessRecordRepository rawAccessRecordRepository;
     @Getter
     private static SubRequestRepository subRequestRepository;
+    @Getter
+    private static ReportGenerateService reportGenerateService;
+    @Getter
+    private static FormattedAccessRecordRepository formattedAccessRecordRepository;
+    @Getter
+    private static RawAccessRecordEtlService rawAccessRecordEtlService;
+    @Getter
+    private static DataProcessTrackerRepository dataProcessTrackerRepository;
+
+    @Autowired
+    public void setRawAccessRecordEtlService(RawAccessRecordEtlService rawAccessRecordEtlService) {
+        DomainRegistry.rawAccessRecordEtlService = rawAccessRecordEtlService;
+    }
+    @Autowired
+    public void setDataProcessTrackerRepository(DataProcessTrackerRepository dataProcessTrackerRepository) {
+        DomainRegistry.dataProcessTrackerRepository = dataProcessTrackerRepository;
+    }
+    @Autowired
+    public void setFormattedAccessRecordRepository(FormattedAccessRecordRepository formattedAccessRecordRepository) {
+        DomainRegistry.formattedAccessRecordRepository = formattedAccessRecordRepository;
+    }
+
+    @Autowired
+    public void setReportGenerateService(ReportGenerateService reportGenerateService) {
+        DomainRegistry.reportGenerateService = reportGenerateService;
+    }
 
     @Autowired
     public void setSubRequestRepository(SubRequestRepository subRequestRepository) {
@@ -154,8 +185,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setAccessRecordRepository(AccessRecordRepository accessRecordRepository) {
-        DomainRegistry.accessRecordRepository = accessRecordRepository;
+    public void setRawAccessRecordRepository(RawAccessRecordRepository rawAccessRecordRepository) {
+        DomainRegistry.rawAccessRecordRepository = rawAccessRecordRepository;
     }
 
     @Autowired

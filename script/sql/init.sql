@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 8.0.31, for Linux (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.25, for Linux (x86_64)
 --
 -- Host: localhost    Database: auth_dev
 -- ------------------------------------------------------
--- Server version	8.0.31-0ubuntu0.22.04.1
+-- Server version	8.0.25
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,33 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Table structure for table `access_record`
---
-
-DROP TABLE IF EXISTS `access_record`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `access_record` (
-  `id` bigint NOT NULL,
-  `name` varchar(255) NOT NULL,
-  `instance_id` varchar(255) NOT NULL,
-  `record_id` varchar(255) NOT NULL,
-  `record` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_combined_record` (`name`,`instance_id`,`record_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `access_record`
---
-
-LOCK TABLES `access_record` WRITE;
-/*!40000 ALTER TABLE `access_record` DISABLE KEYS */;
-/*!40000 ALTER TABLE `access_record` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `cache_profile`
@@ -193,6 +166,30 @@ INSERT INTO `cors_profile` VALUES (857844656111616,'2021-11-06 14:27:12','0U8AZT
 UNLOCK TABLES;
 
 --
+-- Table structure for table `data_process_tracker`
+--
+
+DROP TABLE IF EXISTS `data_process_tracker`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `data_process_tracker` (
+  `id` bigint NOT NULL,
+  `last_processed_id` bigint NOT NULL,
+  `version` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `data_process_tracker`
+--
+
+LOCK TABLES `data_process_tracker` WRITE;
+/*!40000 ALTER TABLE `data_process_tracker` DISABLE KEYS */;
+/*!40000 ALTER TABLE `data_process_tracker` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `endpoint`
 --
 
@@ -265,6 +262,38 @@ LOCK TABLES `external_resources_map` WRITE;
 /*!40000 ALTER TABLE `external_resources_map` DISABLE KEYS */;
 INSERT INTO `external_resources_map` VALUES (862433369391105,'0C8AZTODP4HT'),(862433780433088,'0C8AZTODP4HT'),(862433826570240,'0C8AZTODP4HT'),(862524186558475,'0C8AZTODP4HT');
 /*!40000 ALTER TABLE `external_resources_map` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `formatted_access_record`
+--
+
+DROP TABLE IF EXISTS `formatted_access_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `formatted_access_record` (
+  `id` bigint NOT NULL,
+  `endpoint_id` varchar(255) NOT NULL,
+  `request_at` datetime NOT NULL,
+  `path` varchar(255) NOT NULL,
+  `client_ip` varchar(255) NOT NULL,
+  `user_id` varchar(255) DEFAULT NULL,
+  `project_id` varchar(255) DEFAULT NULL,
+  `method` varchar(255) NOT NULL,
+  `response_at` datetime NOT NULL,
+  `response_code` int NOT NULL,
+  `response_content_size` int NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `formatted_access_record`
+--
+
+LOCK TABLES `formatted_access_record` WRITE;
+/*!40000 ALTER TABLE `formatted_access_record` DISABLE KEYS */;
+/*!40000 ALTER TABLE `formatted_access_record` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -664,6 +693,37 @@ INSERT INTO `published_event_tracker` VALUES (864064908558366,0,0);
 UNLOCK TABLES;
 
 --
+-- Table structure for table `raw_access_record`
+--
+
+DROP TABLE IF EXISTS `raw_access_record`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `raw_access_record` (
+  `id` bigint NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `instance_id` varchar(255) NOT NULL,
+  `record_id` varchar(255) NOT NULL,
+  `record` varchar(255) NOT NULL,
+  `is_request` bit(1) NOT NULL,
+  `processed` bit(1) NOT NULL,
+  `is_response` bit(1) NOT NULL,
+  `uuid` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `UK_combined_record` (`name`,`instance_id`,`record_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `raw_access_record`
+--
+
+LOCK TABLES `raw_access_record` WRITE;
+/*!40000 ALTER TABLE `raw_access_record` DISABLE KEYS */;
+/*!40000 ALTER TABLE `raw_access_record` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `resources_map`
 --
 
@@ -748,7 +808,7 @@ CREATE TABLE `stored_event` (
   `routable` bit(1) DEFAULT b'1',
   `application_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -911,4 +971,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-11-26 17:38:20
+-- Dump completed on 2022-12-17 22:57:18

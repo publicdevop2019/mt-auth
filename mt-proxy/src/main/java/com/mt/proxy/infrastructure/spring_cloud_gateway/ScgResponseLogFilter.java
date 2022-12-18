@@ -14,6 +14,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -59,7 +60,7 @@ public class ScgResponseLogFilter implements GlobalFilter, Ordered {
             }
             exchange.getResponse().getHeaders()
                 .set(REQ_UUID, exchange.getResponse().getHeaders().getFirst(REQ_UUID));
-            reportService.logResponseDetail(exchange.getResponse(), exchange.getRequest());
+            reportService.logResponseDetail(exchange.getResponse());
         });
         return chain.filter(exchange).then(responseLogUpdater);
     }

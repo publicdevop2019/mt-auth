@@ -179,7 +179,7 @@ public class EndpointService {
     }
 
     /**
-     * return matching endpoint info from endpoint collection
+     * return matching endpoint info from cached endpoint collection
      *
      * @param requestUri url path
      * @param method     method

@@ -1,18 +1,72 @@
 package com.mt.access.application.report;
 
+import static com.mt.access.domain.model.permission.Permission.VIEW_API;
+
+import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.report.AccessRecord;
+import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.report.EndpointReport;
+import com.mt.access.domain.model.report.FormattedAccessRecord;
+import com.mt.access.domain.model.report.RawAccessRecord;
+import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 @Service
+@Slf4j
 public class ReportApplicationService {
+
+    private static final String REPORT_TYPE = "type";
 
     @Transactional
     public void uploadReport(List<String> records, String instanceId, String name) {
-        records.forEach(e->{
-            AccessRecord accessRecord = new AccessRecord(name, instanceId, e);
-            DomainRegistry.getAccessRecordRepository().add(accessRecord);
+        records.forEach(e -> {
+            RawAccessRecord rawAccessRecord = new RawAccessRecord(name, instanceId, e);
+            DomainRegistry.getRawAccessRecordRepository().add(rawAccessRecord);
+        });
+    }
+
+    public EndpointReport analysisReportFor(String projectId, String endpointRawId,
+                                            String queryParam) {
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(new ProjectId(projectId), VIEW_API);
+        EndpointId endpointId = new EndpointId(endpointRawId);
+        Map<String, String> type = QueryUtility.parseQuery(queryParam, REPORT_TYPE);
+        AtomicReference<EndpointReport> report = new AtomicReference<>();
+        Optional.ofNullable(type.get(REPORT_TYPE)).ifPresent(e -> {
+            if (e.equalsIgnoreCase("PAST_FIFTEEN_MINUTES")) {
+                report.set(DomainRegistry.getReportGenerateService()
+                    .generatePast15MinutesReport(endpointId));
+            } else if (e.equalsIgnoreCase("PAST_ONE_HOUR")) {
+                report.set(
+                    DomainRegistry.getReportGenerateService().generatePast1HourReport(endpointId));
+            } else if (e.equalsIgnoreCase("PAST_ONE_DAY")) {
+                report.set(
+                    DomainRegistry.getReportGenerateService().generatePast1DayReport(endpointId));
+            } else if (e.equalsIgnoreCase("ALL_TIME")) {
+                report.set(
+                    DomainRegistry.getReportGenerateService().generateAllTimeReport(endpointId));
+            } else {
+                throw new IllegalArgumentException("unsupported report type");
+            }
+        });
+        return report.get();
+    }
+
+    @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
+    @Transactional
+    public void rawDataEtl(){
+        CommonDomainRegistry.getSchedulerDistLockService().executeIfLockSuccess("endpoint_etl",15,(ignore)->{
+                log.debug("start of access record ETL job");
+                DomainRegistry.getRawAccessRecordEtlService().processData();
         });
     }
 }

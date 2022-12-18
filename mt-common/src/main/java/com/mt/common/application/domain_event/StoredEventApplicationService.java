@@ -48,21 +48,24 @@ public class StoredEventApplicationService {
      */
     @Transactional
     public void markAsUnroutable(StoredEvent event) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(String.valueOf(event.getId()), (ignored) -> {
-                    Long id = event.getId();
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new UnrountableMsgReceivedEvent(event));
-                    if (id != null) {
+        Long id = event.getId();
+        if (id != null && id != -1) {
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(String.valueOf(id), (ignored) -> {
+                        CommonDomainRegistry.getDomainEventRepository()
+                            .append(new UnrountableMsgReceivedEvent(event));
                         CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
                             .ifPresent(
                                 StoredEvent::markAsUnroutable);
-                    } else {
-                        log.error("non stored event like app_start are un-routable detail: {}", event);
-                    }
-                    return null;
-                },
-                AGGREGATE_NAME);
+                        return null;
+                    },
+                    AGGREGATE_NAME);
+        } else {
+            log.warn(
+                "non stored event like app_start are un-routable (which maybe ok) detail: {}",
+                event);
+        }
+
     }
 
     /**

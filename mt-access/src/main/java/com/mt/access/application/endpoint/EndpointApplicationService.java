@@ -365,11 +365,9 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    public SumPagedRep<EndpointProxyCacheRepresentation> internalQuery(String queryParam,
-                                                                       String pageParam,
-                                                                       String config) {
+    public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
         SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
-            .endpointsOfQuery(new EndpointQuery(queryParam, pageParam, config));
+            .endpointsOfQuery(new EndpointQuery(pageParam));
         List<EndpointProxyCacheRepresentation> collect =
             endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
                 .collect(Collectors.toList());
@@ -407,7 +405,6 @@ public class EndpointApplicationService {
                 return null;
             }, ENDPOINT);
     }
-
 
     public static class InvalidClientIdException extends RuntimeException {
     }

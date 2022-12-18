@@ -96,14 +96,17 @@ public class EndpointResource {
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
+    /**
+     * get paginated endpoints for proxy to cache
+     * @param pageParam pagination info
+     * @return paginated data
+     */
     @GetMapping("endpoints/proxy")
-    public ResponseEntity<SumPagedRep<?>> readForAppByQuery(
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+    public ResponseEntity<SumPagedRep<?>> getForProxy(
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam) {
         SumPagedRep<EndpointProxyCacheRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
-                .internalQuery(queryParam, pageParam, config);
+                .proxyQuery(pageParam);
         return ResponseEntity.ok(endpoints);
     }
 
