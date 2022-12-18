@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class EndpointReportRepresentation {
     private String endpointId;
-    private String averageRoundTimeInSeconds;
+    private String averageRoundTimeInMili;
     private String totalInvokeCount;
     private String failureResponseRate;
     private String averageResponseSize;
@@ -18,7 +18,7 @@ public class EndpointReportRepresentation {
 
     public EndpointReportRepresentation(EndpointReport report) {
         endpointId=report.getEndpointId().getDomainId();
-        averageRoundTimeInSeconds=String.valueOf(report.getAverageRoundTimeInSeconds());
+        averageRoundTimeInMili =String.valueOf(report.getAverageRoundTimeInMili());
         totalInvokeCount=String.valueOf(report.getTotalInvokeCount());
         failureResponseRate=report.getFailureResponseRate().toString();
         badRequestCount=report.getBadRequestCount().toString();

@@ -63,7 +63,7 @@ public class ReportService {
      * @param response ServerHttpResponse
      */
     public void logResponseDetail(ServerHttpResponse response) {
-        long responseTimestamp = Instant.now().getEpochSecond();
+        long responseTimestamp = Instant.now().toEpochMilli();
         int responseStatusCode = response.getStatusCode().value();
         long contentLength = response.getHeaders().getContentLength();
         String uuid = MDC.get(REQ_UUID);
@@ -73,7 +73,7 @@ public class ReportService {
     }
 
     public void logRequestDetails(ServerHttpRequest request) {
-        long requestTimestamp = Instant.now().getEpochSecond();
+        long requestTimestamp = Instant.now().toEpochMilli();
         String clientIp = MDC.get(REQ_CLIENT_IP);
         String uuid = MDC.get(REQ_UUID);
         String path = request.getPath().toString();

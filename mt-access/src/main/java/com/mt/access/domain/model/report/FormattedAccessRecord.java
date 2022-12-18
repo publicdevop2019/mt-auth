@@ -62,13 +62,13 @@ public class FormattedAccessRecord {
         Map<String, String> recordAsMap = request.getRecordAsMap();
         this.path = recordAsMap.get("path");
         this.requestAt =
-            Date.from(Instant.ofEpochSecond(Long.parseLong(recordAsMap.get("timestamp"))));
+            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap.get("timestamp"))));
         this.method = recordAsMap.get("method");
         this.endpointId = new EndpointId(recordAsMap.get("endpointId"));
         this.clientIp = recordAsMap.get("clientIp");
         Map<String, String> recordAsMap1 = response.getRecordAsMap();
         this.responseAt =
-            Date.from(Instant.ofEpochSecond(Long.parseLong(recordAsMap1.get("timestamp"))));
+            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap1.get("timestamp"))));
         this.responseCode = Integer.parseInt(recordAsMap1.get("statusCode"));
         this.responseContentSize = Integer.parseInt(recordAsMap1.get("contentLength"));
     }

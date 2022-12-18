@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 public class EndpointReport {
     private final EndpointId endpointId;
-    private long averageRoundTimeInSeconds;
+    private long averageRoundTimeInMili;
     private final int totalInvokeCount;
     private final AtomicInteger failureResponseRate = new AtomicInteger(0);
     private final AtomicInteger badRequestCount = new AtomicInteger(0);//400
@@ -22,8 +22,8 @@ public class EndpointReport {
     public EndpointReport(Set<FormattedAccessRecord> records, EndpointId endpointId) {
         this.endpointId = endpointId;
         Optional<Long> reduce = records.stream().map(e ->
-            e.getResponseAt().toInstant().getEpochSecond() - e.getRequestAt().toInstant().getEpochSecond()).reduce((a, b) -> (a + b) >> 1);
-        reduce.ifPresent(e -> averageRoundTimeInSeconds = e);
+            e.getResponseAt().toInstant().toEpochMilli() - e.getRequestAt().toInstant().toEpochMilli()).reduce((a, b) -> (a + b) >> 1);
+        reduce.ifPresent(e -> averageRoundTimeInMili = e);
         Optional<Integer> reduce1 = records.stream().map(
             FormattedAccessRecord::getResponseContentSize).reduce((a, b) -> (a + b) >> 1);
         reduce1.ifPresent(e -> averageResponseSize = e);
