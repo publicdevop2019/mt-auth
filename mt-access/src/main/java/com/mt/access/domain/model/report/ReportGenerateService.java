@@ -9,37 +9,30 @@ import org.springframework.stereotype.Service;
 @Service
 public class ReportGenerateService {
     public EndpointReport generatePast15MinutesReport(EndpointId endpointId) {
-        long current = Instant.now().getEpochSecond();
-        long past = current - 15 * 60;
-        Set<FormattedAccessRecord> endpointRecordWithinRange =
-            DomainRegistry.getFormattedAccessRecordRepository()
-                .getRecordSince(endpointId, past);
-        return new EndpointReport(endpointRecordWithinRange,endpointId);
+        return generateReport(endpointId, 15 * 60 * 1000);
     }
 
     public EndpointReport generatePast1HourReport(EndpointId endpointId) {
-
-        long current = Instant.now().getEpochSecond();
-        long past = current - 60 * 60;
-        Set<FormattedAccessRecord> endpointRecordWithinRange =
-            DomainRegistry.getFormattedAccessRecordRepository()
-                .getRecordSince(endpointId, past);
-        return new EndpointReport(endpointRecordWithinRange,endpointId);
+        return generateReport(endpointId, 60 * 60 * 1000);
     }
 
     public EndpointReport generatePast1DayReport(EndpointId endpointId) {
-        long current = Instant.now().getEpochSecond();
-        long past = current - 24 * 60 * 60;
-        Set<FormattedAccessRecord> endpointRecordWithinRange =
-            DomainRegistry.getFormattedAccessRecordRepository()
-                .getRecordSince(endpointId, past);
-        return new EndpointReport(endpointRecordWithinRange,endpointId);
+        return generateReport(endpointId, 24 * 60 * 60 * 1000);
     }
 
     public EndpointReport generateAllTimeReport(EndpointId endpointId) {
         Set<FormattedAccessRecord> endpointRecordWithinRange =
             DomainRegistry.getFormattedAccessRecordRepository()
                 .getAllRecord(endpointId);
-        return new EndpointReport(endpointRecordWithinRange,endpointId);
+        return new EndpointReport(endpointRecordWithinRange, endpointId);
+    }
+
+    public EndpointReport generateReport(EndpointId endpointId, long offset) {
+        long current = Instant.now().toEpochMilli();
+        long past = current - offset;
+        Set<FormattedAccessRecord> endpointRecordWithinRange =
+            DomainRegistry.getFormattedAccessRecordRepository()
+                .getRecordSince(endpointId, past);
+        return new EndpointReport(endpointRecordWithinRange, endpointId);
     }
 }

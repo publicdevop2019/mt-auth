@@ -21,6 +21,9 @@ import org.springframework.security.oauth2.common.exceptions.InvalidClientExcept
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
+import org.springframework.web.bind.MissingPathVariableException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.ServletRequestBindingException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
@@ -43,7 +46,7 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
         DataIntegrityViolationException.class,
         OperationNotCoolDownException.class,
         IllegalStateException.class,
-        FileUploadException.class
+        FileUploadException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
@@ -74,5 +77,14 @@ public class CustomExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, new ErrorMessage(ex), new HttpHeaders(),
             HttpStatus.INTERNAL_SERVER_ERROR, request);
+    }
+
+    /**
+     * override springboot default error msg when params like changeId missing
+     */
+    @Override
+    protected ResponseEntity<Object> handleServletRequestBindingException(
+        ServletRequestBindingException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+        return handleExceptionInternal(ex, new ErrorMessage(new RuntimeException("missing param")), headers, status, request);
     }
 }

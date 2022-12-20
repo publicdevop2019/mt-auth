@@ -135,6 +135,7 @@ import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
+import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -217,6 +218,7 @@ import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.c
     MySubsComponent,
     EnterReasonDialogComponent,
     EndpointNewComponent,
+    EndpointAnalysisComponent,
 
   ],
   imports: [

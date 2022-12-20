@@ -16,6 +16,7 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
+import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { IJobStatus } from '../pages/mgnmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
@@ -270,8 +271,8 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/expire`, { expireReason: reason }, { headers: headerConfig })
     }
-    viewEndpointReport(projectId: string, id: string) {
-        return this._httpClient.get(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:ALL_TIME`)
+    viewEndpointReport(projectId: string, id: string,type:string) {
+        return this._httpClient.get<IAnalysisResult>(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:${type}`)
     }
     private _getAuthHeader(islogin: boolean, token?: string): HttpHeaders {
         return islogin ? new HttpHeaders().append('Authorization',

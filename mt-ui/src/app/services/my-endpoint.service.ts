@@ -8,8 +8,8 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class MyEndpointService extends TenantEntityService<IEndpoint, IEndpoint>{
-  viewReport(id: string) {
-    return this.httpProxySvc.viewEndpointReport(this.projectId,id)
+  viewReport(id: string,type:string) {
+    return this.httpProxySvc.viewEndpointReport(this.projectId,id,type)
   }
   entityName: string = 'endpoints';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {

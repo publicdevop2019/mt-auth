@@ -10,6 +10,7 @@ import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.compo
 import { uniqueObject } from 'src/app/clazz/utility';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
+import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -146,6 +147,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     })
   }
   viewReport(id: string) {
-    this.entitySvc.viewReport(id).subscribe(next => { console.dir(next) })
+    this.dialog.open(EndpointAnalysisComponent, { data: {endpointId:id,projectId:this.projectId} });
   }
 }
