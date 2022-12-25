@@ -49,6 +49,7 @@ public class ScgETagFilter implements GlobalFilter, Ordered {
     }
 
     public static ServerHttpResponse updateResponseWithETag(ServerWebExchange exchange) {
+        log.debug("inside ScgETagFilter mutate response etag hander");
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {
@@ -102,6 +103,7 @@ public class ScgETagFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgETagFilter - order -2");
         ServerHttpRequest request = exchange.getRequest();
         if (!isWebSocket(request.getHeaders())
             &&

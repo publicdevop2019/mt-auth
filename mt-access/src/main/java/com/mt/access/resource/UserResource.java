@@ -100,8 +100,10 @@ public class UserResource {
 
     @DeleteMapping("mngmt/users/{id}")
     public ResponseEntity<Void> deleteForAdminById(@PathVariable String id,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId) {
+                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
+                                                           String jwt) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().delete(id, changeId);
         return ResponseEntity.ok().build();
     }

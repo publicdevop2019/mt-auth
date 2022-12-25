@@ -29,6 +29,7 @@ public class ScgZipFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgZipFilter - order -4");
         ServerHttpRequest request = exchange.getRequest();
         if ("websocket".equals(request.getHeaders().getUpgrade())) {
             return chain.filter(exchange);
@@ -48,6 +49,7 @@ public class ScgZipFilter implements GlobalFilter, Ordered {
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+                log.trace("inside [writeWith]  handler");
                 if (originalResponse.getHeaders().getContentType() != null
                     && originalResponse.getHeaders().getContentType()
                     .equals(MediaType.APPLICATION_JSON_UTF8)) {
@@ -60,6 +62,7 @@ public class ScgZipFilter implements GlobalFilter, Ordered {
                         flux = (Flux<DataBuffer>) body;
                         boolean finalIsJson = true;
                         return super.writeWith(flux.buffer().map(dataBuffers -> {
+                            log.trace("inside flushing");
                             byte[] responseBody = new byte[0];
                             try {
                                 responseBody = getResponseBody(dataBuffers);

@@ -24,7 +24,9 @@ public class ScgCsrfFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgCsrfFilter - order "+getOrder());
         return chain.filter(exchange).then(Mono.fromRunnable(() -> {
+            log.trace("inside [then]");
             if (exchange.getRequest().getCookies().get("XSRF-TOKEN") == null
                 &&
                 exchange.getRequest().getHeaders().get("x-xsrf-token") == null) {

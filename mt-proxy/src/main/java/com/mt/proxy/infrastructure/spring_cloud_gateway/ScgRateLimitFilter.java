@@ -20,6 +20,7 @@ public class ScgRateLimitFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgRateLimitFilter - order "+(HIGHEST_PRECEDENCE + 1));
         ServerHttpResponse response = exchange.getResponse();
         String path = exchange.getRequest().getPath().toString();
         String method = exchange.getRequest().getMethodValue();
@@ -34,6 +35,7 @@ public class ScgRateLimitFilter implements GlobalFilter, Ordered {
         }
         ServerHttpResponse originalResponse = exchange.getResponse();
         originalResponse.beforeCommit(() -> {
+            log.trace("inside ScgRateLimitFilter [beforeCommit] set rate limit header");
             originalResponse.getHeaders()
                 .set(X_RATE_LIMIT, String.valueOf(rateLimitResult.getNewTokens()));
             return Mono.empty();

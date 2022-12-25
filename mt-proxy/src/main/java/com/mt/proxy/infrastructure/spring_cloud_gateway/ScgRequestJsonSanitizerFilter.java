@@ -2,7 +2,9 @@ package com.mt.proxy.infrastructure.spring_cloud_gateway;
 
 import static com.mt.proxy.infrastructure.spring_cloud_gateway.ScgRevokeTokenFilter.decorate;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.json.JsonSanitizer;
+import java.io.IOException;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
@@ -26,6 +28,7 @@ import reactor.core.publisher.Mono;
 public class ScgRequestJsonSanitizerFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgRequestJsonSanitizerFilter - order 3");
         ServerHttpRequest request = exchange.getRequest();
         if (request.getMethod() != null && !request.getMethod().equals(HttpMethod.GET)
             &&
@@ -43,6 +46,7 @@ public class ScgRequestJsonSanitizerFilter implements GlobalFilter, Ordered {
                 new ScgRevokeTokenFilter.CachedBodyOutputMessage(exchange, headers);
             return bodyInserter.insert(outputMessage, new BodyInserterContext())
                 .then(Mono.defer(() -> {
+                    log.trace("inside ScgRequestJsonSanitizerFilter [bodyInsert]");
                     headers.setContentLength(filterContext.contentLength);
                     ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
                     return chain.filter(exchange.mutate().request(decorator).build());

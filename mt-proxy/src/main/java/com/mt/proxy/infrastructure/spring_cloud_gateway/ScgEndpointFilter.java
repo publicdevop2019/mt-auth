@@ -24,6 +24,7 @@ public class ScgEndpointFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgEndpointFilter - order "+HIGHEST_PRECEDENCE);
         log.debug("start of endpoint filter");
         String authHeader = null;
         ServerHttpRequest request = exchange.getRequest();

@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 public class ScgSuppressErrorResponseFilter implements GlobalFilter, Ordered {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgSuppressErrorResponseFilter - order -3");
         ServerHttpRequest request = exchange.getRequest();
         if ("websocket".equals(request.getHeaders().getUpgrade())) {
             return chain.filter(exchange);
@@ -36,6 +37,7 @@ public class ScgSuppressErrorResponseFilter implements GlobalFilter, Ordered {
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+                log.trace("inside [writeWith] handler");
                 log.debug("checking response in case of downstream error");
                 if (originalResponse.getStatusCode() != null
                     &&

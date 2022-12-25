@@ -9,18 +9,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 public class GracefulShutDownHook {
-
-    @PreDestroy
-    public void onExit() {
-        log.info("release resource before shutdown");
-    }
-
     @PostConstruct
     public void checkLogConfig() {
-        String property = System.getProperty("sun.java.command");
-        if (property.contains(
-            "-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector")) {
-            log.debug("currently async log is enabled, not all logs will flush when application shutdown");
+        String property = System.getProperty("log4j2.contextSelector");
+        if (property!=null && !property.isBlank()) {
+            log.debug("asynchronous log is enabled");
+        }else{
+            log.debug("asynchronous log is not enabled");
         }
     }
 }

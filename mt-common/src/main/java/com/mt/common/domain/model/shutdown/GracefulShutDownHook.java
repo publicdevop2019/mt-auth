@@ -24,10 +24,11 @@ public class GracefulShutDownHook {
 
     @PostConstruct
     public void checkLogConfig() {
-        String property = System.getProperty("sun.java.command");
-        if (property.contains(
-            "-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector")) {
-            log.debug("currently async log is enabled, not all logs will flush when application shutdown");
+        String property = System.getProperty("log4j2.contextSelector");
+        if (property!=null && !property.isBlank()) {
+            log.debug("async log is enabled");
+        }else{
+            log.debug("async log is not enabled");
         }
     }
 }

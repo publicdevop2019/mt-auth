@@ -58,6 +58,7 @@ public class ScgRevokeTokenFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgRevokeTokenFilter - order 0");
         String authHeader = null;
         ServerHttpRequest request = exchange.getRequest();
         List<String> authorization = request.getHeaders().get("authorization");
@@ -77,6 +78,7 @@ public class ScgRevokeTokenFilter implements GlobalFilter, Ordered {
             CachedBodyOutputMessage outputMessage = new CachedBodyOutputMessage(exchange, headers);
             return bodyInserter.insert(outputMessage, new BodyInserterContext())
                 .then(Mono.defer(() -> {
+                    log.trace("inside ScgRevokeTokenFilter [bodyInsert] handler");
                     ServerHttpRequest decorator = decorate(exchange, headers, outputMessage);
                     if (gatewayContext.shouldBlock) {
                         ServerHttpResponse response = exchange.getResponse();

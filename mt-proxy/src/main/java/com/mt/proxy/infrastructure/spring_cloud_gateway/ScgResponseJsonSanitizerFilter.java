@@ -30,6 +30,7 @@ public class ScgResponseJsonSanitizerFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgResponseJsonSanitizerFilter - order -1");
         ServerHttpRequest request = exchange.getRequest();
         if ("websocket".equals(request.getHeaders().getUpgrade())) {
             return chain.filter(exchange);
@@ -49,6 +50,7 @@ public class ScgResponseJsonSanitizerFilter implements GlobalFilter, Ordered {
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
+                log.trace("inside [writeWith] handler");
                 HttpHeaders headers = originalResponse.getHeaders();
                 if (MediaType.APPLICATION_JSON_UTF8.equals(headers.getContentType())) {
                     Flux<DataBuffer> flux;
@@ -59,6 +61,7 @@ public class ScgResponseJsonSanitizerFilter implements GlobalFilter, Ordered {
                     if (body instanceof Flux) {
                         flux = (Flux<DataBuffer>) body;
                         return super.writeWith(flux.buffer().map(dataBuffers -> {
+                            log.trace("inside flushing");
                             byte[] responseBody = new byte[0];
                             try {
                                 responseBody = getResponseBody(dataBuffers);

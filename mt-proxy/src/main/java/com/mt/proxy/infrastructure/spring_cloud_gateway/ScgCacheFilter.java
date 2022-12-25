@@ -27,8 +27,10 @@ public class ScgCacheFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgCacheFilter - order "+getOrder());
         ServerHttpRequest request = exchange.getRequest();
         Mono<Void> responseCacheHandler = Mono.fromRunnable(() -> {
+            log.trace("inside [then]");
             CacheConfiguration cacheConfiguration =
                 cacheService.getCacheConfiguration(exchange, false);
             if (cacheConfiguration != null) {

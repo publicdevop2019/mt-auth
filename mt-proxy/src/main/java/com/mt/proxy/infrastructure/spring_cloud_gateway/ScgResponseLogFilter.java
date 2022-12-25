@@ -33,6 +33,7 @@ public class ScgResponseLogFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        log.trace("inside ScgResponseLogFilter - order "+getOrder());
         Mono<Void> responseLogUpdater = Mono.fromRunnable(() -> {
             //clear previous value
             MDC.put(REQ_UUID, null);
@@ -40,7 +41,7 @@ public class ScgResponseLogFilter implements GlobalFilter, Ordered {
             String uuidHeader = request.getHeaders().getFirst(REQ_UUID);
             //response header must have uuid
             MDC.put(REQ_UUID, uuidHeader);
-
+            log.trace("inside [then]");
             String clientIpHeader = request.getHeaders().getFirst("X-FORWARDED-FOR");
             if (clientIpHeader != null) {
                 MDC.put(REQ_CLIENT_IP, clientIpHeader);
@@ -67,7 +68,7 @@ public class ScgResponseLogFilter implements GlobalFilter, Ordered {
 
     @Override
     public int getOrder() {
-        return Ordered.LOWEST_PRECEDENCE;
+        return 5;
     }
 }
 

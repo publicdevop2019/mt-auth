@@ -30,6 +30,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestTemplate;
@@ -122,39 +123,35 @@ public class GatewayFilterTest {
     }
 
     @Test
-    @Ignore//move this feature to individual application level
-    public void should_sanitize_request_json() {
-        EndpointInfo endpointInfo1 = new EndpointInfo();
-        endpointInfo1.setResourceId("0C8AZTODP4HT");
-        endpointInfo1.setSecured(false);
-        endpointInfo1.setMethod("GET");
-        endpointInfo1.setName("Test");
-        endpointInfo1.setDescription("<script>test</script>");
-        endpointInfo1
-            .setPath(
-                "/test/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "")
-                    +
-                    "/abc");
-        ResponseEntity<String> profile = createProfile(endpointInfo1);
-        String s = profile.getHeaders().getLocation().toString();
-        Assert.assertEquals(HttpStatus.OK, profile.getStatusCode());
-        ResponseEntity<EndpointInfo> securityProfileResponseEntity = readProfile(s);
-        Assert.assertEquals("&lt;script&gt;test&lt;/script&gt;",
-            securityProfileResponseEntity.getBody().getDescription());
+    public void should_sanitize_request_json_replace_single_quote_with_double_quote() {
+        String url = UrlUtility.getTestUrl("post");
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.set("X-XSRF-TOKEN", "123");
+        headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
+        headers1.setContentType(MediaType.APPLICATION_JSON);
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("{\"test\":'test'}", headers1);
+        ResponseEntity<String> exchange =
+            restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
+
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertEquals("{\"test\":\"test\"}",
+            exchange.getBody());
     }
 
     @Test
-    @Ignore
-    public void should_sanitize_response_json() {
-        String url = UrlUtility.getAccessUrl(
-            CLIENTS + "/" + AppConstant.CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<Client> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, Client.class);
-        Assert
-            .assertEquals("&lt;script&gt;test&lt;/script&gt;", exchange.getBody().getDescription());
+    public void should_sanitize_response_json_replace_single_quote_with_double_quote() {
+        String url = UrlUtility.getTestUrl("post");
+        HttpHeaders headers1 = new HttpHeaders();
+        headers1.set("X-XSRF-TOKEN", "123");
+        headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("{\"test\":'test'}", headers1);
+        ResponseEntity<String> exchange =
+            restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertEquals("{\"test\":\"test\"}",
+            exchange.getBody());
     }
 
     @Test
@@ -208,23 +205,22 @@ public class GatewayFilterTest {
     }
 
     @Test
-    @Ignore
     public void should_get_too_many_request_exceed_burst_rate_limit() {
-        String url2 = UrlUtility.getAccessUrl(CLIENTS);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
+        String url2 = UrlUtility.getTestUrl("get/0");
         AtomicReference<Integer> count = new AtomicReference<>(0);
         Runnable runnable2 = () -> {
+            //need to init TestContext again due to runnable is executed in different thread pool hence TestContext threadlocal is null
+            TestContext.init();
             ResponseEntity<String> exchange = TestContext.getRestTemplate()
-                .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+                .exchange(url2, HttpMethod.GET, null, String.class);
             log.info("response status is {}", exchange.getStatusCode().value());
+            log.info("rate limit left is {}", exchange.getHeaders().get("x-mt-ratelimit-left"));
             if (exchange.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 count.getAndSet(count.get() + 1);
             }
         };
         ArrayList<Runnable> runnables = new ArrayList<>();
-        for (int i = 0; i < 150; i++) {
+        for (int i = 0; i < 90; i++) {
             runnables.add(runnable2);
         }
         try {

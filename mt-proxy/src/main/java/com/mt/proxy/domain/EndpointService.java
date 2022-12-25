@@ -10,10 +10,8 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -192,6 +190,7 @@ public class EndpointService {
 
     /**
      * return cached endpoint collection.
+     *
      * @return endpoint set
      */
     public Set<Endpoint> getCachedEndpoints() {
