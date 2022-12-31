@@ -139,7 +139,7 @@ public class RevokeTokenTest {
         throws JsonProcessingException, InterruptedException {
         String url2 = proxyUrl + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
-         * user can login & call resourceOwner api
+         * user can login & call resourceOwner api & refresh token should work
          */
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = UserUtility.getJwtPasswordAdmin();
 
@@ -152,6 +152,11 @@ public class RevokeTokenTest {
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+
+        ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
+            OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
+                AppConstant.EMPTY_CLIENT_SECRET);
+        Assert.assertEquals(HttpStatus.OK, refreshTokenResponse.getStatusCode());
 
         /**
          * blacklist admin account
@@ -177,10 +182,10 @@ public class RevokeTokenTest {
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
 
-        ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
-            getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
+        ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse2 =
+            OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.EMPTY_CLIENT_SECRET);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse.getStatusCode());
+        Assert.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse2.getStatusCode());
 
         /**
          * after resourceOwner obtain new token, access is permitted
@@ -195,17 +200,5 @@ public class RevokeTokenTest {
 
     }
 
-    private ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(String refreshToken,
-                                                                             String clientId,
-                                                                             String clientSecret) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "refresh_token");
-        params.add("refresh_token", refreshToken);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(clientId, clientSecret);
-        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        return TestContext.getRestTemplate()
-            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
-    }
 
 }

@@ -96,16 +96,11 @@ public class RefreshTokenTest {
             });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //get access token with refresh token
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "refresh_token");
-        params.add("scope", "not_used");
-        params.add("refresh_token", jwtPasswordWithClient.getBody().getRefreshToken().getValue());
-        HttpHeaders headers2 = new HttpHeaders();
-        headers2.setBasicAuth(clientId, clientSecret);
-        headers2.setContentType(MediaType.MULTIPART_FORM_DATA);
-        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params, headers2);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange1 = TestContext.getRestTemplate()
-            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request2, DefaultOAuth2AccessToken.class);
+
+        ResponseEntity<DefaultOAuth2AccessToken> exchange1 = OAuth2Utility
+            .getRefreshTokenResponse(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
+                clientId, clientSecret);
+
         Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
         //use new access token for api call
         HttpHeaders headers3 = new HttpHeaders();

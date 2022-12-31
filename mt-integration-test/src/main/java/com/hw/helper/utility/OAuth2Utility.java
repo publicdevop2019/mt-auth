@@ -239,4 +239,26 @@ public class OAuth2Utility {
         String body = responseEntity.getBody();
         return JsonPath.read(body, "$.authorize_code");
     }
+
+    /**
+     * get refresh token response
+     * @param refreshToken refresh token
+     * @param clientId client id
+     * @param clientSecret client secret
+     * @return oauth2 token
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(String refreshToken,
+                                                                             String clientId,
+                                                                             String clientSecret) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "refresh_token");
+        params.add("refresh_token", refreshToken);
+        params.add("scope", "not_used");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(clientId, clientSecret);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        return TestContext.getRestTemplate()
+            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
+    }
 }
