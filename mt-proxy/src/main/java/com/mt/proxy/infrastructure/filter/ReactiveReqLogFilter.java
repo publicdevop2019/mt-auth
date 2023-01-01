@@ -4,6 +4,7 @@ import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
 import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
 
 import com.mt.proxy.domain.ReportService;
+import com.mt.proxy.domain.Utility;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveLogFilter implements WebFilter, Ordered {
+public class ReactiveReqLogFilter implements WebFilter, Ordered {
     @Autowired
     ReportService reportService;
 
@@ -33,16 +34,8 @@ public class ReactiveLogFilter implements WebFilter, Ordered {
         MDC.put(REQ_CLIENT_IP, null);
         ServerHttpRequest request = exchange.getRequest();
         String uuid = request.getHeaders().getFirst(REQ_UUID);
-        String clientIp = request.getHeaders().getFirst("X-FORWARDED-FOR");
-        if (clientIp != null && clientIp.length() > 0) {
-            MDC.put(REQ_CLIENT_IP, clientIp);
-        } else {
-            if (request.getRemoteAddress() != null) {
-                MDC.put(REQ_CLIENT_IP, request.getRemoteAddress().toString());
-            } else {
-                MDC.put(REQ_CLIENT_IP, "NOT_FOUND");
-            }
-        }
+        String ip = getClientIp(request);
+        MDC.put(REQ_CLIENT_IP, ip);
         ServerHttpRequest httpRequest = null;
         if (null == uuid) {
             String s = java.util.UUID.randomUUID() + "_g";
@@ -54,21 +47,32 @@ public class ReactiveLogFilter implements WebFilter, Ordered {
         }
         beforeCommitResponse(exchange);
         if (httpRequest != null) {
-            if ("websocket".equals(request.getHeaders().getUpgrade())) {
+            if (Utility.isWebSocket(request.getHeaders())) {
                 return chain.filter(exchange.mutate().request(httpRequest).build());
             }
             reportService.logRequestDetails(exchange.getRequest());
             return chain
                 .filter(exchange.mutate().request(httpRequest).build());
         } else {
-            if ("websocket".equals(request.getHeaders().getUpgrade())) {
+            if (Utility.isWebSocket(request.getHeaders())) {
                 return chain.filter(exchange);
             }
             reportService.logRequestDetails(exchange.getRequest());
-            return chain.filter(exchange.mutate().build()).then(Mono.fromRunnable(()->{
-
-            }));
+            return chain.filter(exchange.mutate().build());
         }
+    }
+
+    public static String getClientIp(ServerHttpRequest request) {
+        String clientIp = "NOT_FOUND";
+        String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
+        if (first != null) {
+            clientIp = first;
+        } else {
+            if (request.getRemoteAddress() != null) {
+                clientIp = request.getRemoteAddress().toString();
+            }
+        }
+        return clientIp;
     }
 
     @Override
@@ -78,19 +82,21 @@ public class ReactiveLogFilter implements WebFilter, Ordered {
 
     private void beforeCommitResponse(ServerWebExchange exchange) {
         ServerHttpResponse originalResponse = exchange.getResponse();
-        originalResponse.beforeCommit(()->{
-            checkHeader(exchange, REQ_UUID);
-            checkHeader(exchange, REQ_CLIENT_IP);
+        originalResponse.beforeCommit(() -> {
+            checkHeader(exchange);
             reportService.logResponseDetail(exchange.getResponse());
             return Mono.empty();
         });
     }
 
-    private void checkHeader(ServerWebExchange exchange, String headerName) {
-        String reqHeader = exchange.getRequest().getHeaders().getFirst(headerName);
-        String respHeader = exchange.getResponse().getHeaders().getFirst(headerName);
+    private void checkHeader(ServerWebExchange exchange) {
+        String reqHeader = exchange.getRequest().getHeaders().getFirst(
+            com.mt.proxy.infrastructure.AppConstant.REQ_UUID);
+        String respHeader = exchange.getResponse().getHeaders().getFirst(
+            com.mt.proxy.infrastructure.AppConstant.REQ_UUID);
         if (respHeader == null && reqHeader != null) {
-            exchange.getResponse().getHeaders().set(headerName, reqHeader);
+            exchange.getResponse().getHeaders().set(
+                com.mt.proxy.infrastructure.AppConstant.REQ_UUID, reqHeader);
         } else {
             log.warn("missing request header, which should not happen");
         }

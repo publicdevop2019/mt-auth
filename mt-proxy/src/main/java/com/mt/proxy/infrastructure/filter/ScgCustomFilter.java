@@ -7,6 +7,7 @@ import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
 import com.mt.proxy.domain.DomainRegistry;
 import com.mt.proxy.domain.JsonSanitizeService;
+import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -151,9 +152,11 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
      * zip response, this requires to read response to know if needed or not
      *
      * @param exchange ServerWebExchange
+     * @param context
      * @return ServerHttpResponse
      */
-    public static ServerHttpResponse checkZipResponse(ServerWebExchange exchange) {
+    public static ServerHttpResponse checkZipResponse(ServerWebExchange exchange,
+                                                      CustomFilterContext context) {
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {
@@ -161,7 +164,10 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                 if (originalResponse.getHeaders().getContentType() != null
                     && originalResponse.getHeaders().getContentType()
-                    .equals(MediaType.APPLICATION_JSON_UTF8)) {
+                    .equals(MediaType.APPLICATION_JSON_UTF8)
+                    && !context.isWebsocket
+
+                ) {
                     Flux<DataBuffer> flux;
                     if (body instanceof Mono) {
                         Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
@@ -221,19 +227,19 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         CustomFilterContext context = new CustomFilterContext();
         ServerHttpRequest request = exchange.getRequest();
-        if ("websocket".equals(request.getHeaders().getUpgrade())) {
-            context.isWebsocket = true;
-        }
+        context.isWebsocket = Utility.isWebSocket(request.getHeaders());
         ServerHttpResponse response = exchange.getResponse();
         checkEndpoint(exchange, context);
         if (context.hasCheckFailed()) {
             response.setStatusCode(context.httpErrorStatus);
             return response.setComplete();
         }
-        checkRateLimit(exchange, context);
-        if (context.hasCheckFailed()) {
-            response.setStatusCode(context.httpErrorStatus);
-            return response.setComplete();
+        if (!context.isWebsocket) {
+            checkRateLimit(exchange, context);
+            if (context.hasCheckFailed()) {
+                response.setStatusCode(context.httpErrorStatus);
+                return response.setComplete();
+            }
         }
         Mono<ServerHttpRequest> requestMono =
             checkRevokeToken(exchange, context);
@@ -241,21 +247,31 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             response.setStatusCode(context.httpErrorStatus);
             return response.setComplete();
         }
+        if (context.isWebsocket) {
+            //for websocket only endpoint & token check is performed
+            return requestMono.flatMap(req -> {
+                if (context.hasCheckFailed()) {
+                    response.setStatusCode(context.httpErrorStatus);
+                    return response.setComplete();
+                }
+                return chain.filter(exchange);
+            });
+        }
         ServerHttpResponse csrfResp = responseDecorator(exchange);
         checkCacheHeaderConfig(exchange);
         ServerHttpResponse etagResp = checkEtagConfig(exchange, context);
         //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
         ServerWebExchange newExchange = exchange.mutate().response(etagResp).build();
 
-        ServerHttpResponse zipResp = checkZipResponse(newExchange);
+        ServerHttpResponse zipResp = checkZipResponse(newExchange, context);
         //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
         ServerWebExchange newExchange2 = newExchange.mutate().response(zipResp).build();
 
-        ServerHttpResponse sanitizeResp = responseJsonSanitizer(newExchange2);
+        ServerHttpResponse sanitizeResp = responseJsonSanitizer(newExchange2, context);
         //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
         ServerWebExchange newExchange3 = newExchange.mutate().response(sanitizeResp).build();
 
-        ServerHttpResponse errorResp = errorResponseDecorator(newExchange3);
+        ServerHttpResponse errorResp = errorResponseDecorator(newExchange3, context);
 
 
         Mono<ServerHttpRequest> sanitizedRequestMono = sanitizeRequest(newExchange3, context);
@@ -275,13 +291,15 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                             .response(sanitizeResp).response(errorResp).build());
                     }
                     return chain.filter(exchange.mutate().request(req).request(sanitizedReq)
-                        .response(csrfResp).response(zipResp).response(sanitizeResp).response(errorResp).build());
+                        .response(csrfResp).response(zipResp).response(sanitizeResp)
+                        .response(errorResp).build());
                 } else if (context.requestCopiedRevokeToken) {
                     if (context.etagRequired) {
                         return chain
                             .filter(
                                 exchange.mutate().request(req).response(csrfResp)
-                                    .response(etagResp).response(zipResp).response(sanitizeResp).response(errorResp)
+                                    .response(etagResp).response(zipResp).response(sanitizeResp)
+                                    .response(errorResp)
                                     .build());
 
 
@@ -294,7 +312,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                     if (context.etagRequired) {
                         return chain.filter(
                             exchange.mutate().request(sanitizedReq).response(csrfResp)
-                                .response(etagResp).response(zipResp).response(sanitizeResp).response(errorResp)
+                                .response(etagResp).response(zipResp).response(sanitizeResp)
+                                .response(errorResp)
                                 .build());
                     }
                     return chain.filter(
@@ -309,21 +328,23 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                             .build());
                 }
                 return chain.filter(
-                    exchange.mutate().response(csrfResp).response(zipResp).response(sanitizeResp).response(errorResp)
+                    exchange.mutate().response(csrfResp).response(zipResp).response(sanitizeResp)
+                        .response(errorResp)
                         .build());
             });
         });
     }
-    private ServerHttpResponse errorResponseDecorator(ServerWebExchange exchange) {
+
+    private ServerHttpResponse errorResponseDecorator(ServerWebExchange exchange,
+                                                      CustomFilterContext context) {
         ServerHttpResponse originalResponse = exchange.getResponse();
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                log.trace("inside [writeWith] handler");
                 log.debug("checking response in case of downstream error");
                 if (originalResponse.getStatusCode() != null
                     &&
-                    originalResponse.getStatusCode().is5xxServerError()) {
+                    originalResponse.getStatusCode().is5xxServerError() && !context.isWebsocket) {
                     originalResponse.getHeaders().setContentLength(0);
                     return Mono.empty();
                 }
@@ -332,7 +353,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         };
     }
 
-    private ServerHttpResponse responseJsonSanitizer(ServerWebExchange exchange) {
+    private ServerHttpResponse responseJsonSanitizer(ServerWebExchange exchange,
+                                                     CustomFilterContext context) {
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {
@@ -340,7 +362,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
                 log.trace("inside [writeWith] handler");
                 HttpHeaders headers = originalResponse.getHeaders();
-                if (MediaType.APPLICATION_JSON_UTF8.equals(headers.getContentType())) {
+                if (MediaType.APPLICATION_JSON_UTF8.equals(headers.getContentType()) &&
+                    !context.isWebsocket) {
                     Flux<DataBuffer> flux;
                     if (body instanceof Mono) {
                         Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
@@ -381,7 +404,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     private ServerHttpResponse checkEtagConfig(ServerWebExchange exchange,
                                                CustomFilterContext context) {
         ServerHttpRequest request = exchange.getRequest();
-        if (!isWebSocket(request.getHeaders())
+        if (!context.isWebsocket
             &&
             HttpMethod.GET.equals(request.getMethod())) {
             //check etag first
@@ -567,7 +590,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         context.endpointCheckSuccess();
     }
 
-    private Result<Void> checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {
+    private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {
         ServerHttpResponse response = exchange.getResponse();
         String path = exchange.getRequest().getPath().toString();
         String method = exchange.getRequest().getMethodValue();
@@ -578,7 +601,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             response.getHeaders()
                 .set(X_RATE_LIMIT, "0");
             context.rateLimitReached();
-            return Result.failed(HttpStatus.TOO_MANY_REQUESTS);
         }
         ServerHttpResponse originalResponse = exchange.getResponse();
         originalResponse.beforeCommit(() -> {
@@ -586,7 +608,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 .set(X_RATE_LIMIT, String.valueOf(rateLimitResult.getNewTokens()));
             return Mono.empty();
         });
-        return Result.success();
     }
 
     @Override
@@ -727,6 +748,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             this.tokenCheckFailed = true;
             this.httpErrorStatus = HttpStatus.INTERNAL_SERVER_ERROR;
         }
+
         public void formParseError() {
             this.tokenCheckFailed = true;
             this.httpErrorStatus = HttpStatus.BAD_REQUEST;
@@ -806,35 +828,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         @Override
         public long contentLength() {
             return postBody.length();
-        }
-    }
-
-    @Data
-    public static class Result<T> {
-        private boolean result;
-        private HttpStatus errorHttpStatus;
-        private Mono<T> next;
-
-        private Result(boolean b, Mono<T> next, HttpStatus errorHttpStatus) {
-            result = b;
-            this.next = next;
-            this.errorHttpStatus = errorHttpStatus;
-        }
-
-        public static Result<Void> success() {
-            return new Result<>(true, null, null);
-        }
-
-        public static <T> Result<T> success(Mono<T> next) {
-            return new Result<>(true, next, null);
-        }
-
-        public static Result<Void> failed(HttpStatus errorHttpStatus) {
-            return new Result<>(false, null, errorHttpStatus);
-        }
-
-        public static <T> Result<T> failed(Mono<T> next, HttpStatus errorHttpStatus) {
-            return new Result<>(false, next, errorHttpStatus);
         }
     }
 }

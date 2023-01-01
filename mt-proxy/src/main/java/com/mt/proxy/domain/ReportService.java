@@ -30,6 +30,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -41,6 +42,7 @@ public class ReportService {
     public static final String REPORT_EXTENSION = ".txt";
     public static final String REPORT_DIR = "./reports";
     private static final String SENT_SUFFIX = "_send";
+    private static final String SENT_ERROR_SUFFIX = "_error";
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EurekaClient eurekaClient;
@@ -154,7 +156,8 @@ public class ReportService {
                 if (size == 0) {
                     log.debug("no unsent report found");
                 }
-                Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
+                Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX) &&
+                    !e.getName().contains(SENT_ERROR_SUFFIX))
                     .forEach(unsendFile -> {
                         int andDecrement = maxFileSend.getAndDecrement();
                         if (andDecrement > 0) {
@@ -179,20 +182,36 @@ public class ReportService {
                                 headers1.set("instanceId", instanceId);
                                 HttpEntity<List<String>> request1 =
                                     new HttpEntity<>(requestBody, headers1);
-
-                                ResponseEntity<?> exchange = restTemplate
-                                    .exchange(url, HttpMethod.POST, request1, Void.class);
-                                if (exchange.getStatusCode().is2xxSuccessful()) {
-                                    //rename file
+                                try {
+                                    ResponseEntity<Void> exchange = restTemplate
+                                        .exchange(url, HttpMethod.POST, request1, Void.class);
                                     boolean b = unsendFile
                                         .renameTo(
                                             new File(originalPath.replace(".txt", SENT_SUFFIX +
                                                 REPORT_EXTENSION)));
+                                    //rename file
                                     if (!b) {
                                         throw new ReportRenameException();
                                     }
-                                } else {
-                                    log.error("unable to upload report");
+                                } catch (Exception ex) {
+                                    if (ex instanceof HttpClientErrorException) {
+                                        log.warn(
+                                            "unable to upload report, remote return 4xx, file name is {}",
+                                            originalPath);
+                                    } else {
+                                        log.warn(
+                                            "unable to upload report, file name is {}, ex name {}",
+                                            originalPath, ex.getClass().getName());
+                                    }
+                                    //rename file
+                                    boolean b = unsendFile
+                                        .renameTo(
+                                            new File(
+                                                originalPath.replace(".txt", SENT_ERROR_SUFFIX +
+                                                    REPORT_EXTENSION)));
+                                    if (!b) {
+                                        throw new ReportRenameException();
+                                    }
                                 }
                             }
 
