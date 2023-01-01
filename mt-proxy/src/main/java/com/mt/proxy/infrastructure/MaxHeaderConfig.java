@@ -1,4 +1,4 @@
-package com.mt.proxy.infrastructure.spring_cloud_gateway;
+package com.mt.proxy.infrastructure;
 
 import org.springframework.boot.web.embedded.netty.NettyReactiveWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;

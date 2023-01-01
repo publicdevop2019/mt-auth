@@ -1,4 +1,4 @@
-package com.mt.proxy.infrastructure.spring_cloud_gateway;
+package com.mt.proxy.infrastructure;
 
 import com.netflix.loadbalancer.IPing;
 import com.netflix.loadbalancer.PingUrl;

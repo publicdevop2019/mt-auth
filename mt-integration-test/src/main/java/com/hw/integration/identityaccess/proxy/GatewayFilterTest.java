@@ -1,13 +1,7 @@
 package com.hw.integration.identityaccess.proxy;
 
 import static com.hw.helper.AppConstant.CLIENTS;
-import static com.hw.helper.AppConstant.USERS_ADMIN;
-import static com.hw.integration.identityaccess.proxy.EndpointTest.createProfile;
-import static com.hw.integration.identityaccess.proxy.EndpointTest.readProfile;
 
-import com.hw.helper.AppConstant;
-import com.hw.helper.Client;
-import com.hw.helper.EndpointInfo;
 import com.hw.helper.utility.ConcurrentUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
@@ -19,7 +13,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -100,7 +93,7 @@ public class GatewayFilterTest {
             log.error("error during call", ex);
             throw ex;
         }
-        String eTag = exchange2.getHeaders().get("Content-Encoding").get(0);
+        String eTag = exchange2.getHeaders().getFirst("Content-Encoding");
         Assert.assertEquals("gzip", eTag);
     }
 
@@ -202,6 +195,20 @@ public class GatewayFilterTest {
         ResponseEntity<String> exchange2 =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+    }
+
+    @Test
+    public void should_add_csrf_token_when_call_access() {
+        String url = UrlUtility.getAccessUrl("csrf");
+        HttpHeaders headers1 = new HttpHeaders();
+        TestRestTemplate restTemplate = new TestRestTemplate();
+        HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
+        ResponseEntity<String> exchange =
+            restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        String first = exchange.getHeaders().getFirst("set-cookie");
+        int sameSite = first == null ? -1 : first.indexOf("SameSite");
+        Assert.assertNotEquals(-1, sameSite);
     }
 
     @Test

@@ -395,14 +395,9 @@ public class ClientTest {
             });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "refresh_token");
-        params.add("refresh_token", jwtPasswordWithClient.getBody().getRefreshToken().getValue());
-        HttpHeaders headers2 = new HttpHeaders();
-        headers2.setBasicAuth(clientId, clientSecret);
-        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params, headers2);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange4 = TestContext.getRestTemplate()
-            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request2, DefaultOAuth2AccessToken.class);
+        ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
+            .getRefreshTokenResponse(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
+                clientId, clientSecret);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =
@@ -471,14 +466,9 @@ public class ClientTest {
             });
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add("grant_type", "refresh_token");
-        params.add("refresh_token", jwtPasswordWithClient.getBody().getRefreshToken().getValue());
-        HttpHeaders headers2 = new HttpHeaders();
-        headers2.setBasicAuth(clientId, clientSecret);
-        HttpEntity<MultiValueMap<String, String>> request2 = new HttpEntity<>(params, headers2);
-        ResponseEntity<DefaultOAuth2AccessToken> exchange4 = TestContext.getRestTemplate()
-            .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request2, DefaultOAuth2AccessToken.class);
+        ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
+            .getRefreshTokenResponse(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
+                clientId, clientSecret);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =

@@ -1,8 +1,6 @@
 package com.mt.proxy.domain;
 
 import com.google.json.JsonSanitizer;
-import com.mt.proxy.infrastructure.spring_cloud_gateway.ScgCustomFilter;
-import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;

@@ -1,6 +1,6 @@
 package com.mt.proxy.domain;
 
-import com.mt.proxy.infrastructure.spring_cloud_gateway.ScgRouteService;
+import com.mt.proxy.infrastructure.filter.ScgRouteService;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

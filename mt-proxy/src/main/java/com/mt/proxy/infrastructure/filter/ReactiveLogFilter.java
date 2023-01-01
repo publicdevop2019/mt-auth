@@ -1,10 +1,9 @@
-package com.mt.proxy.infrastructure;
+package com.mt.proxy.infrastructure.filter;
 
 import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
 import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
 
 import com.mt.proxy.domain.ReportService;
-import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,24 +22,18 @@ import reactor.core.publisher.Mono;
  */
 @Slf4j
 @Component
-public class ReactiveRequestLogFilter implements WebFilter, Ordered {
+public class ReactiveLogFilter implements WebFilter, Ordered {
     @Autowired
     ReportService reportService;
+
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         //clear previous value
         MDC.put(REQ_UUID, null);
+        MDC.put(REQ_CLIENT_IP, null);
         ServerHttpRequest request = exchange.getRequest();
-        List<String> uuidHeader = request.getHeaders().get(REQ_UUID);
-        List<String> clientIpHeader = request.getHeaders().get("X-FORWARDED-FOR");
-        String uuid = null;
-        if (uuidHeader != null && !uuidHeader.isEmpty()) {
-            uuid = uuidHeader.get(0);
-        }
-        String clientIp = null;
-        if (clientIpHeader != null && !clientIpHeader.isEmpty()) {
-            clientIp = clientIpHeader.get(0);
-        }
+        String uuid = request.getHeaders().getFirst(REQ_UUID);
+        String clientIp = request.getHeaders().getFirst("X-FORWARDED-FOR");
         if (clientIp != null && clientIp.length() > 0) {
             MDC.put(REQ_CLIENT_IP, clientIp);
         } else {
@@ -59,20 +52,22 @@ public class ReactiveRequestLogFilter implements WebFilter, Ordered {
         } else {
             MDC.put(REQ_UUID, uuid);
         }
-        ServerHttpResponse decoratedResponse = uuidResponseDecorator(exchange);
+        beforeCommitResponse(exchange);
         if (httpRequest != null) {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange.mutate().request(httpRequest).build());
             }
             reportService.logRequestDetails(exchange.getRequest());
             return chain
-                .filter(exchange.mutate().request(httpRequest).response(decoratedResponse).build());
+                .filter(exchange.mutate().request(httpRequest).build());
         } else {
             if ("websocket".equals(request.getHeaders().getUpgrade())) {
                 return chain.filter(exchange);
             }
             reportService.logRequestDetails(exchange.getRequest());
-            return chain.filter(exchange.mutate().response(decoratedResponse).build());
+            return chain.filter(exchange.mutate().build()).then(Mono.fromRunnable(()->{
+
+            }));
         }
     }
 
@@ -81,12 +76,23 @@ public class ReactiveRequestLogFilter implements WebFilter, Ordered {
         return Ordered.HIGHEST_PRECEDENCE;
     }
 
-    private ServerHttpResponse uuidResponseDecorator(ServerWebExchange exchange) {
+    private void beforeCommitResponse(ServerWebExchange exchange) {
         ServerHttpResponse originalResponse = exchange.getResponse();
-        List<String> uuidHeader = exchange.getRequest().getHeaders().get(REQ_UUID);
-        if (uuidHeader != null && !uuidHeader.isEmpty()) {
-            originalResponse.getHeaders().set(REQ_UUID, uuidHeader.get(0));
+        originalResponse.beforeCommit(()->{
+            checkHeader(exchange, REQ_UUID);
+            checkHeader(exchange, REQ_CLIENT_IP);
+            reportService.logResponseDetail(exchange.getResponse());
+            return Mono.empty();
+        });
+    }
+
+    private void checkHeader(ServerWebExchange exchange, String headerName) {
+        String reqHeader = exchange.getRequest().getHeaders().getFirst(headerName);
+        String respHeader = exchange.getResponse().getHeaders().getFirst(headerName);
+        if (respHeader == null && reqHeader != null) {
+            exchange.getResponse().getHeaders().set(headerName, reqHeader);
+        } else {
+            log.warn("missing request header, which should not happen");
         }
-        return originalResponse;
     }
 }
