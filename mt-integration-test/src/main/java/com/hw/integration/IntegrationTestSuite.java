@@ -7,7 +7,7 @@ import com.hw.integration.identityaccess.oauth2.PasswordFlowTest;
 import com.hw.integration.identityaccess.oauth2.UserTest;
 import com.hw.integration.identityaccess.proxy.CORSTest;
 import com.hw.integration.identityaccess.proxy.ClientApiSecurityTest;
-import com.hw.integration.identityaccess.proxy.EndpointTest;
+import com.hw.integration.identityaccess.oauth2.EndpointTest;
 import com.hw.integration.identityaccess.proxy.GatewayFilterTest;
 import com.hw.integration.identityaccess.proxy.JwtSecurityTest;
 import com.hw.integration.identityaccess.proxy.RevokeTokenTest;

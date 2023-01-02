@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.identityaccess.oauth2;
 
 import com.hw.helper.EndpointInfo;
 import com.hw.helper.SumTotal;
@@ -94,7 +94,7 @@ public class EndpointTest {
         endpointInfo.getUserRoles().add("ROLE_ROOT");
 
         ResponseEntity<String> stringResponseEntity =
-            updateProfile(endpointInfo, endpointInfo.getId());
+            updateEndpoint(endpointInfo, endpointInfo.getId());
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
         //after modify, admin is not able to access resourceOwner apis
         try {
@@ -111,7 +111,7 @@ public class EndpointTest {
         endpointInfo.getUserRoles().add("ROLE_ADMIN");
         endpointInfo.setVersion(endpointInfo.getVersion() + 1);
         ResponseEntity<String> stringResponseEntity1 =
-            updateProfile(endpointInfo, endpointInfo.getId());
+            updateEndpoint(endpointInfo, endpointInfo.getId());
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity1.getStatusCode());
         try {
             Thread.sleep(15 * 1000);//wait for cache update
@@ -141,11 +141,11 @@ public class EndpointTest {
         ResponseEntity<String> profile = createProfile(endpointInfo1);
         Assert.assertEquals(HttpStatus.OK, profile.getStatusCode());
         ResponseEntity<String> stringResponseEntity =
-            deleteProfile(profile.getHeaders().getLocation().toString());
+            deleteEndpoint(profile.getHeaders().getLocation().toString());
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
     }
 
-    private ResponseEntity<String> updateProfile(EndpointInfo endpointInfo, String id) {
+    private ResponseEntity<String> updateEndpoint(EndpointInfo endpointInfo, String id) {
         String url = UrlUtility.getAccessUrl(ENDPOINTS + "/" + id);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
@@ -154,7 +154,7 @@ public class EndpointTest {
             .exchange(url, HttpMethod.PUT, hashMapHttpEntity1, String.class);
     }
 
-    private ResponseEntity<String> deleteProfile(String id) {
+    private ResponseEntity<String> deleteEndpoint(String id) {
         String url = UrlUtility.getAccessUrl(ENDPOINTS + "/" + id);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());

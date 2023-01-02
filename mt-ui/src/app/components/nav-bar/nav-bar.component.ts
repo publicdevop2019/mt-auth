@@ -323,4 +323,8 @@ export class NavBarComponent implements OnInit {
   filterDuplicate(msgs: IBellNotification[]) {
     return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
   }
+  bellCount(msgs: IBellNotification[]){
+    const count=msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
+    return count>99?'99+':new String(count);
+  }
 }

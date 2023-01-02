@@ -1,7 +1,5 @@
 package com.mt.proxy.infrastructure.filter;
 
-import static com.mt.proxy.domain.Utility.isWebSocket;
-
 import com.google.json.JsonSanitizer;
 import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
@@ -27,7 +25,6 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUpload;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
-import org.bouncycastle.util.encoders.Base64;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,9 +65,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     @Autowired
     CacheService cacheService;
 
-    public static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
-                                                             HttpHeaders headers,
-                                                             CachedBodyOutputMessage outputMessage) {
+    private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
+                                                              HttpHeaders headers,
+                                                              CachedBodyOutputMessage outputMessage) {
         return new ServerHttpRequestDecorator(exchange.getRequest()) {
             public HttpHeaders getHeaders() {
                 HttpHeaders httpHeaders = new HttpHeaders();
@@ -84,7 +81,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         };
     }
 
-    public static byte[] getResponseBody(List<DataBuffer> dataBuffers) throws IOException {
+    private static byte[] getResponseBody(List<DataBuffer> dataBuffers) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             dataBuffers.forEach(i -> {
                 byte[] array = new byte[i.readableByteCount()];
@@ -96,121 +93,58 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
     }
 
-    public static ServerHttpResponse updateResponseWithEtag(ServerWebExchange exchange) {
-        ServerHttpResponse originalResponse = exchange.getResponse();
-        DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-        return new ServerHttpResponseDecorator(originalResponse) {
-            @Override
-            public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-
-                Flux<DataBuffer> flux;
-                if (body instanceof Mono) {
-                    Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
-                    body = mono.flux();
-                }
-                if (body instanceof Flux) {
-                    flux = (Flux<DataBuffer>) body;
-                    return super.writeWith(flux.buffer().map(dataBuffers -> {
-                        byte[] responseBody = new byte[0];
-                        try {
-                            responseBody = getResponseBody(dataBuffers);
-                        } catch (IOException e) {
-                            log.error("error during read response", e);
-                            originalResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                            return bufferFactory.wrap(responseBody);
-                        }
-                        if (HttpStatus.OK.equals(exchange.getResponse().getStatusCode())) {
-                            // length of W/ + " + 0 + 32bits md5 hash + "
-                            StringBuilder builder = new StringBuilder(37);
-                            builder.append("W/");
-                            builder.append("\"0");
-                            DigestUtils.appendMd5DigestAsHex(responseBody, builder);
-                            builder.append('"');
-                            String etag = builder.toString();
-                            if (exchange.getRequest().getHeaders().getIfNoneMatch().isEmpty()) {
-                                originalResponse.getHeaders().setETag(etag);
-                                log.debug("response etag generated {}", etag);
-                            } else {
-                                String ifNoneMatch =
-                                    exchange.getRequest().getHeaders().getIfNoneMatch().get(0);
-                                if (ifNoneMatch.equals(etag)) {
-                                    ServerHttpResponse response = exchange.getResponse();
-                                    log.debug("etag match, return 304");
-                                    response.setStatusCode(HttpStatus.NOT_MODIFIED);
-                                }
-                            }
-                        }
-                        return bufferFactory.wrap(responseBody);
-                    }));
-                }
-                return super.writeWith(body);
+    private static byte[] sanitizeResp(byte[] responseBody, ServerHttpResponse originalResponse) {
+        HttpHeaders headers = originalResponse.getHeaders();
+        if (MediaType.APPLICATION_JSON_UTF8.equals(headers.getContentType())) {
+            String responseBodyString =
+                new String(responseBody, StandardCharsets.UTF_8);
+            String afterSanitize = JsonSanitizer.sanitize(responseBodyString);
+            byte[] bytes = afterSanitize.getBytes(StandardCharsets.UTF_8);
+            if (headers.getContentLength()
+                !=
+                afterSanitize.getBytes(StandardCharsets.UTF_8).length) {
+                log.debug("sanitized response length before {} after {}",
+                    responseBody.length, bytes.length);
+                headers.setContentLength(bytes.length);
             }
-        };
+            return bytes;
+        }
+        return responseBody;
     }
 
-    /**
-     * zip response, this requires to read response to know if needed or not
-     *
-     * @param exchange ServerWebExchange
-     * @param context
-     * @return ServerHttpResponse
-     */
-    public static ServerHttpResponse checkZipResponse(ServerWebExchange exchange,
-                                                      CustomFilterContext context) {
-        ServerHttpResponse originalResponse = exchange.getResponse();
-        DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-        return new ServerHttpResponseDecorator(originalResponse) {
-            @Override
-            public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                if (originalResponse.getHeaders().getContentType() != null
-                    && originalResponse.getHeaders().getContentType()
-                    .equals(MediaType.APPLICATION_JSON_UTF8)
-                    && !context.isWebsocket
+    private static boolean responseError(ServerHttpResponse originalResponse) {
+        log.debug("checking response in case of downstream error");
+        boolean b = originalResponse.getStatusCode() != null
+            &&
+            originalResponse.getStatusCode().is5xxServerError();
+        if (b) {
+            originalResponse.getHeaders().setContentLength(0);
+        }
+        return b;
+    }
 
-                ) {
-                    Flux<DataBuffer> flux;
-                    if (body instanceof Mono) {
-                        Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
-                        body = mono.flux();
-                    }
-                    if (body instanceof Flux) {
-                        flux = (Flux<DataBuffer>) body;
-                        boolean finalIsJson = true;
-                        return super.writeWith(flux.buffer().map(dataBuffers -> {
-                            log.trace("inside flushing");
-                            byte[] responseBody = new byte[0];
-                            try {
-                                responseBody = getResponseBody(dataBuffers);
-                            } catch (IOException e) {
-                                log.error("error during read response", e);
-                                originalResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                                return bufferFactory.wrap(responseBody);
-                            }
-                            boolean minLength = responseBody.length > 1024;
-                            if (minLength && finalIsJson) {
-                                byte[] compressed = new byte[0];
-                                try {
-                                    compressed = compress(responseBody);
-                                } catch (IOException e) {
-                                    log.error("error during compress", e);
-                                }
-                                log.debug("gzip response length before {} after {}",
-                                    responseBody.length, compressed.length);
-                                originalResponse.getHeaders().setContentLength(compressed.length);
-                                originalResponse.getHeaders()
-                                    .set(HttpHeaders.CONTENT_ENCODING, "gzip");
-                                return bufferFactory.wrap(compressed);
-                            } else {
-                                return bufferFactory.wrap(responseBody);
-                            }
-                        }));
-                    }
-                } else {
-                    return super.writeWith(body);
+    private static byte[] updateGzip(byte[] responseBody, ServerHttpResponse originalResponse) {
+        if (originalResponse.getHeaders().getContentType() != null
+            && originalResponse.getHeaders().getContentType()
+            .equals(MediaType.APPLICATION_JSON_UTF8)
+        ) {
+            boolean minLength = responseBody.length > 1024;
+            if (minLength) {
+                byte[] compressed = new byte[0];
+                try {
+                    compressed = compress(responseBody);
+                } catch (IOException e) {
+                    log.error("error during compress", e);
                 }
-                return super.writeWith(body);
+                log.debug("gzip response length before {} after {}",
+                    responseBody.length, compressed.length);
+                originalResponse.getHeaders().setContentLength(compressed.length);
+                originalResponse.getHeaders()
+                    .set(HttpHeaders.CONTENT_ENCODING, "gzip");
+                return compressed;
             }
-        };
+        }
+        return responseBody;
     }
 
     private static byte[] compress(byte[] data) throws IOException {
@@ -228,6 +162,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         CustomFilterContext context = new CustomFilterContext();
         ServerHttpRequest request = exchange.getRequest();
         context.isWebsocket = Utility.isWebSocket(request.getHeaders());
+        context.authHeader = Utility.getAuthHeader(request);
         ServerHttpResponse response = exchange.getResponse();
         checkEndpoint(exchange, context);
         if (context.hasCheckFailed()) {
@@ -241,14 +176,15 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 return response.setComplete();
             }
         }
-        Mono<ServerHttpRequest> requestMono =
-            checkRevokeToken(exchange, context);
+        Mono<ServerHttpRequest> requestMono = checkReqBeforeSend(exchange, context);
+
         if (context.hasCheckFailed()) {
             response.setStatusCode(context.httpErrorStatus);
             return response.setComplete();
         }
         if (context.isWebsocket) {
             //for websocket only endpoint & token check is performed
+            //@todo fix token check for websocket
             return requestMono.flatMap(req -> {
                 if (context.hasCheckFailed()) {
                     response.setStatusCode(context.httpErrorStatus);
@@ -257,176 +193,94 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange);
             });
         }
-        ServerHttpResponse csrfResp = responseDecorator(exchange);
-        checkCacheHeaderConfig(exchange);
-        ServerHttpResponse etagResp = checkEtagConfig(exchange, context);
-        //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
-        ServerWebExchange newExchange = exchange.mutate().response(etagResp).build();
 
-        ServerHttpResponse zipResp = checkZipResponse(newExchange, context);
-        //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
-        ServerWebExchange newExchange2 = newExchange.mutate().response(zipResp).build();
-
-        ServerHttpResponse sanitizeResp = responseJsonSanitizer(newExchange2, context);
-        //update response decorator so it will not get overwritten, if Mono<ServerHttpResponse>, maybe this will not happen
-        ServerWebExchange newExchange3 = newExchange.mutate().response(sanitizeResp).build();
-
-        ServerHttpResponse errorResp = errorResponseDecorator(newExchange3, context);
-
-
-        Mono<ServerHttpRequest> sanitizedRequestMono = sanitizeRequest(newExchange3, context);
-
+        ServerHttpResponse updatedResp = updateResponse(exchange);
 
         return requestMono.flatMap(req -> {
             if (context.hasCheckFailed()) {
                 response.setStatusCode(context.httpErrorStatus);
                 return response.setComplete();
             }
-            return sanitizedRequestMono.flatMap(sanitizedReq -> {
-
-                if (context.requestCopiedRevokeToken && context.requestCopiedSanitize) {
-                    if (context.etagRequired) {
-                        return chain.filter(exchange.mutate().request(req).request(sanitizedReq)
-                            .response(csrfResp).response(etagResp).response(zipResp)
-                            .response(sanitizeResp).response(errorResp).build());
-                    }
-                    return chain.filter(exchange.mutate().request(req).request(sanitizedReq)
-                        .response(csrfResp).response(zipResp).response(sanitizeResp)
-                        .response(errorResp).build());
-                } else if (context.requestCopiedRevokeToken) {
-                    if (context.etagRequired) {
-                        return chain
-                            .filter(
-                                exchange.mutate().request(req).response(csrfResp)
-                                    .response(etagResp).response(zipResp).response(sanitizeResp)
-                                    .response(errorResp)
-                                    .build());
-
-
-                    }
-                    return chain
-                        .filter(exchange.mutate().request(req).response(csrfResp).response(zipResp)
-                            .response(sanitizeResp).response(errorResp)
-                            .build());
-                } else if (context.requestCopiedSanitize) {
-                    if (context.etagRequired) {
-                        return chain.filter(
-                            exchange.mutate().request(sanitizedReq).response(csrfResp)
-                                .response(etagResp).response(zipResp).response(sanitizeResp)
-                                .response(errorResp)
-                                .build());
-                    }
-                    return chain.filter(
-                        exchange.mutate().request(sanitizedReq).response(csrfResp).response(zipResp)
-                            .response(sanitizeResp).response(errorResp)
-                            .build());
-                }
-                if (context.etagRequired) {
-                    return chain
-                        .filter(exchange.mutate().response(csrfResp).response(etagResp)
-                            .response(zipResp).response(sanitizeResp).response(errorResp)
-                            .build());
-                }
-                return chain.filter(
-                    exchange.mutate().response(csrfResp).response(zipResp).response(sanitizeResp)
-                        .response(errorResp)
-                        .build());
-            });
+            if (context.bodyCopied) {
+                return chain.filter(exchange.mutate().request(req).response(updatedResp).build());
+            } else {
+                return chain.filter(exchange.mutate().response(updatedResp).build());
+            }
         });
     }
 
-    private ServerHttpResponse errorResponseDecorator(ServerWebExchange exchange,
-                                                      CustomFilterContext context) {
-        ServerHttpResponse originalResponse = exchange.getResponse();
-        return new ServerHttpResponseDecorator(originalResponse) {
-            @Override
-            public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                log.debug("checking response in case of downstream error");
-                if (originalResponse.getStatusCode() != null
-                    &&
-                    originalResponse.getStatusCode().is5xxServerError() && !context.isWebsocket) {
-                    originalResponse.getHeaders().setContentLength(0);
-                    return Mono.empty();
-                }
-                return super.writeWith(body);
-            }
-        };
-    }
-
-    private ServerHttpResponse responseJsonSanitizer(ServerWebExchange exchange,
-                                                     CustomFilterContext context) {
+    private ServerHttpResponse updateResponse(ServerWebExchange exchange) {
+        addCsrfHeader(exchange);
+        addCacheHeader(exchange);
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                log.trace("inside [writeWith] handler");
-                HttpHeaders headers = originalResponse.getHeaders();
-                if (MediaType.APPLICATION_JSON_UTF8.equals(headers.getContentType()) &&
-                    !context.isWebsocket) {
-                    Flux<DataBuffer> flux;
-                    if (body instanceof Mono) {
-                        Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
-                        body = mono.flux();
-                    }
-                    if (body instanceof Flux) {
-                        flux = (Flux<DataBuffer>) body;
-                        return super.writeWith(flux.buffer().map(dataBuffers -> {
-                            log.trace("inside flushing");
-                            byte[] responseBody = new byte[0];
-                            try {
-                                responseBody = getResponseBody(dataBuffers);
-                            } catch (IOException e) {
-                                log.error("error during read response", e);
-                                originalResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
-                                return bufferFactory.wrap(responseBody);
-                            }
-                            String responseBodyString =
-                                new String(responseBody, StandardCharsets.UTF_8);
-                            String afterSanitize = JsonSanitizer.sanitize(responseBodyString);
-                            byte[] bytes = afterSanitize.getBytes(StandardCharsets.UTF_8);
-                            if (headers.getContentLength()
-                                !=
-                                afterSanitize.getBytes(StandardCharsets.UTF_8).length) {
-                                log.debug("sanitized response length before {} after {}",
-                                    responseBody.length, bytes.length);
-                            }
-                            headers.setContentLength(bytes.length);
-                            return bufferFactory.wrap(bytes);
-                        }));
-                    }
+                boolean b = responseError(originalResponse);
+                if (b) {
+                    return Mono.empty();
+                }
+                Flux<DataBuffer> flux;
+                if (body instanceof Mono) {
+                    Mono<? extends DataBuffer> mono = (Mono<? extends DataBuffer>) body;
+                    body = mono.flux();
+                }
+                if (body instanceof Flux) {
+                    flux = (Flux<DataBuffer>) body;
+                    return super.writeWith(flux.buffer().map(dataBuffers -> {
+                        byte[] responseBody = new byte[0];
+                        try {
+                            responseBody = getResponseBody(dataBuffers);
+                        } catch (IOException e) {
+                            log.error("error during read response", e);
+                            originalResponse.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
+                            return bufferFactory.wrap(responseBody);
+                        }
+                        //below order is important
+                        byte[] sanitizedBody = sanitizeResp(responseBody, originalResponse);
+                        byte[] zippedBody = updateGzip(sanitizedBody, originalResponse);
+                        updateEtag(zippedBody, exchange, originalResponse);
+                        return bufferFactory.wrap(zippedBody);
+                    }));
                 }
                 return super.writeWith(body);
             }
+
         };
     }
 
-    private ServerHttpResponse checkEtagConfig(ServerWebExchange exchange,
-                                               CustomFilterContext context) {
-        ServerHttpRequest request = exchange.getRequest();
-        if (!context.isWebsocket
-            &&
-            HttpMethod.GET.equals(request.getMethod())) {
-            //check etag first
-            log.debug("start of etag filter");
-            CacheConfiguration cacheConfiguration =
-                cacheService.getCacheConfiguration(exchange, true);
-            if (cacheConfiguration != null) {
-                ServerHttpResponse decoratedResponse = updateResponseWithEtag(exchange);
-                if (cacheConfiguration.isEtag()) {
-                    context.etagGenerated();
-                    return decoratedResponse;
+    private void updateEtag(byte[] responseBody, ServerWebExchange exchange,
+                            ServerHttpResponse originalResponse) {
+        CacheConfiguration cacheConfiguration =
+            cacheService.getCacheConfiguration(exchange, true);
+        if (cacheConfiguration != null && cacheConfiguration.isEtag() &&
+            HttpStatus.OK.equals(exchange.getResponse().getStatusCode())) {
+            // length of W/ + " + 0 + 32bits md5 hash + "
+            StringBuilder builder = new StringBuilder(37);
+            builder.append("W/");
+            builder.append("\"0");
+            DigestUtils.appendMd5DigestAsHex(responseBody, builder);
+            builder.append('"');
+            String etag = builder.toString();
+            if (exchange.getRequest().getHeaders().getIfNoneMatch().isEmpty()) {
+                originalResponse.getHeaders().setETag(etag);
+                log.debug("response etag generated {}", etag);
+            } else {
+                String ifNoneMatch =
+                    exchange.getRequest().getHeaders().getIfNoneMatch().get(0);
+                if (ifNoneMatch.equals(etag)) {
+                    ServerHttpResponse response = exchange.getResponse();
+                    log.debug("etag match, return 304");
+                    response.setStatusCode(HttpStatus.NOT_MODIFIED);
                 }
             }
         }
-        return exchange.getResponse();
     }
 
-    private void checkCacheHeaderConfig(ServerWebExchange exchange) {
+    private void addCacheHeader(ServerWebExchange exchange) {
         ServerHttpRequest request = exchange.getRequest();
-        if (!isWebSocket(request.getHeaders())
-            &&
-            HttpMethod.GET.equals(request.getMethod())) {
+        if (HttpMethod.GET.equals(request.getMethod())) {
             exchange.getResponse().beforeCommit(() -> {
                 CacheConfiguration cacheConfiguration =
                     cacheService.getCacheConfiguration(exchange, false);
@@ -467,7 +321,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
      * @param exchange ServerWebExchange
      * @return decorated response
      */
-    private ServerHttpResponse responseDecorator(ServerWebExchange exchange) {
+    private ServerHttpResponse addCsrfHeader(ServerWebExchange exchange) {
         if (exchange.getRequest().getCookies().get("XSRF-TOKEN") == null
             &&
             exchange.getRequest().getHeaders().get("x-xsrf-token") == null) {
@@ -478,47 +332,47 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         return exchange.getResponse();
     }
 
-
-    private Mono<ServerHttpRequest> sanitizeRequest(ServerWebExchange exchange,
-                                                    CustomFilterContext context) {
+    private Mono<ServerHttpRequest> checkReqBeforeSend(ServerWebExchange exchange,
+                                                       CustomFilterContext context) {
         ServerHttpRequest request = exchange.getRequest();
-        if (jsonSanitizeService
-            .sanitizeRequired(request.getMethod(), request.getHeaders().getContentType())) {
-
-            Mono<String> sanitizedBody = sanitizeRequestBody(exchange, context);
-
-            BodyInserter<Mono<String>, ReactiveHttpOutputMessage>
-                bodyInserter = BodyInserters.fromPublisher(sanitizedBody, String.class);
-            HttpHeaders headers = new HttpHeaders();
-            headers.putAll(exchange.getRequest().getHeaders());
-            CachedBodyOutputMessage outputMessage =
-                new CachedBodyOutputMessage(exchange, headers);
-            context.requestCopiedForSanitize();
-            return bodyInserter.insert(outputMessage, new BodyInserterContext())
-                .then(Mono.defer(() -> {
-                    headers.setContentLength(context.sanitizedContentLength);
-                    ServerHttpRequest decorator = decorateRequest(exchange, headers, outputMessage);
-                    return Mono.just(decorator);
-                }));
-        } else {
-            return Mono.just(exchange.getRequest());
-        }
-    }
-
-    private Mono<ServerHttpRequest> checkRevokeToken(ServerWebExchange exchange,
-                                                     CustomFilterContext context) {
-        ServerHttpRequest request = exchange.getRequest();
-        String authHeader = null;
-        List<String> authorization = request.getHeaders().get("authorization");
-        if (authorization != null && !authorization.isEmpty()) {
-            authHeader = authorization.get(0);
-        }
         //due to netty performance issue
-        if (request.getPath().toString().contains("/oauth/token")) {
-            log.debug("checking revoke token");
-            Mono<String> modifiedBody =
-                readFormDataFromRequest(exchange, authHeader, request.getPath().toString(),
-                    context);
+        if (Utility.isTokenRequest(request)
+            ||
+            jsonSanitizeService
+                .sanitizeRequired(request.getMethod(), request.getHeaders().getContentType())) {
+            context.bodyReadRequired();
+            ServerRequest serverRequest =
+                ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
+            Mono<String> modifiedBody = serverRequest.bodyToMono(String.class).map(body -> {
+                if (Utility.isTokenRequest(request)) {
+                    Map<String, String> parameters;
+                    try {
+                        MultiPartStringParser
+                            multiPartStringParser = new MultiPartStringParser(body);
+                        parameters = multiPartStringParser.getParameters();
+                    } catch (Exception e) {
+                        log.error("error during parse form data", e);
+                        context.formParseError();
+                        return body;
+                    }
+                    try {
+                        if (!DomainRegistry.getRevokeTokenService()
+                            .checkAccess(context.authHeader, request.getPath().toString(),
+                                parameters)) {
+                            context.tokenRevoked();
+                        }
+                    } catch (ParseException e) {
+                        log.error("error during parse", e);
+                        context.tokenCheckError();
+                        return body;
+                    }
+                } else {
+                    String sanitize = jsonSanitizeService.sanitizeRequest(body);
+                    context.sanitizedContentLength = sanitize.getBytes().length;
+                    return sanitize;
+                }
+                return body;
+            });
             BodyInserter<Mono<String>, ReactiveHttpOutputMessage>
                 bodyInserter = BodyInserters.fromPublisher(modifiedBody, String.class);
             HttpHeaders headers = new HttpHeaders();
@@ -526,12 +380,17 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             CachedBodyOutputMessage
                 outputMessage = new CachedBodyOutputMessage(exchange, headers);
             Mono<Void> insert = bodyInserter.insert(outputMessage, new BodyInserterContext());
-            context.requestCopiedForRevokeToken();
-            return insert.then(Mono.just(decorateRequest(exchange, headers, outputMessage)));
+            return insert.then(Mono.defer(() -> {
+                if (jsonSanitizeService
+                    .sanitizeRequired(request.getMethod(), request.getHeaders().getContentType())) {
+                    headers.setContentLength(context.sanitizedContentLength);
+                }
+                return Mono.just(decorateRequest(exchange, headers, outputMessage));
+            }));
         } else {
             try {
                 if (!DomainRegistry.getRevokeTokenService()
-                    .checkAccess(authHeader, request.getPath().toString(), null)) {
+                    .checkAccess(context.authHeader, request.getPath().toString(), null)) {
                     context.tokenRevoked();
                     return Mono.just(request);
                 }
@@ -545,36 +404,16 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     private void checkEndpoint(ServerWebExchange exchange, CustomFilterContext context) {
-        log.debug("start of endpoint filter");
-        String authHeader = null;
+        log.debug("start of check endpoint");
         ServerHttpRequest request = exchange.getRequest();
-        log.debug("endpoint path: {} scheme: {}", exchange.getRequest().getURI().getPath(),
+        log.trace("endpoint path: {} scheme: {}", exchange.getRequest().getURI().getPath(),
             exchange.getRequest().getURI().getScheme());
-        ServerHttpResponse response = exchange.getResponse();
-        HttpHeaders headers = request.getHeaders();
-        List<String> temp;
-        boolean webSocket = false;
-        if (isWebSocket(headers)) {
-            log.debug("current request is websocket");
-            webSocket = true;
-            temp = request.getQueryParams().get("jwt");
-            if (temp != null && !temp.isEmpty()) {
-                authHeader = "Bearer " + new String(Base64.decode(temp.get(0)));
-            }
-        } else {
-            log.debug("current request is not websocket");
-            temp = headers.get("authorization");
-            if (temp != null && !temp.isEmpty()) {
-                authHeader = temp.get(0);
-            }
-        }
         boolean allow;
         try {
-            //noinspection ConstantConditions
             allow = DomainRegistry.getEndpointService().checkAccess(
                 request.getPath().toString(),
                 request.getMethod().name(),
-                authHeader, webSocket);
+                context.authHeader, context.isWebsocket);
         } catch (ParseException e) {
             log.error("error during parse", e);
             context.endpointCheckError();
@@ -586,7 +425,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             return;
         }
         log.debug("access is allowed");
-        log.debug("end of endpoint filter");
+        log.debug("end of check endpoint");
         context.endpointCheckSuccess();
     }
 
@@ -613,48 +452,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE + 1;
-    }
-
-    private Mono<String> sanitizeRequestBody(ServerWebExchange exchange,
-                                             CustomFilterContext context) {
-        ServerRequest serverRequest =
-            ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
-        return serverRequest.bodyToMono(String.class).map(e -> {
-            String sanitize = jsonSanitizeService.sanitizeRequest(e);
-            context.sanitizedContentLength = sanitize.getBytes().length;
-            return sanitize;
-        });
-    }
-
-    public Mono<String> readFormDataFromRequest(ServerWebExchange exchange, String authHeader,
-                                                String requestUri,
-                                                CustomFilterContext customFilterContext) {
-
-        ServerRequest serverRequest =
-            ServerRequest.create(exchange, HandlerStrategies.withDefaults().messageReaders());
-        return serverRequest.bodyToMono(String.class).map(body -> {
-            Map<String, String> parameters;
-            try {
-                MultiPartStringParser
-                    multiPartStringParser = new MultiPartStringParser(body);
-                parameters = multiPartStringParser.getParameters();
-            } catch (Exception e) {
-                log.error("error during parse form data", e);
-                customFilterContext.formParseError();
-                return body;
-            }
-            try {
-                if (!DomainRegistry.getRevokeTokenService()
-                    .checkAccess(authHeader, requestUri, parameters)) {
-                    customFilterContext.tokenRevoked();
-                }
-            } catch (ParseException e) {
-                log.error("error during parse", e);
-                customFilterContext.tokenCheckError();
-                return body;
-            }
-            return body;
-        });
     }
 
     public static class CachedBodyOutputMessage implements ReactiveHttpOutputMessage {
@@ -713,8 +510,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         private boolean requestCopiedSanitize = false;
         private boolean requestCopiedRevokeToken = false;
         private boolean tokenCheckFailed;
-        private boolean etagRequired;
         private boolean isWebsocket;
+        private String authHeader;
+        private boolean bodyCopied = false;
 
         public void endpointCheckError() {
             this.endpointCheckFailed = true;
@@ -754,24 +552,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             this.httpErrorStatus = HttpStatus.BAD_REQUEST;
         }
 
-        public void requestCopiedForRevokeToken() {
-            this.requestCopiedRevokeToken = true;
-        }
+        public void bodyReadRequired() {
+            this.bodyCopied = true;
 
-        public void requestCopiedForSanitize() {
-            this.requestCopiedSanitize = true;
-        }
-
-        public void etagGenerated() {
-            this.etagRequired = true;
-        }
-
-        public boolean responseSanitizeRequired() {
-            return !this.isWebsocket;
-        }
-
-        public boolean responseErrorCheckRequire() {
-            return !this.isWebsocket;
         }
     }
 

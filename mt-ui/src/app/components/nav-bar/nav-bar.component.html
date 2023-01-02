@@ -9,7 +9,7 @@
             <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}</div>
         </div>
         <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
-            <mat-icon matBadge="{{filterDuplicate(msgSvc.latestMessage).length}}" matBadgeOverlap="false" matBadgeSize="small"
+            <mat-icon matBadge="{{bellCount(msgSvc.latestMessage)}}" matBadgeOverlap="false" matBadgeSize="small"
                 matBadgeColor="accent">notifications_none
             </mat-icon>
         </button>
