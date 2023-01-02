@@ -10,8 +10,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class RevokeTokenService {
 
-    public boolean checkAccess(String authHeader, String requestUri,
-                               Map<String, String> requestBody) throws ParseException {
+    public boolean revoked(String authHeader, String requestUri,
+                           Map<String, String> requestBody) {
         if ((authHeader != null && authHeader.contains("Bearer"))
             ||
             (requestUri.contains("/oauth/token") && requestBody != null
@@ -24,25 +24,34 @@ public class RevokeTokenService {
             } else {
                 jwtRaw = requestBody.get("refresh_token");
             }
-            Long issueAt = DomainRegistry.getJwtService().getIssueAt(jwtRaw);
-            String userId = DomainRegistry.getJwtService().getUserId(jwtRaw);
-            String clientId = DomainRegistry.getJwtService().getClientId(jwtRaw);
-            boolean allowUser = true;
-            boolean allowClient = true;
+
+            Long issueAt;
+            String userId;
+            String clientId;
+            try {
+                issueAt = DomainRegistry.getJwtService().getIssueAt(jwtRaw);
+                userId = DomainRegistry.getJwtService().getUserId(jwtRaw);
+                clientId = DomainRegistry.getJwtService().getClientId(jwtRaw);
+            } catch (ParseException e) {
+                log.error("error during parse", e);
+                return true;
+            }
+            boolean userTokenRevoked = false;
+            boolean clientTokenRevoked = false;
             if (userId != null) {
-                allowUser = notBlocked(userId, issueAt);
+                userTokenRevoked = revoked(userId, issueAt);
             }
             if (clientId != null) {
-                allowClient = notBlocked(clientId, issueAt);
+                clientTokenRevoked = revoked(clientId, issueAt);
             }
-            return allowUser && allowClient;
+            return userTokenRevoked || clientTokenRevoked;
         }
-        return true;
+        return false;
     }
 
-    private boolean notBlocked(String id, Long iat) {
+    private boolean revoked(String id, Long iat) {
         Optional<RevokeToken> optionalRevokeToken =
             DomainRegistry.getRevokeTokenRepository().revokeToken(id);
-        return optionalRevokeToken.isEmpty() || optionalRevokeToken.get().getIssuedAt() < iat;
+        return optionalRevokeToken.isPresent() && optionalRevokeToken.get().getIssuedAt() >= iat;
     }
 }

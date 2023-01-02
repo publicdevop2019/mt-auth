@@ -68,18 +68,24 @@ public class EndpointService {
     }
 
     public boolean checkAccess(String requestUri, String method, @Nullable String authHeader,
-                               boolean webSocket) throws ParseException {
+                               boolean webSocket) {
         if (webSocket) {
             if (authHeader == null) {
-                log.debug("return 403 due to empty auth info");
+                log.debug("check failure due to empty auth info");
                 return false;
             }
             if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
-                log.debug("return 403 due to jwt failed for verification");
+                log.debug("check failure due to jwt failed for verification");
                 return false;
             } else {
                 //check roles
-                return checkAccessByPermissionId(requestUri, method, authHeader, true);
+                try {
+                    return checkAccessByPermissionId(requestUri, method, authHeader, true);
+                } catch (ParseException e) {
+                    log.error("error during parse", e);
+                    log.debug("check failure due to parse error");
+                    return false;
+                }
             }
         }
         if (requestUri.contains("/oauth/token") || requestUri.contains("/oauth/token_key")) {
@@ -87,7 +93,7 @@ public class EndpointService {
             return true;
         } else if (authHeader == null || !authHeader.contains("Bearer")) {
             if (cached.size() == 0) {
-                log.debug("return 403 due to cached endpoints are empty");
+                log.debug("check failure due to cached endpoints are empty");
                 return false;
             }
             List<Endpoint> collect1 = cached.stream().filter(e -> !e.isSecured()).filter(
@@ -95,7 +101,7 @@ public class EndpointService {
                 .collect(Collectors.toList());
             if (collect1.size() == 0) {
                 log.debug(
-                    "return 403 due to un-registered public "
+                    "check failure due to un-registered public "
                         +
                         "endpoints or no authentication info found");
                 return false;
@@ -103,7 +109,13 @@ public class EndpointService {
                 return true;
             }
         } else if (authHeader.contains("Bearer")) {
-            return checkAccessByPermissionId(requestUri, method, authHeader, false);
+            try {
+                return checkAccessByPermissionId(requestUri, method, authHeader, false);
+            } catch (ParseException e) {
+                log.error("error during parse", e);
+                log.debug("check failure due to parse error");
+                return false;
+            }
         } else {
             log.debug("return 403 due to un-registered endpoints");
             return false;

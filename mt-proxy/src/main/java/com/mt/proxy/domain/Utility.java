@@ -2,6 +2,8 @@ package com.mt.proxy.domain;
 
 import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -36,5 +38,35 @@ public class Utility {
     }
     public static boolean isTokenRequest(ServerHttpRequest request){
         return request.getPath().toString().contains("/oauth/token");
+    }
+
+    public static Map<String, String> readFormData(String body) throws IndexOutOfBoundsException {
+        Map<String, String> parameters = new HashMap<>();
+        String stripEndingDash = body.substring(0, body.length() - 4);
+        String boundary = stripEndingDash.substring(0, stripEndingDash.indexOf('\n') + 1);
+        String replace = stripEndingDash.replaceFirst(boundary, "");
+        String[] split = replace.split(boundary);
+        for (String s : split) {
+            String[] split1 = s.split("\r\n");
+            String s1 = split1[0];
+            String key =
+                s1.replace("Content-Disposition: form-data; name=\"", "").replace("\"", "");
+            String value = split1[4];
+            parameters.put(key, value);
+        }
+        return parameters;
+    }
+
+    public static String getClientIp(ServerHttpRequest request) {
+        String clientIp = "NOT_FOUND";
+        String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
+        if (first != null) {
+            clientIp = first;
+        } else {
+            if (request.getRemoteAddress() != null) {
+                clientIp = request.getRemoteAddress().toString();
+            }
+        }
+        return clientIp;
     }
 }

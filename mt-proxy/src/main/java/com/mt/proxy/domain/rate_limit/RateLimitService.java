@@ -41,9 +41,9 @@ public class RateLimitService {
         String tokenKey;
         if (endpoint.isSecured()) {
             //for protected
-            List<String> authorization = headers.get("authorization");
-            if (authorization != null && !authorization.isEmpty()) {
-                String bearer_ = authorization.get(0).replace("Bearer ", "");
+           String authorization = headers.getFirst("authorization");
+            if (authorization != null) {
+                String bearer_ = authorization.replace("Bearer ", "");
                 try {
                     String projectId = DomainRegistry.getJwtService().getProjectId(bearer_);
                     subscription =
