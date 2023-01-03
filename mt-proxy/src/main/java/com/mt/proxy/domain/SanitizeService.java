@@ -1,4 +1,4 @@
-package com.mt.proxy.domain.response;
+package com.mt.proxy.domain;
 
 import com.google.json.JsonSanitizer;
 import com.mt.proxy.infrastructure.filter.ScgCustomFilter;

@@ -1,4 +1,4 @@
-package com.mt.proxy.domain.response;
+package com.mt.proxy.domain;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

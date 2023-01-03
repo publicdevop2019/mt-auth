@@ -5,12 +5,12 @@ import static com.mt.proxy.domain.Utility.readFormData;
 import com.mt.proxy.domain.CacheConfiguration;
 import com.mt.proxy.domain.CacheService;
 import com.mt.proxy.domain.DomainRegistry;
+import com.mt.proxy.domain.GzipService;
 import com.mt.proxy.domain.JsonSanitizeService;
 import com.mt.proxy.domain.ReportService;
+import com.mt.proxy.domain.SanitizeService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
-import com.mt.proxy.domain.response.GzipService;
-import com.mt.proxy.domain.response.SanitizeService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -63,12 +63,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                                                               HttpHeaders headers,
                                                               CachedBodyOutputMessage outputMessage) {
         return new ServerHttpRequestDecorator(exchange.getRequest()) {
+            @Override
             public HttpHeaders getHeaders() {
                 HttpHeaders httpHeaders = new HttpHeaders();
                 httpHeaders.putAll(headers);
                 return httpHeaders;
             }
-
+            @Override
             public Flux<DataBuffer> getBody() {
                 return outputMessage.getBody();
             }
@@ -129,7 +130,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 return response.setComplete();
             }
         }
-        Mono<ServerHttpRequest> requestMono = checkReqBeforeSend(exchange, context);
+        Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
             response.setStatusCode(context.getHttpErrorStatus());
             return response.setComplete();
@@ -270,8 +271,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private Mono<ServerHttpRequest> checkReqBeforeSend(ServerWebExchange exchange,
-                                                       CustomFilterContext context) {
+    private Mono<ServerHttpRequest> updateRequest(ServerWebExchange exchange,
+                                                  CustomFilterContext context) {
         ServerHttpRequest request = exchange.getRequest();
         if (Utility.isTokenRequest(request)
             ||
