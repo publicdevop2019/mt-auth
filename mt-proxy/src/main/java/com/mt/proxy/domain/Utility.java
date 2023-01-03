@@ -47,11 +47,11 @@ public class Utility {
         String replace = stripEndingDash.replaceFirst(boundary, "");
         String[] split = replace.split(boundary);
         for (String s : split) {
-            String[] split1 = s.split("\r\n");
-            String s1 = split1[0];
+            String[] fields = s.split("\r\n");
+            String s1 = fields[0];
             String key =
                 s1.replace("Content-Disposition: form-data; name=\"", "").replace("\"", "");
-            String value = split1[4];
+            String value = fields[fields.length-1];
             parameters.put(key, value);
         }
         return parameters;

@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,12 +68,31 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 httpHeaders.putAll(headers);
                 return httpHeaders;
             }
+
             @Override
             public Flux<DataBuffer> getBody() {
                 return outputMessage.getBody();
             }
         };
     }
+//    private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
+//                                                              HttpHeaders headers,
+//                                                              Mono<String> outputMessage) {
+//        return new ServerHttpRequestDecorator(exchange.getRequest()) {
+//            @Override
+//            public HttpHeaders getHeaders() {
+//                HttpHeaders httpHeaders = new HttpHeaders();
+//                httpHeaders.putAll(headers);
+//                return httpHeaders;
+//            }
+//            @Override
+//            public Flux<DataBuffer> getBody() {
+//                DefaultDataBufferFactory defaultDataBufferFactory = new DefaultDataBufferFactory();
+//                DataBufferUtils.read(outputMessage,defaultDataBufferFactory,10);
+//                return outputMessage.flux();
+//            }
+//        };
+//    }
 
     private static byte[] getResponseBody(List<DataBuffer> dataBuffers) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -89,11 +107,12 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     private static boolean responseError(ServerHttpResponse response) {
-        log.debug("checking response in case of downstream error");
+        log.trace("checking response in case of downstream error");
         boolean b = response.getStatusCode() != null
             &&
             response.getStatusCode().is5xxServerError();
         if (b) {
+            log.debug("downstream error, hidden error body");
             response.getHeaders().setContentLength(0);
         }
         return b;
@@ -123,28 +142,20 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             response.setStatusCode(context.getHttpErrorStatus());
             return response.setComplete();
         }
-        if (!context.isWebsocket()) {
-            checkRateLimit(exchange, context);
-            if (context.hasCheckFailed()) {
-                response.setStatusCode(context.getHttpErrorStatus());
-                return response.setComplete();
-            }
+        if (context.isWebsocket()) {
+            //for websocket only endpoint check is performed
+            //@todo add token check for websocket
+            return chain.filter(exchange);
+        }
+        checkRateLimit(exchange, context);
+        if (context.hasCheckFailed()) {
+            response.setStatusCode(context.getHttpErrorStatus());
+            return response.setComplete();
         }
         Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
             response.setStatusCode(context.getHttpErrorStatus());
             return response.setComplete();
-        }
-        if (context.isWebsocket()) {
-            //for websocket only endpoint & token check is performed
-            //@todo fix token check for websocket
-            return requestMono.flatMap(req -> {
-                if (context.hasCheckFailed()) {
-                    response.setStatusCode(context.getHttpErrorStatus());
-                    return response.setComplete();
-                }
-                return chain.filter(exchange);
-            });
         }
         //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
         reportService.logRequestDetails(exchange.getRequest());
@@ -271,6 +282,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
     }
 
+    /**
+     * update request, how body is updated is same as SCG provided approach.
+     * refer to org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory
+     * @param exchange ServerWebExchange
+     * @param context CustomFilterContext
+     * @return Mono<ServerHttpRequest>
+     */
     private Mono<ServerHttpRequest> updateRequest(ServerWebExchange exchange,
                                                   CustomFilterContext context) {
         ServerHttpRequest request = exchange.getRequest();
@@ -358,53 +376,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE + 1;
-    }
-
-    public static class CachedBodyOutputMessage implements ReactiveHttpOutputMessage {
-        private final DataBufferFactory bufferFactory;
-        private final HttpHeaders httpHeaders;
-        private Flux<DataBuffer> body = Flux.error(
-            new IllegalStateException("The body is not set. Did handling complete with success?"));
-
-        CachedBodyOutputMessage(ServerWebExchange exchange, HttpHeaders httpHeaders) {
-            this.bufferFactory = exchange.getResponse().bufferFactory();
-            this.httpHeaders = httpHeaders;
-        }
-
-        public void beforeCommit(Supplier<? extends Mono<Void>> action) {
-        }
-
-        public boolean isCommitted() {
-            return false;
-        }
-
-        public HttpHeaders getHeaders() {
-            return this.httpHeaders;
-        }
-
-        public DataBufferFactory bufferFactory() {
-            return this.bufferFactory;
-        }
-
-        public Flux<DataBuffer> getBody() {
-            return this.body;
-        }
-
-        public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-            this.body = Flux.from(body);
-            return Mono.empty();
-        }
-
-        public Mono<Void> writeAndFlushWith(
-            Publisher<? extends Publisher<? extends DataBuffer>> body) {
-            return this.writeWith(Flux.from(body).flatMap((p) -> {
-                return p;
-            }));
-        }
-
-        public Mono<Void> setComplete() {
-            return this.writeWith(Flux.empty());
-        }
     }
 
 }
