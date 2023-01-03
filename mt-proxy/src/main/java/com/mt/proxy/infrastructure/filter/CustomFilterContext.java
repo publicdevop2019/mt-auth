@@ -9,8 +9,6 @@ public class CustomFilterContext {
     private boolean rateLimitCheckFailed = false;
     private HttpStatus httpErrorStatus;
     private int newContentLength;
-    private boolean requestCopiedSanitize = false;
-    private boolean requestCopiedRevokeToken = false;
     private boolean tokenCheckFailed;
     private boolean websocket;
     private String authHeader;

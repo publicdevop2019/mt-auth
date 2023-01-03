@@ -79,6 +79,10 @@ public class RateLimitService {
                 String.valueOf(subscription.getReplenishRate()),
                 String.valueOf(subscription.getBurstCapacity()),
                 String.valueOf(Instant.now().getEpochSecond()));
+            if(execute==null){
+                log.error("redis script return null");
+                return RateLimitResult.deny();
+            }
             result = RateLimitResult.parse(execute);
         } catch (Exception ex) {
             log.error("error during redis script", ex);

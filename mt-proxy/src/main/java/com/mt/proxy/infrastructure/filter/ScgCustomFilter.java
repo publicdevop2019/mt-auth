@@ -75,24 +75,6 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             }
         };
     }
-//    private static ServerHttpRequestDecorator decorateRequest(ServerWebExchange exchange,
-//                                                              HttpHeaders headers,
-//                                                              Mono<String> outputMessage) {
-//        return new ServerHttpRequestDecorator(exchange.getRequest()) {
-//            @Override
-//            public HttpHeaders getHeaders() {
-//                HttpHeaders httpHeaders = new HttpHeaders();
-//                httpHeaders.putAll(headers);
-//                return httpHeaders;
-//            }
-//            @Override
-//            public Flux<DataBuffer> getBody() {
-//                DefaultDataBufferFactory defaultDataBufferFactory = new DefaultDataBufferFactory();
-//                DataBufferUtils.read(outputMessage,defaultDataBufferFactory,10);
-//                return outputMessage.flux();
-//            }
-//        };
-//    }
 
     private static byte[] getResponseBody(List<DataBuffer> dataBuffers) throws IOException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
