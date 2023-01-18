@@ -1,7 +1,7 @@
 package com.mt.access.port.adapter.persistence;
 
 import com.mt.access.domain.model.role.RoleId;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;

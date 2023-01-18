@@ -5,7 +5,7 @@ import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
 import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.Notification_;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;

@@ -1,6 +1,6 @@
 package com.mt.access.domain.model.notification;
 
-import com.mt.common.domain.model.domain_id.GeneratedDomainId;
+import com.mt.common.domain.model.domain_event.GeneratedDomainId;
 import java.io.Serializable;
 
 public class NotificationId extends GeneratedDomainId implements Serializable {

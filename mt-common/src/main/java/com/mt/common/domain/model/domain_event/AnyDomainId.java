@@ -1,7 +1,5 @@
 package com.mt.common.domain.model.domain_event;
 
-import com.mt.common.domain.model.domain_id.DomainId;
-
 /**
  * domain id used for general purpose, like app started .etc
  */

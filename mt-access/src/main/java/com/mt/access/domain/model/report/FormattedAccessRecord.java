@@ -26,6 +26,14 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Getter
 public class FormattedAccessRecord {
+    public static final String CLIENT_IP = "clientIp";
+    public static final String ENDPOINT_ID_KEY = "endpointId";
+    public static final String REQ_TIMESTAMP = "timestamp";
+    public static final String PATH = "path";
+    public static final String METHOD = "method";
+    public static final String RESP_TIMESTAMP = "timestamp";
+    public static final String STATUS_CODE = "statusCode";
+    public static final String CONTENT_LENGTH = "contentLength";
     @Id
     @Setter(AccessLevel.PROTECTED)
     @Getter(AccessLevel.PRIVATE)
@@ -60,17 +68,16 @@ public class FormattedAccessRecord {
     public FormattedAccessRecord(RawAccessRecord request, RawAccessRecord response) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         Map<String, String> recordAsMap = request.getRecordAsMap();
-        this.path = recordAsMap.get("path");
+        this.path = recordAsMap.get(PATH);
         this.requestAt =
-            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap.get("timestamp"))));
-        this.method = recordAsMap.get("method");
-        this.endpointId = new EndpointId(recordAsMap.get("endpointId"));
-        this.clientIp = recordAsMap.get("clientIp");
+            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap.get(REQ_TIMESTAMP))));
+        this.method = recordAsMap.get(METHOD);
+        this.endpointId = new EndpointId(recordAsMap.get(ENDPOINT_ID_KEY));
+        this.clientIp = recordAsMap.get(CLIENT_IP);
         Map<String, String> recordAsMap1 = response.getRecordAsMap();
         this.responseAt =
-            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap1.get("timestamp"))));
-        this.responseCode = Integer.parseInt(recordAsMap1.get("statusCode"));
-        this.responseContentSize = Integer.parseInt(recordAsMap1.get("contentLength"));
+            Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap1.get(RESP_TIMESTAMP))));
+        this.responseCode = Integer.parseInt(recordAsMap1.get(STATUS_CODE));
+        this.responseContentSize = Integer.parseInt(recordAsMap1.get(CONTENT_LENGTH));
     }
-
 }

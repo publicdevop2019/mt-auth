@@ -1,5 +1,7 @@
 package com.mt.access.domain.model;
 
+import static com.mt.access.infrastructure.AppConstant.DATA_VALIDATION_JOB_NAME;
+
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
@@ -27,7 +29,7 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
@@ -43,6 +45,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class CrossDomainValidationService {
+
     @Value("${mt.email.admin}")
     private String adminEmail;
 
@@ -105,8 +108,6 @@ public class CrossDomainValidationService {
             validationResult.increaseFailureCount();
         }
         DomainRegistry.getValidationResultRepository().add(validationResult);
-        CommonApplicationServiceRegistry.getJobApplicationService()
-            .createOrUpdateJob(JobDetail.dataValidation());
         log.debug("end of validate existing data");
     }
 

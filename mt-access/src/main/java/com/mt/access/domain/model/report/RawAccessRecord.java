@@ -1,9 +1,12 @@
 package com.mt.access.domain.model.report;
 
+import static com.mt.access.domain.model.report.FormattedAccessRecord.ENDPOINT_ID_KEY;
+
 import com.mt.common.domain.CommonDomainRegistry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -56,5 +59,24 @@ public class RawAccessRecord {
 
     public void markAsProcessed() {
         this.processed = true;
+    }
+    public boolean endpointNotFound(){
+        return "not_found".equalsIgnoreCase(this.getRecordAsMap().get(ENDPOINT_ID_KEY));
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RawAccessRecord that = (RawAccessRecord) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

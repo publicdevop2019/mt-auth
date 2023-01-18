@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence.sub_request;
 
-import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
@@ -9,7 +8,7 @@ import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.sub_request.SubRequest_;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.math.BigDecimal;

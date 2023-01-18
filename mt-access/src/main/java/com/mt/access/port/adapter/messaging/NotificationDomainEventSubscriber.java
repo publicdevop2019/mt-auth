@@ -14,6 +14,9 @@ import static com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated.USER
 import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
 import static com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent.UNROUTABLE_MSG_EVENT;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
+import static com.mt.common.domain.model.job.event.JobNotFoundEvent.JOB_NOT_FOUND;
+import static com.mt.common.domain.model.job.event.JobPausedEvent.JOB_PAUSED;
+import static com.mt.common.domain.model.job.event.JobStarvingEvent.JOB_STARVING;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
@@ -32,6 +35,9 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
+import com.mt.common.domain.model.job.event.JobNotFoundEvent;
+import com.mt.common.domain.model.job.event.JobPausedEvent;
+import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -198,6 +204,39 @@ public class NotificationDomainEventSubscriber {
                 SubscriberEndpointExpireEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), SubscriberEndpointExpireEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener15() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_PAUSED, (event) -> {
+                JobPausedEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), JobPausedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener16() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_NOT_FOUND, (event) -> {
+                JobNotFoundEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), JobNotFoundEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener17() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_STARVING, (event) -> {
+                JobStarvingEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), JobStarvingEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

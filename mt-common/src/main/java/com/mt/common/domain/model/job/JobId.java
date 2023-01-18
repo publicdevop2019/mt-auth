@@ -1,7 +1,7 @@
 package com.mt.common.domain.model.job;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import java.io.Serializable;
 
 public class JobId extends DomainId implements Serializable {

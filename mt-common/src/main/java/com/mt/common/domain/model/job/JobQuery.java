@@ -8,17 +8,24 @@ import lombok.Getter;
 @Getter
 public class JobQuery extends QueryCriteria {
     private final JobSort sort = JobSort.byId(true);
-    private JobName name;
+    private String name;
+    private JobId id;
 
-    public JobQuery() {
+    private JobQuery() {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public JobQuery(JobName name) {
-        this.name = name;
+    public JobQuery(JobId id) {
+        this.id=id;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
+    }
+
+    public static JobQuery byName(String name) {
+        JobQuery query = new JobQuery();
+        query.name = name;
+        return query;
     }
 
     public static JobQuery all() {

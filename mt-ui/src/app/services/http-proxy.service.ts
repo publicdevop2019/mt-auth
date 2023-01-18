@@ -17,7 +17,7 @@ import { IEditEvent } from '../components/editable-field/editable-field.componen
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
-import { IJobStatus } from '../pages/mgnmt/job/job.component';
+import { IJob } from '../pages/mgnmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
 export interface IPatch {
@@ -107,10 +107,13 @@ export class HttpProxyService {
         return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
     }
     getJobStatus() {
-        return this._httpClient.get<IJobStatus[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
+        return this._httpClient.get<IJob[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
     }
     resetValidationJob() {
         return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/job/validation/reset', null)
+    }
+    resetJob(id:string) {
+        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + `/mngmt/jobs/${id}/reset`, null)
     }
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();

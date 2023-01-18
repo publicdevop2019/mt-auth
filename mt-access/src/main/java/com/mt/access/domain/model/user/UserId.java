@@ -1,8 +1,7 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.common.domain.model.domain_id.GeneratedDomainId;
+import com.mt.common.domain.model.domain_event.GeneratedDomainId;
 import java.io.Serializable;
-import javax.persistence.Embeddable;
 
 public class UserId extends GeneratedDomainId implements Serializable {
     public UserId() {

@@ -1,4 +1,4 @@
-package com.mt.common.domain.model.domain_id;
+package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;

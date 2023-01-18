@@ -5,7 +5,6 @@ import static com.mt.access.domain.model.permission.Permission.EDIT_CLIENT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_CLIENT;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientPatchCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
@@ -28,7 +27,7 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;

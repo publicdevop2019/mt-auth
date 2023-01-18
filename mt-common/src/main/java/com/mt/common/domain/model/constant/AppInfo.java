@@ -7,7 +7,8 @@ public class AppInfo {
     public static final String MT3_APP_NAME = "mall";
     public static final String MT6_APP_NAME = "payment";
     public static final String MT15_APP_NAME = "saga";
-
+    public static final String MISSED_EVENT_SCAN_JOB_NAME = "MISSED_EVENT_SCAN";
+    public static final String EVENT_SCAN_JOB_NAME = "EVENT_SCAN";
     public static class EventName {
         public static final String MT3_MALL_NOTIFICATION = "MT3_MALL_NOTIFICATION";
         public static final String MT3_SKU_UPDATE_FAILED = "SKU_UPDATE_FAILED";

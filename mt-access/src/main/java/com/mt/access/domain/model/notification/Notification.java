@@ -12,6 +12,9 @@ import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
+import com.mt.common.domain.model.job.event.JobNotFoundEvent;
+import com.mt.common.domain.model.job.event.JobPausedEvent;
+import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
 import java.util.HashSet;
@@ -141,6 +144,33 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = SubscriberEndpointExpireEvent.name;
+        type = NotificationType.BELL;
+    }
+
+    public Notification(JobPausedEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = JobPausedEvent.name;
+        type = NotificationType.BELL;
+    }
+
+    public Notification(JobNotFoundEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = JobNotFoundEvent.name;
+        type = NotificationType.BELL;
+    }
+
+    public Notification(JobStarvingEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = JobStarvingEvent.name;
         type = NotificationType.BELL;
     }
 

@@ -34,9 +34,8 @@ import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
 import com.mt.access.domain.model.report.DataProcessTrackerRepository;
-import com.mt.access.domain.model.report.FormattedAccessRecord;
 import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
-import com.mt.access.domain.model.report.RawAccessRecordEtlService;
+import com.mt.access.domain.model.report.RawAccessRecordProcessService;
 import com.mt.access.domain.model.report.RawAccessRecordRepository;
 import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
@@ -157,13 +156,14 @@ public class DomainRegistry {
     @Getter
     private static FormattedAccessRecordRepository formattedAccessRecordRepository;
     @Getter
-    private static RawAccessRecordEtlService rawAccessRecordEtlService;
+    private static RawAccessRecordProcessService rawAccessRecordProcessService;
     @Getter
     private static DataProcessTrackerRepository dataProcessTrackerRepository;
 
     @Autowired
-    public void setRawAccessRecordEtlService(RawAccessRecordEtlService rawAccessRecordEtlService) {
-        DomainRegistry.rawAccessRecordEtlService = rawAccessRecordEtlService;
+    public void setRawAccessRecordProcessService(
+        RawAccessRecordProcessService rawAccessRecordProcessService) {
+        DomainRegistry.rawAccessRecordProcessService = rawAccessRecordProcessService;
     }
     @Autowired
     public void setDataProcessTrackerRepository(DataProcessTrackerRepository dataProcessTrackerRepository) {

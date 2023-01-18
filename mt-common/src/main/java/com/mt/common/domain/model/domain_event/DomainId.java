@@ -1,13 +1,11 @@
-package com.mt.common.domain.model.domain_id;
+package com.mt.common.domain.model.domain_event;
 
 import com.google.common.base.Objects;
-import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**

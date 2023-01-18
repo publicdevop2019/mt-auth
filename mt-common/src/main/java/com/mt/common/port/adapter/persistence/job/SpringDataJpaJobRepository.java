@@ -2,6 +2,7 @@ package com.mt.common.port.adapter.persistence.job;
 
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobDetail_;
+import com.mt.common.domain.model.job.JobId;
 import com.mt.common.domain.model.job.JobQuery;
 import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -15,11 +16,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository<JobDetail, Long> {
-    default Set<JobDetail> query(JobQuery all) {
+    default Set<JobDetail> getByQuery(JobQuery all) {
         return QueryUtility
             .getAllByQuery(e -> CommonQueryBuilderRegistry.getJobAdaptor().execute(e), all);
     }
-
+    default Optional<JobDetail> getByName(String name){
+        return CommonQueryBuilderRegistry.getJobAdaptor().execute(JobQuery.byName(name)).findFirst();
+    };
+    default Optional<JobDetail> getById(JobId id){
+        return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst();
+    };
     default void store(JobDetail jobDetail) {
         save(jobDetail);
     }
@@ -31,7 +37,12 @@ public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository
                 QueryUtility.prepareContext(JobDetail.class, query);
             Optional.ofNullable(query.getName()).ifPresent(e -> {
                 QueryUtility
-                    .addEnumLiteralEqualPredicate(Collections.singleton(e), JobDetail_.NAME,
+                    .addStringEqualPredicate(e, JobDetail_.NAME,
+                        queryContext);
+            });
+            Optional.ofNullable(query.getId()).ifPresent(e -> {
+                QueryUtility
+                    .addDomainIdIsPredicate(e.getDomainId(), JobDetail_.JOB_ID,
                         queryContext);
             });
             Order order = null;

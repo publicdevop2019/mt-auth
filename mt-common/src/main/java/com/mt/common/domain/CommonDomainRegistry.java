@@ -3,7 +3,9 @@ package com.mt.common.domain;
 
 import com.mt.common.domain.model.cache.HibernateCacheService;
 import com.mt.common.domain.model.constant.ApplicationInfoService;
-import com.mt.common.domain.model.distributed_lock.SchedulerDistLockService;
+import com.mt.common.domain.model.job.JobService;
+import com.mt.common.domain.model.local_transaction.TransactionService;
+import com.mt.common.infrastructure.RedisJobService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
@@ -32,11 +34,18 @@ public class CommonDomainRegistry {
     @Getter
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
     @Getter
-    private static SchedulerDistLockService schedulerDistLockService;
+    private static JobService jobService;
     @Getter
     private static JobRepository jobRepository;
     @Getter
     private static ApplicationInfoService applicationInfoService;
+    @Getter
+    private static TransactionService transactionService;
+
+    @Autowired
+    public void setTransactionService(TransactionService transactionService) {
+        CommonDomainRegistry.transactionService = transactionService;
+    }
 
     @Autowired
     public void setApplicationInfoService(ApplicationInfoService applicationInfoService) {
@@ -49,8 +58,8 @@ public class CommonDomainRegistry {
     }
 
     @Autowired
-    public void setSchedulerDistLockService(SchedulerDistLockService schedulerDistLockService) {
-        CommonDomainRegistry.schedulerDistLockService = schedulerDistLockService;
+    public void setJobService(JobService jobService) {
+        CommonDomainRegistry.jobService = jobService;
     }
 
     @Autowired

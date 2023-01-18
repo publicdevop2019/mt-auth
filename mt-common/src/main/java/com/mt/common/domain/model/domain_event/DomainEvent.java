@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;

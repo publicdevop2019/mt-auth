@@ -1,13 +1,12 @@
 package com.mt.access.application.report;
 
 import static com.mt.access.domain.model.permission.Permission.VIEW_API;
+import static com.mt.access.infrastructure.AppConstant.ACCESS_DATA_PROCESSING_JOB_NAME;
 
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.report.EndpointReport;
-import com.mt.access.domain.model.report.FormattedAccessRecord;
 import com.mt.access.domain.model.report.RawAccessRecord;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -61,12 +60,14 @@ public class ReportApplicationService {
         return report.get();
     }
 
-    @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
-    @Transactional
-    public void rawDataEtl(){
-        CommonDomainRegistry.getSchedulerDistLockService().executeIfLockSuccess("endpoint_etl",15,(ignore)->{
-                log.debug("start of access record ETL job");
-                DomainRegistry.getRawAccessRecordEtlService().processData();
-        });
+    @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
+    public void rawDataEtl() {
+        log.trace("triggered scheduled task 3");
+        CommonDomainRegistry.getJobService()
+            .execute(ACCESS_DATA_PROCESSING_JOB_NAME,
+                () -> CommonDomainRegistry.getTransactionService().transactional(() -> {
+                    log.debug("start of access record ETL job");
+                    DomainRegistry.getRawAccessRecordProcessService().process();
+                }));
     }
 }

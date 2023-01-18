@@ -1,8 +1,6 @@
 package com.mt.access.domain.model.project;
 
-import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
-import com.mt.common.domain.model.domain_id.GeneratedDomainId;
+import com.mt.common.domain.model.domain_event.GeneratedDomainId;
 import java.io.Serializable;
 
 public class ProjectId extends GeneratedDomainId implements Serializable {

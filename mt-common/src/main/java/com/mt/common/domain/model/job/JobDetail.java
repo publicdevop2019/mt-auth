@@ -1,12 +1,13 @@
 package com.mt.common.domain.model.job;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.audit.Auditable;
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -25,47 +26,100 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "jobRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class JobDetail {
-    @Id
-    @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
-    protected Long id;
-    @Convert(converter = JobName.DbConverter.class)
-    private JobName name;
+public class JobDetail extends Auditable implements Serializable {
+    @Setter(AccessLevel.PRIVATE)
+    private String name;
+    @Convert(converter = JobStatus.DbConverter.class)
+    private JobStatus lastStatus;
+    @Convert(converter = JobType.DbConverter.class)
+    private JobType type;
+    @Convert(converter = JobStrategy.DbConverter.class)
+    private JobStrategy executeStrategy;
+    private int failureCount;
+    private int lockAcquireFailureCount;
+    private int maxLockAcquireFailureAllowed;
+    private String failureReason;
+    private int failureAllowed;
+    @Setter
+    private boolean notifiedAdmin;
+    private Integer lockInSec;
+    private Integer initLockInSec;
+    private Integer maxLockInSec;
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastExecution;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     private JobId jobId;
 
-    private JobDetail(JobName name, Date lastExecution, JobId jobId) {
-        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.name = name;
-        this.lastExecution = lastExecution;
-        this.jobId = jobId;
+    public static JobDetail instanceJobFrom(JobDetail job, long instanceId) {
+        JobDetail jobDetail = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(job);
+        jobDetail.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        jobDetail.setJobId(new JobId());
+        jobDetail.setName(job.getName() + "_" + instanceId);
+        return jobDetail;
     }
 
-    public static JobDetail dataValidation() {
-        return new JobDetail(JobName.DATA_VALIDATION, Date.from(Instant.now()), new JobId());
+    public boolean isPaused() {
+        return failureCount >= failureAllowed;
     }
 
-    public static JobDetail proxyValidation() {
-        return new JobDetail(JobName.PROXY_VALIDATION, Date.from(Instant.now()), new JobId());
+    /**
+     * update job after lock failure detected
+     *
+     * @return if max lock in sec reached
+     */
+    public boolean recordLockFailure() {
+        this.failureCount++;
+        failureReason = "LOCK_LOST";
+        this.lastExecution = Date.from(Instant.now());
+        this.lockInSec = increaseLockTime();
+        this.lastStatus = JobStatus.FAILURE;
+        return isPaused();
     }
 
-    public static JobDetail wsRenew() {
-        return new JobDetail(JobName.KEEP_WS_CONNECTION, Date.from(Instant.now()), new JobId());
+    private int increaseLockTime() {
+        int i = Math.floorDiv(this.maxLockInSec - this.lockInSec, this.failureAllowed);
+        i = i == 0 ? 1 : i;//minimum step is 1 second
+        int i1 = this.lockInSec + i;
+        return i1 > this.maxLockInSec ? this.maxLockInSec : i1;
     }
 
-    public static JobDetail eventScan() {
-        return new JobDetail(JobName.EVENT_SCAN, Date.from(Instant.now()), new JobId());
+    public boolean recordJobFailure() {
+        this.failureCount++;
+        failureReason = "JOB_EXECUTION";
+        this.lastExecution = Date.from(Instant.now());
+        this.lastStatus = JobStatus.FAILURE;
+        return isPaused();
     }
 
-    public static JobDetail missingEventScan() {
-        return new JobDetail(JobName.MISSED_EVENT_SCAN, Date.from(Instant.now()), new JobId());
+    public void executeSuccess() {
+        this.failureCount = 0;
+        failureReason = null;
+        this.lastExecution = Date.from(Instant.now());
+        this.lastStatus = JobStatus.SUCCESS;
+        this.notifiedAdmin=false;
     }
 
-    public void updateStatus(JobDetail jobDetail) {
-        this.lastExecution = jobDetail.getLastExecution();
+    public void syncWithJob(JobDetail jd) {
+        this.failureCount = jd.failureCount;
+        this.failureReason = jd.failureReason;
+        this.lastExecution = jd.lastExecution;
+        this.lastStatus = jd.lastStatus;
+    }
+
+    public void acquireLockFailed() {
+        this.lockAcquireFailureCount++;
+    }
+
+    public boolean starving() {
+        return this.lockAcquireFailureCount >= maxLockAcquireFailureAllowed;
+    }
+
+    public void reset() {
+        this.failureCount = 0;
+        this.lockAcquireFailureCount = 0;
+        this.notifiedAdmin = false;
+        this.failureReason = null;
+        this.lockInSec = this.initLockInSec;
     }
 }

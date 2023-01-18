@@ -63,8 +63,6 @@ public class UserApplicationService implements UserDetailsService {
 
     public static final String USER = "User";
     public static final String DEFAULT_USERID = "0U8AZTODP4H0";
-    @Autowired
-    private PlatformTransactionManager transactionManager;
 
     @Transactional
     public String create(UserCreateCommand command, String operationId) {
@@ -246,14 +244,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     private void updateLastLoginInfo(UserLoginRequest command) {
-        TransactionTemplate template = new TransactionTemplate(transactionManager);
-        template.execute(new TransactionCallbackWithoutResult() {
-            @Override
-            protected void doInTransactionWithoutResult(
-                TransactionStatus transactionStatus) {
-                DomainRegistry.getUserService().updateLastLogin(command);
-            }
-        });
+        CommonDomainRegistry.getTransactionService().transactional(()-> DomainRegistry.getUserService().updateLastLogin(command));
     }
 
     public Optional<Image> profileAvatar() {
@@ -308,9 +299,7 @@ public class UserApplicationService implements UserDetailsService {
                         return LoginResult.mfaMissMatch();
                     }
                 } else {
-                    TransactionTemplate template = new TransactionTemplate(transactionManager);
-                    MfaId execute = template.execute(
-                        transactionStatus -> DomainRegistry.getMfaService().triggerMfa(userId));
+                    MfaId execute=CommonDomainRegistry.getTransactionService().returnedTransactional(()-> DomainRegistry.getMfaService().triggerMfa(userId));
                     return LoginResult
                         .mfaMissing(execute);
                 }

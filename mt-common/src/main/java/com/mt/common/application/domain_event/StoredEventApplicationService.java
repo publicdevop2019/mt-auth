@@ -62,7 +62,7 @@ public class StoredEventApplicationService {
                     AGGREGATE_NAME);
         } else {
             log.warn(
-                "non stored event like app_start are un-routable (which maybe ok) detail: {}",
+                "non stored event like app_start are un-routable (which maybe ok, due to no instance of other apps) detail: {}",
                 event);
         }
 

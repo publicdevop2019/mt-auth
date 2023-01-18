@@ -97,6 +97,7 @@ public class ReportService {
      */
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void flush() {
+        log.trace("start of scheduled task 1");
         log.debug("start of flushing api reports");
         int size = record.size();
         if (size != 0) {
@@ -127,6 +128,7 @@ public class ReportService {
             log.debug("no record found for api reports");
         }
         log.debug("end of flushing api reports");
+        log.trace("end of scheduled task 1");
     }
 
     private String getFileCount(File dir) {
@@ -139,6 +141,7 @@ public class ReportService {
      */
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void uploadReport() {
+        log.trace("start of scheduled task 2");
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
         if (eurekaClient.getApplication(appName) != null) {
@@ -224,6 +227,7 @@ public class ReportService {
                 "send report request was ignore due to service is not ready");
         }
         log.debug("end of sending api reports");
+        log.trace("end of scheduled task 2");
     }
 
     public static class ReportRenameException extends RuntimeException {

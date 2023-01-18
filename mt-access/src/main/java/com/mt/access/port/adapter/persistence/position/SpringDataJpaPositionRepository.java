@@ -6,7 +6,7 @@ import com.mt.access.domain.model.position.PositionQuery;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.position.Position_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.domain.model.domain_id.DomainId;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
