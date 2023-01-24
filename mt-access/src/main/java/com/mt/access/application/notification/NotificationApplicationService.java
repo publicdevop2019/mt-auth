@@ -11,6 +11,7 @@ import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
+import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -53,31 +54,31 @@ public class NotificationApplicationService {
     @Transactional
     public void handle(HangingTxDetected event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(NewUserRegistered event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(ProjectOnboardingComplete event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(ProxyCacheCheckFailedEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(CrossDomainValidationService.ValidationFailedEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
@@ -208,34 +209,40 @@ public class NotificationApplicationService {
     @Transactional
     public void handle(UnrountableMsgReceivedEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(SubscriberEndpointExpireEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(JobPausedEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(JobNotFoundEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
     @Transactional
     public void handle(JobStarvingEvent event) {
         Notification notification = new Notification(event);
-        sendNotification(event.getId(), notification);
+        sendBellNotification(event.getId(), notification);
     }
 
-    private void sendNotification(Long eventId, Notification notification1) {
+    @Transactional
+    public void handle(PendingUserCreated event) {
+        Notification notification = new Notification(event);
+        sendBellNotification(event.getId(), notification);
+    }
+
+    private void sendBellNotification(Long eventId, Notification notification1) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(eventId.toString(), (command) -> {
                 DomainRegistry.getNotificationRepository().add(notification1);

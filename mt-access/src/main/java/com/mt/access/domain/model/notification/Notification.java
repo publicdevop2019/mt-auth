@@ -3,6 +3,7 @@ package com.mt.access.domain.model.notification;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
+import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -171,6 +172,16 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = JobStarvingEvent.name;
+        type = NotificationType.BELL;
+    }
+
+    public Notification(PendingUserCreated event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = event.getName();
+        descriptions=Collections.singleton(event.getDomainId().getDomainId());
         type = NotificationType.BELL;
     }
 

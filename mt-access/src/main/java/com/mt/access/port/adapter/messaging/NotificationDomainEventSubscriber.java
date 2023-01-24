@@ -6,6 +6,7 @@ import static com.mt.access.domain.model.notification.event.SendBellNotification
 import static com.mt.access.domain.model.notification.event.SendEmailNotificationEvent.SEND_EMAIL_NOTIFICATION_EVENT;
 import static com.mt.access.domain.model.notification.event.SendSmsNotificationEvent.SEND_SMS_NOTIFICATION_EVENT;
 import static com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated.PENDING_USER_ACTIVATION_CODE_UPDATED;
+import static com.mt.access.domain.model.pending_user.event.PendingUserCreated.PENDING_USER_CREATED;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
 import static com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent.SUBSCRIBER_ENDPOINT_EXPIRE;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
@@ -25,6 +26,7 @@ import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
+import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -237,6 +239,18 @@ public class NotificationDomainEventSubscriber {
                 JobStarvingEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), JobStarvingEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener18() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, PENDING_USER_CREATED, (event) -> {
+                PendingUserCreated deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), PendingUserCreated.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }
