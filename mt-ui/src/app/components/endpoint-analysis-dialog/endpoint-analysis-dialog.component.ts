@@ -60,11 +60,11 @@ export class EndpointAnalysisComponent implements OnInit {
       if (key === 'AVG_RESP_SIZE')
         return this.result.averageResponseSize
       if (key === 'AVG_RT')
-        return this.result.averageRoundTimeInMili
+        return this.result.averageRoundTimeInMili+'ms'
       if (key === 'BAD_REQ_COUNT')
         return this.result.badRequestCount
       if (key === 'FAILURE_RESP_COUNT')
-        return this.result.failureResponseRate
+        return this.result.failureResponseRate+'%'
       if (key === 'INTER_SVR_COUNT')
         return this.result.internalServerErrorCount
       if (key === 'SVC_UNAVAILABLE_COUNT')
@@ -77,4 +77,5 @@ export class EndpointAnalysisComponent implements OnInit {
       return 'N/A'
     }
   }
+
 }
