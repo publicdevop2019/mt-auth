@@ -98,6 +98,7 @@ public class JobDetail extends Auditable implements Serializable {
         this.lastExecution = Date.from(Instant.now());
         this.lastStatus = JobStatus.SUCCESS;
         this.notifiedAdmin=false;
+        this.lockAcquireFailureCount=0;
     }
 
     public void syncWithJob(JobDetail jd) {
