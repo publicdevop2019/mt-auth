@@ -51,7 +51,7 @@ public class JobDetail extends Auditable implements Serializable {
     @Setter(AccessLevel.PRIVATE)
     private JobId jobId;
 
-    public static JobDetail instanceJobFrom(JobDetail job, long instanceId) {
+    public static JobDetail cloneJobFrom(JobDetail job, long instanceId) {
         JobDetail jobDetail = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(job);
         jobDetail.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         jobDetail.setJobId(new JobId());
