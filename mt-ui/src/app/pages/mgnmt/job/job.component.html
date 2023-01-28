@@ -53,12 +53,6 @@
         {{isTemplate(row)?'N/A':(getNotify(row.notifiedAdmin)|translate)}}
       </td>
     </ng-container>
-    <ng-container matColumnDef="lockInSec">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['lockInSec']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isSingle(row)?'N/A':row.lockInSec}}
-      </td>
-    </ng-container>
     <ng-container matColumnDef="lockAcquireFailureCount">
       <th mat-header-cell *matHeaderCellDef> {{columnList['lockAcquireFailureCount']|translate}} </th>
       <td mat-cell *matCellDef="let row">
@@ -69,12 +63,6 @@
       <th mat-header-cell *matHeaderCellDef> {{columnList['maxLockAcquireFailureAllowed']|translate}} </th>
       <td mat-cell *matCellDef="let row">
         {{isSingle(row)?'N/A':row.maxLockAcquireFailureAllowed}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="maxLockInSec">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['maxLockInSec']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isSingle(row)?'N/A':row.maxLockInSec}}
       </td>
     </ng-container>
     <ng-container matColumnDef="action">

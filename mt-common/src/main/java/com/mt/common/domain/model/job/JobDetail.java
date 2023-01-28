@@ -2,6 +2,9 @@ package com.mt.common.domain.model.job;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.common.domain.model.job.event.JobPausedEvent;
+import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
@@ -33,8 +36,6 @@ public class JobDetail extends Auditable implements Serializable {
     private JobStatus lastStatus;
     @Convert(converter = JobType.DbConverter.class)
     private JobType type;
-    @Convert(converter = JobStrategy.DbConverter.class)
-    private JobStrategy executeStrategy;
     private int failureCount;
     private int lockAcquireFailureCount;
     private int maxLockAcquireFailureAllowed;
@@ -42,9 +43,6 @@ public class JobDetail extends Auditable implements Serializable {
     private int failureAllowed;
     @Setter
     private boolean notifiedAdmin;
-    private Integer lockInSec;
-    private Integer initLockInSec;
-    private Integer maxLockInSec;
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastExecution;
     @Embedded
@@ -72,16 +70,8 @@ public class JobDetail extends Auditable implements Serializable {
         this.failureCount++;
         failureReason = "LOCK_LOST";
         this.lastExecution = Date.from(Instant.now());
-        this.lockInSec = increaseLockTime();
         this.lastStatus = JobStatus.FAILURE;
         return isPaused();
-    }
-
-    private int increaseLockTime() {
-        int i = Math.floorDiv(this.maxLockInSec - this.lockInSec, this.failureAllowed);
-        i = i == 0 ? 1 : i;//minimum step is 1 second
-        int i1 = this.lockInSec + i;
-        return i1 > this.maxLockInSec ? this.maxLockInSec : i1;
     }
 
     public boolean recordJobFailure() {
@@ -114,6 +104,32 @@ public class JobDetail extends Auditable implements Serializable {
         this.lockAcquireFailureCount = 0;
         this.notifiedAdmin = false;
         this.failureReason = null;
-        this.lockInSec = this.initLockInSec;
+    }
+    public DomainEvent handleJobExecutionException(){
+        boolean b = recordJobFailure();
+        if (b && !isNotifiedAdmin()) {
+            log.warn("notify admin about job paused");
+            return new JobPausedEvent(this);
+        }
+        return null;
+    }
+
+    public DomainEvent handleLockLostException() {
+        boolean b = recordLockFailure();
+        if (b && !isNotifiedAdmin()) {
+            log.warn("notify admin about job paused");
+            return new JobPausedEvent(this);
+        }
+        return null;
+    }
+
+    public DomainEvent handleLockFailedException() {
+        acquireLockFailed();
+        if (starving() && !isNotifiedAdmin()) {
+            log.warn(
+                "notify admin about job starving (unable to get lock multiple times)");
+           return new JobStarvingEvent(this);
+        }
+        return null;
     }
 }

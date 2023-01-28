@@ -896,8 +896,6 @@ export const zhHans = {
     "FAILURE_REASON": "失败原因",
     "FAILURE_ALLOWED": "允许失败次数",
     "NOTIFIED": "通知",
-    "LOCK_IN_SEC": "允许执行时间",
-    "MAX_LOCK_IN_SEC": "最大允许执行时间",
     "CLUSTER": "集群",
     "SINGLE": "单点",
     "FAILURE": "失败",

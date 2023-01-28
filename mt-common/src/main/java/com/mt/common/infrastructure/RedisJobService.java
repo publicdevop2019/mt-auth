@@ -6,10 +6,10 @@ import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobService;
 import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
-import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
 import java.util.Optional;
+import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -37,46 +37,35 @@ public class RedisJobService implements JobService {
                     try {
                         boolean b = syncExecute(job.getName(), jobFn);
                         if (!b) {
-                            job.acquireLockFailed();
-                            if (job.starving() && !job.isNotifiedAdmin()) {
-                                log.warn(
-                                    "notify admin about job starving (unable to get lock multiple times)");
-                                notifyAdmin(job, new JobStarvingEvent(job));
-                            }
+                            DomainEvent domainEvent = job.handleLockFailedException();
+                            sendNotification(job, domainEvent);
                         } else {
                             job.executeSuccess();
                         }
                     } catch (LockLostException ex) {
-                        boolean b = job.recordLockFailure();
-                        if (b && !job.isNotifiedAdmin()) {
-                            log.warn("notify admin about job paused");
-                            notifyAdmin(job, new JobPausedEvent(job));
-                        }
+                        DomainEvent domainEvent = job.handleLockLostException();
+                        sendNotification(job, domainEvent);
                     } catch (ExecutionException ex) {
-                        boolean b = job.recordJobFailure();
-                        if (b && !job.isNotifiedAdmin()) {
-                            log.warn("notify admin about job paused");
-                            notifyAdmin(job, new JobPausedEvent(job));
-                        }
+                        DomainEvent domainEvent = job.handleJobExecutionException();
+                        sendNotification(job, domainEvent);
                     }
                     CommonDomainRegistry.getJobRepository().store(job);
                 } else {
                     if (!job.isPaused()) {
                         JobDetail instanceClone = JobDetail.cloneJobFrom(job, instanceId);
-                        Optional<JobDetail> instanceJobWrapper = CommonDomainRegistry.getJobRepository()
-                            .getByName(instanceClone.getName());
+                        Optional<JobDetail> instanceJobWrapper =
+                            CommonDomainRegistry.getJobRepository()
+                                .getByName(instanceClone.getName());
                         JobDetail jobDetail = instanceJobWrapper.orElse(instanceClone);
-                        boolean notify = false;
+                        DomainEvent event = null;
                         try {
                             jobFn.run();
                             jobDetail.executeSuccess();
-                        }catch (Exception ex){
-                            notify = jobDetail.recordJobFailure();
+                        } catch (Exception ex) {
+                            log.error("error during job execution", ex);
+                            event = jobDetail.handleJobExecutionException();
                         }
-                        if (notify && !jobDetail.isNotifiedAdmin()) {
-                            log.warn("notify admin about job paused");
-                            notifyAdmin(jobDetail, new JobPausedEvent(jobDetail));
-                        }
+                        sendNotification(jobDetail, event);
                         CommonDomainRegistry.getJobRepository().store(jobDetail);
                     } else {
                         log.warn("job is paused {}", jobName);
@@ -96,8 +85,16 @@ public class RedisJobService implements JobService {
 
     }
 
-    private void notifyAdmin(JobDetail job,
-                             DomainEvent event) {
+    /**
+     * send notification to admin, ignore if domain event is null
+     * @param job current job
+     * @param event event to be sent
+     */
+    private void sendNotification(JobDetail job,
+                                  @Nullable DomainEvent event) {
+        if (event == null) {
+            return;
+        }
         CommonDomainRegistry.getTransactionService().transactional(() -> {
             Optional<JobDetail> byId =
                 CommonDomainRegistry.getJobRepository().getById(job.getJobId());

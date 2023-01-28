@@ -19,8 +19,6 @@ export interface IJob {
   failureReason: string
   failureAllowed: number
   notifiedAdmin: boolean
-  lockInSec: number
-  maxLockInSec: number
 }
 @Component({
   selector: 'app-job',
@@ -37,8 +35,6 @@ export class JobComponent implements OnInit, OnDestroy {
     failureReason: 'FAILURE_REASON',
     failureAllowed: 'FAILURE_ALLOWED',
     notifiedAdmin: 'NOTIFIED',
-    lockInSec: 'LOCK_IN_SEC',
-    maxLockInSec: 'MAX_LOCK_IN_SEC',
     lastExecution: 'LAST_EXE_TIME',
     lockAcquireFailureCount: 'LOCK_ACQUIRE_FAILURE_COUNT',
     maxLockAcquireFailureAllowed: 'MAX_LOCK_ACQUIRE_FAILURE_COUNT',

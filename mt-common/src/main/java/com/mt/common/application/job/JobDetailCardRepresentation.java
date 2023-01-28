@@ -15,8 +15,6 @@ public class JobDetailCardRepresentation {
     private final String failureReason;
     private final int failureAllowed;
     private final boolean notifiedAdmin;
-    private final Integer lockInSec;
-    private final Integer maxLockInSec;
     private long lastExecution;
 
     public JobDetailCardRepresentation(JobDetail j) {
@@ -35,7 +33,5 @@ public class JobDetailCardRepresentation {
         this.lockAcquireFailureCount = j.getLockAcquireFailureCount();
         this.maxLockAcquireFailureAllowed = j.getMaxLockAcquireFailureAllowed();
         this.notifiedAdmin = j.isNotifiedAdmin();
-        this.lockInSec = j.getLockInSec();
-        this.maxLockInSec = j.getMaxLockInSec();
     }
 }
