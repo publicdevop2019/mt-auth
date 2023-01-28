@@ -101,13 +101,6 @@ public class JobDetail extends Auditable implements Serializable {
         this.lockAcquireFailureCount=0;
     }
 
-    public void syncWithJob(JobDetail jd) {
-        this.failureCount = jd.failureCount;
-        this.failureReason = jd.failureReason;
-        this.lastExecution = jd.lastExecution;
-        this.lastStatus = jd.lastStatus;
-    }
-
     public void acquireLockFailed() {
         this.lockAcquireFailureCount++;
     }
