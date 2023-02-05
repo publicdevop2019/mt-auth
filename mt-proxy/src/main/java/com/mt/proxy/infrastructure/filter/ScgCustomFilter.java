@@ -341,7 +341,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         String method = exchange.getRequest().getMethodValue();
         RateLimitResult rateLimitResult = DomainRegistry.getRateLimitService()
             .withinRateLimit(path, method,
-                exchange.getRequest().getHeaders());
+                exchange.getRequest().getHeaders(),exchange.getRequest().getRemoteAddress());
         if (rateLimitResult.getAllowed() == null || !rateLimitResult.getAllowed()) {
             response.getHeaders()
                 .set(X_RATE_LIMIT, "0");

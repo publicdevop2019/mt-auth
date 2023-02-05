@@ -78,9 +78,6 @@ public class SubRequest extends Auditable {
         if (expired) {
             throw new IllegalArgumentException("cannot subscribe to expired endpoint");
         }
-        if (!secured) {
-            throw new IllegalArgumentException("public endpoint does not need subscribe");
-        }
         if (!shared) {
             throw new IllegalArgumentException("cannot subscribe to endpoint that is not shared");
         }
@@ -91,6 +88,11 @@ public class SubRequest extends Auditable {
         this.replenishRate = replenishRate;
         this.burstCapacity = burstCapacity;
         this.endpointProjectId = endpointProjectId;
+        if(!secured){
+            //public endpoints use default based rate from endpoint owner
+           this.burstCapacity=0;
+           this.replenishRate=0;
+        }
     }
 
     public void update(int replenishRate, int burstCapacity) {

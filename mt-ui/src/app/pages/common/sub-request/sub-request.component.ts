@@ -22,6 +22,7 @@ export interface ISubRequest extends IIdBasedEntity {
   styleUrls: ['./sub-request.component.css']
 })
 export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequest> implements OnInit, OnDestroy {
+  public publicSubNotes: boolean=false;
   constructor(
     private projectSvc: ProjectService,
     private subReqSvc: CreateSubRequestService,
@@ -33,12 +34,18 @@ export class SubRequestComponent extends Aggregate<SubRequestComponent, ISubRequ
   ) {
     super('newSubRequestForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new SubRequestValidator('CLIENT'), bottomSheetRef, data, fis, cdr);
     this.fis.queryProvider[this.formId + '_' + 'projectId'] = this.getMyProject();
-
     this.fis.formCreated(this.formId).subscribe(() => {
       if (!this.isCreate()) {
         this.fis.hideIfMatch(this.formId, ['projectId'])
         this.fis.formGroupCollection[this.formId].get('replenishRate').setValue(this.aggregate.replenishRate)
         this.fis.formGroupCollection[this.formId].get('burstCapacity').setValue(this.aggregate.burstCapacity)
+        this.cdr.markForCheck()
+      }
+      if(!this.data.from.secured){
+        this.publicSubNotes=true;
+        this.fis.formGroupCollection[this.formId].get('replenishRate').setValue(0)
+        this.fis.formGroupCollection[this.formId].get('burstCapacity').setValue(0)
+        this.fis.disableIfMatch(this.formId, ['replenishRate','burstCapacity'])
         this.cdr.markForCheck()
       }
     })

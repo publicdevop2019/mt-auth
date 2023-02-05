@@ -10,7 +10,10 @@ public class SubscriptionTest {
     //public api shared
     @Test
     public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mngmt(){
-
+        //mt-auth -> test-svc/external/shared/no/auth
+        //mt-mall can subscribe to it
+        //rate limit should work
+        //when api expire, notification is send to mt-mall
     }
     @Test
     public void external_shared_auth_api_has_rate_limit_on_user_id_and_lifecycle_mngmt(){

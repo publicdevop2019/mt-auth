@@ -904,4 +904,6 @@ export const zhHans = {
     "JOB_EXECUTION": "任务执行异常",
     "LOCK_LOST": "锁丢失",
     "SYSTEM_DATA_VALIDATION": "系统数据校验",
+    "TARGET_PROJECT_NAME": "订阅项目名称",
+    "PUBLIC_SUB_NOTES": "您正在订阅公共共享API，此API享受生命周期管理，您会在API过期时收到通知，系统自动配置限流",
 }

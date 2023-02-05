@@ -256,6 +256,9 @@ public class Endpoint extends Auditable {
         if (this.expired) {
             throw new IllegalStateException("endpoint can only expire once");
         }
+        if (!this.external) {
+            throw new IllegalStateException("internal endpoint cannot be expired");
+        }
         if (this.shared) {
             this.expired = true;
             Validator.notBlank(expireReason);

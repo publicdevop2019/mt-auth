@@ -25,7 +25,7 @@ public class RateLimitService {
     private RedisScript<List<Long>> script;
 
     public RateLimitResult withinRateLimit(String path, String method,
-                                           HttpHeaders headers) {
+                                           HttpHeaders headers, InetSocketAddress address) {
         boolean webSocket = Utility.isWebSocket(headers);
         if (webSocket) {
             return RateLimitResult.alwaysAllow();
@@ -64,7 +64,8 @@ public class RateLimitService {
             }
         } else {
             //for public endpoint
-            tokenKey = RATE_LIMITER + endpoint.getId();
+            String ip = address.getAddress().getHostAddress().replace(".", "_");
+            tokenKey = RATE_LIMITER + endpoint.getId() + "." + ip;
             subscription =
                 endpoint.getSelfSubscription();
         }
