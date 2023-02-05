@@ -4,7 +4,7 @@ import org.junit.Test;
 
 public class SubscriptionTest {
     @Test
-    public void proxy_should_reject_any_call_to_internal_api(){
+    public void proxy_should_reject_any_call_to_internal_api_from_external_network(){
 
     }
     //public api shared

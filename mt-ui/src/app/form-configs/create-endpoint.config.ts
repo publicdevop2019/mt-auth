@@ -35,7 +35,7 @@ export const CATALOG_FORM_CONFIG: IForm = {
             "label": "IS_SHARED",
             "key": "isShared",
             "position": {
-                "row": "2",
+                "row": "3",
                 "column": "0"
             },
             direction:'row',
@@ -51,7 +51,7 @@ export const CATALOG_FORM_CONFIG: IForm = {
             "label": "IS_SECURED",
             "key": "isSecured",
             "position": {
-                "row": "3",
+                "row": "2",
                 "column": "0"
             },
             direction:'row',
