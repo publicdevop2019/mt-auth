@@ -40,7 +40,7 @@ public class EndpointCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.secured = endpoint.isSecured();
+        this.secured = endpoint.isAuthRequired();
         this.csrfEnabled = endpoint.isCsrfEnabled();
         this.shared = endpoint.isShared();
         this.expired = endpoint.isExpired();

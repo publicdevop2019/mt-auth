@@ -98,7 +98,7 @@ public class SubRequestApplicationService {
                     command.getReplenishRate(),
                     epProjectId,
                     endpoint1.isExpired(),
-                    endpoint1.isSecured(),
+                    endpoint1.isAuthRequired(),
                     endpoint1.isShared()
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);

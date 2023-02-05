@@ -15,7 +15,6 @@ import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
-import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.Permission;
@@ -197,20 +196,6 @@ public class PermissionApplicationService {
                 ProjectId projectId = deserialize.getProjectId();
                 Permission
                     .addNewEndpoint(projectId, endpointId, permissionId, deserialize.isShared());
-                return null;
-            }, PERMISSION);
-    }
-
-
-    @Transactional
-    public void handle(EndpointShareAdded deserialize) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
-                log.debug("handle endpoint shared added event");
-                PermissionId permissionId = deserialize.getPermissionId();
-                Optional<Permission> byId =
-                    DomainRegistry.getPermissionRepository().getById(permissionId);
-                byId.ifPresent(e -> e.setShared(true));
                 return null;
             }, PERMISSION);
     }

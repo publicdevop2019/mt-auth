@@ -105,17 +105,16 @@ public interface SpringDataJpaEndpointRepository
                 e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
             Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility
                 .addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
-            //query shared endpoints including public endpoints
             Optional.ofNullable(endpointQuery.getIsShared()).ifPresent(
                 e -> {
                     if (e) {
                         queryContext.getPredicates().add(
-                            EndpointSharedPredicateConverter
+                            MarketAvailableEndpointPredicateConverter
                                 .getPredicate(queryContext.getCriteriaBuilder(),
                                     queryContext.getRoot()));
                         Optional.ofNullable(queryContext.getCountPredicates())
                             .ifPresent(ee -> ee.add(
-                                EndpointSharedPredicateConverter
+                                MarketAvailableEndpointPredicateConverter
                                     .getPredicate(queryContext.getCriteriaBuilder(),
                                         queryContext.getCountRoot())));
                     }
@@ -123,7 +122,7 @@ public interface SpringDataJpaEndpointRepository
             );
 
             Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(
-                e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.SECURED, queryContext));
+                e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.AUTH_REQUIRED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
@@ -149,11 +148,11 @@ public interface SpringDataJpaEndpointRepository
             return QueryUtility.pagedQuery(endpointQuery, queryContext);
         }
 
-        private static class EndpointSharedPredicateConverter {
+        private static class MarketAvailableEndpointPredicateConverter {
             public static Predicate getPredicate(CriteriaBuilder cb,
                                                  Root<Endpoint> root) {
                 Predicate aTrue = cb.isTrue(root.get(Endpoint_.SHARED));
-                Predicate aFalse = cb.isFalse(root.get(Endpoint_.SECURED));
+                Predicate aFalse = cb.isFalse(root.get(Endpoint_.AUTH_REQUIRED));
                 return cb.or(aTrue, aFalse);
             }
         }

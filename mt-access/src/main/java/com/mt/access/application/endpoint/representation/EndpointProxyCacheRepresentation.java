@@ -60,7 +60,7 @@ public class EndpointProxyCacheRepresentation
         this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
-        this.secured = endpoint.isSecured();
+        this.secured = endpoint.isAuthRequired();
         this.csrfEnabled = endpoint.isCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();

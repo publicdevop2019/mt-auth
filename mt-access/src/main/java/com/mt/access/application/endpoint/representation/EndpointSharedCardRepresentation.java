@@ -41,7 +41,7 @@ public class EndpointSharedCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.secured = endpoint.isSecured();
+        this.secured = endpoint.isAuthRequired();
     }
 
     public static void updateDetail(List<EndpointSharedCardRepresentation> original) {

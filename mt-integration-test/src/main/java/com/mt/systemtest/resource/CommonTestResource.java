@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
-public class TestResource {
+public class CommonTestResource {
 
     public static final String DEFAULT_TEST_RESPONSE_BODY = "\"test\":\"test\"";
 

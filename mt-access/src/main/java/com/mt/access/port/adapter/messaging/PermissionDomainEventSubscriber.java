@@ -1,12 +1,10 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.endpoint.event.EndpointShareAdded.ENDPOINT_SHARED_ADDED;
 import static com.mt.access.domain.model.endpoint.event.SecureEndpointCreated.SECURE_ENDPOINT_CREATED;
 import static com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved.SECURE_ENDPOINT_REMOVED;
 import static com.mt.access.domain.model.project.event.StartNewProjectOnboarding.START_NEW_PROJECT_ONBOARDING;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
@@ -40,16 +38,6 @@ public class PermissionDomainEventSubscriber {
             .of(appName, true, SECURE_ENDPOINT_CREATED, (event) -> {
                 SecureEndpointCreated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
                     .deserialize(event.getEventBody(), SecureEndpointCreated.class);
-                ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
-            });
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    private void listener2() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, ENDPOINT_SHARED_ADDED, (event) -> {
-                EndpointShareAdded deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), EndpointShareAdded.class);
                 ApplicationServiceRegistry.getPermissionApplicationService().handle(deserialize);
             });
     }
