@@ -8,24 +8,20 @@ import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
 import { copyOf } from './utility';
-export interface IBellNotification extends IIdBasedEntity {
-    title: string,
-    descriptions: string[],
-    date: number
-}
+import { IBellNotification } from './message.service';
 @Injectable({
     providedIn: 'root'
 })
-export class MessageService extends EntityCommonService<IBellNotification, IBellNotification>{
+export class UserMessageService extends EntityCommonService<IBellNotification, IBellNotification>{
     private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/mngmt/notifications/bell';
+    private ENTITY_NAME = '/user/notifications/bell';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
     constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);
     }
     public latestMessage: IBellNotification[] = [];
     dismiss(value: IBellNotification) {
-        this.httpProxySvc.dismissNotification(value.id).subscribe(() => {
+        this.httpProxySvc.dismissUserNotification(value.id).subscribe(() => {
             this.latestMessage = this.latestMessage.filter(e => e.id !== value.id)
         })
     }
@@ -43,7 +39,7 @@ export class MessageService extends EntityCommonService<IBellNotification, IBell
     connectToMonitor() {
         if (environment.mode !== 'offline') {
             this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, UUID()).subscribe(next => {
-                this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor?jwt=${btoa(next)}`);
+                this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/user/monitor?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {
                     if (event.data !== '_renew')
                         this.saveMessage(event.data as string);

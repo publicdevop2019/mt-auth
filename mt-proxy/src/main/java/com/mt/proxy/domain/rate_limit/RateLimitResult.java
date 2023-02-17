@@ -16,6 +16,12 @@ public class RateLimitResult {
         rateLimitResult.setNewTokens(0L);
         return rateLimitResult;
     }
+    public static RateLimitResult error() {
+        RateLimitResult rateLimitResult = new RateLimitResult();
+        rateLimitResult.setAllowed(false);
+        rateLimitResult.setNewTokens(-1L);
+        return rateLimitResult;
+    }
     public static RateLimitResult alwaysAllow() {
         RateLimitResult rateLimitResult = new RateLimitResult();
         rateLimitResult.setAllowed(true);

@@ -6,11 +6,13 @@ import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUp
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
@@ -18,8 +20,10 @@ import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -42,8 +46,13 @@ public class Notification extends Auditable {
     @Convert(converter = NotificationType.DbConverter.class)
     private NotificationType type;
     @Convert(converter = NotificationStatus.DbConverter.class)
-    private NotificationStatus status= NotificationStatus.PENDING;
+    private NotificationStatus status = NotificationStatus.PENDING;
     private String title;
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "domainId", column = @Column(name = "user_id"))
+    })
+    private UserId userId;
 
     public Notification(HangingTxDetected deserialize) {
         super();
@@ -139,14 +148,17 @@ public class Notification extends Auditable {
         type = NotificationType.BELL;
     }
 
-    public Notification(SubscriberEndpointExpireEvent event) {
+    public Notification(SubscriberEndpointExpireEvent event,
+                        DomainId e) {
         super();
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = SubscriberEndpointExpireEvent.name;
         type = NotificationType.BELL;
+        userId = new UserId(e.getDomainId());
     }
+
 
     public Notification(JobPausedEvent event) {
         super();
@@ -181,7 +193,7 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = event.getName();
-        descriptions=Collections.singleton(event.getDomainId().getDomainId());
+        descriptions = Collections.singleton(event.getDomainId().getDomainId());
         type = NotificationType.BELL;
     }
 

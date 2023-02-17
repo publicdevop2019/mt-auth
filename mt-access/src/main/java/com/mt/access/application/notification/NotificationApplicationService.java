@@ -51,6 +51,15 @@ public class NotificationApplicationService {
             .notificationsOfQuery(notificationQuery);
     }
 
+    public SumPagedRep<Notification> notificationsForUser(String queryParam, String pageParam,
+                                                          String skipCount) {
+        NotificationQuery notificationQuery =
+            NotificationQuery.queryForUser(queryParam, pageParam, skipCount,
+                DomainRegistry.getCurrentUserService().getUserId());
+        return DomainRegistry.getNotificationRepository()
+            .notificationsOfQuery(notificationQuery);
+    }
+
     @Transactional
     public void handle(HangingTxDetected event) {
         Notification notification = new Notification(event);
@@ -118,7 +127,7 @@ public class NotificationApplicationService {
     }
 
     private void sendEmailNotification(Long id, Notification notification,
-                           SendEmailNotificationEvent sendEmailNotificationEvent) {
+                                       SendEmailNotificationEvent sendEmailNotificationEvent) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(id.toString(), (command) -> {
                 DomainRegistry.getNotificationRepository().add(notification);
@@ -138,8 +147,14 @@ public class NotificationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("sending bell notifications with {}", event.getTitle());
-                DomainRegistry.getWsPushNotificationService()
-                    .notify(event.value());
+                if (event.getUserId() != null) {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyUser(event.value(), event.getUserId());
+                } else {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyMngmt(event.value());
+                }
+
                 try {
                     DomainRegistry.getNotificationRepository()
                         .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
@@ -212,10 +227,17 @@ public class NotificationApplicationService {
         sendBellNotification(event.getId(), notification);
     }
 
+    /**
+     * send bell notification to subscriber
+     *
+     * @param event SubscriberEndpointExpireEvent
+     */
     @Transactional
     public void handle(SubscriberEndpointExpireEvent event) {
-        Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        event.getDomainIds().forEach(e -> {
+            Notification notification = new Notification(event, e);
+            sendBellNotification(event.getId(), notification);
+        });
     }
 
     @Transactional
@@ -250,5 +272,12 @@ public class NotificationApplicationService {
                     .append(new SendBellNotificationEvent(notification1));
                 return null;
             }, NOTIFICATION);
+    }
+
+    @Transactional
+    public void ackBellNotificationForUser(String id) {
+        DomainRegistry.getNotificationRepository()
+            .acknowledgeForUser(new NotificationId(id),
+                DomainRegistry.getCurrentUserService().getUserId());
     }
 }

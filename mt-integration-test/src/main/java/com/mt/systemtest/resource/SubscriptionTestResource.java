@@ -31,4 +31,13 @@ public class SubscriptionTestResource {
     public ResponseEntity<?> externalNotSharedNoAuth() {
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * used in SubscriptionTest.java
+     * @return
+     */
+    @GetMapping("test/expire/**/random")
+    public ResponseEntity<?> expireEpTest() {
+        return ResponseEntity.ok().build();
+    }
 }

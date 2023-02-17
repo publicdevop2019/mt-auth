@@ -11,6 +11,7 @@ import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { UserMessageService } from 'src/app/services/user-message.service';
 export interface INavElement {
   link: string;
   icon?: string;
@@ -208,6 +209,13 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+    {
+      link: 'user-notification',
+      display: 'USER_MESSAGE',
+      icon: 'message',
+      params: {
+      },
+    },
   ];
   menuEp: INavElement[] = [
     {
@@ -252,7 +260,8 @@ export class NavBarComponent implements OnInit {
     public router: Router,
     public translate: TranslateService,
     public deviceSvc: DeviceService,
-    public msgSvc: MessageService
+    public msgSvc: MessageService,
+    public userMsgSvc: UserMessageService
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -281,8 +290,13 @@ export class NavBarComponent implements OnInit {
     this.projectSvc.findUIPermission().subscribe(next => {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
     })
-    this.msgSvc.connectToMonitor();
-    this.msgSvc.pullUnAckMessage()
+    if(this.hasAuth()){
+      this.msgSvc.connectToMonitor();
+      this.msgSvc.pullUnAckMessage()
+    }
+    this.userMsgSvc.connectToMonitor();
+    this.userMsgSvc.pullUnAckMessage()
+
     this.authSvc.currentUser.subscribe(next => {
       this.name = next.username || next.email
     })
@@ -318,13 +332,13 @@ export class NavBarComponent implements OnInit {
     }
   }
   hasAuth() {
-    return !!this.projectSvc.totalProjects.find(e => e.id === '0P8HE307W6IO')
+    return this.projectSvc.showMngmtPanel()
   }
   filterDuplicate(msgs: IBellNotification[]) {
     return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
   }
-  bellCount(msgs: IBellNotification[]){
-    const count=msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
-    return count>99?'99+':new String(count);
+  bellCount(msgs: IBellNotification[]) {
+    const count = msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
+    return count > 99 ? '99+' : new String(count);
   }
 }

@@ -1,9 +1,11 @@
 package com.mt.access.domain.model.notification;
 
+import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -17,6 +19,7 @@ public class NotificationQuery extends QueryCriteria {
     private Set<NotificationType> type;
     private Set<NotificationId> ids;
     private Boolean isUnAck;
+    private UserId userId;
 
     public NotificationQuery(NotificationType type, String queryParam, String pageParam,
                              String skipCount) {
@@ -39,6 +42,15 @@ public class NotificationQuery extends QueryCriteria {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = Sort.byId();
+    }
+
+    public static NotificationQuery queryForUser(String queryParam, String pageParam,
+                                                 String skipCount, UserId userId) {
+        NotificationQuery notificationQuery =
+            new NotificationQuery(null, queryParam, pageParam, skipCount);
+        Validator.notNull(userId);
+        notificationQuery.userId = userId;
+        return notificationQuery;
     }
 
     private void updateQueryParam(String queryParam) {

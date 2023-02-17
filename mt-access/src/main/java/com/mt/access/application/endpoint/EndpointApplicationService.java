@@ -71,21 +71,21 @@ public class EndpointApplicationService {
 
     @Transactional
     @AuditLog(actionName = "create api")
-    public String create(String projectId, EndpointCreateCommand command, String changeId) {
+    public String create(String rawProjectId, EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_API);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
-                String resourceId = command.getResourceId();
-                Optional<Client> client =
-                    DomainRegistry.getClientRepository().clientOfId(new ClientId(resourceId));
-                if (client.isPresent()) {
-                    Client client1 = client.get();
-                    if (!client1.getProjectId().equals(projectId1)) {
+                String clientId = command.getResourceId();
+                Optional<Client> optional =
+                    DomainRegistry.getClientRepository().clientOfId(new ClientId(clientId));
+                if (optional.isPresent()) {
+                    Client client = optional.get();
+                    if (!client.getProjectId().equals(projectId)) {
                         throw new AccessDeniedException();
                     }
-                    Endpoint endpoint = client1.addNewEndpoint(
+                    Endpoint endpoint = client.addNewEndpoint(
                         command.getCacheProfileId() != null
                             ?
                             new CacheProfileId(command.getCacheProfileId()) : null,

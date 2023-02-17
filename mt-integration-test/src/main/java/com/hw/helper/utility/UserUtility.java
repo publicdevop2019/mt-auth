@@ -1,8 +1,10 @@
 package com.hw.helper.utility;
 
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
+import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN;
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_USER;
 import static com.hw.helper.AppConstant.ACCOUNT_USERNAME_ADMIN;
+import static com.hw.helper.AppConstant.ACCOUNT_USERNAME_MALL_ADMIN;
 import static com.hw.helper.AppConstant.ACCOUNT_USERNAME_USER;
 import static com.hw.helper.AppConstant.CLIENT_ID_LOGIN_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_REGISTER_ID;
@@ -135,6 +137,10 @@ public class UserUtility {
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
         return login(ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordMallTenant() {
+        return login(ACCOUNT_USERNAME_MALL_ADMIN, ACCOUNT_PASSWORD_MALL_ADMIN);
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordUser() {

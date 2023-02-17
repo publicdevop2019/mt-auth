@@ -388,7 +388,7 @@ export const zhHans = {
     "CACHE_DASHBOARD": "代理",
     "RELOAD_PROXY_CACHE": "重载代理缓存",
     "CACHE_RELOAD_MSG_SENT": "请求已发送，系统正在处理您的请求",
-    "MESSAGE_DASHBOARD": "我的消息",
+    "MESSAGE_DASHBOARD": "系统消息",
     "NO_MSG": "无新消息",
     "MESSAGE": "消息",
     "DATE": "日期",
@@ -906,4 +906,5 @@ export const zhHans = {
     "SYSTEM_DATA_VALIDATION": "系统数据校验",
     "TARGET_PROJECT_NAME": "订阅项目名称",
     "PUBLIC_SUB_NOTES": "您正在订阅公共共享API，此API享受生命周期管理，您会在API过期时收到通知，系统自动配置限流",
+    "USER_MESSAGE": "我的消息",
 }

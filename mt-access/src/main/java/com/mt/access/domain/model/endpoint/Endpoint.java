@@ -16,6 +16,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -139,8 +140,8 @@ public class Endpoint extends Auditable {
         setCorsProfileId(corsProfileId);
         validate(new HttpValidationNotificationHandler());
         setEndpointCatalogOnCreation(shared, authRequired, external);
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
         CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
@@ -197,8 +198,8 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
@@ -220,6 +221,16 @@ public class Endpoint extends Auditable {
     private void setName(String name) {
         Validator.notBlank(name);
         this.name = name;
+    }
+
+    public void setReplenishRate(int replenishRate) {
+        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        this.replenishRate = replenishRate;
+    }
+
+    public void setBurstCapacity(int burstCapacity) {
+        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        this.burstCapacity = burstCapacity;
     }
 
     private void setPath(String path) {

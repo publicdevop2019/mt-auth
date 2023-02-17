@@ -87,7 +87,7 @@ public class RateLimitService {
             result = RateLimitResult.parse(execute);
         } catch (Exception ex) {
             log.error("error during redis script", ex);
-            result = RateLimitResult.deny();
+            result = RateLimitResult.error();
         }
         return result;
     }

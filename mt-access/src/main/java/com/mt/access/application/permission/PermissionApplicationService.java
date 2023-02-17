@@ -230,13 +230,18 @@ public class PermissionApplicationService {
     public SumPagedRep<Permission> sharedPermissions(String queryParam, String pageParam) {
         Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
             .internalSubscribedEndpointIds();
-        Set<Endpoint> endpoints =
-            ApplicationServiceRegistry.getEndpointApplicationService().internalQuery(endpointIds);
-        Set<PermissionId> subPermissionIds =
-            endpoints.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
-        PermissionQuery permissionQuery =
-            PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
-        return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+        if (!endpointIds.isEmpty()) {
+            Set<Endpoint> endpoints =
+                ApplicationServiceRegistry.getEndpointApplicationService()
+                    .internalQuery(endpointIds);
+            Set<PermissionId> subPermissionIds =
+                endpoints.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
+            PermissionQuery permissionQuery =
+                PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
+            return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+        } else {
+            return SumPagedRep.empty();
+        }
     }
 
     /**

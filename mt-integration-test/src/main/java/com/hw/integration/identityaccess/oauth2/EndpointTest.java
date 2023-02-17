@@ -2,6 +2,7 @@ package com.hw.integration.identityaccess.oauth2;
 
 import com.hw.helper.EndpointInfo;
 import com.hw.helper.SumTotal;
+import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
@@ -57,7 +58,7 @@ public class EndpointTest {
             });
     }
 
-    public static ResponseEntity<EndpointInfo> readProfile(String id) {
+    public static ResponseEntity<EndpointInfo> readEndpoint(String id) {
         String url = UrlUtility.getAccessUrl(ENDPOINTS + "/" + id);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
@@ -66,18 +67,9 @@ public class EndpointTest {
             .exchange(url, HttpMethod.GET, hashMapHttpEntity1, EndpointInfo.class);
     }
 
-    public static ResponseEntity<String> createProfile(EndpointInfo endpointInfo) {
-        String url = UrlUtility.getAccessUrl(ENDPOINTS);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<EndpointInfo> hashMapHttpEntity1 = new HttpEntity<>(endpointInfo, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
-    }
-
     @Test
     @Ignore
-    public void modify_existing_profile_to_prevent_access() {
+    public void modify_existing_endpoint_to_prevent_access() {
         String url2 = UrlUtility.getAccessUrl("/users/admin");
         //before modify, admin is able to access resourceOwner apis
         HttpHeaders headers1 = new HttpHeaders();
@@ -126,19 +118,19 @@ public class EndpointTest {
 
     @Test
     public void create_new_endpoint_then_delete() {
-        EndpointInfo endpointInfo1 = new EndpointInfo();
-        endpointInfo1.setResourceId("0C8AZTODP4HT");
-        endpointInfo1.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
-        endpointInfo1.setUserOnly(true);
-        endpointInfo1.setName("test");
-        endpointInfo1.setMethod("GET");
-        endpointInfo1.setWebsocket(false);
-        endpointInfo1
+        EndpointInfo endpoint = new EndpointInfo();
+        endpoint.setResourceId("0C8AZTODP4HT");
+        endpoint.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
+        endpoint.setUserOnly(true);
+        endpoint.setName("test");
+        endpoint.setMethod("GET");
+        endpoint.setWebsocket(false);
+        endpoint
             .setPath(
                 "/test/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "")
                     +
                     "/abc");
-        ResponseEntity<String> profile = createProfile(endpointInfo1);
+        ResponseEntity<String> profile = EndpointUtility.createEndpoint(endpoint);
         Assert.assertEquals(HttpStatus.OK, profile.getStatusCode());
         ResponseEntity<String> stringResponseEntity =
             deleteEndpoint(profile.getHeaders().getLocation().toString());

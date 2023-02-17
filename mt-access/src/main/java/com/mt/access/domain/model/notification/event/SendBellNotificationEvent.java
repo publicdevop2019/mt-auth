@@ -2,6 +2,7 @@ package com.mt.access.domain.model.notification.event;
 
 import com.mt.access.application.notification.representation.BellNotificationRepresentation;
 import com.mt.access.domain.model.notification.Notification;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.Set;
@@ -18,6 +19,7 @@ public class SendBellNotificationEvent extends DomainEvent {
     private Long date;
     private String title;
     private Set<String> descriptions;
+    private UserId userId;
 
     public SendBellNotificationEvent(Notification notification) {
         super();
@@ -27,6 +29,7 @@ public class SendBellNotificationEvent extends DomainEvent {
         date = notification.getTimestamp();
         this.descriptions = notification.getDescriptions();
         title = notification.getTitle();
+        userId = notification.getUserId();
     }
 
     public String value() {
