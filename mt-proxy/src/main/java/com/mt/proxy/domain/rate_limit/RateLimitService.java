@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class RateLimitService {
-    public static final String RATE_LIMITER = "rate_limiter.";
+    public static final String RATE_LIMITER = "rate_limiter";
     @Autowired
-    RedisTemplate<String, String> redisTemplate;
+    private RedisTemplate<String, String> redisTemplate;
     @Autowired
     private RedisScript<List<Long>> script;
 
@@ -41,19 +41,21 @@ public class RateLimitService {
         String tokenKey;
         if (endpoint.isSecured()) {
             //for protected
-           String authorization = headers.getFirst("authorization");
+            String authorization = headers.getFirst("authorization");
             if (authorization != null) {
                 String bearer_ = authorization.replace("Bearer ", "");
                 try {
                     String projectId = DomainRegistry.getJwtService().getProjectId(bearer_);
+                    String userId = DomainRegistry.getJwtService().getUserId(bearer_);
                     subscription =
-                        endpoint.getSubscriptions().stream().filter(e->e.getProjectId().equals(projectId))
+                        endpoint.getSubscriptions().stream()
+                            .filter(e -> e.getProjectId().equals(projectId))
                             .findFirst().orElse(null);
                     if (subscription == null) {
                         log.error("unable to find related subscription");
                         return RateLimitResult.deny();
                     }
-                    tokenKey = RATE_LIMITER + endpoint.getId() + "." + projectId;
+                    tokenKey = String.join(".", RATE_LIMITER, endpoint.getId(), projectId, userId);
                 } catch (ParseException e) {
                     log.error("unable to extract user id and project id");
                     return RateLimitResult.deny();
@@ -65,7 +67,7 @@ public class RateLimitService {
         } else {
             //for public endpoint
             String ip = address.getAddress().getHostAddress().replace(".", "_");
-            tokenKey = RATE_LIMITER + endpoint.getId() + "." + ip;
+            tokenKey = String.join(".", RATE_LIMITER, endpoint.getId(), ip);
             subscription =
                 endpoint.getSelfSubscription();
         }
@@ -80,7 +82,7 @@ public class RateLimitService {
                 String.valueOf(subscription.getReplenishRate()),
                 String.valueOf(subscription.getBurstCapacity()),
                 String.valueOf(Instant.now().getEpochSecond()));
-            if(execute==null){
+            if (execute == null) {
                 log.error("redis script return null");
                 return RateLimitResult.deny();
             }

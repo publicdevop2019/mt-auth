@@ -59,7 +59,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         EntityManager entityManager = QueryUtility.getEntityManager();
         TypedQuery<SubRequest> getMySubscriptions =
             entityManager.createNamedQuery("getMySubscriptions", SubRequest.class);
-//        getMySubscriptions.setHint("org.hibernate.cacheable", true);
+        getMySubscriptions.setHint("org.hibernate.cacheable", true);
         getMySubscriptions.setParameter("createdBy", query.getCreatedBy().getDomainId());
         List<SubRequest> data = getMySubscriptions
             .setFirstResult(BigDecimal.valueOf(query.getPageConfig().getOffset()).intValue())
@@ -67,7 +67,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
             .getResultList();
         TypedQuery<Long> getMySubscriptionsCount =
             entityManager.createNamedQuery("getMySubscriptionsCount", Long.class);
-//        getMySubscriptionsCount.setHint("org.hibernate.cacheable", true);
+        getMySubscriptionsCount.setHint("org.hibernate.cacheable", true);
         getMySubscriptionsCount.setParameter("createdBy", query.getCreatedBy().getDomainId());
         Long count = getMySubscriptionsCount.getSingleResult();
         return new SumPagedRep<>(data, count);
@@ -77,7 +77,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         EntityManager entityManager = QueryUtility.getEntityManager();
         TypedQuery<SubRequest> getAllSubscriptions =
             entityManager.createNamedQuery("getEpSubscriptions", SubRequest.class);
-//        getAllSubscriptions.setHint("org.hibernate.cacheable", true);
+        getAllSubscriptions.setHint("org.hibernate.cacheable", true);
         getAllSubscriptions.setParameter("endpointIds", query.getEpIds());
         List<SubRequest> data = getAllSubscriptions
             .setFirstResult(BigDecimal.valueOf(query.getPageConfig().getOffset()).intValue())
@@ -85,7 +85,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
             .getResultList();
         TypedQuery<Long> getAllSubscriptionsCount =
             entityManager.createNamedQuery("getEpSubscriptionsCount", Long.class);
-//        getAllSubscriptionsCount.setHint("org.hibernate.cacheable", true);
+        getAllSubscriptionsCount.setHint("org.hibernate.cacheable", true);
         getAllSubscriptionsCount.setParameter("endpointIds", query.getEpIds());
         Long count = getAllSubscriptionsCount.getSingleResult();
         return new SumPagedRep<>(data, count);
