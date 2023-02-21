@@ -38,6 +38,7 @@ public class StoredEvent implements Serializable {
 
     private String applicationId;
     private boolean routable = true;
+    private boolean rejected = false;
 
     public StoredEvent(DomainEvent event) {
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
@@ -88,5 +89,9 @@ public class StoredEvent implements Serializable {
 
     public void markAsUnroutable() {
         this.routable = false;
+    }
+
+    public void markAsRejected() {
+        this.rejected = true;
     }
 }

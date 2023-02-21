@@ -15,6 +15,7 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpEntity;
@@ -35,6 +36,7 @@ public class SubscriptionTest {
     }
 
     @Test
+    @Ignore//TODO
     public void proxy_should_reject_any_call_to_internal_api_from_external_network() {
 
     }
@@ -116,17 +118,20 @@ public class SubscriptionTest {
     }
 
     @Test
+    @Ignore//TODO
     public void external_shared_auth_api_has_rate_limit_on_user_id_and_lifecycle_mngmt() {
 
     }
 
     //public api none-shared
     @Test
+    @Ignore//TODO
     public void external_none_shared_none_auth_api_has_rate_limit_on_ip_without_lifecycle_mngmt() {
 
     }
 
     @Test
+    @Ignore//TODO
     public void external_none_shared_auth_api_has_rate_limit_on_user_id_without_lifecycle_mngmt() {
 
     }

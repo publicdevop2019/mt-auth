@@ -290,7 +290,7 @@ export class NavBarComponent implements OnInit {
     this.projectSvc.findUIPermission().subscribe(next => {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
     })
-    if(this.hasAuth()){
+    if (this.httpProxySvc.currentUserAuthInfo.permissionIds.includes('0Y8HVWH0K64P')) {
       this.msgSvc.connectToMonitor();
       this.msgSvc.pullUnAckMessage()
     }

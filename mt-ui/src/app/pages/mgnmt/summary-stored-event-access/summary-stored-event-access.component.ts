@@ -9,6 +9,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
+import { FORM_CONFIG } from 'src/app/form-configs/event-filter.config';
 import { DeviceService } from 'src/app/services/device.service';
 import { OverlayService } from 'src/app/services/overlay.service';
 import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
@@ -28,6 +29,8 @@ export interface IStoredEvent {
   styleUrls: ['./summary-stored-event-access.component.css']
 })
 export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IStoredEvent, IStoredEvent> implements OnDestroy {
+  filterFormId = "authEventFilter";
+  formInfo = JSON.parse(JSON.stringify(FORM_CONFIG));
   formId = "authEventTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -56,7 +59,6 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
       }
     }
   ];
-  auditTrigger = new FormControl();
   constructor(
     public entitySvc: StoredEventAccessService,
     public deviceSvc: DeviceService,
@@ -67,14 +69,25 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     fis: FormInfoService,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 1);
-    this.auditTrigger.valueChanges.subscribe(next => {
-      if (next) {
-        this.entitySvc.entityRepo = this.entitySvc.auditRepo;
-      } else {
-        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-      }
-      this.entitySvc.pageNumber = 0;
-      this.deviceSvc.refreshSummary.next();
+    this.fis.formCreated(this.filterFormId).subscribe(() => {
+      this.fis.formGroupCollection[this.filterFormId].get('filterBy').setValue('all')
+      this.fis.formGroupCollection[this.filterFormId].valueChanges.subscribe(next => {
+        if (next.filterBy === 'audit') {
+          this.entitySvc.entityRepo = this.entitySvc.auditRepo;
+          this.entitySvc.queryPrefix = undefined;
+        } else if (next.filterBy === 'rejected') {
+          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+          this.entitySvc.queryPrefix = 'rejected:1';
+        } else if (next.filterBy === 'unroutable') {
+          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+          this.entitySvc.queryPrefix = 'routable:0';
+        } else {
+          this.entitySvc.queryPrefix = undefined;
+          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+        }
+        this.entitySvc.pageNumber = 0;
+        this.deviceSvc.refreshSummary.next();
+      })
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {

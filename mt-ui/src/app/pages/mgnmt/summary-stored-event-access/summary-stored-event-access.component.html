@@ -2,7 +2,9 @@
     {{'EVENT_DASHBOARD'|translate}}</h2>
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
-    <mat-slide-toggle [formControl]="auditTrigger">{{'AUDIT_EVENT'|translate}}</mat-slide-toggle>
+    <div style="width: 450px;">
+        <lib-factory [formId]="filterFormId" [formInfo]="formInfo"></lib-factory>
+    </div>
     <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
 </div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">

@@ -20,6 +20,7 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
@@ -264,6 +265,12 @@ public class NotificationApplicationService {
         sendBellNotification(event.getId(), notification);
     }
 
+    @Transactional
+    public void handle(RejectedMsgReceivedEvent event) {
+        Notification notification = new Notification(event);
+        sendBellNotification(event.getId(), notification);
+    }
+
     private void sendBellNotification(Long eventId, Notification notification1) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(eventId.toString(), (command) -> {
@@ -280,4 +287,5 @@ public class NotificationApplicationService {
             .acknowledgeForUser(new NotificationId(id),
                 DomainRegistry.getCurrentUserService().getUserId());
     }
+
 }

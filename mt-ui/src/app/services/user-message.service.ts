@@ -27,13 +27,13 @@ export class UserMessageService extends EntityCommonService<IBellNotification, I
     }
     pullUnAckMessage() {
         if (environment.mode !== 'offline') {
-            this.readEntityByQuery(0, 200,'unAck:1').subscribe(next => {
+            this.readEntityByQuery(0, 200, 'unAck:1').subscribe(next => {
                 this.latestMessage = next.data
             });
         }
     }
     saveMessage(message: string) {
-        this.latestMessage.push(JSON.parse(message));
+        this.latestMessage = [JSON.parse(message), ...this.latestMessage]
     }
     private socket: WebSocket;
     connectToMonitor() {

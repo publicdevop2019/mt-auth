@@ -37,7 +37,7 @@ export class MessageService extends EntityCommonService<IBellNotification, IBell
         }
     }
     saveMessage(message: string) {
-        this.latestMessage.push(JSON.parse(message));
+        this.latestMessage = [JSON.parse(message), ...this.latestMessage]
     }
     private socket: WebSocket;
     connectToMonitor() {

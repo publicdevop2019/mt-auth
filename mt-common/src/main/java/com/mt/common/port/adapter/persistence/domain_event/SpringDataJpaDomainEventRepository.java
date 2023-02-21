@@ -55,6 +55,8 @@ public interface SpringDataJpaDomainEventRepository
                 e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.SEND, queryContext));
             Optional.ofNullable(query.getRoutable()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.ROUTABLE, queryContext));
+            Optional.ofNullable(query.getRejected()).ifPresent(
+                e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.REJECTED, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order =

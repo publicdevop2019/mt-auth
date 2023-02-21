@@ -5,6 +5,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
@@ -66,6 +67,20 @@ public class StoredEventApplicationService {
                 event);
         }
 
+    }
+
+    /**
+     * record rejected msg, no idempotency required bcz by nature it is.
+     *
+     * @param event rejected event
+     */
+    @Transactional
+    public void recordRejectedEvent(StoredEvent event) {
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new RejectedMsgReceivedEvent(event));
+        CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
+            .ifPresent(
+                StoredEvent::markAsRejected);
     }
 
     /**

@@ -30,7 +30,7 @@
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
                 <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length"
-                    [index]="i"></app-card-notification>
+                    [index]="i" (ack)="msgSvc.dismiss($event)"></app-card-notification>
             </ng-container>
         </ng-container>
     </mat-menu>

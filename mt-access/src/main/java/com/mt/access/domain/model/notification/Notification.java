@@ -13,6 +13,7 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
@@ -20,6 +21,8 @@ import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -146,6 +149,10 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = UnrountableMsgReceivedEvent.name;
         type = NotificationType.BELL;
+        descriptions=new LinkedHashSet<>();
+        descriptions.add(String.valueOf(event.getSourceEventId()));
+        descriptions.add(event.getSourceTopic());
+        descriptions.add(event.getSourceName());
     }
 
     public Notification(SubscriberEndpointExpireEvent event,
@@ -195,6 +202,18 @@ public class Notification extends Auditable {
         title = event.getName();
         descriptions = Collections.singleton(event.getDomainId().getDomainId());
         type = NotificationType.BELL;
+    }
+
+    public Notification(RejectedMsgReceivedEvent event) {
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = RejectedMsgReceivedEvent.name;
+        type = NotificationType.BELL;
+        descriptions=new LinkedHashSet<>();
+        descriptions.add(String.valueOf(event.getSourceEventId()));
+        descriptions.add(event.getSourceTopic());
+        descriptions.add(event.getSourceName());
     }
 
     public void markAsDelivered() {

@@ -823,6 +823,7 @@ CREATE TABLE `stored_event` (
   `topic` varchar(255) DEFAULT NULL,
   `send` bit(1) NOT NULL,
   `routable` bit(1) DEFAULT b'1',
+  `rejected` bit(1) NOT NULL,
   `application_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

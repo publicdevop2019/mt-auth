@@ -2,7 +2,11 @@ package com.mt.common.infrastructure;
 
 import static com.mt.common.CommonConstant.EXCHANGE_NAME;
 import static com.mt.common.CommonConstant.EXCHANGE_NAME_ALT;
+import static com.mt.common.CommonConstant.EXCHANGE_NAME_DELAY;
+import static com.mt.common.CommonConstant.EXCHANGE_NAME_REJECT;
 import static com.mt.common.CommonConstant.QUEUE_NAME_ALT;
+import static com.mt.common.CommonConstant.QUEUE_NAME_DELAY;
+import static com.mt.common.CommonConstant.QUEUE_NAME_REJECT;
 
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -17,6 +21,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -135,6 +140,18 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                           boolean autoDelete,
                           Consumer<StoredEvent> consumer,
                           String... topics) {
+        subscribe(exchangeName, routingKey, queueName, autoDelete, consumer,
+            ErrorHandleStrategy.MANUAL, topics);
+    }
+
+    @Override
+    public void subscribe(@Nullable String exchangeName,
+                          String routingKey,
+                          String queueName,
+                          boolean autoDelete,
+                          Consumer<StoredEvent> consumer,
+                          ErrorHandleStrategy strategy,
+                          String... topics) {
         Thread thread = Thread.currentThread();
         Channel channel = subChannel.get(thread);
         if (channel == null) {
@@ -149,10 +166,24 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             subChannel.put(thread, channel);
         }
         try {
-            channel.queueDeclare(queueName, true, false, autoDelete, null);
+            HashSet<String> strings = new HashSet<>();
+            strings.add(QUEUE_NAME_ALT);
+            strings.add(QUEUE_NAME_REJECT);
+            strings.add(QUEUE_NAME_DELAY);
+            if (strings.contains(queueName)) {
+                channel.queueDeclare(queueName, true, false, autoDelete, null);
+            } else {
+                Map<String, Object> args = new HashMap<>();
+                if (strategy.equals(ErrorHandleStrategy.MANUAL)) {
+                    args.put("x-dead-letter-exchange", EXCHANGE_NAME_REJECT);
+                } else if (strategy.equals(ErrorHandleStrategy.DELAY_1MIN)) {
+                    args.put("x-dead-letter-exchange", EXCHANGE_NAME_DELAY);
+                }
+                channel.queueDeclare(queueName, true, false, autoDelete, args);
+            }
+            checkExchange(channel);
             //@todo find out proper prefetch value, this requires test in prod env
             channel.basicQos(10);
-            checkExchange(channel);
             for (String topic : topics) {
                 channel.queueBind(queueName, exchangeName == null ? EXCHANGE_NAME : exchangeName,
                     routingKey + topic);
@@ -178,14 +209,15 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     consumer.accept(event);
                 } catch (Exception ex) {
                     log.error(
-                        "error during consume, catch error to maintain connection, requeue message",
+                        "error during consume, catch error to maintain connection, reject message",
                         ex);
                     consumeSuccess = false;
                 }
                 if (consumeSuccess) {
                     finalChannel.basicAck(deliveryTag, false);
                 } else {
-                    finalChannel.basicNack(deliveryTag, false, true);
+                    finalChannel.basicNack(deliveryTag, false,
+                        strategy.equals(ErrorHandleStrategy.REQUEUE));
                 }
                 log.trace("mq message consumed");
             }, consumerTag -> {
@@ -240,7 +272,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 channel.confirmSelect();
                 ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
                     Consumer<StoredEvent> markAsSent = (storedEvent) -> {
-                        CommonApplicationServiceRegistry.getStoredEventApplicationService().markAsSent(storedEvent);
+                        CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                            .markAsSent(storedEvent);
                     };
                     if (multiple) {
                         log.debug("ack callback with multiple confirm");
@@ -306,19 +339,41 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     private void checkExchange(Channel channel) throws IOException {
         Map<String, Object> args = new HashMap<>();
         args.put("alternate-exchange", EXCHANGE_NAME_ALT);
+
         channel.exchangeDeclare(EXCHANGE_NAME, "topic", true, false, args);
         channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout", true, false, null);
+        channel.exchangeDeclare(EXCHANGE_NAME_REJECT, "fanout", true, false, null);
+        channel.exchangeDeclare(EXCHANGE_NAME_DELAY, "fanout", true, false, null);
+
         channel.queueDeclare(QUEUE_NAME_ALT, true, false, false, null);
+        channel.queueDeclare(QUEUE_NAME_REJECT, true, false, false, null);
+
+        Map<String, Object> args2 = new HashMap<>();
+        args2.put("x-dead-letter-exchange", EXCHANGE_NAME);
+        args2.put("x-message-ttl", 60 * 1000);//redeliver after 60s
+        channel.queueDeclare(QUEUE_NAME_DELAY, true, false, false, args2);
+
         channel.queueBind(QUEUE_NAME_ALT, EXCHANGE_NAME_ALT, "");
+        channel.queueBind(QUEUE_NAME_REJECT, EXCHANGE_NAME_REJECT, "");
+        channel.queueBind(QUEUE_NAME_DELAY, EXCHANGE_NAME_DELAY, "");
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void unroutableMsgListener() {
         log.debug("subscribe for unroutable msg");
         this.subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT, false, (event) -> {
-                CommonApplicationServiceRegistry.getStoredEventApplicationService()
-                    .markAsUnroutable(event);
-            }, "");
+            CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                .markAsUnroutable(event);
+        }, "");
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    private void rejectedMsgListener() {
+        log.debug("subscribe for rejected msg");
+        this.subscribe(EXCHANGE_NAME_REJECT, "", QUEUE_NAME_REJECT, false, (event) -> {
+            CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                .recordRejectedEvent(event);
+        }, "");
     }
 
     private static class EventStreamException extends RuntimeException {
