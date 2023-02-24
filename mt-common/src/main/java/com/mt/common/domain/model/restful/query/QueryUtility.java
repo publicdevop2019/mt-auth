@@ -1,9 +1,11 @@
 package com.mt.common.domain.model.restful.query;
 
 import com.mt.common.CommonConstant;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.sql.clause.NotDeletedClause;
-import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,8 +133,9 @@ public class QueryUtility {
     }
 
     /**
-     * parse give raw query string, throw {@link QueryParseException} if string is not key value pair and {@link UnknownQueryValueException} if keys are not found
-     * @param rawQuery raw query string e.g. "key=value,key2=value2"
+     * parse give raw query string, throw {@link DefinedRuntimeException} if string is not key value pair and {@link DefinedRuntimeException} if keys are not found
+     *
+     * @param rawQuery        raw query string e.g. "key=value,key2=value2"
      * @param supportedFields allowed keys
      * @return parsed string map
      */
@@ -144,7 +147,9 @@ public class QueryUtility {
                 String[] split1 = str.split(":");
                 if (split1.length != 2) {
                     log.info("unable to parse query string {}", rawQuery);
-                    throw new QueryParseException();
+                    throw new DefinedRuntimeException("unable to parse query string", "0004",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 parsed.put(split1[0], split1[1]);
             }
@@ -157,7 +162,9 @@ public class QueryUtility {
     private static void validateQuery(Map<String, String> parsedMap, String... supportedFields) {
         List<String> list = List.of(supportedFields);
         if (parsedMap.keySet().stream().anyMatch(e -> !list.contains(e))) {
-            throw new UnknownQueryValueException();
+            throw new DefinedRuntimeException("unknown query key", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -259,7 +266,9 @@ public class QueryUtility {
     public static <T> void addDomainIdIsPredicate(String value, String sqlFieldName,
                                                   QueryContext<T> queryContext) {
         if ("null".equalsIgnoreCase(value)) {
-            throw new IllegalArgumentException("should never reached here");
+            throw new DefinedRuntimeException("should never reached here", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         } else {
             queryContext.getPredicates().add(queryContext.getCriteriaBuilder().equal(
                 queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
@@ -327,7 +336,9 @@ public class QueryUtility {
                 int i = Integer.parseInt(str.replace(">", ""));
                 results.add(cb.greaterThan(root.get(entityFieldName), i));
             } else {
-                throw new UnsupportedQueryException();
+                throw new DefinedRuntimeException("unsupported query value", "0004",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         }
         return cb.and(results.toArray(new Predicate[0]));
@@ -359,12 +370,6 @@ public class QueryUtility {
     @Autowired
     public void setEntityManager(EntityManager em) {
         QueryUtility.em = em;
-    }
-
-    public static class QueryParseException extends RuntimeException {
-    }
-
-    public static class UnknownQueryValueException extends RuntimeException {
     }
 
     @Getter

@@ -11,7 +11,6 @@ import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
@@ -30,6 +29,9 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -83,7 +85,9 @@ public class EndpointApplicationService {
                 if (optional.isPresent()) {
                     Client client = optional.get();
                     if (!client.getProjectId().equals(projectId)) {
-                        throw new AccessDeniedException();
+                        throw new DefinedRuntimeException("project id mismatch", "0000",
+                            HttpResponseCode.BAD_REQUEST,
+                            ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }
                     Endpoint endpoint = client.addNewEndpoint(
                         command.getCacheProfileId() != null
@@ -108,7 +112,9 @@ public class EndpointApplicationService {
                     DomainRegistry.getEndpointRepository().add(endpoint);
                     return endpointId.getDomainId();
                 } else {
-                    throw new InvalidClientIdException();
+                    throw new DefinedRuntimeException("invalid client id", "0000",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
             }, ENDPOINT);
     }
@@ -216,11 +222,15 @@ public class EndpointApplicationService {
                 Set<ProjectId> collect =
                     allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
                 if (collect.size() != 1) {
-                    throw new AccessDeniedException();
+                    throw new DefinedRuntimeException("project count not 1", "0000",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 ProjectId[] a = new ProjectId[1];
                 if (!collect.toArray(a)[0].equals(projectId1)) {
-                    throw new AccessDeniedException();
+                    throw new DefinedRuntimeException("project count mismatch", "0000",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 Endpoint.remove(allByQuery);
                 return null;
@@ -404,8 +414,5 @@ public class EndpointApplicationService {
                 });
                 return null;
             }, ENDPOINT);
-    }
-
-    public static class InvalidClientIdException extends RuntimeException {
     }
 }

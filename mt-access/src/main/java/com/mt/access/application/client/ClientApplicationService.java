@@ -28,6 +28,9 @@ import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
@@ -173,7 +176,9 @@ public class ClientApplicationService implements ClientDetailsService {
                         DomainRegistry.getClientRepository().remove(client1);
                         client1.removeAllReferenced();
                     } else {
-                        throw new RootClientDeleteException();
+                        throw new DefinedRuntimeException("root client cannot be deleted", "0000",
+                            HttpResponseCode.BAD_REQUEST,
+                            ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }
                 }
                 return null;
@@ -282,9 +287,5 @@ public class ClientApplicationService implements ClientDetailsService {
         return QueryUtility
             .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
                 new ClientQuery(ids));
-    }
-
-
-    public static class RootClientDeleteException extends RuntimeException {
     }
 }

@@ -1,7 +1,8 @@
 package com.mt.common.infrastructure;
 
-import com.mt.common.domain.model.unique_id.ClockRevertException;
-import com.mt.common.domain.model.unique_id.InvalidInstanceIdException;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,14 +20,18 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
     @PostConstruct
     private void validateInstanceId() {
         if (instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new InvalidInstanceIdException();
+            throw new DefinedRuntimeException("invalid instance id", "0004",
+                HttpResponseCode.NOT_HTTP,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
     public synchronized long id() {
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
-            throw new ClockRevertException();
+            throw new DefinedRuntimeException("clock reverted", "0004",
+                HttpResponseCode.NOT_HTTP,
+                ExceptionCatalog.ILLEGAL_STATE);
         }
         if (lastSuccessSecond == currentSecond) {
             long sequenceMaxValue = ~(-1L << SEQUENCE_ID_LENGTH);

@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.user_relation.event;
 
-import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;

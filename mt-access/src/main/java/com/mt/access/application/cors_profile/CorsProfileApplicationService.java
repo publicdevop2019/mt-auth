@@ -1,7 +1,6 @@
 package com.mt.access.application.cors_profile;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.cors_profile.command.CorsProfileCreateCommand;
 import com.mt.access.application.cors_profile.command.CorsProfilePatchCommand;
 import com.mt.access.application.cors_profile.command.CorsProfileUpdateCommand;

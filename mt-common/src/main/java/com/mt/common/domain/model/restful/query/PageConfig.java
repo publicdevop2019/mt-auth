@@ -2,6 +2,9 @@ package com.mt.common.domain.model.restful.query;
 
 import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import javax.annotation.Nullable;
 import lombok.Getter;
 
@@ -26,20 +29,26 @@ public class PageConfig {
             for (String str : split) {
                 String[] split1 = str.split(":");
                 if (split1.length != 2 || split1[0].isBlank() || split1[1].isBlank()) {
-                    throw new PagingParseException();
+                    throw new DefinedRuntimeException("unable to parse page info", "0004",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 if (PAGING_NUM.equalsIgnoreCase(split1[0])) {
                     try {
                         pageNumber = Long.parseLong(split1[1]);
-                    } catch (Exception ex) {
-                        throw new PagingParseException();
+                    } catch (NumberFormatException ex) {
+                        throw new DefinedRuntimeException("unable to parse long", "0004",
+                            HttpResponseCode.BAD_REQUEST,
+                            ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
                     }
                 }
                 if (PAGING_SIZE.equalsIgnoreCase(split1[0])) {
                     try {
                         pageSize = Integer.parseInt(split1[1]);
-                    } catch (Exception ex) {
-                        throw new PagingParseException();
+                    } catch (NumberFormatException ex) {
+                        throw new DefinedRuntimeException("unable to parse int", "0004",
+                            HttpResponseCode.BAD_REQUEST,
+                            ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
                     }
                 }
                 if (SORT_BY.equalsIgnoreCase(split1[0])) {
@@ -53,7 +62,9 @@ public class PageConfig {
                 }
             }
             if (pageNumber == null || pageSize == null || sortBy == null) {
-                throw new PagingParseException();
+                throw new DefinedRuntimeException("unable to find require page/sort info", "0004",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         }
     }
@@ -62,7 +73,9 @@ public class PageConfig {
     public PageConfig(String pagingParamStr, Integer maxPageSize) {
         this(pagingParamStr);
         if (pageSize > maxPageSize) {
-            throw new PagingParseException();
+            throw new DefinedRuntimeException("max page size reached", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -79,7 +92,9 @@ public class PageConfig {
     public static PageConfig limited(@Nullable String pagingParamStr, Integer maxPageSize) {
         PageConfig pageConfig = new PageConfig(pagingParamStr);
         if (pageConfig.getPageSize() > maxPageSize) {
-            throw new PagingParseException();
+            throw new DefinedRuntimeException("unable to parse page info", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         return pageConfig;
     }
@@ -109,8 +124,5 @@ public class PageConfig {
     enum SortOrder {
         asc,
         desc
-    }
-
-    public static class PagingParseException extends RuntimeException {
     }
 }

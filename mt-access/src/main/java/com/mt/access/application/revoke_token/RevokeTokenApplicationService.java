@@ -1,6 +1,5 @@
 package com.mt.access.application.revoke_token;
 
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;

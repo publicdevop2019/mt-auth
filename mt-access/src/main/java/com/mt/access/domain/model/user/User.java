@@ -6,6 +6,9 @@ import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Arrays;
@@ -115,7 +118,9 @@ public class User extends Auditable {
     public void lockUser(boolean locked) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
-            throw new IllegalArgumentException("root account cannot be locked");
+            throw new DefinedRuntimeException("root account cannot be locked", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
@@ -147,7 +152,9 @@ public class User extends Auditable {
         if (userName != null) {
             if (this.userName != null && this.userName.getValue() != null
                 && !this.userName.equals(userName)) {
-                throw new IllegalStateException("username can only be set once");
+                throw new DefinedRuntimeException("username can only be set once", "0004",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
             this.userName = userName;
         }

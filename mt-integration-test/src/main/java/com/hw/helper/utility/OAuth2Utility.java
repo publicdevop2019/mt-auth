@@ -186,6 +186,11 @@ public class OAuth2Utility {
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request,
                 DefaultOAuth2AccessToken.class);
+        //avoid duplicate calls when request error or server error
+        if(exchange.getStatusCode().is4xxClientError())
+            return exchange;
+        if(exchange.getStatusCode().is5xxServerError())
+            return exchange;
         if (Objects.requireNonNull(exchange.getBody()).getValue() != null) {
             return exchange;
         } else {

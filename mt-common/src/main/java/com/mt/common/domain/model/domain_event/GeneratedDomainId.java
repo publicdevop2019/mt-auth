@@ -1,6 +1,9 @@
 package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import javax.persistence.MappedSuperclass;
 
@@ -21,13 +24,17 @@ public abstract class GeneratedDomainId extends DomainId implements Serializable
     protected GeneratedDomainId(String raw) {
         super(raw);
         if (raw.indexOf(getPrefix()) != 0) {
-            throw new IllegalArgumentException("wrong domain id prefix");
+            throw new DefinedRuntimeException("wrong domain id prefix", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         String substring = raw.substring(1);
         try {
             Long.parseLong(substring, 36);
         } catch (NumberFormatException ex) {
-            throw new IllegalArgumentException("given domain id is not valid");
+            throw new DefinedRuntimeException("given domain id is not valid", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
         setDomainId(raw);
     }

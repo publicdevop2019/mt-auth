@@ -1,6 +1,9 @@
 package com.mt.access.domain.model.client;
 
 import com.google.common.base.Objects;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,7 +24,9 @@ public class RedirectUrl implements Serializable {
         if (defaultValidator.isValid(url)) {
             value = url;
         } else {
-            throw new InvalidRedirectUrlException();
+            throw new DefinedRuntimeException("invalid redirect url", "0000",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -40,8 +45,5 @@ public class RedirectUrl implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(value);
-    }
-
-    public static class InvalidRedirectUrlException extends RuntimeException {
     }
 }

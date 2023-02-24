@@ -17,7 +17,6 @@ import com.mt.access.application.client.representation.ClientProxyRepresentation
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;

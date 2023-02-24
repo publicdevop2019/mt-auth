@@ -2,11 +2,13 @@ package com.mt.common.infrastructure;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobService;
 import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
-import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -20,6 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RedisJobService implements JobService {
+    private static final String LOCK_LOST = "lock lost";
     @Autowired
     private CustomThreadPoolExecutor taskExecutor;
     @Autowired
@@ -42,12 +45,14 @@ public class RedisJobService implements JobService {
                         } else {
                             job.executeSuccess();
                         }
-                    } catch (LockLostException ex) {
-                        DomainEvent domainEvent = job.handleLockLostException();
-                        sendNotification(job, domainEvent);
-                    } catch (ExecutionException ex) {
-                        DomainEvent domainEvent = job.handleJobExecutionException();
-                        sendNotification(job, domainEvent);
+                    } catch (DefinedRuntimeException ex) {
+                        if (LOCK_LOST.equalsIgnoreCase(ex.getMessage())) {
+                            DomainEvent domainEvent = job.handleLockLostException();
+                            sendNotification(job, domainEvent);
+                        } else {
+                            DomainEvent domainEvent = job.handleJobExecutionException();
+                            sendNotification(job, domainEvent);
+                        }
                     }
                     CommonDomainRegistry.getJobRepository().store(job);
                 } else {
@@ -87,7 +92,8 @@ public class RedisJobService implements JobService {
 
     /**
      * send notification to admin, ignore if domain event is null
-     * @param job current job
+     *
+     * @param job   current job
      * @param event event to be sent
      */
     private void sendNotification(JobDetail job,
@@ -112,8 +118,7 @@ public class RedisJobService implements JobService {
      * @param function job
      */
     private boolean syncExecute(String jobName,
-                                Runnable function)
-        throws ExecutionException, LockLostException {
+                                Runnable function) {
         log.trace("before starting scheduler {} job", jobName);
         String key = jobName + "_sync_scheduler_dist_lock";
         RLock lock = redissonClient.getLock(key);
@@ -130,16 +135,22 @@ public class RedisJobService implements JobService {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                     log.trace("release {} lock success", jobName);
-                    throw new ExecutionException();
+                    throw new DefinedRuntimeException("error during execution", "0004",
+                        HttpResponseCode.NOT_HTTP,
+                        ExceptionCatalog.OPERATION_ERROR);
                 } else {
-                    throw new LockLostException();
+                    throw new DefinedRuntimeException("lock lost", "0004",
+                        HttpResponseCode.NOT_HTTP,
+                        ExceptionCatalog.OPERATION_ERROR);
                 }
             }
             if (lock.isHeldByCurrentThread()) {
                 lock.unlock();
                 log.trace("release {} lock success", jobName);
             } else {
-                throw new LockLostException();
+                throw new DefinedRuntimeException(LOCK_LOST, "0004",
+                    HttpResponseCode.NOT_HTTP,
+                    ExceptionCatalog.OPERATION_ERROR);
             }
         } else {
             log.info("ignore {} job due to lock is busy", jobName);
@@ -148,10 +159,4 @@ public class RedisJobService implements JobService {
         return true;
     }
 
-
-    private static class LockLostException extends Exception {
-    }
-
-    private static class ExecutionException extends Exception {
-    }
 }

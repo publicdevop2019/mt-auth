@@ -1,8 +1,6 @@
 package com.mt.access.domain.model.endpoint.event;
 
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.domain.model.permission.PermissionId;
-import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

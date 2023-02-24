@@ -35,6 +35,9 @@ import com.mt.access.domain.model.user.UserSession;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -45,16 +48,10 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
@@ -138,7 +135,9 @@ public class UserApplicationService implements UserDetailsService {
                     }, USER);
                 CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
             } else {
-                throw new DefaultUserDeleteException();
+                throw new DefinedRuntimeException("default user cannot be deleted", "0000",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         }
     }
@@ -266,7 +265,9 @@ public class UserApplicationService implements UserDetailsService {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isEmpty()) {
-            throw new IllegalArgumentException("cannot find user " + userId);
+            throw new DefinedRuntimeException("cannot find user " + userId, "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         ImageId imageId =
             ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
@@ -281,7 +282,9 @@ public class UserApplicationService implements UserDetailsService {
             Optional<User> user =
                 DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
             if (user.isEmpty()) {
-                throw new InternalAuthenticationServiceException("user not found");
+                throw new DefinedRuntimeException("user not found", "0000",
+                    HttpResponseCode.UNAUTHORIZED,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
             UserId userId = user.get().getUserId();
             boolean mfaRequired =
@@ -334,9 +337,6 @@ public class UserApplicationService implements UserDetailsService {
             new UserMobile(command.getCountryCode(), command.getMobileNumber()),
             command.getUsername() != null ? new UserName(command.getUsername()) : null,
             command.getLanguage()));
-    }
-
-    public static class DefaultUserDeleteException extends RuntimeException {
     }
 
 }

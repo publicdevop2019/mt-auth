@@ -15,6 +15,9 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +37,9 @@ public class NewUserService {
                 ||
                 !pendingUser.get().getActivationCode().getActivationCode()
                     .equals(activationCode.getActivationCode())) {
-                throw new IllegalArgumentException("activation code mismatch");
+                throw new DefinedRuntimeException("activation code mismatch", "0003",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
             User user = User.newUser(email, password, userId, mobile);
             DomainRegistry.getUserRepository().add(user);
@@ -42,7 +47,9 @@ public class NewUserService {
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {
-            throw new IllegalStateException("pending user not found, maybe not registered?");
+            throw new DefinedRuntimeException("pending user not found, maybe not registered?", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 }

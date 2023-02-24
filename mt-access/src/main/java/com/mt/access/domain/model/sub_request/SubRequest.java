@@ -5,6 +5,9 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -73,13 +76,19 @@ public class SubRequest extends Auditable {
                       ProjectId endpointProjectId,
                       boolean expired, boolean secured, boolean shared) {
         if (projectId.equals(endpointProjectId)) {
-            throw new IllegalArgumentException("cannot subscribe to itself");
+            throw new DefinedRuntimeException("cannot subscribe to itself", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (expired) {
-            throw new IllegalArgumentException("cannot subscribe to expired endpoint");
+            throw new DefinedRuntimeException("cannot subscribe to expired endpoint", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!shared) {
-            throw new IllegalArgumentException("cannot subscribe to endpoint that is not shared");
+            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         this.subRequestId = new SubRequestId();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();

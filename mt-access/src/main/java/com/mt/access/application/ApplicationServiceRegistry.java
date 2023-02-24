@@ -24,7 +24,6 @@ import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user_relation.UserRelationApplicationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
-import com.mt.common.domain.model.idempotent.IdempotentService;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

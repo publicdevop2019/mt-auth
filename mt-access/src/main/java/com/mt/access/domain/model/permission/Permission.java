@@ -8,6 +8,9 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
 import java.util.HashSet;
@@ -453,10 +456,14 @@ public class Permission extends Auditable {
     private void updateName(String name) {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new IllegalStateException("api, api root and project type's cannot be changed");
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (isSystemCreate()) {
-            throw new IllegalStateException("system created permission cannot be changed");
+            throw new DefinedRuntimeException("system created permission cannot be changed", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         this.name = name;
     }
@@ -468,7 +475,9 @@ public class Permission extends Auditable {
     public void remove() {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new IllegalStateException("api, api root and project type's cannot be changed");
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         DomainRegistry.getPermissionRepository().remove(this);
     }

@@ -5,6 +5,9 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import java.io.Serializable;
 import java.util.Collection;
@@ -14,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,8 +74,9 @@ public class JwtCurrentUserService implements CurrentUserService {
             String userId = JwtUtility.getUserId(jwt);
             return new MyAuthentication(au, userId);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                "unable to create authentication obj in authorization header");
+            throw new DefinedRuntimeException("unable to create authentication obj in authorization header", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, e);
         }
     }
 

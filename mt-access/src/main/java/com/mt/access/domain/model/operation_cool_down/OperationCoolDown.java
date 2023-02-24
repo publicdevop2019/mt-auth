@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.operation_cool_down;
 
-import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import java.time.Instant;
