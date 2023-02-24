@@ -24,7 +24,7 @@ public abstract class GeneratedDomainId extends DomainId implements Serializable
     protected GeneratedDomainId(String raw) {
         super(raw);
         if (raw.indexOf(getPrefix()) != 0) {
-            throw new DefinedRuntimeException("wrong domain id prefix", "0004",
+            throw new DefinedRuntimeException("wrong domain id prefix", "0012",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -32,7 +32,7 @@ public abstract class GeneratedDomainId extends DomainId implements Serializable
         try {
             Long.parseLong(substring, 36);
         } catch (NumberFormatException ex) {
-            throw new DefinedRuntimeException("given domain id is not valid", "0004",
+            throw new DefinedRuntimeException("given domain id is not valid", "0013",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }

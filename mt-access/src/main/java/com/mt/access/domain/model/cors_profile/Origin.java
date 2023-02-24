@@ -31,7 +31,7 @@ public class Origin implements Serializable {
         if (defaultValidator.isValid(url)) {
             value = url;
         } else {
-            throw new DefinedRuntimeException("invalid origin value", "0000",
+            throw new DefinedRuntimeException("invalid origin value", "0039",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

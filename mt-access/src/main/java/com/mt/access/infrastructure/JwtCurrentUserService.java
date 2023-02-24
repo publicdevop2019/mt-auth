@@ -74,7 +74,7 @@ public class JwtCurrentUserService implements CurrentUserService {
             String userId = JwtUtility.getUserId(jwt);
             return new MyAuthentication(au, userId);
         } catch (IllegalArgumentException e) {
-            throw new DefinedRuntimeException("unable to create authentication obj in authorization header", "0004",
+            throw new DefinedRuntimeException("unable to create authentication obj in authorization header", "0069",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT, e);
         }

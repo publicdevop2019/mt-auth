@@ -29,7 +29,7 @@ public class PatchCommand implements Comparable<PatchCommand>, Serializable {
             } else if (e.getOp().equalsIgnoreCase(CommonConstant.PATCH_OP_TYPE_DIFF)) {
                 e.setOp(CommonConstant.PATCH_OP_TYPE_SUM);
             } else {
-                throw new DefinedRuntimeException("rollback not supported", "0004",
+                throw new DefinedRuntimeException("rollback not supported", "0020",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_STATE);
             }

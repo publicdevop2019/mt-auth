@@ -21,7 +21,7 @@ public class CheckSumService {
             byte[] thedigest = md.digest(serialize.getBytes(StandardCharsets.UTF_8));
             return DatatypeConverter.printHexBinary(thedigest);
         } catch (NoSuchAlgorithmException e) {
-            throw new DefinedRuntimeException("unable to get sum value", "0004",
+            throw new DefinedRuntimeException("unable to get sum value", "0068",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR, e);
         }

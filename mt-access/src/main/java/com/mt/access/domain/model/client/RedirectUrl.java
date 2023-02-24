@@ -24,7 +24,7 @@ public class RedirectUrl implements Serializable {
         if (defaultValidator.isValid(url)) {
             value = url;
         } else {
-            throw new DefinedRuntimeException("invalid redirect url", "0000",
+            throw new DefinedRuntimeException("invalid redirect url", "0038",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

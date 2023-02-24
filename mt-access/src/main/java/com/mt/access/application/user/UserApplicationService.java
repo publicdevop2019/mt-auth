@@ -135,7 +135,7 @@ public class UserApplicationService implements UserDetailsService {
                     }, USER);
                 CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
             } else {
-                throw new DefinedRuntimeException("default user cannot be deleted", "0000",
+                throw new DefinedRuntimeException("default user cannot be deleted", "0021",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -265,7 +265,7 @@ public class UserApplicationService implements UserDetailsService {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isEmpty()) {
-            throw new DefinedRuntimeException("cannot find user " + userId, "0004",
+            throw new DefinedRuntimeException("cannot find user " + userId, "0022",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -282,7 +282,7 @@ public class UserApplicationService implements UserDetailsService {
             Optional<User> user =
                 DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
             if (user.isEmpty()) {
-                throw new DefinedRuntimeException("user not found", "0000",
+                throw new DefinedRuntimeException("user not found", "0023",
                     HttpResponseCode.UNAUTHORIZED,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }

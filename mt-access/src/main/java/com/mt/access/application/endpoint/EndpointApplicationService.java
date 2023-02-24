@@ -85,7 +85,7 @@ public class EndpointApplicationService {
                 if (optional.isPresent()) {
                     Client client = optional.get();
                     if (!client.getProjectId().equals(projectId)) {
-                        throw new DefinedRuntimeException("project id mismatch", "0000",
+                        throw new DefinedRuntimeException("project id mismatch", "0010",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }
@@ -112,7 +112,7 @@ public class EndpointApplicationService {
                     DomainRegistry.getEndpointRepository().add(endpoint);
                     return endpointId.getDomainId();
                 } else {
-                    throw new DefinedRuntimeException("invalid client id", "0000",
+                    throw new DefinedRuntimeException("invalid client id", "0011",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
@@ -222,13 +222,13 @@ public class EndpointApplicationService {
                 Set<ProjectId> collect =
                     allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
                 if (collect.size() != 1) {
-                    throw new DefinedRuntimeException("project count not 1", "0000",
+                    throw new DefinedRuntimeException("project count not 1", "0012",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 ProjectId[] a = new ProjectId[1];
                 if (!collect.toArray(a)[0].equals(projectId1)) {
-                    throw new DefinedRuntimeException("project count mismatch", "0000",
+                    throw new DefinedRuntimeException("project count mismatch", "0013",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

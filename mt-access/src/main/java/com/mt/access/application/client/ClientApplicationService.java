@@ -176,7 +176,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         DomainRegistry.getClientRepository().remove(client1);
                         client1.removeAllReferenced();
                     } else {
-                        throw new DefinedRuntimeException("root client cannot be deleted", "0000",
+                        throw new DefinedRuntimeException("root client cannot be deleted", "0009",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }

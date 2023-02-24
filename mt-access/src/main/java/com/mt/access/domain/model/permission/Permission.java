@@ -456,12 +456,12 @@ public class Permission extends Auditable {
     private void updateName(String name) {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0004",
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0049",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (isSystemCreate()) {
-            throw new DefinedRuntimeException("system created permission cannot be changed", "0004",
+            throw new DefinedRuntimeException("system created permission cannot be changed", "0050",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -475,7 +475,7 @@ public class Permission extends Auditable {
     public void remove() {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0004",
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0051",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

@@ -48,7 +48,7 @@ public class EndpointReport {
                 } else if (e.getResponseCode() == 503) {
                     serviceUnavailableErrorCount.getAndIncrement();
                 } else {
-                    throw new DefinedRuntimeException("unknown response code " + e.getResponseCode(), "0004",
+                    throw new DefinedRuntimeException("unknown response code " + e.getResponseCode(), "0052",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

@@ -92,7 +92,7 @@ public class ResourceServiceTokenHelper {
             storedJwtToken = getJwtToken();
         }
         if (storedJwtToken == null) {
-            throw new DefinedRuntimeException("unable to retrieve jwt token", "0004",
+            throw new DefinedRuntimeException("unable to retrieve jwt token", "0016",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR);
         }
@@ -105,7 +105,7 @@ public class ResourceServiceTokenHelper {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
                 if (storedJwtToken == null) {
-                    throw new DefinedRuntimeException("unable to retrieve jwt token", "0004",
+                    throw new DefinedRuntimeException("unable to retrieve jwt token", "0017",
                         HttpResponseCode.INTERNAL_SERVER_ERROR,
                         ExceptionCatalog.OPERATION_ERROR);
                 }
@@ -124,7 +124,7 @@ public class ResourceServiceTokenHelper {
             storedJwtToken = getJwtToken();
         }
         if (storedJwtToken == null) {
-            throw new DefinedRuntimeException("unable to retrieve jwt token", "0004",
+            throw new DefinedRuntimeException("unable to retrieve jwt token", "0018",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR);
         }
@@ -137,7 +137,7 @@ public class ResourceServiceTokenHelper {
             if (ex.getRawStatusCode() == 401) {
                 storedJwtToken = getJwtToken();
                 if (storedJwtToken == null) {
-                    throw new DefinedRuntimeException("unable to retrieve jwt token", "0004",
+                    throw new DefinedRuntimeException("unable to retrieve jwt token", "0019",
                         HttpResponseCode.INTERNAL_SERVER_ERROR,
                         ExceptionCatalog.OPERATION_ERROR);
                 }

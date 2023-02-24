@@ -20,7 +20,7 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
     @PostConstruct
     private void validateInstanceId() {
         if (instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new DefinedRuntimeException("invalid instance id", "0004",
+            throw new DefinedRuntimeException("invalid instance id", "0061",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -29,7 +29,7 @@ public class SnowflakeUniqueIdService implements UniqueIdGeneratorService {
     public synchronized long id() {
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
-            throw new DefinedRuntimeException("clock reverted", "0004",
+            throw new DefinedRuntimeException("clock reverted", "0062",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.ILLEGAL_STATE);
         }

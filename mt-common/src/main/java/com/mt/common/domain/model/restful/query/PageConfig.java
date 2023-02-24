@@ -29,7 +29,7 @@ public class PageConfig {
             for (String str : split) {
                 String[] split1 = str.split(":");
                 if (split1.length != 2 || split1[0].isBlank() || split1[1].isBlank()) {
-                    throw new DefinedRuntimeException("unable to parse page info", "0004",
+                    throw new DefinedRuntimeException("unable to parse page info", "0021",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
@@ -37,7 +37,7 @@ public class PageConfig {
                     try {
                         pageNumber = Long.parseLong(split1[1]);
                     } catch (NumberFormatException ex) {
-                        throw new DefinedRuntimeException("unable to parse long", "0004",
+                        throw new DefinedRuntimeException("unable to parse long", "0022",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
                     }
@@ -46,7 +46,7 @@ public class PageConfig {
                     try {
                         pageSize = Integer.parseInt(split1[1]);
                     } catch (NumberFormatException ex) {
-                        throw new DefinedRuntimeException("unable to parse int", "0004",
+                        throw new DefinedRuntimeException("unable to parse int", "0023",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
                     }
@@ -62,7 +62,7 @@ public class PageConfig {
                 }
             }
             if (pageNumber == null || pageSize == null || sortBy == null) {
-                throw new DefinedRuntimeException("unable to find require page/sort info", "0004",
+                throw new DefinedRuntimeException("unable to find require page/sort info", "0024",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -73,7 +73,7 @@ public class PageConfig {
     public PageConfig(String pagingParamStr, Integer maxPageSize) {
         this(pagingParamStr);
         if (pageSize > maxPageSize) {
-            throw new DefinedRuntimeException("max page size reached", "0004",
+            throw new DefinedRuntimeException("max page size reached", "0025",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -92,7 +92,7 @@ public class PageConfig {
     public static PageConfig limited(@Nullable String pagingParamStr, Integer maxPageSize) {
         PageConfig pageConfig = new PageConfig(pagingParamStr);
         if (pageConfig.getPageSize() > maxPageSize) {
-            throw new DefinedRuntimeException("unable to parse page info", "0004",
+            throw new DefinedRuntimeException("unable to parse page info", "0026",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

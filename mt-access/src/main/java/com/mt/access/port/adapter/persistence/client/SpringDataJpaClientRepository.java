@@ -166,7 +166,7 @@ public interface SpringDataJpaClientRepository
                         results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL)
                             .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else {
-                        throw new DefinedRuntimeException("unsupported query value", "0000",
+                        throw new DefinedRuntimeException("unsupported query value", "0072",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }
@@ -347,7 +347,7 @@ public interface SpringDataJpaClientRepository
                         Order asc = cb.asc(root.get(Client_.NAME));
                         return Collections.singletonList(asc);
                     } else {
-                        throw new DefinedRuntimeException("unsupported order by value", "0000",
+                        throw new DefinedRuntimeException("unsupported order by value", "0073",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }

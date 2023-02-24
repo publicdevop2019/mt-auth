@@ -38,21 +38,21 @@ public class ProjectApplicationService {
 
     public static void canReadProject(Set<ProjectId> ids) {
         if (ids == null) {
-            throw new DefinedRuntimeException("no project id found", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project id found", "0014",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (ids.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project id found", "0015",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         //first check access to target project
         Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
         boolean b = authorizedTenantId.containsAll(ids);
         if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("not allowed project", "0016",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         //second check if has read project access to current project
@@ -65,8 +65,8 @@ public class ProjectApplicationService {
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
-            throw new DefinedRuntimeException("no project read access", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project read access", "0017",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }

@@ -88,7 +88,7 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
                 if (key.getExpect().equals(i)) {
                     count.addAndGet(i);
                 } else {
-                    throw new DefinedRuntimeException("patch command expect not match", "0004",
+                    throw new DefinedRuntimeException("patch command expect not match", "0033",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_STATE);
                 }

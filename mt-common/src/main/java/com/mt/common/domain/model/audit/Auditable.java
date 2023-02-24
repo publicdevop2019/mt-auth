@@ -55,7 +55,7 @@ public abstract class Auditable implements Serializable {
 
     public void checkVersion(Integer version) {
         if (!getVersion().equals(version)) {
-            throw new DefinedRuntimeException("aggregate outdated", "0004",
+            throw new DefinedRuntimeException("aggregate outdated", "0009",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_STATE);
         }

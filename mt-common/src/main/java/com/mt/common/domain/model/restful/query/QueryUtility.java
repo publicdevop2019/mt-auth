@@ -147,7 +147,7 @@ public class QueryUtility {
                 String[] split1 = str.split(":");
                 if (split1.length != 2) {
                     log.info("unable to parse query string {}", rawQuery);
-                    throw new DefinedRuntimeException("unable to parse query string", "0004",
+                    throw new DefinedRuntimeException("unable to parse query string", "0027",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
@@ -162,7 +162,7 @@ public class QueryUtility {
     private static void validateQuery(Map<String, String> parsedMap, String... supportedFields) {
         List<String> list = List.of(supportedFields);
         if (parsedMap.keySet().stream().anyMatch(e -> !list.contains(e))) {
-            throw new DefinedRuntimeException("unknown query key", "0004",
+            throw new DefinedRuntimeException("unknown query key", "0028",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -266,7 +266,7 @@ public class QueryUtility {
     public static <T> void addDomainIdIsPredicate(String value, String sqlFieldName,
                                                   QueryContext<T> queryContext) {
         if ("null".equalsIgnoreCase(value)) {
-            throw new DefinedRuntimeException("should never reached here", "0004",
+            throw new DefinedRuntimeException("should never reached here", "0029",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         } else {
@@ -336,7 +336,7 @@ public class QueryUtility {
                 int i = Integer.parseInt(str.replace(">", ""));
                 results.add(cb.greaterThan(root.get(entityFieldName), i));
             } else {
-                throw new DefinedRuntimeException("unsupported query value", "0004",
+                throw new DefinedRuntimeException("unsupported query value", "0030",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }

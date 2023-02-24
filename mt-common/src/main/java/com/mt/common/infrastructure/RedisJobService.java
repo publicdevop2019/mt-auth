@@ -135,11 +135,11 @@ public class RedisJobService implements JobService {
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                     log.trace("release {} lock success", jobName);
-                    throw new DefinedRuntimeException("error during execution", "0004",
+                    throw new DefinedRuntimeException("error during execution", "0058",
                         HttpResponseCode.NOT_HTTP,
                         ExceptionCatalog.OPERATION_ERROR);
                 } else {
-                    throw new DefinedRuntimeException("lock lost", "0004",
+                    throw new DefinedRuntimeException("lock lost", "0059",
                         HttpResponseCode.NOT_HTTP,
                         ExceptionCatalog.OPERATION_ERROR);
                 }
@@ -148,7 +148,7 @@ public class RedisJobService implements JobService {
                 lock.unlock();
                 log.trace("release {} lock success", jobName);
             } else {
-                throw new DefinedRuntimeException(LOCK_LOST, "0004",
+                throw new DefinedRuntimeException(LOCK_LOST, "0060",
                     HttpResponseCode.NOT_HTTP,
                     ExceptionCatalog.OPERATION_ERROR);
             }

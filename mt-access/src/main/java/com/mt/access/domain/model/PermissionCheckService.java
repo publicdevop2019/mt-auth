@@ -22,22 +22,22 @@ import org.springframework.stereotype.Service;
 public class PermissionCheckService {
     public void canAccess(@NotNull Set<ProjectId> ids, String permissionName) {
         if (ids == null) {
-            throw new DefinedRuntimeException("no project id found", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project id found", "0027",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         Set<ProjectId> collect = ids.stream().filter(Objects::nonNull).collect(Collectors.toSet());
         if (collect.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project id found", "0028",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         //first check access to tenant project, query projectId must be one of jwt tenant ids
         Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
         boolean b = authorizedTenantId.containsAll(ids);
         if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("not allowed project", "0029",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         //second check if has read client access to current project
@@ -50,8 +50,8 @@ public class PermissionCheckService {
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
-            throw new DefinedRuntimeException("no project read access", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("no project read access", "0030",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
@@ -63,8 +63,8 @@ public class PermissionCheckService {
     public void sameCreatedBy(Auditable e) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         if (!new UserId(e.getCreatedBy()).equals(userId)) {
-            throw new DefinedRuntimeException("not created by same user", "0000",
-                HttpResponseCode.NOT_AUTHORIZED,
+            throw new DefinedRuntimeException("not created by same user", "0031",
+                HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }

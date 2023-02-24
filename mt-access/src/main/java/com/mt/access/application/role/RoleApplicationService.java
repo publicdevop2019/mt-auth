@@ -198,7 +198,7 @@ public class RoleApplicationService {
                     allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
                         .findFirst();
                 if (first.isEmpty()) {
-                    throw new DefinedRuntimeException("unable to find root client role", "0004",
+                    throw new DefinedRuntimeException("unable to find root client role", "0019",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

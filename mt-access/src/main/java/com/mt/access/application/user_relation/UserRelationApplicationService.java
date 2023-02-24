@@ -69,7 +69,7 @@ public class UserRelationApplicationService {
             DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(projectId, PROJECT_USER))
                 .findFirst();
         if (first.isEmpty()) {
-            throw new DefinedRuntimeException("unable to find default user role for project", "0002",
+            throw new DefinedRuntimeException("unable to find default user role for project", "0024",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

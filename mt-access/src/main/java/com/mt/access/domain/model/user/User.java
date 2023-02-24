@@ -118,7 +118,7 @@ public class User extends Auditable {
     public void lockUser(boolean locked) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
-            throw new DefinedRuntimeException("root account cannot be locked", "0004",
+            throw new DefinedRuntimeException("root account cannot be locked", "0062",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -152,7 +152,7 @@ public class User extends Auditable {
         if (userName != null) {
             if (this.userName != null && this.userName.getValue() != null
                 && !this.userName.equals(userName)) {
-                throw new DefinedRuntimeException("username can only be set once", "0004",
+                throw new DefinedRuntimeException("username can only be set once", "0063",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }

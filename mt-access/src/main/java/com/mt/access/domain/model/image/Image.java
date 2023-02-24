@@ -47,7 +47,7 @@ public class Image extends Auditable {
         try {
             this.source = file.getBytes();
         } catch (IOException e) {
-            throw new DefinedRuntimeException("error during saving file", "0000",
+            throw new DefinedRuntimeException("error during saving file", "0045",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT, e);
         }
@@ -59,13 +59,13 @@ public class Image extends Auditable {
     private void validateUploadCriteria(MultipartFile file, Integer allowedSize,
                                         List<String> allowedTypes) {
         if (allowedTypes.stream().noneMatch(e -> e.equals(file.getContentType()))) {
-            throw new DefinedRuntimeException("file type not allowed", "0004",
+            throw new DefinedRuntimeException("file type not allowed", "0046",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         try {
             if (file.getBytes().length > allowedSize) {
-                throw new DefinedRuntimeException("file size not allowed", "0004",
+                throw new DefinedRuntimeException("file size not allowed", "0047",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }

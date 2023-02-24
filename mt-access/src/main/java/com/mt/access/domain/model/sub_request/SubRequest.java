@@ -76,17 +76,17 @@ public class SubRequest extends Auditable {
                       ProjectId endpointProjectId,
                       boolean expired, boolean secured, boolean shared) {
         if (projectId.equals(endpointProjectId)) {
-            throw new DefinedRuntimeException("cannot subscribe to itself", "0004",
+            throw new DefinedRuntimeException("cannot subscribe to itself", "0057",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (expired) {
-            throw new DefinedRuntimeException("cannot subscribe to expired endpoint", "0004",
+            throw new DefinedRuntimeException("cannot subscribe to expired endpoint", "0058",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!shared) {
-            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared", "0004",
+            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared", "0059",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

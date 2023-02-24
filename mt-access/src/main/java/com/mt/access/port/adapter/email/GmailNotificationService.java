@@ -41,7 +41,7 @@ public class GmailNotificationService implements EmailNotificationService {
             mimeMessageHelper.setSubject(subject);
             sender.send(mimeMessage);
         } catch (IOException | TemplateException | MessagingException e) {
-            throw new DefinedRuntimeException("unable to send email", "0000",
+            throw new DefinedRuntimeException("unable to send email", "0071",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR, e);
         }

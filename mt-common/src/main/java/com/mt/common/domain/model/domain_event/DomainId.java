@@ -28,12 +28,12 @@ public class DomainId implements Serializable {
 
     protected DomainId(String domainId) {
         if (domainId == null) {
-            throw new DefinedRuntimeException("null domain id is not allowed", "0004",
+            throw new DefinedRuntimeException("null domain id is not allowed", "0010",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (domainId.isBlank() || domainId.isEmpty()) {
-            throw new DefinedRuntimeException("empty or blank domain id is not allowed", "0004",
+            throw new DefinedRuntimeException("empty or blank domain id is not allowed", "0011",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

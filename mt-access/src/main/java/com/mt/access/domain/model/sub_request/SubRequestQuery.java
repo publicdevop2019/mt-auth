@@ -52,7 +52,7 @@ public class SubRequestQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, TYPE);
         String s = stringStringMap.get(TYPE);
         if (s == null || s.isBlank()) {
-            throw new DefinedRuntimeException("type is required", "0004",
+            throw new DefinedRuntimeException("type is required", "0060",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         } else {
@@ -60,7 +60,7 @@ public class SubRequestQuery extends QueryCriteria {
             try {
                 subRequestQueryType = SubRequestQueryType.valueOf(s.toUpperCase());
             } catch (NullPointerException ex) {
-                throw new DefinedRuntimeException("missing sub request query type", "0004",
+                throw new DefinedRuntimeException("missing sub request query type", "0061",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
             }

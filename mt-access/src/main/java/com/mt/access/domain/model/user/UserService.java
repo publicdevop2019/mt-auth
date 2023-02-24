@@ -17,7 +17,7 @@ public class UserService {
 
     public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
         if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
-            throw new DefinedRuntimeException("wrong password", "0004",
+            throw new DefinedRuntimeException("wrong password", "0000",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -30,7 +30,7 @@ public class UserService {
     public void forgetPassword(UserEmail email) {
         Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
-            throw new DefinedRuntimeException("user does not exist", "0004",
+            throw new DefinedRuntimeException("user does not exist", "0001",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -43,12 +43,12 @@ public class UserService {
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
         Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
-            throw new DefinedRuntimeException("user does not exist", "0004",
+            throw new DefinedRuntimeException("user does not exist", "0002",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (user.get().getPwdResetToken() == null) {
-            throw new DefinedRuntimeException("token not exist", "0004",
+            throw new DefinedRuntimeException("token not exist", "0003",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

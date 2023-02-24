@@ -30,7 +30,7 @@ public class ActivationCode {
     public ActivationCode(String activationCode) {
         Validator.lengthGreaterThanOrEqualTo(activationCode, 6);
         if (!StringUtils.hasText(activationCode)) {
-            throw new DefinedRuntimeException("activationCode is empty", "0004",
+            throw new DefinedRuntimeException("activationCode is empty", "0032",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

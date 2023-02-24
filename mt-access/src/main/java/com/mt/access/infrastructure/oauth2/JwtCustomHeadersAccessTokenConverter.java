@@ -39,7 +39,7 @@ public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverte
             stringMap.remove("authorities");
             content = this.objectMapper.formatMap(stringMap);
         } catch (Exception ex) {
-            throw new DefinedRuntimeException("cannot convert access token to json", "0004",
+            throw new DefinedRuntimeException("cannot convert access token to json", "0070",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }

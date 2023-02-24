@@ -90,7 +90,7 @@ public class SubRequestApplicationService {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
                 if (endpoint.isEmpty()) {
-                    throw new DefinedRuntimeException("unable to find related endpoint", "0000",
+                    throw new DefinedRuntimeException("unable to find related endpoint", "0020",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

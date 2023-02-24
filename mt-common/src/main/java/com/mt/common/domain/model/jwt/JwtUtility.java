@@ -34,7 +34,7 @@ public class JwtUtility {
         try {
             jwtBody = replace.split("\\.")[1];
         } catch (ArrayIndexOutOfBoundsException ex) {
-            throw new DefinedRuntimeException("unable to extract jwt token", "0004",
+            throw new DefinedRuntimeException("unable to extract jwt token", "0014",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR, ex);
         }
@@ -47,7 +47,7 @@ public class JwtUtility {
                 });
             return (T) var0.get(field);
         } catch (IOException ex) {
-            throw new DefinedRuntimeException("unable to extract jwt token", "0004",
+            throw new DefinedRuntimeException("unable to extract jwt token", "0015",
                 HttpResponseCode.INTERNAL_SERVER_ERROR,
                 ExceptionCatalog.OPERATION_ERROR, ex);
         }

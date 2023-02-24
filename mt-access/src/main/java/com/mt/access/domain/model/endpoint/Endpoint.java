@@ -177,7 +177,7 @@ public class Endpoint extends Auditable {
 
     private void canBeRemoved() {
         if (shared && !expired) {
-            throw new DefinedRuntimeException("shared endpoint must be expired first before deletion", "0004",
+            throw new DefinedRuntimeException("shared endpoint must be expired first before deletion", "0040",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -192,7 +192,7 @@ public class Endpoint extends Auditable {
         int burstCapacity
     ) {
         if (expired) {
-            throw new DefinedRuntimeException("expired endpoint cannot be updated", "0004",
+            throw new DefinedRuntimeException("expired endpoint cannot be updated", "0041",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -271,12 +271,12 @@ public class Endpoint extends Auditable {
 
     public void expire(String expireReason) {
         if (this.expired) {
-            throw new DefinedRuntimeException("endpoint can only expire once", "0004",
+            throw new DefinedRuntimeException("endpoint can only expire once", "0042",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!this.external) {
-            throw new DefinedRuntimeException("internal endpoint cannot be expired", "0004",
+            throw new DefinedRuntimeException("internal endpoint cannot be expired", "0043",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -286,7 +286,7 @@ public class Endpoint extends Auditable {
             this.expireReason = expireReason;
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
         } else {
-            throw new DefinedRuntimeException("only shared endpoint can be expired", "0004",
+            throw new DefinedRuntimeException("only shared endpoint can be expired", "0044",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

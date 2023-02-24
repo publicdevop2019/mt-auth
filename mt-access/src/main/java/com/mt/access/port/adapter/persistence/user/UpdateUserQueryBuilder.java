@@ -37,7 +37,7 @@ public class UpdateUserQueryBuilder extends UpdateByIdQueryBuilder<User> {
 
     private Boolean parseBoolean(@Nullable Object input) {
         if (input == null) {
-            throw new DefinedRuntimeException("unable parse boolean", "0000",
+            throw new DefinedRuntimeException("unable parse boolean", "0074",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

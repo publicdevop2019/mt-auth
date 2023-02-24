@@ -61,7 +61,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         try {
             connectionSub = factory.newConnection();
         } catch (IOException | TimeoutException ex) {
-            throw new DefinedRuntimeException("unable to create subscribe connection", "0004",
+            throw new DefinedRuntimeException("unable to create subscribe connection", "0000",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR, ex);
         }
@@ -72,11 +72,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             try {
                 connectionSub.close();
             } catch (IOException ex) {
-                throw new DefinedRuntimeException("error during close subscribe connection", "0004",
+                throw new DefinedRuntimeException("error during close subscribe connection", "0001",
                     HttpResponseCode.NOT_HTTP,
                     ExceptionCatalog.OPERATION_ERROR, ex);
             }
-            throw new DefinedRuntimeException("unable to create publish connection", "0004",
+            throw new DefinedRuntimeException("unable to create publish connection", "0002",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR, e);
         }
@@ -168,7 +168,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
                     "unable create subscribe channel with routing key " + routingKey +
-                        " and queue name " + queueName, "0004",
+                        " and queue name " + queueName, "0003",
                     HttpResponseCode.NOT_HTTP,
                     ExceptionCatalog.OPERATION_ERROR, e);
             }
@@ -236,7 +236,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         } catch (IOException e) {
             throw new DefinedRuntimeException(
                 "unable consume message with routing key " + routingKey + " and queue name " +
-                    queueName, "0004",
+                    queueName, "0005",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR);
         }
@@ -325,7 +325,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
                     "unable create channel for " + appId + " with routing key " + routingKey,
-                    "0004",
+                    "0006",
                     HttpResponseCode.NOT_HTTP,
                     ExceptionCatalog.OPERATION_ERROR, e);
             }
@@ -341,7 +341,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         } catch (IOException e) {
             //when msg has no matching route and alternate exchange is also down
             throw new DefinedRuntimeException(
-                "unable publish message for " + appId + " with routing key " + routingKey, "0004",
+                "unable publish message for " + appId + " with routing key " + routingKey, "0007",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR, e);
         }

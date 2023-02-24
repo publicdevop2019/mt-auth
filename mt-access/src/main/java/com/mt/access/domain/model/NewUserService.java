@@ -37,7 +37,7 @@ public class NewUserService {
                 ||
                 !pendingUser.get().getActivationCode().getActivationCode()
                     .equals(activationCode.getActivationCode())) {
-                throw new DefinedRuntimeException("activation code mismatch", "0003",
+                throw new DefinedRuntimeException("activation code mismatch", "0025",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -47,7 +47,7 @@ public class NewUserService {
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {
-            throw new DefinedRuntimeException("pending user not found, maybe not registered?", "0004",
+            throw new DefinedRuntimeException("pending user not found, maybe not registered?", "0026",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

@@ -57,7 +57,7 @@ public class ReportApplicationService {
                 report.set(
                     DomainRegistry.getReportGenerateService().generateAllTimeReport(endpointId));
             } else {
-                throw new DefinedRuntimeException("unsupported report type", "0004",
+                throw new DefinedRuntimeException("unsupported report type", "0018",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }

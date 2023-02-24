@@ -176,7 +176,7 @@ public class Client extends Auditable {
 
     public void setRoleId() {
         if (this.roleId != null) {
-            throw new DefinedRuntimeException("client role cannot be overwritten", "0004",
+            throw new DefinedRuntimeException("client role cannot be overwritten", "0034",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -186,7 +186,7 @@ public class Client extends Auditable {
     private void setTypes(Set<ClientType> types) {
         Validator.notEmpty(types);
         if (this.types != null) {
-            throw new DefinedRuntimeException("client type can not be updated once created", "0004",
+            throw new DefinedRuntimeException("client type can not be updated once created", "0035",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -197,7 +197,7 @@ public class Client extends Auditable {
                 types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
                     && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
         ) {
-            throw new DefinedRuntimeException("client type conflict", "0004",
+            throw new DefinedRuntimeException("client type conflict", "0036",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -228,7 +228,7 @@ public class Client extends Auditable {
         if (grantTypes.contains(GrantType.REFRESH_TOKEN)
             &&
             !grantTypes.contains(GrantType.PASSWORD)) {
-            throw new DefinedRuntimeException("refresh token grant requires password grant", "0004",
+            throw new DefinedRuntimeException("refresh token grant requires password grant", "0037",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

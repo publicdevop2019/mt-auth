@@ -28,7 +28,7 @@ public class StoredEventApplicationService {
         if (byId.isPresent()) {
             CommonDomainRegistry.getEventStreamService().next(byId.get());
         } else {
-            throw new DefinedRuntimeException("unable to find stored event with id " + id, "0004",
+            throw new DefinedRuntimeException("unable to find stored event with id " + id, "0008",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

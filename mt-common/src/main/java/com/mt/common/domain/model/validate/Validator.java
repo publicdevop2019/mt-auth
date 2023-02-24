@@ -42,7 +42,7 @@ public class Validator {
 
     public static void notBlank(@Nullable String text, @Nullable String message) {
         if (!StringUtils.hasText(text)) {
-            throw new DefinedRuntimeException(message == null ? HAS_TEXT_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? HAS_TEXT_MSG : message, "0036",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -54,7 +54,7 @@ public class Validator {
 
     public static void notNull(@Nullable Object text, @Nullable String message) {
         if (text == null) {
-            throw new DefinedRuntimeException(message == null ? NOT_NULL_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? NOT_NULL_MSG : message, "0037",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -69,7 +69,7 @@ public class Validator {
         notNull(text);
         int length = text.length();
         if (min > length) {
-            throw new DefinedRuntimeException(message == null ? GREATER_OR_EQUAL_TO_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? GREATER_OR_EQUAL_TO_MSG : message, "0038",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -84,7 +84,7 @@ public class Validator {
         if (text != null) {
             int length = text.length();
             if (max < length) {
-                throw new DefinedRuntimeException(message == null ? LESS_OR_EQUAL_TO_MSG : message, "0004",
+                throw new DefinedRuntimeException(message == null ? LESS_OR_EQUAL_TO_MSG : message, "0039",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -103,7 +103,7 @@ public class Validator {
         if (text != null) {
             Matcher matcher = TEXT_WHITE_LIST.matcher(text);
             if (!matcher.find()) {
-                throw new DefinedRuntimeException(message == null ? TEXT_WHITE_LIST_MSG : message, "0004",
+                throw new DefinedRuntimeException(message == null ? TEXT_WHITE_LIST_MSG : message, "0040",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -118,7 +118,7 @@ public class Validator {
         notNull(objects);
         noNullMember(objects);
         if (objects.isEmpty()) {
-            throw new DefinedRuntimeException(message == null ? NOT_EMPTY_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? NOT_EMPTY_MSG : message, "0041",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -132,7 +132,7 @@ public class Validator {
     public static void noNullMember(@Nullable Collection<?> objects, @Nullable String message) {
         notNull(objects);
         if (objects.contains(null)) {
-            throw new DefinedRuntimeException(message == null ? NO_NULL_MEMBER_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? NO_NULL_MEMBER_MSG : message, "0042",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -145,7 +145,7 @@ public class Validator {
 
     public static void greaterThanOrEqualTo(int value, int min, @Nullable String message) {
         if (value < min) {
-            throw new DefinedRuntimeException(message == null ? NUM_GREATER_OR_EQUAL_TO_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? NUM_GREATER_OR_EQUAL_TO_MSG : message, "0043",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -158,7 +158,7 @@ public class Validator {
     public static void greaterThanOrEqualTo(BigDecimal value, BigDecimal min,
                                             @Nullable String message) {
         if (value.compareTo(min) < 0) {
-            throw new DefinedRuntimeException(message == null ? DEC_GREATER_OR_EQUAL_TO_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? DEC_GREATER_OR_EQUAL_TO_MSG : message, "0044",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -166,7 +166,7 @@ public class Validator {
 
     public static void equalTo(int value, int target, @Nullable String message) {
         if (value != target) {
-            throw new DefinedRuntimeException(message == null ? NUM_EQUAL_TO_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? NUM_EQUAL_TO_MSG : message, "0045",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -191,7 +191,7 @@ public class Validator {
 
     public static void greaterThan(BigDecimal value, BigDecimal min, @Nullable String message) {
         if (value.compareTo(min) <= 0) {
-            throw new DefinedRuntimeException(message == null ? DEC_GREATER_TO_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? DEC_GREATER_TO_MSG : message, "0046",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -204,7 +204,7 @@ public class Validator {
     public static void isEmail(String email, @Nullable String message) {
         notNull(email);
         if (!EmailValidator.getInstance().isValid(email)) {
-            throw new DefinedRuntimeException(message == null ? EMAIL_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? EMAIL_MSG : message, "0047",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -224,7 +224,7 @@ public class Validator {
         Matcher matcher = HTTP_URL.matcher(imageUrlSmall);
         Matcher localMatcher = HTTP_URL_LOCAL.matcher(imageUrlSmall);
         if (!matcher.find() && !localMatcher.find()) {
-            throw new DefinedRuntimeException(message == null ? URL_MSG : message, "0004",
+            throw new DefinedRuntimeException(message == null ? URL_MSG : message, "0048",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

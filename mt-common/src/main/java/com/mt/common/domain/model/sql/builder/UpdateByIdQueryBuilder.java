@@ -36,7 +36,7 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
         });
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
-            throw new DefinedRuntimeException("no updatable field", "0004",
+            throw new DefinedRuntimeException("no updatable field", "0031",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_STATE);
         }
@@ -59,7 +59,7 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
                 }
                 return true;
             } else {
-                throw new DefinedRuntimeException("unsupported patch operation", "0004",
+                throw new DefinedRuntimeException("unsupported patch operation", "0032",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.OPERATION_ERROR);
             }

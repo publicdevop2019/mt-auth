@@ -19,7 +19,7 @@ public class IdGenerator {
     @PostConstruct
     private void validateInstanceId() {
         if (instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new DefinedRuntimeException("invalid instance id", "0004",
+            throw new DefinedRuntimeException("invalid instance id", "0034",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -28,7 +28,7 @@ public class IdGenerator {
     public synchronized long id() {
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
-            throw new DefinedRuntimeException("clock reverted", "0004",
+            throw new DefinedRuntimeException("clock reverted", "0035",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.ILLEGAL_STATE);
         }

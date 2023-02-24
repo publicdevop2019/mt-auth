@@ -181,7 +181,7 @@ public class Role extends Auditable {
             boolean b = allByQuery.stream().map(Permission::getTenantId).collect(Collectors.toSet())
                 .size() > 1;
             if (b) {
-                throw new DefinedRuntimeException("permissions added to role must belong to same tenant project", "0004",
+                throw new DefinedRuntimeException("permissions added to role must belong to same tenant project", "0053",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -317,12 +317,12 @@ public class Role extends Auditable {
 
     private void updateName(String name) {
         if (List.of(RoleType.CLIENT, RoleType.PROJECT, RoleType.CLIENT_ROOT).contains(this.type)) {
-            throw new DefinedRuntimeException("client project client root type's name cannot be changed", "0004",
+            throw new DefinedRuntimeException("client project client root type's name cannot be changed", "0054",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (isSystemCreate()) {
-            throw new DefinedRuntimeException("system created role cannot be changed", "0004",
+            throw new DefinedRuntimeException("system created role cannot be changed", "0055",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -351,7 +351,7 @@ public class Role extends Auditable {
 
     public void remove() {
         if (this.systemCreate) {
-            throw new DefinedRuntimeException("cannot delete system created role", "0004",
+            throw new DefinedRuntimeException("cannot delete system created role", "0056",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

@@ -28,7 +28,7 @@ public class CoolDownService {
             OperationCoolDown operationCoolDown = coolDownInfo.get();
             boolean cool = operationCoolDown.hasCoolDown();
             if (!cool) {
-                throw new DefinedRuntimeException("operation not cool down", "0000",
+                throw new DefinedRuntimeException("operation not cool down", "0048",
                     HttpResponseCode.BAD_REQUEST,
                     ExceptionCatalog.OPERATION_ERROR);
             }
