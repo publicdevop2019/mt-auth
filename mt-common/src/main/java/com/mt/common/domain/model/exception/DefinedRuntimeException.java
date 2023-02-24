@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class DefinedRuntimeException extends RuntimeException {
-    private String errorCode;
-    private HttpResponseCode responseType;
-    private ExceptionCatalog catalog;
+    private final String errorCode;
+    private final HttpResponseCode responseType;
+    private final ExceptionCatalog catalog;
 
     public DefinedRuntimeException(String message, String errorCode, HttpResponseCode responseCode,
                                    ExceptionCatalog catalog) {
@@ -25,6 +25,6 @@ public class DefinedRuntimeException extends RuntimeException {
     }
 
     public String getCombinedErrorCode() {
-        return this.catalog + "_" + this.errorCode;
+        return this.catalog.getCatalogCode() + "_" + this.errorCode;
     }
 }

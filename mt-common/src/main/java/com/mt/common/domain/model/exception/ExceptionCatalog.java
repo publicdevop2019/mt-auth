@@ -1,5 +1,8 @@
 package com.mt.common.domain.model.exception;
 
+import lombok.Getter;
+
+@Getter
 public enum ExceptionCatalog {
     ILLEGAL_ARGUMENT("0001"),
     ILLEGAL_STATE("0002"),
