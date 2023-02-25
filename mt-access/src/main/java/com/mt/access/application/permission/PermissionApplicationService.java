@@ -28,6 +28,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -235,7 +236,9 @@ public class PermissionApplicationService {
                 ApplicationServiceRegistry.getEndpointApplicationService()
                     .internalQuery(endpointIds);
             Set<PermissionId> subPermissionIds =
-                endpoints.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
+                endpoints.stream().map(Endpoint::getPermissionId)
+                    .filter(Objects::nonNull)//filter shared endpoint that has no permission check
+                    .collect(Collectors.toSet());
             PermissionQuery permissionQuery =
                 PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
             return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);

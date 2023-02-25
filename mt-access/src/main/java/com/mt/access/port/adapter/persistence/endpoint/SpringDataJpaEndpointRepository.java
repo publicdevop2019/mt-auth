@@ -122,7 +122,8 @@ public interface SpringDataJpaEndpointRepository
             );
 
             Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(
-                e -> QueryUtility.addBooleanEqualPredicate(e, Endpoint_.AUTH_REQUIRED, queryContext));
+                e -> QueryUtility
+                    .addBooleanEqualPredicate(e, Endpoint_.AUTH_REQUIRED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
@@ -151,9 +152,11 @@ public interface SpringDataJpaEndpointRepository
         private static class MarketAvailableEndpointPredicateConverter {
             public static Predicate getPredicate(CriteriaBuilder cb,
                                                  Root<Endpoint> root) {
-                Predicate aTrue = cb.isTrue(root.get(Endpoint_.SHARED));
-                Predicate aFalse = cb.isFalse(root.get(Endpoint_.AUTH_REQUIRED));
-                return cb.or(aTrue, aFalse);
+                Predicate isShared = cb.isTrue(root.get(Endpoint_.SHARED));
+                Predicate noAuth = cb.isFalse(root.get(Endpoint_.AUTH_REQUIRED));
+                Predicate isExternal = cb.isTrue(root.get(Endpoint_.EXTERNAL));
+                Predicate and = cb.and(isExternal, noAuth);
+                return cb.or(isShared, and);
             }
         }
     }

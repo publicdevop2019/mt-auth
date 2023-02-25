@@ -284,6 +284,7 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
     RoleComponent,
     CorsComponent,
     BatchUpdateCorsComponent,
+    SubRequestComponent,
     CacheComponent],
   providers: [
     {

@@ -5,6 +5,7 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -12,7 +13,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,8 +26,8 @@ public class PermissionQuery extends QueryCriteria {
     private static final String PROJECT_IDS = "projectIds";
     private static final String TYPES = "types";
     private PermissionSort sort;
-    @Setter(AccessLevel.PRIVATE)
     private Set<PermissionId> ids;
+
     private Set<ProjectId> projectIds;
     @Setter
     private Set<ProjectId> tenantIds;
@@ -46,22 +46,21 @@ public class PermissionQuery extends QueryCriteria {
     }
 
     public PermissionQuery(PermissionId permissionId) {
-        ids = new HashSet<>();
-        ids.add(permissionId);
+        ids = Collections.singleton(permissionId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
     }
 
-    public PermissionQuery(Set<PermissionId> permissionId) {
-        ids = permissionId;
+    public PermissionQuery(Set<PermissionId> permissionIds) {
+        setIds(permissionIds);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
     }
 
-    public PermissionQuery(Set<PermissionId> permissionId, PermissionType type) {
-        ids = permissionId;
+    public PermissionQuery(Set<PermissionId> permissionIds, PermissionType type) {
+        setIds(permissionIds);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = PermissionSort.byId(true);
@@ -110,8 +109,8 @@ public class PermissionQuery extends QueryCriteria {
      * query permission that is related to shared endpoints and subscribed by user
      *
      * @param subPermissionIds subscribed permission ids
-     * @param queryParam query param
-     * @param pageParam page param
+     * @param queryParam       query param
+     * @param pageParam        page param
      * @return PermissionQuery
      */
     public static PermissionQuery subscribeSharedQuery(
@@ -127,13 +126,21 @@ public class PermissionQuery extends QueryCriteria {
         return permissionQuery;
     }
 
+    private void setIds(Set<PermissionId> ids) {
+        Validator.noNullMember(ids);
+        this.ids = ids;
+    }
+
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap =
             QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, PROJECT_IDS, TYPES);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
-            Arrays.stream(e.split("\\.")).map(PermissionId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(ID))
+            .ifPresent(e -> setIds(
+                Arrays.stream(e.split("\\.")).map(PermissionId::new)
+                    .collect(Collectors.toSet())));
         Optional.ofNullable(stringStringMap.get(NAME))
-            .ifPresent(e -> names = Arrays.stream(e.split("\\.")).collect(Collectors.toSet()));
+            .ifPresent(e -> names = Arrays.stream(e.split("\\."))
+                .collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL))
             .ifPresent(e -> {
                 if ("null".equalsIgnoreCase(e)) {
