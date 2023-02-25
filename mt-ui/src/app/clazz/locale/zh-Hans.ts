@@ -917,4 +917,5 @@ export const zhHans = {
     "REJECTED_TYPE": "失败事件",
     "ENDPOINT_EXPIRED": "API过期",
     "ROUTE_TYPE": "路由失败",
+    "ERROR_DOC": "错误查询",
 }

@@ -199,8 +199,8 @@ public class RoleApplicationService {
                         .findFirst();
                 if (first.isEmpty()) {
                     throw new DefinedRuntimeException("unable to find root client role", "0019",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        HttpResponseCode.NOT_HTTP,
+                        ExceptionCatalog.OPERATION_ERROR);
                 }
                 Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
                     first.get().getRoleId());

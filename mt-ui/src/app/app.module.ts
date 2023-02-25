@@ -137,6 +137,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -221,6 +222,7 @@ import { UserNotificationComponent } from './pages/common/user-notification/user
     EndpointNewComponent,
     EndpointAnalysisComponent,
     UserNotificationComponent,
+    ErrorLookupComponent,
 
   ],
   imports: [

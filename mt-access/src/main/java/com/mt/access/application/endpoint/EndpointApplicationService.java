@@ -228,7 +228,7 @@ public class EndpointApplicationService {
                 }
                 ProjectId[] a = new ProjectId[1];
                 if (!collect.toArray(a)[0].equals(projectId1)) {
-                    throw new DefinedRuntimeException("project count mismatch", "0013",
+                    throw new DefinedRuntimeException("project id mismatch", "0013",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

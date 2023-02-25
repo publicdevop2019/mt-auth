@@ -118,7 +118,7 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @Transactional
-    @AuditLog(actionName = "lock user")
+    @AuditLog(actionName = "delete user")
     public void delete(String id, String changeId) {
         DomainRegistry.getAuditService()
             .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "delete user",

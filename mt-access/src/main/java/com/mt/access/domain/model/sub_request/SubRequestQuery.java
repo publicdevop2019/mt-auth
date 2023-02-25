@@ -52,7 +52,7 @@ public class SubRequestQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, TYPE);
         String s = stringStringMap.get(TYPE);
         if (s == null || s.isBlank()) {
-            throw new DefinedRuntimeException("type is required", "0060",
+            throw new DefinedRuntimeException("missing sub request query type", "0060",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         } else {

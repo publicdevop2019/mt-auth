@@ -37,7 +37,7 @@ public enum CacheControlValue {
                 return e;
             }
         }
-        throw new DefinedRuntimeException("unknown enum label value", "0033",
+        throw new DefinedRuntimeException("unknown cache control value", "0033",
             HttpResponseCode.BAD_REQUEST,
             ExceptionCatalog.ILLEGAL_ARGUMENT);
     }

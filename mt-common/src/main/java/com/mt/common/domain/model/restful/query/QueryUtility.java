@@ -146,8 +146,7 @@ public class QueryUtility {
             for (String str : split) {
                 String[] split1 = str.split(":");
                 if (split1.length != 2) {
-                    log.info("unable to parse query string {}", rawQuery);
-                    throw new DefinedRuntimeException("unable to parse query string", "0027",
+                    throw new DefinedRuntimeException("unable to parse query string" + rawQuery, "0027",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
@@ -266,7 +265,7 @@ public class QueryUtility {
     public static <T> void addDomainIdIsPredicate(String value, String sqlFieldName,
                                                   QueryContext<T> queryContext) {
         if ("null".equalsIgnoreCase(value)) {
-            throw new DefinedRuntimeException("should never reached here", "0029",
+            throw new DefinedRuntimeException("literal null is not allowed", "0029",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         } else {

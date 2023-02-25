@@ -67,17 +67,11 @@ public class JwtCurrentUserService implements CurrentUserService {
     @Override
     public Authentication getAuthentication() {
         String jwt = userJwt.get();
-        try {
-            Collection<? extends GrantedAuthority> au =
-                JwtUtility.getPermissionIds(jwt).stream().map(e -> (GrantedAuthority) () -> e)
-                    .collect(Collectors.toList());
-            String userId = JwtUtility.getUserId(jwt);
-            return new MyAuthentication(au, userId);
-        } catch (IllegalArgumentException e) {
-            throw new DefinedRuntimeException("unable to create authentication obj in authorization header", "0069",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT, e);
-        }
+        Collection<? extends GrantedAuthority> au =
+            JwtUtility.getPermissionIds(jwt).stream().map(e -> (GrantedAuthority) () -> e)
+                .collect(Collectors.toList());
+        String userId = JwtUtility.getUserId(jwt);
+        return new MyAuthentication(au, userId);
     }
 
     @Override

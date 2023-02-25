@@ -46,6 +46,7 @@ import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
 import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -57,6 +58,7 @@ const routes: Routes = [
       { path: 'deploy', component: LunchComponent },
       { path: 'design', component: DesignComponent },
       { path: 'build', component: BuildComponent },
+      { path: 'error', component: ErrorLookupComponent },
       { path: '**', component: LunchComponent }
     ]
   },

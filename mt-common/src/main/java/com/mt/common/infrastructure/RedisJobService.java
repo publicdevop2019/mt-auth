@@ -130,18 +130,16 @@ public class RedisJobService implements JobService {
             try {
                 function.run();
             } catch (Exception exception) {
-                log.error("exception during job execution, job: {}, error detail: {}", jobName,
-                    exception);
                 if (lock.isHeldByCurrentThread()) {
                     lock.unlock();
                     log.trace("release {} lock success", jobName);
                     throw new DefinedRuntimeException("error during execution", "0058",
                         HttpResponseCode.NOT_HTTP,
-                        ExceptionCatalog.OPERATION_ERROR);
+                        ExceptionCatalog.OPERATION_ERROR, exception);
                 } else {
-                    throw new DefinedRuntimeException("lock lost", "0059",
+                    throw new DefinedRuntimeException("error during execution & lock lost", "0059",
                         HttpResponseCode.NOT_HTTP,
-                        ExceptionCatalog.OPERATION_ERROR);
+                        ExceptionCatalog.OPERATION_ERROR, exception);
                 }
             }
             if (lock.isHeldByCurrentThread()) {

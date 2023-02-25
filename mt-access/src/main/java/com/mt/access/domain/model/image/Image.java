@@ -47,7 +47,7 @@ public class Image extends Auditable {
         try {
             this.source = file.getBytes();
         } catch (IOException e) {
-            throw new DefinedRuntimeException("error during saving file", "0045",
+            throw new DefinedRuntimeException("error during saving image file", "0045",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT, e);
         }
