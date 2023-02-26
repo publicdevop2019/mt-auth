@@ -5,6 +5,7 @@ import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
 import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.Notification_;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -28,6 +29,10 @@ public interface SpringDataJpaNotificationRepository
         ackNotification(id);
     }
 
+    default void acknowledgeForUser(NotificationId id, UserId userId) {
+        ackNotificationUser(id,userId);
+    }
+
     default Optional<Notification> notificationOfId(NotificationId notificationId) {
         return notificationsOfQuery(new NotificationQuery(notificationId)).findFirst();
     }
@@ -35,6 +40,10 @@ public interface SpringDataJpaNotificationRepository
     @Modifying
     @Query("update #{#entityName} n set n.ack=true where n.notificationId = ?1")
     void ackNotification(NotificationId id);
+
+    @Modifying
+    @Query("update #{#entityName} n set n.ack=true where n.notificationId = ?1 AND n.userId= ?2")
+    void ackNotificationUser(NotificationId id, UserId userId);
 
     default SumPagedRep<Notification> notificationsOfQuery(NotificationQuery query) {
         QueryUtility.QueryContext<Notification> queryContext =
@@ -51,6 +60,10 @@ public interface SpringDataJpaNotificationRepository
             .addDomainIdInPredicate(
                 e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                 Notification_.NOTIFICATION_ID, queryContext));
+        Optional.ofNullable(query.getUserId()).ifPresent(e -> QueryUtility
+            .addDomainIdIsPredicate(
+                e.getDomainId(),
+                Notification_.USER_ID, queryContext));
         Order order = null;
         if (query.getSort().isTimestamp()) {
             order = QueryUtility.getOrder(Notification_.CREATED_AT, queryContext,

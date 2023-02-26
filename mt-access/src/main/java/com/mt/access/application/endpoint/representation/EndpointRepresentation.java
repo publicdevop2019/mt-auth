@@ -38,7 +38,7 @@ public class EndpointRepresentation {
         this.external = endpoint.isExternal();
         this.burstCapacity = endpoint.getBurstCapacity();
         this.replenishRate = endpoint.getReplenishRate();
-        this.secured = endpoint.isSecured();
+        this.secured = endpoint.isAuthRequired();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();

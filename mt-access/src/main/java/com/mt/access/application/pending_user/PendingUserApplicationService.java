@@ -1,6 +1,5 @@
 package com.mt.access.application.pending_user;
 
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.operation_cool_down.OperationType;

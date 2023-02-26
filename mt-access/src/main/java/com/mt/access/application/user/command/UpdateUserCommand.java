@@ -1,7 +1,6 @@
 package com.mt.access.application.user.command;
 
 import java.io.Serializable;
-import java.util.Set;
 import lombok.Data;
 
 @Data

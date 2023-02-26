@@ -1,7 +1,6 @@
 package com.mt.access.application.cache_profile;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.PatchCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;

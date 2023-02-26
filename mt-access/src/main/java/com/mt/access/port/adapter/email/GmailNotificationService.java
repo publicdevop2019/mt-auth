@@ -1,12 +1,12 @@
 package com.mt.access.port.adapter.email;
 
-import com.mt.access.domain.model.notification.EmailNotificationException;
 import com.mt.access.domain.model.notification.EmailNotificationService;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import javax.mail.MessagingException;
@@ -17,7 +17,6 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
-import org.springframework.util.ResourceUtils;
 
 @Service
 @Slf4j
@@ -42,7 +41,9 @@ public class GmailNotificationService implements EmailNotificationService {
             mimeMessageHelper.setSubject(subject);
             sender.send(mimeMessage);
         } catch (IOException | TemplateException | MessagingException e) {
-            throw new EmailNotificationException(e);
+            throw new DefinedRuntimeException("unable to send email", "0071",
+                HttpResponseCode.INTERNAL_SERVER_ERROR,
+                ExceptionCatalog.OPERATION_ERROR, e);
         }
         log.info("end of deliver email");
     }

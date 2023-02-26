@@ -1,12 +1,13 @@
 package com.mt.access.domain.model.operation_cool_down;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -27,7 +28,9 @@ public class CoolDownService {
             OperationCoolDown operationCoolDown = coolDownInfo.get();
             boolean cool = operationCoolDown.hasCoolDown();
             if (!cool) {
-                throw new OperationNotCoolDownException();
+                throw new DefinedRuntimeException("operation not cool down", "0048",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.OPERATION_ERROR);
             }
             log.info("operation has cool down");
             operationCoolDown.updateLastOperateAt();

@@ -1,6 +1,9 @@
 package com.mt.access.infrastructure;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -18,8 +21,9 @@ public class CheckSumService {
             byte[] thedigest = md.digest(serialize.getBytes(StandardCharsets.UTF_8));
             return DatatypeConverter.printHexBinary(thedigest);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-            throw new RuntimeException("unable to get sum value");
+            throw new DefinedRuntimeException("unable to get sum value", "0068",
+                HttpResponseCode.INTERNAL_SERVER_ERROR,
+                ExceptionCatalog.OPERATION_ERROR, e);
         }
     }
 }

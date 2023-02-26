@@ -24,6 +24,7 @@ public class EndpointCardRepresentation {
     private boolean secured;
     private boolean shared;
     private boolean expired;
+    private boolean external;
     private String expireReason;
     private String corsProfileId;
     private String cacheProfileId;
@@ -31,6 +32,7 @@ public class EndpointCardRepresentation {
     public EndpointCardRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
+        this.external = endpoint.isExternal();
         this.name = endpoint.getName();
         this.cacheProfileId =
             endpoint.getCacheProfileId() != null ? endpoint.getCacheProfileId().getDomainId() :
@@ -40,7 +42,7 @@ public class EndpointCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.secured = endpoint.isSecured();
+        this.secured = endpoint.isAuthRequired();
         this.csrfEnabled = endpoint.isCsrfEnabled();
         this.shared = endpoint.isShared();
         this.expired = endpoint.isExpired();

@@ -32,7 +32,7 @@
     "@ngx-translate/core": "^12.1.2",
     "@ngx-translate/http-loader": "^4.0.0",
     "luxon": "^2.3.1",
-    "mt-form-builder": "0.0.47",
+    "mt-form-builder": "0.0.48",
     "rxjs": "~6.6.3",
     "tslib": "^2.0.0",
     "uuid": "^3.4.0",

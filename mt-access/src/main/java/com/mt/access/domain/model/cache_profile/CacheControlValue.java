@@ -1,5 +1,8 @@
 package com.mt.access.domain.model.cache_profile;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.sql.converter.EnumSetConverter;
 
 /**
@@ -34,7 +37,9 @@ public enum CacheControlValue {
                 return e;
             }
         }
-        throw new IllegalArgumentException("unknown enum label value");
+        throw new DefinedRuntimeException("unknown cache control value", "0033",
+            HttpResponseCode.BAD_REQUEST,
+            ExceptionCatalog.ILLEGAL_ARGUMENT);
     }
 
     /**

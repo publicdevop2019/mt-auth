@@ -11,7 +11,6 @@ import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.AccessDeniedException;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
@@ -30,6 +29,9 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -71,21 +73,23 @@ public class EndpointApplicationService {
 
     @Transactional
     @AuditLog(actionName = "create api")
-    public String create(String projectId, EndpointCreateCommand command, String changeId) {
+    public String create(String rawProjectId, EndpointCreateCommand command, String changeId) {
         EndpointId endpointId = new EndpointId();
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_API);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
-                String resourceId = command.getResourceId();
-                Optional<Client> client =
-                    DomainRegistry.getClientRepository().clientOfId(new ClientId(resourceId));
-                if (client.isPresent()) {
-                    Client client1 = client.get();
-                    if (!client1.getProjectId().equals(projectId1)) {
-                        throw new AccessDeniedException();
+                String clientId = command.getResourceId();
+                Optional<Client> optional =
+                    DomainRegistry.getClientRepository().clientOfId(new ClientId(clientId));
+                if (optional.isPresent()) {
+                    Client client = optional.get();
+                    if (!client.getProjectId().equals(projectId)) {
+                        throw new DefinedRuntimeException("project id mismatch", "0010",
+                            HttpResponseCode.BAD_REQUEST,
+                            ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }
-                    Endpoint endpoint = client1.addNewEndpoint(
+                    Endpoint endpoint = client.addNewEndpoint(
                         command.getCacheProfileId() != null
                             ?
                             new CacheProfileId(command.getCacheProfileId()) : null,
@@ -108,7 +112,9 @@ public class EndpointApplicationService {
                     DomainRegistry.getEndpointRepository().add(endpoint);
                     return endpointId.getDomainId();
                 } else {
-                    throw new InvalidClientIdException();
+                    throw new DefinedRuntimeException("invalid client id", "0011",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
             }, ENDPOINT);
     }
@@ -216,11 +222,15 @@ public class EndpointApplicationService {
                 Set<ProjectId> collect =
                     allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
                 if (collect.size() != 1) {
-                    throw new AccessDeniedException();
+                    throw new DefinedRuntimeException("project count not 1", "0012",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 ProjectId[] a = new ProjectId[1];
                 if (!collect.toArray(a)[0].equals(projectId1)) {
-                    throw new AccessDeniedException();
+                    throw new DefinedRuntimeException("project id mismatch", "0013",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 Endpoint.remove(allByQuery);
                 return null;
@@ -404,8 +414,5 @@ public class EndpointApplicationService {
                 });
                 return null;
             }, ENDPOINT);
-    }
-
-    public static class InvalidClientIdException extends RuntimeException {
     }
 }

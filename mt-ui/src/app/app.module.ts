@@ -136,6 +136,8 @@ import { EnterReasonDialogComponent } from './components/enter-reason-dialog/ent
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
+import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -219,6 +221,8 @@ import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog
     EnterReasonDialogComponent,
     EndpointNewComponent,
     EndpointAnalysisComponent,
+    UserNotificationComponent,
+    ErrorLookupComponent,
 
   ],
   imports: [
@@ -280,6 +284,7 @@ import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog
     RoleComponent,
     CorsComponent,
     BatchUpdateCorsComponent,
+    SubRequestComponent,
     CacheComponent],
   providers: [
     {

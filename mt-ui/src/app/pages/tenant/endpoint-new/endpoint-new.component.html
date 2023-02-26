@@ -5,26 +5,21 @@
         <div style="width: 200px;">
             <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
         </div>
-        <mat-card *ngIf="isInternalPrivate" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-card *ngIf="isExternal===false" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
             <div>{{'INTERNAL_PRIVATE_NOTE'|translate}}</div>
         </mat-card>
-        <mat-card *ngIf="isInternalShared" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'INTERNAL_SHARED_NOTE'|translate}}</div>
-        </mat-card>
-        <mat-card *ngIf="isExternalPublic" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-card *ngIf="isExternal===true && isSecured===false" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
             <div>{{'EXTERNAL_PUBLIC_NOTE'|translate}}</div>
         </mat-card>
-        <mat-card *ngIf="isExternalProtected" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-card *ngIf="isExternal===true && isSecured===true" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
             <div>{{'EXTERNAL_PROTECTED_NOTE'|translate}}</div>
         </mat-card>
-        <mat-card *ngIf="isExternalShared && (isExternalProtected || isExternalPublic)" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-card *ngIf="isShared===true" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div *ngIf="isExternalPublic">{{'EXTERNAL_SHARED_PUBLIC_NOTE'|translate}}</div>
-            <div *ngIf="isExternalProtected">{{'EXTERNAL_SHARED_PROTECT_NOTE'|translate}}</div>
+            <div>{{'EXTERNAL_SHARED_PUBLIC_NOTE'|translate}}</div>
         </mat-card>
     </mat-step>
     <mat-step label="{{'BASIC_EP_INFO'|translate}}">

@@ -30,7 +30,11 @@ public class EndpointInfo {
     private Set<String> userRoles;
     private Set<String> clientScopes;
     private boolean secured;
+    private boolean external;
+    private boolean shared;
     private boolean userOnly;
     private boolean clientOnly;
+    private int replenishRate = 10;
 
+    private int burstCapacity = 10;
 }

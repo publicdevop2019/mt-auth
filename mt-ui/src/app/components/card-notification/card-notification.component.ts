@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { DateTime, ToRelativeUnit } from "luxon";
 import { TranslateService } from '@ngx-translate/core';
@@ -11,8 +11,9 @@ export class CardNotificationComponent implements OnInit {
   @Input() value: IBellNotification;
   @Input() length: number;
   @Input() index: number;
+  @Output() onAck = new EventEmitter<IBellNotification>();
   parsedDate: string;
-  constructor(public translate: TranslateService, private msgSvg: MessageService) {
+  constructor(public translate: TranslateService) {
   }
   ngOnInit(): void {
     let resolved: string;
@@ -42,6 +43,6 @@ export class CardNotificationComponent implements OnInit {
   }
   dismissMsg(event: Event) {
     event.stopPropagation();
-    this.msgSvg.dismiss(this.value)
+    this.onAck.emit(this.value)
   }
 }

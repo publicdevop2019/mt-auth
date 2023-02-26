@@ -1,5 +1,8 @@
 package com.mt.common.domain.model.unique_id;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -16,14 +19,18 @@ public class IdGenerator {
     @PostConstruct
     private void validateInstanceId() {
         if (instanceId > ~(-1L << 4L) || instanceId < 0) {
-            throw new InvalidInstanceIdException();
+            throw new DefinedRuntimeException("invalid instance id", "0034",
+                HttpResponseCode.NOT_HTTP,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
     public synchronized long id() {
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
-            throw new ClockRevertException();
+            throw new DefinedRuntimeException("clock reverted", "0035",
+                HttpResponseCode.NOT_HTTP,
+                ExceptionCatalog.ILLEGAL_STATE);
         }
         if (lastSuccessSecond == currentSecond) {
             long sequenceMaxValue = ~(-1L << SEQUENCE_ID_LENGTH);

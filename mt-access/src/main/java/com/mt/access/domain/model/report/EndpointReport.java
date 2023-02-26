@@ -1,6 +1,9 @@
 package com.mt.access.domain.model.report;
 
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -45,8 +48,9 @@ public class EndpointReport {
                 } else if (e.getResponseCode() == 503) {
                     serviceUnavailableErrorCount.getAndIncrement();
                 } else {
-                    throw new IllegalArgumentException(
-                        "unknown response code " + e.getResponseCode());
+                    throw new DefinedRuntimeException("unknown response code " + e.getResponseCode(), "0052",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
             }
         });

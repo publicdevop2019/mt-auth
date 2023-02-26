@@ -1,1 +1,35 @@
-<p>施工中...</p>
+<div style="padding: 20px;">
+    <h1>API设计</h1>
+    <h2>分类标准</h2>
+    <div style="padding-left: 8px;">1. 是否对外开放</div>
+    <div style="padding-left: 40px; font-size: 12px;">决定了API的访问途径</div>
+    <div style="padding-left: 8px;">2. 是否需要验证</div>
+    <div style="padding-left: 40px; font-size: 12px;">决定了API访问时是否需要用户登录</div>
+    <div style="padding-left: 8px;">3. 是否与其他团队共享</div>
+    <div style="padding-left: 40px; font-size: 12px;">决定了是否需要参与生命周期管理</div>
+    <h2>具体类别</h2>
+    <div style="padding-left: 8px;">1. 内部API</div>
+    <div style="padding-left: 40px; font-size: 12px;">团队后端内部使用，通过注册中心直接调用，不享受相关服务</div>
+    <div style="padding-left: 8px;">2. 外部公共非共享API</div>
+    <div style="padding-left: 40px; font-size: 12px;">对外开放，允许任意人任意调用，享受相关服务</div>
+    <div style="padding-left: 8px;">3. 外部公共共享API</div>
+    <div style="padding-left: 40px; font-size: 12px;">对外开放，允许任意人任意调用，享受相关服务，与生命周期管理</div>
+    <div style="padding-left: 8px;">4. 外部保护非共享API</div>
+    <div style="padding-left: 40px; font-size: 12px;">对外开放，需要验证，享受相关服务</div>
+    <div style="padding-left: 8px;">5. 外部保护共享</div>
+    <div style="padding-left: 40px; font-size: 12px;">对外开放，需要验证，享受相关服务，与生命周期管理</div>
+    <h2>共享与订阅</h2>
+    <div style="padding-left: 8px;">1. 您可以选择将API共享，允许别人发现并订阅</div>
+    <div style="padding-left: 8px;">2. 您可以订阅共享API，提交请求并批复后可以按照申请的额度来消费</div>
+    <h2>API过期</h2>
+    <div style="padding-left: 8px;">共享API无法像普通API那样被直接删除，您需要先将其设定为过期，这样您API的订阅者会收到过期通知，然后您可以执行删除操作</div>
+    <h2>API限流</h2>
+    <div style="padding-left: 8px;">1. 外部公开API</div>
+    <div style="padding-left: 40px; font-size: 12px;">以IP为单位进行限流，不论项目，拥有者可以更改额度配置</div>
+    <div style="padding-left: 8px;">1. 外部保护API</div>
+    <div style="padding-left: 40px; font-size: 12px;">以项目，用户为单位进行限流，可以通过订阅请求来申请额度</div>
+    <h1>Exception设计</h1>
+    <h2 style="padding-left: 8px; font-weight: 700;">异常类：DefinedRuntimeException</h2>
+    <div style="padding-left: 8px;">所有系统已知异常抛出此类，该类允许自定义错误信息，http代码，错误代码，错误分类</div>
+    <div style="padding-left: 8px;">备注：<a href="./docs/error" style="margin-left: 16px;">错误码查询表</a></div>
+</div>

@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CardNotificationComponent } from './card-notification.component';
+import { ErrorLookupComponent } from './error-lookup.component';
 
-describe('CardNotificationComponent', () => {
-  let component: CardNotificationComponent;
-  let fixture: ComponentFixture<CardNotificationComponent>;
+describe('ErrorLookupComponent', () => {
+  let component: ErrorLookupComponent;
+  let fixture: ComponentFixture<ErrorLookupComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ CardNotificationComponent ]
+      declarations: [ ErrorLookupComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(CardNotificationComponent);
+    fixture = TestBed.createComponent(ErrorLookupComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

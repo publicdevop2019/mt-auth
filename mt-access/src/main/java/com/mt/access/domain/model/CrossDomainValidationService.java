@@ -1,7 +1,5 @@
 package com.mt.access.domain.model;
 
-import static com.mt.access.infrastructure.AppConstant.DATA_VALIDATION_JOB_NAME;
-
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
@@ -26,11 +24,9 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
-import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
-import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
 import java.util.Set;
@@ -164,9 +160,9 @@ public class CrossDomainValidationService {
                 new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT"));
             return false;
         }
-        if (allByQuery.stream().anyMatch(e -> !e.isSecured())) {
+        if (allByQuery.stream().anyMatch(e -> !e.isAuthRequired())) {
             Set<EndpointId> publicEpIds =
-                allByQuery.stream().filter(e -> !e.isSecured()).map(Endpoint::getEndpointId)
+                allByQuery.stream().filter(e -> !e.isAuthRequired()).map(Endpoint::getEndpointId)
                     .collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", publicEpIds);
             CommonDomainRegistry.getDomainEventRepository()

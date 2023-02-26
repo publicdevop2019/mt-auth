@@ -1,6 +1,9 @@
 package com.mt.access.application;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -8,10 +11,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.common.exceptions.InvalidClientException;
 import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
-import org.springframework.security.oauth2.common.exceptions.RedirectMismatchException;
-import org.springframework.security.oauth2.common.exceptions.UnsupportedResponseTypeException;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
 import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -44,8 +44,9 @@ public class AuthorizeCodeApplicationService {
         //make sure authorize client exist
         if (ApplicationServiceRegistry.getClientApplicationService()
             .loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
-            log.error("unable to find authorize client {}", parameters.get(OAuth2Utils.CLIENT_ID));
-            throw new IllegalArgumentException("unable to find authorize client");
+            throw new DefinedRuntimeException("unable to find authorize client "+parameters.get(OAuth2Utils.CLIENT_ID), "0005",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
 
         log.debug("before create authorization request");
@@ -56,12 +57,15 @@ public class AuthorizeCodeApplicationService {
         Set<String> responseTypes = authorizationRequest.getResponseTypes();
 
         if (!responseTypes.contains("token") && !responseTypes.contains("code")) {
-            throw new UnsupportedResponseTypeException(
-                "Unsupported response types: " + responseTypes);
+            throw new DefinedRuntimeException("unsupported response types: " + responseTypes, "0006",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
 
         if (authorizationRequest.getClientId() == null) {
-            throw new InvalidClientException("A client id must be provided");
+            throw new DefinedRuntimeException("a client id must be provided", "0007",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
 
 
@@ -72,8 +76,9 @@ public class AuthorizeCodeApplicationService {
             authorizationRequest.getRequestParameters().get(OAuth2Utils.REDIRECT_URI);
         String resolvedRedirect = redirectResolver.resolveRedirect(redirectUriParameter, client);
         if (!StringUtils.hasText(redirectUriParameter)) {
-            throw new RedirectMismatchException(
-                "A redirectUri must be either supplied or preconfigured in the ClientDetails");
+            throw new DefinedRuntimeException("a redirect uri must be either supplied or preconfigured in the client details", "0008",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         authorizationRequest.setRedirectUri(resolvedRedirect);
 

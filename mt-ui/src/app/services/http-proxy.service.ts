@@ -164,6 +164,9 @@ export class HttpProxyService {
     dismissNotification(id: string) {
         return this._httpClient.post(environment.serverUri + `/auth-svc/mngmt/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
     }
+    dismissUserNotification(id: string) {
+        return this._httpClient.post(environment.serverUri + `/auth-svc/user/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
+    }
     getAvatar() {
         return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };

@@ -7,16 +7,19 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
-import com.mt.access.domain.model.endpoint.event.EndpointShareAdded;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,8 +50,8 @@ import org.hibernate.annotations.Where;
     region = "endpointRegion")
 public class Endpoint extends Auditable {
 
-    @Setter(AccessLevel.PRIVATE)
-    private boolean secured;
+    @Column(name = "secured", updatable = false)
+    private boolean authRequired;
 
     @Setter(AccessLevel.PRIVATE)
     private String description;
@@ -104,8 +107,10 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private boolean csrfEnabled = true;
 
+    @Column(updatable = false)
     private boolean shared = false;
 
+    @Column(updatable = false)
     private boolean external = false;
 
     private int replenishRate = 0;
@@ -119,50 +124,40 @@ public class Endpoint extends Auditable {
     public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId,
                     String name, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean secured, boolean isWebsocket, boolean csrfEnabled,
+                    boolean authRequired, boolean isWebsocket, boolean csrfEnabled,
                     CorsProfileId corsProfileId, boolean shared,
                     boolean external, int replenishRate, int burstCapacity
     ) {
         super();
-        PermissionId permissionId = null;
-        if (secured) {
-            permissionId = new PermissionId();
-        }
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setClientId(clientId);
         setProjectId(projectId);
         setEndpointId(endpointId);
-        setPermissionId(permissionId);
         setName(name);
         setDescription(description);
         setWebsocket(isWebsocket);
         setCacheProfileId(cacheProfileId);
         setPath(path);
-        setSecured(secured);
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        setShared(shared);
         validate(new HttpValidationNotificationHandler());
+        setEndpointCatalogOnCreation(shared, authRequired, external);
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
         CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
-        if (secured) {
-            CommonDomainRegistry.getDomainEventRepository()
-                .append(new SecureEndpointCreated(getProjectId(), this));
-        }
-        this.external = external;
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
     }
 
     public static void remove(Set<Endpoint> endpointSet) {
+        endpointSet.forEach(Endpoint::canBeRemoved);
         DomainRegistry.getEndpointRepository().remove(endpointSet);
         CommonDomainRegistry.getDomainEventRepository().append(
             new EndpointCollectionModified()
         );
         Set<Endpoint> collect =
-            endpointSet.stream().filter(Endpoint::isSecured).collect(Collectors.toSet());
+            endpointSet.stream().filter(Endpoint::isAuthRequired).collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointRemoved(collect));
@@ -170,16 +165,21 @@ public class Endpoint extends Auditable {
     }
 
     public void remove() {
-        if (shared && !expired) {
-            throw new IllegalStateException(
-                "shared endpoint must be expired first before deletion");
-        }
+        canBeRemoved();
         DomainRegistry.getEndpointRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new EndpointCollectionModified());
-        if (secured) {
+        if (authRequired) {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointRemoved(Collections.singleton(this)));
+        }
+    }
+
+    private void canBeRemoved() {
+        if (shared && !expired) {
+            throw new DefinedRuntimeException("shared endpoint must be expired first before deletion", "0040",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -192,7 +192,9 @@ public class Endpoint extends Auditable {
         int burstCapacity
     ) {
         if (expired) {
-            throw new IllegalStateException("expired endpoint cannot be updated");
+            throw new DefinedRuntimeException("expired endpoint cannot be updated", "0041",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         setName(name);
         setDescription(description);
@@ -202,23 +204,39 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
     }
 
-    private void setShared(boolean shared) {
-        if (shared) {
-            CommonDomainRegistry.getDomainEventRepository().append(new EndpointShareAdded(this));
+    private void setEndpointCatalogOnCreation(boolean shared, boolean secured, boolean external) {
+        if (secured) {
+            permissionId = new PermissionId();
         }
         this.shared = shared;
+        this.authRequired = secured;
+        this.external = external;
+        if (secured) {
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new SecureEndpointCreated(getProjectId(), this));
+        }
     }
 
     private void setName(String name) {
         Validator.notBlank(name);
         this.name = name;
+    }
+
+    public void setReplenishRate(int replenishRate) {
+        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        this.replenishRate = replenishRate;
+    }
+
+    public void setBurstCapacity(int burstCapacity) {
+        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        this.burstCapacity = burstCapacity;
     }
 
     private void setPath(String path) {
@@ -253,7 +271,14 @@ public class Endpoint extends Auditable {
 
     public void expire(String expireReason) {
         if (this.expired) {
-            throw new IllegalStateException("endpoint can only expire once");
+            throw new DefinedRuntimeException("endpoint can only expire once", "0042",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        if (!this.external) {
+            throw new DefinedRuntimeException("internal endpoint cannot be expired", "0043",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (this.shared) {
             this.expired = true;
@@ -261,7 +286,9 @@ public class Endpoint extends Auditable {
             this.expireReason = expireReason;
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
         } else {
-            throw new IllegalStateException("only shared endpoint can be expired");
+            throw new DefinedRuntimeException("only shared endpoint can be expired", "0044",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 }

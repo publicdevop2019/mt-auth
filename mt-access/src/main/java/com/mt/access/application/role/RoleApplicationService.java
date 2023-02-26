@@ -25,6 +25,9 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLock;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
@@ -195,7 +198,9 @@ public class RoleApplicationService {
                     allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
                         .findFirst();
                 if (first.isEmpty()) {
-                    throw new IllegalStateException("unable to find root client role");
+                    throw new DefinedRuntimeException("unable to find root client role", "0019",
+                        HttpResponseCode.NOT_HTTP,
+                        ExceptionCatalog.OPERATION_ERROR);
                 }
                 Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
                     first.get().getRoleId());

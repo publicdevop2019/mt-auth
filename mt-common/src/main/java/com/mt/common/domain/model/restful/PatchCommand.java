@@ -1,8 +1,10 @@
 package com.mt.common.domain.model.restful;
 
 import com.mt.common.CommonConstant;
-import com.mt.common.application.idempotent.exception.RollbackNotSupportedException;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import java.util.List;
 import lombok.Data;
@@ -27,7 +29,9 @@ public class PatchCommand implements Comparable<PatchCommand>, Serializable {
             } else if (e.getOp().equalsIgnoreCase(CommonConstant.PATCH_OP_TYPE_DIFF)) {
                 e.setOp(CommonConstant.PATCH_OP_TYPE_SUM);
             } else {
-                throw new RollbackNotSupportedException();
+                throw new DefinedRuntimeException("rollback not supported", "0020",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_STATE);
             }
         });
         return deepCopy;

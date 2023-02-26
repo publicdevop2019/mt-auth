@@ -10,6 +10,9 @@ import com.fasterxml.jackson.databind.type.MapType;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -37,9 +40,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
             out.writeObject(object);
             out.flush();
             return bos.toByteArray();
-        } catch (IOException e) {
-            log.error("error during native serialize", e);
-            throw new UnableToNativeSerializeException();
+        } catch (IOException ex) {
+            throw new DefinedRuntimeException("error during native serialize", "0050",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -48,9 +52,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
         ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
         try (ObjectInput in = new ObjectInputStream(bis)) {
             return in.readObject();
-        } catch (ClassNotFoundException | IOException e) {
-            log.error("error during native deserialize", e);
-            throw new UnableToNativeDeserializeException();
+        } catch (ClassNotFoundException | IOException ex) {
+            throw new DefinedRuntimeException("error during native deserialize", "0051",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -63,9 +68,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
     public <T> String serialize(T object) {
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            log.error("error during object mapper serialize", e);
-            throw new UnableToSerializeException();
+        } catch (JsonProcessingException ex) {
+            throw new DefinedRuntimeException("error during object mapper serialize", "0052",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -75,9 +81,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
             return objectMapper.readValue(str, clazz);
-        } catch (IOException e) {
-            log.error("error during object mapper deserialize", e);
-            throw new UnableToDeSerializeException();
+        } catch (IOException ex) {
+            throw new DefinedRuntimeException("error during object mapper deserialize", "0053",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -87,9 +94,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
         MapType mapType = typeFactory.constructMapType(HashMap.class, keyClass, valueClass);
         try {
             return objectMapper.readValue(str, mapType);
-        } catch (IOException e) {
-            log.error("error during object mapper deserialize", e);
-            throw new UnableToDeSerializeToMapException();
+        } catch (IOException ex) {
+            throw new DefinedRuntimeException("error during object mapper deserialize", "0054",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -102,9 +110,11 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
     public <T> String serializeCollection(Collection<T> object) {
         try {
             return objectMapper.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            log.error("error during object mapper collection serialize", e);
-            throw new UnableToSerializeCollectionException();
+        } catch (JsonProcessingException ex) {
+            throw new DefinedRuntimeException("error during object mapper collection serialize",
+                "0055",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -120,9 +130,10 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
                 return Collections.emptyList();
             }
             return o;
-        } catch (IOException e) {
-            log.error("error during object mapper collection deserialize", e);
-            throw new UnableToDeserializeCollectionException();
+        } catch (IOException ex) {
+            throw new DefinedRuntimeException("unable to deserialize collection", "0056",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
         }
     }
 
@@ -138,36 +149,11 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
             JsonNode pathCommand = objectMapper.convertValue(beforePatch, JsonNode.class);
             JsonNode patchedNode = command.apply(pathCommand);
             return objectMapper.treeToValue(patchedNode, clazz);
-        } catch (JsonPatchException | JsonProcessingException e) {
-            log.error("error during object mapper json patch", e);
-            throw new UnableToJsonPatchException();
+        } catch (JsonPatchException | JsonProcessingException ex) {
+            throw new DefinedRuntimeException("unable to json patch", "0057",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
+
         }
-    }
-
-    public static class UnableToSerializeException extends RuntimeException {
-    }
-
-    public static class UnableToDeSerializeException extends RuntimeException {
-    }
-
-    public static class UnableToDeSerializeToMapException extends RuntimeException {
-    }
-
-    public static class UnableToJsonPatchException extends RuntimeException {
-    }
-
-    public static class UnableToDeepCopyCollectionException extends RuntimeException {
-    }
-
-    public static class UnableToSerializeCollectionException extends RuntimeException {
-    }
-
-    public static class UnableToDeserializeCollectionException extends RuntimeException {
-    }
-
-    public static class UnableToNativeSerializeException extends RuntimeException {
-    }
-
-    public static class UnableToNativeDeserializeException extends RuntimeException {
     }
 }

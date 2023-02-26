@@ -13,6 +13,7 @@ import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREAT
 import static com.mt.access.domain.model.user.event.UserMfaNotificationEvent.USER_MFA_NOTIFICATION;
 import static com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated.USER_PWD_RESET_CODE_UPDATED;
 import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
+import static com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent.REJECTED_MSG_EVENT;
 import static com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent.UNROUTABLE_MSG_EVENT;
 import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
 import static com.mt.common.domain.model.job.event.JobNotFoundEvent.JOB_NOT_FOUND;
@@ -35,6 +36,7 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
@@ -251,6 +253,17 @@ public class NotificationDomainEventSubscriber {
                 PendingUserCreated deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), PendingUserCreated.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener19() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, REJECTED_MSG_EVENT, (event) -> {
+                RejectedMsgReceivedEvent deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), RejectedMsgReceivedEvent.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

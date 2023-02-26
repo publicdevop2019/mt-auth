@@ -30,16 +30,18 @@ export class MessageService extends EntityCommonService<IBellNotification, IBell
         })
     }
     pullUnAckMessage() {
-        this.readEntityByQuery(0, 200,'unAck:1').subscribe(next => {
-            this.latestMessage = next.data
-        })
+        if (environment.mode !== 'offline') {
+            this.readEntityByQuery(0, 200,'unAck:1').subscribe(next => {
+                this.latestMessage = next.data
+            });
+        }
     }
     saveMessage(message: string) {
-        this.latestMessage.push(JSON.parse(message));
+        this.latestMessage = [JSON.parse(message), ...this.latestMessage]
     }
     private socket: WebSocket;
     connectToMonitor() {
-        if (environment.mode !== 'offline' && this.httpProxySvc.currentUserAuthInfo.permissionIds.includes('0Y8HHJ47NBE7')) {
+        if (environment.mode !== 'offline') {
             this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, UUID()).subscribe(next => {
                 this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {

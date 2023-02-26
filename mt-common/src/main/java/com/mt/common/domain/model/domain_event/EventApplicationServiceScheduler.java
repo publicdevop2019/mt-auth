@@ -29,16 +29,6 @@ public class EventApplicationServiceScheduler {
     @Value("${fixedRate.in.seconds.notification.lock}")
     private int lockInSeconds;
 
-    @PostConstruct
-    private void checkValue() {
-        //notification rate must be bigger than lockInSeconds
-//        if (frequency <= lockInSeconds * 1000) {
-//            pauseJob = true;
-//            throw new IllegalArgumentException(
-//                "notification rate must be bigger than lockInSeconds, job is paused");
-//        }
-    }
-
     /**
      * if unlock failed then event tracker will not update,
      * same event will get emit multiple times due to this unlock issue

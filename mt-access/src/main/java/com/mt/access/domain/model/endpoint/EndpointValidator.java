@@ -34,7 +34,7 @@ public class EndpointValidator {
     }
 
     private void ifSecureThenRoleGroupIdMustExist() {
-        if (endpoint.isSecured() && endpoint.getPermissionId() == null) {
+        if (endpoint.isAuthRequired() && endpoint.getPermissionId() == null) {
             handler.handleError("secured endpoint must have role group id");
         }
     }

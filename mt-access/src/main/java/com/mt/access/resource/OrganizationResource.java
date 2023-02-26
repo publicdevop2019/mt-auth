@@ -14,7 +14,6 @@ import com.mt.access.application.organization.representation.OrganizationCardRep
 import com.mt.access.application.organization.representation.OrganizationRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.Organization;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;

@@ -11,7 +11,6 @@ import com.mt.access.application.revoke_token.RevokeTokenCardRepresentation;
 import com.mt.access.application.revoke_token.RevokeTokenCreateCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.revoke_token.RevokeToken;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

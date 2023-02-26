@@ -1,10 +1,8 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.client.event.ClientAsResourceDeleted.CLIENT_AS_RESOURCE_DELETED;
 import static com.mt.access.domain.model.endpoint.event.EndpointExpired.ENDPOINT_EXPIRED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;

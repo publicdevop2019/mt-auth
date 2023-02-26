@@ -92,12 +92,13 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
         return e
       }))
     }
-    this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
-      if (this.bottomSheet.context === 'new') {
-        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
-      }
-      this.reusme()
-    })
+    combineLatest([this.fis.formCreated(this.formIdShared), this.fis.formCreated(this.formId)])
+      .pipe(take(1)).subscribe(() => {
+        if (this.bottomSheet.context === 'new') {
+          this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
+        }
+        this.reusme()
+      })
   }
   getParents(): IQueryProvider {
     return {
@@ -148,9 +149,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     }
     this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
     this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.aggregate.projectId);
-    this.fis.formCreated(this.formIdShared).subscribe(_ => {
-      this.fis.formGroupCollection[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
-    });
+    this.fis.formGroupCollection[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
     (this.aggregate.apiPermissionIds || []).forEach(p => {
       if (!this.apiPermissionFg.get(p)) {
         this.apiPermissionFg.addControl(p, new FormControl('checked'))

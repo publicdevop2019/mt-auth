@@ -4,7 +4,6 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;

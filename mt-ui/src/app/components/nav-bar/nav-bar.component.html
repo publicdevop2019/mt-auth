@@ -5,14 +5,23 @@
             <button mat-icon-button (click)="snav.toggle();">
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
-            <img *ngIf="avatar" mat-card-avatar [src]="avatar" style="height: 24px; width: 24px; margin-right: 8px; border-radius: 50%;"/>
-            <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}</div>
+            <img *ngIf="avatar" mat-card-avatar [src]="avatar"
+                style="height: 24px; width: 24px; margin-right: 8px; border-radius: 50%;" />
+            <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}
+            </div>
         </div>
-        <button mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
-            <mat-icon matBadge="{{bellCount(msgSvc.latestMessage)}}" matBadgeOverlap="false" matBadgeSize="small"
-                matBadgeColor="accent">notifications_none
-            </mat-icon>
-        </button>
+        <div>
+            <button mat-button [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
+                <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
+                    matBadgeSize="small" matBadgeColor="accent">notifications_none
+                </mat-icon>
+            </button>
+            <button *ngIf="hasAuth()" mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
+                <mat-icon matBadge="{{bellCount(msgSvc.latestMessage)}}" matBadgeOverlap="false" matBadgeSize="small"
+                    matBadgeColor="warn">notifications_none
+                </mat-icon>
+            </button>
+        </div>
     </mat-toolbar>
     <mat-menu #menu="matMenu">
         <ng-container *ngIf="msgSvc.latestMessage.length===0">
@@ -20,7 +29,19 @@
         </ng-container>
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
-                <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length" [index]="i"></app-card-notification>
+                <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length"
+                    [index]="i" (onAck)="msgSvc.dismiss($event)"></app-card-notification>
+            </ng-container>
+        </ng-container>
+    </mat-menu>
+    <mat-menu #userMenu="matMenu">
+        <ng-container *ngIf="userMsgSvc.latestMessage.length===0">
+            <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
+        </ng-container>
+        <ng-container *ngIf="userMsgSvc.latestMessage.length!==0">
+            <ng-container *ngFor="let el of filterDuplicate(userMsgSvc.latestMessage); let i = index">
+                <app-card-notification [value]="el" [length]="userMsgSvc.latestMessage.length" [index]="i"
+                    (onAck)="userMsgSvc.dismiss($event)"></app-card-notification>
             </ng-container>
         </ng-container>
     </mat-menu>
@@ -32,7 +53,8 @@
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
-                    <mat-icon style="padding-right:8px" *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display| translate}}
+                    <mat-icon style="padding-right:8px" *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display|
+                    translate}}
                 </mat-list-item>
             </mat-nav-list>
             <mat-expansion-panel (opened)="openedHandler('api_nav')" (closed)="closedHander('api_nav')"
@@ -43,39 +65,43 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuEp">
+                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                        *ngFor="let nav of menuEp">
                         <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')" *ngIf="hasAuth()"
-                [expanded]="navExpand('admin_nav')">
+            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
+                *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
                         {{'AUTH_CENTER'| translate}}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
-                        style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)" *ngFor="let nav of menuAuthMangement">
+                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                        *ngFor="let nav of menuAuthMangement">
                         <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-expansion-panel *ngFor="let project of projectSvc.totalProjects" (opened)="openedHandler(project.id)" (closed)="closedHander(project.id)"
-                [expanded]="navExpand(project.id)">
+            <mat-expansion-panel *ngFor="let project of projectSvc.totalProjects" (opened)="openedHandler(project.id)"
+                (closed)="closedHander(project.id)" [expanded]="navExpand(project.id)">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
                         {{project.name}}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <ng-container  *ngFor="let nav of menuAuth">
-                        <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link" routerLinkActive="nav-active" [preserveFragment]="true"
-                            style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"  *appRequireP="getPermissionId(project.id,nav.authName) | async">
+                    <ng-container *ngFor="let nav of menuAuth">
+                        <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link"
+                            routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                            [queryParams]="preserveURLQueryParams(nav)"
+                            *appRequireP="getPermissionId(project.id,nav.authName) | async">
                             <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                             {{nav.display| translate}}
                         </mat-list-item>

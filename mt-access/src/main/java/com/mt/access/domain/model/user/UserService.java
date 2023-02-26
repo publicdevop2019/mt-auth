@@ -2,15 +2,14 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
-import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -18,7 +17,9 @@ public class UserService {
 
     public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
         if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
-            throw new IllegalArgumentException("wrong password");
+            throw new DefinedRuntimeException("wrong password", "0000",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         user.setPassword(password);
         DomainRegistry.getUserRepository().add(user);
@@ -29,7 +30,9 @@ public class UserService {
     public void forgetPassword(UserEmail email) {
         Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
-            throw new IllegalArgumentException("user does not exist");
+            throw new DefinedRuntimeException("user does not exist", "0001",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         PasswordResetCode passwordResetToken = new PasswordResetCode();
         user.get().setPwdResetToken(passwordResetToken);
@@ -40,13 +43,19 @@ public class UserService {
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
         Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
         if (user.isEmpty()) {
-            throw new IllegalArgumentException("user does not exist");
+            throw new DefinedRuntimeException("user does not exist", "0002",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (user.get().getPwdResetToken() == null) {
-            throw new IllegalArgumentException("token not exist");
+            throw new DefinedRuntimeException("token not exist", "0003",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!user.get().getPwdResetToken().equals(token)) {
-            throw new IllegalArgumentException("token mismatch");
+            throw new DefinedRuntimeException("token mismatch", "0004",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         user.get().setPassword(newPassword);
         DomainRegistry.getUserRepository().add(user.get());

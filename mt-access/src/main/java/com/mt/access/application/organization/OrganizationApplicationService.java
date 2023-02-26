@@ -1,7 +1,6 @@
 package com.mt.access.application.organization;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.organization.command.OrganizationCreateCommand;
 import com.mt.access.application.organization.command.OrganizationPatchCommand;
 import com.mt.access.application.organization.command.OrganizationUpdateCommand;

@@ -14,7 +14,6 @@ public class EndpointValidationService {
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
         hasValidClient(endpoint, handler);
         hasValidCacheProfileId(endpoint, handler);
-        sharedMustBeSecured(endpoint, handler);
         sharedClientMustBeAccessible(endpoint, handler);
     }
 
@@ -49,12 +48,6 @@ public class EndpointValidationService {
         }
     }
 
-    private void sharedMustBeSecured(Endpoint endpoint, ValidationNotificationHandler handler) {
-        if (endpoint.isShared() && !endpoint.isSecured()) {
-            handler.handleError(
-                "shared endpoint must be non-public " + endpoint.getEndpointId().getDomainId());
-        }
-    }
 
     private void hasValidClient(Endpoint endpoint, ValidationNotificationHandler handler) {
         ClientId clientId = endpoint.getClientId();

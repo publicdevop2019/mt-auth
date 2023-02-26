@@ -4,11 +4,8 @@ import static com.mt.access.infrastructure.AppConstant.PROXY_VALIDATION_JOB_NAME
 
 import com.mt.access.application.proxy.representation.CheckSumRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 

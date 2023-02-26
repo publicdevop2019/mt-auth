@@ -2,6 +2,9 @@ package com.mt.access.domain.model.image;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
@@ -44,8 +47,9 @@ public class Image extends Auditable {
         try {
             this.source = file.getBytes();
         } catch (IOException e) {
-            log.error("error during saving file", e);
-            throw new FileUploadException();
+            throw new DefinedRuntimeException("error during saving image file", "0045",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT, e);
         }
     }
 
@@ -55,11 +59,15 @@ public class Image extends Auditable {
     private void validateUploadCriteria(MultipartFile file, Integer allowedSize,
                                         List<String> allowedTypes) {
         if (allowedTypes.stream().noneMatch(e -> e.equals(file.getContentType()))) {
-            throw new IllegalArgumentException("file type not allowed");
+            throw new DefinedRuntimeException("file type not allowed", "0046",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         try {
             if (file.getBytes().length > allowedSize) {
-                throw new IllegalArgumentException("file size not allowed");
+                throw new DefinedRuntimeException("file size not allowed", "0047",
+                    HttpResponseCode.BAD_REQUEST,
+                    ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         } catch (IOException e) {
             e.printStackTrace();

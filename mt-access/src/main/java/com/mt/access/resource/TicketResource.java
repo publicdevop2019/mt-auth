@@ -5,7 +5,6 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.ticket.SignedTicket;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;

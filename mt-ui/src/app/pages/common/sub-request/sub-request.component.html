@@ -1,5 +1,9 @@
 <div class="example-container">
     <h2>{{'SUB_API'|translate}}</h2>
+    <mat-card *ngIf="publicSubNotes" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+        <div>{{'PUBLIC_SUB_NOTES'|translate}}</div>
+    </mat-card>
     <div class="form-wrapper">
         <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
         <button *ngIf="isCreate()" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"

@@ -2,7 +2,6 @@ package com.mt.access.domain.model.user;
 
 import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import javax.persistence.Column;
 import lombok.Data;

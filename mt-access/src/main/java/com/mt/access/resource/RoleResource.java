@@ -14,7 +14,6 @@ import com.mt.access.application.role.representation.RoleCardRepresentation;
 import com.mt.access.application.role.representation.RoleRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.role.Role;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;

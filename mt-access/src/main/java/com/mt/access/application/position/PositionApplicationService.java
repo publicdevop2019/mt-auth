@@ -1,7 +1,6 @@
 package com.mt.access.application.position;
 
 import com.github.fge.jsonpatch.JsonPatch;
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.position.command.PositionCreateCommand;
 import com.mt.access.application.position.command.PositionPatchCommand;
 import com.mt.access.application.position.command.PositionUpdateCommand;

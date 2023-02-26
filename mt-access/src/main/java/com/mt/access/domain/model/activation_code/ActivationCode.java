@@ -1,6 +1,9 @@
 package com.mt.access.domain.model.activation_code;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,7 +30,9 @@ public class ActivationCode {
     public ActivationCode(String activationCode) {
         Validator.lengthGreaterThanOrEqualTo(activationCode, 6);
         if (!StringUtils.hasText(activationCode)) {
-            throw new IllegalArgumentException("activationCode is empty");
+            throw new DefinedRuntimeException("activationCode is empty", "0032",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         setActivationCode(activationCode);
     }

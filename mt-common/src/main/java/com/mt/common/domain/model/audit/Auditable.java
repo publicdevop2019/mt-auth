@@ -1,6 +1,8 @@
 package com.mt.common.domain.model.audit;
 
-import com.mt.common.domain.model.restful.exception.AggregateOutdatedException;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import java.io.Serializable;
 import java.util.Date;
@@ -53,7 +55,9 @@ public abstract class Auditable implements Serializable {
 
     public void checkVersion(Integer version) {
         if (!getVersion().equals(version)) {
-            throw new AggregateOutdatedException();
+            throw new DefinedRuntimeException("aggregate outdated", "0009",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_STATE);
         }
     }
 

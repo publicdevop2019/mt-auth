@@ -20,6 +20,9 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
@@ -87,7 +90,9 @@ public class SubRequestApplicationService {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
                 if (endpoint.isEmpty()) {
-                    throw new IllegalArgumentException("unable to find related endpoint");
+                    throw new DefinedRuntimeException("unable to find related endpoint", "0020",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }
                 Endpoint endpoint1 = endpoint.get();
                 ProjectId epProjectId = endpoint1.getProjectId();
@@ -98,7 +103,7 @@ public class SubRequestApplicationService {
                     command.getReplenishRate(),
                     epProjectId,
                     endpoint1.isExpired(),
-                    endpoint1.isSecured(),
+                    endpoint1.isAuthRequired(),
                     endpoint1.isShared()
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
@@ -167,7 +172,8 @@ public class SubRequestApplicationService {
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                     byId.ifPresent(e1 -> e1.approve(userId));
-                    CommonDomainRegistry.getDomainEventRepository().append(new SubRequestApprovedEvent(e.getSubRequestId()));
+                    CommonDomainRegistry.getDomainEventRepository()
+                        .append(new SubRequestApprovedEvent(e.getSubRequestId()));
                     return null;
                 }, SUB_REQUEST);
         });
@@ -200,6 +206,7 @@ public class SubRequestApplicationService {
 
     /**
      * send bell notification to all endpoint subscriber
+     *
      * @param event endpoint expired event
      */
     @Transactional
@@ -208,8 +215,10 @@ public class SubRequestApplicationService {
             .idempotent(event.getId().toString(), (ignored) -> {
                 DomainId domainId = event.getDomainId();
                 EndpointId endpointId = new EndpointId(domainId.getDomainId());
-                Set<UserId> subscribers=DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
-                CommonDomainRegistry.getDomainEventRepository().append(new SubscriberEndpointExpireEvent(endpointId,subscribers));
+                Set<UserId> subscribers =
+                    DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
                 return null;
             }, SUB_REQUEST);
 

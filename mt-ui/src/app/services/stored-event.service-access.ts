@@ -15,7 +15,18 @@ export class StoredEventAccessService extends EntityCommonService<IStoredEvent, 
     entityRepo: string = environment.serverUri + '/auth-svc/mngmt/events';
     eventRepo: string = environment.serverUri + '/auth-svc/mngmt/events';
     auditRepo: string = environment.serverUri + '/auth-svc/mngmt/events/audit';
+    queryPrefix: string = undefined;
     constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);
     }
+    readEntityByQuery(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
+        if (this.queryPrefix && query) {
+            query = this.queryPrefix + ',' + query
+        } else {
+            if (this.queryPrefix) {
+                query = this.queryPrefix
+            }
+        }
+        return super.readEntityByQuery(num, size, query, by, order, headers)
+    };
 }

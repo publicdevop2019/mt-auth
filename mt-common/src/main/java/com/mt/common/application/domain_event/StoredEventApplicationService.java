@@ -5,7 +5,11 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
@@ -24,7 +28,9 @@ public class StoredEventApplicationService {
         if (byId.isPresent()) {
             CommonDomainRegistry.getEventStreamService().next(byId.get());
         } else {
-            throw new IllegalArgumentException("unable to find stored event with id " + id);
+            throw new DefinedRuntimeException("unable to find stored event with id " + id, "0008",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
     }
 
@@ -66,6 +72,20 @@ public class StoredEventApplicationService {
                 event);
         }
 
+    }
+
+    /**
+     * record rejected msg, no idempotency required bcz by nature it is.
+     *
+     * @param event rejected event
+     */
+    @Transactional
+    public void recordRejectedEvent(StoredEvent event) {
+        CommonDomainRegistry.getDomainEventRepository()
+            .append(new RejectedMsgReceivedEvent(event));
+        CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
+            .ifPresent(
+                StoredEvent::markAsRejected);
     }
 
     /**

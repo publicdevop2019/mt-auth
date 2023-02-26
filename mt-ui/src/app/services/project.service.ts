@@ -56,4 +56,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
       return false
     }
   }
+  showMngmtPanel(){
+    return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
+  }
 }

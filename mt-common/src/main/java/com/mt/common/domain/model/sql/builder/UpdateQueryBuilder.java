@@ -6,6 +6,9 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.Auditable_;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.sql.clause.NotDeletedClause;
 import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
@@ -85,7 +88,9 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
                 if (key.getExpect().equals(i)) {
                     count.addAndGet(i);
                 } else {
-                    throw new PatchCommandExpectNotMatchException();
+                    throw new DefinedRuntimeException("patch command expect not match", "0033",
+                        HttpResponseCode.BAD_REQUEST,
+                        ExceptionCatalog.ILLEGAL_STATE);
                 }
             }
         });
@@ -163,6 +168,4 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
     protected abstract Predicate getWhereClause(Root<T> root, List<String> ids,
                                                 PatchCommand command);
 
-    public static class PatchCommandExpectNotMatchException extends RuntimeException {
-    }
 }

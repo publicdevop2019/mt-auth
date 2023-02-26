@@ -24,6 +24,7 @@ public class EndpointSharedCardRepresentation {
     private String method;
     private Integer version;
     private boolean websocket;
+    private boolean shared;
     private boolean secured;
     private String projectId;
     private String projectName;
@@ -41,7 +42,8 @@ public class EndpointSharedCardRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.secured = endpoint.isSecured();
+        this.shared = endpoint.isShared();
+        this.secured = endpoint.isAuthRequired();
     }
 
     public static void updateDetail(List<EndpointSharedCardRepresentation> original) {

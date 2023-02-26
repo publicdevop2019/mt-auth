@@ -15,7 +15,6 @@ import com.mt.access.application.permission.representation.PermissionRepresentat
 import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
-import com.mt.access.infrastructure.JwtCurrentUserService;
 import com.mt.access.infrastructure.Utility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;

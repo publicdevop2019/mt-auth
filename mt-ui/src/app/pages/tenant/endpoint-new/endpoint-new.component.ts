@@ -12,7 +12,6 @@ import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { BASIC_FORM_CONFIG, CATALOG_FORM_CONFIG, PERFORMANCE_FORM_CONFIG, SECURE_FORM_CONFIG } from 'src/app/form-configs/create-endpoint.config';
-import { MNGMNT_EP_FORM_CONFIG } from 'src/app/form-configs/mngmnt-endpoint.config';
 import { CacheService } from 'src/app/services/cache.service';
 import { CORSProfileService } from 'src/app/services/cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -25,11 +24,9 @@ import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 })
 export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;
-  isInternalPrivate: boolean = false;
-  isInternalShared: boolean = false;
-  isExternalPublic: boolean = false;
-  isExternalProtected: boolean = false;
-  isExternalShared: boolean = false;
+  isExternal: boolean = undefined;
+  isShared: boolean = undefined;
+  isSecured: boolean = undefined;
   basicFormId: string = 'basicFormInfoId';
   basicFormInfo: IForm = JSON.parse(JSON.stringify(BASIC_FORM_CONFIG));
   secureFormId: string = 'secureFormInfoId';
@@ -60,17 +57,15 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
           const isExternal: boolean = next['isExternal'] === 'yes' ? true : next['isExternal'] === 'no' ? false : undefined
           const isShared: boolean = next['isShared'] === 'yes' ? true : next['isShared'] === 'no' ? false : undefined
           const isSecured: boolean = next['isSecured'] === 'yes' ? true : next['isSecured'] === 'no' ? false : undefined
-          this.isExternalShared = isExternal === true && isShared === true;
-          this.isExternalProtected = isExternal === true && isSecured === true;
-          this.isExternalPublic = isExternal === true && isSecured === false;
-          this.isInternalPrivate = isExternal === false && isShared === false;
-          this.isInternalShared = isExternal === false && isShared === true;
+          this.isExternal = isExternal;
+          this.isShared = isShared;
+          this.isSecured = isSecured;
           if (isExternal === false) {
-            this.fis.disableIfMatch(this.formId, ['isSecured'])//internal api does not require user authentication
+            this.fis.disableIfMatch(this.formId, ['isSecured','isShared'])//internal api does not require user authentication
             this.fis.formGroupCollection[this.formId].get('isSecured').setValue('', { emitEvent: false })
           } else {
             if(!this.aggregate){
-              this.fis.enableIfMatch(this.formId, ['isSecured'])
+              this.fis.enableIfMatch(this.formId, ['isSecured','isShared'])
             }
           }
         })

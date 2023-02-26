@@ -32,6 +32,13 @@ export class DocumentComponent implements OnInit {
       params: {
       },
     },
+    {
+      link: 'error',
+      display: 'ERROR_DOC',
+      icon: 'bug_report',
+      params: {
+      },
+    },
   ];
   constructor(changeDetectorRef: ChangeDetectorRef, media: MediaMatcher,) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');

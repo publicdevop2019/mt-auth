@@ -4,7 +4,6 @@ import static com.mt.access.domain.model.permission.Permission.EDIT_TENANT_USER;
 import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
@@ -19,6 +18,9 @@ import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.domain.model.user_relation.UserRelationQuery;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.ExceptionCatalog;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
@@ -67,7 +69,9 @@ public class UserRelationApplicationService {
             DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(projectId, PROJECT_USER))
                 .findFirst();
         if (first.isEmpty()) {
-            throw new IllegalArgumentException("unable to find default user role for project");
+            throw new DefinedRuntimeException("unable to find default user role for project", "0024",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         return UserRelation.initNewUser(first.get().getRoleId(), userId, projectId);
     }

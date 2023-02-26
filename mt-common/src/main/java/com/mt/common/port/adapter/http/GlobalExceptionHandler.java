@@ -1,22 +1,8 @@
 package com.mt.common.port.adapter.http;
 
 import com.mt.common.CommonConstant;
-import com.mt.common.application.idempotent.exception.ChangeNotFoundException;
-import com.mt.common.application.idempotent.exception.RollbackNotSupportedException;
-import com.mt.common.domain.model.jwt.IllegalJwtException;
-import com.mt.common.domain.model.jwt.JwtTokenExtractException;
-import com.mt.common.domain.model.jwt.JwtTokenRetrievalException;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.logging.ErrorMessage;
-import com.mt.common.domain.model.restful.exception.AggregateNotExistException;
-import com.mt.common.domain.model.restful.exception.AggregateOutdatedException;
-import com.mt.common.domain.model.restful.exception.NoUpdatableFieldException;
-import com.mt.common.domain.model.restful.exception.UnsupportedPatchOperationException;
-import com.mt.common.domain.model.restful.exception.UpdateFiledValueException;
-import com.mt.common.domain.model.restful.query.PageConfig;
-import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.sql.builder.UpdateQueryBuilder;
-import com.mt.common.domain.model.sql.exception.UnsupportedQueryException;
-import com.mt.common.infrastructure.JacksonObjectSerializer;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,24 +18,23 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
+        DefinedRuntimeException.class,
+    })
+    protected ResponseEntity<Object> handleDefinedException(DefinedRuntimeException ex,
+                                                            WebRequest request) {
+        ErrorMessage errorMessage = new ErrorMessage(ex);
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
+        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_CODE, ex.getCombinedErrorCode());
+        return handleExceptionInternal(ex, errorMessage, httpHeaders,
+            ex.getResponseType().getHttpCode(),
+            request);
+    }
+
+    @ExceptionHandler(value = {
         TransactionSystemException.class,
         IllegalArgumentException.class,
         ObjectOptimisticLockingFailureException.class,
-        JwtTokenExtractException.class,
-        UnsupportedQueryException.class,
-        UnsupportedPatchOperationException.class,
-        UpdateFiledValueException.class,
-        RollbackNotSupportedException.class,
-        UpdateQueryBuilder.PatchCommandExpectNotMatchException.class,
-        AggregateNotExistException.class,
-        JacksonObjectSerializer.UnableToJsonPatchException.class,
-        ChangeNotFoundException.class,
-        AggregateOutdatedException.class,
-        IllegalJwtException.class,
-        QueryUtility.QueryParseException.class,
-        PageConfig.PagingParseException.class,
-        QueryUtility.UnknownQueryValueException.class,
-        NoUpdatableFieldException.class
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);
@@ -61,12 +46,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {
         RuntimeException.class,
-        JwtTokenRetrievalException.class,
-        JacksonObjectSerializer.UnableToDeepCopyCollectionException.class,
-        JacksonObjectSerializer.UnableToDeserializeCollectionException.class,
-        JacksonObjectSerializer.UnableToSerializeCollectionException.class,
-        JacksonObjectSerializer.UnableToDeSerializeException.class,
-        JacksonObjectSerializer.UnableToSerializeException.class,
     })
     protected ResponseEntity<Object> handle500Exception(RuntimeException ex, WebRequest request) {
         ErrorMessage errorMessage = new ErrorMessage(ex);

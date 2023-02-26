@@ -45,6 +45,8 @@ import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification
 import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
 import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
+import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -56,6 +58,7 @@ const routes: Routes = [
       { path: 'deploy', component: LunchComponent },
       { path: 'design', component: DesignComponent },
       { path: 'build', component: BuildComponent },
+      { path: 'error', component: ErrorLookupComponent },
       { path: '**', component: LunchComponent }
     ]
   },
@@ -78,6 +81,7 @@ const routes: Routes = [
       { path: 'events-access', component: SummaryStoredEventAccessComponent },
       { path: 'settings', component: SettingComponent },
       { path: 'message-center', component: MessageCenterComponent },
+      { path: 'user-notification', component: UserNotificationComponent },
       { path: 'revoke-token', component: SummaryRevokeTokenComponent },
       { path: 'cache-mngr', component: CacheControlComponent },
       { path: 'my-profile', component: MyProfileComponent },

@@ -1,10 +1,6 @@
 package com.mt.access.domain.model.report;
 
-import static com.mt.access.infrastructure.AppConstant.ACCESS_DATA_PROCESSING_JOB_NAME;
-
 import com.mt.access.domain.DomainRegistry;
-import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.model.job.JobDetail;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;

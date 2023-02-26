@@ -16,7 +16,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "paginated-select",
             "display": true,
-            "label": "PROJECT_NAME",
+            "label": "TARGET_PROJECT_NAME",
             "key": "projectId",
             "position": {
                 "row": "0",
