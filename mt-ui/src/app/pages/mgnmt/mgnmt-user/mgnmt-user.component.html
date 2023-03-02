@@ -1,0 +1,34 @@
+<mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
+</mat-icon>
+<mat-tab-group mat-align-tabs="start" dynamicHeight>
+    <mat-tab label="{{'BASIC_INFO'|translate}}"  #basicTab>
+        <div style="margin-top: 16px;">
+            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+                (click)="update()">{{'UPDATE'|translate}}</button>
+        </div>
+    </mat-tab>
+    <mat-tab label="{{'LOGIN_HISTORY'|translate}}" #commonTab>
+        <div style="margin-top: 16px;">
+            <table mat-table [dataSource]="dataSource">
+    
+                <ng-container matColumnDef="loginAt">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['loginAt']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"> {{row.loginAt | date:'MM d, y, h:mm:ss a'}}</td>
+                </ng-container>
+    
+                <ng-container matColumnDef="ipAddress">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['ipAddress']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"><app-copy-field [inputValue]="row.ipAddress"></app-copy-field> </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="agent">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['agent']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"><app-copy-field [inputValue]="row.agent"></app-copy-field> </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+            </table>
+        </div>
+    </mat-tab>
+</mat-tab-group>

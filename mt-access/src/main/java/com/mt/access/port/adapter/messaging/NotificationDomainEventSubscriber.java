@@ -8,6 +8,7 @@ import static com.mt.access.domain.model.notification.event.SendSmsNotificationE
 import static com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated.PENDING_USER_ACTIVATION_CODE_UPDATED;
 import static com.mt.access.domain.model.pending_user.event.PendingUserCreated.PENDING_USER_CREATED;
 import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
+import static com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning.RAW_ACCESS_RECORD_PROCESSING_WARNING;
 import static com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent.SUBSCRIBER_ENDPOINT_EXPIRE;
 import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
 import static com.mt.access.domain.model.user.event.UserMfaNotificationEvent.USER_MFA_NOTIFICATION;
@@ -29,6 +30,7 @@ import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
@@ -264,6 +266,17 @@ public class NotificationDomainEventSubscriber {
                 RejectedMsgReceivedEvent deserialize =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(event.getEventBody(), RejectedMsgReceivedEvent.class);
+                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
+            });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener20() {
+        CommonDomainRegistry.getEventStreamService()
+            .of(AppInfo.MT_ACCESS_APP_ID, true, RAW_ACCESS_RECORD_PROCESSING_WARNING, (event) -> {
+                RawAccessRecordProcessingWarning deserialize =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .deserialize(event.getEventBody(), RawAccessRecordProcessingWarning.class);
                 ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
             });
     }

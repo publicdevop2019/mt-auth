@@ -11,7 +11,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { UserService } from 'src/app/services/user.service';
 import * as UUID from 'uuid/v1';
-import { ResourceOwnerComponent } from '../user/user.component';
+import { ResourceOwnerComponent } from '../mgnmt-user/mgnmt-user.component';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',

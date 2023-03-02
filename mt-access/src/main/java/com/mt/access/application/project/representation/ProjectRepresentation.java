@@ -19,7 +19,7 @@ public class ProjectRepresentation {
         this.id = project.getProjectId().getDomainId();
         this.createdBy = project.getCreatedBy();
         Optional<User> user =
-            ApplicationServiceRegistry.getUserApplicationService().user(this.createdBy);
+            ApplicationServiceRegistry.getUserApplicationService().lookupUser(this.createdBy);
         user.ifPresent(e -> this.creatorName = e.getDisplayName());
         this.createdAt = project.getCreatedAt().getTime();
     }

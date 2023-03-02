@@ -73,7 +73,7 @@ const routes: Routes = [
       { path: 'jobs', component: JobComponent },
       { path: 'clients', component: SummaryClientComponent },
       { path: 'updatePwd', component: UpdatePwdComponent },
-      { path: 'resource-owners', component: SummaryResourceOwnerComponent },
+      { path: 'mngmnt-user', component: SummaryResourceOwnerComponent },
       { path: 'api-profiles', component: SummaryEndpointComponent },
       { path: 'cache-profiles', component: SummaryCacheComponent },
       { path: 'role-profiles', component: SummaryRoleComponent },

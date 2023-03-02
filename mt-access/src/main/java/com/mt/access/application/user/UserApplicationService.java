@@ -9,6 +9,7 @@ import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
+import com.mt.access.application.user.representation.UserMngmntRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -18,6 +19,7 @@ import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.user.CurrentPassword;
+import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.access.domain.model.user.MfaId;
@@ -90,10 +92,21 @@ public class UserApplicationService implements UserDetailsService {
             .usersOfQuery(e), new UserQuery(userIdSet));
     }
 
-    public Optional<User> user(String id) {
+    public Optional<User> lookupUser(String id) {
         return DomainRegistry.getUserRepository().userOfId(new UserId(id));
     }
 
+    public UserMngmntRepresentation userDetailsForMngmnt(String id) {
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(id));
+        if (user.isEmpty()) {
+            throw new DefinedRuntimeException("unable to find user", "0075",
+                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        User user1 = user.get();
+        Set<LoginHistory> allForUser =
+            DomainRegistry.getLoginHistoryRepository().getLast100Login(user1.getUserId());
+        return new UserMngmntRepresentation(user1, allForUser);
+    }
 
     @Transactional
     @AuditLog(actionName = "lock user")
@@ -242,9 +255,6 @@ public class UserApplicationService implements UserDetailsService {
         return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
-    private void updateLastLoginInfo(UserLoginRequest command) {
-        CommonDomainRegistry.getTransactionService().transactional(()-> DomainRegistry.getUserService().updateLastLogin(command));
-    }
 
     public Optional<Image> profileAvatar() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -302,7 +312,9 @@ public class UserApplicationService implements UserDetailsService {
                         return LoginResult.mfaMissMatch();
                     }
                 } else {
-                    MfaId execute=CommonDomainRegistry.getTransactionService().returnedTransactional(()-> DomainRegistry.getMfaService().triggerMfa(userId));
+                    MfaId execute = CommonDomainRegistry.getTransactionService()
+                        .returnedTransactional(
+                            () -> DomainRegistry.getMfaService().triggerMfa(userId));
                     return LoginResult
                         .mfaMissing(execute);
                 }
@@ -311,11 +323,6 @@ public class UserApplicationService implements UserDetailsService {
         return LoginResult.allow();
     }
 
-    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
-        UserLoginRequest userLoginRequest =
-            new UserLoginRequest(ipAddress, userId, agentInfo);
-        updateLastLoginInfo(userLoginRequest);
-    }
 
     public Optional<UserProfileRepresentation> myProfile() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -339,4 +346,14 @@ public class UserApplicationService implements UserDetailsService {
             command.getLanguage()));
     }
 
+    private void updateLastLoginInfo(UserLoginRequest command) {
+        CommonDomainRegistry.getTransactionService()
+            .transactional(() -> DomainRegistry.getUserService().updateLastLogin(command));
+    }
+
+    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
+        UserLoginRequest userLoginRequest =
+            new UserLoginRequest(ipAddress, userId, agentInfo);
+        updateLastLoginInfo(userLoginRequest);
+    }
 }

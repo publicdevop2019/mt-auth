@@ -1,20 +1,27 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { MatTableDataSource } from '@angular/material/table';
 import { FormInfoService } from 'mt-form-builder';
 import { Observable } from 'rxjs';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IAuthUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
+import { IAuthUser, ILoginHistory } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
-import { FORM_CONFIG } from 'src/app/form-configs/resource-owner.config';
+import { FORM_CONFIG } from 'src/app/form-configs/mngmnt-user.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-user',
-  templateUrl: './user.component.html',
-  styleUrls: ['./user.component.css']
+  templateUrl: './mgnmt-user.component.html',
+  styleUrls: ['./mgnmt-user.component.css']
 })
 export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IAuthUser> implements OnInit, AfterViewInit, OnDestroy {
+  columnList = {
+    loginAt: 'LOGIN_AT',
+    ipAddress: 'IP_ADDRESS',
+    agent: 'AGENT',
+  }
+  dataSource: MatTableDataSource<ILoginHistory>;
   create(): void {
     throw new Error('Method not implemented.');
   }
@@ -34,6 +41,7 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IA
       this.fis.formGroupCollection[this.formId].get('email').setValue(this.aggregate.email)
       this.fis.formGroupCollection[this.formId].get('locked').setValue(this.aggregate.locked)
       this.fis.formGroupCollection[this.formId].get('createdAt').setValue(new Date(this.aggregate.createdAt))
+      this.dataSource = new MatTableDataSource(this.aggregate.loginHistory);
       this.cdr.markForCheck()
     }
   }
@@ -44,10 +52,6 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IA
   }
   convertToPayload(cmpt: ResourceOwnerComponent): IAuthUser {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    let authority: string[] = [];
-    if (Array.isArray(formGroup.get('authority').value)) {
-      authority = (formGroup.get('authority').value as Array<string>)
-    }
     return {
       id: formGroup.get('id').value,//value is ignored
       locked: formGroup.get('locked').value,
@@ -65,5 +69,8 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IA
         formId: cmpt.formId
       }
     })
+  }
+  displayedColumns(): string[] {
+    return Object.keys(this.columnList)
   }
 }

@@ -14,7 +14,7 @@ import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
-import com.mt.access.application.user.representation.UserAdminRepresentation;
+import com.mt.access.application.user.representation.UserMngmntRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
@@ -43,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
 @Slf4j
 @RestController
 @RequestMapping(produces = "application/json")
@@ -60,9 +61,9 @@ public class UserResource {
     @PostMapping(path = "users")
     public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command,
                                              @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId) {
+                                             String changeId) {
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getUserApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getUserApplicationService().create(command, changeId))
             .build();
     }
 
@@ -78,10 +79,10 @@ public class UserResource {
 
 
     @GetMapping("mngmt/users/{id}")
-    public ResponseEntity<UserAdminRepresentation> readForAdminById(@PathVariable String id) {
-        Optional<User> user = ApplicationServiceRegistry.getUserApplicationService().user(id);
-        return user.map(value -> ResponseEntity.ok(new UserAdminRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+    public ResponseEntity<UserMngmntRepresentation> readForAdminById(@PathVariable String id) {
+        UserMngmntRepresentation detail =
+            ApplicationServiceRegistry.getUserApplicationService().userDetailsForMngmnt(id);
+        return ResponseEntity.ok(detail);
     }
 
 
@@ -90,7 +91,7 @@ public class UserResource {
                                                @PathVariable String id,
                                                @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
                                                @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId) {
+                                               String changeId) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().adminLock(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -98,9 +99,10 @@ public class UserResource {
 
     @DeleteMapping("mngmt/users/{id}")
     public ResponseEntity<Void> deleteForAdminById(@PathVariable String id,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                           String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().delete(id, changeId);
         return ResponseEntity.ok().build();
@@ -110,9 +112,9 @@ public class UserResource {
     public ResponseEntity<Void> patchForAdminById(@PathVariable(name = "id") String id,
                                                   @RequestBody JsonPatch command,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -121,7 +123,7 @@ public class UserResource {
     @PatchMapping(path = "mngmt/users")
     public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId) {
+                                                   String changeId) {
         ApplicationServiceRegistry.getUserApplicationService().patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
@@ -130,7 +132,7 @@ public class UserResource {
     public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserPasswordCommand command,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId) {
+                                              String changeId) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updatePassword(command, changeId);
         return ResponseEntity.ok().build();
@@ -171,6 +173,7 @@ public class UserResource {
             .tenantUsers(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
+
     @GetMapping(path = "projects/{projectId}/users/{id}")
     public ResponseEntity<UserTenantRepresentation> findUserForProject2(
         @PathVariable String projectId,

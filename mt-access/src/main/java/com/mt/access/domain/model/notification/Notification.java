@@ -5,6 +5,7 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
@@ -23,6 +24,7 @@ import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -44,7 +46,7 @@ public class Notification extends Auditable {
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
-    private Set<String> descriptions;
+    private LinkedHashSet<String> descriptions;
     @Convert(converter = NotificationType.DbConverter.class)
     private NotificationType type;
     @Convert(converter = NotificationStatus.DbConverter.class)
@@ -63,7 +65,8 @@ public class Notification extends Auditable {
         timestamp = deserialize.getTimestamp();
         title = "HANGING_TX";
         type = NotificationType.BELL;
-        descriptions = Collections.singleton(deserialize.getChangeId());
+        descriptions = new LinkedHashSet<>();
+        descriptions.add(deserialize.getChangeId());
     }
 
     public Notification(NewUserRegistered event) {
@@ -73,7 +76,8 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = NewUserRegistered.name;
         type = NotificationType.BELL;
-        descriptions = Collections.singleton(event.getEmail().getEmail());
+        descriptions = new LinkedHashSet<>();
+        descriptions.add(event.getEmail().getEmail());
     }
 
     public Notification(ProjectOnboardingComplete event) {
@@ -83,7 +87,8 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = ProjectOnboardingComplete.name;
         type = NotificationType.BELL;
-        descriptions = Collections.singleton(event.getProjectName());
+        descriptions = new LinkedHashSet<>();
+        descriptions.add(event.getProjectName());
     }
 
     public Notification(ProxyCacheCheckFailedEvent event) {
@@ -102,7 +107,8 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = CrossDomainValidationService.ValidationFailedEvent.name;
         type = NotificationType.BELL;
-        descriptions = Collections.singleton(event.getMessage());
+        descriptions = new LinkedHashSet<>();
+        descriptions.add(event.getMessage());
     }
 
     public Notification(UserMfaNotificationEvent event) {
@@ -148,7 +154,7 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = UnrountableMsgReceivedEvent.name;
         type = NotificationType.BELL;
-        descriptions=new LinkedHashSet<>();
+        descriptions = new LinkedHashSet<>();
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());
         descriptions.add(event.getSourceName());
@@ -199,7 +205,8 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = event.getName();
-        descriptions = Collections.singleton(event.getDomainId().getDomainId());
+        descriptions = new LinkedHashSet<>();
+        descriptions.add(event.getDomainId().getDomainId());
         type = NotificationType.BELL;
     }
 
@@ -209,10 +216,26 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = RejectedMsgReceivedEvent.name;
         type = NotificationType.BELL;
-        descriptions=new LinkedHashSet<>();
+        descriptions = new LinkedHashSet<>();
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());
         descriptions.add(event.getSourceName());
+    }
+
+    public Notification(RawAccessRecordProcessingWarning event) {
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = RawAccessRecordProcessingWarning.name;
+        type = NotificationType.BELL;
+        descriptions = new LinkedHashSet<>();
+        if (event.getIssueIds().size() > 3) {
+            descriptions.addAll(event.getIssueIds().stream().limit(2).collect(Collectors.toSet()));
+            descriptions.add("CHECK_EVENT_FOR_MORE");
+        } else {
+            descriptions.addAll(event.getIssueIds());
+        }
+
     }
 
     public void markAsDelivered() {

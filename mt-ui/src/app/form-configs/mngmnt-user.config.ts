@@ -6,6 +6,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
+            disabled:true,
             "label": "ID",
             "key": "id",
             "position": {

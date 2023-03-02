@@ -71,8 +71,8 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'resource-owners',
-      display: 'RESOURCE_OWNER_DASHBOARD',
+      link: 'mngmnt-user',
+      display: 'USER_DASHBOARD',
       icon: 'people',
       params: {
       },

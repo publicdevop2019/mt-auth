@@ -116,7 +116,7 @@ import { SummaryRevokeTokenComponent } from './pages/mgnmt/summary-revoke-token/
 import { SummaryRoleComponent } from './pages/mgnmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgnmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgnmt/summary-user/summary-user.component';
-import { ResourceOwnerComponent } from './pages/mgnmt/user/user.component';
+import { ResourceOwnerComponent } from './pages/mgnmt/mgnmt-user/mgnmt-user.component';
 import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';

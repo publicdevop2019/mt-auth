@@ -13,6 +13,13 @@ export class CardNotificationComponent implements OnInit {
   @Input() index: number;
   @Output() onAck = new EventEmitter<IBellNotification>();
   parsedDate: string;
+  bypassDefaultNotificationList: string[] = [
+    'RAW_ACCESS_RECORD_PROCESSING_WARNING',
+    'REJECTED_MSG_EVENT',
+    'UNROUTABLE_MSG_EVENT',
+    'SYSTEM_VALIDATION_FAILED',
+    'NEW_PROJECT_CREATED',
+  ];
   constructor(public translate: TranslateService) {
   }
   ngOnInit(): void {
