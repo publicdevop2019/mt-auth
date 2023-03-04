@@ -42,7 +42,7 @@ public class EndpointResource {
                                               @RequestBody EndpointCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+                                              String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
@@ -53,13 +53,13 @@ public class EndpointResource {
     public ResponseEntity<SumPagedRep<?>> readForRootByQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-            String jwt,
+        String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false)
-            String queryParam,
+        String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false)
-            String pageParam,
+        String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false)
-            String config) {
+        String config) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
@@ -98,6 +98,7 @@ public class EndpointResource {
 
     /**
      * get paginated endpoints for proxy to cache
+     *
      * @param pageParam pagination info
      * @return paginated data
      */
@@ -163,7 +164,7 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
-            .expireEndpoint(command,projectId, id, changeId);
+            .expireEndpoint(command, projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 

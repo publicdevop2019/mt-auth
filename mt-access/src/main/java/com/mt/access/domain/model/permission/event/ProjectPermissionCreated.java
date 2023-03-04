@@ -19,12 +19,15 @@ public class ProjectPermissionCreated extends DomainEvent {
     @Getter
     private ProjectId projectId;
 
+    {
+        setTopic(PROJECT_PERMISSION_CREATED);
+        setName(name);
+
+    }
+
     public ProjectPermissionCreated(Set<PermissionId> permissionIds, ProjectId projectId,
                                     UserId userId) {
         super(new HashSet<>(permissionIds));
-        setInternal(true);
-        setTopic(PROJECT_PERMISSION_CREATED);
-        setName(name);
         this.creator = userId;
         this.projectId = projectId;
     }

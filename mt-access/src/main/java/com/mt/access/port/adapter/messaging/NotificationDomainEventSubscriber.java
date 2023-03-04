@@ -1,25 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.CrossDomainValidationService.ValidationFailedEvent.SYSTEM_VALIDATION_FAILED;
-import static com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck.CROSS_DOMAIN_VALIDATION_FAILURE_CHECK;
 import static com.mt.access.domain.model.notification.event.SendBellNotificationEvent.SEND_BELL_NOTIFICATION_EVENT;
-import static com.mt.access.domain.model.notification.event.SendEmailNotificationEvent.SEND_EMAIL_NOTIFICATION_EVENT;
-import static com.mt.access.domain.model.notification.event.SendSmsNotificationEvent.SEND_SMS_NOTIFICATION_EVENT;
-import static com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated.PENDING_USER_ACTIVATION_CODE_UPDATED;
-import static com.mt.access.domain.model.pending_user.event.PendingUserCreated.PENDING_USER_CREATED;
-import static com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent.PROXY_CACHE_CHECK_FAILED_EVENT;
-import static com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning.RAW_ACCESS_RECORD_PROCESSING_WARNING;
-import static com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent.SUBSCRIBER_ENDPOINT_EXPIRE;
-import static com.mt.access.domain.model.user.event.NewUserRegistered.USER_CREATED;
-import static com.mt.access.domain.model.user.event.UserMfaNotificationEvent.USER_MFA_NOTIFICATION;
-import static com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated.USER_PWD_RESET_CODE_UPDATED;
-import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
-import static com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent.REJECTED_MSG_EVENT;
-import static com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent.UNROUTABLE_MSG_EVENT;
-import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.HANGING_TX_DETECTED;
-import static com.mt.common.domain.model.job.event.JobNotFoundEvent.JOB_NOT_FOUND;
-import static com.mt.common.domain.model.job.event.JobPausedEvent.JOB_PAUSED;
-import static com.mt.common.domain.model.job.event.JobStarvingEvent.JOB_STARVING;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.CrossDomainValidationService;
@@ -56,14 +37,14 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener0() {
-        ListenerHelper.listen(HANGING_TX_DETECTED, HangingTxDetected.class,
+        ListenerHelper.listen(new HangingTxDetected(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener1() {
-        ListenerHelper.listen(USER_CREATED, NewUserRegistered.class,
+        ListenerHelper.listen(new NewUserRegistered(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
@@ -71,31 +52,28 @@ public class NotificationDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
         ListenerHelper.listen(
-            PROJECT_ONBOARDING_COMPLETED, ProjectOnboardingComplete.class,
+            new ProjectOnboardingComplete(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener3() {
-        ListenerHelper.listen(PROXY_CACHE_CHECK_FAILED_EVENT,
-            ProxyCacheCheckFailedEvent.class,
+        ListenerHelper.listen(new ProxyCacheCheckFailedEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener4() {
-        ListenerHelper.listen(SYSTEM_VALIDATION_FAILED,
-            CrossDomainValidationService.ValidationFailedEvent.class,
+        ListenerHelper.listen(new CrossDomainValidationService.ValidationFailedEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener5() {
-        ListenerHelper.listen(USER_MFA_NOTIFICATION,
-            UserMfaNotificationEvent.class,
+        ListenerHelper.listen(new UserMfaNotificationEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
@@ -115,32 +93,28 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener7() {
-        ListenerHelper.listen(USER_PWD_RESET_CODE_UPDATED,
-            UserPwdResetCodeUpdated.class,
+        ListenerHelper.listen(new UserPwdResetCodeUpdated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener8() {
-        ListenerHelper.listen(PENDING_USER_ACTIVATION_CODE_UPDATED,
-            PendingUserActivationCodeUpdated.class,
+        ListenerHelper.listen(new PendingUserActivationCodeUpdated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener9() {
-        ListenerHelper.listen(CROSS_DOMAIN_VALIDATION_FAILURE_CHECK,
-            CrossDomainValidationFailureCheck.class,
+        ListenerHelper.listen(new CrossDomainValidationFailureCheck(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener11() {
-        ListenerHelper.listen(SEND_EMAIL_NOTIFICATION_EVENT,
-            SendEmailNotificationEvent.class,
+        ListenerHelper.listen(new SendEmailNotificationEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
@@ -148,45 +122,42 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener12() {
-        ListenerHelper.listen(SEND_SMS_NOTIFICATION_EVENT,
-            SendSmsNotificationEvent.class,
+        ListenerHelper.listen(new SendSmsNotificationEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener13() {
-        ListenerHelper.listen(UNROUTABLE_MSG_EVENT,
-            UnrountableMsgReceivedEvent.class,
+        ListenerHelper.listen(new UnrountableMsgReceivedEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener14() {
-        ListenerHelper.listen(SUBSCRIBER_ENDPOINT_EXPIRE,
-            SubscriberEndpointExpireEvent.class,
+        ListenerHelper.listen(new SubscriberEndpointExpireEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener15() {
-        ListenerHelper.listen(JOB_PAUSED, JobPausedEvent.class,
+        ListenerHelper.listen(new JobPausedEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener16() {
-        ListenerHelper.listen(JOB_NOT_FOUND, JobNotFoundEvent.class,
+        ListenerHelper.listen(new JobNotFoundEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener17() {
-        ListenerHelper.listen(JOB_STARVING, JobStarvingEvent.class,
+        ListenerHelper.listen(new JobStarvingEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
@@ -194,22 +165,21 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener18() {
-        ListenerHelper.listen(PENDING_USER_CREATED, PendingUserCreated.class,
+        ListenerHelper.listen(new PendingUserCreated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener19() {
-        ListenerHelper.listen(REJECTED_MSG_EVENT, RejectedMsgReceivedEvent.class,
+        ListenerHelper.listen(new RejectedMsgReceivedEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener20() {
-        ListenerHelper.listen(RAW_ACCESS_RECORD_PROCESSING_WARNING,
-            RawAccessRecordProcessingWarning.class,
+        ListenerHelper.listen(new RawAccessRecordProcessingWarning(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }

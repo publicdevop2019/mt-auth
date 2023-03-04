@@ -46,9 +46,11 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
 
     @Query("select count(*) from Role r where r.deleted = 0 and r.projectId = ?1 and r.type = 'USER' ")
     long countProjectCreateTotal_(ProjectId projectId);
-    default long countProjectCreateTotal(ProjectId projectId){
+
+    default long countProjectCreateTotal(ProjectId projectId) {
         return countProjectCreateTotal_(projectId);
     }
+
     @Component
     class JpaCriteriaApiRoleAdaptor {
         public SumPagedRep<Role> execute(RoleQuery query) {

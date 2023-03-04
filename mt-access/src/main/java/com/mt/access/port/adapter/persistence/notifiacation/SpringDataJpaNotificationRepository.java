@@ -30,7 +30,7 @@ public interface SpringDataJpaNotificationRepository
     }
 
     default void acknowledgeForUser(NotificationId id, UserId userId) {
-        ackNotificationUser(id,userId);
+        ackNotificationUser(id, userId);
     }
 
     default Optional<Notification> notificationOfId(NotificationId notificationId) {

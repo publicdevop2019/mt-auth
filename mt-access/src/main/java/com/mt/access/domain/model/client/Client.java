@@ -329,10 +329,11 @@ public class Client extends Auditable {
                                    EndpointId endpointId, String method,
                                    boolean secured,
                                    boolean isWebsocket, boolean csrfEnabled,
-                                   CorsProfileId corsConfig, boolean shared,boolean external, int replenishRate, int burstCapacity) {
+                                   CorsProfileId corsConfig, boolean shared, boolean external,
+                                   int replenishRate, int burstCapacity) {
         return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
             name, description, path, endpointId, method, secured,
-            isWebsocket, csrfEnabled, corsConfig, shared,external,replenishRate,burstCapacity);
+            isWebsocket, csrfEnabled, corsConfig, shared, external, replenishRate, burstCapacity);
     }
 
     // for create

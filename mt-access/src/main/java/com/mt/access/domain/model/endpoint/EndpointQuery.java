@@ -65,6 +65,7 @@ public class EndpointQuery extends QueryCriteria {
         setQueryConfig(new QueryConfig(config));
         setEndpointSort(pageConfig);
     }
+
     public EndpointQuery(String pageParam) {
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(QueryConfig.countRequired());

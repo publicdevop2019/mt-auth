@@ -11,10 +11,13 @@ public class EndpointExpired extends DomainEvent {
     public static final String ENDPOINT_EXPIRED = "endpoint_expired";
     public static final String name = "ENDPOINT_EXPIRED";
 
-    public EndpointExpired(Endpoint endpoint) {
-        super();
+    {
         setTopic(ENDPOINT_EXPIRED);
         setName(name);
+    }
+
+    public EndpointExpired(Endpoint endpoint) {
+        super();
         setDomainId(endpoint.getEndpointId());
     }
 }

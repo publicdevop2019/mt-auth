@@ -51,7 +51,7 @@ public class ReportResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         EndpointReport report = ApplicationServiceRegistry
-            .getReportApplicationService().analysisReportFor(projectId,endpointRawId, queryParam);
+            .getReportApplicationService().analysisReportFor(projectId, endpointRawId, queryParam);
         return ResponseEntity.ok().body(new EndpointReportRepresentation(report));
     }
 

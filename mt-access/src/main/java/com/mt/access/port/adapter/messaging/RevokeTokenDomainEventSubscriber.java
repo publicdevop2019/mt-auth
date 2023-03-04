@@ -1,15 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.client.event.ClientAccessibilityRemoved.CLIENT_ACCESSIBILITY_REMOVED;
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
-import static com.mt.access.domain.model.client.event.ClientGrantTypeChanged.CLIENT_GRANT_TYPE_CHANGED;
-import static com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted.CLIENT_RESOURCE_CLEAN_UP_COMPLETED;
-import static com.mt.access.domain.model.client.event.ClientResourcesChanged.CLIENT_RESOURCES_CHANGED;
-import static com.mt.access.domain.model.client.event.ClientSecretChanged.CLIENT_SECRET_CHANGED;
-import static com.mt.access.domain.model.client.event.ClientTokenDetailChanged.CLIENT_TOKEN_DETAIL_CHANGED;
-import static com.mt.access.domain.model.user.event.UserAuthorityChanged.USER_AUTHORITY_CHANGED;
-import static com.mt.access.domain.model.user.event.UserDeleted.USER_DELETED;
-import static com.mt.access.domain.model.user.event.UserGetLocked.USER_GET_LOCKED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
@@ -28,7 +19,6 @@ import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.infrastructure.RabbitMqEventStreamService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -39,60 +29,56 @@ public class RevokeTokenDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener2() {
-        ListenerHelper.listen(CLIENT_RESOURCE_CLEAN_UP_COMPLETED,
-            ClientResourceCleanUpCompleted.class,
+        ListenerHelper.listen(new ClientResourceCleanUpCompleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener3() {
-        ListenerHelper.listen(USER_AUTHORITY_CHANGED, UserAuthorityChanged.class,
+        ListenerHelper.listen(new UserAuthorityChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener4() {
-        ListenerHelper.listen(USER_DELETED, UserDeleted.class,
+        ListenerHelper.listen(new UserDeleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener5() {
-        ListenerHelper.listen(USER_GET_LOCKED, UserGetLocked.class,
+        ListenerHelper.listen(new UserGetLocked(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener6() {
-        ListenerHelper.listen(USER_GET_LOCKED, UserPasswordChanged.class,
+        ListenerHelper.listen(new UserPasswordChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener7() {
-        ListenerHelper.listen(CLIENT_ACCESSIBILITY_REMOVED,
-            ClientAccessibilityRemoved.class,
+        ListenerHelper.listen(new ClientAccessibilityRemoved(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener9() {
-        ListenerHelper.listen(CLIENT_GRANT_TYPE_CHANGED,
-            ClientGrantTypeChanged.class,
+        ListenerHelper.listen(new ClientGrantTypeChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener10() {
-        ListenerHelper.listen(CLIENT_TOKEN_DETAIL_CHANGED,
-            ClientTokenDetailChanged.class,
+        ListenerHelper.listen(new ClientTokenDetailChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
@@ -109,8 +95,7 @@ public class RevokeTokenDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener12() {
-        ListenerHelper.listen(CLIENT_RESOURCES_CHANGED,
-            ClientResourcesChanged.class,
+        ListenerHelper.listen(new ClientResourcesChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }
@@ -118,8 +103,7 @@ public class RevokeTokenDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener14() {
-        ListenerHelper.listen(
-            CLIENT_SECRET_CHANGED, ClientSecretChanged.class,
+        ListenerHelper.listen(new ClientSecretChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
                 .handleChange(event));
     }

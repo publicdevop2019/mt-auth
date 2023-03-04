@@ -86,7 +86,8 @@ public class SubRequest extends Auditable {
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!shared) {
-            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared", "0059",
+            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared",
+                "0059",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -97,10 +98,10 @@ public class SubRequest extends Auditable {
         this.replenishRate = replenishRate;
         this.burstCapacity = burstCapacity;
         this.endpointProjectId = endpointProjectId;
-        if(!secured){
+        if (!secured) {
             //public endpoints use default based rate from endpoint owner
-           this.burstCapacity=0;
-           this.replenishRate=0;
+            this.burstCapacity = 0;
+            this.replenishRate = 0;
         }
     }
 

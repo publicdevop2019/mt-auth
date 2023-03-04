@@ -50,9 +50,11 @@ public interface SpringDataJpaPermissionRepository
         return allPermissionId_();
     }
 
-    default Set<PermissionId> getLinkedApiPermissionFor(Set<PermissionId> e){
+    default Set<PermissionId> getLinkedApiPermissionFor(Set<PermissionId> e) {
         return getLinkedApiPermissionFor_(e);
-    };
+    }
+
+    ;
 
     @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
     Set<EndpointId> allApiPermissionLinkedEpId_();
@@ -70,7 +72,7 @@ public interface SpringDataJpaPermissionRepository
         return QueryBuilderRegistry.getPermissionAdaptor().execute(permissionQuery);
     }
 
-    default long countProjectCreateTotal(ProjectId projectId){
+    default long countProjectCreateTotal(ProjectId projectId) {
         return countProjectCreateTotal_(projectId);
     }
 

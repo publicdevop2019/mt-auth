@@ -24,8 +24,10 @@ public class BasicSubRequest {
         projectId = subRequest.getProjectId().getDomainId();
         endpointId = subRequest.getEndpointId().getDomainId();
     }
+
     /**
      * update view with project name
+     *
      * @param list paginated data
      */
     public static void updateProjectNames(SumPagedRep<? extends BasicSubRequest> list) {
@@ -36,14 +38,16 @@ public class BasicSubRequest {
             Set<Project> collect2 =
                 ApplicationServiceRegistry.getProjectApplicationService().internalQuery(collect);
             list.getData().forEach(e -> collect2.stream().filter(ee ->
-                ee.getProjectId().equals(new ProjectId(e.getProjectId()))).findAny()
+                    ee.getProjectId().equals(new ProjectId(e.getProjectId()))).findAny()
                 .ifPresent(eee -> {
                     e.setProjectName(eee.getName());
                 }));
         }
     }
+
     /**
      * update view with endpoint name
+     *
      * @param list paginated data
      */
     public static void updateEndpointNames(SumPagedRep<? extends BasicSubRequest> list) {
@@ -54,7 +58,7 @@ public class BasicSubRequest {
             Set<Endpoint> collect2 =
                 ApplicationServiceRegistry.getEndpointApplicationService().internalQuery(collect);
             list.getData().forEach(e -> collect2.stream().filter(ee ->
-                ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
+                    ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
                 .ifPresent(eee -> {
                     e.setEndpointName(eee.getName());
                 }));

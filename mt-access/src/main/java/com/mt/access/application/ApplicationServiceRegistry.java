@@ -209,6 +209,7 @@ public class ApplicationServiceRegistry {
     public void setUserApplicationService(UserApplicationService userApplicationService) {
         ApplicationServiceRegistry.userApplicationService = userApplicationService;
     }
+
     @Autowired
     public void setSubRequestApplicationService(
         SubRequestApplicationService subRequestApplicationService) {

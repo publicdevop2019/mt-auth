@@ -47,7 +47,8 @@ public class NewUserService {
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {
-            throw new DefinedRuntimeException("pending user not found, maybe not registered?", "0026",
+            throw new DefinedRuntimeException("pending user not found, maybe not registered?",
+                "0026",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

@@ -1,8 +1,6 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.client.event.ClientCreated.CLIENT_CREATED;
 import static com.mt.access.domain.model.client.event.ClientDeleted.CLIENT_DELETED;
-import static com.mt.access.domain.model.permission.event.ProjectPermissionCreated.PROJECT_PERMISSION_CREATED;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.event.ClientCreated;
@@ -22,16 +20,14 @@ public class RoleDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
-        ListenerHelper.listen(
-            PROJECT_PERMISSION_CREATED,
-            ProjectPermissionCreated.class,
+        ListenerHelper.listen(new ProjectPermissionCreated(),
             (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener1() {
-        ListenerHelper.listen( CLIENT_CREATED, ClientCreated.class,
-                (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event));
+        ListenerHelper.listen(new ClientCreated(),
+            (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event));
     }
 
     /**

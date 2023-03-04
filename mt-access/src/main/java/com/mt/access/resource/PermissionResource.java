@@ -48,7 +48,7 @@ public class PermissionResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getPermissionApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getPermissionApplicationService().create(command, changeId))
             .build();
     }
 
@@ -100,9 +100,9 @@ public class PermissionResource {
                                                    @PathVariable String id,
                                                    @RequestBody PermissionUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getPermissionApplicationService().replace(id, command, changeId);
@@ -113,9 +113,9 @@ public class PermissionResource {
     public ResponseEntity<Void> deleteForRootById(@PathVariable String projectId,
                                                   @PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
             .remove(projectId, id, changeId);

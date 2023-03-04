@@ -8,10 +8,12 @@ import lombok.NoArgsConstructor;
 public class JobStarvingEvent extends DomainEvent {
     public static final String JOB_STARVING = "job_starving";
     public static final String name = "JOB_STARVING";
+    {
 
-    public JobStarvingEvent(JobDetail jobDetail) {
-        super(jobDetail.getJobId());
         setTopic(JOB_STARVING);
         setName(name);
+    }
+    public JobStarvingEvent(JobDetail jobDetail) {
+        super(jobDetail.getJobId());
     }
 }

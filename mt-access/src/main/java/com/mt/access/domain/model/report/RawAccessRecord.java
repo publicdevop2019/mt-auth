@@ -60,9 +60,11 @@ public class RawAccessRecord {
     public void markAsProcessed() {
         this.processed = true;
     }
-    public boolean endpointNotFound(){
+
+    public boolean endpointNotFound() {
         return "not_found".equalsIgnoreCase(this.getRecordAsMap().get(ENDPOINT_ID_KEY));
     }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

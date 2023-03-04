@@ -93,8 +93,8 @@ public class SubRequestResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getSubRequestApplicationService()
-                .create(command, changeId))
+                ApplicationServiceRegistry.getSubRequestApplicationService()
+                    .create(command, changeId))
             .build();
     }
 

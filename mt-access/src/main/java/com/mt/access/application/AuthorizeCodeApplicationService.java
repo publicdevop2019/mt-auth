@@ -44,7 +44,8 @@ public class AuthorizeCodeApplicationService {
         //make sure authorize client exist
         if (ApplicationServiceRegistry.getClientApplicationService()
             .loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
-            throw new DefinedRuntimeException("unable to find authorize client "+parameters.get(OAuth2Utils.CLIENT_ID), "0005",
+            throw new DefinedRuntimeException(
+                "unable to find authorize client " + parameters.get(OAuth2Utils.CLIENT_ID), "0005",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -57,7 +58,8 @@ public class AuthorizeCodeApplicationService {
         Set<String> responseTypes = authorizationRequest.getResponseTypes();
 
         if (!responseTypes.contains("token") && !responseTypes.contains("code")) {
-            throw new DefinedRuntimeException("unsupported response types: " + responseTypes, "0006",
+            throw new DefinedRuntimeException("unsupported response types: " + responseTypes,
+                "0006",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -76,7 +78,9 @@ public class AuthorizeCodeApplicationService {
             authorizationRequest.getRequestParameters().get(OAuth2Utils.REDIRECT_URI);
         String resolvedRedirect = redirectResolver.resolveRedirect(redirectUriParameter, client);
         if (!StringUtils.hasText(redirectUriParameter)) {
-            throw new DefinedRuntimeException("a redirect uri must be either supplied or preconfigured in the client details", "0008",
+            throw new DefinedRuntimeException(
+                "a redirect uri must be either supplied or preconfigured in the client details",
+                "0008",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

@@ -14,10 +14,13 @@ public class UnrountableMsgReceivedEvent extends DomainEvent {
     private String sourceTopic;
     private String sourceName;
     private long sourceEventId;
-    public UnrountableMsgReceivedEvent(StoredEvent event) {
-        super();
+    {
         setTopic(UNROUTABLE_MSG_EVENT);
         setName(name);
+
+    }
+    public UnrountableMsgReceivedEvent(StoredEvent event) {
+        super();
         this.sourceTopic = event.getTopic();
         this.sourceName = event.getName();
         this.sourceEventId = event.getId();

@@ -46,7 +46,7 @@ public class RoleResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getRoleApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getRoleApplicationService().create(command, changeId))
             .build();
     }
 

@@ -17,11 +17,15 @@ public class SubscriberEndpointExpireEvent extends DomainEvent {
     public static final String name = "SUBSCRIBER_ENDPOINT_EXPIRE";
     private EndpointId endpointId;
 
+    {
+        setTopic(SUBSCRIBER_ENDPOINT_EXPIRE);
+        setName(name);
+
+    }
+
     public SubscriberEndpointExpireEvent(EndpointId endpointId,
                                          Set<UserId> ids) {
         super();
-        setTopic(SUBSCRIBER_ENDPOINT_EXPIRE);
-        setName(name);
         setDomainIds(new HashSet<>(ids));
         this.endpointId = endpointId;
     }

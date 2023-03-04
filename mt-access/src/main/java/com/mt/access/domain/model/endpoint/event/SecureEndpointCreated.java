@@ -16,10 +16,14 @@ public class SecureEndpointCreated extends DomainEvent {
     private boolean shared;
     private PermissionId permissionId;
 
-    public SecureEndpointCreated(ProjectId projectId, Endpoint endpoint) {
-        super();
+    {
         setTopic(SECURE_ENDPOINT_CREATED);
         setName(name);
+
+    }
+
+    public SecureEndpointCreated(ProjectId projectId, Endpoint endpoint) {
+        super();
         setDomainId(endpoint.getEndpointId());
         this.projectId = projectId;
         this.shared = endpoint.isShared();

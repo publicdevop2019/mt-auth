@@ -34,7 +34,7 @@ public class CacheProfileResource {
     @PostMapping
     public ResponseEntity<Void> createForApp(@RequestBody CreateCacheProfileCommand command,
                                              @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId) {
+                                             String changeId) {
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getCacheProfileApplicationService()
                 .create(command, changeId)).build();
@@ -55,7 +55,7 @@ public class CacheProfileResource {
     public ResponseEntity<Void> updateForAdmin(@RequestBody ReplaceCacheProfileCommand command,
                                                @PathVariable String id,
                                                @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId) {
+                                               String changeId) {
         ApplicationServiceRegistry.getCacheProfileApplicationService()
             .update(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -65,9 +65,9 @@ public class CacheProfileResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
+                                                 String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+                                                 String jwt) {
         ApplicationServiceRegistry.getCacheProfileApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }

@@ -21,10 +21,14 @@ public class SendBellNotificationEvent extends DomainEvent {
     private Set<String> descriptions;
     private UserId userId;
 
-    public SendBellNotificationEvent(Notification notification) {
-        super();
+    {
         setTopic(SEND_BELL_NOTIFICATION_EVENT);
         setName(name);
+
+    }
+
+    public SendBellNotificationEvent(Notification notification) {
+        super();
         setDomainId(notification.getNotificationId());
         date = notification.getTimestamp();
         this.descriptions = notification.getDescriptions();

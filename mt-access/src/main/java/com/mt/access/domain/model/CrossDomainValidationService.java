@@ -31,7 +31,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -207,7 +206,7 @@ public class CrossDomainValidationService {
                 .filter(ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.PROJECT))
                 .findFirst();
             Optional<Role> first2 = roles.stream().filter(
-                ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.CLIENT_ROOT))
+                    ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.CLIENT_ROOT))
                 .findFirst();
             return first.isEmpty() || first2.isEmpty();
         }).collect(Collectors.toSet());
@@ -308,18 +307,22 @@ public class CrossDomainValidationService {
         return true;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
     @Getter
     public static class ValidationFailedEvent extends DomainEvent {
         public static final String SYSTEM_VALIDATION_FAILED = "system_validation_failed";
         public static final String name = "SYSTEM_VALIDATION_FAILED";
         private String message;
 
+        {
+
+            setName(name);
+            setTopic(SYSTEM_VALIDATION_FAILED);
+        }
+
         public ValidationFailedEvent(String message) {
             log.debug("creating event for {}", message);
             this.message = message;
-            setName(name);
-            setTopic(SYSTEM_VALIDATION_FAILED);
         }
     }
 }

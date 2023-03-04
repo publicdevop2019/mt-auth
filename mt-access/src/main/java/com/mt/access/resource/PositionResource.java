@@ -39,10 +39,10 @@ public class PositionResource {
     public ResponseEntity<Void> createForRoot(@RequestBody PositionCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+                                              String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getPositionApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getPositionApplicationService().create(command, changeId))
             .build();
     }
 
@@ -75,9 +75,9 @@ public class PositionResource {
     public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
                                                    @RequestBody PositionUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -86,9 +86,9 @@ public class PositionResource {
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
@@ -98,9 +98,9 @@ public class PositionResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
+                                                 String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+                                                 String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPositionApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();

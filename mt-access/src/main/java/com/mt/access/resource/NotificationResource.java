@@ -75,7 +75,7 @@ public class NotificationResource {
     public ResponseEntity<SumPagedRep<Void>> ackNotificationsForUser(
         @PathVariable(name = "id") String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-        ) {
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getNotificationApplicationService()
             .ackBellNotificationForUser(id);

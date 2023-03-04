@@ -292,14 +292,16 @@ public class Permission extends Auditable {
         Permission p13 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_API,
                 apiMgntId, tenantId, Stream
-                    .of(new PermissionId("0Y8HHJ47NBEM"), new PermissionId("0Y8HHJ47NBEH"), new PermissionId("0Y8MLZDBR4T3"),
+                    .of(new PermissionId("0Y8HHJ47NBEM"), new PermissionId("0Y8HHJ47NBEH"),
+                        new PermissionId("0Y8MLZDBR4T3"),
                         new PermissionId("0Y8HHJ47NBDS"), new PermissionId("0Y8HHJ47NBDM"))
                     .collect(Collectors.toSet()));
         Permission p14 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_API,
                 apiMgntId, tenantId, Stream
                     .of(new PermissionId("0Y8HHJ47NBDV"), new PermissionId("0Y8HHJ47NBDN"),
-                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8HHJ47NBDW"), new PermissionId("0Y8M4UTZLTLI"))
+                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8HHJ47NBDW"),
+                        new PermissionId("0Y8M4UTZLTLI"))
                     .collect(Collectors.toSet()));
         Permission p16 = Permission
             .autoCreateForProject(projectId, new PermissionId(), CREATE_API, PermissionType.COMMON,
@@ -360,14 +362,14 @@ public class Permission extends Auditable {
         Permission p36 = Permission
             .autoCreateForProjectMulti(projectId, subReqMgntId, SUB_REQ_MNGMT,
                 rootId, tenantId, Stream.of(
-                    new PermissionId("0Y8M0IG8RITC"),
-                    new PermissionId("0Y8M0IQAUSZ8"),
-                    new PermissionId("0Y8M0IQQ5FK0"),
-                    new PermissionId("0Y8M0IR20GBI"),
-                    new PermissionId("0Y8M0IRD8ZSN"),
-                    new PermissionId("0Y8M4M3J9HJ4"),
-                    new PermissionId("0Y8M0IRN8L4W")
-                )
+                        new PermissionId("0Y8M0IG8RITC"),
+                        new PermissionId("0Y8M0IQAUSZ8"),
+                        new PermissionId("0Y8M0IQQ5FK0"),
+                        new PermissionId("0Y8M0IR20GBI"),
+                        new PermissionId("0Y8M0IRD8ZSN"),
+                        new PermissionId("0Y8M4M3J9HJ4"),
+                        new PermissionId("0Y8M0IRN8L4W")
+                    )
                     .collect(Collectors.toSet()));
 
         Permission apiPermission = Permission
@@ -456,7 +458,8 @@ public class Permission extends Auditable {
     private void updateName(String name) {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0049",
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
+                "0049",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -475,7 +478,8 @@ public class Permission extends Auditable {
     public void remove() {
         if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
             .contains(this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed", "0051",
+            throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
+                "0051",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

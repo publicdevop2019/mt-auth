@@ -271,11 +271,13 @@ public class NotificationApplicationService {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
+
     @Transactional
     public void handle(RawAccessRecordProcessingWarning event) {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
+
     private void sendBellNotification(Long eventId, Notification notification1) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(eventId.toString(), (command) -> {

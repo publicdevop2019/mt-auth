@@ -17,7 +17,7 @@ public class PendingUserResource {
     @PostMapping
     public ResponseEntity<Void> createForPublic(@RequestBody PendingUserCreateCommand command,
                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                    String changeId) {
+                                                String changeId) {
         ApplicationServiceRegistry.getPendingUserApplicationService().create(command, changeId);
         return ResponseEntity.ok().build();
     }

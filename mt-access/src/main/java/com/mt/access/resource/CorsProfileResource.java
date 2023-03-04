@@ -31,9 +31,9 @@ public class CorsProfileResource {
     @PostMapping
     public ResponseEntity<Void> createForRoot(@RequestBody CorsProfileCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId) {
+                                              String changeId) {
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getCorsProfileApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getCorsProfileApplicationService().create(command, changeId))
             .build();
     }
 
@@ -52,7 +52,7 @@ public class CorsProfileResource {
     public ResponseEntity<Void> replaceForRootById(@RequestBody CorsProfileUpdateCommand command,
                                                    @PathVariable String id,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId) {
+                                                   String changeId) {
         ApplicationServiceRegistry.getCorsProfileApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
@@ -60,7 +60,7 @@ public class CorsProfileResource {
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId) {
+                                                  String changeId) {
         ApplicationServiceRegistry.getCorsProfileApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
@@ -69,7 +69,7 @@ public class CorsProfileResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch patch,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId) {
+                                                 String changeId) {
 
         ApplicationServiceRegistry.getCorsProfileApplicationService().patch(id, patch, changeId);
         return ResponseEntity.ok().build();

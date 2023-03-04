@@ -165,12 +165,16 @@ public class DomainRegistry {
         RawAccessRecordProcessService rawAccessRecordProcessService) {
         DomainRegistry.rawAccessRecordProcessService = rawAccessRecordProcessService;
     }
+
     @Autowired
-    public void setDataProcessTrackerRepository(DataProcessTrackerRepository dataProcessTrackerRepository) {
+    public void setDataProcessTrackerRepository(
+        DataProcessTrackerRepository dataProcessTrackerRepository) {
         DomainRegistry.dataProcessTrackerRepository = dataProcessTrackerRepository;
     }
+
     @Autowired
-    public void setFormattedAccessRecordRepository(FormattedAccessRecordRepository formattedAccessRecordRepository) {
+    public void setFormattedAccessRecordRepository(
+        FormattedAccessRecordRepository formattedAccessRecordRepository) {
         DomainRegistry.formattedAccessRecordRepository = formattedAccessRecordRepository;
     }
 

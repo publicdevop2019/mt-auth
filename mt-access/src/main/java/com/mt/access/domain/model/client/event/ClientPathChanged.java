@@ -10,10 +10,14 @@ public class ClientPathChanged extends DomainEvent {
     public static final String CLIENT_PATH_CHANGED = "client_path_changed";
     public static final String name = "CLIENT_PATH_CHANGED";
 
-    public ClientPathChanged(ClientId clientId) {
-        super(clientId);
+    {
         setTopic(CLIENT_PATH_CHANGED);
         setName(name);
+
+    }
+
+    public ClientPathChanged(ClientId clientId) {
+        super(clientId);
         setInternal(false);
     }
 }

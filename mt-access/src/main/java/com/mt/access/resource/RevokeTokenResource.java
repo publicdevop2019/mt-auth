@@ -29,7 +29,7 @@ public class RevokeTokenResource {
     public ResponseEntity<Void> createForRoot(@RequestBody RevokeTokenCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+                                              String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getRevokeTokenApplicationService().create(command, changeId);
         return ResponseEntity.ok().build();

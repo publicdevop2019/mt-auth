@@ -50,7 +50,8 @@ public class PermissionCheckService {
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
-            throw new DefinedRuntimeException("no required access permission: "+permissionName, "0030",
+            throw new DefinedRuntimeException("no required access permission: " + permissionName,
+                "0030",
                 HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

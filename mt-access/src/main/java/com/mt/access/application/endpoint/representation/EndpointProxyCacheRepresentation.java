@@ -128,10 +128,10 @@ public class EndpointProxyCacheRepresentation
                     finalClientFetched.stream()
                         .filter(e -> e.getClientId().equals(rep.clientId))
                         .findFirst().ifPresent(e -> {
-                        if (e.getPath() != null) {
-                            rep.setPath("/" + e.getPath() + "/" + rep.getPath());
-                        }
-                    });
+                            if (e.getPath() != null) {
+                                rep.setPath("/" + e.getPath() + "/" + rep.getPath());
+                            }
+                        });
                 }
                 Set<ProjectSubscription> collect = finalSuReqFetched.stream()
                     .filter(e -> e.getEndpointId().getDomainId().equals(rep.getId())).map(

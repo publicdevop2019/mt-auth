@@ -89,7 +89,7 @@ public class ClientResource {
     public ResponseEntity<ClientRepresentation> readForRootById2(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-            String jwt) {
+        String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
@@ -114,7 +114,7 @@ public class ClientResource {
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-            String jwt) {
+        String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().tenantQuery(id, projectId);
@@ -127,9 +127,9 @@ public class ClientResource {
                                                    @PathVariable(name = "id") String id,
                                                    @RequestBody ClientUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getClientApplicationService()
@@ -141,9 +141,9 @@ public class ClientResource {
     public ResponseEntity<Void> deleteForRootById(@PathVariable String projectId,
                                                   @PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantRemove(projectId, id, changeId);
@@ -156,9 +156,9 @@ public class ClientResource {
                                                  @PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
+                                                 String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+                                                 String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .patch(projectId, id, command, changeId);

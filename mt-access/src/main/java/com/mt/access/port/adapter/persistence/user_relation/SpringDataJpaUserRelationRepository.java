@@ -41,11 +41,14 @@ public interface SpringDataJpaUserRelationRepository
     default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
         return QueryBuilderRegistry.getUserRelationAdaptor().execute(query);
     }
-    default long countProjectOwnedTotal(ProjectId projectId){
+
+    default long countProjectOwnedTotal(ProjectId projectId) {
         return countProjectOwnedTotal_(projectId);
     }
+
     @Query("select distinct c.projectId from UserRelation c")
     Set<ProjectId> getProjectIds_();
+
     @Query("select count(*) from UserRelation u where u.projectId = ?1")
     long countProjectOwnedTotal_(ProjectId projectId);
 

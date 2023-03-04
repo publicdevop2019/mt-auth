@@ -13,10 +13,14 @@ public class SubRequestApprovedEvent extends DomainEvent {
     public static final String SUB_REQ_APPROVED = "sub_req_approved";
     public static final String name = "SUB_REQ_APPROVED";
 
-    public SubRequestApprovedEvent(SubRequestId endpointId) {
-        super();
+    {
         setTopic(SUB_REQ_APPROVED);
         setName(name);
+
+    }
+
+    public SubRequestApprovedEvent(SubRequestId endpointId) {
+        super();
         setDomainId(endpointId);
         setInternal(false);
     }

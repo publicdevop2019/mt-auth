@@ -69,7 +69,8 @@ public class UserRelationApplicationService {
             DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(projectId, PROJECT_USER))
                 .findFirst();
         if (first.isEmpty()) {
-            throw new DefinedRuntimeException("unable to find default user role for project", "0024",
+            throw new DefinedRuntimeException("unable to find default user role for project",
+                "0024",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -106,7 +107,7 @@ public class UserRelationApplicationService {
                     new RoleQuery(collect));
             //remove default user so mt-auth will not be miss added to tenant list
             Set<Role> removeDefaultUser = allByQuery.stream().filter(
-                e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e.getRoleId().getDomainId()))
+                    e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e.getRoleId().getDomainId()))
                 .collect(Collectors.toSet());
             Set<ProjectId> collect1 =
                 removeDefaultUser.stream().map(Role::getTenantId).collect(Collectors.toSet());

@@ -18,8 +18,8 @@ public class CrossDomainValidationApplicationService {
         log.trace("triggered scheduled task 1");
         CommonDomainRegistry.getJobService()
             .execute(DATA_VALIDATION_JOB_NAME, () -> CommonDomainRegistry.getTransactionService()
-                    .transactional(
-                        () -> DomainRegistry.getCrossDomainValidationService().validate()));
+                .transactional(
+                    () -> DomainRegistry.getCrossDomainValidationService().validate()));
     }
 
     @Transactional

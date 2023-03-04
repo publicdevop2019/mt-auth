@@ -1,7 +1,5 @@
 package com.mt.access.port.adapter.messaging;
 
-import static com.mt.access.domain.model.endpoint.event.EndpointExpired.ENDPOINT_EXPIRED;
-
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +13,7 @@ public class SubRequestDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
-        ListenerHelper.listen(ENDPOINT_EXPIRED, EndpointExpired.class,
+        ListenerHelper.listen(new EndpointExpired(),
             (event) -> ApplicationServiceRegistry.getSubRequestApplicationService()
                 .handle(event));
     }

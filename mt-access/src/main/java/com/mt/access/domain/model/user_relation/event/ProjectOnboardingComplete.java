@@ -15,10 +15,14 @@ public class ProjectOnboardingComplete extends DomainEvent {
     @Getter
     private String projectName;
 
-    public ProjectOnboardingComplete(Project project) {
-        super(project.getProjectId());
+    {
         setTopic(PROJECT_ONBOARDING_COMPLETED);
         setName(name);
+
+    }
+
+    public ProjectOnboardingComplete(Project project) {
+        super(project.getProjectId());
         projectName = project.getName();
         this.creator = new UserId(project.getCreatedBy());
     }

@@ -1,9 +1,7 @@
 package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.LoginHistory;
-import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.User;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

@@ -43,7 +43,8 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor;
     @Getter
-    private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor subRequestAdaptor;
+    private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor
+        subRequestAdaptor;
     @Getter
     private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor
         userRelationAdaptor;

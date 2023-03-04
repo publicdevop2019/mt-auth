@@ -39,7 +39,7 @@ public class OrganizationResource {
     public ResponseEntity<Void> createForRoot(@RequestBody OrganizationCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+                                              String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getOrganizationApplicationService()
@@ -75,9 +75,9 @@ public class OrganizationResource {
     public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
                                                    @RequestBody OrganizationUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService()
             .replace(id, command, changeId);
@@ -87,9 +87,9 @@ public class OrganizationResource {
     @DeleteMapping("{id}")
     public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
@@ -99,9 +99,9 @@ public class OrganizationResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
+                                                 String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+                                                 String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();

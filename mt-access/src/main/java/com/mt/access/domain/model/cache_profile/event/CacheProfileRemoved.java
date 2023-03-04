@@ -11,9 +11,12 @@ public class CacheProfileRemoved extends DomainEvent {
     public static final String CACHE_PROFILE_REMOVED = "cache_profile_removed";
     public static final String name = "CACHE_PROFILE_REMOVED";
 
-    public CacheProfileRemoved(CacheProfile cacheProfile) {
-        super(cacheProfile.getCacheProfileId());
+    {
         setTopic(CACHE_PROFILE_REMOVED);
         setName(name);
+    }
+
+    public CacheProfileRemoved(CacheProfile cacheProfile) {
+        super(cacheProfile.getCacheProfileId());
     }
 }

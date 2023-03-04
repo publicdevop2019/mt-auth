@@ -5,9 +5,6 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import java.io.Serializable;
 import java.util.Collection;
@@ -35,11 +32,13 @@ public class JwtCurrentUserService implements CurrentUserService {
     /**
      * debug usage
      * userJwt.value will not work due to spring unable to inject value.
+     *
      * @return raw jwt
      */
-    public String getRawJwt(){
+    public String getRawJwt() {
         return userJwt.get();
     }
+
     @Override
     public Set<String> userPermissionIds() {
         String jwt = userJwt.get();

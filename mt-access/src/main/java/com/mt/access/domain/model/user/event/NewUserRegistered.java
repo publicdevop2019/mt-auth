@@ -16,10 +16,14 @@ public class NewUserRegistered extends DomainEvent {
     @Getter
     private UserEmail email;
 
-    public NewUserRegistered(UserId userId, UserEmail email) {
-        super(userId);
+    {
+
         setTopic(USER_CREATED);
         setName(name);
+    }
+
+    public NewUserRegistered(UserId userId, UserEmail email) {
+        super(userId);
         this.email = email;
     }
 }

@@ -50,8 +50,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     private final Connection connectionPub;
     private final Connection connectionSub;
     ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms = new ConcurrentSkipListMap<>();
-    @Value("${spring.application.name}")
-    private String appName;
     @Resource
     private Environment env;
 
@@ -272,36 +270,36 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public <T extends DomainEvent> void replyOf(String subscribedApplicationName, boolean internal,
+    public <T extends DomainEvent> void replyOf(String subAppName, boolean internal,
                                                 String eventName, Class<T> clazz,
                                                 Consumer<T> consumer) {
-        listen(subscribedApplicationName, internal, MqHelper.handleReplyOf(appName, eventName),
+        listen(subAppName, internal, MqHelper.handleReplyOf(subAppName, eventName),
             clazz, consumer, MqHelper.replyOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void replyCancelOf(String subscribedApplicationName,
+    public <T extends DomainEvent> void replyCancelOf(String subAppName,
                                                       boolean internal, String eventName,
                                                       Class<T> clazz,
                                                       Consumer<T> consumer) {
-        listen(subscribedApplicationName, internal,
-            MqHelper.handleReplyCancelOf(appName, eventName), clazz, consumer,
+        listen(subAppName, internal,
+            MqHelper.handleReplyCancelOf(subAppName, eventName), clazz, consumer,
             MqHelper.replyCancelOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void cancelOf(String subscribedApplicationName, boolean internal,
+    public <T extends DomainEvent> void cancelOf(String subAppName, boolean internal,
                                                  String eventName, Class<T> clazz,
                                                  Consumer<T> consumer) {
-        listen(subscribedApplicationName, internal, MqHelper.handleCancelOf(appName, eventName),
+        listen(subAppName, internal, MqHelper.handleCancelOf(subAppName, eventName),
             clazz, consumer, MqHelper.cancelOf(eventName));
     }
 
     @Override
-    public <T extends DomainEvent> void of(String subscribedApplicationName, boolean internal,
+    public <T extends DomainEvent> void of(String subAppName, boolean internal,
                                            String eventName, Class<T> clazz,
                                            Consumer<T> consumer) {
-        listen(subscribedApplicationName, internal, MqHelper.handlerOf(appName, eventName),
+        listen(subAppName, internal, MqHelper.handlerOf(subAppName, eventName),
             clazz, consumer, eventName);
     }
 

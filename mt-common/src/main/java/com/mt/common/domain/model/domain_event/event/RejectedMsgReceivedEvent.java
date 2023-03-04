@@ -14,10 +14,13 @@ public class RejectedMsgReceivedEvent extends DomainEvent {
     private String sourceTopic;
     private String sourceName;
     private long sourceEventId;
-    public RejectedMsgReceivedEvent(StoredEvent event) {
-        super();
+    {
         setTopic(REJECTED_MSG_EVENT);
         setName(name);
+
+    }
+    public RejectedMsgReceivedEvent(StoredEvent event) {
+        super();
         this.sourceTopic = event.getTopic();
         this.sourceName = event.getName();
         this.sourceEventId = event.getId();

@@ -15,10 +15,14 @@ public class ClientDeleted extends DomainEvent {
     @Getter
     private String changeId;
 
-    public ClientDeleted(ClientId clientId) {
-        super(clientId);
+    {
         setTopic(CLIENT_DELETED);
         setName(name);
+
+    }
+
+    public ClientDeleted(ClientId clientId) {
+        super(clientId);
         this.changeId = clientId.getDomainId() + "_cancel";
     }
 }
