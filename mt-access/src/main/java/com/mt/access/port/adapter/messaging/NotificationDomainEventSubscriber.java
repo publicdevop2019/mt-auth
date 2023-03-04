@@ -16,7 +16,7 @@ import static com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated.USER
 import static com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete.PROJECT_ONBOARDING_COMPLETED;
 import static com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent.REJECTED_MSG_EVENT;
 import static com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent.UNROUTABLE_MSG_EVENT;
-import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.MONITOR_TOPIC;
+import static com.mt.common.domain.model.idempotent.event.HangingTxDetected.HANGING_TX_DETECTED;
 import static com.mt.common.domain.model.job.event.JobNotFoundEvent.JOB_NOT_FOUND;
 import static com.mt.common.domain.model.job.event.JobPausedEvent.JOB_PAUSED;
 import static com.mt.common.domain.model.job.event.JobStarvingEvent.JOB_STARVING;
@@ -44,6 +44,7 @@ import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
+import com.mt.common.infrastructure.RabbitMqEventStreamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
@@ -53,71 +54,50 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotificationDomainEventSubscriber {
 
-    private static final String MESSENGER_SYS_MONITOR_QUEUE = "messenger_sys_monitor_queue";
-
     @EventListener(ApplicationReadyEvent.class)
     protected void listener0() {
-        CommonDomainRegistry.getEventStreamService()
-            .subscribe(AppInfo.MT_ACCESS_APP_ID, false, MESSENGER_SYS_MONITOR_QUEUE, (event) -> {
-                HangingTxDetected deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), HangingTxDetected.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            }, MONITOR_TOPIC);
+        ListenerHelper.listen(HANGING_TX_DETECTED, HangingTxDetected.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener1() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, USER_CREATED, (event) -> {
-                NewUserRegistered deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), NewUserRegistered.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(USER_CREATED, NewUserRegistered.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener2() {
-        CommonDomainRegistry.getEventStreamService().of(AppInfo.MT_ACCESS_APP_ID, true,
-            PROJECT_ONBOARDING_COMPLETED, (event) -> {
-                ProjectOnboardingComplete deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), ProjectOnboardingComplete.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(
+            PROJECT_ONBOARDING_COMPLETED, ProjectOnboardingComplete.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener3() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, PROXY_CACHE_CHECK_FAILED_EVENT, (event) -> {
-                ProxyCacheCheckFailedEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), ProxyCacheCheckFailedEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(PROXY_CACHE_CHECK_FAILED_EVENT,
+            ProxyCacheCheckFailedEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener4() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, SYSTEM_VALIDATION_FAILED, (event) -> {
-                CrossDomainValidationService.ValidationFailedEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(),
-                            CrossDomainValidationService.ValidationFailedEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(SYSTEM_VALIDATION_FAILED,
+            CrossDomainValidationService.ValidationFailedEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener5() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, USER_MFA_NOTIFICATION, (event) -> {
-                UserMfaNotificationEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), UserMfaNotificationEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(USER_MFA_NOTIFICATION,
+            UserMfaNotificationEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     /**
@@ -127,158 +107,111 @@ public class NotificationDomainEventSubscriber {
      */
     @EventListener(ApplicationReadyEvent.class)
     protected void listener6() {
-        CommonDomainRegistry.getEventStreamService()
-            .subscribe(AppInfo.MT_ACCESS_APP_ID, true, null, (event) -> {
-                SendBellNotificationEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), SendBellNotificationEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            }, SEND_BELL_NOTIFICATION_EVENT);
+        ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
+            .listen(AppInfo.MT_ACCESS_APP_ID, true, null, SendBellNotificationEvent.class,
+                (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                    .handle(event), SEND_BELL_NOTIFICATION_EVENT);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener7() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, false, USER_PWD_RESET_CODE_UPDATED, (event) -> {
-                UserPwdResetCodeUpdated deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), UserPwdResetCodeUpdated.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(USER_PWD_RESET_CODE_UPDATED,
+            UserPwdResetCodeUpdated.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener8() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, false, PENDING_USER_ACTIVATION_CODE_UPDATED, (event) -> {
-                PendingUserActivationCodeUpdated deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), PendingUserActivationCodeUpdated.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(PENDING_USER_ACTIVATION_CODE_UPDATED,
+            PendingUserActivationCodeUpdated.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener9() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, CROSS_DOMAIN_VALIDATION_FAILURE_CHECK, (event) -> {
-                CrossDomainValidationFailureCheck deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), CrossDomainValidationFailureCheck.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CROSS_DOMAIN_VALIDATION_FAILURE_CHECK,
+            CrossDomainValidationFailureCheck.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener11() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, SEND_EMAIL_NOTIFICATION_EVENT, (event) -> {
-                SendEmailNotificationEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), SendEmailNotificationEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(SEND_EMAIL_NOTIFICATION_EVENT,
+            SendEmailNotificationEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener12() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, SEND_SMS_NOTIFICATION_EVENT, (event) -> {
-                SendSmsNotificationEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), SendSmsNotificationEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(SEND_SMS_NOTIFICATION_EVENT,
+            SendSmsNotificationEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener13() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, UNROUTABLE_MSG_EVENT, (event) -> {
-                UnrountableMsgReceivedEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), UnrountableMsgReceivedEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(UNROUTABLE_MSG_EVENT,
+            UnrountableMsgReceivedEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener14() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, SUBSCRIBER_ENDPOINT_EXPIRE, (event) -> {
-                SubscriberEndpointExpireEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), SubscriberEndpointExpireEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(SUBSCRIBER_ENDPOINT_EXPIRE,
+            SubscriberEndpointExpireEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener15() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_PAUSED, (event) -> {
-                JobPausedEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), JobPausedEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(JOB_PAUSED, JobPausedEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener16() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_NOT_FOUND, (event) -> {
-                JobNotFoundEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), JobNotFoundEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(JOB_NOT_FOUND, JobNotFoundEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener17() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, JOB_STARVING, (event) -> {
-                JobStarvingEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), JobStarvingEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(JOB_STARVING, JobStarvingEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener18() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, PENDING_USER_CREATED, (event) -> {
-                PendingUserCreated deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), PendingUserCreated.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(PENDING_USER_CREATED, PendingUserCreated.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener19() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, REJECTED_MSG_EVENT, (event) -> {
-                RejectedMsgReceivedEvent deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), RejectedMsgReceivedEvent.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(REJECTED_MSG_EVENT, RejectedMsgReceivedEvent.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener20() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(AppInfo.MT_ACCESS_APP_ID, true, RAW_ACCESS_RECORD_PROCESSING_WARNING, (event) -> {
-                RawAccessRecordProcessingWarning deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), RawAccessRecordProcessingWarning.class);
-                ApplicationServiceRegistry.getNotificationApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(RAW_ACCESS_RECORD_PROCESSING_WARNING,
+            RawAccessRecordProcessingWarning.class,
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
     }
 
 

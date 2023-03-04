@@ -11,6 +11,7 @@ import static com.mt.common.CommonConstant.QUEUE_NAME_REJECT;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.clazz.ClassUtility;
+import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
@@ -114,52 +115,73 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         });
     }
 
-    @Override
-    public void subscribe(String subscribedApplicationName,
-                          boolean internal,
-                          @Nullable String fixedQueueName,
-                          Consumer<StoredEvent> consumer,
-                          String... topics) {
-        String routingKeyWithoutTopic =
-            subscribedApplicationName + "." + (internal ? "internal" : "external") + ".";
-        String queueName;
+
+    public <T extends DomainEvent> void listen(
+        String appName,
+        boolean internal,
+        @Nullable String queueName,
+        Class<T> clazz,
+        Consumer<T> consumer,
+        String... eventNames) {
+        String routingKeyPrefix =
+            appName + "." + (internal ? "internal" : "external") + ".";
         boolean autoDelete = false;
-        if (fixedQueueName != null) {
-            queueName = fixedQueueName;
-        } else {
+        if (queueName == null) {
             //auto delete random generated queue
             autoDelete = true;
             long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
             String s;
-            if (topics.length == 1) {
-                s = MqHelper.handlerOf(appName, topics[0]);
+            if (eventNames.length == 1) {
+                s = MqHelper.handlerOf(appName, eventNames[0]);
             } else {
                 s = MqHelper.handlerOf(appName, "combined_events");
             }
             queueName = Long.toString(id, 36) + "_" + s;
+
         }
-        subscribe(null, routingKeyWithoutTopic, queueName, autoDelete, consumer, topics);
+        subscribe(null, routingKeyPrefix, queueName, autoDelete, ErrorHandleStrategy.MANUAL,
+            consumer, clazz,
+            eventNames);
     }
 
     @Override
-    public void subscribe(@Nullable String exchangeName,
-                          String routingKey,
-                          String queueName,
-                          boolean autoDelete,
-                          Consumer<StoredEvent> consumer,
-                          String... topics) {
-        subscribe(exchangeName, routingKey, queueName, autoDelete, consumer,
-            ErrorHandleStrategy.MANUAL, topics);
+    public <T extends DomainEvent> void subscribe(String exchangeName,
+                                                  String routingKey,
+                                                  String queueName,
+                                                  boolean autoDelete,
+                                                  ErrorHandleStrategy strategy,
+                                                  Consumer<T> consumer,
+                                                  Class<T> clazz,
+                                                  String... topics) {
+        subscribeImpl(exchangeName, routingKey, queueName, autoDelete, strategy, null, consumer,
+            clazz,
+            topics);
     }
 
     @Override
-    public void subscribe(@Nullable String exchangeName,
+    public void subscribe(String exchangeName,
                           String routingKey,
                           String queueName,
                           boolean autoDelete,
                           Consumer<StoredEvent> consumer,
                           ErrorHandleStrategy strategy,
                           String... topics) {
+        subscribeImpl(exchangeName, routingKey, queueName, autoDelete, strategy, consumer,
+            null, null,
+            topics);
+    }
+
+    private <T extends DomainEvent> void subscribeImpl(
+        String exchangeName,
+        String routingKeyPrefix,
+        String queueName,
+        boolean autoDelete,
+        ErrorHandleStrategy strategy,
+        Consumer<StoredEvent> consumer1,
+        Consumer<T> consumer2,
+        Class<T> clazz,
+        String... topics) {
+
         Thread thread = Thread.currentThread();
         Channel channel = subChannel.get(thread);
         if (channel == null) {
@@ -167,7 +189,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 channel = connectionSub.createChannel();
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
-                    "unable create subscribe channel with routing key " + routingKey +
+                    "unable create subscribe channel with routing key " + routingKeyPrefix +
                         " and queue name " + queueName, "0003",
                     HttpResponseCode.NOT_HTTP,
                     ExceptionCatalog.OPERATION_ERROR, e);
@@ -195,11 +217,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             channel.basicQos(10);
             for (String topic : topics) {
                 channel.queueBind(queueName, exchangeName == null ? EXCHANGE_NAME : exchangeName,
-                    routingKey + topic);
+                    routingKeyPrefix + topic);
             }
         } catch (IOException e) {
             throw new DefinedRuntimeException(
-                "unable create queue with routing key " + routingKey + " and queue name " +
+                "unable create queue with routing key " + routingKeyPrefix + " and queue name " +
                     queueName, "0004",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR, e);
@@ -209,15 +231,22 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
                 log.trace("mq message received");
                 String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                StoredEvent event =
+                StoredEvent storedEvent =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(s, StoredEvent.class);
-                log.debug("handling {} with id {}", ClassUtility.getShortName(event.getName()),
-                    event.getId());
+                log.debug("handling {} with id {}",
+                    ClassUtility.getShortName(storedEvent.getName()),
+                    storedEvent.getId());
                 long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                 boolean consumeSuccess = true;
                 try {
-                    consumer.accept(event);
+                    if (clazz == null) {
+                        consumer1.accept(storedEvent);
+                    } else {
+                        T event = CommonDomainRegistry.getCustomObjectSerializer()
+                            .deserialize(storedEvent.getEventBody(), clazz);
+                        consumer2.accept(event);
+                    }
                 } catch (Exception ex) {
                     log.error(
                         "error during consume, catch error to maintain connection, reject message",
@@ -235,7 +264,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             });
         } catch (IOException e) {
             throw new DefinedRuntimeException(
-                "unable consume message with routing key " + routingKey + " and queue name " +
+                "unable consume message with routing key " + routingKeyPrefix + " and queue name " +
                     queueName, "0005",
                 HttpResponseCode.NOT_HTTP,
                 ExceptionCatalog.OPERATION_ERROR);
@@ -243,32 +272,37 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
-    public void replyOf(String subscribedApplicationName, boolean internal, String eventName,
-                        Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MqHelper.handleReplyOf(appName, eventName),
-            consumer, MqHelper.replyOf(eventName));
+    public <T extends DomainEvent> void replyOf(String subscribedApplicationName, boolean internal,
+                                                String eventName, Class<T> clazz,
+                                                Consumer<T> consumer) {
+        listen(subscribedApplicationName, internal, MqHelper.handleReplyOf(appName, eventName),
+            clazz, consumer, MqHelper.replyOf(eventName));
     }
 
     @Override
-    public void replyCancelOf(String subscribedApplicationName, boolean internal, String eventName,
-                              Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal,
-            MqHelper.handleReplyCancelOf(appName, eventName), consumer,
+    public <T extends DomainEvent> void replyCancelOf(String subscribedApplicationName,
+                                                      boolean internal, String eventName,
+                                                      Class<T> clazz,
+                                                      Consumer<T> consumer) {
+        listen(subscribedApplicationName, internal,
+            MqHelper.handleReplyCancelOf(appName, eventName), clazz, consumer,
             MqHelper.replyCancelOf(eventName));
     }
 
     @Override
-    public void cancelOf(String subscribedApplicationName, boolean internal, String eventName,
-                         Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MqHelper.handleCancelOf(appName, eventName),
-            consumer, MqHelper.cancelOf(eventName));
+    public <T extends DomainEvent> void cancelOf(String subscribedApplicationName, boolean internal,
+                                                 String eventName, Class<T> clazz,
+                                                 Consumer<T> consumer) {
+        listen(subscribedApplicationName, internal, MqHelper.handleCancelOf(appName, eventName),
+            clazz, consumer, MqHelper.cancelOf(eventName));
     }
 
     @Override
-    public void of(String subscribedApplicationName, boolean internal, String eventName,
-                   Consumer<StoredEvent> consumer) {
-        subscribe(subscribedApplicationName, internal, MqHelper.handlerOf(appName, eventName),
-            consumer, eventName);
+    public <T extends DomainEvent> void of(String subscribedApplicationName, boolean internal,
+                                           String eventName, Class<T> clazz,
+                                           Consumer<T> consumer) {
+        listen(subscribedApplicationName, internal, MqHelper.handlerOf(appName, eventName),
+            clazz, consumer, eventName);
     }
 
     @Override
@@ -380,7 +414,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         this.subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT, false, (event) -> {
             CommonApplicationServiceRegistry.getStoredEventApplicationService()
                 .markAsUnroutable(event);
-        }, "");
+        }, ErrorHandleStrategy.MANUAL, "");
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -389,6 +423,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         this.subscribe(EXCHANGE_NAME_REJECT, "", QUEUE_NAME_REJECT, false, (event) -> {
             CommonApplicationServiceRegistry.getStoredEventApplicationService()
                 .recordRejectedEvent(event);
-        }, "");
+        }, ErrorHandleStrategy.MANUAL, "");
     }
 }

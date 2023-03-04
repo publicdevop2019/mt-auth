@@ -6,15 +6,15 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 public class HangingTxDetected extends DomainEvent {
-    public static final String MONITOR_TOPIC = "monitor";
-    public static final String HANGING_TX_DETECTED = "HANGING_TX_DETECTED";
+    public static final String HANGING_TX_DETECTED = "hanging_tx_detected";
+    public static final String name = "HANGING_TX_DETECTED";
     @Getter
     private String changeId;
 
     public HangingTxDetected(String changeId) {
         this.changeId = changeId;
         setInternal(false);
-        setTopic(MONITOR_TOPIC);
-        setName(HANGING_TX_DETECTED);
+        setTopic(HANGING_TX_DETECTED);
+        setName(name);
     }
 }

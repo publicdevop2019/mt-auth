@@ -10,9 +10,12 @@ public class ClientAsResourceDeleted extends DomainEvent {
     public static final String CLIENT_AS_RESOURCE_DELETED = "client_as_resource_deleted";
     public static final String name = "CLIENT_AS_RESOURCE_DELETED";
 
-    public ClientAsResourceDeleted(ClientId clientId) {
-        super(clientId);
+    {
         setTopic(CLIENT_AS_RESOURCE_DELETED);
         setName(name);
+    }
+
+    public ClientAsResourceDeleted(ClientId clientId) {
+        super(clientId);
     }
 }

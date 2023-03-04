@@ -13,6 +13,7 @@ import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.constant.AppInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -22,55 +23,38 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class EndpointDomainEventSubscriber {
-    @Value("${spring.application.name}")
-    private String appName;
-
     @EventListener(ApplicationReadyEvent.class)
     private void listener1() {
-        CommonDomainRegistry.getEventStreamService().of(appName, true, CLIENT_DELETED, (event) -> {
-            ClientDeleted deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                .deserialize(event.getEventBody(), ClientDeleted.class);
-            ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-        });
+        ListenerHelper.listen(CLIENT_DELETED, ClientDeleted.class,
+            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener17() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, CORS_PROFILE_REMOVED, (event) -> {
-                CorsProfileRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), CorsProfileRemoved.class);
-                ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CORS_PROFILE_REMOVED, CorsProfileRemoved.class,
+            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener18() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, CORS_PROFILE_UPDATED, (event) -> {
-                CorsProfileUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), CorsProfileUpdated.class);
-                ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CORS_PROFILE_UPDATED, CorsProfileUpdated.class,
+            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener21() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, CACHE_PROFILE_UPDATED, (event) -> {
-                CacheProfileUpdated deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), CacheProfileUpdated.class);
-                ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CACHE_PROFILE_UPDATED, CacheProfileUpdated.class,
+            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener22() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, CACHE_PROFILE_REMOVED, (event) -> {
-                CacheProfileRemoved deserialize = CommonDomainRegistry.getCustomObjectSerializer()
-                    .deserialize(event.getEventBody(), CacheProfileRemoved.class);
-                ApplicationServiceRegistry.getEndpointApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CACHE_PROFILE_REMOVED, CacheProfileRemoved.class,
+            (event) -> ApplicationServiceRegistry.getEndpointApplicationService()
+                .handle(event));
     }
 }

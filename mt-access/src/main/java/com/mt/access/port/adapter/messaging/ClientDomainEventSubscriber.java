@@ -7,6 +7,7 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.constant.AppInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -16,29 +17,20 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class ClientDomainEventSubscriber {
-    @Value("${spring.application.name}")
-    private String appName;
-
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, CLIENT_AS_RESOURCE_DELETED, (event) -> {
-                ClientAsResourceDeleted deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), ClientAsResourceDeleted.class);
-                ApplicationServiceRegistry.getClientApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(CLIENT_AS_RESOURCE_DELETED, ClientAsResourceDeleted.class,
+            (event) -> ApplicationServiceRegistry.getClientApplicationService().handle(event)
+        );
+//        ListenerHelper.listen2(new ClientAsResourceDeleted(),
+//            (event) -> ApplicationServiceRegistry.getClientApplicationService().handle(event)
+//        );
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener1() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, EXTERNAL_PERMISSION_UPDATED, (event) -> {
-                ExternalPermissionUpdated deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), ExternalPermissionUpdated.class);
-                ApplicationServiceRegistry.getClientApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(EXTERNAL_PERMISSION_UPDATED, ExternalPermissionUpdated.class,
+            (event) -> ApplicationServiceRegistry.getClientApplicationService().handle(event));
     }
 
 }

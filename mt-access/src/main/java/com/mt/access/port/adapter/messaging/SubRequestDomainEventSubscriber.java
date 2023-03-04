@@ -4,9 +4,7 @@ import static com.mt.access.domain.model.endpoint.event.EndpointExpired.ENDPOINT
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
-import com.mt.common.domain.CommonDomainRegistry;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
@@ -14,17 +12,11 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class SubRequestDomainEventSubscriber {
-    @Value("${spring.application.name}")
-    private String appName;
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
-        CommonDomainRegistry.getEventStreamService()
-            .of(appName, true, ENDPOINT_EXPIRED, (event) -> {
-                EndpointExpired deserialize =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(event.getEventBody(), EndpointExpired.class);
-                ApplicationServiceRegistry.getSubRequestApplicationService().handle(deserialize);
-            });
+        ListenerHelper.listen(ENDPOINT_EXPIRED, EndpointExpired.class,
+            (event) -> ApplicationServiceRegistry.getSubRequestApplicationService()
+                .handle(event));
     }
 }
