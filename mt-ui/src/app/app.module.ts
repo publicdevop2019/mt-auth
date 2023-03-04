@@ -138,6 +138,7 @@ import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.c
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
+import { DashboardComponent } from './pages/mgnmt/dashboard/dashboard.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -223,6 +224,7 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
     EndpointAnalysisComponent,
     UserNotificationComponent,
     ErrorLookupComponent,
+    DashboardComponent,
 
   ],
   imports: [

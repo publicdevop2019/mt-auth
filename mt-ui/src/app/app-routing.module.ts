@@ -47,6 +47,7 @@ import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.componen
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
+import { DashboardComponent } from './pages/mgnmt/dashboard/dashboard.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -64,7 +65,7 @@ const routes: Routes = [
   },
   { path: 'authorize', component: AuthorizeComponent, canActivate: [AuthService] },
   {
-    path: 'dashboard', component: NavBarComponent, canActivateChild: [AuthService],
+    path: 'home', component: NavBarComponent, canActivateChild: [AuthService],
     children: [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
@@ -94,6 +95,7 @@ const routes: Routes = [
       { path: 'permission-profiles', component: SummaryPermissionComponent },
       { path: 'position-profiles', component: SummaryPositionComponent },
       { path: 'sys-message-center', component: SummaryNotificationComponent },
+      { path: 'dashboard', component: DashboardComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-api', component: MyApisComponent },
       { path: ':id/my-permission', component: MyPermissionsComponent },

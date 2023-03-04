@@ -36,6 +36,6 @@ export class AuthorizeComponent implements OnInit {
   }
   decline() {
     /** clear authorize party info */
-    this.router.navigate(['/dashboard']);
+    this.router.navigate(['/home']);
   }
 }

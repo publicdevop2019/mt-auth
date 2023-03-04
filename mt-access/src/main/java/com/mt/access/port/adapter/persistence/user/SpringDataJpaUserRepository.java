@@ -21,6 +21,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -53,6 +54,13 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
     default void batchLock(List<PatchCommand> commands) {
         QueryBuilderRegistry.getUpdateUserQueryBuilder().update(commands, User.class);
     }
+
+    default long countTotal() {
+        return countTotal_();
+    }
+
+    @Query("select count(*) from User")
+    Long countTotal_();
 
     @Component
     class JpaCriteriaApiUserAdaptor {

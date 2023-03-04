@@ -8,6 +8,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.project.representation.DashboardRepresentation;
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
 import com.mt.access.application.project.representation.ProjectCardRepresentation;
@@ -41,10 +42,10 @@ public class ProjectResource {
     public ResponseEntity<Void> createForRoot(@RequestBody ProjectCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+                                              String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getProjectApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getProjectApplicationService().create(command, changeId))
             .build();
     }
 
@@ -63,6 +64,17 @@ public class ProjectResource {
             new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
         ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);
         return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
+    }
+
+    @GetMapping(path = "mgmt/dashboard")
+    public ResponseEntity<DashboardRepresentation> readForRootByQuery(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DashboardRepresentation rep =
+            ApplicationServiceRegistry.getProjectApplicationService()
+                .adminDashboard();
+        return ResponseEntity.ok(rep);
     }
 
     @GetMapping(path = "projects/tenant")
@@ -85,10 +97,9 @@ public class ProjectResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Project> client =
+        ProjectRepresentation resp =
             ApplicationServiceRegistry.getProjectApplicationService().project(id);
-        return client.map(value -> ResponseEntity.ok(new ProjectRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(resp);
     }
 
     /**
@@ -116,9 +127,9 @@ public class ProjectResource {
     public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
                                                    @RequestBody ProjectUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
+                                                   String changeId,
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+                                                   String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getProjectApplicationService().replace(id, command, changeId);
         return ResponseEntity.ok().build();
@@ -127,9 +138,9 @@ public class ProjectResource {
     @DeleteMapping("projects/{id}")
     public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
+                                                  String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+                                                  String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getProjectApplicationService().removeProject(id, changeId);
         return ResponseEntity.ok().build();
@@ -139,9 +150,9 @@ public class ProjectResource {
     public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
+                                                 String changeId,
                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+                                                 String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getProjectApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();

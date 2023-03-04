@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.user;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.List;
@@ -18,4 +19,7 @@ public interface UserRepository {
     void remove(User user1);
 
     void batchLock(List<PatchCommand> commands);
+
+    long countTotal();
+
 }

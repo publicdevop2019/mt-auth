@@ -3,9 +3,11 @@ package com.mt.access.application.project;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
 
 import com.github.fge.jsonpatch.JsonPatch;
+import com.mt.access.application.project.representation.DashboardRepresentation;
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.command.ProjectPatchCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
+import com.mt.access.application.project.representation.ProjectRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.permission.Permission;
@@ -77,10 +79,23 @@ public class ProjectApplicationService {
         return DomainRegistry.getProjectRepository().getByQuery(projectQuery);
     }
 
-    public Optional<Project> project(String id) {
+    public ProjectRepresentation project(String id) {
         ProjectId projectId = new ProjectId(id);
         canReadProject(Collections.singleton(projectId));
-        return DomainRegistry.getProjectRepository().getById(projectId);
+        Optional<Project> byId = DomainRegistry.getProjectRepository().getById(projectId);
+        if (byId.isEmpty()) {
+            throw new DefinedRuntimeException("no project found", "0076",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        Project project = byId.get();
+        long clientCount = DomainRegistry.getClientRepository().countProjectTotal(projectId);
+        long epCount = DomainRegistry.getEndpointRepository().countProjectTotal(projectId);
+        long userCount = DomainRegistry.getUserRelationRepository().countProjectOwnedTotal(projectId);
+        long permissionCount = DomainRegistry.getPermissionRepository().countProjectCreateTotal(projectId);
+        long roleCount = DomainRegistry.getRoleRepository().countProjectCreateTotal(projectId);
+        return new ProjectRepresentation(project, clientCount, epCount, userCount, permissionCount,
+            roleCount);
     }
 
 
@@ -171,5 +186,16 @@ public class ProjectApplicationService {
     public Set<Project> internalQuery(Set<ProjectId> projectIds) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository()
             .getByQuery(e), new ProjectQuery(projectIds));
+    }
+
+    public DashboardRepresentation adminDashboard() {
+        long projectCount = DomainRegistry.getProjectRepository().countTotal();
+        long clientCount = DomainRegistry.getClientRepository().countTotal();
+        long epCount = DomainRegistry.getEndpointRepository().countTotal();
+        long epSharedCount = DomainRegistry.getEndpointRepository().countSharedTotal();
+        long epPublicCount = DomainRegistry.getEndpointRepository().countPublicTotal();
+        long userCount = DomainRegistry.getUserRepository().countTotal();
+        return new DashboardRepresentation(projectCount, clientCount, epCount, epSharedCount,
+            epPublicCount, userCount);
     }
 }

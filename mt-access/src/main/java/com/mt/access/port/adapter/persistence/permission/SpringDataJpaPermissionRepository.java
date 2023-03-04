@@ -6,6 +6,7 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.Permission_;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -62,8 +63,15 @@ public interface SpringDataJpaPermissionRepository
     @Query("select distinct p.permissionId from Permission p where p.deleted=0")
     Set<PermissionId> allPermissionId_();
 
+    @Query("select count(*) from Permission p where p.deleted = 0 and p.projectId = ?1 and p.type = 'COMMON' ")
+    long countProjectCreateTotal_(ProjectId projectId);
+
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
         return QueryBuilderRegistry.getPermissionAdaptor().execute(permissionQuery);
+    }
+
+    default long countProjectCreateTotal(ProjectId projectId){
+        return countProjectCreateTotal_(projectId);
     }
 
     @Component

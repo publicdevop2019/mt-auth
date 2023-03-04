@@ -83,7 +83,7 @@
                 <mat-nav-list>
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                         [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                        *ngFor="let nav of menuAuthMangement">
+                        *ngFor="let nav of menuMgmt">
                         <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
@@ -97,7 +97,7 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <ng-container *ngFor="let nav of menuAuth">
+                    <ng-container *ngFor="let nav of menuTenant">
                         <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link"
                             routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                             [queryParams]="preserveURLQueryParams(nav)"

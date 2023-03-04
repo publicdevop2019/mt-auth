@@ -85,7 +85,10 @@ public class UserRelationApplicationService {
         Set<UserId> collect =
             byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
         UserQuery userQuery = new UserQuery(collect);
-        return DomainRegistry.getUserRepository().usersOfQuery(userQuery);
+        SumPagedRep<User> userSumPagedRep =
+            DomainRegistry.getUserRepository().usersOfQuery(userQuery);
+        userSumPagedRep.setTotalItemCount(byQuery.getTotalItemCount());
+        return userSumPagedRep;
     }
 
 

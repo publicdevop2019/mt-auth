@@ -13,8 +13,14 @@ public class ProjectRepresentation {
     private final Long createdAt;
     private String creatorName;
     private String name;
+    private long totalClient;
+    private long totalEndpoint;
+    private long totalUserOwned;
+    private long totalPermissionCreated;
+    private long totalRoleCreated;
 
-    public ProjectRepresentation(Project project) {
+    public ProjectRepresentation(Project project, long clientCount, long epCount, long userCount,
+                                 long permissionCount, long roleCount) {
         this.name = project.getName();
         this.id = project.getProjectId().getDomainId();
         this.createdBy = project.getCreatedBy();
@@ -22,5 +28,10 @@ public class ProjectRepresentation {
             ApplicationServiceRegistry.getUserApplicationService().lookupUser(this.createdBy);
         user.ifPresent(e -> this.creatorName = e.getDisplayName());
         this.createdAt = project.getCreatedAt().getTime();
+        this.totalClient = clientCount;
+        this.totalEndpoint = epCount;
+        this.totalUserOwned = userCount;
+        this.totalPermissionCreated = permissionCount;
+        this.totalRoleCreated = roleCount;
     }
 }

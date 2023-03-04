@@ -40,8 +40,15 @@ public interface SpringDataJpaProjectRepository
         return getProjectIds_();
     }
 
+    default long countTotal() {
+        return countTotal_();
+    }
+
     @Query("select distinct ep.projectId from Project ep")
     Set<ProjectId> getProjectIds_();
+
+    @Query("select count(*) from Project")
+    Long countTotal_();
 
     @Component
     class JpaCriteriaApiProjectAdaptor {

@@ -57,6 +57,12 @@ public interface SpringDataJpaClientRepository
     @Query("select distinct c.clientId from Client c")
     Set<ClientId> getAllClientIds_();
 
+    @Query("select count(*) from Client")
+    Long countTotal_();
+
+    @Query("select count(*) from Client c where c.projectId = ?1")
+    Long countProjectTotal_(ProjectId projectId);
+
     default Optional<Client> clientOfId(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
             .findFirst();
@@ -78,6 +84,14 @@ public interface SpringDataJpaClientRepository
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(clientQuery);
+    }
+
+    default long countTotal() {
+        return countTotal_();
+    }
+
+    default long countProjectTotal(ProjectId projectId) {
+        return countProjectTotal_(projectId);
     }
 
     @Component

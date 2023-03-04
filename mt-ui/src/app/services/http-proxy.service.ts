@@ -17,6 +17,7 @@ import { IEditEvent } from '../components/editable-field/editable-field.componen
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
+import { IMgnmtDashboardInfo } from '../pages/mgnmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgnmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
@@ -112,7 +113,7 @@ export class HttpProxyService {
     resetValidationJob() {
         return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/job/validation/reset', null)
     }
-    resetJob(id:string) {
+    resetJob(id: string) {
         return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + `/mngmt/jobs/${id}/reset`, null)
     }
     sendReloadRequest(changeId: string) {
@@ -277,7 +278,7 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/expire`, { expireReason: reason }, { headers: headerConfig })
     }
-    viewEndpointReport(projectId: string, id: string,type:string) {
+    viewEndpointReport(projectId: string, id: string, type: string) {
         return this._httpClient.get<IAnalysisResult>(environment.serverUri + `/auth-svc/projects/${projectId}/endpoints/${id}/report?query=type:${type}`)
     }
     private _getAuthHeader(islogin: boolean, token?: string): HttpHeaders {
@@ -540,5 +541,8 @@ export class HttpProxyService {
                 e.next(true)
             });
         });
+    }
+    getMgmtDashboardInfo() {
+        return this._httpClient.get<IMgnmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
     }
 }

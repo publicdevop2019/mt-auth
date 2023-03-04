@@ -18,4 +18,6 @@ public interface UserRelationRepository {
     Optional<UserRelation> getByUserIdAndProjectId(UserId id, ProjectId projectId);
 
     Set<ProjectId> getProjectIds();
+
+    long countProjectOwnedTotal(ProjectId projectId);
 }

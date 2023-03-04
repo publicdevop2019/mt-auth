@@ -1,17 +1,23 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
+import { IProjectDashboard, IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-
+export interface IMyDashboardInfo {
+  totalClients: number;
+  totalEndpoint: number;
+  totalUser: number;
+  totalPermissionCreated: number;
+  totalRole: number;
+}
 @Component({
   selector: 'app-my-project',
   templateUrl: './my-project.component.html',
   styleUrls: ['./my-project.component.css']
 })
-export class MyProjectComponent implements OnInit, OnDestroy {
-  data: IProjectSimple;
+export class MyProjectComponent implements OnDestroy {
+  data: IProjectDashboard;
   public projectId: string;
   private subs: Subscription = new Subscription();
   constructor(
@@ -30,8 +36,5 @@ export class MyProjectComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.unsubscribe()
-  }
-  ngOnInit(): void {
-    //find my project
   }
 }

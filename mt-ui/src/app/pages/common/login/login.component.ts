@@ -18,7 +18,7 @@ import * as UUID from 'uuid/v1';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  nextUrl: string = '/dashboard';
+  nextUrl: string = '/home';
   forgetPwd: boolean = false;
   isRegister: boolean = true;
   emailErrorMsg: string = undefined;

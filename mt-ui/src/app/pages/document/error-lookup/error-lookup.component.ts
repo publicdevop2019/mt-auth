@@ -71,6 +71,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0073',explain:'无法识别的order by值'},
     {code:'0074',explain:'无法识别的boolean值'},
     {code:'0075',explain:'找不到用户'},
+    {code:'0076',explain:'找不到项目'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},

@@ -27,7 +27,14 @@ export interface INavElement {
 export class NavBarComponent implements OnInit {
   menuOpen: boolean = false;
   mobileQuery: MediaQueryList;
-  menuAuthMangement: INavElement[] = [
+  menuMgmt: INavElement[] = [
+    {
+      link: 'dashboard',
+      display: 'DASHBOARD',
+      icon: 'dashboard',
+      params: {
+      },
+    },
     {
       link: 'message-center',
       display: 'MESSAGE_DASHBOARD',
@@ -121,7 +128,7 @@ export class NavBarComponent implements OnInit {
     },
 
   ];
-  menuAuth: INavElement[] = [
+  menuTenant: INavElement[] = [
     {
       link: 'my-project',
       display: 'MY_PROJECT',
