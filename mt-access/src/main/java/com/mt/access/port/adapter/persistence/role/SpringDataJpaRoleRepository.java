@@ -75,6 +75,10 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                 .ifPresent(e -> QueryUtility.addStringInPredicate(e, Role_.NAME, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(
                 e -> QueryUtility.addEnumLiteralEqualPredicate(e, Role_.TYPE, queryContext));
+            Optional.ofNullable(query.getTenantIds()).ifPresent(
+                e -> QueryUtility.addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    Role_.TENANT_ID, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility

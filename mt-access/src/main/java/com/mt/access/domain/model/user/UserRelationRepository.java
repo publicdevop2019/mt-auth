@@ -1,7 +1,6 @@
-package com.mt.access.domain.model.user_relation;
+package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;

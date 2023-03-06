@@ -22,7 +22,7 @@ import { MyProfileComponent } from './pages/common/my-profile/my-profile.compone
 import { NewProjectComponent } from './pages/common/new-project/new-project.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
-import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
+import { MyAdminComponent } from './pages/tenant/my-admin/my-admin.component';
 import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
 import { MyOrgsComponent } from './pages/tenant/my-orgs/my-orgs.component';
@@ -104,7 +104,7 @@ const routes: Routes = [
       { path: ':id/my-position', component: MyPositionsComponent },
       { path: ':id/my-project', component: MyProjectComponent },
       { path: ':id/my-user', component: MyUsersComponent },
-      { path: ':id/add-admin', component: AddAdminComponent },
+      { path: ':id/my-admin', component: MyAdminComponent },
       { path: '**', component: NotFoundComponent }
     ]
   },

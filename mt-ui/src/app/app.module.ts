@@ -72,7 +72,7 @@ import { MyProfileComponent } from './pages/common/my-profile/my-profile.compone
 import { NewProjectComponent } from './pages/common/new-project/new-project.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
-import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
+import { MyAdminComponent } from './pages/tenant/my-admin/my-admin.component';
 import { ClientComponent } from './pages/tenant/client/client.component';
 import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
@@ -199,7 +199,7 @@ import { DashboardComponent } from './pages/mgnmt/dashboard/dashboard.component'
     MyPermissionsComponent,
     MyProjectComponent,
     SummaryProjectComponent,
-    AddAdminComponent,
+    MyAdminComponent,
     PermissionComponent,
     MyUsersComponent,
     UserComponent,

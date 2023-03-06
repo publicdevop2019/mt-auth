@@ -13,7 +13,7 @@ import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
 import com.mt.access.port.adapter.persistence.sub_request.SpringDataJpaSubRequestRepository;
 import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRepository;
 import com.mt.access.port.adapter.persistence.user.UpdateUserQueryBuilder;
-import com.mt.access.port.adapter.persistence.user_relation.SpringDataJpaUserRelationRepository;
+import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRelationRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

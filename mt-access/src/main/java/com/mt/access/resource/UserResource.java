@@ -14,11 +14,12 @@ import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
+import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMngmntRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
-import com.mt.access.application.user_relation.UpdateUserRelationCommand;
+import com.mt.access.application.user.command.UpdateUserRelationCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
@@ -268,7 +269,7 @@ public class UserResource {
      * @return http response 200
      */
     @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<UserTenantRepresentation> replaceUserDetailForProject(
+    public ResponseEntity<Void> replaceUserDetailForProject(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -277,6 +278,43 @@ public class UserResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
             .update(projectId, id, command);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "projects/{projectId}/admins")
+    public ResponseEntity<SumPagedRep<ProjectAdminRepresentation>> getAdminsForProject(
+        @PathVariable String projectId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        SumPagedRep<ProjectAdminRepresentation> resp =
+            ApplicationServiceRegistry.getUserRelationApplicationService()
+                .adminsForProject(pageParam, projectId);
+        return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping(path = "projects/{projectId}/admins/{userId}")
+    public ResponseEntity<Void> addAdminsToProject(
+        @PathVariable String projectId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String userId
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getUserRelationApplicationService()
+            .addAdmin(projectId, userId);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping(path = "projects/{projectId}/admins/{userId}")
+    public ResponseEntity<Void> removeAdminsToProject(
+        @PathVariable String projectId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String userId
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getUserRelationApplicationService()
+            .removeAdmin(projectId, userId);
         return ResponseEntity.ok().build();
     }
 }

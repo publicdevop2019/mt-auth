@@ -9,7 +9,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.domain_event.DomainId;
 import java.time.Instant;

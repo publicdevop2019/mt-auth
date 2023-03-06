@@ -935,4 +935,7 @@ export const zhHans = {
     "TOTOAL_USER_OWNED": "用户总数",
     "TOTOAL_ROLE_CREATED": "角色总数",
     "TOTOAL_PERMISSION_CREATED": "权限总数",
+    "MY_ADMIN_DASHBOARD": "管理员",
+    "ENTER_USER_EMAIL": "请输入管理员Email",
+    "ADD_TENANT_ADMIN": "添加",
 }

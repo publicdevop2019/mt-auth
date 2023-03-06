@@ -21,7 +21,7 @@ import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.sub_request.SubRequestApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
 import com.mt.access.application.user.UserApplicationService;
-import com.mt.access.application.user_relation.UserRelationApplicationService;
+import com.mt.access.application.user.UserRelationApplicationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import lombok.Getter;

@@ -132,6 +132,11 @@ export class HttpProxyService {
         headerConfig = headerConfig.set('changeId', changeId)
         return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscriptions/requests/${id}/cancel`, undefined, { headers: headerConfig });
     }
+    addAdmin(projectId: string, userId: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/projects/${projectId}/admins/${userId}`, undefined, { headers: headerConfig });
+    }
     approveSubRequest(id: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)

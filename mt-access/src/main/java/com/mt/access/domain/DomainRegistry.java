@@ -50,7 +50,7 @@ import com.mt.access.domain.model.user.MfaService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
-import com.mt.access.domain.model.user_relation.UserRelationRepository;
+import com.mt.access.domain.model.user.UserRelationRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

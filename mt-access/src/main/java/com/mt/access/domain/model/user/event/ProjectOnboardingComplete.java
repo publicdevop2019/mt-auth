@@ -1,4 +1,4 @@
-package com.mt.access.domain.model.user_relation.event;
+package com.mt.access.domain.model.user.event;
 
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.user.UserId;

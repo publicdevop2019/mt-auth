@@ -6,7 +6,7 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
-import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Set;
 import java.util.stream.Collectors;

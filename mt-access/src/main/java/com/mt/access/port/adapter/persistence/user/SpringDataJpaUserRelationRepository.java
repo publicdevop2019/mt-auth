@@ -1,18 +1,22 @@
-package com.mt.access.port.adapter.persistence.user_relation;
+package com.mt.access.port.adapter.persistence.user;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.domain.model.user_relation.UserRelation;
-import com.mt.access.domain.model.user_relation.UserRelationQuery;
-import com.mt.access.domain.model.user_relation.UserRelationRepository;
-import com.mt.access.domain.model.user_relation.UserRelation_;
+import com.mt.access.domain.model.user.UserRelation;
+import com.mt.access.domain.model.user.UserRelationQuery;
+import com.mt.access.domain.model.user.UserRelationRepository;
+import com.mt.access.domain.model.user.UserRelation_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -39,6 +43,9 @@ public interface SpringDataJpaUserRelationRepository
     }
 
     default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
+        if (query.getEmailLike() != null) {
+            return searchUserByEmailLike(query);
+        }
         return QueryBuilderRegistry.getUserRelationAdaptor().execute(query);
     }
 
@@ -51,6 +58,26 @@ public interface SpringDataJpaUserRelationRepository
 
     @Query("select count(*) from UserRelation u where u.projectId = ?1")
     long countProjectOwnedTotal_(ProjectId projectId);
+
+    default SumPagedRep<UserRelation> searchUserByEmailLike(UserRelationQuery query) {
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        TypedQuery<UserRelation> dataQuery =
+            entityManager.createNamedQuery("findEmailLike", UserRelation.class);
+        dataQuery.setHint("org.hibernate.cacheable", true);
+        dataQuery.setParameter("emailLike", "%" + query.getEmailLike() + "%");
+        dataQuery.setParameter("projectId", query.getProjectIds().toArray()[0]);
+        List<UserRelation> data = dataQuery
+            .setFirstResult(BigDecimal.valueOf(query.getPageConfig().getOffset()).intValue())
+            .setMaxResults(query.getPageConfig().getPageSize())
+            .getResultList();
+        TypedQuery<Long> countQuery =
+            entityManager.createNamedQuery("findEmailLikeCount", Long.class);
+        countQuery.setHint("org.hibernate.cacheable", true);
+        countQuery.setParameter("emailLike", "%" + query.getEmailLike() + "%");
+        countQuery.setParameter("projectId", query.getProjectIds().toArray()[0]);
+        Long count = countQuery.getSingleResult();
+        return new SumPagedRep<>(data, count);
+    }
 
     @Component
     class JpaCriteriaApiUserRelationAdaptor {
@@ -65,6 +92,10 @@ public interface SpringDataJpaUserRelationRepository
                 .ifPresent(
                     e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
                         .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
+            Optional.ofNullable(query.getRoleId())
+                .ifPresent(
+                    e -> QueryUtility.addStringLikePredicate(e.getDomainId(),
+                        UserRelation_.STANDALONE_ROLES, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility

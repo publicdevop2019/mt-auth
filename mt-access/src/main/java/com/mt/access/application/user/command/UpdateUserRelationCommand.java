@@ -1,4 +1,4 @@
-package com.mt.access.application.user_relation;
+package com.mt.access.application.user.command;
 
 import java.util.Set;
 import lombok.Getter;

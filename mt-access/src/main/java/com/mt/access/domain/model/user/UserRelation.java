@@ -1,4 +1,4 @@
-package com.mt.access.domain.model.user_relation;
+package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.OrganizationId;
@@ -8,8 +8,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
-import com.mt.access.domain.model.user.UserId;
-import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
+import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
 import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -30,17 +29,21 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.data.jpa.repository.Query;
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId", "deleted"}))
 @Entity
 @NoArgsConstructor
 @Getter
 @Cacheable
+@NamedQuery(name = "findEmailLike", query = "SELECT ur FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
+@NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "userRelationRegion")
 public class UserRelation extends Auditable {

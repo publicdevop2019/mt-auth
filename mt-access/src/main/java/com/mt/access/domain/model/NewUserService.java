@@ -12,7 +12,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
-import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;

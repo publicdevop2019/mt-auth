@@ -16,7 +16,7 @@ import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEven
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.access.domain.model.user_relation.event.ProjectOnboardingComplete;
+import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;

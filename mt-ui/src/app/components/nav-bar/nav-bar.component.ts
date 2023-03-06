@@ -177,6 +177,14 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+    {
+      link: 'my-admin',
+      display: 'MY_ADMIN_DASHBOARD',
+      icon: 'admin_panel_settings',
+      authName: ['VIEW_PROJECT_INFO'],
+      params: {
+      },
+    },
   ];
   menuMisc: INavElement[] = [
     {
@@ -347,5 +355,8 @@ export class NavBarComponent implements OnInit {
   bellCount(msgs: IBellNotification[]) {
     const count = msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
     return count > 99 ? '99+' : new String(count);
+  }
+  openDoc(){
+    window.open('./docs', '_blank').focus();
   }
 }

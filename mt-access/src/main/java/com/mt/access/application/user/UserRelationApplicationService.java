@@ -1,9 +1,12 @@
-package com.mt.access.application.user_relation;
+package com.mt.access.application.user;
 
 import static com.mt.access.domain.model.permission.Permission.EDIT_TENANT_USER;
 import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
+import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
 
+import com.mt.access.application.user.command.UpdateUserRelationCommand;
+import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
@@ -14,8 +17,8 @@ import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserQuery;
-import com.mt.access.domain.model.user_relation.UserRelation;
-import com.mt.access.domain.model.user_relation.UserRelationQuery;
+import com.mt.access.domain.model.user.UserRelation;
+import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -57,7 +60,7 @@ public class UserRelationApplicationService {
                 UserId creator = event.getCreator();
                 ProjectId tenantId = event.getProjectId();
                 UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
-                    new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                    new ProjectId(MT_AUTH_PROJECT_ID));
                 return null;
             }, USER_RELATION);
     }
@@ -83,6 +86,11 @@ public class UserRelationApplicationService {
             .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
         SumPagedRep<UserRelation> byQuery =
             DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery);
+        if (byQuery.getData().isEmpty()) {
+            SumPagedRep<User> empty = SumPagedRep.empty();
+            empty.setTotalItemCount(byQuery.getTotalItemCount());
+            return empty;
+        }
         Set<UserId> collect =
             byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
         UserQuery userQuery = new UserQuery(collect);
@@ -150,5 +158,88 @@ public class UserRelationApplicationService {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<UserRelation> userRelation = getUserRelation(userId, projectId);
         return userRelation.isPresent();
+    }
+
+    public SumPagedRep<ProjectAdminRepresentation> adminsForProject(String pageConfig,
+                                                                    String projectId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, EDIT_TENANT_USER);
+        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
+        SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository()
+            .getByQuery(UserRelationQuery.findTenantAdmin(tenantAdminRoleId, pageConfig));
+        Set<UserId> collect =
+            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
+        SumPagedRep<User> userSumPagedRep =
+            DomainRegistry.getUserRepository().usersOfQuery(new UserQuery(collect));
+        SumPagedRep<ProjectAdminRepresentation> rep =
+            new SumPagedRep<>(userSumPagedRep, ProjectAdminRepresentation::new);
+        rep.setTotalItemCount(byQuery.getTotalItemCount());
+        return rep;
+    }
+
+    @Transactional
+    public void addAdmin(String projectId, String rawUserId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
+        UserId userId = new UserId(rawUserId);
+        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
+        UserRelation userRelation = checkCondition(userId, tenantProjectId, projectId2, true);
+        userRelation.getStandaloneRoles().add(tenantAdminRoleId);
+        DomainRegistry.getUserRelationRepository().add(userRelation);
+    }
+
+    @Transactional
+    public void removeAdmin(String projectId, String rawUserId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
+        UserId userId = new UserId(rawUserId);
+        UserRelation userRelation = checkCondition(userId, tenantProjectId, projectId2, false);
+        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
+        userRelation.getStandaloneRoles().remove(tenantAdminRoleId);
+        DomainRegistry.getUserRelationRepository().add(userRelation);
+    }
+
+    private UserRelation checkCondition(UserId userId, ProjectId tenantProjectId,
+                                        ProjectId projectId2, boolean isAdd) {
+        if (tenantProjectId.equals(projectId2)) {
+            throw new DefinedRuntimeException("admin modify is not allowed", "0077",
+                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, EDIT_TENANT_USER);
+        if (userId
+            .equals(DomainRegistry.getCurrentUserService().getUserId())) {
+            throw new DefinedRuntimeException("you can not add/remove yourself", "0079",
+                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        Optional<User> targetUser = DomainRegistry.getUserRepository()
+            .userOfId(userId);
+        if (targetUser.isEmpty()) {
+            throw new DefinedRuntimeException("unable to find user", "0078",
+                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
+        Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
+            .getByUserIdAndProjectId(userId,
+                new ProjectId(MT_AUTH_PROJECT_ID));
+        UserRelation userRelation = byUserIdAndProjectId.get();
+        if (isAdd) {
+            if (userRelation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+                throw new DefinedRuntimeException("already admin", "0080",
+                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            }
+        } else {
+            if (!userRelation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+                throw new DefinedRuntimeException("not admin", "0081",
+                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            }
+        }
+        return userRelation;
+    }
+
+    private RoleId getTenantAdminRoleId(ProjectId tenantProjectId) {
+        Optional<Role> first =
+            DomainRegistry.getRoleRepository().getByQuery(RoleQuery.tenantAdmin(tenantProjectId))
+                .findFirst();
+        return first.get().getRoleId();
     }
 }

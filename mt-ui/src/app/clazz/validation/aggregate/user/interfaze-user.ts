@@ -1,3 +1,5 @@
+import { IIdBasedEntity } from "src/app/clazz/summary.component";
+
 export interface ILoginHistory {
     loginAt: number;
     ipAddress: string;
@@ -19,6 +21,10 @@ export interface IProjectUser {
     roles: string[];
     roleDetails?: { id: string, name: string }[];
     version: number;
+}
+export interface IProjectAdmin extends IIdBasedEntity{
+    email: string;
+    name: string;
 }
 export interface IPendingResourceOwner {
     email: string;
