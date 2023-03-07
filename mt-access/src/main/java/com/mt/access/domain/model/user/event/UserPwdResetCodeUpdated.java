@@ -26,7 +26,6 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);
-        setInternal(false);
     }
 
     public void setEmail(UserEmail userEmail) {

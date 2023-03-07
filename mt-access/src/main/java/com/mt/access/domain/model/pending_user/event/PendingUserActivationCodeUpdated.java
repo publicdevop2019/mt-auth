@@ -26,7 +26,6 @@ public class PendingUserActivationCodeUpdated extends DomainEvent {
         super(registrationEmail);
         setEmail(registrationEmail);
         setCode(activationCode);
-        setInternal(false);
     }
 
     private void setEmail(RegistrationEmail registrationEmail) {
