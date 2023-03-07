@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectResource {
 
     @PostMapping(path = "projects")
-    public ResponseEntity<Void> createForRoot(@RequestBody ProjectCreateCommand command,
+    public ResponseEntity<Void> createProject(@RequestBody ProjectCreateCommand command,
                                               @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                               String jwt) {
@@ -49,7 +49,7 @@ public class ProjectResource {
     }
 
     @GetMapping(path = "mngmt/projects")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> getProjectsForMgmt(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -66,7 +66,7 @@ public class ProjectResource {
     }
 
     @GetMapping(path = "mgmt/dashboard")
-    public ResponseEntity<DashboardRepresentation> readForRootByQuery(
+    public ResponseEntity<DashboardRepresentation> getMgmtDashboard(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
@@ -77,7 +77,7 @@ public class ProjectResource {
     }
 
     @GetMapping(path = "projects/tenant")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> externalQuery(
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> findTenantProjectsForUser(
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
 
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
@@ -91,7 +91,7 @@ public class ProjectResource {
     }
 
     @GetMapping("projects/{id}")
-    public ResponseEntity<ProjectRepresentation> readForRootById(
+    public ResponseEntity<ProjectRepresentation> getDetailForProject(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
@@ -123,7 +123,7 @@ public class ProjectResource {
 
 
     @PutMapping("projects/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
+    public ResponseEntity<Void> updateProject(@PathVariable(name = "id") String id,
                                                    @RequestBody ProjectUpdateCommand command,
                                                    @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                    String changeId,
@@ -135,7 +135,7 @@ public class ProjectResource {
     }
 
     @DeleteMapping("projects/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
+    public ResponseEntity<Void> deleteProject(@PathVariable String id,
                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                   String changeId,
                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
@@ -146,7 +146,7 @@ public class ProjectResource {
     }
 
     @PatchMapping(path = "projects/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
+    public ResponseEntity<Void> patchProject(@PathVariable(name = "id") String id,
                                                  @RequestBody JsonPatch command,
                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                  String changeId,

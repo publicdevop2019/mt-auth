@@ -29,13 +29,14 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
+import javax.persistence.NamedNativeQueries;
+import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.springframework.data.jpa.repository.Query;
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId", "deleted"}))
 @Entity
@@ -160,5 +161,27 @@ public class UserRelation extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), userId, projectId);
+    }
+
+    public void addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        if (getStandaloneRoles() == null) {
+            HashSet<RoleId> roleIds = new HashSet<>();
+            setStandaloneRoles(roleIds);
+        }
+        getStandaloneRoles().add(tenantAdminRoleId);
+        if (getTenantIds() == null) {
+            HashSet<ProjectId> projectIds = new HashSet<>();
+            setTenantIds(projectIds);
+        }
+        getTenantIds().add(tenantProjectId);
+    }
+
+    public void removeTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        if (getStandaloneRoles() != null) {
+            getStandaloneRoles().remove(tenantAdminRoleId);
+        }
+        if (getTenantIds() != null) {
+            getTenantIds().remove(tenantProjectId);
+        }
     }
 }

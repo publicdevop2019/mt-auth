@@ -1,6 +1,9 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
+
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.UserRelationQuery;
@@ -53,8 +56,13 @@ public interface SpringDataJpaUserRelationRepository
         return countProjectOwnedTotal_(projectId);
     }
 
+    default long countProjectAdmin(RoleId roleId) {
+        return countProjectAdmin_(roleId, new ProjectId(MT_AUTH_PROJECT_ID));
+    }
+
     @Query("select distinct c.projectId from UserRelation c")
     Set<ProjectId> getProjectIds_();
+
 
     @Query("select count(*) from UserRelation u where u.projectId = ?1")
     long countProjectOwnedTotal_(ProjectId projectId);
@@ -77,6 +85,17 @@ public interface SpringDataJpaUserRelationRepository
         countQuery.setParameter("projectId", query.getProjectIds().toArray()[0]);
         Long count = countQuery.getSingleResult();
         return new SumPagedRep<>(data, count);
+    }
+
+    default Long countProjectAdmin_(RoleId roleId, ProjectId projectId) {
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        javax.persistence.Query countQuery = entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM user_relation ur WHERE ur.standalone_roles LIKE :adminRole AND ur.project_id = :projectId");
+//      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
+//      ref: https://stackoverflow.com/questions/25789176/aliases-expected-length-is-0-actual-length-is-1-on-hibernate-query-cache
+        countQuery.setParameter("adminRole", "%" + roleId.getDomainId() + "%");
+        countQuery.setParameter("projectId", projectId.getDomainId());
+        return ((Number) countQuery.getSingleResult()).longValue();
     }
 
     @Component

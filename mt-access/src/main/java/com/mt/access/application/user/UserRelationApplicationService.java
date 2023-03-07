@@ -184,7 +184,7 @@ public class UserRelationApplicationService {
         UserId userId = new UserId(rawUserId);
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
         UserRelation userRelation = checkCondition(userId, tenantProjectId, projectId2, true);
-        userRelation.getStandaloneRoles().add(tenantAdminRoleId);
+        userRelation.addTenantAdmin(tenantProjectId, tenantAdminRoleId);
         DomainRegistry.getUserRelationRepository().add(userRelation);
     }
 
@@ -195,7 +195,7 @@ public class UserRelationApplicationService {
         UserId userId = new UserId(rawUserId);
         UserRelation userRelation = checkCondition(userId, tenantProjectId, projectId2, false);
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-        userRelation.getStandaloneRoles().remove(tenantAdminRoleId);
+        userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
         DomainRegistry.getUserRelationRepository().add(userRelation);
     }
 
@@ -232,6 +232,14 @@ public class UserRelationApplicationService {
                 throw new DefinedRuntimeException("not admin", "0081",
                     HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
+            //at least two admin present, for future maker & checker process
+            long byQuery = DomainRegistry.getUserRelationRepository()
+                .countProjectAdmin(tenantAdminRoleId);
+            if (byQuery <= 2) {
+                throw new DefinedRuntimeException("at least two admin", "0082",
+                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            }
+
         }
         return userRelation;
     }
