@@ -48,7 +48,7 @@
                     </mat-form-field>
                     <mat-form-field *ngIf="!isRegister" style="flex: 1;">
                         <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                        <input matInput formControlName="email">
+                        <input matInput formControlName="email" autocomplete="username" name="username">
                         <mat-error>{{emailErrorMsg | translate}}</mat-error>
                     </mat-form-field>
                     <button class="register-email-btn" *ngIf="isRegister" mat-raised-button (click)="getCode()"
@@ -89,7 +89,7 @@
                 <div *ngIf="!isRegister && !forgetPwd" class="register-email">
                     <mat-form-field style="flex: 1;">
                         <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="pwd">
+                            formControlName="pwd" autocomplete="current-password">
                         <mat-error>{{passwordErrorMsg | translate}}</mat-error>
                     </mat-form-field>
                     <button mat-raised-button (click)="login()" style="margin-left: 8px;" color="primary">{{'LOGIN'|
@@ -98,7 +98,7 @@
 
                 <mat-form-field *ngIf="isRegister || forgetPwd">
                     <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
-                    <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;">
+                    <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;" autocomplete="username">
                     <input matInput
                         placeholder="{{ (forgetPwd?'ENTER_YOUR_NEW_PASSWORD':'ENTER_YOUR_PASSWORD')| translate}}"
                         [type]="'password'" formControlName="registerPwd" autocomplete="new-password">
@@ -107,7 +107,7 @@
                 <mat-form-field *ngIf="isRegister || forgetPwd">
                     <input matInput
                         placeholder="{{(forgetPwd?'REENTER_YOUR_NEW_PASSWORD':'CONFIRM_YOUR_PASSWORD')| translate}}"
-                        [type]="'password'" formControlName="confirmPwd">
+                        [type]="'password'" formControlName="confirmPwd"  autocomplete="new-password">
                     <mat-error>{{confirmgPasswordErrorMsg | translate}}</mat-error>
                 </mat-form-field>
                 <ul *ngIf="isRegister || forgetPwd" style="font-size: 12px; padding-left: 16px;">
