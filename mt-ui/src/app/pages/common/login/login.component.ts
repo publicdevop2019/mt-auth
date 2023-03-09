@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { take } from 'rxjs/operators';
 import { IForgetPasswordRequest, IPendingResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { IMfaResponse, ITokenResponse } from 'src/app/clazz/validation/interfaze-common';
@@ -35,7 +36,9 @@ export class LoginComponent implements OnInit {
   loginOrRegForm = new FormGroup({
     isRegister: new FormControl('', []),
     email: new FormControl('', []),
+    registerEmail: new FormControl('', []),
     pwd: new FormControl('', []),
+    registerPwd: new FormControl('', []),
     confirmPwd: new FormControl('', []),
     activationCode: new FormControl('', []),
     token: new FormControl('', []),
@@ -68,6 +71,12 @@ export class LoginComponent implements OnInit {
     },
   ]
   ngOnInit() {
+    this.loginOrRegForm.get('registerPwd').valueChanges.subscribe((next) => {
+      this.loginOrRegForm.get('pwd').setValue(next)
+    })
+    this.loginOrRegForm.get('registerEmail').valueChanges.subscribe((next) => {
+      this.loginOrRegForm.get('email').setValue(next)
+    })
   }
   login() {
     let error: ErrorMessage[] = [];
@@ -329,10 +338,10 @@ export class LoginComponent implements OnInit {
       )
     }
   }
-  openDoc(){
+  openDoc() {
     window.open('./docs', '_blank').focus();
   }
-  openGithub(){
+  openGithub() {
     window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
   }
 }
