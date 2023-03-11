@@ -37,12 +37,14 @@ import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.Where;
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId", "deleted"}))
 @Entity
 @NoArgsConstructor
 @Getter
 @Cacheable
+@Where(clause = "deleted=0")
 @NamedQuery(name = "findEmailLike", query = "SELECT ur FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bouncycastle.util.encoders.Base64;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
 
@@ -16,7 +17,7 @@ public class Utility {
         return "websocket".equals(headers.getUpgrade());
     }
 
-    public static String getUuid(ServerHttpRequest request) {
+    public static String getUuid(HttpMessage request) {
         return request.getHeaders().getFirst(REQ_UUID);
     }
 

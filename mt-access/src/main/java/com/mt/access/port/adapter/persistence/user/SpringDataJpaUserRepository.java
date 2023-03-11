@@ -59,6 +59,14 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         return countTotal_();
     }
 
+    default Set<UserId> getUserIds() {
+        return getUserIds_();
+    }
+
+    @Query("select distinct u.userId from User u")
+    Set<UserId> getUserIds_();
+
+
     @Query("select count(*) from User")
     Long countTotal_();
 

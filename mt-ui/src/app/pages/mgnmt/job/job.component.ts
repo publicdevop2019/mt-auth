@@ -1,3 +1,4 @@
+import { V } from '@angular/cdk/keycodes';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
@@ -7,6 +8,7 @@ import { map, switchMapTo } from 'rxjs/operators';
 import { TableColumnConfigComponent } from 'src/app/components/table-column-config/table-column-config.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
+import { TimeService } from 'src/app/services/time.service';
 export interface IJob {
   id: string
   name: string
@@ -43,7 +45,13 @@ export class JobComponent implements OnInit, OnDestroy {
   dataSource: MatTableDataSource<IJob> = new MatTableDataSource();
   batchJobConfirmed: boolean;
   intervalRef: any;
-  constructor(  public fis: FormInfoService,private interceptor: CustomHttpInterceptor, public httpProxy: HttpProxyService, private translate: TranslateService) {
+  constructor(
+    public fis: FormInfoService,
+    private interceptor: CustomHttpInterceptor,
+    public httpProxy: HttpProxyService,
+    private translate: TranslateService,
+    private timeSvc: TimeService
+  ) {
     this.getStatus()
     this.intervalRef = setInterval(() => {
       this.getStatus()
@@ -62,18 +70,7 @@ export class JobComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
   }
   parseDate(value: number) {
-    let resolved: string;
-    if (this.translate.currentLang === 'zhHans') {
-      resolved = 'zh-Hans'
-    } else {
-      resolved = 'en-Us'
-    }
-    let resolvedUnit: 'seconds' | 'minutes' = 'seconds';
-    if (DateTime.fromMillis(value).diffNow('seconds').seconds < -60) {
-      resolvedUnit = 'minutes'
-    }
-    const parsed = DateTime.fromMillis(value).setLocale(resolved).toRelativeCalendar({ unit: resolvedUnit });
-    return parsed;
+    return this.timeSvc.getUserFriendlyTimeDisplay(value)
   }
   resetValidationJob() {
     this.httpProxy.resetValidationJob().subscribe(() => {
@@ -82,7 +79,7 @@ export class JobComponent implements OnInit, OnDestroy {
       this.interceptor.openSnackbar('OPERATION_FAILED')
     })
   }
-  resetJob(id:string) {
+  resetJob(id: string) {
     this.httpProxy.resetJob(id).subscribe(() => {
       this.interceptor.openSnackbar('OPERATION_SUCCESS');
     }, () => {
@@ -95,20 +92,20 @@ export class JobComponent implements OnInit, OnDestroy {
   isSingle(row: IJob) {
     return row.type === 'SINGLE';
   }
-  getName(row:IJob){
-    if(row.type==='SINGLE'&&!this.isTemplate(row)){
-      const index=row.name.search(new RegExp(/\d+/));
-      const nextName=row.name.substring(0,index-1)
-      const instanceId=row.name.substring(index,row.name.length)
-      return this.translate.get(nextName).pipe(map(e=>{
-        return e+'_'+instanceId
+  getName(row: IJob) {
+    if (row.type === 'SINGLE' && !this.isTemplate(row)) {
+      const index = row.name.search(new RegExp(/\d+/));
+      const nextName = row.name.substring(0, index - 1)
+      const instanceId = row.name.substring(index, row.name.length)
+      return this.translate.get(nextName).pipe(map(e => {
+        return e + '_' + instanceId
       }))
-    }else{
+    } else {
       return this.translate.get(row.name)
     }
   }
-  getNotify(data:boolean){
-    return data?'YES':'NO'
+  getNotify(data: boolean) {
+    return data ? 'YES' : 'NO'
   }
   getColumnLabelValue() {
     return Object.keys(this.columnList).map(e => ({ label: this.columnList[e], value: e }))

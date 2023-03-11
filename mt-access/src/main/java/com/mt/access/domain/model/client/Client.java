@@ -12,7 +12,6 @@ import com.mt.access.domain.model.client.event.ClientPathChanged;
 import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
-import com.mt.access.domain.model.client.event.ClientUpdated;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
@@ -316,7 +315,6 @@ public class Client extends Auditable {
         setDescription(description);
         setAuthorizationCodeGrant(authorizationCodeGrant);
         validate(new HttpValidationNotificationHandler());
-        CommonDomainRegistry.getDomainEventRepository().append(new ClientUpdated(getClientId()));
     }
 
     @Override

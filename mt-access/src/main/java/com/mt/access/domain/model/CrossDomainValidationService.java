@@ -24,6 +24,7 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -49,11 +50,7 @@ public class CrossDomainValidationService {
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().get();
         ValidationResult validationResult;
-        if (validationResult1.isEmpty()) {
-            validationResult = ValidationResult.create();
-        } else {
-            validationResult = validationResult1.get();
-        }
+        validationResult = validationResult1.orElseGet(ValidationResult::create);
         if (validationResult.shouldPause()) {
             if (!validationResult.hasNotified()) {
                 validationResult.markAsNotified();
@@ -72,6 +69,7 @@ public class CrossDomainValidationService {
         boolean b6 = false;
         boolean b7 = false;
         boolean b8 = false;
+        boolean b9 = false;
         if (b) {
             b1 = validateClientAndEndpoint();
             if (b1) {
@@ -88,6 +86,9 @@ public class CrossDomainValidationService {
                                     b7 = validateEndpointAndPermission();
                                     if (b7) {
                                         b8 = validateRoleAndPermission();
+                                        if (b8) {
+                                            b9 = validateUserAndUserRelation();
+                                        }
                                     }
                                 }
                             }
@@ -97,13 +98,32 @@ public class CrossDomainValidationService {
 
             }
         }
-        if (b && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8) {
+        if (b && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9) {
             validationResult.resetFailureCount();
         } else {
             validationResult.increaseFailureCount();
         }
         DomainRegistry.getValidationResultRepository().add(validationResult);
         log.debug("end of validate existing data");
+    }
+
+    /**
+     * user id present in user relation must present in user table
+     *
+     * @return if all user id can be found
+     */
+    private boolean validateUserAndUserRelation() {
+        Set<UserId> userIds = DomainRegistry.getUserRelationRepository().getUserIds();
+        Set<UserId> userIds2 = DomainRegistry.getUserRepository().getUserIds();
+        boolean b = userIds.size() == userIds2.size();
+        if (!b) {
+            Set<UserId> collect = userIds.stream().filter(userId -> !userIds2.contains(userId))
+                .collect(Collectors.toSet());
+            log.debug("unable to find user {} for user relation", collect);
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ValidationFailedEvent("UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION"));
+        }
+        return b;
     }
 
     /**

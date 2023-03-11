@@ -10,6 +10,7 @@ import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRelation_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -41,8 +42,16 @@ public interface SpringDataJpaUserRelationRepository
         save(userRelation);
     }
 
+    default void removeAll(Set<UserRelation> userRelation) {
+        userRelation.forEach(Auditable::softDelete);
+        saveAll(userRelation);
+    }
+
     default Set<ProjectId> getProjectIds() {
         return getProjectIds_();
+    }
+    default Set<UserId> getUserIds() {
+        return getUserIds_();
     }
 
     default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
@@ -62,6 +71,9 @@ public interface SpringDataJpaUserRelationRepository
 
     @Query("select distinct c.projectId from UserRelation c")
     Set<ProjectId> getProjectIds_();
+
+    @Query("select distinct c.userId from UserRelation c")
+    Set<UserId> getUserIds_();
 
 
     @Query("select count(*) from UserRelation u where u.projectId = ?1")

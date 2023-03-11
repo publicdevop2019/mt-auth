@@ -15,7 +15,7 @@ public class CustomEndpointCsrfMatcher implements ServerWebExchangeMatcher {
         return Mono.just(exchange.getRequest())
             .filter(request ->
                 DomainRegistry.getCsrfService()
-                    .checkBypassCsrf(request.getPath().value(),request.getMethodValue(),request.getHeaders()))
+                    .checkBypassCsrf(request))
             .flatMap(e -> MatchResult.notMatch())
             .switchIfEmpty(MatchResult.match());
     }

@@ -56,7 +56,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                     //auto assign default user role for target project
                     UserRelation newRelation =
                         ApplicationServiceRegistry.getUserRelationApplicationService()
-                            .onboardUserToTenant(userId, projectId);
+                            .internalOnboardUserToTenant(userId, projectId);
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(newRelation);
                     info.put("permissionIds",

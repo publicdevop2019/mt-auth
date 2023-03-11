@@ -46,6 +46,7 @@ public class RedisJobService implements JobService {
                             job.executeSuccess();
                         }
                     } catch (DefinedRuntimeException ex) {
+                        log.warn("error during job execution", ex);
                         if (LOCK_LOST.equalsIgnoreCase(ex.getMessage())) {
                             DomainEvent domainEvent = job.handleLockLostException();
                             sendNotification(job, domainEvent);

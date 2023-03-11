@@ -11,6 +11,7 @@ import com.mt.proxy.domain.ReportService;
 import com.mt.proxy.domain.SanitizeService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
+import com.mt.proxy.infrastructure.LogHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -88,13 +89,16 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private static boolean responseError(ServerHttpResponse response) {
-        log.trace("checking response in case of downstream error");
+    private static boolean responseError(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        LogHelper.log(exchange.getRequest(),
+            (ignored) -> log.trace("checking response in case of downstream error"));
         boolean b = response.getStatusCode() != null
             &&
             response.getStatusCode().is5xxServerError();
         if (b) {
-            log.debug("downstream error, hidden error body");
+            LogHelper.log(exchange.getRequest(),
+                (ignored) -> log.debug("downstream error, hidden error body"));
             response.getHeaders().setContentLength(0);
         }
         return b;
@@ -164,7 +168,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                boolean b = responseError(originalResponse);
+                boolean b = responseError(exchange);
                 if (b) {
                     return Mono.empty();
                 }
@@ -267,8 +271,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     /**
      * update request, how body is updated is same as SCG provided approach.
      * refer to org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory
+     *
      * @param exchange ServerWebExchange
-     * @param context CustomFilterContext
+     * @param context  CustomFilterContext
      * @return Mono<ServerHttpRequest>
      */
     private Mono<ServerHttpRequest> updateRequest(ServerWebExchange exchange,
@@ -321,18 +326,21 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     private void checkEndpoint(ServerHttpRequest request, CustomFilterContext context) {
-        log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
-            request.getURI().getScheme());
+        LogHelper.log(request,
+            (ignored) -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
+                request.getURI().getScheme()));
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
             request.getPath().toString(),
             request.getMethod().name(),
             context.getAuthHeader(), context.isWebsocket());
         if (!allow) {
-            log.debug("access is not allowed");
+            LogHelper.log(request,
+                (ignored) -> log.debug("access is not allowed"));
             context.endpointCheckFailed();
             return;
         }
-        log.debug("access is allowed");
+        LogHelper.log(request,
+            (ignored) -> log.debug("access is allowed"));
     }
 
     private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {
@@ -341,7 +349,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         String method = exchange.getRequest().getMethodValue();
         RateLimitResult rateLimitResult = DomainRegistry.getRateLimitService()
             .withinRateLimit(path, method,
-                exchange.getRequest().getHeaders(),exchange.getRequest().getRemoteAddress());
+                exchange.getRequest().getHeaders(), exchange.getRequest().getRemoteAddress());
         if (rateLimitResult.getAllowed() == null || !rateLimitResult.getAllowed()) {
             response.getHeaders()
                 .set(X_RATE_LIMIT, "0");

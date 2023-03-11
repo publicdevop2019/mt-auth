@@ -32,4 +32,8 @@
     <h2 style="padding-left: 8px; font-weight: 700;">异常类：DefinedRuntimeException</h2>
     <div style="padding-left: 8px;">所有系统已知异常抛出此类，该类允许自定义错误信息，http代码，错误代码，错误分类</div>
     <div style="padding-left: 8px;">备注：<a href="./docs/error" style="margin-left: 16px;">错误码查询表</a></div>
+    <h1>软删除还是硬删除</h1>
+    <div style="padding-left: 8px;">1. 随着项目变得越来越复杂，软删除变得越来越难以管理</div>
+    <div style="padding-left: 8px;">2. 软删除后，数据仍存在，唯一联合索引需要特别处理</div>
+    <div style="padding-left: 8px;">总结：默认采用硬删除，个别特例采用软删除</div>
 </div>

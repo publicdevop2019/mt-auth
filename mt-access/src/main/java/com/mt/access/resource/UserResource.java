@@ -9,6 +9,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UpdateUserCommand;
+import com.mt.access.application.user.command.UpdateUserRelationCommand;
 import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
@@ -19,7 +20,6 @@ import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMngmntRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
-import com.mt.access.application.user.command.UpdateUserRelationCommand;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
@@ -161,7 +161,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> findUserForProject(
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> findUsersForTenantProject(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -176,14 +176,14 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<UserTenantRepresentation> findUserForProject2(
+    public ResponseEntity<UserTenantRepresentation> findUserDetailForTenantProject(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserTenantRepresentation> user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
-                .tenantUserDetail(projectId, id);
+                .getTenantUserDetail(projectId, id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
     }
 
@@ -273,11 +273,12 @@ public class UserResource {
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody UpdateUserRelationCommand command
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .update(projectId, id, command);
+            .update(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -298,11 +299,12 @@ public class UserResource {
     public ResponseEntity<Void> addAdminsToProject(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String userId
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .addAdmin(projectId, userId);
+            .addAdmin(projectId, userId, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -310,11 +312,12 @@ public class UserResource {
     public ResponseEntity<Void> removeAdminsToProject(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @PathVariable String userId
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .removeAdmin(projectId, userId);
+            .removeAdmin(projectId, userId, changeId);
         return ResponseEntity.ok().build();
     }
 }

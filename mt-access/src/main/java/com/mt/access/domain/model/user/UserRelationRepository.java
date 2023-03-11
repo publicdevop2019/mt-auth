@@ -22,4 +22,8 @@ public interface UserRelationRepository {
     long countProjectOwnedTotal(ProjectId projectId);
 
     long countProjectAdmin(RoleId adminRoleId);
+
+    void removeAll(Set<UserRelation> allByQuery);
+
+    Set<UserId> getUserIds();
 }

@@ -1,17 +1,12 @@
 package com.mt.proxy.infrastructure.filter;
 
-import static com.mt.proxy.domain.Utility.getUuid;
-import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
 import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
-import static com.mt.proxy.domain.Utility.getClientIp;
 
 import com.mt.proxy.domain.ReportService;
 import com.mt.proxy.infrastructure.AppConstant;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
-import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
@@ -30,17 +25,9 @@ public class ReactiveRespLogFilter implements WebFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-        //clear previous value
-        MDC.put(REQ_UUID, null);
-        MDC.put(REQ_CLIENT_IP, null);
-        ServerHttpRequest request = exchange.getRequest();
-        String uuid = getUuid(request);
-        String ip = getClientIp(request);
-        MDC.put(REQ_UUID, uuid);
-        MDC.put(REQ_CLIENT_IP, ip);
         exchange.getResponse().beforeCommit(() -> {
             checkHeader(exchange);
-            reportService.logResponseDetail(exchange.getResponse());
+            reportService.logResponseDetail(exchange);
             return Mono.empty();
         });
         return chain.filter(exchange);
@@ -53,15 +40,25 @@ public class ReactiveRespLogFilter implements WebFilter, Ordered {
     }
 
     private void checkHeader(ServerWebExchange exchange) {
-        String reqHeader = exchange.getRequest().getHeaders().getFirst(
+        String reqUuid = exchange.getRequest().getHeaders().getFirst(
             AppConstant.REQ_UUID);
-        String respHeader = exchange.getResponse().getHeaders().getFirst(
+        String respUuid = exchange.getResponse().getHeaders().getFirst(
             AppConstant.REQ_UUID);
-        if (respHeader == null && reqHeader != null) {
+        if (reqUuid == null && respUuid == null) {
+            log.warn("missing request & response uuid header, which should not happen");
+        } else if (reqUuid != null && respUuid == null) {
             exchange.getResponse().getHeaders().set(
-                REQ_UUID, reqHeader);
+                REQ_UUID, reqUuid);
+        } else if (reqUuid == null) {
+            String value = exchange.getRequest().getPath().value();
+            log.warn("missing request uuid header, which should not happen path = {}", value);
         } else {
-            log.warn("missing request header, which should not happen");
+            String value = exchange.getRequest().getPath().value();
+            if (!reqUuid.equals(respUuid)) {
+                log.warn(
+                    "request & response uuid header mismatch, which should not happen path = {}, req uuid {}, resp uuid {}",
+                    value, reqUuid, respUuid);
+            }
         }
     }
 

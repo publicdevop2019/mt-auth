@@ -331,7 +331,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     } else {
                         log.debug("ack callback with single confirm");
                         StoredEvent storedEvent = outstandingConfirms.get(sequenceNumber);
-                        markAsSent.accept(storedEvent);
+                        if (storedEvent != null) {
+                            markAsSent.accept(storedEvent);
+                        } else {
+                            log.warn(
+                                "unable to find stored event, this may indicate some issue, sequenceNum {}",
+                                sequenceNumber);
+                        }
                         outstandingConfirms.remove(sequenceNumber);
                     }
                 };
