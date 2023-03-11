@@ -1,5 +1,6 @@
 package com.mt.access.application.user;
 
+import static com.mt.access.domain.model.permission.Permission.ADMIN_MGMT;
 import static com.mt.access.domain.model.permission.Permission.EDIT_TENANT_USER;
 import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
@@ -185,7 +186,7 @@ public class UserRelationApplicationService {
     public SumPagedRep<ProjectAdminRepresentation> adminsForProject(String pageConfig,
                                                                     String projectId) {
         ProjectId tenantProjectId = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, EDIT_TENANT_USER);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
         SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository()
             .getByQuery(UserRelationQuery.findTenantAdmin(tenantAdminRoleId, pageConfig));
@@ -201,9 +202,10 @@ public class UserRelationApplicationService {
 
     @Transactional
     public void addAdmin(String projectId, String rawUserId, String changeId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                ProjectId tenantProjectId = new ProjectId(projectId);
                 ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
@@ -217,9 +219,10 @@ public class UserRelationApplicationService {
 
     @Transactional
     public void removeAdmin(String projectId, String rawUserId, String changeId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                ProjectId tenantProjectId = new ProjectId(projectId);
                 ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 UserRelation userRelation =

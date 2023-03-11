@@ -71,12 +71,13 @@ public class Permission extends Auditable {
     public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
     public static final String PROJECT_INFO_MNGMT = "PROJECT_INFO_MNGMT";
     public static final String SUB_REQ_MNGMT = "SUB_REQ_MNGMT";
+
+    public static final String ADMIN_MGMT = "ADMIN_MGMT";
     public static final Set<String> reservedName = new HashSet<>();
     public static final Set<String> reservedUIPermissionName = new HashSet<>();
 
     static {
         reservedName.add(API_ACCESS);
-        reservedUIPermissionName.add(SUB_REQ_MNGMT);
         reservedUIPermissionName.add(VIEW_PROJECT_INFO);
         reservedUIPermissionName.add(VIEW_CLIENT);
         reservedUIPermissionName.add(EDIT_CLIENT);
@@ -99,6 +100,8 @@ public class Permission extends Auditable {
         reservedUIPermissionName.add(CLIENT_MNGMT);
         reservedUIPermissionName.add(EDIT_PROJECT_INFO);
         reservedUIPermissionName.add(PROJECT_INFO_MNGMT);
+        reservedUIPermissionName.add(SUB_REQ_MNGMT);
+        reservedUIPermissionName.add(ADMIN_MGMT);
         reservedName.addAll(reservedUIPermissionName);
 
     }
@@ -344,7 +347,7 @@ public class Permission extends Auditable {
                 permissionMgntId, tenantId, Stream
                     .of(new PermissionId("0Y8HLUWKQEJ1"), new PermissionId("0Y8HLUWOH91P"),
                         new PermissionId("0Y8HLUWMX2BX")).collect(Collectors.toSet()));
-        //position mngmnt related permission
+        //position mgmt related permission
         PermissionId positionMgntId = new PermissionId();
         Permission p32 = Permission
             .autoCreateForProject(projectId, positionMgntId, USER_MNGMT, PermissionType.COMMON,
@@ -369,6 +372,16 @@ public class Permission extends Auditable {
                         new PermissionId("0Y8M0IRD8ZSN"),
                         new PermissionId("0Y8M4M3J9HJ4"),
                         new PermissionId("0Y8M0IRN8L4W")
+                    )
+                    .collect(Collectors.toSet()));
+        //admin mgmt related permission
+        PermissionId adminMgmtId = new PermissionId();
+        Permission p37 = Permission
+            .autoCreateForProjectMulti(projectId, adminMgmtId, ADMIN_MGMT,
+                rootId, tenantId, Stream.of(
+                        new PermissionId("0Y8NY6E4KKD3"),
+                        new PermissionId("0Y8NY6EHDATT"),
+                        new PermissionId("0Y8NY6ESALN0")
                     )
                     .collect(Collectors.toSet()));
 
@@ -401,6 +414,8 @@ public class Permission extends Auditable {
         DomainRegistry.getPermissionRepository().add(p34);
         DomainRegistry.getPermissionRepository().add(p35);
         DomainRegistry.getPermissionRepository().add(p36);
+        DomainRegistry.getPermissionRepository().add(p37);
+        //add new permission to event so role can link to it
         Set<Permission> createdPermissions = new HashSet<>();
         createdPermissions.add(p0);
         createdPermissions.add(p1);
@@ -426,6 +441,7 @@ public class Permission extends Auditable {
         createdPermissions.add(p34);
         createdPermissions.add(p35);
         createdPermissions.add(p36);
+        createdPermissions.add(p37);
         Set<PermissionId> collect = createdPermissions.stream().flatMap(e -> {
             if (e.getLinkedApiPermissionIds() != null && !e.getLinkedApiPermissionIds().isEmpty()) {
                 e.getLinkedApiPermissionIds().add(e.getPermissionId());

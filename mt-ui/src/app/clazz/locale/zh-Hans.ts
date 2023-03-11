@@ -939,4 +939,5 @@ export const zhHans = {
     "ENTER_USER_EMAIL": "请输入管理员Email",
     "ADD_TENANT_ADMIN": "添加",
     "UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION": "UserRelation数据未清除",
+    "ADMIN_MGMT": "管理管理员",
 }

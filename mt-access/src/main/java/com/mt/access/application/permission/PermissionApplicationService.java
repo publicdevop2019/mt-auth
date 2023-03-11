@@ -176,12 +176,12 @@ public class PermissionApplicationService {
 
 
     @Transactional
-    public void handle(StartNewProjectOnboarding deserialize) {
+    public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle project created event");
-                ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
-                Permission.onboardNewProject(tenantProjectId, deserialize.getCreator());
+                ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
+                Permission.onboardNewProject(tenantProjectId, event.getCreator());
                 return null;
             }, PERMISSION);
     }
