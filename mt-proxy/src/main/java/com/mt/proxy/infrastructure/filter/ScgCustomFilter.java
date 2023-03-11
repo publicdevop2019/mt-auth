@@ -122,11 +122,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         context.setWebsocket(Utility.isWebSocket(request.getHeaders()));
         context.setAuthHeader(Utility.getAuthHeader(request));
-        ServerHttpResponse response = exchange.getResponse();
         checkEndpoint(exchange.getRequest(), context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         if (context.isWebsocket()) {
             //for websocket only endpoint check is performed
@@ -135,13 +133,11 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
         checkRateLimit(exchange, context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
         reportService.logRequestDetails(exchange.getRequest());
@@ -149,8 +145,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
         return requestMono.flatMap(req -> {
             if (context.hasCheckFailed()) {
-                response.setStatusCode(context.getHttpErrorStatus());
-                return response.setComplete();
+                return stopResponse(exchange, context);
             }
             if (context.isBodyCopied()) {
                 return chain.filter(exchange.mutate().request(req).response(updatedResp).build());
@@ -158,6 +153,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange.mutate().response(updatedResp).build());
             }
         });
+    }
+
+    private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(context.getHttpErrorStatus());
+        reportService.logResponseDetail(exchange);
+        return response.setComplete();
     }
 
     private ServerHttpResponse updateResponse(ServerWebExchange exchange) {
