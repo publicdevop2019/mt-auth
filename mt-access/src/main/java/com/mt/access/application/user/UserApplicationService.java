@@ -112,7 +112,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = "lock user")
     public void adminLock(String id, UpdateUserCommand command, String changeId) {
         DomainRegistry.getAuditService()
-            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "lock user",
+            .logUserAction(log, "lock user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -134,7 +134,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = "delete user")
     public void delete(String id, String changeId) {
         DomainRegistry.getAuditService()
-            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "delete user",
+            .logUserAction(log, "delete user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -160,7 +160,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = "patch user")
     public void patch(String id, JsonPatch command, String changeId) {
         DomainRegistry.getAuditService()
-            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch user",
+            .logUserAction(log, "patch user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -185,7 +185,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = "patch many user")
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         DomainRegistry.getAuditService()
-            .logAdminAction(DomainRegistry.getCurrentUserService().getUserId(), "patch many use",
+            .logUserAction(log, "patch many use",
                 commands.toString());
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
@@ -217,7 +217,7 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
-            .logUserAction(command.getEmail(), "forget password");
+            .logExternalUserAction(log, command.getEmail(), "forget password");
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
@@ -231,7 +231,7 @@ public class UserApplicationService implements UserDetailsService {
     @Transactional
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
-            .logUserAction(command.getEmail(), "reset password");
+            .logExternalUserAction(log, command.getEmail(), "reset password");
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),

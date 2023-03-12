@@ -11,9 +11,9 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
 import com.mt.access.application.cache_profile.representation.CacheProfileCardRepresentation;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,55 +27,67 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@Slf4j
 @RestController
 @RequestMapping(produces = "application/json", path = "mngmt/cache-profile")
 public class CacheProfileResource {
     @PostMapping
-    public ResponseEntity<Void> createForApp(@RequestBody CreateCacheProfileCommand command,
-                                             @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                             String changeId) {
+    public ResponseEntity<Void> create(
+        @RequestBody CreateCacheProfileCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getCacheProfileApplicationService()
                 .create(command, changeId)).build();
     }
 
     @GetMapping
-    public ResponseEntity<SumPagedRep<CacheProfileCardRepresentation>> readForAdminByQuery(
+    public ResponseEntity<SumPagedRep<CacheProfileCardRepresentation>> query(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<CacheProfile> users =
             ApplicationServiceRegistry.getCacheProfileApplicationService()
-                .cacheProfiles(queryParam, pageParam, config);
+                .query(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, CacheProfileCardRepresentation::new));
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> updateForAdmin(@RequestBody ReplaceCacheProfileCommand command,
-                                               @PathVariable String id,
-                                               @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                               String changeId) {
+    public ResponseEntity<Void> update(
+        @RequestBody ReplaceCacheProfileCommand command,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getCacheProfileApplicationService()
             .update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                 String jwt) {
+    public ResponseEntity<Void> patch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getCacheProfileApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteForAdmin(
+    public ResponseEntity<Void> delete(
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getCacheProfileApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }

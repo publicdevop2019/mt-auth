@@ -14,6 +14,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
@@ -30,6 +31,7 @@ import org.hibernate.annotations.Where;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "cacheProfileRegion")
 @Setter(AccessLevel.PRIVATE)
+@ToString
 public class CacheProfile extends Auditable {
 
     private String name;

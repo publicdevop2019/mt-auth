@@ -1,10 +1,13 @@
 package com.mt.access.application.cache_profile;
 
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
+
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.PatchCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheControlValue;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
@@ -13,10 +16,13 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class CacheProfileApplicationService {
 
@@ -46,8 +52,8 @@ public class CacheProfileApplicationService {
         return cacheProfileId.getDomainId();
     }
 
-    public SumPagedRep<CacheProfile> cacheProfiles(String queryParam, String pageParam,
-                                                   String config) {
+    public SumPagedRep<CacheProfile> query(String queryParam, String pageParam,
+                                           String config) {
         return DomainRegistry.getCacheProfileRepository()
             .cacheProfileOfQuery(new CacheProfileQuery(queryParam, pageParam, config));
     }
@@ -106,16 +112,26 @@ public class CacheProfileApplicationService {
             }, CACHE_PROFILE);
     }
 
-    @Transactional
+    @AuditLog(actionName = DELETE_CACHE_PROFILE)
     public void remove(String id, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<CacheProfile> cacheProfile =
-                DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
-            cacheProfile.ifPresent(e -> {
-                e.removeAllReference();
-                DomainRegistry.getCacheProfileRepository().remove(e);
+            AtomicReference<CacheProfile> target = new AtomicReference<>();
+            CommonDomainRegistry.getTransactionService().transactional(() -> {
+                Optional<CacheProfile> cacheProfile =
+                    DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+                cacheProfile.ifPresent(e -> {
+                    target.set(e);
+                    e.removeAllReference();
+                    DomainRegistry.getCacheProfileRepository().remove(e);
+                    DomainRegistry.getAuditService()
+                        .storeUserAction(DELETE_CACHE_PROFILE,
+                            target.get());
+                });
             });
+            DomainRegistry.getAuditService()
+                .logUserAction(log, DELETE_CACHE_PROFILE,
+                    target.get());
             return null;
         }, CACHE_PROFILE);
     }

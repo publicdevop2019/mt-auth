@@ -78,6 +78,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0080',explain:'已经是管理员'},
     {code:'0081',explain:'不是管理员'},
     {code:'0082',explain:'至少两个管理员'},
+    {code:'0083',explain:'当前用户ID提取错误'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},

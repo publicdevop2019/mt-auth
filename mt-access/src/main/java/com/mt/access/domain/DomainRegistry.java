@@ -11,6 +11,7 @@ import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.RemoteProxyService;
 import com.mt.access.domain.model.UserValidationService;
 import com.mt.access.domain.model.activation_code.ActivationCodeService;
+import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.client.ClientRepository;
@@ -48,9 +49,9 @@ import com.mt.access.domain.model.user.LoginInfoRepository;
 import com.mt.access.domain.model.user.MfaCodeService;
 import com.mt.access.domain.model.user.MfaService;
 import com.mt.access.domain.model.user.PasswordResetTokenService;
+import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
-import com.mt.access.domain.model.user.UserRelationRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -159,6 +160,13 @@ public class DomainRegistry {
     private static RawAccessRecordProcessService rawAccessRecordProcessService;
     @Getter
     private static DataProcessTrackerRepository dataProcessTrackerRepository;
+    @Getter
+    private static AuditRecordRepository auditRepository;
+
+    @Autowired
+    public void setAuditRepository(AuditRecordRepository auditRepository) {
+        DomainRegistry.auditRepository = auditRepository;
+    }
 
     @Autowired
     public void setRawAccessRecordProcessService(
