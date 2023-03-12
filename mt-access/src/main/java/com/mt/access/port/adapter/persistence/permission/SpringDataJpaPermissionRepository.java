@@ -31,15 +31,11 @@ public interface SpringDataJpaPermissionRepository
     }
 
     default void remove(Permission permission) {
-        permission.softDelete();
-        save(permission);
+        delete(permission);
     }
 
-    default void removeAll(Set<Permission> permission) {
-        permission.forEach(e -> {
-            e.softDelete();
-            save(e);
-        });
+    default void removeAll(Set<Permission> permissions) {
+        deleteAll(permissions);
     }
 
     default Set<EndpointId> allApiPermissionLinkedEpId() {
@@ -56,16 +52,16 @@ public interface SpringDataJpaPermissionRepository
 
     ;
 
-    @Query("select distinct p.name from Permission p where p.type='API' and p.deleted=0")
+    @Query("select distinct p.name from Permission p where p.type='API'")
     Set<EndpointId> allApiPermissionLinkedEpId_();
 
-    @Query("select c from Permission p join p.linkedApiPermissionIds c where p.permissionId in ?1 and p.deleted=0")
+    @Query("select c from Permission p join p.linkedApiPermissionIds c where p.permissionId in ?1")
     Set<PermissionId> getLinkedApiPermissionFor_(Set<PermissionId> e);
 
-    @Query("select distinct p.permissionId from Permission p where p.deleted=0")
+    @Query("select distinct p.permissionId from Permission p")
     Set<PermissionId> allPermissionId_();
 
-    @Query("select count(*) from Permission p where p.deleted = 0 and p.projectId = ?1 and p.type = 'COMMON' ")
+    @Query("select count(*) from Permission p where p.projectId = ?1 and p.type = 'COMMON' ")
     long countProjectCreateTotal_(ProjectId projectId);
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
@@ -114,7 +110,7 @@ public interface SpringDataJpaPermissionRepository
                     query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 

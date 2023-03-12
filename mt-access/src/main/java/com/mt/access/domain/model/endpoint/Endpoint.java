@@ -13,6 +13,7 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -40,15 +41,13 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Where;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method",
-    "deleted"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "endpointRegion")
-public class Endpoint extends Auditable {
+public class Endpoint extends NextAuditable {
 
     @Column(name = "secured", updatable = false)
     private boolean authRequired;

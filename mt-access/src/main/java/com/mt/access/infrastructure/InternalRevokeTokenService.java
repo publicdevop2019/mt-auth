@@ -17,7 +17,7 @@ public class InternalRevokeTokenService implements RevokeTokenService {
         RevokeTokenCreateCommand createRevokeTokenCommand =
             new RevokeTokenCreateCommand(domainId.getDomainId());
         ApplicationServiceRegistry.getRevokeTokenApplicationService()
-            .internalOnlyCreate(createRevokeTokenCommand, UUID.randomUUID().toString());
+            .internalRevoke(createRevokeTokenCommand, UUID.randomUUID().toString());
         log.debug("complete revoke token");
     }
 

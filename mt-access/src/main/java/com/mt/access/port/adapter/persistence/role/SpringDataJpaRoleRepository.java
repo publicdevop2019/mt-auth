@@ -29,8 +29,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     }
 
     default void remove(Role role) {
-        role.softDelete();
-        save(role);
+        delete(role);
     }
 
     default SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
@@ -44,7 +43,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     @Query("select distinct ep.projectId from Role ep")
     Set<ProjectId> getProjectId();
 
-    @Query("select count(*) from Role r where r.deleted = 0 and r.projectId = ?1 and r.type = 'USER' ")
+    @Query("select count(*) from Role r where r.projectId = ?1 and r.type = 'USER' ")
     long countProjectCreateTotal_(ProjectId projectId);
 
     default long countProjectCreateTotal(ProjectId projectId) {
@@ -85,7 +84,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 

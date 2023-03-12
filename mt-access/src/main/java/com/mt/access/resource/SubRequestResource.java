@@ -69,7 +69,7 @@ public class SubRequestResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<SubRequest> result =
             ApplicationServiceRegistry.getSubRequestApplicationService()
-                .subscriptions(pageParam);
+                .query(pageParam);
         SumPagedRep<SubscriptionRepresentation> resp =
             new SumPagedRep<>(result, SubscriptionRepresentation::new);
         SubscriptionRepresentation.updateProjectNames(resp);

@@ -35,8 +35,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     }
 
     default void remove(SubRequest subRequest) {
-        subRequest.softDelete();
-        save(subRequest);
+        delete(subRequest);
     }
 
     default SumPagedRep<SubRequest> getByQuery(SubRequestQuery query) {
@@ -121,7 +120,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                         query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 

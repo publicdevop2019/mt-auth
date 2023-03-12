@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoleResource {
 
     @PostMapping(path = "projects/{projectId}/roles")
-    public ResponseEntity<Void> createForRoot(
+    public ResponseEntity<Void> tenantCreate(
         @PathVariable String projectId,
         @RequestBody RoleCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -46,12 +46,12 @@ public class RoleResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
-                ApplicationServiceRegistry.getRoleApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getRoleApplicationService().tenantCreate(command, changeId))
             .build();
     }
 
     @GetMapping(path = "projects/{projectId}/roles")
-    public ResponseEntity<SumPagedRep<RoleCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<RoleCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -61,26 +61,26 @@ public class RoleResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<Role> clients = ApplicationServiceRegistry.getRoleApplicationService()
-            .getByQuery(queryParam, pageParam, skipCount);
+            .query(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(RoleCardRepresentation
             .updateName(new SumPagedRep<>(clients, RoleCardRepresentation::new)));
     }
 
     @GetMapping("projects/{projectId}/roles/{id}")
-    public ResponseEntity<RoleRepresentation> readForRootById(
+    public ResponseEntity<RoleRepresentation> tenantQuery(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Role> client =
-            ApplicationServiceRegistry.getRoleApplicationService().getById(projectId, id);
+            ApplicationServiceRegistry.getRoleApplicationService().query(projectId, id);
         return client.map(value -> ResponseEntity.ok(new RoleRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping("projects/{projectId}/roles/{id}")
-    public ResponseEntity<Void> replaceForRootById(
+    public ResponseEntity<Void> tenantUpdate(
         @PathVariable String projectId,
         @PathVariable(name = "id") String id,
         @RequestBody RoleUpdateCommand command,
@@ -89,13 +89,13 @@ public class RoleResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getRoleApplicationService().update(id, command, changeId);
+        ApplicationServiceRegistry.getRoleApplicationService().tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "projects/{projectId}/roles/{id}",
         consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(
+    public ResponseEntity<Void> tenantPatch(
         @PathVariable String projectId,
         @PathVariable(name = "id") String id,
         @RequestBody JsonPatch command,
@@ -104,19 +104,19 @@ public class RoleResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getRoleApplicationService()
-            .patch(projectId, id, command, changeId);
+            .tenantPatch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{projectId}/roles/{id}")
-    public ResponseEntity<Void> deleteForRootById(
+    public ResponseEntity<Void> tenantRemove(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getRoleApplicationService().remove(projectId, id, changeId);
+        ApplicationServiceRegistry.getRoleApplicationService().tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 }

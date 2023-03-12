@@ -38,18 +38,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectResource {
 
     @PostMapping(path = "projects")
-    public ResponseEntity<Void> createProject(@RequestBody ProjectCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                              String jwt) {
+    public ResponseEntity<Void> tenantCreate(
+        @RequestBody ProjectCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-                ApplicationServiceRegistry.getProjectApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getProjectApplicationService().tenantCreate(command, changeId))
             .build();
     }
 
     @GetMapping(path = "mngmt/projects")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> getProjectsForMgmt(
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -58,7 +59,7 @@ public class ProjectResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Project> queryProjects =
             ApplicationServiceRegistry.getProjectApplicationService()
-                .adminQueryProjects(queryParam, pageParam, skipCount);
+                .mgmtQuery(queryParam, pageParam, skipCount);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
         ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);
@@ -66,38 +67,37 @@ public class ProjectResource {
     }
 
     @GetMapping(path = "mgmt/dashboard")
-    public ResponseEntity<DashboardRepresentation> getMgmtDashboard(
+    public ResponseEntity<DashboardRepresentation> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         DashboardRepresentation rep =
             ApplicationServiceRegistry.getProjectApplicationService()
-                .adminDashboard();
+                .mgmtQuery();
         return ResponseEntity.ok(rep);
     }
 
     @GetMapping(path = "projects/tenant")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> findTenantProjectsForUser(
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> tenantQuery(
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Project> clients =
-            ApplicationServiceRegistry.getProjectApplicationService().findTenantProjects(pageParam);
+            ApplicationServiceRegistry.getProjectApplicationService().tenantQuery(pageParam);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(clients, ProjectCardRepresentation::new);
         return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
     }
 
     @GetMapping("projects/{id}")
-    public ResponseEntity<ProjectRepresentation> getDetailForProject(
+    public ResponseEntity<ProjectRepresentation> tenantQueryDetail(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ProjectRepresentation resp =
-            ApplicationServiceRegistry.getProjectApplicationService().project(id);
+            ApplicationServiceRegistry.getProjectApplicationService().tenantQueryDetail(id);
         return ResponseEntity.ok(resp);
     }
 
@@ -109,13 +109,13 @@ public class ProjectResource {
      * @return project creation status
      */
     @GetMapping("projects/{id}/ready")
-    public ResponseEntity<Map<String, Boolean>> checkIfProjectReady(
+    public ResponseEntity<Map<String, Boolean>> checkIfReady(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         boolean b =
-            ApplicationServiceRegistry.getUserRelationApplicationService().projectRelationExist(id);
+            ApplicationServiceRegistry.getUserRelationApplicationService().checkExist(id);
         Map<String, Boolean> objectObjectHashMap = new HashMap<>();
         objectObjectHashMap.put("status", b);
         return ResponseEntity.ok(objectObjectHashMap);
@@ -123,35 +123,35 @@ public class ProjectResource {
 
 
     @PutMapping("projects/{id}")
-    public ResponseEntity<Void> updateProject(@PathVariable(name = "id") String id,
-                                                   @RequestBody ProjectUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                   String jwt) {
+    public ResponseEntity<Void> update(
+        @PathVariable(name = "id") String id,
+        @RequestBody ProjectUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getProjectApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getProjectApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{id}")
-    public ResponseEntity<Void> deleteProject(@PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> remove(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getProjectApplicationService().removeProject(id, changeId);
+        ApplicationServiceRegistry.getProjectApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "projects/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchProject(@PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                 String jwt) {
+    public ResponseEntity<Void> patch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getProjectApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();

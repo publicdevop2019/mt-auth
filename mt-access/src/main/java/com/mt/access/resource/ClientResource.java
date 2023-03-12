@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ClientResource {
 
     @PostMapping(path = "projects/{projectId}/clients")
-    public ResponseEntity<Void> createForRoot(
+    public ResponseEntity<Void> tenantCreate(
         @PathVariable String projectId,
         @RequestBody ClientCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -52,7 +52,7 @@ public class ClientResource {
     }
 
     @GetMapping(path = "projects/{projectId}/clients")
-    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> tenantQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -70,7 +70,7 @@ public class ClientResource {
     }
 
     @GetMapping(path = "mngmt/clients")
-    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> readForRootByQuery2(
+    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -86,10 +86,10 @@ public class ClientResource {
     }
 
     @GetMapping("mngmt/clients/{id}")
-    public ResponseEntity<ClientRepresentation> readForRootById2(
+    public ResponseEntity<ClientRepresentation> mgmtQuery(
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-        String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
@@ -99,22 +99,21 @@ public class ClientResource {
 
     //for internal proxy to create router
     @GetMapping(path = "clients/proxy")
-    public ResponseEntity<SumPagedRep<ClientProxyRepresentation>> internalGetAll(
+    public ResponseEntity<SumPagedRep<ClientProxyRepresentation>> proxyQuery(
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
-
     ) {
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
-            .internalQuery(pageParam, skipCount);
+            .proxyQuery(pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, ClientProxyRepresentation::new));
     }
 
     @GetMapping("projects/{projectId}/clients/{id}")
-    public ResponseEntity<ClientRepresentation> readForRootById(
+    public ResponseEntity<ClientRepresentation> tenantQueryById(
         @PathVariable String projectId,
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-        String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().tenantQuery(id, projectId);
@@ -123,27 +122,27 @@ public class ClientResource {
     }
 
     @PutMapping("projects/{projectId}/clients/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable String projectId,
-                                                   @PathVariable(name = "id") String id,
-                                                   @RequestBody ClientUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                   String jwt) {
+    public ResponseEntity<Void> tenantUpdate(
+        @PathVariable String projectId,
+        @PathVariable(name = "id") String id,
+        @RequestBody ClientUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         ApplicationServiceRegistry.getClientApplicationService()
-            .tenantReplace(id, command, changeId);
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{projectId}/clients/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String projectId,
-                                                  @PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantRemove(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
             .tenantRemove(projectId, id, changeId);
@@ -152,24 +151,25 @@ public class ClientResource {
 
     @PatchMapping(path = "projects/{projectId}/clients/{id}",
         consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable String projectId,
-                                                 @PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                 String jwt) {
+    public ResponseEntity<Void> tenantPatch(
+        @PathVariable String projectId,
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getClientApplicationService()
-            .patch(projectId, id, command, changeId);
+            .tenantPatch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("projects/{projectId}/clients/{id}/autoApprove")
-    public ResponseEntity<ClientAutoApproveRepresentation> getForUserByQuery(
+    public ResponseEntity<ClientAutoApproveRepresentation> uiAutoApproveCheck(
         @PathVariable String projectId,
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
             ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId, id);

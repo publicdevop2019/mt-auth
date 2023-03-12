@@ -19,6 +19,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -54,12 +55,11 @@ import org.hibernate.annotations.Where;
 
 @Entity
 @NoArgsConstructor
-@Where(clause = "deleted=0")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "clientRegion")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path", "deleted"}))
-public class Client extends Auditable {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path"}))
+public class Client extends NextAuditable {
 
     private static final String EMPTY_SECRET = "";
     /**

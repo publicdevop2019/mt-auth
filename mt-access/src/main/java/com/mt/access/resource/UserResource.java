@@ -74,7 +74,7 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserApplicationService()
-            .users(queryParam, pageParam, config);
+            .query(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
 
@@ -82,7 +82,7 @@ public class UserResource {
     @GetMapping("mngmt/users/{id}")
     public ResponseEntity<UserMngmntRepresentation> readForAdminById(@PathVariable String id) {
         UserMngmntRepresentation detail =
-            ApplicationServiceRegistry.getUserApplicationService().userDetailsForMngmnt(id);
+            ApplicationServiceRegistry.getUserApplicationService().mgmtQuery(id);
         return ResponseEntity.ok(detail);
     }
 
@@ -94,7 +94,7 @@ public class UserResource {
                                                @RequestHeader(HTTP_HEADER_CHANGE_ID)
                                                String changeId) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getUserApplicationService().adminLock(id, command, changeId);
+        ApplicationServiceRegistry.getUserApplicationService().mgmtLock(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -105,7 +105,7 @@ public class UserResource {
                                                    @RequestHeader(HTTP_HEADER_AUTHORIZATION)
                                                    String jwt) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getUserApplicationService().delete(id, changeId);
+        ApplicationServiceRegistry.getUserApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
@@ -183,7 +183,7 @@ public class UserResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserTenantRepresentation> user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
-                .getTenantUserDetail(projectId, id);
+                .tenantUser(projectId, id);
         return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
     }
 
@@ -291,7 +291,7 @@ public class UserResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<ProjectAdminRepresentation> resp =
             ApplicationServiceRegistry.getUserRelationApplicationService()
-                .adminsForProject(pageParam, projectId);
+                .adminQuery(pageParam, projectId);
         return ResponseEntity.ok(resp);
     }
 

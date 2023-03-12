@@ -2,6 +2,7 @@ package com.mt.access.domain.model.operation_cool_down;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import java.time.Instant;
 import java.util.Date;
 import javax.persistence.Column;
@@ -23,7 +24,7 @@ import lombok.Setter;
     "opt_type"}), name = "opt_cool_down")
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class OperationCoolDown extends Auditable {
+public class OperationCoolDown extends NextAuditable {
     /**
      * person who execute this operation, can be email or user id.
      */

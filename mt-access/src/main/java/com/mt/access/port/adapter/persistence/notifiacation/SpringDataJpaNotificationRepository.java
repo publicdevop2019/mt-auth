@@ -74,6 +74,6 @@ public interface SpringDataJpaNotificationRepository
                 query.getSort().isAsc());
         }
         queryContext.setOrder(order);
-        return QueryUtility.pagedQuery(query, queryContext);
+        return QueryUtility.nativePagedQuery(query, queryContext);
     }
 }

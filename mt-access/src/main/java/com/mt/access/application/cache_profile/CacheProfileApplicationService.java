@@ -16,9 +16,7 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +24,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class CacheProfileApplicationService {
 
-    public static final String CACHE_PROFILE = "CACHE_PROFILE";
+    private static final String CACHE_PROFILE = "CACHE_PROFILE";
 
-    @Transactional
+    public SumPagedRep<CacheProfile> query(String queryParam, String pageParam,
+                                           String config) {
+        return DomainRegistry.getCacheProfileRepository()
+            .query(new CacheProfileQuery(queryParam, pageParam, config));
+    }
+
     public String create(CreateCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
@@ -52,18 +55,12 @@ public class CacheProfileApplicationService {
         return cacheProfileId.getDomainId();
     }
 
-    public SumPagedRep<CacheProfile> query(String queryParam, String pageParam,
-                                           String config) {
-        return DomainRegistry.getCacheProfileRepository()
-            .cacheProfileOfQuery(new CacheProfileQuery(queryParam, pageParam, config));
-    }
 
-    @Transactional
     public void update(String id, ReplaceCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<CacheProfile> cacheProfile1 =
-                DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+                DomainRegistry.getCacheProfileRepository().id(cacheProfileId);
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
@@ -81,13 +78,12 @@ public class CacheProfileApplicationService {
         }, CACHE_PROFILE);
     }
 
-    @Transactional
     public void patch(String id, JsonPatch command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<CacheProfile> cacheProfile =
-                    DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
+                    DomainRegistry.getCacheProfileRepository().id(cacheProfileId);
                 if (cacheProfile.isPresent()) {
                     CacheProfile profile = cacheProfile.get();
                     PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(profile);
@@ -116,22 +112,18 @@ public class CacheProfileApplicationService {
     public void remove(String id, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            AtomicReference<CacheProfile> target = new AtomicReference<>();
-            CommonDomainRegistry.getTransactionService().transactional(() -> {
-                Optional<CacheProfile> cacheProfile =
-                    DomainRegistry.getCacheProfileRepository().cacheProfileOfId(cacheProfileId);
-                cacheProfile.ifPresent(e -> {
-                    target.set(e);
-                    e.removeAllReference();
-                    DomainRegistry.getCacheProfileRepository().remove(e);
-                    DomainRegistry.getAuditService()
-                        .storeUserAction(DELETE_CACHE_PROFILE,
-                            target.get());
-                });
+            Optional<CacheProfile> cacheProfile =
+                DomainRegistry.getCacheProfileRepository().id(cacheProfileId);
+            cacheProfile.ifPresent(e -> {
+                e.removeAllReference();
+                DomainRegistry.getCacheProfileRepository().remove(e);
+                DomainRegistry.getAuditService()
+                    .storeAuditAction(DELETE_CACHE_PROFILE,
+                        e);
+                DomainRegistry.getAuditService()
+                    .logUserAction(log, DELETE_CACHE_PROFILE,
+                        e);
             });
-            DomainRegistry.getAuditService()
-                .logUserAction(log, DELETE_CACHE_PROFILE,
-                    target.get());
             return null;
         }, CACHE_PROFILE);
     }

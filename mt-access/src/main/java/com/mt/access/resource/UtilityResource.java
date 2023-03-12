@@ -22,7 +22,7 @@ public class UtilityResource {
      * @return void
      */
     @PostMapping(path = "cache/clean")
-    public ResponseEntity<Void> createForApp() {
+    public ResponseEntity<Void> cleanCache() {
         CommonDomainRegistry.getHibernateCacheService().clearCache();
         return ResponseEntity.ok().build();
     }
@@ -33,7 +33,7 @@ public class UtilityResource {
      * @return registry info
      */
     @GetMapping(path = "registry")
-    public ResponseEntity<List<RegistryCardRepresentation>> registryStatus() {
+    public ResponseEntity<List<RegistryCardRepresentation>> registryInfo() {
         List<RegistryCardRepresentation> info =
             ApplicationServiceRegistry.getRegistryApplicationService().getInfo();
         RegistryCardRepresentation.updateDetails(info);

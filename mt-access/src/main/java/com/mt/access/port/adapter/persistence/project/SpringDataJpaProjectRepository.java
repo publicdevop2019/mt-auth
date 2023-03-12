@@ -28,8 +28,7 @@ public interface SpringDataJpaProjectRepository
     }
 
     default void remove(Project project) {
-        project.softDelete();
-        save(project);
+        delete(project);
     }
 
     default SumPagedRep<Project> getByQuery(ProjectQuery query) {
@@ -65,7 +64,7 @@ public interface SpringDataJpaProjectRepository
                     .getDomainIdOrder(Project_.PROJECT_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 }

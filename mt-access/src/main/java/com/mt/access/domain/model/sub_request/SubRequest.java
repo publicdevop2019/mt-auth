@@ -5,6 +5,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -27,14 +28,13 @@ import org.hibernate.annotations.Where;
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "subRequestRegion")
 @NamedQuery(name = "getMySubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getMySubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 @NamedQuery(name = "getEpSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getEpSubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
-public class SubRequest extends Auditable {
+public class SubRequest extends NextAuditable {
     @Convert(converter = SubRequestStatus.DbConverter.class)
     private SubRequestStatus subRequestStatus = SubRequestStatus.PENDING;
     @Embedded
@@ -113,11 +113,6 @@ public class SubRequest extends Auditable {
     public void approve(UserId userId) {
         this.subRequestStatus = SubRequestStatus.APPROVED;
         this.approvedBy = userId;
-    }
-
-    public void cancel() {
-        this.subRequestStatus = SubRequestStatus.CANCELLED;
-        softDelete();
     }
 
     public void reject(String rejectionReason, UserId userId) {

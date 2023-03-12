@@ -5,7 +5,6 @@ import com.mt.common.domain.model.sql.converter.EnumConverter;
 public enum SubRequestStatus {
     PENDING,
     APPROVED,
-    CANCELLED,
     REJECTED;
 
     public static class DbConverter extends EnumConverter<SubRequestStatus> {

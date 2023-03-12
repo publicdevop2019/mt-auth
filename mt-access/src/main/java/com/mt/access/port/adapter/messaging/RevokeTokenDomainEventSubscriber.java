@@ -31,56 +31,56 @@ public class RevokeTokenDomainEventSubscriber {
     private void listener2() {
         ListenerHelper.listen(new ClientResourceCleanUpCompleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener3() {
         ListenerHelper.listen(new UserAuthorityChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener4() {
         ListenerHelper.listen(new UserDeleted(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener5() {
         ListenerHelper.listen(new UserGetLocked(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener6() {
         ListenerHelper.listen(new UserPasswordChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener7() {
         ListenerHelper.listen(new ClientAccessibilityRemoved(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener9() {
         ListenerHelper.listen(new ClientGrantTypeChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener10() {
         ListenerHelper.listen(new ClientTokenDetailChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -90,14 +90,14 @@ public class RevokeTokenDomainEventSubscriber {
                 MqHelper.handlerOf(AppInfo.MT_ACCESS_APP_ID + "_token", CLIENT_DELETED),
                 ClientDeleted.class,
                 (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                    .handleChange(event), CLIENT_DELETED);
+                    .handle(event), CLIENT_DELETED);
     }
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener12() {
         ListenerHelper.listen(new ClientResourcesChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
 
@@ -105,7 +105,7 @@ public class RevokeTokenDomainEventSubscriber {
     private void listener14() {
         ListenerHelper.listen(new ClientSecretChanged(),
             (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .handleChange(event));
+                .handle(event));
     }
 
 }

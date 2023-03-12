@@ -98,7 +98,7 @@ public class EndpointProxyCacheRepresentation
             if (cache.size() > 0) {
                 cacheFetched = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getCacheProfileRepository()
-                        .cacheProfileOfQuery(query), new CacheProfileQuery(cache));
+                        .query(query), new CacheProfileQuery(cache));
             }
             if (clients.size() > 0) {
                 clientFetched = QueryUtility.getAllByQuery(

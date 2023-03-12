@@ -4,11 +4,11 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 
 public interface CacheProfileRepository {
-    Optional<CacheProfile> cacheProfileOfId(CacheProfileId id);
+    Optional<CacheProfile> id(CacheProfileId id);
 
     void add(CacheProfile cacheProfile);
 
     void remove(CacheProfile cacheProfile);
 
-    SumPagedRep<CacheProfile> cacheProfileOfQuery(CacheProfileQuery cacheProfileQuery);
+    SumPagedRep<CacheProfile> query(CacheProfileQuery cacheProfileQuery);
 }

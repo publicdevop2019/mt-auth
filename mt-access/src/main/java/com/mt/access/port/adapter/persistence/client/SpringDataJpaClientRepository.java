@@ -73,13 +73,11 @@ public interface SpringDataJpaClientRepository
     }
 
     default void remove(Client client) {
-        client.softDelete();
-        save(client);
+        delete(client);
     }
 
-    default void remove(Collection<Client> client) {
-        client.forEach(Auditable::softDelete);
-        saveAll(client);
+    default void remove(Collection<Client> clients) {
+        deleteAll(clients);
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
@@ -96,8 +94,6 @@ public interface SpringDataJpaClientRepository
 
     @Component
     class JpaCriteriaApiClientAdaptor {
-        public static final String ENTITY_NAME = "name";
-
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
             QueryUtility.QueryContext<Client> queryContext =
                 QueryUtility.prepareContext(Client.class, clientQuery);
@@ -108,7 +104,7 @@ public interface SpringDataJpaClientRepository
             Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName())
-                .ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
+                .ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.NAME, queryContext));
             Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
@@ -153,7 +149,7 @@ public interface SpringDataJpaClientRepository
                     queryContext.getCriteriaBuilder(), queryContext.getRoot(),
                     queryContext.getQuery());
             queryContext.setOrder(orderClause);
-            return QueryUtility.pagedQuery(clientQuery, queryContext);
+            return QueryUtility.nativePagedQuery(clientQuery, queryContext);
         }
 
         public static class GrantAccessTokenClausePredicateConverter {

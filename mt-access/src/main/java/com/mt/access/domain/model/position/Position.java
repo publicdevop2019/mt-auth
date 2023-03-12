@@ -2,6 +2,7 @@ package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import java.util.Objects;
 import javax.persistence.Cacheable;
 import javax.persistence.Embedded;
@@ -18,7 +19,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "positionRegion")
-public class Position extends Auditable {
+public class Position extends NextAuditable {
 
     private String name;
 

@@ -39,7 +39,7 @@ public class EndpointValidationService {
     private void hasValidCacheProfileId(Endpoint endpoint, ValidationNotificationHandler handler) {
         if (endpoint.getCacheProfileId() != null) {
             Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository()
-                .cacheProfileOfId(endpoint.getCacheProfileId());
+                .id(endpoint.getCacheProfileId());
             if (cacheProfile.isEmpty()) {
                 handler.handleError("unable to find cache profile with id: "
                     +

@@ -261,10 +261,10 @@ public class CrossDomainValidationService {
         Set<Role> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
                 new RoleQuery(RoleType.CLIENT));
-        Set<String> names = allByQuery.stream().map(Role::getName).collect(Collectors.toSet());
+        Set<String> roleNames = allByQuery.stream().map(Role::getName).collect(Collectors.toSet());
 
-        if (clients.stream().anyMatch(e -> !names.contains(e.getDomainId()))) {
-            Set<ClientId> collect = clients.stream().filter(e -> !names.contains(e.getDomainId()))
+        if (clients.stream().anyMatch(e -> !roleNames.contains(e.getDomainId()))) {
+            Set<ClientId> collect = clients.stream().filter(e -> !roleNames.contains(e.getDomainId()))
                 .collect(Collectors.toSet());
             log.debug("unable to find roles for clients {}", collect);
             CommonDomainRegistry.getDomainEventRepository()
@@ -273,9 +273,9 @@ public class CrossDomainValidationService {
         }
         Set<String> clientIds =
             clients.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-        if (names.stream().anyMatch(e -> !clientIds.contains(e))) {
+        if (roleNames.stream().anyMatch(e -> !clientIds.contains(e))) {
             Set<String> collect =
-                names.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
+                roleNames.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
             log.debug("unable to find client for role {}", collect);
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new ValidationFailedEvent("ROLE_MUST_HAVE_RELATED_CLIENT"));
@@ -317,7 +317,7 @@ public class CrossDomainValidationService {
         Set<CacheProfileId> cacheProfileIds =
             DomainRegistry.getEndpointRepository().getCacheProfileIds();
         Set<CacheProfile> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().query(e),
                 new CacheProfileQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()

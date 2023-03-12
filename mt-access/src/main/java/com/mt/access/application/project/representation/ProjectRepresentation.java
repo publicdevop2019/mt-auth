@@ -25,7 +25,7 @@ public class ProjectRepresentation {
         this.id = project.getProjectId().getDomainId();
         this.createdBy = project.getCreatedBy();
         Optional<User> user =
-            ApplicationServiceRegistry.getUserApplicationService().lookupUser(this.createdBy);
+            ApplicationServiceRegistry.getUserApplicationService().query(this.createdBy);
         user.ifPresent(e -> this.creatorName = e.getDisplayName());
         this.createdAt = project.getCreatedAt().getTime();
         this.totalClient = clientCount;

@@ -38,13 +38,11 @@ public interface SpringDataJpaUserRelationRepository
     }
 
     default void remove(UserRelation userRelation) {
-        userRelation.softDelete();
-        save(userRelation);
+        delete(userRelation);
     }
 
     default void removeAll(Set<UserRelation> userRelation) {
-        userRelation.forEach(Auditable::softDelete);
-        saveAll(userRelation);
+        deleteAll(userRelation);
     }
 
     default Set<ProjectId> getProjectIds() {
@@ -133,7 +131,7 @@ public interface SpringDataJpaUserRelationRepository
                     .getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 }

@@ -1,5 +1,9 @@
 package com.mt.access.application.endpoint;
 
+import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ENDPOINT;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ENDPOINT;
+import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_ENDPOINT;
+import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.permission.Permission.CREATE_API;
 import static com.mt.access.domain.model.permission.Permission.EDIT_API;
 import static com.mt.access.domain.model.permission.Permission.VIEW_API;
@@ -28,6 +32,7 @@ import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -43,7 +48,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -51,8 +55,6 @@ public class EndpointApplicationService {
     private static final String ENDPOINT = "Endpoint";
     @Value("${proxy.reload}")
     private boolean reloadOnAppStart;
-    @Value("${spring.application.name}")
-    private String appName;
 
     /**
      * send app started event with a delay of 60s to wait for registry complete.
@@ -67,13 +69,65 @@ public class EndpointApplicationService {
             }
             log.debug("sending reload proxy endpoint message");
             CommonDomainRegistry.getEventStreamService()
-                .next(appName, false, "started_access", ApplicationStartedEvent.create());
+                .next(AppInfo.MT_ACCESS_APP_ID, false, "started_access",
+                    ApplicationStartedEvent.create());
         }
     }
 
-    @Transactional
-    @AuditLog(actionName = "create api")
-    public String create(String rawProjectId, EndpointCreateCommand command, String changeId) {
+    public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
+        SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
+            .endpointsOfQuery(new EndpointQuery(pageParam));
+        List<EndpointProxyCacheRepresentation> collect =
+            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
+                .collect(Collectors.toList());
+        EndpointProxyCacheRepresentation.updateDetail(collect);
+        return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
+    }
+
+    /**
+     * internal query endpoints
+     *
+     * @param endpointIds endpoint ids
+     * @return matched endpoints
+     */
+    public Set<Endpoint> internalQuery(Set<EndpointId> endpointIds) {
+        return QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository()
+            .endpointsOfQuery(e), new EndpointQuery(endpointIds));
+    }
+
+    public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
+    }
+
+    public SumPagedRep<Endpoint> marketQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
+    }
+
+    public SumPagedRep<Endpoint> mgmtQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
+    }
+
+    public Optional<Endpoint> mgmtQuery(String id) {
+        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id));
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
+    }
+
+    public Optional<Endpoint> tenantQuery(String projectId, String id) {
+        EndpointQuery endpointQuery =
+            new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
+    }
+
+    @AuditLog(actionName = CREATE_TENANT_ENDPOINT)
+    public String tenantCreate(String rawProjectId, EndpointCreateCommand command,
+                               String changeId) {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId = new ProjectId(rawProjectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
@@ -119,39 +173,8 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
-    }
-
-    public SumPagedRep<Endpoint> getShared(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
-    }
-
-    public SumPagedRep<Endpoint> adminQuery(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery);
-    }
-
-    public Optional<Endpoint> tenantEndpoint(String projectId, String id) {
-        EndpointQuery endpointQuery =
-            new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
-    }
-
-    public Optional<Endpoint> adminEndpoint(String id) {
-        EndpointQuery endpointQuery = new EndpointQuery(new EndpointId(id));
-        return DomainRegistry.getEndpointRepository().endpointsOfQuery(endpointQuery).findFirst();
-    }
-
-    @Transactional
-    @AuditLog(actionName = "update api")
-    public void update(String id, EndpointUpdateCommand command, String changeId) {
+    @AuditLog(actionName = UPDATE_TENANT_ENDPOINT)
+    public void tenantUpdate(String id, EndpointUpdateCommand command, String changeId) {
         log.debug("start of update endpoint");
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(command.getProjectId()));
@@ -189,9 +212,8 @@ public class EndpointApplicationService {
         log.debug("end of update endpoint");
     }
 
-    @Transactional
-    @AuditLog(actionName = "remove api")
-    public void removeEndpoint(String projectId, String id, String changeId) {
+    @AuditLog(actionName = REMOVE_TENANT_ENDPOINT)
+    public void tenantRemove(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
@@ -204,42 +226,19 @@ public class EndpointApplicationService {
                 if (endpoint.isPresent()) {
                     Endpoint endpoint1 = endpoint.get();
                     endpoint1.remove();
+                    DomainRegistry.getAuditService()
+                        .storeAuditAction(REMOVE_TENANT_ENDPOINT,
+                            endpoint1);
+                    DomainRegistry.getAuditService()
+                        .logUserAction(log, REMOVE_TENANT_ENDPOINT,
+                            endpoint1);
                 }
                 return null;
             }, ENDPOINT);
     }
 
-    @Transactional
-    @AuditLog(actionName = "remove api with query")
-    public void removeEndpoints(String projectId, String queryParam, String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
-                Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
-                    new EndpointQuery(queryParam, projectId1));
-                Set<ProjectId> collect =
-                    allByQuery.stream().map(Endpoint::getProjectId).collect(Collectors.toSet());
-                if (collect.size() != 1) {
-                    throw new DefinedRuntimeException("project count not 1", "0012",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
-                }
-                ProjectId[] a = new ProjectId[1];
-                if (!collect.toArray(a)[0].equals(projectId1)) {
-                    throw new DefinedRuntimeException("project id mismatch", "0013",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
-                }
-                Endpoint.remove(allByQuery);
-                return null;
-            }, ENDPOINT);
-    }
-
-    @Transactional
-    @AuditLog(actionName = "patch api")
-    public void patchEndpoint(String projectId, String id, JsonPatch command, String changeId) {
+    @AuditLog(actionName = PATCH_TENANT_ENDPOINT)
+    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
@@ -272,8 +271,7 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    @Transactional
-    public void reloadEndpointCache(String changeId) {
+    public void reloadCache(String changeId) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getEndpointService().reloadEndpointCache();
@@ -281,7 +279,25 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    @Transactional
+    public void expire(EndpointExpireCommand command, String projectId, String id,
+                       String changeId) {
+        log.debug("start of expire endpoint");
+        EndpointId endpointId = new EndpointId(id);
+        EndpointQuery endpointQuery =
+            new EndpointQuery(endpointId, new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                Optional<Endpoint> endpoint =
+                    DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
+                endpoint.ifPresent(e -> {
+                    e.expire(command.getExpireReason());
+                });
+                return null;
+            }, ENDPOINT);
+    }
+
     public void handle(ClientDeleted deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -298,7 +314,6 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    @Transactional
     public void handle(CorsProfileRemoved deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -320,7 +335,6 @@ public class EndpointApplicationService {
      *
      * @param event cors profile updated event
      */
-    @Transactional
     public void handle(CorsProfileUpdated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
@@ -337,7 +351,6 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    @Transactional
     public void handle(CacheProfileRemoved deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -356,7 +369,6 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    @Transactional
     public void handle(CacheProfileUpdated deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -375,44 +387,4 @@ public class EndpointApplicationService {
             }, ENDPOINT);
     }
 
-    public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
-        SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
-            .endpointsOfQuery(new EndpointQuery(pageParam));
-        List<EndpointProxyCacheRepresentation> collect =
-            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
-                .collect(Collectors.toList());
-        EndpointProxyCacheRepresentation.updateDetail(collect);
-        return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
-    }
-
-    /**
-     * internal query endpoints
-     *
-     * @param endpointIds endpoint ids
-     * @return matched endpoints
-     */
-    public Set<Endpoint> internalQuery(Set<EndpointId> endpointIds) {
-        return QueryUtility.getAllByQuery(e -> DomainRegistry.getEndpointRepository()
-            .endpointsOfQuery(e), new EndpointQuery(endpointIds));
-    }
-
-    @Transactional
-    public void expireEndpoint(EndpointExpireCommand command, String projectId, String id,
-                               String changeId) {
-        log.debug("start of expire endpoint");
-        EndpointId endpointId = new EndpointId(id);
-        EndpointQuery endpointQuery =
-            new EndpointQuery(endpointId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                Optional<Endpoint> endpoint =
-                    DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
-                endpoint.ifPresent(e -> {
-                    e.expire(command.getExpireReason());
-                });
-                return null;
-            }, ENDPOINT);
-    }
 }

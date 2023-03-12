@@ -14,6 +14,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.port.adapter.persistence.PermissionIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -50,7 +51,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Getter
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "roleRegion")
-public class Role extends Auditable {
+public class Role extends NextAuditable {
     public static final String PROJECT_USER = "PROJECT_USER";
     public static final String PROJECT_ADMIN = "PROJECT_ADMIN";
     public static final String CLIENT_ROOT = "CLIENT_ROOT";

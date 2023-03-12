@@ -26,8 +26,7 @@ public interface SpringDataJpaOrganizationRepository
     }
 
     default void remove(Organization organization) {
-        organization.softDelete();
-        save(organization);
+        delete(organization);
     }
 
     default SumPagedRep<Organization> getByQuery(OrganizationQuery organizationQuery) {
@@ -49,7 +48,7 @@ public interface SpringDataJpaOrganizationRepository
                     query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 }

@@ -36,39 +36,80 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 public class UserRelationApplicationService {
     private static final String USER_RELATION = "UserRelation";
 
-    public Optional<UserRelation> getUserRelation(UserId userId, ProjectId projectId) {
+    public Optional<UserRelation> query(UserId userId, ProjectId projectId) {
         return DomainRegistry.getUserRelationRepository()
             .getByUserIdAndProjectId(userId, projectId);
     }
 
-    /**
-     * create user relation to mt-auth and target project as well.
-     *
-     * @param event new project role created event
-     */
-
-    @Transactional
-    public void handle(NewProjectRoleCreated event) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
-                log.debug("handle new project role created event");
-                RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
-                RoleId userRoleId = event.getUserRoleId();
-                UserId creator = event.getCreator();
-                ProjectId tenantId = event.getProjectId();
-                UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
-                    new ProjectId(MT_AUTH_PROJECT_ID));
-                return null;
-            }, USER_RELATION);
+    public Optional<UserTenantRepresentation> tenantUser(String projectId, String userId) {
+        UserRelationQuery userRelationQuery =
+            new UserRelationQuery(new UserId(userId), new ProjectId(projectId));
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
+        return DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery).findFirst()
+            .map(userRelation -> {
+                UserQuery userQuery = new UserQuery(userRelation.getUserId());
+                return DomainRegistry.getUserRepository().usersOfQuery(userQuery).findFirst()
+                    .map(e -> new UserTenantRepresentation(userRelation, e));
+            }).orElseGet(Optional::empty);
     }
 
+
+    public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
+        UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
+        SumPagedRep<UserRelation> byQuery =
+            DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery);
+        if (byQuery.getData().isEmpty()) {
+            SumPagedRep<User> empty = SumPagedRep.empty();
+            empty.setTotalItemCount(byQuery.getTotalItemCount());
+            return empty;
+        }
+        Set<UserId> collect =
+            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
+        UserQuery userQuery = new UserQuery(collect);
+        SumPagedRep<User> userSumPagedRep =
+            DomainRegistry.getUserRepository().usersOfQuery(userQuery);
+        userSumPagedRep.setTotalItemCount(byQuery.getTotalItemCount());
+        return userSumPagedRep;
+    }
+
+    /**
+     * find user relation for project id.
+     *
+     * @param id project id
+     * @return boolean if relation can be found or not
+     */
+    public boolean checkExist(String id) {
+        ProjectId projectId = new ProjectId(id);
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<UserRelation> userRelation = query(userId, projectId);
+        return userRelation.isPresent();
+    }
+
+    public SumPagedRep<ProjectAdminRepresentation> adminQuery(String pageConfig,
+                                                              String projectId) {
+        ProjectId tenantProjectId = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
+        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
+        SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository()
+            .getByQuery(UserRelationQuery.findTenantAdmin(tenantAdminRoleId, pageConfig));
+        Set<UserId> collect =
+            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
+        SumPagedRep<User> userSumPagedRep =
+            DomainRegistry.getUserRepository().usersOfQuery(new UserQuery(collect));
+        SumPagedRep<ProjectAdminRepresentation> rep =
+            new SumPagedRep<>(userSumPagedRep, ProjectAdminRepresentation::new);
+        rep.setTotalItemCount(byQuery.getTotalItemCount());
+        return rep;
+    }
 
     public UserRelation internalOnboardUserToTenant(UserId userId, ProjectId projectId) {
         AtomicReference<UserRelation> userRelation = new AtomicReference<>();
@@ -94,28 +135,6 @@ public class UserRelationApplicationService {
         return userRelation.get();
     }
 
-    public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
-        UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
-        SumPagedRep<UserRelation> byQuery =
-            DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery);
-        if (byQuery.getData().isEmpty()) {
-            SumPagedRep<User> empty = SumPagedRep.empty();
-            empty.setTotalItemCount(byQuery.getTotalItemCount());
-            return empty;
-        }
-        Set<UserId> collect =
-            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
-        UserQuery userQuery = new UserQuery(collect);
-        SumPagedRep<User> userSumPagedRep =
-            DomainRegistry.getUserRepository().usersOfQuery(userQuery);
-        userSumPagedRep.setTotalItemCount(byQuery.getTotalItemCount());
-        return userSumPagedRep;
-    }
-
-
-    @Transactional
     public void update(String projectId, String userId, UpdateUserRelationCommand command,
                        String changeId) {
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -157,50 +176,6 @@ public class UserRelationApplicationService {
             }, USER_RELATION);
     }
 
-    public Optional<UserTenantRepresentation> getTenantUserDetail(String projectId, String id) {
-        UserRelationQuery userRelationQuery =
-            new UserRelationQuery(new UserId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
-        return DomainRegistry.getUserRelationRepository().getByQuery(userRelationQuery).findFirst()
-            .map(userRelation -> {
-                UserQuery userQuery = new UserQuery(userRelation.getUserId());
-                return DomainRegistry.getUserRepository().usersOfQuery(userQuery).findFirst()
-                    .map(e -> new UserTenantRepresentation(userRelation, e));
-            }).orElseGet(Optional::empty);
-    }
-
-    /**
-     * find user relation for project id.
-     *
-     * @param id project id
-     * @return boolean if relation can be found or not
-     */
-    public boolean projectRelationExist(String id) {
-        ProjectId projectId = new ProjectId(id);
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<UserRelation> userRelation = getUserRelation(userId, projectId);
-        return userRelation.isPresent();
-    }
-
-    public SumPagedRep<ProjectAdminRepresentation> adminsForProject(String pageConfig,
-                                                                    String projectId) {
-        ProjectId tenantProjectId = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
-        RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-        SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository()
-            .getByQuery(UserRelationQuery.findTenantAdmin(tenantAdminRoleId, pageConfig));
-        Set<UserId> collect =
-            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
-        SumPagedRep<User> userSumPagedRep =
-            DomainRegistry.getUserRepository().usersOfQuery(new UserQuery(collect));
-        SumPagedRep<ProjectAdminRepresentation> rep =
-            new SumPagedRep<>(userSumPagedRep, ProjectAdminRepresentation::new);
-        rep.setTotalItemCount(byQuery.getTotalItemCount());
-        return rep;
-    }
-
-    @Transactional
     public void addAdmin(String projectId, String rawUserId, String changeId) {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
@@ -217,7 +192,6 @@ public class UserRelationApplicationService {
             }, USER_RELATION);
     }
 
-    @Transactional
     public void removeAdmin(String projectId, String rawUserId, String changeId) {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
@@ -230,6 +204,44 @@ public class UserRelationApplicationService {
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
                 userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
                 DomainRegistry.getUserRelationRepository().add(userRelation);
+                return null;
+            }, USER_RELATION);
+    }
+
+    /**
+     * remove all deleted user related user relation
+     *
+     * @param event user deleted event
+     */
+    public void handle(UserDeleted event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                log.debug("handle user deleted event");
+                UserId userId = new UserId(event.getDomainId().getDomainId());
+                Set<UserRelation> allByQuery = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getUserRelationRepository().getByQuery(query),
+                    new UserRelationQuery(userId));
+                DomainRegistry.getUserRelationRepository().removeAll(allByQuery);
+                return null;
+            }, USER_RELATION);
+    }
+
+    /**
+     * create user relation to mt-auth and target project as well.
+     *
+     * @param event new project role created event
+     */
+
+    public void handle(NewProjectRoleCreated event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (ignored) -> {
+                log.debug("handle new project role created event");
+                RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
+                RoleId userRoleId = event.getUserRoleId();
+                UserId creator = event.getCreator();
+                ProjectId tenantId = event.getProjectId();
+                UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
+                    new ProjectId(MT_AUTH_PROJECT_ID));
                 return null;
             }, USER_RELATION);
     }
@@ -286,22 +298,4 @@ public class UserRelationApplicationService {
         return first.get().getRoleId();
     }
 
-    /**
-     * remove all deleted user related user relation
-     *
-     * @param event user deleted event
-     */
-    @Transactional
-    public void handleChange(UserDeleted event) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
-                log.debug("handle user deleted event");
-                UserId userId = new UserId(event.getDomainId().getDomainId());
-                Set<UserRelation> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getUserRelationRepository().getByQuery(query),
-                    new UserRelationQuery(userId));
-                DomainRegistry.getUserRelationRepository().removeAll(allByQuery);
-                return null;
-            }, USER_RELATION);
-    }
 }

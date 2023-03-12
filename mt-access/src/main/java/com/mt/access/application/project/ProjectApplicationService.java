@@ -1,5 +1,10 @@
 package com.mt.access.application.project;
 
+import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
+import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_PROJECT;
+import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PROJECT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
 
 import com.github.fge.jsonpatch.JsonPatch;
@@ -38,48 +43,14 @@ public class ProjectApplicationService {
 
     private static final String PROJECT = "PROJECT";
 
-    public static void canReadProject(Set<ProjectId> ids) {
-        if (ids == null) {
-            throw new DefinedRuntimeException("no project id found", "0014",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        if (ids.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "0015",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        //first check access to target project
-        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
-        boolean b = authorizedTenantId.containsAll(ids);
-        if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "0016",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        //second check if has read project access to current project
-        PermissionQuery permissionQuery = PermissionQuery
-            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
-        permissionQuery.setNames(Collections.singleton(VIEW_PROJECT_INFO));
-        Set<Permission> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
-                permissionQuery);
-        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
-            allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
-        if (!b1) {
-            throw new DefinedRuntimeException("no project read access", "0017",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-    }
 
-    public SumPagedRep<Project> adminQueryProjects(String queryParam, String pageParam,
-                                                   String skipCount) {
+    public SumPagedRep<Project> mgmtQuery(String queryParam, String pageParam,
+                                          String skipCount) {
         ProjectQuery projectQuery = new ProjectQuery(queryParam, pageParam, skipCount);
         return DomainRegistry.getProjectRepository().getByQuery(projectQuery);
     }
 
-    public ProjectRepresentation project(String id) {
+    public ProjectRepresentation tenantQueryDetail(String id) {
         ProjectId projectId = new ProjectId(id);
         canReadProject(Collections.singleton(projectId));
         Optional<Project> byId = DomainRegistry.getProjectRepository().getById(projectId);
@@ -101,9 +72,8 @@ public class ProjectApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "update project")
-    public void replace(String id, ProjectUpdateCommand command, String changeId) {
+    @AuditLog(actionName = UPDATE_TENANT_PROJECT)
+    public void update(String id, ProjectUpdateCommand command, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
@@ -119,23 +89,27 @@ public class ProjectApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "remove project")
-    public void removeProject(String id, String changeId) {
+    @AuditLog(actionName = REMOVE_TENANT_PROJECT)
+    public void remove(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Project> corsProfile =
                 DomainRegistry.getProjectRepository().getById(projectId);
             corsProfile.ifPresent(e -> {
                 DomainRegistry.getProjectRepository().remove(e);
+                DomainRegistry.getAuditService()
+                    .storeAuditAction(REMOVE_TENANT_PROJECT,
+                        e);
+                DomainRegistry.getAuditService()
+                    .logUserAction(log, REMOVE_TENANT_PROJECT,
+                        e);
             });
             return null;
         }, PROJECT);
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "patch project")
+    @AuditLog(actionName = PATCH_TENANT_PROJECT)
     public void patch(String id, JsonPatch command, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -157,9 +131,8 @@ public class ProjectApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "create project")
-    public String create(ProjectCreateCommand command, String changeId) {
+    @AuditLog(actionName = CREATE_TENANT_PROJECT)
+    public String tenantCreate(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
@@ -170,7 +143,7 @@ public class ProjectApplicationService {
             }, PROJECT);
     }
 
-    public SumPagedRep<Project> findTenantProjects(String pageParam) {
+    public SumPagedRep<Project> tenantQuery(String pageParam) {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         if (tenantIds.size() == 0) {
             return SumPagedRep.empty();
@@ -190,7 +163,7 @@ public class ProjectApplicationService {
             .getByQuery(e), new ProjectQuery(projectIds));
     }
 
-    public DashboardRepresentation adminDashboard() {
+    public DashboardRepresentation mgmtQuery() {
         long projectCount = DomainRegistry.getProjectRepository().countTotal();
         long clientCount = DomainRegistry.getClientRepository().countTotal();
         long epCount = DomainRegistry.getEndpointRepository().countTotal();
@@ -199,5 +172,40 @@ public class ProjectApplicationService {
         long userCount = DomainRegistry.getUserRepository().countTotal();
         return new DashboardRepresentation(projectCount, clientCount, epCount, epSharedCount,
             epPublicCount, userCount);
+    }
+
+    private void canReadProject(Set<ProjectId> ids) {
+        if (ids == null) {
+            throw new DefinedRuntimeException("no project id found", "0014",
+                HttpResponseCode.FORBIDDEN,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        if (ids.size() == 0) {
+            throw new DefinedRuntimeException("no project id found", "0015",
+                HttpResponseCode.FORBIDDEN,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        //first check access to target project
+        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
+        boolean b = authorizedTenantId.containsAll(ids);
+        if (!b) {
+            throw new DefinedRuntimeException("not allowed project", "0016",
+                HttpResponseCode.FORBIDDEN,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        //second check has read project access to current project
+        PermissionQuery permissionQuery = PermissionQuery
+            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
+        permissionQuery.setNames(Collections.singleton(VIEW_PROJECT_INFO));
+        Set<Permission> allByQuery = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                permissionQuery);
+        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
+            allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
+        if (!b1) {
+            throw new DefinedRuntimeException("no project read access", "0017",
+                HttpResponseCode.FORBIDDEN,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
     }
 }

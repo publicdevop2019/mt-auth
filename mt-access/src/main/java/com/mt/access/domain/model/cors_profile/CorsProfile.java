@@ -4,6 +4,7 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Objects;
 import java.util.Set;
@@ -25,11 +26,10 @@ import org.hibernate.annotations.Where;
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "corsProfileRegion")
 @Setter(AccessLevel.PRIVATE)
-public class CorsProfile extends Auditable {
+public class CorsProfile extends NextAuditable {
     private String name;
     private String description;
     @Embedded

@@ -1,5 +1,15 @@
 package com.mt.access.application.user;
 
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
+import static com.mt.access.domain.model.audit.AuditActionName.MGMT_DELETE_USER;
+import static com.mt.access.domain.model.audit.AuditActionName.MGMT_LOCK_USER;
+import static com.mt.access.domain.model.audit.AuditActionName.MGMT_PATCH_BATCH_USER;
+import static com.mt.access.domain.model.audit.AuditActionName.MGMT_PATCH_USER;
+import static com.mt.access.domain.model.audit.AuditActionName.USER_FORGET_PWD;
+import static com.mt.access.domain.model.audit.AuditActionName.USER_RESET_PWD;
+import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PROFILE;
+import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PWD;
+
 import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UpdateUserCommand;
@@ -48,7 +58,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
-import javax.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -60,44 +69,38 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class UserApplicationService implements UserDetailsService {
 
-    public static final String USER = "User";
-    public static final String DEFAULT_USERID = "0U8AZTODP4H0";
+    private static final String USER = "User";
+    private static final String DEFAULT_USERID = "0U8AZTODP4H0";
 
-    @Transactional
-    public String create(UserCreateCommand command, String operationId) {
-        UserId userId = new UserId();
-        return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(operationId,
-                (change) -> {
-                    UserId userId1 = DomainRegistry.getNewUserService().create(
-                        new UserEmail(command.getEmail()),
-                        new UserPassword(command.getPassword()),
-                        new ActivationCode(command.getActivationCode()),
-                        new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                        userId
-                    );
-                    return userId1.getDomainId();
-                }, USER
-            );
 
+    public Optional<UserProfileRepresentation> myProfile() {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        return user.flatMap((e) -> {
+            UserProfileRepresentation userProfileRepresentation =
+                new UserProfileRepresentation(e, loginInfo.get());
+            return Optional.of(userProfileRepresentation);
+        });
     }
 
-    public SumPagedRep<User> users(String queryParam, String pageParam, String config) {
+
+    public SumPagedRep<User> query(String queryParam, String pageParam, String config) {
         return DomainRegistry.getUserRepository()
             .usersOfQuery(new UserQuery(queryParam, pageParam, config));
     }
 
-    public Set<User> users(Set<UserId> userIdSet) {
+    public Set<User> query(Set<UserId> userIdSet) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository()
             .usersOfQuery(e), new UserQuery(userIdSet));
     }
 
-    public Optional<User> lookupUser(String id) {
-        return DomainRegistry.getUserRepository().userOfId(new UserId(id));
+    public Optional<User> query(String userId) {
+        return DomainRegistry.getUserRepository().userOfId(new UserId(userId));
     }
 
-    public UserMngmntRepresentation userDetailsForMngmnt(String id) {
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(id));
+    public UserMngmntRepresentation mgmtQuery(String userId) {
+        Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(userId));
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("unable to find user", "0075",
                 HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
@@ -108,9 +111,22 @@ public class UserApplicationService implements UserDetailsService {
         return new UserMngmntRepresentation(user1, allForUser);
     }
 
-    @Transactional
-    @AuditLog(actionName = "lock user")
-    public void adminLock(String id, UpdateUserCommand command, String changeId) {
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> client;
+        if (Validator.isValidEmail(username)) {
+            //for login
+            client =
+                DomainRegistry.getUserRepository().searchExistingUserWith(new UserEmail(username));
+        } else {
+            //for refresh token
+            client = DomainRegistry.getUserRepository().userOfId(new UserId(username));
+        }
+        return client.map(UserSpringRepresentation::new).orElse(null);
+    }
+
+    @AuditLog(actionName = MGMT_LOCK_USER)
+    public void mgmtLock(String id, UpdateUserCommand command, String changeId) {
         DomainRegistry.getAuditService()
             .logUserAction(log, "lock user",
                 "with user id :" + id);
@@ -129,13 +145,26 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
+    public String create(UserCreateCommand command, String operationId) {
+        UserId userId = new UserId();
+        return CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(operationId,
+                (change) -> {
+                    UserId userId1 = DomainRegistry.getNewUserService().create(
+                        new UserEmail(command.getEmail()),
+                        new UserPassword(command.getPassword()),
+                        new ActivationCode(command.getActivationCode()),
+                        new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+                        userId
+                    );
+                    return userId1.getDomainId();
+                }, USER
+            );
 
-    @Transactional
-    @AuditLog(actionName = "delete user")
-    public void delete(String id, String changeId) {
-        DomainRegistry.getAuditService()
-            .logUserAction(log, "delete user",
-                "with user id :" + id);
+    }
+
+    @AuditLog(actionName = MGMT_DELETE_USER)
+    public void remove(String id, String changeId) {
         UserId userId = new UserId(id);
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
         if (user.isPresent()) {
@@ -144,6 +173,12 @@ public class UserApplicationService implements UserDetailsService {
                 CommonApplicationServiceRegistry.getIdempotentService()
                     .idempotent(changeId, (ignored) -> {
                         DomainRegistry.getUserRepository().remove(user1);
+                        DomainRegistry.getAuditService()
+                            .storeAuditAction(MGMT_DELETE_USER,
+                                user1);
+                        DomainRegistry.getAuditService()
+                            .logUserAction(log, MGMT_DELETE_USER,
+                                user1);
                         return null;
                     }, USER);
                 CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
@@ -156,12 +191,11 @@ public class UserApplicationService implements UserDetailsService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "patch user")
+    @AuditLog(actionName = MGMT_PATCH_USER)
     public void patch(String id, JsonPatch command, String changeId) {
         DomainRegistry.getAuditService()
-            .logUserAction(log, "patch user",
-                "with user id :" + id);
+            .logUserAction(log, MGMT_PATCH_USER,
+                command);
         UserId userId = new UserId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
@@ -181,12 +215,11 @@ public class UserApplicationService implements UserDetailsService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "patch many user")
+    @AuditLog(actionName = MGMT_PATCH_BATCH_USER)
     public void patchBatch(List<PatchCommand> commands, String changeId) {
         DomainRegistry.getAuditService()
-            .logUserAction(log, "patch many use",
-                commands.toString());
+            .logUserAction(log, MGMT_PATCH_BATCH_USER,
+                commands);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().batchLock(commands);
@@ -195,8 +228,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "update password")
+    @AuditLog(actionName = USER_UPDATE_PWD)
     public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -213,8 +245,7 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
-
-    @Transactional
+    @AuditLog(actionName = USER_FORGET_PWD)
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
             .logExternalUserAction(log, command.getEmail(), "forget password");
@@ -227,8 +258,7 @@ public class UserApplicationService implements UserDetailsService {
             }, USER);
     }
 
-
-    @Transactional
+    @AuditLog(actionName = USER_RESET_PWD)
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
             .logExternalUserAction(log, command.getEmail(), "reset password");
@@ -239,20 +269,6 @@ public class UserApplicationService implements UserDetailsService {
                     new PasswordResetCode(command.getToken()));
                 return null;
             }, USER);
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> client;
-        if (Validator.isValidEmail(username)) {
-            //for login
-            client =
-                DomainRegistry.getUserRepository().searchExistingUserWith(new UserEmail(username));
-        } else {
-            //for refresh token
-            client = DomainRegistry.getUserRepository().userOfId(new UserId(username));
-        }
-        return client.map(UserSpringRepresentation::new).orElse(null);
     }
 
 
@@ -269,8 +285,6 @@ public class UserApplicationService implements UserDetailsService {
         });
     }
 
-    @Transactional
-    @AuditLog(actionName = "create avatar")
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
@@ -324,19 +338,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
 
-    public Optional<UserProfileRepresentation> myProfile() {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
-        return user.flatMap((e) -> {
-            UserProfileRepresentation userProfileRepresentation =
-                new UserProfileRepresentation(e, loginInfo.get());
-            return Optional.of(userProfileRepresentation);
-        });
-    }
-
-    @Transactional
-    @AuditLog(actionName = "update profile")
+    @AuditLog(actionName = USER_UPDATE_PROFILE)
     public void updateProfile(UserUpdateProfileCommand command) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);

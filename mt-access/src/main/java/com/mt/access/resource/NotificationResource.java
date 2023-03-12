@@ -34,60 +34,64 @@ public class NotificationResource {
      * @return paginated bell notification
      */
     @GetMapping(path = "mngmt/notifications/bell")
-    public ResponseEntity<SumPagedRep<BellNotificationRepresentation>> getBellNotifications(
+    public ResponseEntity<SumPagedRep<BellNotificationRepresentation>> mgmtQueryBell(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+    ) {
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .bellNotificationsOf(queryParam, pageParam, skipCount);
+                .queryBell(queryParam, pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, BellNotificationRepresentation::new));
     }
 
     @GetMapping(path = "mngmt/notifications")
-    public ResponseEntity<SumPagedRep<NotificationRepresentation>> getNotifications(
+    public ResponseEntity<SumPagedRep<NotificationRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
+    ) {
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .notificationsOf(queryParam, pageParam, skipCount);
+                .mgmtQuery(queryParam, pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, NotificationRepresentation::new));
     }
 
     @GetMapping(path = "user/notifications/bell")
-    public ResponseEntity<SumPagedRep<BellNotificationRepresentation>> getUserBellNotifications(
+    public ResponseEntity<SumPagedRep<BellNotificationRepresentation>> userQueryBell(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .notificationsForUser(queryParam, pageParam, skipCount);
+                .userQuery(queryParam, pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, BellNotificationRepresentation::new));
     }
 
     @PostMapping(path = "user/notifications/bell/{id}/ack")
-    public ResponseEntity<SumPagedRep<Void>> ackNotificationsForUser(
+    public ResponseEntity<SumPagedRep<Void>> userAck(
         @PathVariable(name = "id") String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getNotificationApplicationService()
-            .ackBellNotificationForUser(id);
+            .userAckBell(id);
         return ResponseEntity
             .ok().build();
     }
 
     @PostMapping(path = "mngmt/notifications/bell/{id}/ack")
-    public ResponseEntity<SumPagedRep<Void>> ackNotifications(
-        @PathVariable(name = "id") String id) {
+    public ResponseEntity<SumPagedRep<Void>> mgmtAck(
+        @PathVariable(name = "id") String id
+    ) {
         ApplicationServiceRegistry.getNotificationApplicationService()
-            .ackBellNotification(id);
+            .ackBell(id);
         return ResponseEntity
             .ok().build();
     }

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuditResource {
 
     @GetMapping(path = "mngmt/events/audit")
-    public ResponseEntity<SumPagedRep<StoredEventRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<StoredEventRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,

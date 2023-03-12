@@ -24,7 +24,7 @@ public class ComputePermissionService {
     public Set<PermissionId> compute(UserRelation userRelation) {
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(
-            q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery(q),
+            q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),
             new RoleQuery(standaloneRoles));
         Set<PermissionId> commonPermissionIds =
             allByQuery.stream().flatMap(e -> e.getCommonPermissionIds().stream())

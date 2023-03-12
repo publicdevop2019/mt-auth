@@ -36,18 +36,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrganizationResource {
 
     @PostMapping
-    public ResponseEntity<Void> createForRoot(@RequestBody OrganizationCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                              String jwt) {
+    public ResponseEntity<Void> tenantCreate(
+        @RequestBody OrganizationCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getOrganizationApplicationService()
-                .create(command, changeId)).build();
+                .tenantCreate(command, changeId)).build();
     }
 
     @GetMapping
-    public ResponseEntity<SumPagedRep<OrganizationCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<OrganizationCardRepresentation>> tenantQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -56,54 +57,55 @@ public class OrganizationResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Organization> clients =
             ApplicationServiceRegistry.getOrganizationApplicationService()
-                .query(queryParam, pageParam, skipCount);
+                .tenantQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, OrganizationCardRepresentation::new));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<OrganizationRepresentation> readForRootById(
+    public ResponseEntity<OrganizationRepresentation> tenantQuery(
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Organization> client =
-            ApplicationServiceRegistry.getOrganizationApplicationService().getById(id);
+            ApplicationServiceRegistry.getOrganizationApplicationService().tenantQuery(id);
         return client.map(value -> ResponseEntity.ok(new OrganizationRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
-                                                   @RequestBody OrganizationUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                   String jwt) {
+    public ResponseEntity<Void> tenantUpdate(
+        @PathVariable(name = "id") String id,
+        @RequestBody OrganizationUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getOrganizationApplicationService()
-            .replace(id, command, changeId);
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantRemove(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getOrganizationApplicationService().remove(id, changeId);
+        ApplicationServiceRegistry.getOrganizationApplicationService().tenantRemove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                 String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                 String jwt) {
+    public ResponseEntity<Void> tenantPatch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getOrganizationApplicationService().patch(id, command, changeId);
+        ApplicationServiceRegistry.getOrganizationApplicationService().tenantPatch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 }

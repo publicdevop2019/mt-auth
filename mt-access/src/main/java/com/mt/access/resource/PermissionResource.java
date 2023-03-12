@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PermissionResource {
 
     @PostMapping(path = "projects/{projectId}/permissions")
-    public ResponseEntity<Void> createForRoot(
+    public ResponseEntity<Void> tenantCreate(
         @PathVariable String projectId,
         @RequestBody PermissionCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -48,12 +48,13 @@ public class PermissionResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
-                ApplicationServiceRegistry.getPermissionApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getPermissionApplicationService()
+                    .tenantCreate(command, changeId))
             .build();
     }
 
     @GetMapping(path = "projects/{projectId}/permissions")
-    public ResponseEntity<SumPagedRep<PermissionCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<PermissionCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -64,13 +65,13 @@ public class PermissionResource {
         queryParam = Utility.updateProjectId(queryParam, projectId);
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
-                .query(queryParam, pageParam, skipCount);
+                .tenantQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(PermissionCardRepresentation
             .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
     }
 
     @GetMapping(path = "permissions/shared")
-    public ResponseEntity<SumPagedRep<PermissionCardRepresentation>> sharedPermission(
+    public ResponseEntity<SumPagedRep<PermissionCardRepresentation>> sharedQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
@@ -78,61 +79,64 @@ public class PermissionResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
-                .sharedPermissions(queryParam, pageParam);
+                .sharedQuery(queryParam, pageParam);
         return ResponseEntity.ok(PermissionCardRepresentation
             .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
     }
 
     @GetMapping(path = "projects/{projectId}/permissions/{id}")
-    public ResponseEntity<PermissionRepresentation> readForRootById(
+    public ResponseEntity<PermissionRepresentation> tenantQuery(
         @PathVariable String projectId,
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Permission> client =
-            ApplicationServiceRegistry.getPermissionApplicationService().getById(projectId, id);
+            ApplicationServiceRegistry.getPermissionApplicationService().tenantQuery(projectId, id);
         return client.map(value -> ResponseEntity.ok(new PermissionRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping(path = "projects/{projectId}/permissions/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable String projectId,
-                                                   @PathVariable String id,
-                                                   @RequestBody PermissionUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                   String jwt) {
+    public ResponseEntity<Void> tenantUpdate(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestBody PermissionUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getPermissionApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getPermissionApplicationService()
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(path = "projects/{projectId}/permissions/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String projectId,
-                                                  @PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantRemove(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
-            .remove(projectId, id, changeId);
+            .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(path = "permissions/ui")
-    public ResponseEntity<UiPermissionInfo> getPermission(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<UiPermissionInfo> uiQuery(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Set<Permission> ui = ApplicationServiceRegistry.getPermissionApplicationService().ui();
+        Set<Permission> ui = ApplicationServiceRegistry.getPermissionApplicationService().uiQuery();
         return ResponseEntity.ok(new UiPermissionInfo(ui));
     }
 
     @PatchMapping(path = "projects/{projectId}/permissions/{id}",
         consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(
+    public ResponseEntity<Void> tenantPatch(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestBody JsonPatch command,
@@ -141,7 +145,7 @@ public class PermissionResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getPermissionApplicationService()
-            .patch(projectId, id, command, changeId);
+            .tenantPatch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 }

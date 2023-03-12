@@ -6,6 +6,7 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.Auditable_;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -30,7 +31,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class UpdateQueryBuilder<T extends Auditable> {
+public abstract class UpdateQueryBuilder<T extends NextAuditable> {
     @Autowired
     protected EntityManager em;
 

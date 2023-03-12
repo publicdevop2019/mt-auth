@@ -3,7 +3,7 @@ package com.mt.access.domain.model.cache_profile;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Convert;
@@ -17,22 +17,20 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 /**
- * cache profile for http.
+ * cache configuration for http.
  */
 @Entity
 @Table
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "cacheProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 @ToString
-public class CacheProfile extends Auditable {
+public class CacheProfile extends NextAuditable {
 
     private String name;
     private String description;

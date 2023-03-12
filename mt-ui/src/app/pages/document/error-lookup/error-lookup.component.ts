@@ -18,8 +18,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0009',explain:'删除客户端：该客户端不允许删除'},
     {code:'0010',explain:'创建端口：Project Id不匹配'},
     {code:'0011',explain:'创建端口：找不到该客户端'},
-    {code:'0012',explain:'批量删除端口:所删除的端口需属于一个项目'},
-    {code:'0013',explain:'批量删除端口:Project Id不匹配'},
     {code:'0014,0015,0027,0028',explain:'找不到ProjectId'},
     {code:'0016,0029',explain:'没有该项目权限'},
     {code:'0017',explain:'读项目：没有该项目的读权限'},

@@ -26,8 +26,7 @@ public interface SpringDataJpaCorsProfileRepository
     }
 
     default void remove(CorsProfile corsProfile) {
-        corsProfile.softDelete();
-        save(corsProfile);
+        delete(corsProfile);
     }
 
     default SumPagedRep<CorsProfile> corsProfileOfQuery(CorsProfileQuery query) {
@@ -48,7 +47,7 @@ public interface SpringDataJpaCorsProfileRepository
                     .getDomainIdOrder(CorsProfile_.CORS_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
 
     }

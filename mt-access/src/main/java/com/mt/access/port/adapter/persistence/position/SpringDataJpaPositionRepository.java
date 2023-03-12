@@ -26,8 +26,7 @@ public interface SpringDataJpaPositionRepository
     }
 
     default void remove(Position position) {
-        position.softDelete();
-        save(position);
+        delete(position);
     }
 
     default SumPagedRep<Position> getByQuery(PositionQuery positionquery) {
@@ -49,7 +48,7 @@ public interface SpringDataJpaPositionRepository
                     .getDomainIdOrder(Position_.POSITION_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 }

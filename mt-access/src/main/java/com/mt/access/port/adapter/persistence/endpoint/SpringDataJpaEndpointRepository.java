@@ -73,13 +73,11 @@ public interface SpringDataJpaEndpointRepository
     }
 
     default void remove(Endpoint endpoint) {
-        endpoint.softDelete();
-        save(endpoint);
+        delete(endpoint);
     }
 
     default void remove(Collection<Endpoint> endpoints) {
-        endpoints.forEach(Auditable::softDelete);
-        saveAll(endpoints);
+        deleteAll(endpoints);
     }
 
     default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query) {
@@ -175,7 +173,7 @@ public interface SpringDataJpaEndpointRepository
                     endpointQuery.getEndpointSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(endpointQuery, queryContext);
+            return QueryUtility.nativePagedQuery(endpointQuery, queryContext);
         }
 
         private static class MarketAvailableEndpointPredicateConverter {

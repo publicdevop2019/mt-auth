@@ -59,7 +59,7 @@ public class AuditService {
             CommonDomainRegistry.getCustomObjectSerializer().serialize(detail));
     }
 
-    public void storeUserAction(String action, Object detail) {
+    public void storeAuditAction(String action, Object detail) {
         AuditRecord auditRecord = new AuditRecord(
             action,
             DomainRegistry.getCurrentUserService().getUserId().getDomainId(),

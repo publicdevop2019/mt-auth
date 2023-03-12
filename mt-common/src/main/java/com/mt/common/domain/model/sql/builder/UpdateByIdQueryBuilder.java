@@ -7,6 +7,7 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REMOVE;
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REPLACE;
 
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -23,7 +24,7 @@ import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Component;
 
 @Component
-public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends UpdateQueryBuilder<T> {
+public abstract class UpdateByIdQueryBuilder<T extends NextAuditable> extends UpdateQueryBuilder<T> {
     protected Map<String, String> filedMap = new HashMap<>();
     protected Map<String, Function<Object, ?>> filedTypeMap = new HashMap<>();
 

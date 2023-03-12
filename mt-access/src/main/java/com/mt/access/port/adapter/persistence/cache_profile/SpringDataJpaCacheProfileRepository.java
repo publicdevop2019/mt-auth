@@ -19,8 +19,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataJpaCacheProfileRepository
     extends CacheProfileRepository, JpaRepository<CacheProfile, Long> {
-    default Optional<CacheProfile> cacheProfileOfId(CacheProfileId id) {
-        return cacheProfileOfQuery(new CacheProfileQuery(id)).findFirst();
+    default Optional<CacheProfile> id(CacheProfileId id) {
+        return query(new CacheProfileQuery(id)).findFirst();
     }
 
     default void add(CacheProfile cacheProfile) {
@@ -28,11 +28,10 @@ public interface SpringDataJpaCacheProfileRepository
     }
 
     default void remove(CacheProfile cacheProfile) {
-        cacheProfile.softDelete();
-        save(cacheProfile);
+        delete(cacheProfile);
     }
 
-    default SumPagedRep<CacheProfile> cacheProfileOfQuery(CacheProfileQuery query) {
+    default SumPagedRep<CacheProfile> query(CacheProfileQuery query) {
         return QueryBuilderRegistry.getCacheProfileAdaptor().execute(query);
     }
 
@@ -50,7 +49,7 @@ public interface SpringDataJpaCacheProfileRepository
                     query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
 
     }

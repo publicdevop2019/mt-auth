@@ -15,7 +15,7 @@ public class ValidationResource {
      * @return void
      */
     @PostMapping(path = "mngmt/job/validation/reset")
-    public ResponseEntity<Void> createForApp() {
+    public ResponseEntity<Void> reset() {
         ApplicationServiceRegistry.getCrossDomainValidationApplicationService().reset();
         return ResponseEntity.ok().build();
     }
