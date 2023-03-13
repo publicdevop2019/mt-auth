@@ -7,7 +7,7 @@ import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IAuthUser, ILoginHistory } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
-import { FORM_CONFIG } from 'src/app/form-configs/mngmnt-user.config';
+import { FORM_CONFIG } from 'src/app/form-configs/mgmt-user.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({

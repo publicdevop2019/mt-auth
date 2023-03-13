@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data
-public class UserMngmntRepresentation {
+public class UserMgmtRepresentation {
     private String id;
 
     private String email;
@@ -25,7 +25,7 @@ public class UserMngmntRepresentation {
 
     private List<UserLoginHistory> loginHistory;
 
-    public UserMngmntRepresentation(User user, Set<LoginHistory> loginInfoList) {
+    public UserMgmtRepresentation(User user, Set<LoginHistory> loginInfoList) {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
         this.locked = user.isLocked();

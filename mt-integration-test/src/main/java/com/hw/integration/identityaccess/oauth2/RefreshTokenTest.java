@@ -1,7 +1,6 @@
 package com.hw.integration.identityaccess.oauth2;
 
-import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
-import static com.hw.integration.identityaccess.oauth2.UserTest.USER_MNGMT;
+import static com.hw.integration.identityaccess.oauth2.UserTest.USER_MGMT;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.hw.helper.AppConstant;
@@ -33,13 +32,10 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 @RunWith(SpringRunner.class)
 @Slf4j
@@ -81,7 +77,7 @@ public class RefreshTokenTest {
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         //access endpoint
-        String url = UrlUtility.getAccessUrl(USER_MNGMT);
+        String url = UrlUtility.getAccessUrl(USER_MGMT);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);

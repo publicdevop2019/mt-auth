@@ -68,7 +68,7 @@ public class EndpointResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping(path = "mngmt/endpoints")
+    @GetMapping(path = "mgmt/endpoints")
     public ResponseEntity<SumPagedRep<?>> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -84,7 +84,7 @@ public class EndpointResource {
         return ResponseEntity.ok(endpointCardRepresentationSumPagedRep);
     }
 
-    @GetMapping(path = "mngmt/endpoints/{id}")
+    @GetMapping(path = "mgmt/endpoints/{id}")
     public ResponseEntity<EndpointRepresentation> mgmtQuery(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
@@ -181,7 +181,7 @@ public class EndpointResource {
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path = "mngmt/endpoints/event/reload")
+    @PostMapping(path = "mgmt/endpoints/event/reload")
     public ResponseEntity<Void> mgmtReload(
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {

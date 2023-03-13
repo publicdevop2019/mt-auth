@@ -11,15 +11,15 @@ import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/b
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { ClientService } from 'src/app/services/mngmt-client.service';
-import { MngmtEndpointComponent } from '../endpoint/endpoint.component';
+import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
   styleUrls: ['./summary-endpoint.component.css']
 })
 export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
-  public formId = "mngmtEndpointTableColumnConfig";
+  public formId = "mgmtEndpointTableColumnConfig";
   columnList = {
     id: 'ID',
     name: 'NAME',
@@ -29,7 +29,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     method: 'METHOD',
     more: 'MORE',
   }
-  sheetComponent = MngmtEndpointComponent;
+  sheetComponent = MgmtEndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [

@@ -17,7 +17,7 @@ import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
-import com.mt.access.application.user.representation.UserMngmntRepresentation;
+import com.mt.access.application.user.representation.UserMgmtRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -49,8 +49,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping(produces = "application/json")
 public class UserResource {
-    public static final String CONTENT_TYPE = "content-type";
-    public static final String LOCATION = "Location";
+    private static final String CONTENT_TYPE = "content-type";
+    private static final String LOCATION = "Location";
 
     /**
      * register new user.
@@ -60,80 +60,87 @@ public class UserResource {
      * @return void
      */
     @PostMapping(path = "users")
-    public ResponseEntity<Void> createForApp(@RequestBody UserCreateCommand command,
-                                             @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                             String changeId) {
+    public ResponseEntity<Void> create(
+        @RequestBody UserCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getUserApplicationService().create(command, changeId))
             .build();
     }
 
-    @GetMapping(path = "mngmt/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> readForAdminByQuery(
+    @GetMapping(path = "mgmt/users")
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> query(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserApplicationService()
             .query(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
     }
 
 
-    @GetMapping("mngmt/users/{id}")
-    public ResponseEntity<UserMngmntRepresentation> readForAdminById(@PathVariable String id) {
-        UserMngmntRepresentation detail =
+    @GetMapping("mgmt/users/{id}")
+    public ResponseEntity<UserMgmtRepresentation> mgmtQuery(
+        @PathVariable String id
+    ) {
+        UserMgmtRepresentation detail =
             ApplicationServiceRegistry.getUserApplicationService().mgmtQuery(id);
         return ResponseEntity.ok(detail);
     }
 
 
-    @PutMapping("mngmt/users/{id}")
-    public ResponseEntity<Void> updateForAdmin(@RequestBody UpdateUserCommand command,
-                                               @PathVariable String id,
-                                               @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-                                               @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                               String changeId) {
+    @PutMapping("mgmt/users/{id}")
+    public ResponseEntity<Void> mgmtLock(
+        @RequestBody UpdateUserCommand command,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().mgmtLock(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("mngmt/users/{id}")
-    public ResponseEntity<Void> deleteForAdminById(@PathVariable String id,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                   String jwt) {
+    @DeleteMapping("mgmt/users/{id}")
+    public ResponseEntity<Void> remove(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "mngmt/users/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForAdminById(@PathVariable(name = "id") String id,
-                                                  @RequestBody JsonPatch command,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                  String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    @PatchMapping(path = "mgmt/users/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<Void> patch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "mngmt/users")
-    public ResponseEntity<Void> patchForAdminBatch(@RequestBody List<PatchCommand> patch,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                   String changeId) {
+    @PatchMapping(path = "mgmt/users")
+    public ResponseEntity<Void> patchBatch(
+        @RequestBody List<PatchCommand> patch,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         ApplicationServiceRegistry.getUserApplicationService().patchBatch(patch, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping(path = "users/pwd")
-    public ResponseEntity<Void> updateForUser(@RequestBody UserUpdateBizUserPasswordCommand command,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                              String changeId) {
+    public ResponseEntity<Void> updatePassword(
+        @RequestBody UserUpdateBizUserPasswordCommand command,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserApplicationService().updatePassword(command, changeId);
         return ResponseEntity.ok().build();
@@ -147,21 +154,25 @@ public class UserResource {
      * @return void
      */
     @PostMapping(path = "users/forgetPwd")
-    public ResponseEntity<Void> forgetPwd(@RequestBody UserForgetPasswordCommand command,
-                                          @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> forgetPwd(
+        @RequestBody UserForgetPasswordCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         ApplicationServiceRegistry.getUserApplicationService().forgetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping(path = "users/resetPwd")
-    public ResponseEntity<Void> resetPwd(@RequestBody UserResetPasswordCommand command,
-                                         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> resetPwd(
+        @RequestBody UserResetPasswordCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         ApplicationServiceRegistry.getUserApplicationService().resetPassword(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> findUsersForTenantProject(
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantUsers(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -176,10 +187,11 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<UserTenantRepresentation> findUserDetailForTenantProject(
+    public ResponseEntity<UserTenantRepresentation> tenantUser(
         @PathVariable String projectId,
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserTenantRepresentation> user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
@@ -194,8 +206,9 @@ public class UserResource {
      * @return user profile
      */
     @GetMapping(path = "users/profile")
-    public ResponseEntity<UserProfileRepresentation> getMyProfile(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<UserProfileRepresentation> myProfile(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<UserProfileRepresentation> user =
             ApplicationServiceRegistry.getUserApplicationService().myProfile();
@@ -210,8 +223,9 @@ public class UserResource {
      * @return binary
      */
     @GetMapping(path = "users/profile/avatar")
-    public ResponseEntity<byte[]> getMyProfileAvatar(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public ResponseEntity<byte[]> profileAvatar(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Image> avatar =
             ApplicationServiceRegistry.getUserApplicationService().profileAvatar();
@@ -231,7 +245,7 @@ public class UserResource {
      * @return void
      */
     @PostMapping(path = "users/profile/avatar")
-    public ResponseEntity<Void> getMyProfileAvatar(
+    public ResponseEntity<Void> createProfileAvatar(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam("file") MultipartFile file,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
@@ -250,7 +264,7 @@ public class UserResource {
      * @return void
      */
     @PutMapping(path = "users/profile")
-    public ResponseEntity<Void> findUserForProject3(
+    public ResponseEntity<Void> updateProfile(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestBody UserUpdateProfileCommand command
     ) {
@@ -269,7 +283,7 @@ public class UserResource {
      * @return http response 200
      */
     @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<Void> replaceUserDetailForProject(
+    public ResponseEntity<Void> update(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -283,7 +297,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/admins")
-    public ResponseEntity<SumPagedRep<ProjectAdminRepresentation>> getAdminsForProject(
+    public ResponseEntity<SumPagedRep<ProjectAdminRepresentation>> adminQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
@@ -296,7 +310,7 @@ public class UserResource {
     }
 
     @PostMapping(path = "projects/{projectId}/admins/{userId}")
-    public ResponseEntity<Void> addAdminsToProject(
+    public ResponseEntity<Void> addAdmin(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
@@ -309,7 +323,7 @@ public class UserResource {
     }
 
     @DeleteMapping(path = "projects/{projectId}/admins/{userId}")
-    public ResponseEntity<Void> removeAdminsToProject(
+    public ResponseEntity<Void> removeAdmin(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,

@@ -11,14 +11,14 @@ import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/valid
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ClientService } from 'src/app/services/mngmt-client.service';
+import { ClientService } from 'src/app/services/mgmt-client.service';
 
 @Component({
-  selector: 'mngmt-app-client',
+  selector: 'mgmt-app-client',
   templateUrl: './client.component.html',
   styleUrls: ['./client.component.css']
 })
-export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClient> implements OnDestroy, OnInit {
+export class MgmtClientComponent extends Aggregate<MgmtClientComponent, IClient> implements OnDestroy, OnInit {
   bottomSheet: IBottomSheet<IClient>;
   private formCreatedOb: Observable<string>;
   constructor(
@@ -26,10 +26,10 @@ export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClien
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<MngmtClientComponent>,
+    bottomSheetRef: MatBottomSheetRef<MgmtClientComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('mngmtClient', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
+    super('mgmtClient', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     this.formCreatedOb = this.fis.formCreated(this.formId);
     this.formCreatedOb.subscribe(() => {
@@ -93,9 +93,9 @@ export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClien
   }
   ngOnDestroy(): void {
     Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
-    this.fis.reset('mngmtClient');
+    this.fis.reset('mgmtClient');
   }
-  convertToPayload(cmpt: MngmtClientComponent): IClient {
+  convertToPayload(cmpt: MgmtClientComponent): IClient {
     throw new Error('Method not implemented.');
   }
   update() {
@@ -104,7 +104,7 @@ export class MngmtClientComponent extends Aggregate<MngmtClientComponent, IClien
   create() {
     throw new Error('Method not implemented.');
   }
-  errorMapper(original: ErrorMessage[], cmpt: MngmtClientComponent): ErrorMessage[] {
+  errorMapper(original: ErrorMessage[], cmpt: MgmtClientComponent): ErrorMessage[] {
     throw new Error('Method not implemented.');
   }
 }

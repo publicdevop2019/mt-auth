@@ -152,7 +152,7 @@ public class NotificationApplicationService {
                         .notifyUser(event.value(), event.getUserId());
                 } else {
                     DomainRegistry.getWsPushNotificationService()
-                        .notifyMngmt(event.value());
+                        .notifyMgmt(event.value());
                 }
 
                 try {

@@ -69,7 +69,7 @@ public class ClientResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping(path = "mngmt/clients")
+    @GetMapping(path = "mgmt/clients")
     public ResponseEntity<SumPagedRep<ClientCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -85,7 +85,7 @@ public class ClientResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping("mngmt/clients/{id}")
+    @GetMapping("mgmt/clients/{id}")
     public ResponseEntity<ClientRepresentation> mgmtQuery(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt

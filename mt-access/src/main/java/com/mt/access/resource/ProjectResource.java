@@ -49,7 +49,7 @@ public class ProjectResource {
             .build();
     }
 
-    @GetMapping(path = "mngmt/projects")
+    @GetMapping(path = "mgmt/projects")
     public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,

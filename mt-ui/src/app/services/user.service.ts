@@ -10,7 +10,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class UserService extends EntityCommonService<IAuthUser, IAuthUser>{
-  entityRepo: string = environment.serverUri + '/auth-svc/mngmt/users';
+  entityRepo: string = environment.serverUri + '/auth-svc/mgmt/users';
   constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }

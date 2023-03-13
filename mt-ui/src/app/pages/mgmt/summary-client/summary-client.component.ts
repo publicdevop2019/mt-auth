@@ -10,14 +10,14 @@ import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { ClientService } from 'src/app/services/mngmt-client.service';
-import { MngmtClientComponent } from '../client/client.component';
+import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientComponent } from '../client/client.component';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
 })
 export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy {
-  public formId = "mngmtClientTableColumnConfig";
+  public formId = "mgmtClientTableColumnConfig";
   columnList = {
     name: 'NAME',
     id: 'ID',
@@ -29,7 +29,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     more: 'MORE',
     token: 'REVOKE_TOKEN',
   }
-  sheetComponent = MngmtClientComponent;
+  sheetComponent = MgmtClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
   resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [

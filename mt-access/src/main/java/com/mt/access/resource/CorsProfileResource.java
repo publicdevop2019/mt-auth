@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mngmt/cors")
+@RequestMapping(produces = "application/json", path = "mgmt/cors")
 public class CorsProfileResource {
     @PostMapping
     public ResponseEntity<Void> create(

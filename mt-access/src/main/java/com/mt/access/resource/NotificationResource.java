@@ -33,7 +33,7 @@ public class NotificationResource {
      * @param skipCount  skip count
      * @return paginated bell notification
      */
-    @GetMapping(path = "mngmt/notifications/bell")
+    @GetMapping(path = "mgmt/notifications/bell")
     public ResponseEntity<SumPagedRep<BellNotificationRepresentation>> mgmtQueryBell(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -46,7 +46,7 @@ public class NotificationResource {
             .ok(new SumPagedRep<>(notificationsOf, BellNotificationRepresentation::new));
     }
 
-    @GetMapping(path = "mngmt/notifications")
+    @GetMapping(path = "mgmt/notifications")
     public ResponseEntity<SumPagedRep<NotificationRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -86,7 +86,7 @@ public class NotificationResource {
             .ok().build();
     }
 
-    @PostMapping(path = "mngmt/notifications/bell/{id}/ack")
+    @PostMapping(path = "mgmt/notifications/bell/{id}/ack")
     public ResponseEntity<SumPagedRep<Void>> mgmtAck(
         @PathVariable(name = "id") String id
     ) {

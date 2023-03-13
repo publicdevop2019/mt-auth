@@ -12,9 +12,9 @@ export class StoredEventAccessService extends EntityCommonService<IStoredEvent, 
     retry(id: string) {
         return this.httpProxySvc.retry(this.entityRepo, id)
     }
-    entityRepo: string = environment.serverUri + '/auth-svc/mngmt/events';
-    eventRepo: string = environment.serverUri + '/auth-svc/mngmt/events';
-    auditRepo: string = environment.serverUri + '/auth-svc/mngmt/events/audit';
+    entityRepo: string = environment.serverUri + '/auth-svc/mgmt/events';
+    eventRepo: string = environment.serverUri + '/auth-svc/mgmt/events';
+    auditRepo: string = environment.serverUri + '/auth-svc/mgmt/events/audit';
     queryPrefix: string = undefined;
     constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);

@@ -1,6 +1,6 @@
 package com.hw.integration.identityaccess.proxy;
 
-import static com.hw.helper.AppConstant.CLIENT_MNGMT_URL;
+import static com.hw.helper.AppConstant.CLIENT_MGMT_URL;
 import static com.hw.helper.utility.TestContext.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -57,7 +57,7 @@ public class ClientApiSecurityTest {
         HttpEntity<String> request = new HttpEntity<>(s, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate()
-                .exchange(CLIENT_MNGMT_URL, HttpMethod.POST, request, String.class);
+                .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
         Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
     }
 

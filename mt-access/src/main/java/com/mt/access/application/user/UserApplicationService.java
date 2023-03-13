@@ -18,7 +18,7 @@ import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
-import com.mt.access.application.user.representation.UserMngmntRepresentation;
+import com.mt.access.application.user.representation.UserMgmtRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -98,7 +98,7 @@ public class UserApplicationService implements UserDetailsService {
         return DomainRegistry.getUserRepository().userOfId(new UserId(userId));
     }
 
-    public UserMngmntRepresentation mgmtQuery(String userId) {
+    public UserMgmtRepresentation mgmtQuery(String userId) {
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(userId));
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("unable to find user", "0075",
@@ -107,7 +107,7 @@ public class UserApplicationService implements UserDetailsService {
         User user1 = user.get();
         Set<LoginHistory> allForUser =
             DomainRegistry.getLoginHistoryRepository().getLast100Login(user1.getUserId());
-        return new UserMngmntRepresentation(user1, allForUser);
+        return new UserMgmtRepresentation(user1, allForUser);
     }
 
     @Override

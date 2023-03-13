@@ -9,18 +9,18 @@ import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
-import { MNGMNT_EP_FORM_CONFIG } from 'src/app/form-configs/mngmnt-endpoint.config';
+import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
 import { CacheService } from 'src/app/services/cache.service';
 import { CORSProfileService } from 'src/app/services/cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ClientService } from 'src/app/services/mngmt-client.service';
+import { ClientService } from 'src/app/services/mgmt-client.service';
 @Component({
-  selector: 'mngmt-app-endpoint',
+  selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',
   styleUrls: ['./endpoint.component.css']
 })
-export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IEndpoint> implements OnInit, OnDestroy {
+export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;
   constructor(
     public endpointSvc: EndpointService,
@@ -30,10 +30,10 @@ export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IE
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<MngmtEndpointComponent>,
+    bottomSheetRef: MatBottomSheetRef<MgmtEndpointComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('mngmtApi', JSON.parse(JSON.stringify(MNGMNT_EP_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
+    super('mgmtApi', JSON.parse(JSON.stringify(MGMT_EP_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     this.fis.formCreated(this.formId)
       .subscribe(next => {
@@ -99,7 +99,7 @@ export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IE
   }
   ngOnInit() {
   }
-  convertToPayload(cmpt: MngmtEndpointComponent): IEndpoint {
+  convertToPayload(cmpt: MgmtEndpointComponent): IEndpoint {
     throw new Error('Method not implemented.');
   }
   update() {
@@ -108,7 +108,7 @@ export class MngmtEndpointComponent extends Aggregate<MngmtEndpointComponent, IE
   create() {
     throw new Error('Method not implemented.');
   }
-  errorMapper(original: ErrorMessage[], cmpt: MngmtEndpointComponent): ErrorMessage[] {
+  errorMapper(original: ErrorMessage[], cmpt: MgmtEndpointComponent): ErrorMessage[] {
     throw new Error('Method not implemented.');
   }
 }

@@ -27,13 +27,13 @@ public class StoredEventResource {
      * @param id stored event id
      * @return void
      */
-    @PostMapping("mngmt/events/{id}/retry")
+    @PostMapping("mgmt/events/{id}/retry")
     public ResponseEntity<?> publish(@PathVariable(name = "id") long id) {
         CommonApplicationServiceRegistry.getStoredEventApplicationService().retry(id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("mngmt/events")
+    @GetMapping("mgmt/events")
     public ResponseEntity<?> query(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,

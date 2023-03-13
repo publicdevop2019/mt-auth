@@ -9,7 +9,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class ClientService extends EntityCommonService<IClient, IClient>{
-  entityRepo: string = environment.serverUri + '/auth-svc/mngmt/clients';
+  entityRepo: string = environment.serverUri + '/auth-svc/mgmt/clients';
   constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }

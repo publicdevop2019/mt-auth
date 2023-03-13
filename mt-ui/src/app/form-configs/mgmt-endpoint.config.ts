@@ -1,7 +1,7 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { HTTP_METHODS } from '../clazz/validation/aggregate/endpoint/interfaze-endpoint';
 
-export const MNGMNT_EP_FORM_CONFIG: IForm = {
+export const MGMT_EP_FORM_CONFIG: IForm = {
     "repeatable": false,
     "inputs": [
         {

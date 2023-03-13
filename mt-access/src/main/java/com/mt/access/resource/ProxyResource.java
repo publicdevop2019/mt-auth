@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class ProxyResource {
-    @GetMapping(path = "mngmt/proxy/check")
+    @GetMapping(path = "mgmt/proxy/check")
     public ResponseEntity<CheckSumRepresentation> checkSum() {
         return ResponseEntity
             .ok(ApplicationServiceRegistry.getProxyApplicationService().checkSumValue());

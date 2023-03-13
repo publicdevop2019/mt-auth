@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mngmt/revoke-tokens")
+@RequestMapping(produces = "application/json", path = "mgmt/revoke-tokens")
 public class RevokeTokenResource {
 
     @PostMapping

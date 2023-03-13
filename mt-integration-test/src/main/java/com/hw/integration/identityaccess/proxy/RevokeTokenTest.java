@@ -37,7 +37,7 @@ import org.springframework.util.MultiValueMap;
 @Slf4j
 @RunWith(SpringRunner.class)
 public class RevokeTokenTest {
-    public static final String PROXY_BLACKLIST = "/auth-svc/mngmt/revoke-tokens";
+    public static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
 
     @Rule
     public TestWatcher watchman = new TestWatcher() {

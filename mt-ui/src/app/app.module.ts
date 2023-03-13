@@ -64,7 +64,7 @@ import { SearchComponent } from './components/search/search.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
 import { TreeNodeDirective } from './directive/tree-node.directive';
 import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
-import { MngmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
+import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { ApiCenterComponent } from './pages/common/api-center/api-center.component';
 import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
@@ -98,10 +98,10 @@ import { LoadingInterceptor } from './services/interceptors/loading.interceptor'
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
-import { ClientService } from './services/mngmt-client.service';
+import { ClientService } from './services/mgmt-client.service';
 import { UserService } from './services/user.service';
 import { CacheComponent } from './pages/mgmt/cache/cache.component';
-import { MngmtClientComponent } from './pages/mgmt/client/client.component';
+import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 import { CorsComponent } from './pages/mgmt/cors/cors.component';
 import { SummaryCacheComponent } from './pages/mgmt/summary-cache/summary-cache.component';
 import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
@@ -205,8 +205,8 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
     UserComponent,
     NotFoundComponent,
     WelcomeComponent,
-    MngmtEndpointComponent,
-    MngmtClientComponent,
+    MgmtEndpointComponent,
+    MgmtClientComponent,
     RegistryComponent,
     JobComponent,
     MfaComponent,
@@ -277,8 +277,8 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
   entryComponents: [
     MsgBoxComponent,
     ClientComponent,
-    MngmtEndpointComponent,
-    MngmtClientComponent,
+    MgmtEndpointComponent,
+    MgmtClientComponent,
     EndpointNewComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,

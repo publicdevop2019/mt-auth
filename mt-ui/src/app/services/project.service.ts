@@ -23,7 +23,7 @@ interface IPermissionInfo {
 })
 export class ProjectService extends EntityCommonService<IProjectSimple, IProjectSimple>{
   private PRODUCT_SVC_NAME = '/auth-svc';
-  private ENTITY_NAME = '/mngmt/projects';
+  private ENTITY_NAME = '/mgmt/projects';
   public totalProjects: IProjectSimple[] = [];
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
   permissionDetail: ReplaySubject<IProjectPermission[]> = new ReplaySubject();
@@ -56,7 +56,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
       return false
     }
   }
-  showMngmtPanel(){
+  showMgmtPanel(){
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
 }

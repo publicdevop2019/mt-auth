@@ -78,7 +78,7 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'mngmnt-user',
+      link: 'mgmt-user',
       display: 'USER_DASHBOARD',
       icon: 'people',
       params: {
@@ -106,7 +106,7 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'cache-mngr',
+      link: 'cache-mgmt',
       display: 'CACHE_DASHBOARD',
       icon: 'cached',
       params: {
@@ -347,7 +347,7 @@ export class NavBarComponent implements OnInit {
     }
   }
   hasAuth() {
-    return this.projectSvc.showMngmtPanel()
+    return this.projectSvc.showMgmtPanel()
   }
   filterDuplicate(msgs: IBellNotification[]) {
     return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)

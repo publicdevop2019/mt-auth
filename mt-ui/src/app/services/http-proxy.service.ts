@@ -17,7 +17,7 @@ import { IEditEvent } from '../components/editable-field/editable-field.componen
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
-import { IMgnmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
+import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
@@ -108,18 +108,18 @@ export class HttpProxyService {
         return this._httpClient.get<{ status: boolean }>(environment.serverUri + this.AUTH_SVC_NAME + '/projects/' + projectId + '/ready', { headers: { 'loading': 'false' } })
     }
     getJobStatus() {
-        return this._httpClient.get<IJob[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/jobs', { headers: { 'loading': 'false' } })
+        return this._httpClient.get<IJob[]>(environment.serverUri + this.AUTH_SVC_NAME + '/mgmt/jobs', { headers: { 'loading': 'false' } })
     }
     resetValidationJob() {
-        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/job/validation/reset', null)
+        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/mgmt/job/validation/reset', null)
     }
     resetJob(id: string) {
-        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + `/mngmt/jobs/${id}/reset`, null)
+        return this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + `/mgmt/jobs/${id}/reset`, null)
     }
     sendReloadRequest(changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/endpoints/event/reload', null, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/mgmt/endpoints/event/reload', null, { headers: headerConfig });
     }
     getMyProfile() {
         return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
@@ -148,7 +148,7 @@ export class HttpProxyService {
         return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + `/subscriptions/requests/${id}/reject`, { rejectionReason: rejectionReason }, { headers: headerConfig });
     }
     checkSum() {
-        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mngmt/proxy/check');
+        return this._httpClient.get<ICheckSumResponse>(environment.serverUri + this.AUTH_SVC_NAME + '/mgmt/proxy/check');
     }
     expireCheck() {
         return this._httpClient.get<void>(environment.serverUri + this.AUTH_SVC_NAME + '/expire/check');
@@ -168,7 +168,7 @@ export class HttpProxyService {
         })
     };
     dismissNotification(id: string) {
-        return this._httpClient.post(environment.serverUri + `/auth-svc/mngmt/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
+        return this._httpClient.post(environment.serverUri + `/auth-svc/mgmt/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
     }
     dismissUserNotification(id: string) {
         return this._httpClient.post(environment.serverUri + `/auth-svc/user/notifications/bell/${id}/ack`, null, { headers: { 'loading': 'false' } })
@@ -215,7 +215,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mgmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -224,7 +224,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', UUID())
         return new Observable<boolean>(e => {
-            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mngmt/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post<any>(environment.serverUri + '/auth-svc/mgmt/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -548,6 +548,6 @@ export class HttpProxyService {
         });
     }
     getMgmtDashboardInfo() {
-        return this._httpClient.get<IMgnmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
+        return this._httpClient.get<IMgmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
     }
 }

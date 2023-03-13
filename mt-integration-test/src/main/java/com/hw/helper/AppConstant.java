@@ -29,8 +29,7 @@ public class AppConstant {
     public static String proxyUrl = "http://localhost:" + 8111;
     public static String accessUrl = "http://localhost:" + 8080;
     public static String testUrl = "http://localhost:" + 9999;
-    public static final String CLIENT_MNGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
+    public static final String CLIENT_MGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = proxyUrl + SVC_NAME_AUTH + "/oauth/token";
-    public static final String USERS_ADMIN = "/mngmt/users";
 
 }

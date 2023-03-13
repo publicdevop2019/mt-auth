@@ -28,7 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mngmt/cache-profile")
+@RequestMapping(produces = "application/json", path = "mgmt/cache-profile")
 public class CacheProfileResource {
     @PostMapping
     public ResponseEntity<Void> create(

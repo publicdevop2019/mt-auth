@@ -15,13 +15,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class JobResource {
-    @GetMapping("mngmt/jobs")
+    @GetMapping("mgmt/jobs")
     public ResponseEntity<List<JobDetailCardRepresentation>> getAllJobs() {
         return ResponseEntity
             .ok(CommonApplicationServiceRegistry.getJobApplicationService().currentJobs());
     }
 
-    @PostMapping("mngmt/jobs/{id}/reset")
+    @PostMapping("mgmt/jobs/{id}/reset")
     public ResponseEntity<Void> resetJob(@PathVariable(name = "id") String id) {
         CommonApplicationServiceRegistry.getJobApplicationService().resetJob(id);
         return ResponseEntity.ok().build();
