@@ -3,7 +3,6 @@ package com.mt.access.application.sub_request;
 import static com.mt.access.domain.model.audit.AuditActionName.APPROVE_SUB_REQUEST;
 import static com.mt.access.domain.model.audit.AuditActionName.CANCEL_SUB_REQUEST;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_SUB_REQUEST;
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.REJECT_SUB_REQUEST;
 import static com.mt.access.domain.model.permission.Permission.SUB_REQ_MNGMT;
 

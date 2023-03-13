@@ -1,6 +1,5 @@
 package com.mt.access.application.user;
 
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_DELETE_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_LOCK_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_PATCH_BATCH_USER;
@@ -245,10 +244,9 @@ public class UserApplicationService implements UserDetailsService {
         }
     }
 
-    @AuditLog(actionName = USER_FORGET_PWD)
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
-            .logExternalUserAction(log, command.getEmail(), "forget password");
+            .logExternalUserAction(log, command.getEmail(), USER_FORGET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
@@ -258,10 +256,9 @@ public class UserApplicationService implements UserDetailsService {
             }, USER);
     }
 
-    @AuditLog(actionName = USER_RESET_PWD)
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
         DomainRegistry.getAuditService()
-            .logExternalUserAction(log, command.getEmail(), "reset password");
+            .logExternalUserAction(log, command.getEmail(), USER_RESET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),

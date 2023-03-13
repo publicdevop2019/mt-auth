@@ -6,7 +6,6 @@ import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PendingUserApplicationService {

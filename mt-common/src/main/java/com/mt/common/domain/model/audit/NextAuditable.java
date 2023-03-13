@@ -11,6 +11,7 @@ import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Version;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -46,6 +47,7 @@ public abstract class NextAuditable implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Getter
     private Date modifiedAt;
+    @Version
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private Integer version;

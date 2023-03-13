@@ -1,6 +1,5 @@
 package com.mt.access.application.cors_profile;
 
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CORS_PROFILE;
 
 import com.github.fge.jsonpatch.JsonPatch;

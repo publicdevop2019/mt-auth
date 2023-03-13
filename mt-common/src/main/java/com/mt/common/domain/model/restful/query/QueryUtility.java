@@ -5,7 +5,6 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.sql.clause.NotDeletedClause;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -56,24 +55,6 @@ public class QueryUtility {
         return data;
     }
 
-    /**
-     * query entity with soft delete
-     *
-     * @param queryCriteria jpa query criteria
-     * @param context       jpa context
-     * @param <T>           entity type
-     * @return paginated entities
-     */
-    public static <T> SumPagedRep<T> pagedQuery(QueryCriteria queryCriteria,
-                                                QueryContext<T> context) {
-        //add soft delete
-        context.getPredicates().add(new NotDeletedClause<T>()
-            .getWhereClause(context.getCriteriaBuilder(), context.getRoot()));
-        Optional.ofNullable(context.getCountPredicates()).ifPresent(e -> e.add(
-            new NotDeletedClause<T>()
-                .getWhereClause(context.getCriteriaBuilder(), context.getCountRoot())));
-        return nativePagedQuery(queryCriteria, context);
-    }
 
     /**
      * query entity without soft delete

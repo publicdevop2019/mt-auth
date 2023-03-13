@@ -3,7 +3,6 @@ package com.mt.access.domain.model.project;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;

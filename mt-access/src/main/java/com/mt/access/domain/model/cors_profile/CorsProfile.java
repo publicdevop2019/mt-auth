@@ -3,7 +3,6 @@ package com.mt.access.domain.model.cors_profile;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Objects;
@@ -19,7 +18,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "cors_profile")

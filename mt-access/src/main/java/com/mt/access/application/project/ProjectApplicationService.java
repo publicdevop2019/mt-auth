@@ -1,7 +1,6 @@
 package com.mt.access.application.project;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PROJECT;
@@ -35,7 +34,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service

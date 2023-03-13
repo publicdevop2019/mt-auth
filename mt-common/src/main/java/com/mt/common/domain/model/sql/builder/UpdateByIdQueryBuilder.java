@@ -6,7 +6,6 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_ADD;
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REMOVE;
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REPLACE;
 
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;

@@ -1,7 +1,7 @@
 package com.mt.common.domain.model.job;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
@@ -29,7 +29,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "jobRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
-public class JobDetail extends Auditable implements Serializable {
+public class JobDetail extends NextAuditable implements Serializable {
     @Setter(AccessLevel.PRIVATE)
     private String name;
     @Convert(converter = JobStatus.DbConverter.class)

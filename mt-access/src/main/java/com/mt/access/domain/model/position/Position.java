@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import java.util.Objects;
 import javax.persistence.Cacheable;

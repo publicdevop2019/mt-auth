@@ -5,7 +5,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -24,7 +23,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 /**
  * user aggregate.

@@ -10,7 +10,6 @@ import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.DomainId_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;

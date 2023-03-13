@@ -12,7 +12,6 @@ import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
 import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
@@ -30,15 +29,12 @@ import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Lob;
-import javax.persistence.NamedNativeQueries;
-import javax.persistence.NamedNativeQuery;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
 @Entity

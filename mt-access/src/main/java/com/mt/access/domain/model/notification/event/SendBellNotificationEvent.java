@@ -6,7 +6,6 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.LinkedHashSet;
-import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

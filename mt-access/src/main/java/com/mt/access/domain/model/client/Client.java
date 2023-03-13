@@ -18,7 +18,6 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.audit.NextAuditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -51,7 +50,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
 @NoArgsConstructor
