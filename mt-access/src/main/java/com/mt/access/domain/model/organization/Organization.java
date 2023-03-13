@@ -2,7 +2,7 @@ package com.mt.access.domain.model.organization;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import java.util.Objects;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -22,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "organizationRegion")
-public class Organization extends NextAuditable {
+public class Organization extends Auditable {
     private String name;
 
     @Embedded

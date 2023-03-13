@@ -5,7 +5,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -30,7 +30,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "user_")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
-public class User extends NextAuditable {
+public class User extends Auditable {
     private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
     @Setter(AccessLevel.PRIVATE)
     @Embedded

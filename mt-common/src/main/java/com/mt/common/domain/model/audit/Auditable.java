@@ -26,7 +26,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public abstract class NextAuditable implements Serializable {
+public abstract class Auditable implements Serializable {
 
     @Id
     @Setter(AccessLevel.PROTECTED)

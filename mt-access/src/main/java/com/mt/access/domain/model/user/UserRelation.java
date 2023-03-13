@@ -12,7 +12,7 @@ import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
 import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -45,7 +45,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "userRelationRegion")
-public class UserRelation extends NextAuditable {
+public class UserRelation extends Auditable {
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "userId"))

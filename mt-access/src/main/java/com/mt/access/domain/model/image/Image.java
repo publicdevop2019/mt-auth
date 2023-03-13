@@ -1,7 +1,7 @@
 package com.mt.access.domain.model.image;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Data
 @NoArgsConstructor
 @Slf4j
-public class Image extends NextAuditable {
+public class Image extends Auditable {
     @Embedded
     private ImageId imageId;
     @Setter

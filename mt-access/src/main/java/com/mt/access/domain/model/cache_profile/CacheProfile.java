@@ -3,7 +3,7 @@ package com.mt.access.domain.model.cache_profile;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.Convert;
@@ -30,7 +30,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     region = "cacheProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 @ToString
-public class CacheProfile extends NextAuditable {
+public class CacheProfile extends Auditable {
 
     private String name;
     private String description;

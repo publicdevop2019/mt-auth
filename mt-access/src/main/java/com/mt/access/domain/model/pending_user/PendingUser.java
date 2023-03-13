@@ -5,7 +5,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -22,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "pendingUserRegion")
 @Table
-public class PendingUser extends NextAuditable {
+public class PendingUser extends Auditable {
     @Column(unique = true)
     @Setter(AccessLevel.PRIVATE)
     @Getter

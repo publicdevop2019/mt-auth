@@ -3,7 +3,7 @@ package com.mt.access.domain.model.project;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
 import javax.persistence.Cacheable;
@@ -21,7 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "projectRegion")
-public class Project extends NextAuditable {
+public class Project extends Auditable {
 
     private String name;
 

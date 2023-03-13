@@ -7,7 +7,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -46,7 +46,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "permissionRegion")
-public class Permission extends NextAuditable {
+public class Permission extends Auditable {
     public static final String API_ACCESS = "API_ACCESS";
     public static final String VIEW_PROJECT_INFO = "VIEW_PROJECT_INFO";
     public static final String VIEW_CLIENT = "VIEW_CLIENT";

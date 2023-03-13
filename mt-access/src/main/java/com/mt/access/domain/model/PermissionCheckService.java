@@ -6,7 +6,7 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.model.audit.NextAuditable;
+import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -61,7 +61,7 @@ public class PermissionCheckService {
         canAccess(Collections.singleton(id), permissionName);
     }
 
-    public void sameCreatedBy(NextAuditable e) {
+    public void sameCreatedBy(Auditable e) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         if (!new UserId(e.getCreatedBy()).equals(userId)) {
             throw new DefinedRuntimeException("not created by same user", "0031",

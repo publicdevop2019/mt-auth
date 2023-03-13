@@ -4,8 +4,8 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_DIFF;
 import static com.mt.common.CommonConstant.PATCH_OP_TYPE_SUM;
 
 import com.mt.common.CommonConstant;
-import com.mt.common.domain.model.audit.NextAuditable;
-import com.mt.common.domain.model.audit.NextAuditable_;
+import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.audit.Auditable_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -29,7 +29,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.beans.factory.annotation.Autowired;
 
-public abstract class UpdateQueryBuilder<T extends NextAuditable> {
+public abstract class UpdateQueryBuilder<T extends Auditable> {
     @Autowired
     protected EntityManager em;
 
@@ -71,8 +71,8 @@ public abstract class UpdateQueryBuilder<T extends NextAuditable> {
                 cb.sum(root.get(CommonConstant.VERSION), 1));
             //manually set updateAt updateBy bcz criteria api bypass hibernate session
             Optional<String> currentAuditor = SpringDataJpaConfig.AuditorAwareImpl.getAuditor();
-            criteriaUpdate.set(NextAuditable_.MODIFIED_BY, currentAuditor.orElse(""));
-            criteriaUpdate.set(NextAuditable_.MODIFIED_AT, new Date());
+            criteriaUpdate.set(Auditable_.MODIFIED_BY, currentAuditor.orElse(""));
+            criteriaUpdate.set(Auditable_.MODIFIED_AT, new Date());
             patchCommandCriteriaUpdateHashMap.put(key, criteriaUpdate);
         });
         AtomicInteger count = new AtomicInteger(0);
