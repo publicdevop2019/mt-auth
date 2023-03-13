@@ -10,7 +10,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { ClientService } from 'src/app/services/mngmt-client.service';
 import { SharedEndpointService } from 'src/app/services/shared-endpoint.service';
-import { MngmtEndpointComponent } from '../../mgnmt/endpoint/endpoint.component';
+import { MngmtEndpointComponent } from '../../mgmt/endpoint/endpoint.component';
 import { SubRequestComponent } from '../sub-request/sub-request.component';
 @Component({
   selector: 'app-api-center',

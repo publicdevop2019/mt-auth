@@ -12,8 +12,8 @@ import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-user',
-  templateUrl: './mgnmt-user.component.html',
-  styleUrls: ['./mgnmt-user.component.css']
+  templateUrl: './mgmt-user.component.html',
+  styleUrls: ['./mgmt-user.component.css']
 })
 export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IAuthUser> implements OnInit, AfterViewInit, OnDestroy {
   columnList = {

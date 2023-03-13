@@ -17,9 +17,9 @@ import { IEditEvent } from '../components/editable-field/editable-field.componen
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
-import { IMgnmtDashboardInfo } from '../pages/mgnmt/dashboard/dashboard.component';
-import { IJob } from '../pages/mgnmt/job/job.component';
-import { IRegistryInstance } from '../pages/mgnmt/registry/registry.component';
+import { IMgnmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
+import { IJob } from '../pages/mgmt/job/job.component';
+import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
 export interface IPatch {
     op: string,
