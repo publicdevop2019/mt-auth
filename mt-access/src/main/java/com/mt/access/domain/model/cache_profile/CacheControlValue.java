@@ -3,22 +3,21 @@ package com.mt.access.domain.model.cache_profile;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.sql.converter.EnumSetConverter;
 
 /**
  * http cache control value.
  */
 public enum CacheControlValue {
 
-    must_revalidate("must-revalidate"),
-    no_cache("no-cache"),
-    no_store("no-store"),
-    no_transform("no-transform"),
-    _public("public"),
-    _private("private"),
-    proxy_revalidate("proxy-revalidate"),
-    max_age("max-age"),
-    s_maxage("s-maxage");
+    MUST_REVALIDATE("must-revalidate"),
+    NO_CACHE("no-cache"),
+    NO_STORE("no-store"),
+    NO_TRANSFORM("no-transform"),
+    PUBLIC("public"),
+    PRIVATE("private"),
+    PROXY_REVALIDATE("proxy-revalidate"),
+    MAX_AGE("max-age"),
+    S_MAX_AGE("s-maxage");
     public final String label;
 
     CacheControlValue(String label) {
@@ -40,14 +39,5 @@ public enum CacheControlValue {
         throw new DefinedRuntimeException("unknown cache control value", "0033",
             HttpResponseCode.BAD_REQUEST,
             ExceptionCatalog.ILLEGAL_ARGUMENT);
-    }
-
-    /**
-     * common database converter.
-     */
-    public static class DbConverter extends EnumSetConverter<CacheControlValue> {
-        public DbConverter() {
-            super(CacheControlValue.class);
-        }
     }
 }

@@ -14,6 +14,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -33,7 +35,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NamedQuery(name = "getEpSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getEpSubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 public class SubRequest extends Auditable {
-    @Convert(converter = SubRequestStatus.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private SubRequestStatus subRequestStatus = SubRequestStatus.PENDING;
     @Embedded
     @AttributeOverrides({

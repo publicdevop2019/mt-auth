@@ -11,6 +11,8 @@ import java.util.Date;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -32,9 +34,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class JobDetail extends Auditable implements Serializable {
     @Setter(AccessLevel.PRIVATE)
     private String name;
-    @Convert(converter = JobStatus.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private JobStatus lastStatus;
-    @Convert(converter = JobType.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private JobType type;
     private int failureCount;
     private int lockAcquireFailureCount;

@@ -35,12 +35,14 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -62,7 +64,7 @@ public class Client extends Auditable {
     private static final String EMPTY_SECRET = "";
     /**
      * if lazy then loadClientByClientId needs to be transactional
-     * use eager as @Transactional is adding too much overhead.
+     * use eager to avoid @Transactional adding too much overhead.
      */
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
@@ -117,7 +119,12 @@ public class Client extends Auditable {
     private String description;
 
     @Getter
-    @Convert(converter = ClientType.DbConverter.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = ClientType.class)
+    @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "type")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientTypeRegion")
+    @Enumerated(EnumType.STRING)
     private Set<ClientType> types;
 
     @Getter
@@ -128,8 +135,14 @@ public class Client extends Auditable {
     @Getter
     @Embedded
     private RedirectDetail authorizationCodeGrant;
-    @Convert(converter = GrantType.DbConverter.class)
+
     @Getter
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = GrantType.class)
+    @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "grant_type")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientGrantTypeRegion")
+    @Enumerated(EnumType.STRING)
     private Set<GrantType> grantTypes;
 
     @Embedded
@@ -229,7 +242,12 @@ public class Client extends Auditable {
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        this.grantTypes = grantTypes;
+        if (!grantTypes.equals(this.grantTypes)) {
+            if (this.grantTypes != null) {
+                this.grantTypes.clear();
+            }
+            this.grantTypes = grantTypes;
+        }
     }
 
     private void setName(String name) {
@@ -278,7 +296,6 @@ public class Client extends Auditable {
 
     private void setResources(Set<ClientId> resources) {
         if (id != null) {
-
             if (resourcesChanged(resources)) {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new ClientResourcesChanged(clientId));

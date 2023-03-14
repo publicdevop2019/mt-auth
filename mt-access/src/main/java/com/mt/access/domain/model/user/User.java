@@ -17,6 +17,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -55,7 +57,7 @@ public class User extends Auditable {
     private UserName userName;
     @Getter
     @Setter
-    @Convert(converter = Language.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private Language language;
     @Embedded
     @Getter

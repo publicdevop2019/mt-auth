@@ -19,6 +19,9 @@
     <cache alias="cacheProfileRegion" uses-template="myDefaults"/>
     <cache alias="clientResourceRegion" uses-template="myDefaults"/>
     <cache alias="clientExtResourceRegion" uses-template="myDefaults"/>
+    <cache alias="clientTypeRegion" uses-template="myDefaults"/>
+    <cache alias="clientGrantTypeRegion" uses-template="myDefaults"/>
+    <cache alias="cacheControlRegion" uses-template="myDefaults"/>
     <cache alias="linkedPermissionIdsRegion" uses-template="myDefaults"/>
     <cache alias="loginRegion" uses-template="myDefaults"/>
     <cache alias="subRequestRegion" uses-template="myDefaults"/>

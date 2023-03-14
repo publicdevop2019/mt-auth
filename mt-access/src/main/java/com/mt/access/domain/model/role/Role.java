@@ -35,6 +35,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -88,7 +90,7 @@ public class Role extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
     })
     private ProjectId tenantId;
-    @Convert(converter = RoleType.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private RoleType type;
     @Embedded
     @AttributeOverrides({

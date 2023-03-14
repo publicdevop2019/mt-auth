@@ -38,7 +38,7 @@ public class RestTemplateConfig {
                 String newUuid = UUID.randomUUID().toString();
                 log.debug("uuid not found for outgoing request, auto generate value {} path {}",
                     newUuid,
-                    httpRequest.getURI().getPath() + (httpRequest.getURI().getRawQuery() == null ?
+                    httpRequest.getURI().getPath() + (httpRequest.getURI().getRawQuery() != null ?
                         ("?" + httpRequest.getURI().getRawQuery()) : ""));
                 httpRequest.getHeaders().set(REQ_UUID, newUuid);
             }

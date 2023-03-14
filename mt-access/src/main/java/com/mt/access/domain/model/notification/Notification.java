@@ -29,6 +29,8 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -45,9 +47,9 @@ public class Notification extends Auditable {
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
     private LinkedHashSet<String> descriptions;
-    @Convert(converter = NotificationType.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private NotificationType type;
-    @Convert(converter = NotificationStatus.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private NotificationStatus status = NotificationStatus.PENDING;
     private String title;
     @Embedded

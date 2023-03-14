@@ -2,13 +2,21 @@ package com.mt.access.domain.model.cache_profile;
 
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
+import com.mt.access.domain.model.client.GrantType;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -40,7 +48,13 @@ public class CacheProfile extends Auditable {
 
     private boolean allowCache;
 
-    @Convert(converter = CacheControlValue.DbConverter.class)
+    @Getter
+    @ElementCollection(fetch = FetchType.EAGER,targetClass = CacheControlValue.class)
+    @JoinTable(name = "cache_control_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "cache_control")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "cacheControlRegion")
+    @Enumerated(EnumType.STRING)
     private Set<CacheControlValue> cacheControl;
 
     private Long expires;
