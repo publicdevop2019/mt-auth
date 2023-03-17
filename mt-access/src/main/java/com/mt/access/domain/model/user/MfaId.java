@@ -3,8 +3,9 @@ package com.mt.access.domain.model.user;
 import com.google.common.base.Objects;
 import java.util.UUID;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import lombok.Getter;
-
+@Embeddable
 public class MfaId {
     @Getter
     @Column(name = "mfa_id")

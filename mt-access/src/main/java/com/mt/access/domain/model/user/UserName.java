@@ -2,9 +2,11 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Validator;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import lombok.Data;
 
 @Data
+@Embeddable
 public class UserName {
     @Column(name = "username")
     private String value;
@@ -13,7 +15,7 @@ public class UserName {
     }
 
     /**
-     * username, must be less then 25 char, cannot be blank and white listed value only.
+     * username, must be less than 25 char, cannot be blank and white listed value only.
      *
      * @param value username
      */

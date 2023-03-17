@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @Embeddable
 public class MfaInfo {
-    @Embedded
     @Getter
+    @Embedded
     private MfaCode code;
     @Getter
     @Embedded
