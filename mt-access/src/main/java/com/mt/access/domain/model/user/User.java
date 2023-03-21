@@ -15,6 +15,7 @@ import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -29,6 +30,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * user aggregate.
  */
+@Embeddable
 @Entity
 @Table(name = "user_")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")

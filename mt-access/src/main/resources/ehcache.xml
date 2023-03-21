@@ -20,6 +20,12 @@
     <cache alias="clientResourceRegion" uses-template="myDefaults"/>
     <cache alias="clientExtResourceRegion" uses-template="myDefaults"/>
     <cache alias="clientTypeRegion" uses-template="myDefaults"/>
+    <cache alias="userRelationRoleRegion" uses-template="myDefaults"/>
+    <cache alias="userRelationTenantRegion" uses-template="myDefaults"/>
+    <cache alias="clientRedirectUrlRegion" uses-template="myDefaults"/>
+    <cache alias="roleCommonPermissionRegion" uses-template="myDefaults"/>
+    <cache alias="roleApiPermissionRegion" uses-template="myDefaults"/>
+    <cache alias="roleExternalPermissionRegion" uses-template="myDefaults"/>
     <cache alias="corsOriginRegion" uses-template="myDefaults"/>
     <cache alias="exposedHeadersRegion" uses-template="myDefaults"/>
     <cache alias="allowedHeadersRegion" uses-template="myDefaults"/>

@@ -7,11 +7,13 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 @Data
 @Embeddable
 public class MfaCode implements Serializable {
     @Getter
+    @Setter
     @Column(name = "mfa_code")
     private String value;
 

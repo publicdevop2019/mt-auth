@@ -11,7 +11,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.port.adapter.persistence.PermissionIdSetConverter;
+import com.mt.access.port.adapter.persistence.PermissionIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -33,10 +33,14 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.Getter;
@@ -70,15 +74,30 @@ public class Role extends Auditable {
 
     @Embedded
     private RoleId roleId;
-    @Lob
-    @Convert(converter = PermissionIdSetConverter.class)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JoinTable(name = "role_common_permission_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "permission")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "roleCommonPermissionRegion")
+    @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> commonPermissionIds;
-    @Lob
-    @Convert(converter = PermissionIdSetConverter.class)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "permission")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "roleApiPermissionRegion")
+    @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> apiPermissionIds;
-    @Lob
-    @Convert(converter = PermissionIdSetConverter.class)
+
     @Setter
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "permission")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "roleExternalPermissionRegion")
+    @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> externalPermissionIds;
     @Embedded
     @AttributeOverrides({

@@ -9,8 +9,8 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
-import com.mt.access.port.adapter.persistence.ProjectIdSetConverter;
-import com.mt.access.port.adapter.persistence.RoleIdSetConverter;
+import com.mt.access.port.adapter.persistence.ProjectIdConverter;
+import com.mt.access.port.adapter.persistence.RoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -26,9 +26,12 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
@@ -56,12 +59,23 @@ public class UserRelation extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
     })
     private ProjectId projectId;
-    @Lob
-    @Convert(converter = RoleIdSetConverter.class)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "role")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "userRelationRoleRegion")
+    @Convert(converter = RoleIdConverter.class)
     private Set<RoleId> standaloneRoles;
-    @Lob
-    @Convert(converter = ProjectIdSetConverter.class)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "tenant")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "userRelationTenantRegion")
+    @Convert(converter = ProjectIdConverter.class)
     private Set<ProjectId> tenantIds;
+
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "organizationId"))
