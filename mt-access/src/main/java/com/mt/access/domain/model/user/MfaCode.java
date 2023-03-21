@@ -13,7 +13,6 @@ import lombok.Setter;
 @Embeddable
 public class MfaCode implements Serializable {
     @Getter
-    @Setter
     @Column(name = "mfa_code")
     private String value;
 

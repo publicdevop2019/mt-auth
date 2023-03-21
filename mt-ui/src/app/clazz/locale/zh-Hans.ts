@@ -897,7 +897,7 @@ export const zhHans = {
     "CLUSTER": "集群",
     "SINGLE": "单点",
     "FAILURE": "失败",
-    "MAX_LOCK_ACQUIRE_FAILURE_COUNT": "最大获取锁失败次数",
+    "MAX_LOCK_ACQUIRE_FAILURE_COUNT": "允许获取锁失败次数",
     "LOCK_ACQUIRE_FAILURE_COUNT": "获取锁失败次数",
     "JOB_STARVING": "任务无法正常获取锁",
     "JOB_PAUSED": "任务暂停中",
