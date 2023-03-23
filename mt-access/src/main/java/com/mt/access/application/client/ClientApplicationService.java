@@ -18,6 +18,7 @@ import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
+import com.mt.access.domain.model.client.ExternalUrl;
 import com.mt.access.domain.model.client.RedirectDetail;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
@@ -128,7 +129,8 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getRegisteredRedirectUri(),
                             command.isAutoApprove()
                         ),
-                        command.getTypes()
+                        command.getTypes(),
+                        new ExternalUrl(command.getExternalUrl())
                     );
                     return client.getClientId().getDomainId();
                 }, CLIENT
@@ -166,7 +168,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         new RedirectDetail(
                             command.getRegisteredRedirectUri(),
                             command.isAutoApprove()
-                        )
+                        ),
+                        new ExternalUrl(command.getExternalUrl())
                     );
                     DomainRegistry.getClientRepository().add(client);
                 }
@@ -232,7 +235,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         afterPatch.getGrantTypeEnums(),
                         new TokenDetail(afterPatch.getAccessTokenValiditySeconds(),
                             original.getTokenDetail().getRefreshTokenValiditySeconds()),
-                        original.getAuthorizationCodeGrant()
+                        original.getAuthorizationCodeGrant(),
+                        original.getExternalUrl()
                     );
                 }
                 return null;

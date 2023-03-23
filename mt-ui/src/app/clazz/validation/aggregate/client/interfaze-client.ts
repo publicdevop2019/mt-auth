@@ -21,6 +21,7 @@ export enum scopeEnums {
 export interface IClient extends IIdName {
   name: string;
   path?: string;
+  externalUrl?: string;
   id: string;
   clientSecret?: string;
   projectId: string;

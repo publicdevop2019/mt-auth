@@ -940,4 +940,5 @@ export const zhHans = {
     "ADD_TENANT_ADMIN": "添加",
     "UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION": "UserRelation数据未清除",
     "ADMIN_MGMT": "管理管理员",
+    "ENTER_EXTERNAL_URL": "外部链接",
 }

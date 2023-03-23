@@ -20,6 +20,7 @@ public class ClientRepresentation {
     private String path;
 
     private String description;
+    private String externalUrl;
 
     private Set<GrantType> grantTypeEnums;
 
@@ -60,6 +61,7 @@ public class ClientRepresentation {
         if (client.getAuthorizationCodeGrant() != null) {
             autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();
         }
+        externalUrl = client.getExternalUrl().getValue();
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;

@@ -18,6 +18,7 @@ public class ClientCreateCommand implements Serializable {
     private String description;
     private String name;
     private String path;
+    private String externalUrl;
 
     private Set<GrantType> grantTypeEnums;
     private Set<ClientType> types;

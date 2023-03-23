@@ -121,6 +121,14 @@ public class Client extends Auditable {
     private String path;
 
     @Getter
+    @Setter
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "value", column = @Column(name = "externalUrl"))
+    })
+    private ExternalUrl externalUrl;
+
+    @Getter
     private String secret;
 
     @Getter
@@ -167,7 +175,8 @@ public class Client extends Auditable {
                   Set<GrantType> grantTypes,
                   TokenDetail tokenDetail,
                   RedirectDetail authorizationCodeGrant,
-                  Set<ClientType> types
+                  Set<ClientType> types,
+                  ExternalUrl externalUrl
     ) {
         super();
         setClientId(clientId);
@@ -182,10 +191,11 @@ public class Client extends Auditable {
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        setRoleId();
+        setExternalUrl(externalUrl);
         //set id last so we know it's new object
         setId(CommonDomainRegistry.getUniqueIdGeneratorService()
             .id());
-        setRoleId();
         CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
@@ -333,7 +343,8 @@ public class Client extends Auditable {
                         Set<ClientId> resources,
                         Set<GrantType> grantTypes,
                         TokenDetail tokenDetail,
-                        RedirectDetail redirectDetail
+                        RedirectDetail redirectDetail,
+                        ExternalUrl externalUrl
     ) {
         setPath(path);
         setResources(resources);
@@ -344,6 +355,7 @@ public class Client extends Auditable {
         setName(name);
         setDescription(description);
         setAuthorizationCodeGrant(redirectDetail);
+        setExternalUrl(externalUrl);
         validate(new HttpValidationNotificationHandler());
     }
 
