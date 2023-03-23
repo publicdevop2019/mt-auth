@@ -2,6 +2,7 @@ package com.mt.access.domain.model.client;
 
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
@@ -44,8 +45,10 @@ public class RedirectDetail implements Serializable {
     }
 
     private void setRedirectUrls(Set<RedirectUrl> redirectUrls) {
-        this.redirectUrls.clear();
-        this.redirectUrls.addAll(redirectUrls);
+        if (!this.redirectUrls.equals(redirectUrls)) {
+            this.redirectUrls.clear();
+            this.redirectUrls.addAll(redirectUrls);
+        }
     }
 
     private static class RedirectUrlConverter
@@ -65,5 +68,23 @@ public class RedirectDetail implements Serializable {
             }
             return new RedirectUrl(string);
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        RedirectDetail that = (RedirectDetail) o;
+        return autoApprove == that.autoApprove &&
+            Objects.equals(redirectUrls, that.redirectUrls);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(redirectUrls, autoApprove);
     }
 }

@@ -79,6 +79,7 @@ public class Client extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "clientResourceRegion")
     private final Set<ClientId> resources = new HashSet<>();
+
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -92,6 +93,7 @@ public class Client extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "clientExtResourceRegion")
     private final Set<ClientId> externalResources = new HashSet<>();
+
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
@@ -99,22 +101,28 @@ public class Client extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
     })
     private ProjectId projectId;
+
     @Getter
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "roleId"))
     })
     private RoleId roleId;
+
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ClientId clientId;
+
     @Getter
     private String name;
+
     @Getter
     private String path;
+
     @Getter
     private String secret;
+
     @Getter
     private String description;
 
@@ -131,7 +139,6 @@ public class Client extends Auditable {
     @Column(name = "accessible_")
     private boolean accessible = false;
 
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
     private RedirectDetail authorizationCodeGrant;
@@ -182,6 +189,14 @@ public class Client extends Auditable {
         CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+    }
+
+    public void setAuthorizationCodeGrant(RedirectDetail redirectDetail) {
+        if (this.authorizationCodeGrant == null) {
+            this.authorizationCodeGrant = redirectDetail;
+        } else if (!this.authorizationCodeGrant.equals(redirectDetail)) {
+            this.authorizationCodeGrant = redirectDetail;
+        }
     }
 
     public void setRoleId() {
@@ -318,7 +333,7 @@ public class Client extends Auditable {
                         Set<ClientId> resources,
                         Set<GrantType> grantTypes,
                         TokenDetail tokenDetail,
-                        RedirectDetail authorizationCodeGrant
+                        RedirectDetail redirectDetail
     ) {
         setPath(path);
         setResources(resources);
@@ -328,7 +343,7 @@ public class Client extends Auditable {
         setTokenDetail(tokenDetail);
         setName(name);
         setDescription(description);
-        setAuthorizationCodeGrant(authorizationCodeGrant);
+        setAuthorizationCodeGrant(redirectDetail);
         validate(new HttpValidationNotificationHandler());
     }
 
