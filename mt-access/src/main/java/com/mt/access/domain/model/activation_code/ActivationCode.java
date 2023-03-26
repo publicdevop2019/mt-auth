@@ -5,6 +5,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
+import javax.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +14,7 @@ import org.springframework.util.StringUtils;
 /**
  * user activation code.
  */
+@Embeddable
 public class ActivationCode {
     @Setter(AccessLevel.PRIVATE)
     @Getter

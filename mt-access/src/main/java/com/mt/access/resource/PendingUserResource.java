@@ -15,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json", path = "pending-users")
 public class PendingUserResource {
     @PostMapping
-    public ResponseEntity<Void> createForPublic(@RequestBody PendingUserCreateCommand command,
-                                                @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                    String changeId) {
+    public ResponseEntity<Void> create(
+        @RequestBody PendingUserCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID)
+        String changeId
+    ) {
         ApplicationServiceRegistry.getPendingUserApplicationService().create(command, changeId);
         return ResponseEntity.ok().build();
     }

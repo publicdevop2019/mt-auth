@@ -6,18 +6,16 @@ import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class PendingUserApplicationService {
 
-    public static final String PENDING_USER = "PendingUser";
+    private static final String PENDING_USER = "PendingUser";
 
-    @Transactional
-    public String create(PendingUserCreateCommand command, String operationId) {
+    public String create(PendingUserCreateCommand command, String changeId) {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
         return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(operationId,
+            .idempotent(changeId,
                 (change) -> {
                     DomainRegistry.getCoolDownService().hasCoolDown(registrationEmail.getDomainId(),
                         OperationType.PENDING_USER_CODE);

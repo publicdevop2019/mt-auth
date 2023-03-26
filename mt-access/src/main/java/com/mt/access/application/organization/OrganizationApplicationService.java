@@ -14,7 +14,6 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,18 +21,17 @@ public class OrganizationApplicationService {
 
     private static final String ORGANIZATION = "Organization";
 
-    public SumPagedRep<Organization> query(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<Organization> tenantQuery(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getOrganizationRepository()
             .getByQuery(new OrganizationQuery(queryParam, pageParam, skipCount));
     }
 
-    public Optional<Organization> getById(String id) {
+    public Optional<Organization> tenantQuery(String id) {
         return DomainRegistry.getOrganizationRepository().getById(new OrganizationId(id));
     }
 
 
-    @Transactional
-    public void replace(String id, OrganizationUpdateCommand command, String changeId) {
+    public void tenantUpdate(String id, OrganizationUpdateCommand command, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
@@ -48,8 +46,7 @@ public class OrganizationApplicationService {
     }
 
 
-    @Transactional
-    public void remove(String id, String changeId) {
+    public void tenantRemove(String id, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Organization> corsProfile =
@@ -62,8 +59,7 @@ public class OrganizationApplicationService {
     }
 
 
-    @Transactional
-    public void patch(String id, JsonPatch command, String changeId) {
+    public void tenantPatch(String id, JsonPatch command, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
@@ -85,8 +81,7 @@ public class OrganizationApplicationService {
     }
 
 
-    @Transactional
-    public String create(OrganizationCreateCommand command, String changeId) {
+    public String tenantCreate(OrganizationCreateCommand command, String changeId) {
         OrganizationId organizationId = new OrganizationId();
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {

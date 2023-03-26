@@ -14,4 +14,7 @@ public interface ProjectRepository {
     Optional<Project> getById(ProjectId id);
 
     Set<ProjectId> allProjectIds();
+
+    long countTotal();
+
 }

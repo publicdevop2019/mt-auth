@@ -31,7 +31,7 @@ public interface SpringDataJpaImageRepository extends JpaRepository<Image, Long>
                 QueryUtility.getDomainIdOrder(Image_.IMAGE_ID, context, query.getSort().isAsc());
         }
         context.setOrder(order);
-        return QueryUtility.pagedQuery(query, context);
+        return QueryUtility.nativePagedQuery(query, context);
     }
 
 }

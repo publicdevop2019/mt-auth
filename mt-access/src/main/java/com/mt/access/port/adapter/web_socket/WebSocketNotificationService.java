@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component;
 public class WebSocketNotificationService implements WsPushNotificationService {
 
     @Autowired
-    NotificationMngmtWsHandler mngmtWsHandler;
+    NotificationMgmtWsHandler mgmtWsHandler;
     @Autowired
     NotificationUserWsHandler userWsHandler;
 
     @Override
-    public void notifyMngmt(String message) {
-        mngmtWsHandler.broadcastToAll(message);
+    public void notifyMgmt(String message) {
+        mgmtWsHandler.broadcastToAll(message);
     }
 
     @Override
@@ -34,10 +34,10 @@ public class WebSocketNotificationService implements WsPushNotificationService {
         log.trace("triggered scheduled task 4");
         CommonDomainRegistry.getJobService()
             .execute(KEEP_WS_CONNECTION_JOB_NAME, () -> {
-                log.trace("start of renewing ws connects");
-                mngmtWsHandler.broadcastToAll("_renew");
+                log.trace("start of renewing all ws connects");
+                mgmtWsHandler.broadcastToAll("_renew");
                 userWsHandler.broadcastToAll("_renew");
-                log.trace("end of renewing ws connects");
+                log.trace("end of renewing all ws connects");
             });
     }
 }

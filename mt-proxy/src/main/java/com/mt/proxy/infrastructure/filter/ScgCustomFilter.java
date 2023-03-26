@@ -11,6 +11,7 @@ import com.mt.proxy.domain.ReportService;
 import com.mt.proxy.domain.SanitizeService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
+import com.mt.proxy.infrastructure.LogHelper;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -88,13 +89,16 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
     }
 
-    private static boolean responseError(ServerHttpResponse response) {
-        log.trace("checking response in case of downstream error");
+    private static boolean responseError(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        LogHelper.log(exchange.getRequest(),
+            (ignored) -> log.trace("checking response in case of downstream error"));
         boolean b = response.getStatusCode() != null
             &&
             response.getStatusCode().is5xxServerError();
         if (b) {
-            log.debug("downstream error, hidden error body");
+            LogHelper.log(exchange.getRequest(),
+                (ignored) -> log.debug("downstream error, hidden error body"));
             response.getHeaders().setContentLength(0);
         }
         return b;
@@ -118,11 +122,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         ServerHttpRequest request = exchange.getRequest();
         context.setWebsocket(Utility.isWebSocket(request.getHeaders()));
         context.setAuthHeader(Utility.getAuthHeader(request));
-        ServerHttpResponse response = exchange.getResponse();
         checkEndpoint(exchange.getRequest(), context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         if (context.isWebsocket()) {
             //for websocket only endpoint check is performed
@@ -131,13 +133,11 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
         checkRateLimit(exchange, context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
-            response.setStatusCode(context.getHttpErrorStatus());
-            return response.setComplete();
+            return stopResponse(exchange, context);
         }
         //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
         reportService.logRequestDetails(exchange.getRequest());
@@ -145,8 +145,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
         return requestMono.flatMap(req -> {
             if (context.hasCheckFailed()) {
-                response.setStatusCode(context.getHttpErrorStatus());
-                return response.setComplete();
+                return stopResponse(exchange, context);
             }
             if (context.isBodyCopied()) {
                 return chain.filter(exchange.mutate().request(req).response(updatedResp).build());
@@ -154,6 +153,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 return chain.filter(exchange.mutate().response(updatedResp).build());
             }
         });
+    }
+
+    private Mono<Void> stopResponse(ServerWebExchange exchange, CustomFilterContext context) {
+        ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(context.getHttpErrorStatus());
+        reportService.logResponseDetail(exchange);
+        return response.setComplete();
     }
 
     private ServerHttpResponse updateResponse(ServerWebExchange exchange) {
@@ -164,7 +170,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         return new ServerHttpResponseDecorator(originalResponse) {
             @Override
             public Mono<Void> writeWith(Publisher<? extends DataBuffer> body) {
-                boolean b = responseError(originalResponse);
+                boolean b = responseError(exchange);
                 if (b) {
                     return Mono.empty();
                 }
@@ -267,8 +273,9 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     /**
      * update request, how body is updated is same as SCG provided approach.
      * refer to org.springframework.cloud.gateway.filter.factory.rewrite.ModifyRequestBodyGatewayFilterFactory
+     *
      * @param exchange ServerWebExchange
-     * @param context CustomFilterContext
+     * @param context  CustomFilterContext
      * @return Mono<ServerHttpRequest>
      */
     private Mono<ServerHttpRequest> updateRequest(ServerWebExchange exchange,
@@ -321,18 +328,21 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     private void checkEndpoint(ServerHttpRequest request, CustomFilterContext context) {
-        log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
-            request.getURI().getScheme());
+        LogHelper.log(request,
+            (ignored) -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
+                request.getURI().getScheme()));
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
             request.getPath().toString(),
             request.getMethod().name(),
             context.getAuthHeader(), context.isWebsocket());
         if (!allow) {
-            log.debug("access is not allowed");
+            LogHelper.log(request,
+                (ignored) -> log.debug("access is not allowed"));
             context.endpointCheckFailed();
             return;
         }
-        log.debug("access is allowed");
+        LogHelper.log(request,
+            (ignored) -> log.debug("access is allowed"));
     }
 
     private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {
@@ -341,7 +351,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         String method = exchange.getRequest().getMethodValue();
         RateLimitResult rateLimitResult = DomainRegistry.getRateLimitService()
             .withinRateLimit(path, method,
-                exchange.getRequest().getHeaders(),exchange.getRequest().getRemoteAddress());
+                exchange.getRequest().getHeaders(), exchange.getRequest().getRemoteAddress());
         if (rateLimitResult.getAllowed() == null || !rateLimitResult.getAllowed()) {
             response.getHeaders()
                 .set(X_RATE_LIMIT, "0");

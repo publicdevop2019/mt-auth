@@ -1,10 +1,12 @@
 package com.mt.proxy.port.adapter.http;
 
+import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
+
+import com.mt.proxy.domain.Utility;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpRequest;
@@ -30,12 +32,16 @@ public class RestTemplateConfig {
         public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes,
                                             ClientHttpRequestExecution clientHttpRequestExecution)
             throws IOException {
-            if (null == MDC.get("UUID")) {
-                String s = UUID.randomUUID().toString();
-                log.debug("UUID not found for outgoing request, auto generate value {}", s);
-                MDC.put("UUID", s);
+
+            if (null == Utility.getUuid(httpRequest) &&
+                !Utility.isWebSocket(httpRequest.getHeaders())) {
+                String newUuid = UUID.randomUUID().toString();
+                log.debug("uuid not found for outgoing request, auto generate value {} path {}",
+                    newUuid,
+                    httpRequest.getURI().getPath() + (httpRequest.getURI().getRawQuery() != null ?
+                        ("?" + httpRequest.getURI().getRawQuery()) : ""));
+                httpRequest.getHeaders().set(REQ_UUID, newUuid);
             }
-            httpRequest.getHeaders().set("UUID", MDC.get("UUID"));
             return clientHttpRequestExecution.execute(httpRequest, bytes);
         }
     }

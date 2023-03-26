@@ -35,11 +35,13 @@ public class JwtCurrentUserService implements CurrentUserService {
     /**
      * debug usage
      * userJwt.value will not work due to spring unable to inject value.
+     *
      * @return raw jwt
      */
-    public String getRawJwt(){
+    public String getRawJwt() {
         return userJwt.get();
     }
+
     @Override
     public Set<String> userPermissionIds() {
         String jwt = userJwt.get();
@@ -77,7 +79,15 @@ public class JwtCurrentUserService implements CurrentUserService {
     @Override
     public UserId getUserId() {
         String jwt = userJwt.get();
-        return new UserId(JwtUtility.getUserId(jwt));
+        String userId;
+        try {
+            userId = JwtUtility.getUserId(jwt);
+        } catch (Exception ex) {
+            throw new DefinedRuntimeException("error getting current user id", "0083",
+                HttpResponseCode.BAD_REQUEST,
+                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        }
+        return new UserId(userId);
     }
 
     @Override

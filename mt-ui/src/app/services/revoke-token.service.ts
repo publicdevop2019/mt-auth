@@ -15,7 +15,7 @@ export interface IRevokeToken {
   providedIn: 'root'
 })
 export class RevokeTokenService extends EntityCommonService<IRevokeToken, IRevokeToken>{
-  entityRepo: string = environment.serverUri + '/auth-svc/mngmt/revoke-tokens';
+  entityRepo: string = environment.serverUri + '/auth-svc/mgmt/revoke-tokens';
   role: string = '';
   constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);

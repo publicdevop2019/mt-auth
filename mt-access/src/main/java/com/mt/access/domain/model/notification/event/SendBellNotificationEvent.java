@@ -5,7 +5,7 @@ import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import java.util.Set;
+import java.util.LinkedHashSet;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,13 +18,17 @@ public class SendBellNotificationEvent extends DomainEvent {
     public static final String name = "SEND_BELL_NOTIFICATION_EVENT";
     private Long date;
     private String title;
-    private Set<String> descriptions;
+    private LinkedHashSet<String> descriptions;
     private UserId userId;
+
+    {
+        setTopic(SEND_BELL_NOTIFICATION_EVENT);
+        setName(name);
+
+    }
 
     public SendBellNotificationEvent(Notification notification) {
         super();
-        setTopic(SEND_BELL_NOTIFICATION_EVENT);
-        setName(name);
         setDomainId(notification.getNotificationId());
         date = notification.getTimestamp();
         this.descriptions = notification.getDescriptions();

@@ -6,9 +6,8 @@ import static com.hw.helper.AppConstant.CLIENTS;
 import static com.hw.helper.AppConstant.CLIENT_ID_OAUTH2_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_RESOURCE_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_TEST_ID;
-import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
 import static com.hw.helper.utility.TestContext.mapper;
-import static com.hw.integration.identityaccess.oauth2.UserTest.USER_MNGMT;
+import static com.hw.integration.identityaccess.oauth2.UserTest.USER_MGMT;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hw.helper.Client;
@@ -42,8 +41,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 @RunWith(SpringRunner.class)
 @Slf4j
@@ -361,7 +358,7 @@ public class ClientTest {
                 ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getAccessUrl(USER_MNGMT);
+        String url = UrlUtility.getAccessUrl(USER_MGMT);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -438,7 +435,7 @@ public class ClientTest {
                 ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getAccessUrl(USER_MNGMT);
+        String url = UrlUtility.getAccessUrl(USER_MGMT);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);

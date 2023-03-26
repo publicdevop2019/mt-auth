@@ -36,8 +36,8 @@ public class ReportApplicationService {
         });
     }
 
-    public EndpointReport analysisReportFor(String projectId, String endpointRawId,
-                                            String queryParam) {
+    public EndpointReport analyze(String projectId, String endpointRawId,
+                                  String queryParam) {
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(projectId), VIEW_API);
         EndpointId endpointId = new EndpointId(endpointRawId);

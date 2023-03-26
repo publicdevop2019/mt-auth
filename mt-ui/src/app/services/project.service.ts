@@ -3,7 +3,7 @@ import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
-import { IProjectSimple } from '../clazz/validation/aggregate/project/interface-project';
+import { IProjectDashboard, IProjectSimple } from '../clazz/validation/aggregate/project/interface-project';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
@@ -23,7 +23,7 @@ interface IPermissionInfo {
 })
 export class ProjectService extends EntityCommonService<IProjectSimple, IProjectSimple>{
   private PRODUCT_SVC_NAME = '/auth-svc';
-  private ENTITY_NAME = '/mngmt/projects';
+  private ENTITY_NAME = '/mgmt/projects';
   public totalProjects: IProjectSimple[] = [];
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
   permissionDetail: ReplaySubject<IProjectPermission[]> = new ReplaySubject();
@@ -43,7 +43,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
     return this.httpProxySvc.checkPorjectReady(projectId)
   };
   getMyProject(projectId: string) {
-    return this.httpProxySvc.readEntityById<IProjectSimple>(environment.serverUri + '/auth-svc/projects', projectId)
+    return this.httpProxySvc.readEntityById<IProjectDashboard>(environment.serverUri + '/auth-svc/projects', projectId)
   };
   resolveNameById(id: Observable<string>) {
     return id.pipe(map(ee => this.totalProjects.find(e => e.id === ee)?.name))
@@ -56,7 +56,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
       return false
     }
   }
-  showMngmtPanel(){
+  showMgmtPanel(){
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
 }

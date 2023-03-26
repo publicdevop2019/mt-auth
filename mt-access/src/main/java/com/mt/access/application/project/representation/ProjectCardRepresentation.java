@@ -27,7 +27,7 @@ public class ProjectCardRepresentation {
     public static void updateCreatorName(SumPagedRep<ProjectCardRepresentation> sumPagedRep) {
         Set<UserId> collect = sumPagedRep.getData().stream().map(e -> new UserId(e.getCreatedBy()))
             .collect(Collectors.toSet());
-        Set<User> users = ApplicationServiceRegistry.getUserApplicationService().users(collect);
+        Set<User> users = ApplicationServiceRegistry.getUserApplicationService().query(collect);
         sumPagedRep.getData().forEach(
             e -> users.stream().filter(ee -> ee.getUserId().getDomainId().equals(e.getCreatedBy()))
                 .findAny().ifPresent(ee -> e.setCreatorName(ee.getDisplayName())));

@@ -43,7 +43,7 @@ public class SubscriptionTest {
 
     //public api shared
     @Test
-    public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mngmt()
+    public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mgmt()
         throws InterruptedException {
         //check current notifications for later verify
         ResponseEntity<DefaultOAuth2AccessToken> login =
@@ -119,20 +119,20 @@ public class SubscriptionTest {
 
     @Test
     @Ignore//TODO
-    public void external_shared_auth_api_has_rate_limit_on_user_id_and_lifecycle_mngmt() {
+    public void external_shared_auth_api_has_rate_limit_on_user_id_and_lifecycle_mgmt() {
 
     }
 
     //public api none-shared
     @Test
     @Ignore//TODO
-    public void external_none_shared_none_auth_api_has_rate_limit_on_ip_without_lifecycle_mngmt() {
+    public void external_none_shared_none_auth_api_has_rate_limit_on_ip_without_lifecycle_mgmt() {
 
     }
 
     @Test
     @Ignore//TODO
-    public void external_none_shared_auth_api_has_rate_limit_on_user_id_without_lifecycle_mngmt() {
+    public void external_none_shared_auth_api_has_rate_limit_on_user_id_without_lifecycle_mgmt() {
 
     }
 }

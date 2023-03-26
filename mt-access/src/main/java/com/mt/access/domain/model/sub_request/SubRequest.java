@@ -14,20 +14,20 @@ import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "subRequestRegion")
 @NamedQuery(name = "getMySubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
@@ -35,7 +35,7 @@ import org.hibernate.annotations.Where;
 @NamedQuery(name = "getEpSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getEpSubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 public class SubRequest extends Auditable {
-    @Convert(converter = SubRequestStatus.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private SubRequestStatus subRequestStatus = SubRequestStatus.PENDING;
     @Embedded
     @AttributeOverrides({
@@ -86,7 +86,8 @@ public class SubRequest extends Auditable {
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         if (!shared) {
-            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared", "0059",
+            throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared",
+                "0059",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -97,10 +98,10 @@ public class SubRequest extends Auditable {
         this.replenishRate = replenishRate;
         this.burstCapacity = burstCapacity;
         this.endpointProjectId = endpointProjectId;
-        if(!secured){
+        if (!secured) {
             //public endpoints use default based rate from endpoint owner
-           this.burstCapacity=0;
-           this.replenishRate=0;
+            this.burstCapacity = 0;
+            this.replenishRate = 0;
         }
     }
 
@@ -112,11 +113,6 @@ public class SubRequest extends Auditable {
     public void approve(UserId userId) {
         this.subRequestStatus = SubRequestStatus.APPROVED;
         this.approvedBy = userId;
-    }
-
-    public void cancel() {
-        this.subRequestStatus = SubRequestStatus.CANCELLED;
-        softDelete();
     }
 
     public void reject(String rejectionReason, UserId userId) {

@@ -15,14 +15,17 @@ public class UserPwdResetCodeUpdated extends DomainEvent {
     private String email;
     private String code;
 
+    {
+        setName(name);
+        setTopic(USER_PWD_RESET_CODE_UPDATED);
+
+    }
+
     public UserPwdResetCodeUpdated(UserId userId, UserEmail email,
                                    PasswordResetCode pwdResetToken) {
         super(userId);
         setEmail(email);
         setCode(pwdResetToken);
-        setInternal(false);
-        setName(name);
-        setTopic(USER_PWD_RESET_CODE_UPDATED);
     }
 
     public void setEmail(UserEmail userEmail) {

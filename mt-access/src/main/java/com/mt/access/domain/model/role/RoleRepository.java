@@ -16,4 +16,5 @@ public interface RoleRepository {
 
     Set<ProjectId> getProjectIds();
 
+    long countProjectCreateTotal(ProjectId projectId);
 }

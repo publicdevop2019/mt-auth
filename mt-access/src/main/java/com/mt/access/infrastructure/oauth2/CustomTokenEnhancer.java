@@ -9,7 +9,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.domain_event.DomainId;
 import java.time.Instant;
@@ -51,12 +51,12 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 ProjectId projectId = new ProjectId(first.get());
                 Optional<UserRelation> userRelation =
                     ApplicationServiceRegistry.getUserRelationApplicationService()
-                        .getUserRelation(userId, projectId);
+                        .query(userId, projectId);
                 if (userRelation.isEmpty()) {
                     //auto assign default user role for target project
                     UserRelation newRelation =
                         ApplicationServiceRegistry.getUserRelationApplicationService()
-                            .onboardUserToTenant(userId, projectId);
+                            .internalOnboardUserToTenant(userId, projectId);
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(newRelation);
                     info.put("permissionIds",
@@ -73,7 +73,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 //get auth project permission and user tenant projects
                 Optional<UserRelation> userRelation =
                     ApplicationServiceRegistry.getUserRelationApplicationService()
-                        .getUserRelation(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
                 userRelation.ifPresent(relation -> {
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(relation);
@@ -95,7 +95,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
             client.ifPresent(client1 -> {
                 RoleId roleId = client1.getRoleId();
                 Optional<Role> byId =
-                    ApplicationServiceRegistry.getRoleApplicationService().internalGetById(roleId);
+                    ApplicationServiceRegistry.getRoleApplicationService().internalQuery(roleId);
                 byId.ifPresent(role -> {
                     info.put("projectId", client1.getProjectId().getDomainId());
                     info.put("permissionIds",

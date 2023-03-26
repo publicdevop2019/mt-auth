@@ -3,11 +3,10 @@ package com.mt.access.domain.model.role.event;
 import com.mt.access.domain.model.audit.AuditEvent;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 @AuditEvent
 public class ExternalPermissionUpdated extends DomainEvent {
     public static final String EXTERNAL_PERMISSION_UPDATED = "external_permission_updated";
@@ -15,10 +14,13 @@ public class ExternalPermissionUpdated extends DomainEvent {
     @Getter
     private ProjectId projectId;
 
-    public ExternalPermissionUpdated(ProjectId projectId) {
-        super(projectId);
+    {
         setTopic(EXTERNAL_PERMISSION_UPDATED);
         setName(name);
+    }
+
+    public ExternalPermissionUpdated(ProjectId projectId) {
+        super(projectId);
         this.projectId = projectId;
     }
 }

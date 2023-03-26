@@ -27,7 +27,7 @@ public class ReportResource {
      * @return void
      */
     @PostMapping(path = "reports/proxy")
-    public ResponseEntity<Void> uploadReport(
+    public ResponseEntity<Void> upload(
         @RequestBody List<String> records,
         @RequestHeader("instanceId") String instanceId,
         @RequestHeader("name") String name
@@ -43,7 +43,7 @@ public class ReportResource {
      * @return analysis result report
      */
     @GetMapping(path = "projects/{projectId}/endpoints/{id}/report")
-    public ResponseEntity<EndpointReportRepresentation> retrieveReport(
+    public ResponseEntity<EndpointReportRepresentation> analyze(
         @PathVariable(name = "id") String endpointRawId,
         @PathVariable(name = "projectId") String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -51,7 +51,7 @@ public class ReportResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         EndpointReport report = ApplicationServiceRegistry
-            .getReportApplicationService().analysisReportFor(projectId,endpointRawId, queryParam);
+            .getReportApplicationService().analyze(projectId, endpointRawId, queryParam);
         return ResponseEntity.ok().body(new EndpointReportRepresentation(report));
     }
 

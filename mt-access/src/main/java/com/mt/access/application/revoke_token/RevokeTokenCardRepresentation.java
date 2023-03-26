@@ -9,8 +9,7 @@ public class RevokeTokenCardRepresentation {
     private Long issuedAt;
     private RevokeToken.TokenType type;
 
-    public RevokeTokenCardRepresentation(Object object) {
-        RevokeToken token = ((RevokeToken) object);
+    public RevokeTokenCardRepresentation(RevokeToken token) {
         targetId = token.getRevokeTokenId().getDomainId();
         issuedAt = token.getIssuedAt();
         type = token.getRevokeTokenId().getType();

@@ -23,8 +23,10 @@ public class AuthorizeCodeResource {
      * @return authorization flow response
      */
     @PostMapping("/authorize")
-    public Map<String, String> authorize(@RequestParam Map<String, String> parameters,
-                                         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+    public Map<String, String> authorize(
+        @RequestParam Map<String, String> parameters,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ApplicationServiceRegistry.getAuthorizeCodeApplicationService()
             .authorize(parameters);

@@ -12,9 +12,13 @@ public class ClientGrantTypeChanged extends DomainEvent {
     public static final String CLIENT_GRANT_TYPE_CHANGED = "client_grant_type_changed";
     public static final String name = "CLIENT_GRANT_TYPE_CHANGED";
 
-    public ClientGrantTypeChanged(ClientId clientId) {
-        super(clientId);
+    {
         setTopic(CLIENT_GRANT_TYPE_CHANGED);
         setName(name);
+
+    }
+
+    public ClientGrantTypeChanged(ClientId clientId) {
+        super(clientId);
     }
 }

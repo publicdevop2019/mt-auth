@@ -10,7 +10,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class CORSProfileService extends EntityCommonService<ICorsProfile, ICorsProfile>  implements IQueryProvider {
-  entityRepo: string = environment.serverUri + '/auth-svc/mngmt/cors';
+  entityRepo: string = environment.serverUri + '/auth-svc/mgmt/cors';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);
   }

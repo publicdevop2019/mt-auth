@@ -1,6 +1,10 @@
 package com.mt.access.application.sub_request;
 
-import static com.mt.access.domain.model.permission.Permission.SUB_REQ_MNGMT;
+import static com.mt.access.domain.model.audit.AuditActionName.APPROVE_SUB_REQUEST;
+import static com.mt.access.domain.model.audit.AuditActionName.CANCEL_SUB_REQUEST;
+import static com.mt.access.domain.model.audit.AuditActionName.CREATE_SUB_REQUEST;
+import static com.mt.access.domain.model.audit.AuditActionName.REJECT_SUB_REQUEST;
+import static com.mt.access.domain.model.permission.Permission.SUB_REQ_MGMT;
 
 import com.mt.access.application.sub_request.command.CreateSubRequestCommand;
 import com.mt.access.application.sub_request.command.RejectSubRequestCommand;
@@ -26,13 +30,13 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+@Slf4j
 @Service
 public class SubRequestApplicationService {
 
-    public static final String SUB_REQUEST = "SUB_REQUEST";
+    private static final String SUB_REQUEST = "SUB_REQUEST";
 
     /**
      * query subscription request based on given params
@@ -44,7 +48,7 @@ public class SubRequestApplicationService {
     public SumPagedRep<SubRequest> query(String queryParam, String pageParam) {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(tenantIds, SUB_REQ_MNGMT);
+            .canAccess(tenantIds, SUB_REQ_MGMT);
         SubRequestQuery subRequestQuery = new SubRequestQuery(queryParam, pageParam);
         return DomainRegistry.getSubRequestRepository()
             .getByQuery(subRequestQuery);
@@ -56,10 +60,10 @@ public class SubRequestApplicationService {
      * @param pageParam page info
      * @return paginated data
      */
-    public SumPagedRep<SubRequest> subscriptions(String pageParam) {
+    public SumPagedRep<SubRequest> query(String pageParam) {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(tenantIds, SUB_REQ_MNGMT);
+            .canAccess(tenantIds, SUB_REQ_MGMT);
         SubRequestQuery subRequestQuery = SubRequestQuery.mySubscriptions(pageParam);
         return DomainRegistry.getSubRequestRepository().getMySubscriptions(subRequestQuery);
     }
@@ -81,8 +85,7 @@ public class SubRequestApplicationService {
      * @param changeId unique change id
      * @return created sub request domain id
      */
-    @Transactional
-    @AuditLog(actionName = "create sub request")
+    @AuditLog(actionName = CREATE_SUB_REQUEST)
     public String create(CreateSubRequestCommand command, String changeId) {
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
@@ -118,7 +121,6 @@ public class SubRequestApplicationService {
      * @param command  update command
      * @param changeId unique change id
      */
-    @Transactional
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
         Optional<SubRequest> byId =
             DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
@@ -138,19 +140,25 @@ public class SubRequestApplicationService {
      * @param id       sub request id
      * @param changeId unique change id
      */
-    @Transactional
+    @AuditLog(actionName = CANCEL_SUB_REQUEST)
     public void cancel(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
-        byId.ifPresent(e -> {
-            DomainRegistry.getPermissionCheckService().sameCreatedBy(e);
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    byId.ifPresent(
-                        SubRequest::cancel);
-                    return null;
-                }, SUB_REQUEST);
-        });
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                Optional<SubRequest> byId =
+                    DomainRegistry.getSubRequestRepository().getById(subRequestId);
+                byId.ifPresent(e -> {
+                    DomainRegistry.getPermissionCheckService().sameCreatedBy(e);
+                    DomainRegistry.getSubRequestRepository().remove(e);
+                    DomainRegistry.getAuditService()
+                        .storeAuditAction(CANCEL_SUB_REQUEST,
+                            e);
+                    DomainRegistry.getAuditService()
+                        .logUserAction(log, CANCEL_SUB_REQUEST,
+                            e);
+                });
+                return null;
+            }, SUB_REQUEST);
     }
 
     /**
@@ -159,15 +167,14 @@ public class SubRequestApplicationService {
      * @param id       sub request id
      * @param changeId unique change id
      */
-    @Transactional
-    @AuditLog(actionName = "approve sub request")
+    @AuditLog(actionName = APPROVE_SUB_REQUEST)
     public void approve(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
         Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
         byId.ifPresent(e -> {
             ProjectId endpointProjectId = e.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, SUB_REQ_MNGMT);
+                .canAccess(endpointProjectId, SUB_REQ_MGMT);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -186,15 +193,14 @@ public class SubRequestApplicationService {
      * @param command  reject command
      * @param changeId unique change id
      */
-    @Transactional
-    @AuditLog(actionName = "reject sub request")
+    @AuditLog(actionName = REJECT_SUB_REQUEST)
     public void reject(String id, RejectSubRequestCommand command, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
         Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
         byId.ifPresent(e -> {
             ProjectId endpointProjectId = e.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, SUB_REQ_MNGMT);
+                .canAccess(endpointProjectId, SUB_REQ_MGMT);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -209,7 +215,6 @@ public class SubRequestApplicationService {
      *
      * @param event endpoint expired event
      */
-    @Transactional
     public void handle(EndpointExpired event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {

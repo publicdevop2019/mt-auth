@@ -44,9 +44,15 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         // prevent infinite loop
         if (this.findDelta(e) !== undefined) {
           // clear form value on display = false
-          this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          this.formInfo.inputs.find(e => e.key === 'path').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          // this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          // this.formInfo.inputs.find(e => e.key === 'path').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          // this.formInfo.inputs.find(e => e.key === 'externalUrl').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          // this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = e['frontOrBackApp'] === 'BACKEND_APP';
+          if(e['frontOrBackApp'] === 'BACKEND_APP'){
+            this.fis.showIfMatch(this.formId,['clientSecret','path','externalUrl','resourceIndicator'])
+          }else{
+            this.fis.hideIfMatch(this.formId,['clientSecret','path','externalUrl','resourceIndicator'])
+          }
           if (e['frontOrBackApp'] === 'FRONTEND_APP') {
             this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
           } else {
@@ -92,6 +98,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       id: this.aggregate.id,
       projectId: this.aggregate.projectId,
       path: this.aggregate.path ? this.aggregate.path : '',
+      externalUrl: this.aggregate.externalUrl ? this.aggregate.externalUrl : '',
       clientSecret: this.aggregate.hasSecret ? '*****' : '',
       name: this.aggregate.name,
       description: this.aggregate.description || '',
@@ -137,6 +144,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
       path: formGroup.get('path').value ? formGroup.get('path').value : undefined,
+      externalUrl: formGroup.get('externalUrl').value ? formGroup.get('externalUrl').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       hasSecret: formGroup.get('clientSecret').value === '*****',
       clientSecret: formGroup.get('clientSecret').value === '*****' ? null : formGroup.get('clientSecret').value,

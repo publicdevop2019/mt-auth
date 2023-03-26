@@ -15,7 +15,7 @@ export const enUS = {
     "AUTH_CENTER": "Client Center",
     "MALL_CENTER": "Mall Center",
     "CLIENT_DASHBOARD": "Client Dashboard",
-    "RESOURCE_OWNER_DASHBOARD": "Resource Owner Dashboard",
+    "USER_DASHBOARD": "User Dashboard",
     "SECURITY_PROFILE_DASHBOARD": "Security Profile Dashboard",
     "ADD_CLIENT": "Add Client",
     "ADD_SECURITY_PROFILE": "Add Security Profile",

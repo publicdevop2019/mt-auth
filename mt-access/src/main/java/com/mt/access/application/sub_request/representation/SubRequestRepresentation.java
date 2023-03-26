@@ -6,18 +6,18 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class SubRequestRepresentation extends BasicSubRequest{
+public class SubRequestRepresentation extends BasicSubRequest {
     private final String id;
     private final String status;
     private final String rejectionReason;
     private final int replenishRate;
     private final int burstCapacity;
-    private  String approvedBy;
     private final String createdBy;
-    private  String rejectedBy;
     private final long updateAt;
     private final long createAt;
     private final String endpointProjectId;
+    private String approvedBy;
+    private String rejectedBy;
 
     public SubRequestRepresentation(SubRequest subRequest) {
         super(subRequest);

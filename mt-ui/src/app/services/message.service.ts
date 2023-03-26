@@ -18,7 +18,7 @@ export interface IBellNotification extends IIdBasedEntity {
 })
 export class MessageService extends EntityCommonService<IBellNotification, IBellNotification>{
     private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/mngmt/notifications/bell';
+    private ENTITY_NAME = '/mgmt/notifications/bell';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
     constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);

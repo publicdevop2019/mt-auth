@@ -10,9 +10,13 @@ public class ClientSecretChanged extends DomainEvent {
     public static final String CLIENT_SECRET_CHANGED = "client_secret_changed";
     public static final String name = "CLIENT_SECRET_CHANGED";
 
-    public ClientSecretChanged(ClientId clientId) {
-        super(clientId);
+    {
+
         setTopic(CLIENT_SECRET_CHANGED);
         setName(name);
+    }
+
+    public ClientSecretChanged(ClientId clientId) {
+        super(clientId);
     }
 }

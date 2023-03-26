@@ -26,9 +26,9 @@ public class GracefulShutDownHook {
     public void checkLogConfig() {
         String property = System.getProperty("log4j2.contextSelector");
         if (property!=null && !property.isBlank()) {
-            log.debug("async log is enabled");
+            log.info("async log is enabled");
         }else{
-            log.debug("async log is not enabled");
+            log.info("async log is not enabled");
         }
     }
 }

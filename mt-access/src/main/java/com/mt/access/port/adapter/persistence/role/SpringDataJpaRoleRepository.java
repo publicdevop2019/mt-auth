@@ -29,8 +29,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     }
 
     default void remove(Role role) {
-        role.softDelete();
-        save(role);
+        delete(role);
     }
 
     default SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
@@ -43,6 +42,13 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
 
     @Query("select distinct ep.projectId from Role ep")
     Set<ProjectId> getProjectId();
+
+    @Query("select count(*) from Role r where r.projectId = ?1 and r.type = 'USER' ")
+    long countProjectCreateTotal_(ProjectId projectId);
+
+    default long countProjectCreateTotal(ProjectId projectId) {
+        return countProjectCreateTotal_(projectId);
+    }
 
     @Component
     class JpaCriteriaApiRoleAdaptor {
@@ -68,13 +74,17 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                 .ifPresent(e -> QueryUtility.addStringInPredicate(e, Role_.NAME, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(
                 e -> QueryUtility.addEnumLiteralEqualPredicate(e, Role_.TYPE, queryContext));
+            Optional.ofNullable(query.getTenantIds()).ifPresent(
+                e -> QueryUtility.addDomainIdInPredicate(
+                    e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
+                    Role_.TENANT_ID, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility
                     .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 

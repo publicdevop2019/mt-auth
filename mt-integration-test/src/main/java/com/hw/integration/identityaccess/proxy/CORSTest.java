@@ -24,8 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @Slf4j
 public class CORSTest {
     private final String thirdPartyOrigin = "http://localhost:4300";
-    private final String[] corsUris = {"/oauth/token", "/mngmt/clients/0", "/mngmt/clients",
-        "/authorize", "/mngmt/users", "/mngmt/users/0", "/users/pwd", "/users"};
+    private final String[] corsUris = {"/oauth/token", "/mgmt/clients/0", "/mgmt/clients",
+        "/authorize", "/mgmt/users", "/mgmt/users/0", "/users/pwd", "/users"};
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override

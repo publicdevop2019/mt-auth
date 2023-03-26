@@ -18,7 +18,7 @@ export interface INotification extends IIdBasedEntity {
 })
 export class NotificationService extends EntityCommonService<INotification, INotification>{
     private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/mngmt/notifications';
+    private ENTITY_NAME = '/mgmt/notifications';
     entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
     constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
         super(httpProxy, interceptor, deviceSvc);

@@ -8,7 +8,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +50,12 @@ public class TokenResource {
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
         if (loginResult.isAllowed()) {
-            return tokenEndpoint.postAccessToken(principal, parameters);
+            try {
+                return tokenEndpoint.postAccessToken(principal, parameters);
+            } catch (InvalidTokenException ex) {
+                log.info("refresh token expired, no need to log details");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
         } else {
             if (loginResult.isInvalidMfa()) {
                 return ResponseEntity.badRequest().build();

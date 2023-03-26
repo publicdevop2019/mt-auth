@@ -4,10 +4,13 @@ import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 @Data
+@Embeddable
 public class MfaCode implements Serializable {
     @Getter
     @Column(name = "mfa_code")

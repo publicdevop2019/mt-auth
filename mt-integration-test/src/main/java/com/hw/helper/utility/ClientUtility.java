@@ -1,6 +1,6 @@
 package com.hw.helper.utility;
 
-import static com.hw.helper.AppConstant.CLIENT_MNGMT_URL;
+import static com.hw.helper.AppConstant.CLIENT_MGMT_URL;
 
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
@@ -81,7 +81,7 @@ public class ClientUtility {
         headers.setBearerAuth(bearer);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
-            .exchange(CLIENT_MNGMT_URL, HttpMethod.POST, request, String.class);
+            .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
     }
 
     public static ResponseEntity<String> createClient(Client client, String changeId) {
@@ -96,6 +96,6 @@ public class ClientUtility {
         headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
-            .exchange(CLIENT_MNGMT_URL, HttpMethod.POST, request, String.class);
+            .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
     }
 }

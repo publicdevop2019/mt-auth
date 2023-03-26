@@ -85,9 +85,17 @@ public class IdempotentService {
         }
     }
 
-    public <T> String idempotent(String changeId,
-                                 Function<CreateChangeRecordCommand, String> function,
-                                 String aggregateName) {
+    /**
+     * make sure change is idempotent, start transaction if change is allowed
+     *
+     * @param changeId      change id
+     * @param function      additional function to be executed
+     * @param aggregateName (aggregate name + change id) = change identifier
+     * @return new aggregate id if needed
+     */
+    public String idempotent(String changeId,
+                             Function<CreateChangeRecordCommand, String> function,
+                             String aggregateName) {
         if (isCancelChange(changeId)) {
             //reverse action
             SumPagedRep<ChangeRecord> reverseChanges =
@@ -138,21 +146,26 @@ public class IdempotentService {
                 if (reverseChange.isPresent()) {
                     //change has been cancelled, perform null operation
                     log.debug("change already cancelled, do empty change");
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new HangingTxDetected(changeId));
-                    CreateChangeRecordCommand command =
-                        createChangeRecordCommand(changeId, aggregateName, null);
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createEmptyForward(command);
+                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                        CommonDomainRegistry.getDomainEventRepository()
+                            .append(new HangingTxDetected(changeId));
+                        CreateChangeRecordCommand command =
+                            createChangeRecordCommand(changeId, aggregateName, null);
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createEmptyForward(command);
+                    });
                     return null;
                 } else {
                     log.debug("making change...");
-                    CreateChangeRecordCommand command =
-                        createChangeRecordCommand(changeId, aggregateName, null);
-                    String apply = function.apply(command);
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createForward(command);
-                    return apply;
+                    return CommonDomainRegistry.getTransactionService()
+                        .returnedTransactional(() -> {
+                            CreateChangeRecordCommand command =
+                                createChangeRecordCommand(changeId, aggregateName, null);
+                            String apply = function.apply(command);
+                            CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                                .createForward(command);
+                            return apply;
+                        });
                 }
             }
         }

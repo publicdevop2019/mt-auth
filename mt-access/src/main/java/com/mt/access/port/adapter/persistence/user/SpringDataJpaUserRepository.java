@@ -21,6 +21,7 @@ import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -42,8 +43,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
     }
 
     default void remove(User user) {
-        user.softDelete();
-        save(user);
+        delete(user);
     }
 
     default SumPagedRep<User> usersOfQuery(UserQuery query) {
@@ -54,9 +54,23 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         QueryBuilderRegistry.getUpdateUserQueryBuilder().update(commands, User.class);
     }
 
+    default long countTotal() {
+        return countTotal_();
+    }
+
+    default Set<UserId> getUserIds() {
+        return getUserIds_();
+    }
+
+    @Query("select distinct u.userId from User u")
+    Set<UserId> getUserIds_();
+
+
+    @Query("select count(*) from User")
+    Long countTotal_();
+
     @Component
     class JpaCriteriaApiUserAdaptor {
-        private static final String USER_ID_LITERAL = "userId";
 
         public SumPagedRep<User> execute(UserQuery userQuery) {
             QueryUtility.QueryContext<User> queryContext =
@@ -72,10 +86,10 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
             Optional.ofNullable(userQuery.getUserIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
-                    USER_ID_LITERAL, queryContext));
+                    User_.USER_ID, queryContext));
             Order order = null;
             if (userQuery.getUserSort().isById()) {
-                order = QueryUtility.getDomainIdOrder(USER_ID_LITERAL, queryContext,
+                order = QueryUtility.getDomainIdOrder(User_.USER_ID, queryContext,
                     userQuery.getUserSort().isAsc());
             }
             if (userQuery.getUserSort().isByEmail()) {
@@ -91,7 +105,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                     .getOrder(User_.LOCKED, queryContext, userQuery.getUserSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(userQuery, queryContext);
+            return QueryUtility.nativePagedQuery(userQuery, queryContext);
         }
 
         public static class UserEmailPredicateConverter {

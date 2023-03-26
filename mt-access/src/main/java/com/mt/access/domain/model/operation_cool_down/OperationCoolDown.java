@@ -7,6 +7,8 @@ import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
@@ -31,7 +33,7 @@ public class OperationCoolDown extends Auditable {
     private String executor;
 
     @Column(name = "opt_type")
-    @Convert(converter = OperationType.DbConverter.class)
+    @Enumerated(EnumType.STRING)
     private OperationType operationType;
 
     @Column(name = "last_opt_at")

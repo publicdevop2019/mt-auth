@@ -10,7 +10,9 @@
             <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}
             </div>
         </div>
-        <div>
+        <div style="display: flex;">
+            <div style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center; cursor: pointer;" (click)="openDoc()" >
+                <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div><mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon></div>
             <button mat-button [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
                 <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
                     matBadgeSize="small" matBadgeColor="accent">notifications_none
@@ -83,7 +85,7 @@
                 <mat-nav-list>
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                         [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                        *ngFor="let nav of menuAuthMangement">
+                        *ngFor="let nav of menuMgmt">
                         <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
@@ -97,7 +99,7 @@
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
-                    <ng-container *ngFor="let nav of menuAuth">
+                    <ng-container *ngFor="let nav of menuTenant">
                         <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link"
                             routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                             [queryParams]="preserveURLQueryParams(nav)"

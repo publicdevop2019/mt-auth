@@ -21,4 +21,8 @@ public interface ClientRepository {
     Set<ProjectId> getProjectIds();
 
     Set<ClientId> allClientIds();
+
+    long countTotal();
+
+    long countProjectTotal(ProjectId projectId);
 }

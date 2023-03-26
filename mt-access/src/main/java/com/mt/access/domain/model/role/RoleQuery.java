@@ -1,5 +1,7 @@
 package com.mt.access.domain.model.role;
 
+import static com.mt.access.domain.model.role.Role.PROJECT_ADMIN;
+
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
@@ -32,6 +34,7 @@ public class RoleQuery extends QueryCriteria {
     private Boolean parentIdNull;
     private Set<ProjectId> projectIds;
     private Set<String> names;
+    private Set<ProjectId> tenantIds;
     private Set<RoleType> types;
     private PermissionId externalPermissionIds;
 
@@ -165,6 +168,16 @@ public class RoleQuery extends QueryCriteria {
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
         roleQuery.sort = RoleSort.byId(true);
+        return roleQuery;
+    }
+
+    public static RoleQuery tenantAdmin(ProjectId tenantProjectId) {
+        RoleQuery roleQuery = new RoleQuery();
+        roleQuery.setPageConfig(PageConfig.defaultConfig());
+        roleQuery.setQueryConfig(QueryConfig.skipCount());
+        roleQuery.sort = RoleSort.byId(true);
+        roleQuery.names = Collections.singleton(PROJECT_ADMIN);
+        roleQuery.tenantIds = Collections.singleton(tenantProjectId);
         return roleQuery;
     }
 

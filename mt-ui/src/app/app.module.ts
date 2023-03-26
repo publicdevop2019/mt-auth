@@ -64,7 +64,7 @@ import { SearchComponent } from './components/search/search.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
 import { TreeNodeDirective } from './directive/tree-node.directive';
 import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
-import { MngmtEndpointComponent } from './pages/mgnmt/endpoint/endpoint.component';
+import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { ApiCenterComponent } from './pages/common/api-center/api-center.component';
 import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
@@ -72,7 +72,7 @@ import { MyProfileComponent } from './pages/common/my-profile/my-profile.compone
 import { NewProjectComponent } from './pages/common/new-project/new-project.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
-import { AddAdminComponent } from './pages/tenant/add-admin/add-admin.component';
+import { MyAdminComponent } from './pages/tenant/my-admin/my-admin.component';
 import { ClientComponent } from './pages/tenant/client/client.component';
 import { MyApisComponent } from './pages/tenant/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/my-clients/my-clients.component';
@@ -98,36 +98,36 @@ import { LoadingInterceptor } from './services/interceptors/loading.interceptor'
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
-import { ClientService } from './services/mngmt-client.service';
+import { ClientService } from './services/mgmt-client.service';
 import { UserService } from './services/user.service';
-import { CacheComponent } from './pages/mgnmt/cache/cache.component';
-import { MngmtClientComponent } from './pages/mgnmt/client/client.component';
-import { CorsComponent } from './pages/mgnmt/cors/cors.component';
-import { SummaryCacheComponent } from './pages/mgnmt/summary-cache/summary-cache.component';
-import { SummaryClientComponent } from './pages/mgnmt/summary-client/summary-client.component';
-import { SummaryCorsComponent } from './pages/mgnmt/summary-cors/summary-cors.component';
-import { SummaryEndpointComponent } from './pages/mgnmt/summary-endpoint/summary-endpoint.component';
-import { MessageCenterComponent } from './pages/mgnmt/summary-message/summary-message.component';
-import { SummaryOrgComponent } from './pages/mgnmt/summary-org/summary-org.component';
-import { SummaryPermissionComponent } from './pages/mgnmt/summary-permission/summary-permission.component';
-import { SummaryPositionComponent } from './pages/mgnmt/summary-position/summary-position.component';
-import { SummaryProjectComponent } from './pages/mgnmt/summary-project/summary-project.component';
-import { SummaryRevokeTokenComponent } from './pages/mgnmt/summary-revoke-token/summary-revoke-token.component';
-import { SummaryRoleComponent } from './pages/mgnmt/summary-role/summary-role.component';
-import { SummaryStoredEventAccessComponent } from './pages/mgnmt/summary-stored-event-access/summary-stored-event-access.component';
-import { SummaryResourceOwnerComponent } from './pages/mgnmt/summary-user/summary-user.component';
-import { ResourceOwnerComponent } from './pages/mgnmt/user/user.component';
-import { RegistryComponent } from './pages/mgnmt/registry/registry.component';
+import { CacheComponent } from './pages/mgmt/cache/cache.component';
+import { MgmtClientComponent } from './pages/mgmt/client/client.component';
+import { CorsComponent } from './pages/mgmt/cors/cors.component';
+import { SummaryCacheComponent } from './pages/mgmt/summary-cache/summary-cache.component';
+import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
+import { SummaryCorsComponent } from './pages/mgmt/summary-cors/summary-cors.component';
+import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
+import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-message.component';
+import { SummaryOrgComponent } from './pages/mgmt/summary-org/summary-org.component';
+import { SummaryPermissionComponent } from './pages/mgmt/summary-permission/summary-permission.component';
+import { SummaryPositionComponent } from './pages/mgmt/summary-position/summary-position.component';
+import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
+import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
+import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.component';
+import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
+import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
+import { ResourceOwnerComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
+import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';
 import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
-import { JobComponent } from './pages/mgnmt/job/job.component';
+import { JobComponent } from './pages/mgmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
 import { DocumentComponent } from './pages/document/document.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
-import { SummaryNotificationComponent } from './pages/mgnmt/summary-notification/summary-notification.component';
+import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
 import { SubRequestComponent } from './pages/common/sub-request/sub-request.component';
 import { MySubReqComponent } from './pages/common/my-sub-req/my-sub-req.component';
 import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-sub-req.component';
@@ -138,6 +138,7 @@ import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.c
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
+import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -198,14 +199,14 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
     MyPermissionsComponent,
     MyProjectComponent,
     SummaryProjectComponent,
-    AddAdminComponent,
+    MyAdminComponent,
     PermissionComponent,
     MyUsersComponent,
     UserComponent,
     NotFoundComponent,
     WelcomeComponent,
-    MngmtEndpointComponent,
-    MngmtClientComponent,
+    MgmtEndpointComponent,
+    MgmtClientComponent,
     RegistryComponent,
     JobComponent,
     MfaComponent,
@@ -223,6 +224,7 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
     EndpointAnalysisComponent,
     UserNotificationComponent,
     ErrorLookupComponent,
+    DashboardComponent,
 
   ],
   imports: [
@@ -275,8 +277,8 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
   entryComponents: [
     MsgBoxComponent,
     ClientComponent,
-    MngmtEndpointComponent,
-    MngmtClientComponent,
+    MgmtEndpointComponent,
+    MgmtClientComponent,
     EndpointNewComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,

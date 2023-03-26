@@ -36,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class UserTest {
-    public static final String USER_MNGMT = "/mngmt/users";
+    public static final String USER_MGMT = "/mgmt/users";
     private static final String root_index = "0U8AZTODP4H0";
     @Rule
     public TestWatcher watchman = new TestWatcher() {
@@ -166,7 +166,7 @@ public class UserTest {
 
     @Test
     public void read_all_users_with_root_account() {
-        String url = UrlUtility.getAccessUrl(USER_MNGMT);
+        String url = UrlUtility.getAccessUrl(USER_MGMT);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         HttpHeaders headers = new HttpHeaders();
@@ -196,7 +196,7 @@ public class UserTest {
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         String url =
-            UrlUtility.getAccessUrl(USER_MNGMT + "/" + root_index);
+            UrlUtility.getAccessUrl(USER_MGMT + "/" + root_index);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
@@ -220,7 +220,7 @@ public class UserTest {
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(USER_MNGMT + "/" + s);
+        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + s);
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
@@ -249,7 +249,7 @@ public class UserTest {
         ResponseEntity<DefaultOAuth2AccessToken> user1 = UserUtility.register(user);
 
         String s = user1.getHeaders().getLocation().toString();
-        String url = UrlUtility.getAccessUrl(USER_MNGMT + "/" + s);
+        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + s);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
@@ -277,7 +277,7 @@ public class UserTest {
     public void should_not_able_to_delete_root_user() {
 
         String url =
-            UrlUtility.getAccessUrl(USER_MNGMT + "/" + root_index);
+            UrlUtility.getAccessUrl(USER_MGMT + "/" + root_index);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);

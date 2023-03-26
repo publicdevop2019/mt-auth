@@ -47,7 +47,6 @@ public abstract class Auditable implements Serializable {
     @Temporal(TemporalType.TIMESTAMP)
     @Getter
     private Date modifiedAt;
-    private long deleted = 0;
     @Version
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -64,11 +63,4 @@ public abstract class Auditable implements Serializable {
     public void validate(@NotNull ValidationNotificationHandler handler) {
     }
 
-    public void softDelete() {
-        this.deleted = getId();
-    }
-
-    public void restore() {
-        this.deleted = 0L;
-    }
 }

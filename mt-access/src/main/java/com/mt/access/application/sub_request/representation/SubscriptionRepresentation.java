@@ -39,7 +39,7 @@ public class SubscriptionRepresentation extends BasicSubRequest {
             Set<Endpoint> collect2 =
                 ApplicationServiceRegistry.getEndpointApplicationService().internalQuery(collect);
             list.getData().forEach(e -> collect2.stream().filter(ee ->
-                ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
+                    ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
                 .ifPresent(ep -> {
                     e.setEndpointName(ep.getName());
                     e.setExpired(ep.isExpired());

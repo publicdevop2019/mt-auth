@@ -7,10 +7,17 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
+import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Lob;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,14 +25,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "cors_profile")
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "corsProfileRegion")
 @Setter(AccessLevel.PRIVATE)
@@ -35,14 +40,28 @@ public class CorsProfile extends Auditable {
     @Embedded
     private CorsProfileId corsId;
     private boolean allowCredentials;
-    @Convert(converter = StringSetConverter.class)
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "allowed_header")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "allowedHeadersRegion")
     private Set<String> allowedHeaders;
 
-    @Lob
+    @Getter
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = Origin.class)
+    @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "allowed_origin")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "corsOriginRegion")
     @Convert(converter = Origin.OriginConverter.class)
     private Set<Origin> allowOrigin;
 
-    @Convert(converter = StringSetConverter.class)
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "exposed_header")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "exposedHeadersRegion")
     private Set<String> exposedHeaders;
     private Long maxAge;
 

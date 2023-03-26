@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -32,6 +31,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ServerWebExchange;
 
 /**
  * log request & response access record
@@ -62,13 +62,14 @@ public class ReportService {
      * response is linked to request via uuid, method & path is not logged because
      * fetch value requires reflection which is a performance concern
      *
-     * @param response ServerHttpResponse
+     * @param exchange ServerWebExchange
      */
-    public void logResponseDetail(ServerHttpResponse response) {
+    public void logResponseDetail(ServerWebExchange exchange) {
+        ServerHttpResponse response = exchange.getResponse();
+        String uuid = Utility.getUuid(exchange.getRequest());
         long responseTimestamp = Instant.now().toEpochMilli();
         int responseStatusCode = response.getStatusCode().value();
         long contentLength = response.getHeaders().getContentLength();
-        String uuid = MDC.get(REQ_UUID);
         record.add("type:response,timestamp:" + responseTimestamp +
             ",uuid:" + uuid + ",statusCode:" + responseStatusCode + ",contentLength:" +
             contentLength);
@@ -76,8 +77,8 @@ public class ReportService {
 
     public void logRequestDetails(ServerHttpRequest request) {
         long requestTimestamp = Instant.now().toEpochMilli();
-        String clientIp = MDC.get(REQ_CLIENT_IP);
-        String uuid = MDC.get(REQ_UUID);
+        String clientIp = Utility.getClientIp(request);
+        String uuid = Utility.getUuid(request);
         String path = request.getPath().toString();
         String method = request.getMethod().toString();
         Optional<Endpoint> endpoint = endpointService.findEndpoint(path, method, false);

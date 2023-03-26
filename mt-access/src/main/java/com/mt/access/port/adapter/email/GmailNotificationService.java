@@ -13,6 +13,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,9 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 @Service
 @Slf4j
+@ConditionalOnProperty(
+    value="mt.email.service.type",
+    havingValue = "gmail")
 public class GmailNotificationService implements EmailNotificationService {
     @Autowired
     private JavaMailSender sender;

@@ -10,6 +10,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.command.ProjectUpdateCommand;
+import com.mt.access.application.project.representation.DashboardRepresentation;
 import com.mt.access.application.project.representation.ProjectCardRepresentation;
 import com.mt.access.application.project.representation.ProjectRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -17,7 +18,6 @@ import com.mt.access.domain.model.project.Project;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,18 +38,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProjectResource {
 
     @PostMapping(path = "projects")
-    public ResponseEntity<Void> createForRoot(@RequestBody ProjectCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantCreate(
+        @RequestBody ProjectCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getProjectApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getProjectApplicationService().tenantCreate(command, changeId))
             .build();
     }
 
-    @GetMapping(path = "mngmt/projects")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> readForRootByQuery(
+    @GetMapping(path = "mgmt/projects")
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -58,37 +59,46 @@ public class ProjectResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Project> queryProjects =
             ApplicationServiceRegistry.getProjectApplicationService()
-                .adminQueryProjects(queryParam, pageParam, skipCount);
+                .mgmtQuery(queryParam, pageParam, skipCount);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(queryProjects, ProjectCardRepresentation::new);
         ProjectCardRepresentation.updateCreatorName(projectCardRepresentationSumPagedRep);
         return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
     }
 
-    @GetMapping(path = "projects/tenant")
-    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> externalQuery(
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+    @GetMapping(path = "mgmt/dashboard")
+    public ResponseEntity<DashboardRepresentation> mgmtQuery(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        DashboardRepresentation rep =
+            ApplicationServiceRegistry.getProjectApplicationService()
+                .mgmtQuery();
+        return ResponseEntity.ok(rep);
+    }
 
+    @GetMapping(path = "projects/tenant")
+    public ResponseEntity<SumPagedRep<ProjectCardRepresentation>> tenantQuery(
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Project> clients =
-            ApplicationServiceRegistry.getProjectApplicationService().findTenantProjects(pageParam);
+            ApplicationServiceRegistry.getProjectApplicationService().tenantQuery(pageParam);
         SumPagedRep<ProjectCardRepresentation> projectCardRepresentationSumPagedRep =
             new SumPagedRep<>(clients, ProjectCardRepresentation::new);
         return ResponseEntity.ok(projectCardRepresentationSumPagedRep);
     }
 
     @GetMapping("projects/{id}")
-    public ResponseEntity<ProjectRepresentation> readForRootById(
+    public ResponseEntity<ProjectRepresentation> tenantQueryDetail(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Project> client =
-            ApplicationServiceRegistry.getProjectApplicationService().project(id);
-        return client.map(value -> ResponseEntity.ok(new ProjectRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        ProjectRepresentation resp =
+            ApplicationServiceRegistry.getProjectApplicationService().tenantQueryDetail(id);
+        return ResponseEntity.ok(resp);
     }
 
     /**
@@ -99,13 +109,13 @@ public class ProjectResource {
      * @return project creation status
      */
     @GetMapping("projects/{id}/ready")
-    public ResponseEntity<Map<String, Boolean>> checkIfProjectReady(
+    public ResponseEntity<Map<String, Boolean>> checkIfReady(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         boolean b =
-            ApplicationServiceRegistry.getUserRelationApplicationService().projectRelationExist(id);
+            ApplicationServiceRegistry.getUserRelationApplicationService().checkExist(id);
         Map<String, Boolean> objectObjectHashMap = new HashMap<>();
         objectObjectHashMap.put("status", b);
         return ResponseEntity.ok(objectObjectHashMap);
@@ -113,35 +123,35 @@ public class ProjectResource {
 
 
     @PutMapping("projects/{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
-                                                   @RequestBody ProjectUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+    public ResponseEntity<Void> update(
+        @PathVariable(name = "id") String id,
+        @RequestBody ProjectUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getProjectApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getProjectApplicationService().update(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+    public ResponseEntity<Void> remove(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getProjectApplicationService().removeProject(id, changeId);
+        ApplicationServiceRegistry.getProjectApplicationService().remove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "projects/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+    public ResponseEntity<Void> patch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getProjectApplicationService().patch(id, command, changeId);
         return ResponseEntity.ok().build();

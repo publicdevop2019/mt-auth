@@ -11,7 +11,6 @@ import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +21,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NoArgsConstructor
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "pendingUserRegion")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"domainId", "deleted"}))
+@Table
 public class PendingUser extends Auditable {
-    @Column
+    @Column(unique = true)
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded

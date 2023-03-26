@@ -37,15 +37,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method",
-    "deleted"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
-@Where(clause = "deleted=0")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "endpointRegion")
 public class Endpoint extends Auditable {
@@ -177,7 +174,8 @@ public class Endpoint extends Auditable {
 
     private void canBeRemoved() {
         if (shared && !expired) {
-            throw new DefinedRuntimeException("shared endpoint must be expired first before deletion", "0040",
+            throw new DefinedRuntimeException(
+                "shared endpoint must be expired first before deletion", "0040",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
@@ -230,12 +228,12 @@ public class Endpoint extends Auditable {
     }
 
     public void setReplenishRate(int replenishRate) {
-        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
         this.replenishRate = replenishRate;
     }
 
     public void setBurstCapacity(int burstCapacity) {
-        Validator.greaterThan(new BigDecimal(replenishRate),BigDecimal.ZERO);
+        Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
         this.burstCapacity = burstCapacity;
     }
 

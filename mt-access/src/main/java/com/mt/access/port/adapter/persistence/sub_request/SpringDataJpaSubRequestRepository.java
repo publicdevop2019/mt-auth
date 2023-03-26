@@ -35,17 +35,18 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     }
 
     default void remove(SubRequest subRequest) {
-        subRequest.softDelete();
-        save(subRequest);
+        delete(subRequest);
     }
 
     default SumPagedRep<SubRequest> getByQuery(SubRequestQuery query) {
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
-    default Set<EndpointId> getSubscribeEndpointIds(UserId userId){
+
+    default Set<EndpointId> getSubscribeEndpointIds(UserId userId) {
         return getSubscribeEndpointIds_(userId.getDomainId());
     }
-    default Set<UserId> getEndpointSubscriber(EndpointId endpointId){
+
+    default Set<UserId> getEndpointSubscriber(EndpointId endpointId) {
         return getEndpointSubscriber_(endpointId);
     }
 
@@ -119,7 +120,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                         query.getSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(query, queryContext);
+            return QueryUtility.nativePagedQuery(query, queryContext);
         }
     }
 

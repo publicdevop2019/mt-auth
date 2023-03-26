@@ -10,7 +10,6 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
-import com.mt.common.domain.model.sql.clause.NotDeletedClause;
 import com.mt.common.infrastructure.audit.SpringDataJpaConfig;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,11 +62,8 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
             CriteriaUpdate<T> criteriaUpdate = cb.createCriteriaUpdate(clazz);
             Root<T> root = criteriaUpdate.from(clazz);
             Predicate predicate = getWhereClause(root, jsonPatchCommandListHashMap.get(key), key);
-            //force to select only not deleted entity
-            Predicate notSoftDeleted = new NotDeletedClause<T>().getWhereClause(cb, root);
-            Predicate and = cb.and(notSoftDeleted, predicate);
-            if (and != null) {
-                criteriaUpdate.where(and);
+            if (predicate != null) {
+                criteriaUpdate.where(predicate);
             }
             setUpdateValue(root, criteriaUpdate, key);
             //update version, this is required to make optimistic lock work properly

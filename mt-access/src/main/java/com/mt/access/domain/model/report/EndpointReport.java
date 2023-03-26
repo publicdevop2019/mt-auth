@@ -13,7 +13,6 @@ import lombok.Getter;
 @Getter
 public class EndpointReport {
     private final EndpointId endpointId;
-    private long averageSuccessRoundTimeInMili;
     private final int totalInvokeCount;
     private final AtomicInteger failureResponseCount = new AtomicInteger(0);
     private final AtomicInteger badRequestCount = new AtomicInteger(0);//400
@@ -21,6 +20,7 @@ public class EndpointReport {
     private final AtomicInteger authenticationRequiredRequestCount = new AtomicInteger(0);//403
     private final AtomicInteger internalServerErrorCount = new AtomicInteger(0);//500
     private final AtomicInteger serviceUnavailableErrorCount = new AtomicInteger(0);//503
+    private long averageSuccessRoundTimeInMili;
     private int averageResponseSize;
 
     public EndpointReport(Set<FormattedAccessRecord> records, EndpointId endpointId) {
@@ -28,7 +28,8 @@ public class EndpointReport {
         Set<FormattedAccessRecord> successRecords =
             records.stream().filter(e -> e.getResponseCode() == 200).collect(Collectors.toSet());
         Optional<Long> reduce = successRecords.stream().map(e ->
-            e.getResponseAt().toInstant().toEpochMilli() - e.getRequestAt().toInstant().toEpochMilli()).reduce((a, b) -> (a + b) >> 1);
+            e.getResponseAt().toInstant().toEpochMilli() -
+                e.getRequestAt().toInstant().toEpochMilli()).reduce((a, b) -> (a + b) >> 1);
         reduce.ifPresent(e -> averageSuccessRoundTimeInMili = e);
         Optional<Integer> reduce1 = successRecords.stream().map(
             FormattedAccessRecord::getResponseContentSize).reduce((a, b) -> (a + b) >> 1);
@@ -48,7 +49,8 @@ public class EndpointReport {
                 } else if (e.getResponseCode() == 503) {
                     serviceUnavailableErrorCount.getAndIncrement();
                 } else {
-                    throw new DefinedRuntimeException("unknown response code " + e.getResponseCode(), "0052",
+                    throw new DefinedRuntimeException(
+                        "unknown response code " + e.getResponseCode(), "0052",
                         HttpResponseCode.BAD_REQUEST,
                         ExceptionCatalog.ILLEGAL_ARGUMENT);
                 }

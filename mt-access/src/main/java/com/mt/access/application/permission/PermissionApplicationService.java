@@ -1,5 +1,9 @@
 package com.mt.access.application.permission;
 
+import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PERMISSION;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PERMISSION;
+import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_PERMISSION;
+import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
@@ -34,21 +38,57 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 public class PermissionApplicationService {
     private static final String PERMISSION = "Permission";
 
-    public SumPagedRep<Permission> query(String queryParam, String pageParam, String skipCount) {
+    /**
+     * get subscribed endpoint permissions
+     *
+     * @param queryParam query string
+     * @param pageParam  page config
+     * @return paged permission
+     */
+    public SumPagedRep<Permission> sharedQuery(String queryParam, String pageParam) {
+        Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
+            .internalSubscribedEndpointIds();
+        if (!endpointIds.isEmpty()) {
+            Set<Endpoint> endpoints =
+                ApplicationServiceRegistry.getEndpointApplicationService()
+                    .internalQuery(endpointIds);
+            Set<PermissionId> subPermissionIds =
+                endpoints.stream().map(Endpoint::getPermissionId)
+                    .filter(Objects::nonNull)//filter shared endpoint that has no permission check
+                    .collect(Collectors.toSet());
+            PermissionQuery permissionQuery =
+                PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
+            return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+        } else {
+            return SumPagedRep.empty();
+        }
+    }
+
+    /**
+     * get permissions for ui usage.
+     *
+     * @return permission set
+     */
+    public Set<Permission> uiQuery() {
+        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        return QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
+    }
+    public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam, String skipCount) {
         PermissionQuery permissionQuery = new PermissionQuery(queryParam, pageParam, skipCount);
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
         return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
     }
 
-    public Optional<Permission> getById(String projectId, String id) {
+    public Optional<Permission> tenantQuery(String projectId, String id) {
         PermissionQuery permissionQuery =
             new PermissionQuery(new PermissionId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
@@ -57,9 +97,8 @@ public class PermissionApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "update permission")
-    public void replace(String id, PermissionUpdateCommand command, String changeId) {
+    @AuditLog(actionName = UPDATE_TENANT_PERMISSION)
+    public void tenantUpdate(String id, PermissionUpdateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
             new PermissionQuery(permissionId, new ProjectId(command.getProjectId()));
@@ -92,9 +131,8 @@ public class PermissionApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "remove permission")
-    public void remove(String projectId, String id, String changeId) {
+    @AuditLog(actionName = REMOVE_TENANT_PERMISSION)
+    public void tenantRemove(String projectId, String id, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
             new PermissionQuery(permissionId, new ProjectId(projectId));
@@ -103,15 +141,22 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Permission> permission =
                 DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
-            permission.ifPresent(Permission::remove);
+            permission.ifPresent(e->{
+                e.remove();
+            DomainRegistry.getAuditService()
+                .storeAuditAction(REMOVE_TENANT_PERMISSION,
+                    e);
+                DomainRegistry.getAuditService()
+                    .logUserAction(log, REMOVE_TENANT_PERMISSION,
+                        e);
+            });
             return null;
         }, PERMISSION);
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "patch permission")
-    public void patch(String projectId, String id, JsonPatch command, String changeId) {
+    @AuditLog(actionName = PATCH_TENANT_PERMISSION)
+    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
             new PermissionQuery(permissionId, new ProjectId(projectId));
@@ -137,9 +182,8 @@ public class PermissionApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "create permission")
-    public String create(PermissionCreateCommand command, String changeId) {
+    @AuditLog(actionName = CREATE_TENANT_PERMISSION)
+    public String tenantCreate(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_PERMISSION);
@@ -175,19 +219,17 @@ public class PermissionApplicationService {
     }
 
 
-    @Transactional
-    public void handle(StartNewProjectOnboarding deserialize) {
+    public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle project created event");
-                ProjectId tenantProjectId = new ProjectId(deserialize.getDomainId().getDomainId());
-                Permission.onboardNewProject(tenantProjectId, deserialize.getCreator());
+                ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
+                Permission.onboardNewProject(tenantProjectId, event.getCreator());
                 return null;
             }, PERMISSION);
     }
 
 
-    @Transactional
     public void handle(SecureEndpointCreated deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -206,7 +248,6 @@ public class PermissionApplicationService {
      *
      * @param event SecureEndpointRemoved event
      */
-    @Transactional
     public void handle(SecureEndpointRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
@@ -221,42 +262,5 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-    /**
-     * get subscribed endpoint permissions
-     *
-     * @param queryParam query string
-     * @param pageParam  page config
-     * @return paged permission
-     */
-    public SumPagedRep<Permission> sharedPermissions(String queryParam, String pageParam) {
-        Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
-            .internalSubscribedEndpointIds();
-        if (!endpointIds.isEmpty()) {
-            Set<Endpoint> endpoints =
-                ApplicationServiceRegistry.getEndpointApplicationService()
-                    .internalQuery(endpointIds);
-            Set<PermissionId> subPermissionIds =
-                endpoints.stream().map(Endpoint::getPermissionId)
-                    .filter(Objects::nonNull)//filter shared endpoint that has no permission check
-                    .collect(Collectors.toSet());
-            PermissionQuery permissionQuery =
-                PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
-            return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
-        } else {
-            return SumPagedRep.empty();
-        }
-    }
-
-    /**
-     * get permissions for ui usage.
-     *
-     * @return permission set
-     */
-    public Set<Permission> ui() {
-        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
-        return QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
-                PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
-    }
 
 }

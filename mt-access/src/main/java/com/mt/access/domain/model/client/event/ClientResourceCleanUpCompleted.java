@@ -13,9 +13,13 @@ public class ClientResourceCleanUpCompleted extends DomainEvent {
         "client_resource_clean_up_completed";
     public static final String name = "CLIENT_RESOURCE_CLEAN_UP_COMPLETED";
 
-    public ClientResourceCleanUpCompleted(Set<ClientId> pendingRevoked) {
-        super(new HashSet<>(pendingRevoked));
+    {
+
         setTopic(CLIENT_RESOURCE_CLEAN_UP_COMPLETED);
         setName(name);
+    }
+
+    public ClientResourceCleanUpCompleted(Set<ClientId> pendingRevoked) {
+        super(new HashSet<>(pendingRevoked));
     }
 }

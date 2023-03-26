@@ -22,27 +22,29 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mngmt/revoke-tokens")
+@RequestMapping(produces = "application/json", path = "mgmt/revoke-tokens")
 public class RevokeTokenResource {
 
     @PostMapping
-    public ResponseEntity<Void> createForRoot(@RequestBody RevokeTokenCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> revoke(
+        @RequestBody RevokeTokenCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getRevokeTokenApplicationService().create(command, changeId);
+        ApplicationServiceRegistry.getRevokeTokenApplicationService().revoke(command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping
-    public ResponseEntity<SumPagedRep<RevokeTokenCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<RevokeTokenCardRepresentation>> query(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         SumPagedRep<RevokeToken> endpoints =
             ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                .revokeTokens(queryParam, pageParam, config);
+                .query(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(endpoints, RevokeTokenCardRepresentation::new));
     }
 }

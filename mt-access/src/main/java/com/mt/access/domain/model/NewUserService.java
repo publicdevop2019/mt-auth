@@ -11,8 +11,8 @@ import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserMobile;
 import com.mt.access.domain.model.user.UserPassword;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
-import com.mt.access.domain.model.user_relation.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -47,7 +47,8 @@ public class NewUserService {
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {
-            throw new DefinedRuntimeException("pending user not found, maybe not registered?", "0026",
+            throw new DefinedRuntimeException("pending user not found, maybe not registered?",
+                "0026",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }

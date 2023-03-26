@@ -12,7 +12,6 @@ import com.mt.access.domain.model.client.event.ClientPathChanged;
 import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
-import com.mt.access.domain.model.client.event.ClientUpdated;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
@@ -36,12 +35,14 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -51,21 +52,19 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.Where;
 
 @Entity
 @NoArgsConstructor
-@Where(clause = "deleted=0")
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "clientRegion")
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path", "deleted"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path"}))
 public class Client extends Auditable {
 
     private static final String EMPTY_SECRET = "";
     /**
      * if lazy then loadClientByClientId needs to be transactional
-     * use eager as @Transactional is adding too much overhead.
+     * use eager to avoid @Transactional adding too much overhead.
      */
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
@@ -80,6 +79,7 @@ public class Client extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "clientResourceRegion")
     private final Set<ClientId> resources = new HashSet<>();
+
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(
@@ -93,6 +93,7 @@ public class Client extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "clientExtResourceRegion")
     private final Set<ClientId> externalResources = new HashSet<>();
+
     @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
@@ -100,39 +101,63 @@ public class Client extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
     })
     private ProjectId projectId;
+
     @Getter
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "roleId"))
     })
     private RoleId roleId;
+
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ClientId clientId;
+
     @Getter
     private String name;
+
     @Getter
     private String path;
+
+    @Getter
+    @Setter
+    @Embedded
+    @AttributeOverrides({
+        @AttributeOverride(name = "value", column = @Column(name = "externalUrl"))
+    })
+    private ExternalUrl externalUrl;
+
     @Getter
     private String secret;
+
     @Getter
     private String description;
 
     @Getter
-    @Convert(converter = ClientType.DbConverter.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = ClientType.class)
+    @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "type")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientTypeRegion")
+    @Enumerated(EnumType.STRING)
     private Set<ClientType> types;
 
     @Getter
     @Column(name = "accessible_")
     private boolean accessible = false;
 
-    @Setter(AccessLevel.PRIVATE)
     @Getter
     @Embedded
     private RedirectDetail authorizationCodeGrant;
-    @Convert(converter = GrantType.DbConverter.class)
+
     @Getter
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = GrantType.class)
+    @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
+    @Column(name = "grant_type")
+    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
+        region = "clientGrantTypeRegion")
+    @Enumerated(EnumType.STRING)
     private Set<GrantType> grantTypes;
 
     @Embedded
@@ -150,7 +175,8 @@ public class Client extends Auditable {
                   Set<GrantType> grantTypes,
                   TokenDetail tokenDetail,
                   RedirectDetail authorizationCodeGrant,
-                  Set<ClientType> types
+                  Set<ClientType> types,
+                  ExternalUrl externalUrl
     ) {
         super();
         setClientId(clientId);
@@ -165,13 +191,22 @@ public class Client extends Auditable {
         setGrantTypes(grantTypes);
         setTokenDetail(tokenDetail);
         setAuthorizationCodeGrant(authorizationCodeGrant);
+        setRoleId();
+        setExternalUrl(externalUrl);
         //set id last so we know it's new object
         setId(CommonDomainRegistry.getUniqueIdGeneratorService()
             .id());
-        setRoleId();
         CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+    }
+
+    public void setAuthorizationCodeGrant(RedirectDetail redirectDetail) {
+        if (this.authorizationCodeGrant == null) {
+            this.authorizationCodeGrant = redirectDetail;
+        } else if (!this.authorizationCodeGrant.equals(redirectDetail)) {
+            this.authorizationCodeGrant = redirectDetail;
+        }
     }
 
     public void setRoleId() {
@@ -232,7 +267,12 @@ public class Client extends Auditable {
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        this.grantTypes = grantTypes;
+        if (!grantTypes.equals(this.grantTypes)) {
+            if (this.grantTypes != null) {
+                this.grantTypes.clear();
+            }
+            this.grantTypes = grantTypes;
+        }
     }
 
     private void setName(String name) {
@@ -281,7 +321,6 @@ public class Client extends Auditable {
 
     private void setResources(Set<ClientId> resources) {
         if (id != null) {
-
             if (resourcesChanged(resources)) {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new ClientResourcesChanged(clientId));
@@ -304,7 +343,8 @@ public class Client extends Auditable {
                         Set<ClientId> resources,
                         Set<GrantType> grantTypes,
                         TokenDetail tokenDetail,
-                        RedirectDetail authorizationCodeGrant
+                        RedirectDetail redirectDetail,
+                        ExternalUrl externalUrl
     ) {
         setPath(path);
         setResources(resources);
@@ -314,9 +354,9 @@ public class Client extends Auditable {
         setTokenDetail(tokenDetail);
         setName(name);
         setDescription(description);
-        setAuthorizationCodeGrant(authorizationCodeGrant);
+        setAuthorizationCodeGrant(redirectDetail);
+        setExternalUrl(externalUrl);
         validate(new HttpValidationNotificationHandler());
-        CommonDomainRegistry.getDomainEventRepository().append(new ClientUpdated(getClientId()));
     }
 
     @Override
@@ -329,10 +369,11 @@ public class Client extends Auditable {
                                    EndpointId endpointId, String method,
                                    boolean secured,
                                    boolean isWebsocket, boolean csrfEnabled,
-                                   CorsProfileId corsConfig, boolean shared,boolean external, int replenishRate, int burstCapacity) {
+                                   CorsProfileId corsConfig, boolean shared, boolean external,
+                                   int replenishRate, int burstCapacity) {
         return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
             name, description, path, endpointId, method, secured,
-            isWebsocket, csrfEnabled, corsConfig, shared,external,replenishRate,burstCapacity);
+            isWebsocket, csrfEnabled, corsConfig, shared, external, replenishRate, burstCapacity);
     }
 
     // for create

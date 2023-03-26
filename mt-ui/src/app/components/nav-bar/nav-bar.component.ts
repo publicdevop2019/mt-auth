@@ -27,7 +27,14 @@ export interface INavElement {
 export class NavBarComponent implements OnInit {
   menuOpen: boolean = false;
   mobileQuery: MediaQueryList;
-  menuAuthMangement: INavElement[] = [
+  menuMgmt: INavElement[] = [
+    {
+      link: 'dashboard',
+      display: 'DASHBOARD',
+      icon: 'dashboard',
+      params: {
+      },
+    },
     {
       link: 'message-center',
       display: 'MESSAGE_DASHBOARD',
@@ -71,8 +78,8 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'resource-owners',
-      display: 'RESOURCE_OWNER_DASHBOARD',
+      link: 'mgmt-user',
+      display: 'USER_DASHBOARD',
       icon: 'people',
       params: {
       },
@@ -99,7 +106,7 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'cache-mngr',
+      link: 'cache-mgmt',
       display: 'CACHE_DASHBOARD',
       icon: 'cached',
       params: {
@@ -121,7 +128,7 @@ export class NavBarComponent implements OnInit {
     },
 
   ];
-  menuAuth: INavElement[] = [
+  menuTenant: INavElement[] = [
     {
       link: 'my-project',
       display: 'MY_PROJECT',
@@ -167,6 +174,14 @@ export class NavBarComponent implements OnInit {
       display: 'MY_USER_DASHBOARD',
       icon: 'people',
       authName: ['EDIT_TENANT_USER', 'VIEW_TENANT_USER'],
+      params: {
+      },
+    },
+    {
+      link: 'my-admin',
+      display: 'MY_ADMIN_DASHBOARD',
+      icon: 'admin_panel_settings',
+      authName: ['VIEW_PROJECT_INFO'],
       params: {
       },
     },
@@ -332,7 +347,7 @@ export class NavBarComponent implements OnInit {
     }
   }
   hasAuth() {
-    return this.projectSvc.showMngmtPanel()
+    return this.projectSvc.showMgmtPanel()
   }
   filterDuplicate(msgs: IBellNotification[]) {
     return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
@@ -340,5 +355,8 @@ export class NavBarComponent implements OnInit {
   bellCount(msgs: IBellNotification[]) {
     const count = msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
     return count > 99 ? '99+' : new String(count);
+  }
+  openDoc(){
+    window.open('./docs', '_blank').focus();
   }
 }

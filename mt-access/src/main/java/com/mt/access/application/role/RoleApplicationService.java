@@ -1,5 +1,10 @@
 package com.mt.access.application.role;
 
+import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
+import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_ROLE;
+import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.VIEW_ROLE;
@@ -35,37 +40,35 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
 public class RoleApplicationService {
     private static final String ROLE = "Role";
 
-    public SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
+    public SumPagedRep<Role> query(RoleQuery roleQuery) {
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 
-    public SumPagedRep<Role> getByQuery(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<Role> query(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
     }
 
-    public Optional<Role> getById(String projectId, String id) {
+    public Optional<Role> query(String projectId, String id) {
         RoleQuery roleQuery = new RoleQuery(new RoleId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
         return DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
     }
 
-    public Optional<Role> internalGetById(RoleId id) {
+    public Optional<Role> internalQuery(RoleId id) {
         return DomainRegistry.getRoleRepository().getById(id);
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "update role")
-    public void update(String id, RoleUpdateCommand command, String changeId) {
+    @AuditLog(actionName = UPDATE_TENANT_ROLE)
+    public void tenantUpdate(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
@@ -81,9 +84,8 @@ public class RoleApplicationService {
             }, ROLE);
     }
 
-    @Transactional
-    @AuditLog(actionName = "update role")
-    public void patch(String projectId, String id, JsonPatch command, String changeId) {
+    @AuditLog(actionName = PATCH_TENANT_ROLE)
+    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
@@ -104,15 +106,22 @@ public class RoleApplicationService {
     }
 
 
-    @Transactional
-    @AuditLog(actionName = "remove role")
-    public void remove(String projectId, String id, String changeId) {
+    @AuditLog(actionName = REMOVE_TENANT_ROLE)
+    public void tenantRemove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Role> role = DomainRegistry.getRoleRepository().getById(roleId);
-            role.ifPresent(Role::remove);
+            role.ifPresent(e->{
+                e.remove();
+                DomainRegistry.getAuditService()
+                    .storeAuditAction(DELETE_CACHE_PROFILE,
+                        e);
+                DomainRegistry.getAuditService()
+                    .logUserAction(log, DELETE_CACHE_PROFILE,
+                        e);
+            });
             return null;
         }, ROLE);
     }
@@ -125,9 +134,8 @@ public class RoleApplicationService {
      * @return role created id
      */
 
-    @Transactional
-    @AuditLog(actionName = "create role")
-    public String create(RoleCreateCommand command, String changeId) {
+    @AuditLog(actionName = CREATE_TENANT_ROLE)
+    public String tenantCreate(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
@@ -159,7 +167,6 @@ public class RoleApplicationService {
      *
      * @param event permission created event
      */
-    @Transactional
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
@@ -182,7 +189,6 @@ public class RoleApplicationService {
      *
      * @param event client created event
      */
-    @Transactional
     @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -217,7 +223,6 @@ public class RoleApplicationService {
      *
      * @param event clientDeleted event
      */
-    @Transactional
     @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
     public void handle(ClientDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()

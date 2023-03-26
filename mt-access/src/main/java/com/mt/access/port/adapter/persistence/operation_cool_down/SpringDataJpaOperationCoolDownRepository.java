@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 /**
- * use pessimistic lock to prevent code from executing, due to third party api can not be undo.
+ * use pessimistic lock to prevent code from executing, due to third party api can not be un-do.
  */
 public interface SpringDataJpaOperationCoolDownRepository
     extends JpaRepository<OperationCoolDown, Long>,

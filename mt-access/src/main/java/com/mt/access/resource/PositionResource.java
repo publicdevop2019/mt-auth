@@ -36,18 +36,19 @@ import org.springframework.web.bind.annotation.RestController;
 public class PositionResource {
 
     @PostMapping
-    public ResponseEntity<Void> createForRoot(@RequestBody PositionCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantCreate(
+        @RequestBody PositionCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
-            ApplicationServiceRegistry.getPositionApplicationService().create(command, changeId))
+                ApplicationServiceRegistry.getPositionApplicationService().tenantCreate(command, changeId))
             .build();
     }
 
     @GetMapping
-    public ResponseEntity<SumPagedRep<PositionCardRepresentation>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<PositionCardRepresentation>> tenantQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
@@ -55,54 +56,54 @@ public class PositionResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Position> clients = ApplicationServiceRegistry.getPositionApplicationService()
-            .query(queryParam, pageParam, skipCount);
+            .tenantQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(new SumPagedRep<>(clients, PositionCardRepresentation::new));
     }
 
     @GetMapping("{id}")
-    public ResponseEntity<PositionRepresentation> readForRootById(
+    public ResponseEntity<PositionRepresentation> tenantQuery(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Position> client =
-            ApplicationServiceRegistry.getPositionApplicationService().getById(id);
+            ApplicationServiceRegistry.getPositionApplicationService().tenantQuery(id);
         return client.map(value -> ResponseEntity.ok(new PositionRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping("{id}")
-    public ResponseEntity<Void> replaceForRootById(@PathVariable(name = "id") String id,
-                                                   @RequestBody PositionUpdateCommand command,
-                                                   @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                       String changeId,
-                                                   @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                       String jwt) {
+    public ResponseEntity<Void> tenantUpdate(
+        @PathVariable(name = "id") String id,
+        @RequestBody PositionUpdateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getPositionApplicationService().replace(id, command, changeId);
+        ApplicationServiceRegistry.getPositionApplicationService().tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<Void> deleteForRootById(@PathVariable String id,
-                                                  @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                      String changeId,
-                                                  @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                      String jwt) {
+    public ResponseEntity<Void> tenantRemove(
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getPositionApplicationService().remove(id, changeId);
+        ApplicationServiceRegistry.getPositionApplicationService().tenantRemove(id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(@PathVariable(name = "id") String id,
-                                                 @RequestBody JsonPatch command,
-                                                 @RequestHeader(HTTP_HEADER_CHANGE_ID)
-                                                     String changeId,
-                                                 @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                     String jwt) {
+    public ResponseEntity<Void> tenantPatch(
+        @PathVariable(name = "id") String id,
+        @RequestBody JsonPatch command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getPositionApplicationService().patch(id, command, changeId);
+        ApplicationServiceRegistry.getPositionApplicationService().tenantPatch(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 }

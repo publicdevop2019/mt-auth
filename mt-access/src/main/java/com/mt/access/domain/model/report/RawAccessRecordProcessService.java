@@ -1,7 +1,10 @@
 package com.mt.access.domain.model.report;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
+import com.mt.common.domain.CommonDomainRegistry;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -11,7 +14,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RawAccessRecordProcessService {
-
 
 
     public void process() {
@@ -37,6 +39,7 @@ public class RawAccessRecordProcessService {
             Set<RawAccessRecord> responses = DomainRegistry.getRawAccessRecordRepository()
                 .getResponseForUuid(collect);
             List<FormattedAccessRecord> records = new ArrayList<>();
+            HashSet<String> issueIds = new HashSet<>();
             foundedRecords.forEach(request -> responses.stream()
                 .filter(ee -> ee.getUuid().equals(request.getUuid()))
                 .findFirst()
@@ -46,7 +49,14 @@ public class RawAccessRecordProcessService {
                         request.markAsProcessed();
                         response.markAsProcessed();
                     },
-                    () -> log.error("unable to find response for uuid {}", request.getUuid())));
+                    () -> {
+                        issueIds.add(request.getUuid());
+                        log.error("unable to find response for uuid {}", request.getUuid());
+                    }));
+            if (!issueIds.isEmpty()) {
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new RawAccessRecordProcessingWarning(issueIds));
+            }
             DomainRegistry.getDataProcessTrackerRepository().updateTracker(tracker, foundedRecords);
             DomainRegistry.getFormattedAccessRecordRepository().saveBatch(records);
             log.debug("etl job summary, new records to insert count {}", records.size());

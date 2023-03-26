@@ -4,6 +4,7 @@ import { IProjectUser } from '../clazz/validation/aggregate/user/interfaze-user'
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import * as UUID from 'uuid/v1';
 @Injectable({
   providedIn: 'root'
 })
@@ -11,5 +12,9 @@ export class MyUserService extends TenantEntityService<IProjectUser, IProjectUse
   protected entityName: string = "users";
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
+  }
+  public addAdmin(userId: string) {
+    const changeId = UUID();
+    return this.httpProxySvc.addAdmin(this.projectId, userId, changeId)
   }
 }

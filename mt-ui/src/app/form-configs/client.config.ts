@@ -106,6 +106,17 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": false,
+            "label": "ENTER_EXTERNAL_URL",
+            "key": "externalUrl",
+            "position": {
+                "row": "7",
+                "column": "0"
+            },
+            required: true,
+        },
+        {
+            "type": "text",
+            "display": false,
             "label": "ENTER_CLIENT_SECRET",
             "key": "clientSecret",
             "position": {

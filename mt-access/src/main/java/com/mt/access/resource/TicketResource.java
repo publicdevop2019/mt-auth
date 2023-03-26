@@ -16,8 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json", path = "tickets")
 public class TicketResource {
     @PostMapping("{resourceId}")
-    public ResponseEntity<Void> createForRootByQuery(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String resourceId) {
+    public ResponseEntity<Void> create(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String resourceId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SignedTicket encryptedTicket =
             ApplicationServiceRegistry.getTicketApplicationService().create(resourceId);

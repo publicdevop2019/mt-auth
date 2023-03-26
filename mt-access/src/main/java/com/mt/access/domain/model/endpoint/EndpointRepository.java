@@ -3,6 +3,7 @@ package com.mt.access.domain.model.endpoint;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Collection;
 import java.util.Optional;
@@ -26,4 +27,11 @@ public interface EndpointRepository {
 
     Set<ClientId> getClientIds();
 
+    long countTotal();
+
+    long countSharedTotal();
+
+    long countPublicTotal();
+
+    long countProjectTotal(ProjectId projectId);
 }

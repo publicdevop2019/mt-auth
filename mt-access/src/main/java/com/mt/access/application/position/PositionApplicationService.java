@@ -14,7 +14,6 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -22,18 +21,17 @@ public class PositionApplicationService {
 
     private static final String PERMISSION = "Position";
 
-    public SumPagedRep<Position> query(String queryParam, String pageParam, String skipCount) {
+    public SumPagedRep<Position> tenantQuery(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getPositionRepository()
             .getByQuery(new PositionQuery(queryParam, pageParam, skipCount));
     }
 
-    public Optional<Position> getById(String id) {
+    public Optional<Position> tenantQuery(String id) {
         return DomainRegistry.getPositionRepository().getById(new PositionId(id));
     }
 
 
-    @Transactional
-    public void replace(String id, PositionUpdateCommand command, String changeId) {
+    public void tenantUpdate(String id, PositionUpdateCommand command, String changeId) {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
@@ -49,8 +47,7 @@ public class PositionApplicationService {
     }
 
 
-    @Transactional
-    public void remove(String id, String changeId) {
+    public void tenantRemove(String id, String changeId) {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Position> corsProfile =
@@ -63,8 +60,7 @@ public class PositionApplicationService {
     }
 
 
-    @Transactional
-    public void patch(String id, JsonPatch command, String changeId) {
+    public void tenantPatch(String id, JsonPatch command, String changeId) {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
@@ -85,8 +81,7 @@ public class PositionApplicationService {
     }
 
 
-    @Transactional
-    public String create(PositionCreateCommand command, String changeId) {
+    public String tenantCreate(PositionCreateCommand command, String changeId) {
         PositionId positionId = new PositionId();
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {

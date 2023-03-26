@@ -1,0 +1,78 @@
+<h2 class="flex-row-space-between">{{projectSvc.resolveNameById(projectId)|async}} / {{'MY_ADMIN_DASHBOARD'|translate}}
+</h2>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:space-between;">
+    <mat-form-field style="flex: 1;">
+        <mat-label>{{'ENTER_USER_EMAIL' | translate}}</mat-label>
+        <mat-chip-list #chipList aria-label="chip list selection">
+            <mat-chip *ngFor="let e of newAdmins" [selectable]="true" [removable]="true" (removed)="remove(e)">
+                <ng-container>
+                    {{e.label|translate}}
+                </ng-container>
+                <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+            </mat-chip>
+            <input matInput [value]="email.value" (input)="updateEmail($event)" [matAutocomplete]="auto"
+                [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+        </mat-chip-list>
+        <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let e of options" [value]="e.value" (click)="onAutoCompleteClickHandler(e)">
+                {{e.label}}
+            </mat-option>
+            <mat-option *ngIf="!allLoaded && !loading ">
+                <div #ghostRef>
+                    <button mat-menu-item>
+                        <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="40">
+                        </mat-progress-spinner>
+                    </button>
+                </div>
+            </mat-option>
+        </mat-autocomplete>
+    </mat-form-field>
+    <button mat-raised-button color="accent" style="height: 36px; margin-left: 24px;" [disabled]="newAdmins.length===0"
+        (click)="doAdd()">{{'ADD_TENANT_ADMIN'|translate}}</button>
+    <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
+        (click)="doRefresh()">{{'REFRESH'|translate}}</button>
+</div>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:right;">
+    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
+</div>
+<div class="mat-elevation-z8">
+    <div class="table-container">
+        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
+            <!-- Checkbox Column -->
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.id"></app-copy-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['email']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.email"></app-copy-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name" sticky>
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.name"></app-copy-field>
+                </td>
+            </ng-container>
+
+            <ng-container matColumnDef="delete">
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                <td mat-cell *matCellDef="let row" class="table-icon">
+                    <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
+                </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        </table>
+    </div>
+
+    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
+        [pageSize]="pageSize" (page)="pageHandler($event)">
+    </mat-paginator>
+</div>

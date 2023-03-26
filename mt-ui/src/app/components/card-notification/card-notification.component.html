@@ -12,35 +12,54 @@
             <div style="margin-left: 24px;">
                 <div style="font-weight: 700;font-size: 14px;">{{value.title | translate}}</div>
                 <div style="justify-content: space-between; align-items: center; font-size: 14px; flex:1">
-                    <ng-container *ngIf="value.title==='SYSTEM_VALIDATION_FAILED'" >
+                    <ng-container *ngIf="value.title==='SYSTEM_VALIDATION_FAILED'">
                         <div class="max-length">{{value.descriptions[0]|translate}}</div>
                     </ng-container>
                     <ng-container *ngIf="value.title==='NEW_PROJECT_CREATED'">
                         <div class="max-length">
-                            {{'NOTIFICATION_PROJECT_NAME'|translate}}:<span style="padding-left: 4px;">{{value.descriptions[0]}}</span>
+                            {{'NOTIFICATION_PROJECT_NAME'|translate}}:<span
+                                style="padding-left: 4px;">{{value.descriptions[0]}}</span>
                         </div>
                     </ng-container>
-                    <div *ngIf="value.title!=='SYSTEM_VALIDATION_FAILED' && value.title!=='NEW_PROJECT_CREATED' && value.title!=='REJECTED_MSG_EVENT' && value.title!=='UNROUTABLE_MSG_EVENT'">
+                    <div *ngIf="!bypassDefaultNotificationList.includes(value.title)">
                         <div *ngFor="let a of value.descriptions" class="max-length" matTooltip="{{a}}">
                             {{a}}
                         </div>
                     </div>
                     <div *ngIf="value.title==='REJECTED_MSG_EVENT' || value.title==='UNROUTABLE_MSG_EVENT'">
-                        <div class="max-length" style="white-space: nowrap;">
+                        <div class="max-length">
                             {{'EVENT_ID'|translate}} : <span>{{value.descriptions[0]}}</span>
                         </div>
-                        <div class="max-length" style="white-space: nowrap;">
-                            {{'EVENT_TOPIC'|translate}} : <span matTooltip="{{value.descriptions[1]}}">{{value.descriptions[1]}}</span>
+                        <div class="max-length">
+                            {{'EVENT_TOPIC'|translate}} : <span
+                                matTooltip="{{value.descriptions[1]}}">{{value.descriptions[1]}}</span>
                         </div>
-                        <div class="max-length" style="white-space: nowrap;">
-                            {{'EVENT_NAME'|translate}} : <span matTooltip="{{value.descriptions[2]}}">{{value.descriptions[2]}}</span>
+                        <div class="max-length">
+                            {{'EVENT_NAME'|translate}} : <span
+                                matTooltip="{{value.descriptions[2]}}">{{value.descriptions[2]|translate}}</span>
+                        </div>
+                    </div>
+                    <div *ngIf="value.title==='RAW_ACCESS_RECORD_PROCESSING_WARNING'">
+                        <div class="max-length"  matTooltip="{{value.descriptions[0]}}">
+                            {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[0]}}</span>
+                        </div>
+                        <div *ngIf="value.descriptions[1]" class="max-length"  matTooltip="{{value.descriptions[1]}}">
+                            {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[1]}}</span>
+                        </div>
+                        <div *ngIf="value.descriptions[2]" class="max-length">
+                            <ng-container *ngIf="value.descriptions[2]==='CHECK_EVENT_FOR_MORE'">
+                                <span>{{value.descriptions[2]|translate}}</span>
+                            </ng-container>
+                            <ng-container *ngIf="value.descriptions[2]!=='CHECK_EVENT_FOR_MORE'"  matTooltip="{{value.descriptions[2]}}">
+                                {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[2]}}</span>
+                            </ng-container>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         <div>
-            <button  mat-icon-button style="margin-right: -8px;margin-left: 8px;">
+            <button mat-icon-button style="margin-right: -8px;margin-left: 8px;">
                 <mat-icon [color]="'primary'" (click)="dismissMsg($event)">close</mat-icon>
             </button>
         </div>

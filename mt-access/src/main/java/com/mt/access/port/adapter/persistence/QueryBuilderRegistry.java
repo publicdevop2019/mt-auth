@@ -11,9 +11,9 @@ import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectReposi
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
 import com.mt.access.port.adapter.persistence.sub_request.SpringDataJpaSubRequestRepository;
+import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRelationRepository;
 import com.mt.access.port.adapter.persistence.user.SpringDataJpaUserRepository;
 import com.mt.access.port.adapter.persistence.user.UpdateUserQueryBuilder;
-import com.mt.access.port.adapter.persistence.user_relation.SpringDataJpaUserRelationRepository;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -43,7 +43,8 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor;
     @Getter
-    private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor subRequestAdaptor;
+    private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor
+        subRequestAdaptor;
     @Getter
     private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor
         userRelationAdaptor;

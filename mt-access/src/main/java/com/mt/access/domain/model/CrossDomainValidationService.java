@@ -24,6 +24,7 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
+import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -31,7 +32,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,11 +50,7 @@ public class CrossDomainValidationService {
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().get();
         ValidationResult validationResult;
-        if (validationResult1.isEmpty()) {
-            validationResult = ValidationResult.create();
-        } else {
-            validationResult = validationResult1.get();
-        }
+        validationResult = validationResult1.orElseGet(ValidationResult::create);
         if (validationResult.shouldPause()) {
             if (!validationResult.hasNotified()) {
                 validationResult.markAsNotified();
@@ -73,6 +69,7 @@ public class CrossDomainValidationService {
         boolean b6 = false;
         boolean b7 = false;
         boolean b8 = false;
+        boolean b9 = false;
         if (b) {
             b1 = validateClientAndEndpoint();
             if (b1) {
@@ -89,6 +86,9 @@ public class CrossDomainValidationService {
                                     b7 = validateEndpointAndPermission();
                                     if (b7) {
                                         b8 = validateRoleAndPermission();
+                                        if (b8) {
+                                            b9 = validateUserAndUserRelation();
+                                        }
                                     }
                                 }
                             }
@@ -98,13 +98,32 @@ public class CrossDomainValidationService {
 
             }
         }
-        if (b && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8) {
+        if (b && b1 && b2 && b3 && b4 && b5 && b6 && b7 && b8 && b9) {
             validationResult.resetFailureCount();
         } else {
             validationResult.increaseFailureCount();
         }
         DomainRegistry.getValidationResultRepository().add(validationResult);
         log.debug("end of validate existing data");
+    }
+
+    /**
+     * user id present in user relation must present in user table
+     *
+     * @return if all user id can be found
+     */
+    private boolean validateUserAndUserRelation() {
+        Set<UserId> userIds = DomainRegistry.getUserRelationRepository().getUserIds();
+        Set<UserId> userIds2 = DomainRegistry.getUserRepository().getUserIds();
+        boolean b = userIds.size() == userIds2.size();
+        if (!b) {
+            Set<UserId> collect = userIds.stream().filter(userId -> !userIds2.contains(userId))
+                .collect(Collectors.toSet());
+            log.debug("unable to find user {} for user relation", collect);
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ValidationFailedEvent("UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION"));
+        }
+        return b;
     }
 
     /**
@@ -207,7 +226,7 @@ public class CrossDomainValidationService {
                 .filter(ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.PROJECT))
                 .findFirst();
             Optional<Role> first2 = roles.stream().filter(
-                ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.CLIENT_ROOT))
+                    ee -> ee.getProjectId().equals(e) && ee.getType().equals(RoleType.CLIENT_ROOT))
                 .findFirst();
             return first.isEmpty() || first2.isEmpty();
         }).collect(Collectors.toSet());
@@ -242,10 +261,10 @@ public class CrossDomainValidationService {
         Set<Role> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
                 new RoleQuery(RoleType.CLIENT));
-        Set<String> names = allByQuery.stream().map(Role::getName).collect(Collectors.toSet());
+        Set<String> roleNames = allByQuery.stream().map(Role::getName).collect(Collectors.toSet());
 
-        if (clients.stream().anyMatch(e -> !names.contains(e.getDomainId()))) {
-            Set<ClientId> collect = clients.stream().filter(e -> !names.contains(e.getDomainId()))
+        if (clients.stream().anyMatch(e -> !roleNames.contains(e.getDomainId()))) {
+            Set<ClientId> collect = clients.stream().filter(e -> !roleNames.contains(e.getDomainId()))
                 .collect(Collectors.toSet());
             log.debug("unable to find roles for clients {}", collect);
             CommonDomainRegistry.getDomainEventRepository()
@@ -254,9 +273,9 @@ public class CrossDomainValidationService {
         }
         Set<String> clientIds =
             clients.stream().map(DomainId::getDomainId).collect(Collectors.toSet());
-        if (names.stream().anyMatch(e -> !clientIds.contains(e))) {
+        if (roleNames.stream().anyMatch(e -> !clientIds.contains(e))) {
             Set<String> collect =
-                names.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
+                roleNames.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
             log.debug("unable to find client for role {}", collect);
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new ValidationFailedEvent("ROLE_MUST_HAVE_RELATED_CLIENT"));
@@ -298,7 +317,7 @@ public class CrossDomainValidationService {
         Set<CacheProfileId> cacheProfileIds =
             DomainRegistry.getEndpointRepository().getCacheProfileIds();
         Set<CacheProfile> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().cacheProfileOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().query(e),
                 new CacheProfileQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -308,18 +327,22 @@ public class CrossDomainValidationService {
         return true;
     }
 
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor
     @Getter
     public static class ValidationFailedEvent extends DomainEvent {
         public static final String SYSTEM_VALIDATION_FAILED = "system_validation_failed";
         public static final String name = "SYSTEM_VALIDATION_FAILED";
         private String message;
 
+        {
+
+            setName(name);
+            setTopic(SYSTEM_VALIDATION_FAILED);
+        }
+
         public ValidationFailedEvent(String message) {
             log.debug("creating event for {}", message);
             this.message = message;
-            setName(name);
-            setTopic(SYSTEM_VALIDATION_FAILED);
         }
     }
 }

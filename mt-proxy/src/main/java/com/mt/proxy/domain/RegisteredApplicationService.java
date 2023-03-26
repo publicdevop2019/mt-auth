@@ -10,10 +10,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RegisteredApplicationService {
     @Autowired
-    RetrieveRegisterApplicationService retrieveRegisterApplicationService;
+    private RetrieveRegisterApplicationService retrieveRegisterApplicationService;
     @Autowired
-    ScgRouteService scgRouteService;
-    Set<RegisteredApplication> cached;
+    private ScgRouteService scgRouteService;
+    private Set<RegisteredApplication> cached;
 
     public void refreshCache() {
         cached = retrieveRegisterApplicationService.fetchAll();

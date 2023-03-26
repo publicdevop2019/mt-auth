@@ -10,7 +10,6 @@ import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.DomainId_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -57,6 +56,12 @@ public interface SpringDataJpaClientRepository
     @Query("select distinct c.clientId from Client c")
     Set<ClientId> getAllClientIds_();
 
+    @Query("select count(*) from Client")
+    Long countTotal_();
+
+    @Query("select count(*) from Client c where c.projectId = ?1")
+    Long countProjectTotal_(ProjectId projectId);
+
     default Optional<Client> clientOfId(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
             .findFirst();
@@ -67,23 +72,27 @@ public interface SpringDataJpaClientRepository
     }
 
     default void remove(Client client) {
-        client.softDelete();
-        save(client);
+        delete(client);
     }
 
-    default void remove(Collection<Client> client) {
-        client.forEach(Auditable::softDelete);
-        saveAll(client);
+    default void remove(Collection<Client> clients) {
+        deleteAll(clients);
     }
 
     default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(clientQuery);
     }
 
+    default long countTotal() {
+        return countTotal_();
+    }
+
+    default long countProjectTotal(ProjectId projectId) {
+        return countProjectTotal_(projectId);
+    }
+
     @Component
     class JpaCriteriaApiClientAdaptor {
-        public static final String ENTITY_NAME = "name";
-
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
             QueryUtility.QueryContext<Client> queryContext =
                 QueryUtility.prepareContext(Client.class, clientQuery);
@@ -94,7 +103,7 @@ public interface SpringDataJpaClientRepository
             Optional.ofNullable(clientQuery.getResourceFlag()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, Client_.ACCESSIBLE, queryContext));
             Optional.ofNullable(clientQuery.getName())
-                .ifPresent(e -> QueryUtility.addStringLikePredicate(e, ENTITY_NAME, queryContext));
+                .ifPresent(e -> QueryUtility.addStringLikePredicate(e, Client_.NAME, queryContext));
             Optional.ofNullable(clientQuery.getProjectIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
@@ -139,7 +148,7 @@ public interface SpringDataJpaClientRepository
                     queryContext.getCriteriaBuilder(), queryContext.getRoot(),
                     queryContext.getQuery());
             queryContext.setOrder(orderClause);
-            return QueryUtility.pagedQuery(clientQuery, queryContext);
+            return QueryUtility.nativePagedQuery(clientQuery, queryContext);
         }
 
         public static class GrantAccessTokenClausePredicateConverter {

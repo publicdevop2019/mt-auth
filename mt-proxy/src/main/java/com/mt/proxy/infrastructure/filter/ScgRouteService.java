@@ -1,5 +1,7 @@
 package com.mt.proxy.infrastructure.filter;
 
+import static com.mt.proxy.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
+
 import com.mt.proxy.domain.RegisteredApplication;
 import java.net.URI;
 import java.util.Collections;
@@ -38,7 +40,11 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
         registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).forEach(e -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(e.getId());
-            definition.setUri(URI.create("lb://" + e.getId()));
+            if (MT_AUTH_PROJECT_ID.equalsIgnoreCase(e.getProjectId())) {
+                definition.setUri(URI.create("lb://" + e.getId()));
+            } else {
+                definition.setUri(URI.create(e.getExternalUrl()));
+            }
             PredicateDefinition predicate = new PredicateDefinition();
             predicate.setName("Path");
             Map<String, String> predicateParams = new HashMap<>(8);

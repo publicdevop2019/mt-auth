@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { DateTime, ToRelativeUnit } from "luxon";
 import { TranslateService } from '@ngx-translate/core';
+import { TimeService } from 'src/app/services/time.service';
 @Component({
   selector: 'app-card-notification',
   templateUrl: './card-notification.component.html',
@@ -13,33 +14,17 @@ export class CardNotificationComponent implements OnInit {
   @Input() index: number;
   @Output() onAck = new EventEmitter<IBellNotification>();
   parsedDate: string;
-  constructor(public translate: TranslateService) {
+  bypassDefaultNotificationList: string[] = [
+    'RAW_ACCESS_RECORD_PROCESSING_WARNING',
+    'REJECTED_MSG_EVENT',
+    'UNROUTABLE_MSG_EVENT',
+    'SYSTEM_VALIDATION_FAILED',
+    'NEW_PROJECT_CREATED',
+  ];
+  constructor(public translate: TranslateService, private time: TimeService) {
   }
   ngOnInit(): void {
-    let resolved: string;
-    if (this.translate.currentLang === 'zhHans') {
-      resolved = 'zh-Hans'
-    } else {
-      resolved = 'en-Us'
-    }
-    let resolvedUnit: ToRelativeUnit = 'seconds';
-    if (DateTime.fromMillis(this.value.date).diffNow('seconds').seconds < -60) {
-      resolvedUnit = 'minutes'
-    }
-    if (DateTime.fromMillis(this.value.date).diffNow('minutes').minutes < -60) {
-      resolvedUnit = 'hours'
-    }
-    if (DateTime.fromMillis(this.value.date).diffNow('hours').hours < -24) {
-      resolvedUnit = 'days'
-    }
-    if (DateTime.fromMillis(this.value.date).diffNow('days').days < -30) {
-      resolvedUnit = 'months'
-    }
-    if (DateTime.fromMillis(this.value.date).diffNow('months').months < -12) {
-      resolvedUnit = 'years'
-    }
-    const parsed = DateTime.fromMillis(this.value.date).setLocale(resolved).toRelativeCalendar({ unit: resolvedUnit });
-    this.parsedDate = parsed;
+    this.parsedDate = this.time.getUserFriendlyTimeDisplay(this.value.date)
   }
   dismissMsg(event: Event) {
     event.stopPropagation();

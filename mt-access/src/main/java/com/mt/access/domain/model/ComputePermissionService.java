@@ -6,7 +6,7 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
-import com.mt.access.domain.model.user_relation.UserRelation;
+import com.mt.access.domain.model.user.UserRelation;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +24,7 @@ public class ComputePermissionService {
     public Set<PermissionId> compute(UserRelation userRelation) {
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(
-            q -> ApplicationServiceRegistry.getRoleApplicationService().getByQuery(q),
+            q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),
             new RoleQuery(standaloneRoles));
         Set<PermissionId> commonPermissionIds =
             allByQuery.stream().flatMap(e -> e.getCommonPermissionIds().stream())

@@ -12,4 +12,7 @@ export class TenantEntityService<S extends IIdBasedEntity, D> extends EntityComm
         this.projectId = id;
         this.entityRepo = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'projects', this.projectId, this.entityName]);
     }
+    getProjectId(){
+        return this.projectId;
+    }
 }

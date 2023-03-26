@@ -12,14 +12,13 @@ import org.springframework.context.annotation.Configuration;
 @Aspect
 @Slf4j
 public class AuditLogAspectConfig {
-    public static String AUDIT_PREFIX = "[Audit]";
+    public static String AUDIT_PREFIX = "[AUDIT]";
 
     @Around(value = "@annotation(AuditLog)", argNames = "AuditLog")
     public Object around(ProceedingJoinPoint joinPoint, AuditLog auditLog) throws Throwable {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Object proceed = joinPoint.proceed();
         log.info("{} user: {} action: {}", AUDIT_PREFIX, userId, auditLog.actionName());
-        return proceed;
+        return joinPoint.proceed();
     }
 
 }

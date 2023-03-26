@@ -8,8 +8,8 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.Endpoint_;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -55,24 +55,50 @@ public interface SpringDataJpaEndpointRepository
     @Query("select distinct ep.clientId from Endpoint ep")
     Set<ClientId> getClientIds_();
 
+    @Query("select count(*) from Endpoint")
+    Long countTotal_();
+
+    @Query("select count(*) from Endpoint ep where ep.shared = true")
+    Long countSharedTotal_();
+
+    @Query("select count(*) from Endpoint ep where ep.authRequired = false and ep.external = true")
+    Long countPublicTotal_();
+
+    @Query("select count(*) from Endpoint ep where ep.projectId = ?1")
+    Long countProjectTotal_(ProjectId projectId);
+
     default void add(Endpoint endpoint) {
         save(endpoint);
     }
 
     default void remove(Endpoint endpoint) {
-        endpoint.softDelete();
-        save(endpoint);
+        delete(endpoint);
     }
 
     default void remove(Collection<Endpoint> endpoints) {
-        endpoints.forEach(Auditable::softDelete);
-        saveAll(endpoints);
+        deleteAll(endpoints);
     }
 
     default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query) {
         return QueryBuilderRegistry.getEndpointQueryBuilder().execute(query);
     }
 
+
+    default long countTotal() {
+        return countTotal_();
+    }
+
+    default long countSharedTotal() {
+        return countSharedTotal_();
+    }
+
+    default long countPublicTotal() {
+        return countPublicTotal_();
+    }
+
+    default long countProjectTotal(ProjectId projectId) {
+        return countProjectTotal_(projectId);
+    }
 
     @Component
     class JpaCriteriaApiEndpointAdapter {
@@ -146,7 +172,7 @@ public interface SpringDataJpaEndpointRepository
                     endpointQuery.getEndpointSort().isAsc());
             }
             queryContext.setOrder(order);
-            return QueryUtility.pagedQuery(endpointQuery, queryContext);
+            return QueryUtility.nativePagedQuery(endpointQuery, queryContext);
         }
 
         private static class MarketAvailableEndpointPredicateConverter {

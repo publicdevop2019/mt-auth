@@ -1,4 +1,4 @@
-<h2>{{projectSvc.resolveNameById(projectId)|async}} / {{'RESOURCE_OWNER_DASHBOARD'|translate}}</h2>
+<h2>{{projectSvc.resolveNameById(projectId)|async}} / {{'USER_DASHBOARD'|translate}}</h2>
 <app-tenant-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
 </app-tenant-search>
 <ng-container *ngIf="extractResult(canDo('VIEW_TENANT_USER'))|async">

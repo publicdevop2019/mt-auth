@@ -7,12 +7,11 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.HashMap;
 import java.util.Map;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor
 public class SendEmailNotificationEvent extends DomainEvent {
     public static final String SEND_EMAIL_NOTIFICATION_EVENT =
         "send_email_notification_event";

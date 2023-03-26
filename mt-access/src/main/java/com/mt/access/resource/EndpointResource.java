@@ -38,28 +38,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class EndpointResource {
 
     @PostMapping(path = "projects/{projectId}/endpoints")
-    public ResponseEntity<Void> createForRoot(@PathVariable String projectId,
-                                              @RequestBody EndpointCreateCommand command,
-                                              @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-                                              @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-                                                  String jwt) {
+    public ResponseEntity<Void> tenantCreate(
+        @PathVariable String projectId,
+        @RequestBody EndpointCreateCommand command,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
-                .create(projectId, command, changeId)).build();
+                .tenantCreate(projectId, command, changeId)).build();
     }
 
     @GetMapping(path = "projects/{projectId}/endpoints")
-    public ResponseEntity<SumPagedRep<?>> readForRootByQuery(
+    public ResponseEntity<SumPagedRep<?>> tenantQuery(
         @PathVariable String projectId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION)
-            String jwt,
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false)
-            String queryParam,
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false)
-            String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false)
-            String config) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectId(queryParam, projectId);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
@@ -70,40 +68,44 @@ public class EndpointResource {
         return ResponseEntity.ok(rep);
     }
 
-    @GetMapping(path = "mngmt/endpoints")
-    public ResponseEntity<SumPagedRep<?>> readForRootByQuery2(
+    @GetMapping(path = "mgmt/endpoints")
+    public ResponseEntity<SumPagedRep<?>> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
-            .adminQuery(queryParam, pageParam, config);
+            .mgmtQuery(queryParam, pageParam, config);
         SumPagedRep<EndpointCardRepresentation> endpointCardRepresentationSumPagedRep =
             new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
         EndpointCardRepresentation.updateDetail(endpointCardRepresentationSumPagedRep.getData());
         return ResponseEntity.ok(endpointCardRepresentationSumPagedRep);
     }
 
-    @GetMapping(path = "mngmt/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> readForRootByQuery3(
+    @GetMapping(path = "mgmt/endpoints/{id}")
+    public ResponseEntity<EndpointRepresentation> mgmtQuery(
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Endpoint> endpoint =
-            ApplicationServiceRegistry.getEndpointApplicationService().adminEndpoint(id);
+            ApplicationServiceRegistry.getEndpointApplicationService().mgmtQuery(id);
         return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     /**
      * get paginated endpoints for proxy to cache
+     *
      * @param pageParam pagination info
      * @return paginated data
      */
     @GetMapping("endpoints/proxy")
-    public ResponseEntity<SumPagedRep<?>> getForProxy(
-        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam) {
+    public ResponseEntity<SumPagedRep<?>> proxyQuery(
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam
+    ) {
         SumPagedRep<EndpointProxyCacheRepresentation> endpoints =
             ApplicationServiceRegistry.getEndpointApplicationService()
                 .proxyQuery(pageParam);
@@ -111,88 +113,90 @@ public class EndpointResource {
     }
 
     @GetMapping("projects/{projectId}/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> readForRootById(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
-        @PathVariable String id) {
+    public ResponseEntity<EndpointRepresentation> tenantQuery(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId,
+        @PathVariable String id
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Endpoint> endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantEndpoint(projectId, id);
+            .tenantQuery(projectId, id);
         return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }
 
     @PutMapping("projects/{projectId}/endpoints/{id}")
-    public ResponseEntity<Void> replaceForRootById(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
+    public ResponseEntity<Void> tenantUpdate(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId,
         @RequestBody EndpointUpdateCommand command,
         @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getEndpointApplicationService().update(id, command, changeId);
+        ApplicationServiceRegistry.getEndpointApplicationService().tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("projects/{projectId}/endpoints/{id}")
-    public ResponseEntity<Void> deleteForRootById(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
-        @PathVariable String id, @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+    public ResponseEntity<Void> tenantRemove(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
-            .removeEndpoint(projectId, id, changeId);
-        return ResponseEntity.ok().build();
-    }
-
-    @DeleteMapping("projects/{projectId}/endpoints")
-    public ResponseEntity<Void> deleteForAdminByQuery(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getEndpointApplicationService()
-            .removeEndpoints(projectId, queryParam, changeId);
+            .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("projects/{projectId}/endpoints/{id}/expire")
-    public ResponseEntity<Void> expireEndpoint(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
+    public ResponseEntity<Void> tenantExpire(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestBody EndpointExpireCommand command
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
-            .expireEndpoint(command,projectId, id, changeId);
+            .expire(command, projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 
     @PatchMapping(path = "projects/{projectId}/endpoints/{id}",
         consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patchForRootById(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt, @PathVariable String projectId,
+    public ResponseEntity<Void> tenantPatch(
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId,
         @PathVariable(name = "id") String id,
         @RequestBody JsonPatch patch,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getEndpointApplicationService()
-            .patchEndpoint(projectId, id, patch, changeId);
+            .tenantPatch(projectId, id, patch, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping(path = "mngmt/endpoints/event/reload")
-    public ResponseEntity<Void> postForRoot(@RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId) {
-        ApplicationServiceRegistry.getEndpointApplicationService().reloadEndpointCache(changeId);
+    @PostMapping(path = "mgmt/endpoints/event/reload")
+    public ResponseEntity<Void> mgmtReload(
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
+        ApplicationServiceRegistry.getEndpointApplicationService().reloadCache(changeId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping(path = "endpoints/shared")
-    public ResponseEntity<SumPagedRep<EndpointSharedCardRepresentation>> getSharedApis(
+    public ResponseEntity<SumPagedRep<EndpointSharedCardRepresentation>> marketQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
-        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config) {
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
         SumPagedRep<Endpoint> shared = ApplicationServiceRegistry.getEndpointApplicationService()
-            .getShared(queryParam, pageParam, config);
+            .marketQuery(queryParam, pageParam, config);
         SumPagedRep<EndpointSharedCardRepresentation> rep =
             new SumPagedRep<>(shared, EndpointSharedCardRepresentation::new);
         EndpointSharedCardRepresentation.updateDetail(rep.getData());

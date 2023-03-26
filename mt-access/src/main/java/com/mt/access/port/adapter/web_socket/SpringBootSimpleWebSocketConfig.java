@@ -16,7 +16,7 @@ import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry
 public class SpringBootSimpleWebSocketConfig implements WebSocketConfigurer {
 
     @Autowired
-    NotificationMngmtWsHandler mngmtHandler;
+    NotificationMgmtWsHandler mgmtHandler;
 
     @Autowired
     NotificationUserWsHandler userHandler;
@@ -24,7 +24,7 @@ public class SpringBootSimpleWebSocketConfig implements WebSocketConfigurer {
     @Override
     public void registerWebSocketHandlers(WebSocketHandlerRegistry webSocketHandlerRegistry) {
         webSocketHandlerRegistry
-            .addHandler(mngmtHandler, "/monitor").setAllowedOrigins("*")
+            .addHandler(mgmtHandler, "/monitor").setAllowedOrigins("*")
         ;
         webSocketHandlerRegistry
             .addHandler(userHandler, "/user/monitor").setAllowedOrigins("*")

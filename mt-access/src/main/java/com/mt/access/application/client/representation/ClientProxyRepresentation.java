@@ -8,15 +8,21 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ClientProxyRepresentation {
 
-    protected String id;
+    private String id;
 
-    protected String name;
+    private String name;
 
-    protected String basePath;
+    private String basePath;
+
+    private String projectId;
+
+    private String externalUrl;
 
     public ClientProxyRepresentation(Client client) {
         id = client.getClientId().getDomainId();
         name = client.getName();
         basePath = client.getPath();
+        projectId = client.getProjectId().getDomainId();
+        externalUrl = client.getExternalUrl().getValue();
     }
 }

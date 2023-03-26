@@ -18,6 +18,7 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "NAME",
             "key": "name",
+            required: true,
             "position": {
                 "row": "1",
                 "column": "0"

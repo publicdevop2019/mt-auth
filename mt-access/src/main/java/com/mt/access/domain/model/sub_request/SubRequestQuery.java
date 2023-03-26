@@ -69,7 +69,6 @@ public class SubRequestQuery extends QueryCriteria {
                 Set<SubRequestStatus> enums = new HashSet<>();
                 enums.add(SubRequestStatus.PENDING);
                 enums.add(SubRequestStatus.REJECTED);
-                enums.add(SubRequestStatus.CANCELLED);
                 this.subRequestStatuses = enums;
             } else if (subRequestQueryType.equals(SubRequestQueryType.PENDING_APPROVAL)) {
                 this.epProjectIds = DomainRegistry.getCurrentUserService().getTenantIds();
