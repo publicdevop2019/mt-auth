@@ -11,9 +11,9 @@ COPY ./script/build/settings.xml /usr/share/maven/ref/
 WORKDIR "/mt-access"
 
 # build all dependencies for offline use
-RUN mvn dependency:go-offline -B
+# RUN mvn dependency:go-offline -B
 
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+# ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
 
 RUN mvn package
