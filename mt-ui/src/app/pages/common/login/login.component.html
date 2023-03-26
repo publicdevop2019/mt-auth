@@ -1,6 +1,6 @@
 <div class="body-container">
     <div class="app-header">
-        <div class="app-name">{{'APP_NAME'|translate}}</div>
+        <div class="app-name">{{'APP_NAME'|translate}}<span *ngIf="isBeta" style="margin-left: 4px; font-size: 12px; font-weight: 400; color: #673ab7;">beta</span></div>
         <div style="display: flex; justify-content: center; align-items: center;">
             <div style="font-weight: 600; margin-right: 16px; margin-top: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
                 (click)="openDoc()">
@@ -18,7 +18,7 @@
     </div>
     <div class="app-body">
         <div class="app-msg-body">
-            <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}</div>
+            <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}<span *ngIf="isBeta" style="margin-left: 4px; font-size: 16px; font-weight: 400; color: #673ab7;">beta</span></div>
             <div class="app-msg">{{'APP_DESCRIPTION_2'|translate}}</div>
         </div>
         <form [formGroup]="loginOrRegForm" class="page-form">
