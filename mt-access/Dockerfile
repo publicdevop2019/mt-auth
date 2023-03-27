@@ -6,14 +6,16 @@ COPY ./mt-access/pom.xml ./mt-access/pom.xml
 
 COPY ./common/parent-pom.xml ./common/parent-pom.xml
 
-COPY ./script/build/settings.xml /usr/share/maven/ref/
+RUN mkdir -p /root/.m2 && mkdir /root/.m2/repository
+
+COPY ./script/build/settings.xml /root/.m2
 
 WORKDIR "/mt-access"
 
 # build all dependencies for offline use
-# RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B
 
-# ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
+ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
 
 
 RUN mvn package
