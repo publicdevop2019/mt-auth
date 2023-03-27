@@ -3,9 +3,23 @@
     <mirrors>
         <mirror>
             <id>aliyunmaven</id>
-            <mirrorOf>*</mirrorOf>
+            <mirrorOf>central</mirrorOf>
             <name>alicloud_mirror</name>
             <url>https://maven.aliyun.com/repository/public</url>
         </mirror>
     </mirrors>
+    <profiles>
+        <profile>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>my-profile</id>
+            <repositories>
+                <repository>
+                    <id>fallback</id>
+                    <url>https://repo1.maven.org/maven2</url>
+                </repository>
+            </repositories>
+        </profile>
+    </profiles>
 </settings>
