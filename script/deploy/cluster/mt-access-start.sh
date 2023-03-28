@@ -26,7 +26,7 @@ REGISTRY_CONFIG="--eureka.client.serviceUrl.defaultZone=$REGISTRY_LIST --eureka.
 INFRA_CONFIG="--mt.url.support.dis_lock=redis://$INFRA_IP:6378 --mt.url.support.mq=$INFRA_IP --spring.redis.host=$INFRA_IP --spring.redis.port=6379 --instanceId=$INSTANCE_ID"
 MAIL_CONFIG="--spring.mail.username=$EMAIL_ID --spring.mail.password=$EMAIL_PWD --mt.email.admin=$ADMIN_EMAIL"
 PROFILE=--spring.profiles.active=prod
-VM_CONFIG='-Xmx500m -Xms500m -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/logs/$(date +"%Y_%m_%d_%I_%M_%p%z")_heapdump.hprof -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector'
+VM_CONFIG="-Xmx2g -Xms2g -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/logs/$(date +"%Y_%m_%d_%I_%M_%p%z")_heapdump.hprof -Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 SERVER_CONFIG=--server.tomcat.accept-count=100\ --server.tomcat.max-connections=10000\ --server.tomcat.max-threads=10
 DOCKER_CONFIG="-td --rm -v $PWD/./logs/access:/logs -p 8080:8080 --log-opt max-size=10m --log-opt max-file=5"
 IMAGE_CONFIG="--name access mt-auth/mt-access:latest $VM_CONFIG -jar Access.jar"
