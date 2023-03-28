@@ -6,10 +6,6 @@ COPY ./mt-proxy/pom.xml ./mt-proxy/pom.xml
 
 COPY ./common/parent-pom.xml ./common/parent-pom.xml
 
-RUN mkdir -p /root/.m2 && mkdir /root/.m2/repository
-
-COPY ./script/build/settings.xml /root/.m2
-
 WORKDIR "/mt-proxy"
 
 # build all dependencies for offline use
