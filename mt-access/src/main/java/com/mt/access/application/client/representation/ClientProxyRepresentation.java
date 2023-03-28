@@ -23,6 +23,8 @@ public class ClientProxyRepresentation {
         name = client.getName();
         basePath = client.getPath();
         projectId = client.getProjectId().getDomainId();
-        externalUrl = client.getExternalUrl().getValue();
+        if (client.getExternalUrl() != null) {
+            externalUrl = client.getExternalUrl().getValue();
+        }
     }
 }
