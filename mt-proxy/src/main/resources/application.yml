@@ -6,7 +6,7 @@ manytree:
     subscription: subscriptions/proxy
     report: reports/proxy
     clients: clients/proxy
-  domain-name: duoshu.org
+  domain-name:
   instance-id: 0
 mt:
   url:
