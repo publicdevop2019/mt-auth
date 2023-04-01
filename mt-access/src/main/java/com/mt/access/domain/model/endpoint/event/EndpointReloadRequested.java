@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.endpoint.event;
 
+import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 
 public class EndpointReloadRequested extends DomainEvent {
@@ -16,5 +17,6 @@ public class EndpointReloadRequested extends DomainEvent {
     public EndpointReloadRequested() {
         super();
         setInternal(false);
+        setDomainId(new AnyDomainId());
     }
 }

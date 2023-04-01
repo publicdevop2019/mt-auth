@@ -56,7 +56,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
         log.debug("initializing event stream service with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(url);
+        String[] split = url.split(":");
+        factory.setHost(split[0]);
+        if (split.length > 1) {
+            factory.setPort(Integer.parseInt(split[1]));
+        }
         try {
             connectionSub = factory.newConnection();
         } catch (IOException | TimeoutException ex) {

@@ -21,10 +21,13 @@ public class EndpointMqListener {
 
     public static final String MT_GLOBAL_EXCHANGE = "mt_global_exchange";
 
-    private EndpointMqListener(@Value("${mt.url.support.mq}") String url,
-                               @Value("${spring.application.name}") String name) {
+    private EndpointMqListener(@Value("${mt.url.support.mq}") String url) {
         ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost(url);
+        String[] split = url.split(":");
+        factory.setHost(split[0]);
+        if (split.length > 1) {
+            factory.setPort(Integer.parseInt(split[1]));
+        }
         try {
             Connection connection = factory.newConnection();
             Channel channel = connection.createChannel();

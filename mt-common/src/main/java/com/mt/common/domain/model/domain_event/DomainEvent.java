@@ -1,6 +1,7 @@
 package com.mt.common.domain.model.domain_event;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Set;
@@ -24,6 +25,12 @@ public class DomainEvent implements Serializable {
     private Set<DomainId> domainIds;
     private boolean internal = true;
     private String topic;
+
+    public void setDomainId(DomainId domainId) {
+        Validator.notNull(domainId);
+        Validator.notNull(domainId.getDomainId());
+        this.domainId = domainId;
+    }
 
     public DomainEvent(DomainId domainId) {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
