@@ -4,6 +4,7 @@ import static com.mt.proxy.domain.Utility.antPathMatcher;
 
 import java.text.ParseException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -18,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EndpointService {
 
-    private Set<Endpoint> cached = new HashSet<>();
+    private Set<Endpoint> cached = new LinkedHashSet<>();
 
     /**
      * return most specific endpoint from multiple endpoints.
@@ -153,11 +154,7 @@ public class EndpointService {
     }
 
     public String checkSumValue() {
-        //sort before generate check sum
-        SortedSet<Endpoint> objects = new TreeSet<>();
-        cached.stream().sorted().forEach(objects::add);
-        cached.forEach(Endpoint::sortSubscription);
-        return DomainRegistry.getCheckSumService().getChecksum(objects);
+        return DomainRegistry.getCheckSumService().getChecksum(cached);
     }
 
     /**

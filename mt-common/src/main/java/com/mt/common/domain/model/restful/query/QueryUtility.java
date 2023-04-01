@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -41,14 +42,14 @@ public class QueryUtility {
         Function<S, SumPagedRep<T>> ofQuery, S query) {
         SumPagedRep<T> sumPagedRep = ofQuery.apply(query);
         if (sumPagedRep.getData().size() == 0) {
-            return new HashSet<>();
+            return Collections.emptySet();
         }
         //for accuracy
         double l =
             (double) sumPagedRep.getTotalItemCount() / sumPagedRep.getData().size();
         double ceil = Math.ceil(l);
         int i = BigDecimal.valueOf(ceil).intValue();
-        Set<T> data = new HashSet<>(sumPagedRep.getData());
+        Set<T> data = new LinkedHashSet<>(sumPagedRep.getData());
         for (int a = 1; a < i; a++) {
             data.addAll(ofQuery.apply(query.pageOf(a)).getData());
         }

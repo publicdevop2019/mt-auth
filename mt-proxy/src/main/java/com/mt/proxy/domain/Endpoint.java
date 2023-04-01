@@ -1,23 +1,23 @@
 package com.mt.proxy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.text.ParseException;
+import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.ToString;
 
 /**
- * this requires to be same as EndpointProxyCardRepresentation
- * from mt0-access in order to generate same MD5 value.
+ * mirror of mt-access EndpointProxyCacheRepresentation
+ * used to generate same MD5 value
+ * use @LinkedHashSet to maintain order so MD5 value can be same
  */
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String id;
@@ -33,13 +33,8 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
-    private SortedSet<Subscription> subscriptions;
-
-    public void sortSubscription() {
-        SortedSet<Subscription> objects = new TreeSet<>();
-        subscriptions.stream().sorted().forEach(objects::add);
-        subscriptions = objects;
-    }
+    @JsonDeserialize(as = LinkedHashSet.class)
+    private Set<Subscription> subscriptions;
 
     public boolean allowAccess(String jwtRaw) throws ParseException {
         if (secured && permissionId == null) {
@@ -90,10 +85,14 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     }
 
     @Getter
+    @ToString
     public static class CorsConfig implements Serializable {
+        @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> origin;
         private boolean credentials;
+        @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> allowedHeaders;
+        @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> exposedHeaders;
         private Long maxAge;
 
@@ -105,6 +104,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @Data
     public static class CacheConfig implements Serializable {
         private boolean allowCache;
+        @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> cacheControl;
 
         private Long expires;

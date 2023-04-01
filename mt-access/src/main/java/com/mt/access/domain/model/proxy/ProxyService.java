@@ -10,6 +10,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -28,12 +29,9 @@ public class ProxyService {
             new EndpointQuery());
         Set<EndpointProxyCacheRepresentation> collect =
             allByQuery.stream().map(EndpointProxyCacheRepresentation::new)
-                .collect(Collectors.toSet());
+                .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
         EndpointProxyCacheRepresentation.updateDetail(new ArrayList<>(collect));
-        //sort before generate check sum
-        TreeSet<EndpointProxyCacheRepresentation> sorted = new TreeSet<>();
-        collect.stream().sorted().forEach(sorted::add);
-        CheckSumValue checkSumValue = new CheckSumValue(sorted);
+        CheckSumValue checkSumValue = new CheckSumValue(collect);
         return new CheckSumRepresentation(checkSumValue, cacheEndpointSum);
     }
 

@@ -19,6 +19,7 @@ import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -160,10 +161,13 @@ public class EndpointProxyCacheRepresentation
 
         public CorsConfig(CorsProfile e) {
             this.origin =
-                e.getAllowOrigin().stream().map(Origin::getValue).collect(Collectors.toSet());
+                e.getAllowOrigin().stream().map(Origin::getValue).sorted().collect(
+                    Collectors.toCollection(LinkedHashSet::new));
             this.credentials = e.isAllowCredentials();
-            this.allowedHeaders = e.getAllowedHeaders();
-            this.exposedHeaders = e.getExposedHeaders();
+            this.allowedHeaders = e.getAllowedHeaders().stream().sorted().collect(
+                Collectors.toCollection(LinkedHashSet::new));
+            this.exposedHeaders = e.getExposedHeaders().stream().sorted().collect(
+                Collectors.toCollection(LinkedHashSet::new));
             this.maxAge = e.getMaxAge();
         }
     }
@@ -188,7 +192,7 @@ public class EndpointProxyCacheRepresentation
         public CacheConfig(CacheProfile cacheProfile) {
             allowCache = cacheProfile.isAllowCache();
             cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
-                .collect(Collectors.toSet());
+                .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();

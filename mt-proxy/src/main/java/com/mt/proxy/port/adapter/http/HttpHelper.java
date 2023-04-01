@@ -5,6 +5,7 @@ import com.netflix.discovery.EurekaClient;
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import lombok.Getter;
@@ -66,7 +67,7 @@ public class HttpHelper {
                 throw new IllegalStateException(
                     "data from remote: " + urlWithoutPagination + " is empty");
             }
-            data = new HashSet<>(body.getData());
+            data = new LinkedHashSet<>(body.getData());
             double l = (double) body.getTotalItemCount() / body.getData().size();
             double ceil = Math.ceil(l);
             int i = BigDecimal.valueOf(ceil).intValue();
