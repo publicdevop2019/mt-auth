@@ -11,6 +11,7 @@
   justify-content: space-between;
   margin: 16px 32px 0px 32px;
   align-items: baseline;
+  flex-wrap: wrap;
 }
 .app-body{
   display: flex;
