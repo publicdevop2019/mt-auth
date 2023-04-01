@@ -4,9 +4,7 @@ import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
-import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.Client_;
-import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
@@ -16,18 +14,18 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.AbstractQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Join;
@@ -94,6 +92,12 @@ public interface SpringDataJpaClientRepository
     @Component
     class JpaCriteriaApiClientAdaptor {
         public SumPagedRep<Client> execute(ClientQuery clientQuery) {
+            if (clientQuery.getGrantTypes() != null) {
+                return grantTypeSearch(clientQuery);
+            }
+            if (clientQuery.getResources() != null) {
+                return resourceSearch(clientQuery);
+            }
             QueryUtility.QueryContext<Client> queryContext =
                 QueryUtility.prepareContext(Client.class, clientQuery);
             Optional.ofNullable(clientQuery.getClientIds()).ifPresent(e -> QueryUtility
@@ -109,22 +113,6 @@ public interface SpringDataJpaClientRepository
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Client_.PROJECT_ID, queryContext));
 
-            Optional.ofNullable(clientQuery.getGrantTypeSearch()).ifPresent(e -> {
-                queryContext.getPredicates().add(GrantEnabledPredicateConverter
-                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
-                Optional.ofNullable(queryContext.getCountPredicates())
-                    .ifPresent(ee -> ee.add(GrantEnabledPredicateConverter
-                        .getPredicate(e, queryContext.getCriteriaBuilder(),
-                            queryContext.getCountRoot())));
-            });
-            Optional.ofNullable(clientQuery.getClientTypeSearch()).ifPresent(e -> {
-                queryContext.getPredicates().add(ClientTypePredicateConverter
-                    .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
-                Optional.ofNullable(queryContext.getCountPredicates())
-                    .ifPresent(ee -> ee.add(ClientTypePredicateConverter
-                        .getPredicate(e, queryContext.getCriteriaBuilder(),
-                            queryContext.getCountRoot())));
-            });
             Optional.ofNullable(clientQuery.getResources()).ifPresent(e -> {
                 queryContext.getPredicates().add(ResourceIdsPredicateConverter
                     .getPredicate(e, queryContext.getCriteriaBuilder(), queryContext.getRoot()));
@@ -149,6 +137,106 @@ public interface SpringDataJpaClientRepository
                     queryContext.getQuery());
             queryContext.setOrder(orderClause);
             return QueryUtility.nativePagedQuery(clientQuery, queryContext);
+        }
+
+        private SumPagedRep<Client> grantTypeSearch(ClientQuery query) {
+            Set<String> grantTypes = query.getGrantTypes().stream().map(Enum::name).collect(
+                Collectors.toSet());
+            Set<String> projectIds;
+            if (query.getProjectIds() != null) {
+                projectIds =
+                    query.getProjectIds().stream().map(DomainId::getDomainId).collect(
+                        Collectors.toSet());
+            } else {
+                projectIds = Collections.emptySet();
+            }
+            return commonAndMappingSearch("client_grant_type_map", "grant_type", grantTypes,
+                query.getPageConfig(), projectIds);
+        }
+
+        private SumPagedRep<Client> resourceSearch(ClientQuery query) {
+            Set<String> resourceIds =
+                query.getResources().stream().map(DomainId::getDomainId).collect(
+                    Collectors.toSet());
+            Set<String> projectIds;
+            if (query.getProjectIds() != null) {
+                projectIds =
+                    query.getProjectIds().stream().map(DomainId::getDomainId).collect(
+                        Collectors.toSet());
+            } else {
+                projectIds = Collections.emptySet();
+            }
+            return commonOrMappingSearch("resources_map", "domain_id", resourceIds,
+                query.getPageConfig(), projectIds);
+        }
+
+        private SumPagedRep<Client> commonAndMappingSearch(String table, String field,
+                                                           Set<String> mapping,
+                                                           PageConfig pageConfig,
+                                                           Set<String> projectIds) {
+            EntityManager entityManager = QueryUtility.getEntityManager();
+            javax.persistence.Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM ( " +
+                    "SELECT c.id FROM " + table +
+                    " mt LEFT JOIN client c ON mt.id = c.id WHERE mt." + field +
+                    " in :mapping" +
+                    (projectIds.isEmpty() ? "" : " AND c.project_id IN :projectIds") +
+                    " GROUP BY mt.id HAVING COUNT(*) >= :mappingCount" +
+                    " ) temp;");
+            if (!projectIds.isEmpty()) {
+                countQuery.setParameter("projectIds", projectIds);
+            }
+            countQuery.setParameter("mapping", mapping);
+            countQuery.setParameter("mappingCount", mapping.size());
+            javax.persistence.Query findQuery = entityManager.createNativeQuery(
+                "SELECT c.* FROM " + table +
+                    " mt LEFT JOIN client c ON mt.id = c.id WHERE mt." + field +
+                    " in :mapping" +
+                    (projectIds.isEmpty() ? "" : " AND c.project_id IN :projectIds") +
+                    " GROUP BY mt.id HAVING COUNT(*) >= :mappingCount LIMIT :limit OFFSET :offset",
+                Client.class);
+            if (!projectIds.isEmpty()) {
+                findQuery.setParameter("projectIds", projectIds);
+            }
+            findQuery.setParameter("mapping", mapping);
+            findQuery.setParameter("mappingCount", mapping.size());
+            findQuery.setParameter("limit", pageConfig.getPageSize());
+            findQuery.setParameter("offset", pageConfig.getOffset());
+            long count = ((Number) countQuery.getSingleResult()).longValue();
+            List<Client> resultList = findQuery.getResultList();
+            return new SumPagedRep<>(resultList, count);
+        }
+
+        private SumPagedRep<Client> commonOrMappingSearch(String table, String field,
+                                                          Set<String> mapping,
+                                                          PageConfig pageConfig,
+                                                          Set<String> projectIds) {
+            EntityManager entityManager = QueryUtility.getEntityManager();
+            javax.persistence.Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT mt.id) FROM " + table +
+                    " mt LEFT JOIN client c ON mt.id = c.id WHERE mt." + field +
+                    " in :mapping" +
+                    (projectIds.isEmpty() ? "" : " AND c.project_id IN :projectIds"));
+            if (!projectIds.isEmpty()) {
+                countQuery.setParameter("projectIds", projectIds);
+            }
+            countQuery.setParameter("mapping", mapping);
+            javax.persistence.Query findQuery = entityManager.createNativeQuery(
+                "SELECT c.* FROM " + table +
+                    " mt LEFT JOIN client c ON mt.id = c.id WHERE mt." + field +
+                    " in :mapping" +
+                    (projectIds.isEmpty() ? "" : " AND c.project_id IN :projectIds") +
+                    " GROUP BY mt.id LIMIT :limit OFFSET :offset",
+                Client.class);
+            if (!projectIds.isEmpty()) {
+                findQuery.setParameter("projectIds", projectIds);
+            }
+            findQuery.setParameter("mapping", mapping);
+            findQuery.setParameter("limit", pageConfig.getPageSize());
+            findQuery.setParameter("offset", pageConfig.getOffset());
+            long count = ((Number) countQuery.getSingleResult()).longValue();
+            List<Client> resultList = findQuery.getResultList();
+            return new SumPagedRep<>(resultList, count);
         }
 
         public static class GrantAccessTokenClausePredicateConverter {
@@ -181,106 +269,6 @@ public interface SpringDataJpaClientRepository
                     }
                 }
                 return cb.and(results.toArray(new Predicate[0]));
-            }
-        }
-
-        private static class GrantEnabledPredicateConverter {
-            public static Predicate getPredicate(String query, CriteriaBuilder cb,
-                                                 Root<Client> root) {
-                if (query.contains("$")) {
-                    Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
-                    List<Predicate> list2 = new ArrayList<>();
-                    for (String str : strings) {
-                        if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + GrantType.CLIENT_CREDENTIALS.name() + "%"));
-                        } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + GrantType.PASSWORD.name() + "%"));
-                        } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + GrantType.AUTHORIZATION_CODE.name() + "%"));
-                        } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + GrantType.REFRESH_TOKEN.name() + "%"));
-                        }
-                    }
-                    return cb.and(list2.toArray(Predicate[]::new));
-                } else {
-                    return getExpression(query, cb, root);
-                }
-            }
-
-            private static Predicate getExpression(String str, CriteriaBuilder cb,
-                                                   Root<Client> root) {
-                if ("CLIENT_CREDENTIALS".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + GrantType.CLIENT_CREDENTIALS.name() + "%");
-                } else if ("PASSWORD".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + GrantType.PASSWORD.name() + "%");
-                } else if ("AUTHORIZATION_CODE".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + GrantType.AUTHORIZATION_CODE.name() + "%");
-                } else if ("REFRESH_TOKEN".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + GrantType.REFRESH_TOKEN.name() + "%");
-                } else {
-                    return null;
-                }
-            }
-        }
-
-        private static class ClientTypePredicateConverter {
-            public static Predicate getPredicate(String query, CriteriaBuilder cb,
-                                                 Root<Client> root) {
-                if (query.contains("$")) {
-                    Set<String> strings = new TreeSet<>(Arrays.asList(query.split("\\$")));
-                    List<Predicate> list2 = new ArrayList<>();
-                    for (String str : strings) {
-                        if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + ClientType.ROOT_APPLICATION.name() + "%"));
-                        } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + ClientType.FIRST_PARTY.name() + "%"));
-                        } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + ClientType.THIRD_PARTY.name() + "%"));
-                        } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + ClientType.FRONTEND_APP.name() + "%"));
-                        } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
-                            list2.add(cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                                "%" + ClientType.BACKEND_APP.name() + "%"));
-                        }
-                    }
-                    return cb.and(list2.toArray(Predicate[]::new));
-                } else {
-                    return getExpression(query, cb, root);
-                }
-            }
-
-            private static Predicate getExpression(String str, CriteriaBuilder cb,
-                                                   Root<Client> root) {
-                if ("ROOT_APPLICATION".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + ClientType.ROOT_APPLICATION.name() + "%");
-                } else if ("FIRST_PARTY".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + ClientType.FIRST_PARTY.name() + "%");
-                } else if ("THIRD_PARTY".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + ClientType.THIRD_PARTY.name() + "%");
-                } else if ("FRONTEND_APP".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + ClientType.FRONTEND_APP.name() + "%");
-                } else if ("BACKEND_APP".equalsIgnoreCase(str)) {
-                    return cb.like(root.get(Client_.GRANT_TYPES).as(String.class),
-                        "%" + ClientType.BACKEND_APP.name() + "%");
-                } else {
-                    return null;
-                }
             }
         }
 

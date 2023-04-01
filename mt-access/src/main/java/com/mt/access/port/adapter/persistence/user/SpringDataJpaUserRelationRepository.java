@@ -47,6 +47,7 @@ public interface SpringDataJpaUserRelationRepository
     default Set<ProjectId> getProjectIds() {
         return getProjectIds_();
     }
+
     default Set<UserId> getUserIds() {
         return getUserIds_();
     }
@@ -62,8 +63,14 @@ public interface SpringDataJpaUserRelationRepository
         return countProjectOwnedTotal_(projectId);
     }
 
+    /**
+     * count project admin
+     *
+     * @param roleId admin role id
+     * @return count
+     */
     default long countProjectAdmin(RoleId roleId) {
-        return countProjectAdmin_(roleId, new ProjectId(MT_AUTH_PROJECT_ID));
+        return countProjectAdmin_(roleId);
     }
 
     @Query("select distinct c.projectId from UserRelation c")
@@ -96,20 +103,23 @@ public interface SpringDataJpaUserRelationRepository
         return new SumPagedRep<>(data, count);
     }
 
-    default Long countProjectAdmin_(RoleId roleId, ProjectId projectId) {
-        EntityManager entityManager = QueryUtility.getEntityManager();
-        javax.persistence.Query countQuery = entityManager.createNativeQuery(
-            "SELECT COUNT(*) FROM user_relation ur WHERE ur.standalone_roles LIKE :adminRole AND ur.project_id = :projectId");
 //      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
 //      ref: https://stackoverflow.com/questions/25789176/aliases-expected-length-is-0-actual-length-is-1-on-hibernate-query-cache
-        countQuery.setParameter("adminRole", "%" + roleId.getDomainId() + "%");
-        countQuery.setParameter("projectId", projectId.getDomainId());
+    default Long countProjectAdmin_(RoleId roleId) {
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        javax.persistence.Query countQuery = entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM user_relation_role_map mt WHERE mt.role = :roleId",
+            Long.class);
+        countQuery.setParameter("roleId", roleId.getDomainId());
         return ((Number) countQuery.getSingleResult()).longValue();
     }
 
     @Component
     class JpaCriteriaApiUserRelationAdaptor {
         public SumPagedRep<UserRelation> execute(UserRelationQuery query) {
+            if (query.getRoleId() != null) {
+                return getUserRelationWithRole(query);
+            }
             QueryUtility.QueryContext<UserRelation> queryContext =
                 QueryUtility.prepareContext(UserRelation.class, query);
             Optional.ofNullable(query.getUserIds()).ifPresent(e -> QueryUtility
@@ -120,10 +130,6 @@ public interface SpringDataJpaUserRelationRepository
                 .ifPresent(
                     e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
                         .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
-            Optional.ofNullable(query.getRoleId())
-                .ifPresent(
-                    e -> QueryUtility.addStringLikePredicate(e.getDomainId(),
-                        UserRelation_.STANDALONE_ROLES, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility
@@ -131,6 +137,27 @@ public interface SpringDataJpaUserRelationRepository
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);
+        }
+
+        private SumPagedRep<UserRelation> getUserRelationWithRole(UserRelationQuery query) {
+            ProjectId projectId = new ProjectId(MT_AUTH_PROJECT_ID);
+            EntityManager entityManager = QueryUtility.getEntityManager();
+            javax.persistence.Query countQuery = entityManager.createNativeQuery(
+                "SELECT COUNT(DISTINCT mt.id) FROM user_relation_role_map mt LEFT JOIN user_relation ur ON mt.id = ur.id" +
+                    " WHERE mt.role = :roleId AND ur.project_id = :projectId");
+            countQuery.setParameter("roleId", query.getRoleId().getDomainId());
+            countQuery.setParameter("projectId", projectId.getDomainId());
+            javax.persistence.Query findQuery = entityManager.createNativeQuery(
+                "SELECT ur.* FROM user_relation_role_map mt LEFT JOIN user_relation ur ON mt.id = ur.id" +
+                    " WHERE mt.role = :roleId AND ur.project_id = :projectId LIMIT :limit OFFSET :offset",
+                UserRelation.class);
+            findQuery.setParameter("projectId", projectId.getDomainId());
+            findQuery.setParameter("roleId", query.getRoleId().getDomainId());
+            findQuery.setParameter("limit", query.getPageConfig().getPageSize());
+            findQuery.setParameter("offset", query.getPageConfig().getOffset());
+            long count = ((Number) countQuery.getSingleResult()).longValue();
+            List<UserRelation> resultList = findQuery.getResultList();
+            return new SumPagedRep<>(resultList, count);
         }
     }
 }

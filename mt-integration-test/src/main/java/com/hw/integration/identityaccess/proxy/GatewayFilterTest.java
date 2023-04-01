@@ -31,7 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class GatewayFilterTest {
-    public static final String X_MT_RATELIMIT_LEFT = "X-MT-Ratelimit-Left";
+    public static final String X_MT_RATELIMIT_LEFT = "x-mt-ratelimit-left";
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override

@@ -49,7 +49,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class ScgCustomFilter implements GlobalFilter, Ordered {
-    public static final String X_RATE_LIMIT = "X-MT-Ratelimit-Left";
+    public static final String X_RATE_LIMIT = "x-mt-ratelimit-left";
     @Autowired
     JsonSanitizeService jsonSanitizeService;
     @Value("${manytree.domain-name}")

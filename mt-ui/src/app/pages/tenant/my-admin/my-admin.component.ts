@@ -49,7 +49,12 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
     public cdRef: ChangeDetectorRef,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 0);
-    this.userSvc.setProjectId(this.entitySvc.getProjectId())
+    const sub = this.projectId.subscribe(id => {
+      this.userSvc.setProjectId(id)
+      this.doRefresh();
+    });
+    this.subs.add(sub);
+
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []
       this.searchPageNumber = 0;

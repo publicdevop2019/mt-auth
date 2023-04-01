@@ -29,15 +29,13 @@ public class ClientQuery extends QueryCriteria {
     public static final String RESOURCE_IDS = "resourceIds";
     public static final String ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     public static final String PROJECT_ID = "projectIds";
-    public static final String CLIENT_TYPE = "types";
     private Set<ClientId> clientIds;
     @Setter(AccessLevel.PRIVATE)
     private Set<ClientId> resources;
     private Set<ProjectId> projectIds;
     private Boolean resourceFlag;
     private String name;
-    private String clientTypeSearch;
-    private String grantTypeSearch;
+    private Set<GrantType> grantTypes;
     private String accessTokenSecSearch;
 
     public ClientQuery(ClientId clientId) {
@@ -101,12 +99,11 @@ public class ClientQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
             ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
             GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS,
-            ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID, CLIENT_TYPE);
+            ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             clientIds =
                 Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
-        Optional.ofNullable(stringStringMap.get(CLIENT_TYPE)).ifPresent(e -> clientTypeSearch = e);
         Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> {
             projectIds =
                 Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
@@ -120,10 +117,11 @@ public class ClientQuery extends QueryCriteria {
         });
         Optional.ofNullable(stringStringMap.get(NAME)).ifPresent(e -> name = e);
         Optional.ofNullable(stringStringMap.get(GRANT_TYPE_ENUMS))
-            .ifPresent(e -> grantTypeSearch = e);
+            .ifPresent(e -> grantTypes = Arrays.stream(e.split("\\$")).map(GrantType::valueOf)
+                .collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(RESOURCE_IDS)).ifPresent(e -> {
             resources =
-                Arrays.stream(e.split("\\$")).map(ClientId::new).collect(Collectors.toSet());
+                Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
         Optional.ofNullable(stringStringMap.get(ACCESS_TOKEN_VALIDITY_SECONDS))
             .ifPresent(e -> accessTokenSecSearch = e);
