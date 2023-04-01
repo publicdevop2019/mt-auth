@@ -1,5 +1,7 @@
 package com.hw.integration.identityaccess.proxy;
 
+import static com.hw.integration.identityaccess.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
+
 import com.hw.helper.EndpointInfo;
 import com.hw.helper.Notification;
 import com.hw.helper.SubscriptionReq;
@@ -98,9 +100,9 @@ public class SubscriptionTest {
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(accessUrl, HttpMethod.GET, entity, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String first = exchange.getHeaders().getFirst("x-mt-ratelimit-left");
+        String first = exchange.getHeaders().getFirst(X_MT_RATELIMIT_LEFT);
         Assert.assertEquals("19", first);
-        //when api expire, notification is send to mt-mall owner
+        //when api expire, notification is sent to mt-mall owner
         ResponseEntity<String> stringResponseEntity = EndpointUtility.expireEndpoint(endpointId);
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
 

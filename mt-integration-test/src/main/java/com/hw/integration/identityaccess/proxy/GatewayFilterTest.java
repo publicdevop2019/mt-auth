@@ -31,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class GatewayFilterTest {
+    public static final String X_MT_RATELIMIT_LEFT = "X-MT-Ratelimit-Left";
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override
@@ -221,7 +222,7 @@ public class GatewayFilterTest {
             ResponseEntity<String> exchange = TestContext.getRestTemplate()
                 .exchange(url2, HttpMethod.GET, null, String.class);
             log.info("response status is {}", exchange.getStatusCode().value());
-            log.info("rate limit left is {}", exchange.getHeaders().get("x-mt-ratelimit-left"));
+            log.info("rate limit left is {}", exchange.getHeaders().get(X_MT_RATELIMIT_LEFT));
             if (exchange.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 count.getAndSet(count.get() + 1);
             }

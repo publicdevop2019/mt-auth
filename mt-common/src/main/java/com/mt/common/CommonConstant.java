@@ -1,7 +1,7 @@
 package com.mt.common;
 
 public class CommonConstant {
-    public static final String HTTP_HEADER_ERROR_ID = "error-id";
+    public static final String HTTP_HEADER_ERROR_ID = "Error-Id";
     public static final String HTTP_HEADER_ERROR_CODE = "error-code";
     public static final String HTTP_HEADER_SUPPRESS = "suppressEx";
     public static final String HTTP_HEADER_SUPPRESS_REASON_INTEGRITY_VIOLATION =
