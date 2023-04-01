@@ -39,7 +39,7 @@ export class UserMessageService extends EntityCommonService<IBellNotification, I
     connectToMonitor() {
         if (environment.mode !== 'offline') {
             this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, UUID()).subscribe(next => {
-                this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/user/monitor?jwt=${btoa(next)}`);
+                this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor/user?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {
                     if (event.data !== '_renew')
                         this.saveMessage(event.data as string);

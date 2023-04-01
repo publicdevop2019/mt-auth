@@ -27,7 +27,7 @@ public class SpringBootSimpleWebSocketConfig implements WebSocketConfigurer {
             .addHandler(mgmtHandler, "/monitor").setAllowedOrigins("*")
         ;
         webSocketHandlerRegistry
-            .addHandler(userHandler, "/user/monitor").setAllowedOrigins("*")
+            .addHandler(userHandler, "/monitor/user").setAllowedOrigins("*")
         ;
     }
 
