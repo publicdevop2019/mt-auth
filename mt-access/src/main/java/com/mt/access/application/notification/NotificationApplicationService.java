@@ -29,6 +29,7 @@ import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotificationApplicationService {
     private static final String NOTIFICATION = "Notification";
+    @Value("${instanceId}")
+    private long instanceId;
 
     public SumPagedRep<Notification> queryBell(String queryParam, String pageParam,
                                                String skipCount) {
@@ -139,7 +142,8 @@ public class NotificationApplicationService {
     }
 
     /**
-     * send bell notification to admin sessions
+     * send bell notification to stored ws session
+     * idempotent is for each instance
      *
      * @param event send bell notification event
      */
@@ -245,8 +249,11 @@ public class NotificationApplicationService {
     }
 
     public void handle(RejectedMsgReceivedEvent event) {
-        Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        if (!event.getSourceName().equalsIgnoreCase(SendBellNotificationEvent.name)) {
+            //avoid infinite loop when send bell notification got rejected
+            Notification notification = new Notification(event);
+            sendBellNotification(event.getId(), notification);
+        }
     }
 
     public void handle(RawAccessRecordProcessingWarning event) {

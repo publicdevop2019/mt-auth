@@ -79,8 +79,8 @@ public class NotificationDomainEventSubscriber {
     }
 
     /**
-     * subscribe for bell notification event for all instance.
-     * this is due to websocket is stored separately in each instance
+     * subscribe for bell notification event and broadcast to all instance.
+     * this is due to websocket is stored separately in each instance,
      * and we need to send bell to all of them
      */
     @EventListener(ApplicationReadyEvent.class)
@@ -170,6 +170,9 @@ public class NotificationDomainEventSubscriber {
                 .handle(event));
     }
 
+    /**
+     * handle rejected msg.
+     */
     @EventListener(ApplicationReadyEvent.class)
     protected void listener19() {
         ListenerHelper.listen(new RejectedMsgReceivedEvent(),
