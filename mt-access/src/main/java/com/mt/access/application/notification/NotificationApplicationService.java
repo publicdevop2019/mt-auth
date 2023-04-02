@@ -169,7 +169,7 @@ public class NotificationApplicationService {
                         "ignore exception when trying to update same notification entity");
                 }
                 return null;
-            }, NOTIFICATION);
+            }, NOTIFICATION + "_" + instanceId);
 
     }
 
