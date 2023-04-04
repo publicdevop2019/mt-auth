@@ -4,11 +4,9 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
-import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Date;
-import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -39,8 +37,12 @@ public class JobDetail extends Auditable implements Serializable {
     @Enumerated(EnumType.STRING)
     private JobType type;
     private int failureCount;
-    private int lockAcquireFailureCount;
     private int maxLockAcquireFailureAllowed;
+    /**
+     * milliseconds that allowed for job to be not executed,
+     * will send notification to admin when this limit reached
+     */
+    private long minimumIdleTimeMilli;
     private String failureReason;
     private int failureAllowed;
     @Setter
@@ -89,25 +91,16 @@ public class JobDetail extends Auditable implements Serializable {
         failureReason = null;
         this.lastExecution = Date.from(Instant.now());
         this.lastStatus = JobStatus.SUCCESS;
-        this.notifiedAdmin=false;
-        this.lockAcquireFailureCount=0;
-    }
-
-    public void acquireLockFailed() {
-        this.lockAcquireFailureCount++;
-    }
-
-    public boolean starving() {
-        return this.lockAcquireFailureCount >= maxLockAcquireFailureAllowed;
+        this.notifiedAdmin = false;
     }
 
     public void reset() {
         this.failureCount = 0;
-        this.lockAcquireFailureCount = 0;
         this.notifiedAdmin = false;
         this.failureReason = null;
     }
-    public DomainEvent handleJobExecutionException(){
+
+    public DomainEvent handleJobExecutionException() {
         boolean b = recordJobFailure();
         if (b && !isNotifiedAdmin()) {
             log.warn("notify admin about job paused");
@@ -125,13 +118,8 @@ public class JobDetail extends Auditable implements Serializable {
         return null;
     }
 
-    public DomainEvent handleLockFailedException() {
-        acquireLockFailed();
-        if (starving() && !isNotifiedAdmin()) {
-            log.warn(
-                "notify admin about job starving (unable to get lock multiple times)");
-           return new JobStarvingEvent(this);
-        }
-        return null;
+    public boolean isMinimumIdleTimeExceed() {
+        long idleTime = this.lastExecution.getTime() - System.currentTimeMillis();
+        return idleTime > this.minimumIdleTimeMilli;
     }
 }

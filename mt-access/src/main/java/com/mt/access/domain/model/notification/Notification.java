@@ -20,6 +20,7 @@ import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
+import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
@@ -46,7 +47,7 @@ public class Notification extends Auditable {
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
-    private LinkedHashSet<String> descriptions;
+    private LinkedHashSet<String> descriptions = new LinkedHashSet<>();
     @Enumerated(EnumType.STRING)
     private NotificationType type;
     @Enumerated(EnumType.STRING)
@@ -65,7 +66,6 @@ public class Notification extends Auditable {
         timestamp = deserialize.getTimestamp();
         title = "HANGING_TX";
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(deserialize.getChangeId());
     }
 
@@ -76,7 +76,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = NewUserRegistered.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(event.getEmail().getEmail());
     }
 
@@ -87,7 +86,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = ProjectOnboardingComplete.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(event.getProjectName());
     }
 
@@ -107,7 +105,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = CrossDomainValidationService.ValidationFailedEvent.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(event.getMessage());
     }
 
@@ -154,7 +151,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = UnrountableMsgReceivedEvent.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());
         descriptions.add(event.getSourceName());
@@ -187,6 +183,18 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = JobNotFoundEvent.name;
+        descriptions.add(event.getJobName());
+        type = NotificationType.BELL;
+    }
+
+    public Notification(JobThreadStarvingEvent event) {
+        super();
+        id = event.getId();
+        notificationId = new NotificationId();
+        timestamp = event.getTimestamp();
+        title = JobThreadStarvingEvent.name;
+        descriptions.add(event.getJobName());
+        descriptions.add(String.valueOf(event.getInstanceId()));
         type = NotificationType.BELL;
     }
 
@@ -195,7 +203,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = JobStarvingEvent.name;
+        title = JobThreadStarvingEvent.name;
         type = NotificationType.BELL;
     }
 
@@ -205,7 +213,6 @@ public class Notification extends Auditable {
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = event.getName();
-        descriptions = new LinkedHashSet<>();
         descriptions.add(event.getDomainId().getDomainId());
         type = NotificationType.BELL;
     }
@@ -216,7 +223,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = RejectedMsgReceivedEvent.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         descriptions.add(String.valueOf(event.getSourceEventId()));
         descriptions.add(event.getSourceTopic());
         descriptions.add(event.getSourceName());
@@ -228,7 +234,6 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = RawAccessRecordProcessingWarning.name;
         type = NotificationType.BELL;
-        descriptions = new LinkedHashSet<>();
         if (event.getIssueIds().size() > 3) {
             descriptions.addAll(event.getIssueIds().stream().limit(2).collect(Collectors.toSet()));
             descriptions.add("CHECK_EVENT_FOR_MORE");

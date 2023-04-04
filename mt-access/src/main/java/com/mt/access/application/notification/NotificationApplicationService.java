@@ -27,6 +27,7 @@ import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
+import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -234,6 +235,11 @@ public class NotificationApplicationService {
     }
 
     public void handle(JobNotFoundEvent event) {
+        Notification notification = new Notification(event);
+        sendBellNotification(event.getId(), notification);
+    }
+
+    public void handle(JobThreadStarvingEvent event) {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }

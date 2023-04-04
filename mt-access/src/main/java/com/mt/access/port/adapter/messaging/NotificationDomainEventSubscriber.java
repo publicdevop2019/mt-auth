@@ -25,6 +25,7 @@ import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
+import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.infrastructure.RabbitMqEventStreamService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -157,7 +158,7 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener17() {
-        ListenerHelper.listen(new JobStarvingEvent(),
+        ListenerHelper.listen(new JobThreadStarvingEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }
@@ -187,5 +188,10 @@ public class NotificationDomainEventSubscriber {
                 .handle(event));
     }
 
-
+    @EventListener(ApplicationReadyEvent.class)
+    protected void listener21() {
+        ListenerHelper.listen(new JobStarvingEvent(),
+            (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
+                .handle(event));
+    }
 }

@@ -898,7 +898,6 @@ export const zhHans = {
     "SINGLE": "单点",
     "FAILURE": "失败",
     "MAX_LOCK_ACQUIRE_FAILURE_COUNT": "允许获取锁失败次数",
-    "LOCK_ACQUIRE_FAILURE_COUNT": "获取锁失败次数",
     "JOB_STARVING": "任务无法正常获取锁",
     "JOB_PAUSED": "任务暂停中",
     "JOB_EXECUTION": "任务执行异常",
@@ -941,4 +940,5 @@ export const zhHans = {
     "UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION": "UserRelation数据未清除",
     "ADMIN_MGMT": "管理管理员",
     "ENTER_EXTERNAL_URL": "外部链接",
+    "MINIMUM_IDLE_TIME_ALLOWED": "允许未执行时间",
 }

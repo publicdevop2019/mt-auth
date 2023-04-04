@@ -9,8 +9,11 @@ import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobService;
 import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
+import com.mt.common.domain.model.job.event.JobStarvingEvent;
+import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
@@ -29,6 +32,8 @@ public class RedisJobService implements JobService {
     private RedissonClient redissonClient;
     @Value("${instanceId}")
     private long instanceId;
+    private ConcurrentHashMap<String, Integer> jobThreadFailureCount = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Boolean> jobThreadNotification = new ConcurrentHashMap<>();
 
     @Override
     public void execute(String jobName, Runnable jobFn) {
@@ -40,9 +45,36 @@ public class RedisJobService implements JobService {
                     try {
                         boolean b = syncExecute(job.getName(), jobFn);
                         if (!b) {
-                            DomainEvent domainEvent = job.handleLockFailedException();
-                            sendNotification(job, domainEvent);
+                            //when thread cannot get lock, updating job is not allowed to avoid concurrent update issue
+                            Integer failureCountOrDefault =
+                                jobThreadFailureCount.getOrDefault(job.getName(), 0);
+                            failureCountOrDefault++;
+                            jobThreadFailureCount.put(job.getName(), failureCountOrDefault);
+                            if (failureCountOrDefault > job.getMaxLockAcquireFailureAllowed() &&
+                                !jobThreadNotification.getOrDefault(job.getName(), false)) {
+                                JobThreadStarvingEvent starvingEvent =
+                                    new JobThreadStarvingEvent(job, instanceId);
+                                CommonDomainRegistry.getTransactionService().transactional(() -> {
+                                    CommonDomainRegistry.getDomainEventRepository()
+                                        .append(starvingEvent);
+                                });
+                                jobThreadNotification.put(job.getName(), true);
+                            }
+                            //check if job was executed in time, otherwise send notification
+                            if (job.isMinimumIdleTimeExceed()) {
+                                JobStarvingEvent starvingEvent =
+                                    new JobStarvingEvent(job);
+                                CommonDomainRegistry.getTransactionService().transactional(() -> {
+                                    CommonDomainRegistry.getDomainEventRepository()
+                                        .append(starvingEvent);
+                                    CommonDomainRegistry.getJobRepository()
+                                        .getById(job.getJobId())
+                                        .ifPresent(e -> e.setNotifiedAdmin(true));
+                                });
+                            }
                         } else {
+                            jobThreadFailureCount.remove(job.getName());
+                            jobThreadNotification.remove(job.getName());
                             job.executeSuccess();
                         }
                     } catch (DefinedRuntimeException ex) {
@@ -81,7 +113,7 @@ public class RedisJobService implements JobService {
                 log.error("job not found! name-> {}", jobName);
                 CommonDomainRegistry.getTransactionService().transactional(() -> {
                     CommonDomainRegistry.getDomainEventRepository()
-                        .append(new JobNotFoundEvent());
+                        .append(new JobNotFoundEvent(jobName));
                 });
                 log.warn("notify admin about job not found");
             });

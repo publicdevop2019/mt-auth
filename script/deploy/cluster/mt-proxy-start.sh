@@ -1,8 +1,6 @@
 # ---- start of properties-----
 # current server ip
 INSTANCE_IP=
-# mt-access IP
-MT_ACCESS_IP=
 # redis and rabbitmq ip
 INFRA_IP=
 # domain name

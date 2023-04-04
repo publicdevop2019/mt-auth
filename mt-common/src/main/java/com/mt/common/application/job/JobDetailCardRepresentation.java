@@ -6,7 +6,6 @@ import lombok.Getter;
 @Getter
 public class JobDetailCardRepresentation {
     private final String name;
-    private final int lockAcquireFailureCount;
     private final int maxLockAcquireFailureAllowed;
     private String lastStatus;
     private String id;
@@ -14,6 +13,7 @@ public class JobDetailCardRepresentation {
     private final int failureCount;
     private final String failureReason;
     private final int failureAllowed;
+    private final long minimumIdleTimeAllowed;
     private final boolean notifiedAdmin;
     private long lastExecution;
 
@@ -30,8 +30,8 @@ public class JobDetailCardRepresentation {
         this.failureCount = j.getFailureCount();
         this.failureReason = j.getFailureReason();
         this.failureAllowed = j.getFailureAllowed();
-        this.lockAcquireFailureCount = j.getLockAcquireFailureCount();
         this.maxLockAcquireFailureAllowed = j.getMaxLockAcquireFailureAllowed();
+        this.minimumIdleTimeAllowed = j.getMinimumIdleTimeMilli();
         this.notifiedAdmin = j.isNotifiedAdmin();
     }
 }

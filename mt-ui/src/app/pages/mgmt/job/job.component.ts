@@ -16,10 +16,10 @@ export interface IJob {
   lastStatus: string
   type: string
   failureCount: number
-  lockAcquireFailureCount: number
   maxLockAcquireFailureAllowed: number
   failureReason: string
   failureAllowed: number
+  minimumIdleTimeAllowed: number
   notifiedAdmin: boolean
 }
 @Component({
@@ -38,7 +38,7 @@ export class JobComponent implements OnInit, OnDestroy {
     failureAllowed: 'FAILURE_ALLOWED',
     notifiedAdmin: 'NOTIFIED',
     lastExecution: 'LAST_EXE_TIME',
-    lockAcquireFailureCount: 'LOCK_ACQUIRE_FAILURE_COUNT',
+    minimumIdleTimeAllowed: 'MINIMUM_IDLE_TIME_ALLOWED',
     maxLockAcquireFailureAllowed: 'MAX_LOCK_ACQUIRE_FAILURE_COUNT',
     action: 'JOB_ACTION',
   }
