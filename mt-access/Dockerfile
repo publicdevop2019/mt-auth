@@ -1,5 +1,7 @@
 FROM hirokimatsumoto/alpine-openjdk-11:latest as jlink-package
 
+COPY ./mt-access/target/Access.jar ./
+
 RUN jlink \
      --module-path /opt/java/jmods \
      --compress=2 \
@@ -15,7 +17,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY ./mt-access/target/Access.jar ./
+COPY --from=jlink-package ./Access.jar ./
 
 EXPOSE 8080
 
