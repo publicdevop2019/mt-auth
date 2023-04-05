@@ -1,25 +1,3 @@
-FROM maven:3.6.0-jdk-11 AS maven
-
-COPY ./mt-access/src ./mt-access/src
-
-COPY ./mt-access/pom.xml ./mt-access/pom.xml
-
-COPY ./common/parent-pom.xml ./common/parent-pom.xml
-
-RUN mkdir -p /root/.m2 && mkdir /root/.m2/repository
-
-COPY ./script/build/settings.xml /root/.m2
-
-WORKDIR "/mt-access"
-
-# build all dependencies for offline use
-RUN mvn dependency:go-offline -B
-
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-
-
-RUN mvn package
-
 FROM hirokimatsumoto/alpine-openjdk-11:latest as jlink-package
 
 RUN jlink \
@@ -37,7 +15,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY --from=maven ./mt-access/target/Access.jar ./
+COPY ./mt-access/target/Access.jar ./
 
 EXPOSE 8080
 
