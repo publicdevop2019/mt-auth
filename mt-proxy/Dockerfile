@@ -1,24 +1,3 @@
-FROM maven:3.6.3-jdk-11 AS maven
-
-COPY ./mt-proxy/src ./mt-proxy/src
-
-COPY ./mt-proxy/pom.xml ./mt-proxy/pom.xml
-
-COPY ./common/parent-pom.xml ./common/parent-pom.xml
-
-RUN mkdir -p /root/.m2 && mkdir /root/.m2/repository
-
-COPY ./script/build/settings.xml /root/.m2
-
-WORKDIR "/mt-proxy"
-
-# build all dependencies for offline use
-RUN mvn dependency:go-offline -B
-
-ENV MAVEN_OPTS="-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
-
-RUN mvn package
-
 FROM hirokimatsumoto/alpine-openjdk-11:latest as jlink-package
 
 RUN jlink \
@@ -36,7 +15,7 @@ ENV PATH="$PATH:$JAVA_HOME/bin"
 
 COPY --from=jlink-package /opt/jdk-11-mini-runtime /opt/jdk-11-mini-runtime
 
-COPY --from=maven ./mt-proxy/target/Proxy.jar ./
+COPY ./mt-proxy/target/Proxy.jar ./
 
 EXPOSE 8111
 
