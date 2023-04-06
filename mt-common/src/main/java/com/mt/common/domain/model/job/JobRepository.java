@@ -10,4 +10,6 @@ public interface JobRepository {
     void store(JobDetail jobDetail);
 
     Optional<JobDetail> getById(JobId jobId);
+
+    void notifyAdmin(JobId jobId);
 }

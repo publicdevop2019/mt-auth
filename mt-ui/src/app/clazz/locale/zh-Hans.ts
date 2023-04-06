@@ -941,4 +941,7 @@ export const zhHans = {
     "ADMIN_MGMT": "管理管理员",
     "ENTER_EXTERNAL_URL": "外部链接",
     "MINIMUM_IDLE_TIME_ALLOWED": "允许未执行时间",
+    "JOB_THREAD_STARVING": "任务执行线程饥饿",
+    "JOB_NAME": "任务名称",
+    "INSTANCE_ID": "任务实例ID",
 }

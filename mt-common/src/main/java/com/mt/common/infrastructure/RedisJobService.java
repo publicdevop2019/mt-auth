@@ -61,15 +61,14 @@ public class RedisJobService implements JobService {
                                 jobThreadNotification.put(job.getName(), true);
                             }
                             //check if job was executed in time, otherwise send notification
-                            if (job.isMinimumIdleTimeExceed()) {
+                            if (job.notifyJobStarving()) {
                                 JobStarvingEvent starvingEvent =
                                     new JobStarvingEvent(job);
                                 CommonDomainRegistry.getTransactionService().transactional(() -> {
                                     CommonDomainRegistry.getDomainEventRepository()
                                         .append(starvingEvent);
                                     CommonDomainRegistry.getJobRepository()
-                                        .getById(job.getJobId())
-                                        .ifPresent(e -> e.setNotifiedAdmin(true));
+                                        .notifyAdmin(job.getJobId());
                                 });
                             }
                         } else {

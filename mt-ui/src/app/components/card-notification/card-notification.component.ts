@@ -20,6 +20,7 @@ export class CardNotificationComponent implements OnInit {
     'UNROUTABLE_MSG_EVENT',
     'SYSTEM_VALIDATION_FAILED',
     'NEW_PROJECT_CREATED',
+    'JOB_THREAD_STARVING',
   ];
   constructor(public translate: TranslateService, private time: TimeService) {
   }

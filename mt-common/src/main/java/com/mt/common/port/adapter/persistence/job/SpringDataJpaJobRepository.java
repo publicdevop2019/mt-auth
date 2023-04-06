@@ -8,11 +8,12 @@ import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository<JobDetail, Long> {
@@ -20,15 +21,29 @@ public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository
         return QueryUtility
             .getAllByQuery(e -> CommonQueryBuilderRegistry.getJobAdaptor().execute(e), all);
     }
-    default Optional<JobDetail> getByName(String name){
-        return CommonQueryBuilderRegistry.getJobAdaptor().execute(JobQuery.byName(name)).findFirst();
-    };
-    default Optional<JobDetail> getById(JobId id){
+
+    default Optional<JobDetail> getByName(String name) {
+        return CommonQueryBuilderRegistry.getJobAdaptor().execute(JobQuery.byName(name))
+            .findFirst();
+    }
+
+
+    default Optional<JobDetail> getById(JobId id) {
         return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst();
-    };
+    }
+
+
     default void store(JobDetail jobDetail) {
         save(jobDetail);
     }
+
+    default void notifyAdmin(JobId jobId){
+        _notifyAdmin(jobId);
+    }
+
+    @Modifying
+    @Query("update #{#entityName} n set n.notifiedAdmin=true where n.jobId = ?1")
+    void _notifyAdmin(JobId jobId);
 
     @Component
     class JpaCriteriaApiJobAdaptor {

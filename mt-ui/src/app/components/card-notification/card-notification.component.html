@@ -39,6 +39,14 @@
                                 matTooltip="{{value.descriptions[2]}}">{{value.descriptions[2]|translate}}</span>
                         </div>
                     </div>
+                    <div *ngIf="value.title==='JOB_THREAD_STARVING'">
+                        <div class="max-length">
+                            {{'JOB_NAME'|translate}} : <span>{{value.descriptions[0]|translate}}</span>
+                        </div>
+                        <div class="max-length">
+                            {{'INSTANCE_ID'|translate}} : <span>{{value.descriptions[1]}}</span>
+                        </div>
+                    </div>
                     <div *ngIf="value.title==='RAW_ACCESS_RECORD_PROCESSING_WARNING'">
                         <div class="max-length"  matTooltip="{{value.descriptions[0]}}">
                             {{'REQUEST_ID'|translate}} : <span>{{value.descriptions[0]}}</span>
