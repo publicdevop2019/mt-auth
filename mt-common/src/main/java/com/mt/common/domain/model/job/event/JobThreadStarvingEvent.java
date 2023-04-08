@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Getter
 public class JobThreadStarvingEvent extends DomainEvent {
-    public static final String JOB_STARVING = "job_thread_starving";
+    public static final String JOB_THREAD_STARVING = "job_thread_starving";
     public static final String name = "JOB_THREAD_STARVING";
     private long instanceId;
     private String jobName;
 
     {
 
-        setTopic(JOB_STARVING);
+        setTopic(JOB_THREAD_STARVING);
         setName(name);
     }
 

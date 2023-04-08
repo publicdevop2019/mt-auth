@@ -21,6 +21,7 @@ export class CardNotificationComponent implements OnInit {
     'SYSTEM_VALIDATION_FAILED',
     'NEW_PROJECT_CREATED',
     'JOB_THREAD_STARVING',
+    'JOB_STARVING',
   ];
   constructor(public translate: TranslateService, private time: TimeService) {
   }

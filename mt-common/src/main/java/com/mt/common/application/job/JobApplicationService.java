@@ -27,6 +27,9 @@ public class JobApplicationService {
     @Transactional
     public void resetJob(String id) {
         Optional<JobDetail> byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
-        byId.ifPresent(JobDetail::reset);
+        byId.ifPresent(e -> {
+            e.reset();
+            CommonDomainRegistry.getJobService().reset(e.getName());
+        });
     }
 }

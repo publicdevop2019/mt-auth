@@ -203,6 +203,7 @@ public class Notification extends Auditable {
         id = event.getId();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
+        descriptions.add(event.getJobName());
         title = JobStarvingEvent.name;
         type = NotificationType.BELL;
     }

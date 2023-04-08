@@ -121,8 +121,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0050,0051,0052,0053,0054,0055,0056',explain:'反/序列化错误'},
     {code:'0057',explain:'JSON patch失败'},
     {code:'0058',explain:'任务执行错误'},
-    {code:'0059',explain:'任务执行错误，且锁丢失'},
-    {code:'0060',explain:'锁丢失'},
   ]
   constructor() { }
 

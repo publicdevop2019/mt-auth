@@ -22,12 +22,13 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+/**
+ * distributed job entity, should not be cached to avoid wrong state
+ */
 @Entity
 @Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "jobRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name"}))
 public class JobDetail extends Auditable implements Serializable {
     @Setter(AccessLevel.PRIVATE)

@@ -37,7 +37,6 @@
     <cache alias="loginRegion" uses-template="myDefaults"/>
     <cache alias="subRequestRegion" uses-template="myDefaults"/>
     <cache alias="loginHistoryRegion" uses-template="myDefaults"/>
-    <cache alias="jobRegion" uses-template="myDefaults"/>
     <!--  start of config hibernate query cache size to avoid OOM issue
         ref:https://stackoverflow.com/questions/57820519/what-is-the-standardquerycache-alternative-in-hibernate-5-4-4
         ref2:https://github.com/hibernate/hibernate-orm/blob/main/documentation/src/main/asciidoc/userguide/chapters/caching/Caching.adoc
