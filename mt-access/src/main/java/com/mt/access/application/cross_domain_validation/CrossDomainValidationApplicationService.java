@@ -13,13 +13,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @Service
 public class CrossDomainValidationApplicationService {
-    @Scheduled(fixedRate = 1 * 60 * 1000, initialDelay = 60 * 1000)
+
+    @Scheduled(cron = "0 * * ? * *")
     public void validate() {
         log.trace("triggered scheduled task 1");
         CommonDomainRegistry.getJobService()
-            .execute(DATA_VALIDATION_JOB_NAME, () -> CommonDomainRegistry.getTransactionService()
-                .transactional(
-                    () -> DomainRegistry.getCrossDomainValidationService().validate()));
+            .execute(DATA_VALIDATION_JOB_NAME,
+                () -> DomainRegistry.getCrossDomainValidationService().validate(),
+                true, 1);
     }
 
     @Transactional

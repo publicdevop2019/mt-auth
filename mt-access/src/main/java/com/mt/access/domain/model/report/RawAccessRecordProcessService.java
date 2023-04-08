@@ -17,6 +17,7 @@ public class RawAccessRecordProcessService {
 
 
     public void process() {
+        log.debug("start of access record ETL job");
         DataProcessTracker tracker = DomainRegistry.getDataProcessTrackerRepository().getTracker();
         log.debug("last process id is {}", tracker.getLastProcessedId());
         Set<RawAccessRecord> totalRecords =

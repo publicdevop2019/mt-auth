@@ -120,7 +120,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0049',explain:'Http Validation'},
     {code:'0050,0051,0052,0053,0054,0055,0056',explain:'反/序列化错误'},
     {code:'0057',explain:'JSON patch失败'},
-    {code:'0058',explain:'任务执行错误'},
   ]
   constructor() { }
 

@@ -11,5 +11,9 @@ public interface JobRepository {
 
     Optional<JobDetail> getById(JobId jobId);
 
+    /**
+     * update job without version check
+     * @param jobId job id
+     */
     void notifyAdmin(JobId jobId);
 }

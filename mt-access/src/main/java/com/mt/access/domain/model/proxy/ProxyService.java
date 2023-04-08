@@ -36,6 +36,7 @@ public class ProxyService {
     }
 
     public void checkSum() {
+        log.debug("[checking proxy cache value] started");
         CheckSumRepresentation checkSumRepresentation = checkSumValue();
         String hostValue = checkSumRepresentation.getHostValue();
         HashSet<String> values = new HashSet<>(checkSumRepresentation.getProxyValue().values());
@@ -54,6 +55,6 @@ public class ProxyService {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new ProxyCacheCheckFailedEvent());
         }
-
+        log.debug("[checking proxy cache value] completed");
     }
 }

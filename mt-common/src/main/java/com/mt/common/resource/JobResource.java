@@ -26,4 +26,10 @@ public class JobResource {
         CommonApplicationServiceRegistry.getJobApplicationService().resetJob(id);
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("mgmt/jobs/{id}/reset/lock")
+    public ResponseEntity<Void> resetJobLock(@PathVariable(name = "id") String id) {
+        CommonApplicationServiceRegistry.getJobApplicationService().resetJobLock(id);
+        return ResponseEntity.ok().build();
+    }
 }

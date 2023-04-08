@@ -13,16 +13,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class ProxyApplicationService {
 
-    @Scheduled(fixedRate = 60 * 1000, initialDelay = 180 * 1000)
+    @Scheduled(cron = "0 * * ? * *")
     protected void checkSum() {
         log.trace("triggered scheduled task 2");
-        CommonDomainRegistry.getJobService()
-            .execute(PROXY_VALIDATION_JOB_NAME,
-                () -> CommonDomainRegistry.getTransactionService().transactional(() -> {
-                    log.debug("[checking proxy cache value] started");
-                    DomainRegistry.getProxyService().checkSum();
-                    log.debug("[checking proxy cache value] completed");
-                }));
+            CommonDomainRegistry.getJobService()
+                .execute(PROXY_VALIDATION_JOB_NAME,
+                    () -> DomainRegistry.getProxyService().checkSum(), true,3);
     }
 
     public CheckSumRepresentation checkSumValue() {

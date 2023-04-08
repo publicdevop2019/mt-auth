@@ -3,9 +3,8 @@ package com.mt.common.domain;
 
 import com.mt.common.domain.model.cache.HibernateCacheService;
 import com.mt.common.domain.model.constant.ApplicationInfoService;
-import com.mt.common.domain.model.job.JobService;
+import com.mt.common.domain.model.job.DistributedJobService;
 import com.mt.common.domain.model.local_transaction.TransactionService;
-import com.mt.common.infrastructure.RedisJobService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
@@ -34,7 +33,7 @@ public class CommonDomainRegistry {
     @Getter
     private static PublishedEventTrackerRepository publishedEventTrackerRepository;
     @Getter
-    private static JobService jobService;
+    private static DistributedJobService jobService;
     @Getter
     private static JobRepository jobRepository;
     @Getter
@@ -58,7 +57,7 @@ public class CommonDomainRegistry {
     }
 
     @Autowired
-    public void setJobService(JobService jobService) {
+    public void setJobService(DistributedJobService jobService) {
         CommonDomainRegistry.jobService = jobService;
     }
 

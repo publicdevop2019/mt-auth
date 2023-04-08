@@ -36,10 +36,8 @@ public class ReportApplicationService {
         });
     }
 
-    public EndpointReport analyze(String projectId, String endpointRawId,
-                                  String queryParam) {
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(projectId), VIEW_API);
+    public EndpointReport analyze(String projectId, String endpointRawId, String queryParam) {
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), VIEW_API);
         EndpointId endpointId = new EndpointId(endpointRawId);
         Map<String, String> type = QueryUtility.parseQuery(queryParam, REPORT_TYPE);
         AtomicReference<EndpointReport> report = new AtomicReference<>();
@@ -58,21 +56,16 @@ public class ReportApplicationService {
                     DomainRegistry.getReportGenerateService().generateAllTimeReport(endpointId));
             } else {
                 throw new DefinedRuntimeException("unsupported report type", "0018",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         });
         return report.get();
     }
 
-    @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
+    @Scheduled(cron = "0 * * ? * *")
     public void rawDataEtl() {
-        log.trace("triggered scheduled task 3");
-        CommonDomainRegistry.getJobService()
-            .execute(ACCESS_DATA_PROCESSING_JOB_NAME,
-                () -> CommonDomainRegistry.getTransactionService().transactional(() -> {
-                    log.debug("start of access record ETL job");
-                    DomainRegistry.getRawAccessRecordProcessService().process();
-                }));
+            log.trace("triggered scheduled task 3");
+            CommonDomainRegistry.getJobService().execute(ACCESS_DATA_PROCESSING_JOB_NAME,
+                () -> DomainRegistry.getRawAccessRecordProcessService().process(), true,1);
     }
 }

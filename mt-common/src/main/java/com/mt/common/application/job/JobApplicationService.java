@@ -4,6 +4,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobId;
 import com.mt.common.domain.model.job.JobQuery;
+import com.mt.common.domain.model.job.JobType;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -27,9 +28,20 @@ public class JobApplicationService {
     @Transactional
     public void resetJob(String id) {
         Optional<JobDetail> byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
+        byId.ifPresent(JobDetail::reset);
+    }
+
+    /**
+     * reset job lock in case of deadlock,
+     * this should be used with caution.
+     * @param jobId job id
+     */
+    public void resetJobLock(String jobId) {
+        Optional<JobDetail> byId = CommonDomainRegistry.getJobRepository().getById(new JobId(jobId));
         byId.ifPresent(e -> {
-            e.reset();
-            CommonDomainRegistry.getJobService().reset(e.getName());
+            if (e.getType().equals(JobType.CLUSTER)) {
+                CommonDomainRegistry.getJobService().resetLock(e.getName());
+            }
         });
     }
 }

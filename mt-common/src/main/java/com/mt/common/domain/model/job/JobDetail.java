@@ -66,19 +66,6 @@ public class JobDetail extends Auditable implements Serializable {
         return failureCount >= failureAllowed;
     }
 
-    /**
-     * update job after lock failure detected
-     *
-     * @return if max lock in sec reached
-     */
-    public boolean recordLockFailure() {
-        this.failureCount++;
-        failureReason = "LOCK_LOST";
-        this.lastExecution = Date.from(Instant.now());
-        this.lastStatus = JobStatus.FAILURE;
-        return isPaused();
-    }
-
     public boolean recordJobFailure() {
         this.failureCount++;
         failureReason = "JOB_EXECUTION";
@@ -103,15 +90,6 @@ public class JobDetail extends Auditable implements Serializable {
 
     public DomainEvent handleJobExecutionException() {
         boolean b = recordJobFailure();
-        if (b && !isNotifiedAdmin()) {
-            log.warn("notify admin about job paused");
-            return new JobPausedEvent(this);
-        }
-        return null;
-    }
-
-    public DomainEvent handleLockLostException() {
-        boolean b = recordLockFailure();
         if (b && !isNotifiedAdmin()) {
             log.warn("notify admin about job paused");
             return new JobPausedEvent(this);
