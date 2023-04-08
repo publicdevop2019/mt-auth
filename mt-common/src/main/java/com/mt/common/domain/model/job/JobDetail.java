@@ -120,6 +120,6 @@ public class JobDetail extends Auditable implements Serializable {
 
     public boolean notifyJobStarving() {
         long idleTime = System.currentTimeMillis() - this.lastExecution.getTime();
-        return idleTime > this.minimumIdleTimeMilli && !notifiedAdmin;
+        return idleTime > this.minimumIdleTimeMilli;
     }
 }

@@ -42,6 +42,7 @@ public class DomainEvent implements Serializable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
         setDomainIds(domainIds);
+        setDomainId(new AnyDomainId());//add dummy domain id so it can be deserialized
     }
 
     public DomainEvent() {

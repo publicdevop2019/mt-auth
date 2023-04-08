@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.cross_domain_validation.event;
 
 import com.mt.access.domain.model.audit.AuditEvent;
+import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.Getter;
@@ -16,7 +17,7 @@ public class CrossDomainValidationFailureCheck extends DomainEvent {
     private String email;
 
     {
-
+        setDomainId(new AnyDomainId());
         setTopic(CROSS_DOMAIN_VALIDATION_FAILURE_CHECK);
         setName(name);
     }

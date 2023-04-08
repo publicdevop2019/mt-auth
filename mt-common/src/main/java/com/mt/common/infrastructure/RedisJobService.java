@@ -32,8 +32,8 @@ public class RedisJobService implements JobService {
     private RedissonClient redissonClient;
     @Value("${instanceId}")
     private long instanceId;
-    private ConcurrentHashMap<String, Integer> jobThreadFailureCount = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<String, Boolean> jobThreadNotification = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Integer> jobThreadFailureCountMap = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, Boolean> jobThreadNotificationMap = new ConcurrentHashMap<>();
 
     @Override
     public void execute(String jobName, Runnable jobFn) {
@@ -47,33 +47,39 @@ public class RedisJobService implements JobService {
                         if (!b) {
                             //when thread cannot get lock, updating job is not allowed to avoid concurrent update issue
                             Integer failureCountOrDefault =
-                                jobThreadFailureCount.getOrDefault(job.getName(), 0);
+                                jobThreadFailureCountMap.getOrDefault(job.getName(), 0);
                             failureCountOrDefault++;
-                            jobThreadFailureCount.put(job.getName(), failureCountOrDefault);
+                            jobThreadFailureCountMap.put(job.getName(), failureCountOrDefault);
                             if (failureCountOrDefault > job.getMaxLockAcquireFailureAllowed() &&
-                                !jobThreadNotification.getOrDefault(job.getName(), false)) {
+                                !jobThreadNotificationMap.getOrDefault(job.getName(), false)) {
+                                log.warn("job thread unable to acquire lock multiple times");
                                 JobThreadStarvingEvent starvingEvent =
                                     new JobThreadStarvingEvent(job, instanceId);
-                                CommonDomainRegistry.getTransactionService().transactional(() -> {
-                                    CommonDomainRegistry.getDomainEventRepository()
-                                        .append(starvingEvent);
-                                });
-                                jobThreadNotification.put(job.getName(), true);
+                                CommonDomainRegistry.getTransactionService().transactional(
+                                    () -> CommonDomainRegistry.getDomainEventRepository()
+                                        .append(starvingEvent));
+                                jobThreadNotificationMap.put(job.getName(), true);
                             }
                             //check if job was executed in time, otherwise send notification
                             if (job.notifyJobStarving()) {
-                                JobStarvingEvent starvingEvent =
-                                    new JobStarvingEvent(job);
-                                CommonDomainRegistry.getTransactionService().transactional(() -> {
-                                    CommonDomainRegistry.getDomainEventRepository()
-                                        .append(starvingEvent);
-                                    CommonDomainRegistry.getJobRepository()
-                                        .notifyAdmin(job.getJobId());
-                                });
+                                log.warn("job exceed max idle time, last execution time {}",
+                                    job.getLastExecution().getTime());
+                                if (!job.isNotifiedAdmin()) {
+                                    log.info("creating JobStarvingEvent");
+                                    JobStarvingEvent starvingEvent =
+                                        new JobStarvingEvent(job);
+                                    CommonDomainRegistry.getTransactionService()
+                                        .transactional(() -> {
+                                            CommonDomainRegistry.getDomainEventRepository()
+                                                .append(starvingEvent);
+                                            CommonDomainRegistry.getJobRepository()
+                                                .notifyAdmin(job.getJobId());
+                                        });
+                                }
                             }
                         } else {
-                            jobThreadFailureCount.remove(job.getName());
-                            jobThreadNotification.remove(job.getName());
+                            jobThreadFailureCountMap.remove(job.getName());
+                            jobThreadNotificationMap.remove(job.getName());
                             job.executeSuccess();
                         }
                     } catch (DefinedRuntimeException ex) {
