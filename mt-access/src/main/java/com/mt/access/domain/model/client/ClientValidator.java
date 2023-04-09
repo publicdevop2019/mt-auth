@@ -57,13 +57,12 @@ public class ClientValidator {
     private void accessAndRoles() {
         if (client.isAccessible()) {
             if (
-                client.getTypes().stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
-                    || client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
+                    client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
             ) {
                 handler.handleError(
                     "invalid client type to be a resource, "
                         +
-                        "must be first party & backend application");
+                        "must be backend application");
             }
         }
     }

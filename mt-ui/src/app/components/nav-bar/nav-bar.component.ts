@@ -349,6 +349,9 @@ export class NavBarComponent implements OnInit {
   hasAuth() {
     return this.projectSvc.showMgmtPanel()
   }
+  hasTenants() {
+    return this.projectSvc.hasTenantProjects()
+  }
   filterDuplicate(msgs: IBellNotification[]) {
     return msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i)
   }

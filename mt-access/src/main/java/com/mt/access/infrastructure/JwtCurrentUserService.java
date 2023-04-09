@@ -29,6 +29,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @Service
 public class JwtCurrentUserService implements CurrentUserService {
 
+    public static final String TENANT_IDS = "tenantIds";
     @Autowired
     private UserJwt userJwt;
 
@@ -99,7 +100,7 @@ public class JwtCurrentUserService implements CurrentUserService {
     @Override
     public Set<ProjectId> getTenantIds() {
         String jwt = userJwt.get();
-        List<String> ids = JwtUtility.getField("tenantId", jwt);
+        List<String> ids = JwtUtility.getField(TENANT_IDS, jwt);
         return ids == null ? Collections.emptySet() :
             ids.stream().map(ProjectId::new).collect(Collectors.toSet());
     }

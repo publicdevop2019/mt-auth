@@ -1,5 +1,9 @@
 package com.mt.access.infrastructure.oauth2;
 
+import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
+import static com.mt.common.domain.model.jwt.JwtUtility.JWT_CLAIM_PERM;
+import static com.mt.common.domain.model.jwt.JwtUtility.JWT_CLAIM_UID;
+
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
@@ -31,6 +35,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class CustomTokenEnhancer implements TokenEnhancer {
     private static final String NOT_USED = "not_used";
+    private static final String PROJECT_ID = "projectId";
 
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
@@ -39,7 +44,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         info.put("iat", Instant.now().getEpochSecond());
         if (!authentication.isClientOnly()) {
             UserId userId = new UserId(authentication.getName());
-            info.put("uid", userId.getDomainId());
+            info.put(JWT_CLAIM_UID, userId.getDomainId());
             //for user
             Set<String> scope = authentication.getOAuth2Request().getScope();
             if (scope != null && scope.size() > 0
@@ -59,15 +64,15 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                             .internalOnboardUserToTenant(userId, projectId);
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(newRelation);
-                    info.put("permissionIds",
+                    info.put(JWT_CLAIM_PERM,
                         compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                    info.put("projectId", newRelation.getProjectId().getDomainId());
+                    info.put(PROJECT_ID, newRelation.getProjectId().getDomainId());
                 } else {
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(userRelation.get());
-                    info.put("permissionIds",
+                    info.put(JWT_CLAIM_PERM,
                         compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                    info.put("projectId", userRelation.get().getProjectId().getDomainId());
+                    info.put(PROJECT_ID, userRelation.get().getProjectId().getDomainId());
                 }
             } else {
                 //get auth project permission and user tenant projects
@@ -77,11 +82,11 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 userRelation.ifPresent(relation -> {
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(relation);
-                    info.put("permissionIds",
+                    info.put(JWT_CLAIM_PERM,
                         compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-                    info.put("projectId", relation.getProjectId().getDomainId());
+                    info.put(PROJECT_ID, relation.getProjectId().getDomainId());
                     if (relation.getTenantIds() != null) {
-                        info.put("tenantIds",
+                        info.put(TENANT_IDS,
                             relation.getTenantIds().stream().map(DomainId::getDomainId)
                                 .collect(Collectors.toSet()));
                     }
@@ -97,8 +102,8 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 Optional<Role> byId =
                     ApplicationServiceRegistry.getRoleApplicationService().internalQuery(roleId);
                 byId.ifPresent(role -> {
-                    info.put("projectId", client1.getProjectId().getDomainId());
-                    info.put("permissionIds",
+                    info.put(PROJECT_ID, client1.getProjectId().getDomainId());
+                    info.put(JWT_CLAIM_PERM,
                         role.getTotalPermissionIds().stream().map(DomainId::getDomainId)
                             .collect(Collectors.toSet()));
                 });

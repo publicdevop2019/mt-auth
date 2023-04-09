@@ -13,11 +13,11 @@ import java.util.List;
 import java.util.Map;
 
 public class JwtUtility {
+    public static final String JWT_CLAIM_UID = "uid";
+    public static final String JWT_CLAIM_PERM = "permissionIds";
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final String HTTP_HEADER_BEARER = "Bearer ";
-    private static final String JWT_CLAIM_PERM = "permissionIds";
     private static final String JWT_CLAIM_SCOPES = "scope";
-    private static final String JWT_CLAIM_UID = "uid";
     private static final String JWT_CLAIM_CLIENT_ID = "client_id";
 
     private JwtUtility() {
