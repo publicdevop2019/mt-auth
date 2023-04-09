@@ -292,7 +292,8 @@ public class UserApplicationService implements UserDetailsService {
         }
         ImageId imageId =
             ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
-        user.get().setUserAvatar(new UserAvatar(imageId));
+        CommonDomainRegistry.getTransactionService()
+            .transactional(() -> user.get().setUserAvatar(new UserAvatar(imageId)));
         return imageId;
     }
 
@@ -339,20 +340,21 @@ public class UserApplicationService implements UserDetailsService {
     public void updateProfile(UserUpdateProfileCommand command) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        user.ifPresent(e -> e.update(
-            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-            command.getUsername() != null ? new UserName(command.getUsername()) : null,
-            command.getLanguage()));
-    }
-
-    private void updateLastLoginInfo(UserLoginRequest command) {
-        CommonDomainRegistry.getTransactionService()
-            .transactional(() -> DomainRegistry.getUserService().updateLastLogin(command));
+        user.ifPresent(
+            e -> CommonDomainRegistry.getTransactionService().transactional(() -> e.update(
+                new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+                command.getUsername() != null ? new UserName(command.getUsername()) : null,
+                command.getLanguage())));
     }
 
     private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
         UserLoginRequest userLoginRequest =
             new UserLoginRequest(ipAddress, userId, agentInfo);
         updateLastLoginInfo(userLoginRequest);
+    }
+
+    private void updateLastLoginInfo(UserLoginRequest command) {
+        CommonDomainRegistry.getTransactionService()
+            .transactional(() -> DomainRegistry.getUserService().updateLastLogin(command));
     }
 }

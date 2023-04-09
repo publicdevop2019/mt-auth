@@ -1,13 +1,13 @@
 <div style="padding: 20px;">
     <h1>API设计</h1>
-    <h2>分类标准</h2>
+    <h2>API分类标准</h2>
     <div style="padding-left: 8px;">1. 是否对外开放</div>
     <div style="padding-left: 40px; font-size: 12px;">决定了API的访问途径</div>
     <div style="padding-left: 8px;">2. 是否需要验证</div>
     <div style="padding-left: 40px; font-size: 12px;">决定了API访问时是否需要用户登录</div>
     <div style="padding-left: 8px;">3. 是否与其他团队共享</div>
     <div style="padding-left: 40px; font-size: 12px;">决定了是否需要参与生命周期管理</div>
-    <h2>具体类别</h2>
+    <h2>API具体类别</h2>
     <div style="padding-left: 8px;">1. 内部API</div>
     <div style="padding-left: 40px; font-size: 12px;">团队后端内部使用，通过注册中心直接调用，不享受相关服务</div>
     <div style="padding-left: 8px;">2. 外部公共非共享API</div>
@@ -28,19 +28,22 @@
     <div style="padding-left: 40px; font-size: 12px;">以IP为单位进行限流，不论项目，拥有者可以更改额度配置</div>
     <div style="padding-left: 8px;">1. 外部保护API</div>
     <div style="padding-left: 40px; font-size: 12px;">以项目，用户为单位进行限流，可以通过订阅请求来申请额度</div>
-    <h1>Exception设计</h1>
+    <h1>异常设计</h1>
     <h2 style="padding-left: 8px; font-weight: 700;">异常类：DefinedRuntimeException</h2>
     <div style="padding-left: 8px;">所有系统已知异常抛出此类，该类允许自定义错误信息，http代码，错误代码，错误分类</div>
-    <div style="padding-left: 8px;">备注：<a href="./docs/error" style="margin-left: 16px;">错误码查询表</a></div>
+    <div style="padding-left: 8px;">备注：<a href="./docs/error">错误码查询表</a></div>
     <h1>软删除还是硬删除</h1>
     <div style="padding-left: 8px;">1. 随着项目变得越来越复杂，软删除变得越来越难以管理</div>
     <div style="padding-left: 8px;">2. 软删除后，数据仍存在，唯一联合索引需要特别处理</div>
     <div style="padding-left: 8px;">3. 希望暂时保留被删除数据，用于用户误操作恢复以及数据分析</div>
-    <div style="padding-left: 8px;">总结：默认采用硬删除，个别特例采用软删除，新增审计日志以及数据库记录</div>
+    <div style="padding-left: 8px;">方案：默认采用硬删除，特例采用软删除，新增删除审计日志以及被删除数据写入特定数据库</div>
     <h1>分布式任务</h1>
-    <div style="padding-left: 8px;">1. 集群下希望一个分布式任务只在一个节点同一时刻被执行</div>
-    <div style="padding-left: 8px;">2. 监控任务长时间未执行或者多次执行报错</div>
+    <div style="padding-left: 8px;">1. 分布式任务在同一时刻只能在一个节点执行</div>
+    <div style="padding-left: 8px;">2. 监控任务长时间未执行</div>
     <div style="padding-left: 8px;">3. 监控任务多次执行报错</div>
     <div style="padding-left: 8px;">已知问题：项目启动时会报任务饥饿，因为初始化时任务一定会被判定饥饿（长时间未执行）</div>
     <div style="padding-left: 8px;">已知问题：若任务执行花费过久，会导致其余线程一直无法获得锁而不停报任务线程饥饿</div>
+    <h1>事件驱动架构</h1>
+    <div style="padding-left: 8px;"></div>
+    <div style="padding-left: 8px;">已知问题：事件有时会被重复投递，重复投递的事件有概率会消费失败（并发插入），会收到消息拒绝的站内信</div>
 </div>
