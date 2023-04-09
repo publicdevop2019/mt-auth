@@ -113,7 +113,7 @@ export class ClientValidator extends IAggregateValidator {
         let results: ErrorMessage[] = [];
         BooleanValidator.isBoolean(payload[key], results, key);
         if (payload[key] === true) {
-            let var0 = [CLIENT_TYPE.firstParty, CLIENT_TYPE.backend_app];
+            let var0 = [CLIENT_TYPE.backend_app];
             if (var0.some(e => !payload.types.includes(e))) {
                 results.push({ type: 'resourceIndicatorRequiresRole', message: 'RESOURCE_INDICATOR_REQUIRES_ROLE', key: key })
             }
