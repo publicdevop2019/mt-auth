@@ -59,4 +59,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   showMgmtPanel(){
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
+  hasTenantProjects(){
+    return this.httpProxy.currentUserAuthInfo.tenantIds.length>0;
+  }
 }

@@ -84,9 +84,10 @@ public class PermissionQuery extends QueryCriteria {
         this.sort = PermissionSort.byId(true);
     }
 
-    public static PermissionQuery uiPermissionQuery(Set<ProjectId> projectIds, Set<String> names) {
+    public static PermissionQuery uiPermissionQuery(Set<ProjectId> tenantIds, Set<String> names) {
+        Validator.notEmpty(tenantIds);
         PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.tenantIds = projectIds;
+        permissionQuery.tenantIds = tenantIds;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);
@@ -95,10 +96,11 @@ public class PermissionQuery extends QueryCriteria {
     }
 
     //create query to find read project permission for tenant
-    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> ids) {
+    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> tenantIds) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.projectIds = Collections.singleton(projectId);
-        permissionQuery.tenantIds = ids;
+        Validator.notEmpty(tenantIds);
+        permissionQuery.tenantIds = tenantIds;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);

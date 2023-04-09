@@ -2,6 +2,7 @@
 export interface ITokenResponse {
   access_token: string;
   permissionIds: string[];
+  tenantIds: string[];
   refresh_token?: string;
   token_type?: string;
   expires_in?: string;

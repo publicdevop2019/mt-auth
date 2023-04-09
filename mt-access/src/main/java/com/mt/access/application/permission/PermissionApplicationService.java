@@ -32,6 +32,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -77,11 +78,16 @@ public class PermissionApplicationService {
      */
     public Set<Permission> uiQuery() {
         Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        if (tenantIds.isEmpty()) {
+            return Collections.emptySet();
+        }
         return QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
                 PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
     }
-    public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam, String skipCount) {
+
+    public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam,
+                                               String skipCount) {
         PermissionQuery permissionQuery = new PermissionQuery(queryParam, pageParam, skipCount);
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
@@ -141,11 +147,11 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Permission> permission =
                 DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
-            permission.ifPresent(e->{
+            permission.ifPresent(e -> {
                 e.remove();
-            DomainRegistry.getAuditService()
-                .storeAuditAction(REMOVE_TENANT_PERMISSION,
-                    e);
+                DomainRegistry.getAuditService()
+                    .storeAuditAction(REMOVE_TENANT_PERMISSION,
+                        e);
                 DomainRegistry.getAuditService()
                     .logUserAction(log, REMOVE_TENANT_PERMISSION,
                         e);

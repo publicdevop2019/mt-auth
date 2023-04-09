@@ -81,7 +81,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                         compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                     info.put("projectId", relation.getProjectId().getDomainId());
                     if (relation.getTenantIds() != null) {
-                        info.put("tenantId",
+                        info.put("tenantIds",
                             relation.getTenantIds().stream().map(DomainId::getDomainId)
                                 .collect(Collectors.toSet()));
                     }

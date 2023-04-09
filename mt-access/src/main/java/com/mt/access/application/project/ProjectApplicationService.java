@@ -172,20 +172,20 @@ public class ProjectApplicationService {
             epPublicCount, userCount);
     }
 
-    private void canReadProject(Set<ProjectId> ids) {
-        if (ids == null) {
+    private void canReadProject(Set<ProjectId> tenantIds) {
+        if (tenantIds == null) {
             throw new DefinedRuntimeException("no project id found", "0014",
                 HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        if (ids.size() == 0) {
+        if (tenantIds.size() == 0) {
             throw new DefinedRuntimeException("no project id found", "0015",
                 HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         //first check access to target project
         Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
-        boolean b = authorizedTenantId.containsAll(ids);
+        boolean b = authorizedTenantId.containsAll(tenantIds);
         if (!b) {
             throw new DefinedRuntimeException("not allowed project", "0016",
                 HttpResponseCode.FORBIDDEN,
@@ -193,7 +193,7 @@ public class ProjectApplicationService {
         }
         //second check has read project access to current project
         PermissionQuery permissionQuery = PermissionQuery
-            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
+            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), tenantIds);
         permissionQuery.setNames(Collections.singleton(VIEW_PROJECT_INFO));
         Set<Permission> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),

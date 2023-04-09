@@ -59,7 +59,7 @@
                     translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-expansion-panel (opened)="openedHandler('api_nav')" (closed)="closedHander('api_nav')"
+            <mat-expansion-panel *ngIf="hasAuth()" (opened)="openedHandler('api_nav')" (closed)="closedHander('api_nav')"
                 [expanded]="navExpand('api_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
