@@ -573,7 +573,7 @@ export const zhHans = {
     "CLIENT": "应用",
     "USER": "用户",
     "PLEASE_SELECT_ROLE_TYPE": "请选择权限类别",
-    "CORS_DASHBOARD": "CORS",
+    "CORS_DASHBOARD": "跨域",
     "CORS_ORIGIN": "Origin",
     "ALLOWED_METHOD": "Allowed Method",
     "SELECT_CORS_PROFILE": "请选择CORS配置",

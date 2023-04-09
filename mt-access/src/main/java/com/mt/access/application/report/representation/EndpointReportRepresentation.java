@@ -17,6 +17,7 @@ public class EndpointReportRepresentation {
     private String authenticationRequiredRequestCount;//403
     private String internalServerErrorCount;//500
     private String serviceUnavailableErrorCount;//503
+    private String notModifiedRequestCount;//304
 
     public EndpointReportRepresentation(EndpointReport report) {
         endpointId = report.getEndpointId().getDomainId();
@@ -35,6 +36,7 @@ public class EndpointReportRepresentation {
             report.getAuthenticationRequiredRequestCount().toString();
         internalServerErrorCount = report.getInternalServerErrorCount().toString();
         serviceUnavailableErrorCount = report.getServiceUnavailableErrorCount().toString();
+        notModifiedRequestCount = report.getNotModifiedRequestCount().toString();
         averageResponseSize = String.valueOf(report.getAverageResponseSize());
     }
 }
