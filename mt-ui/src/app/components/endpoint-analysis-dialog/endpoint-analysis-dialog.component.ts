@@ -18,6 +18,7 @@ export interface IAnalysisResult {
   serviceUnavailableErrorCount: string;
   totalInvokeCount: string;
   unauthorizedRequestCount: string;
+  notModifiedRequestCount: string;
 }
 
 @Component({
@@ -38,6 +39,7 @@ export class EndpointAnalysisComponent implements OnInit {
     { key: 'BAD_REQ_COUNT' },
     { key: 'AUTH_REQUIRED_REQ_COUNT' },
     { key: 'UNAUTHORIZED_COUNT' },
+    { key: 'NOT_MODIFIED_COUNT' },
   ];
   constructor(public dialogRef: MatDialogRef<EndpointAnalysisComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData, public entitySvc: MyEndpointService,) {
   }
@@ -73,6 +75,8 @@ export class EndpointAnalysisComponent implements OnInit {
         return this.result.totalInvokeCount
       if (key === 'UNAUTHORIZED_COUNT')
         return this.result.unauthorizedRequestCount
+      if (key === 'NOT_MODIFIED_COUNT')
+        return this.result.notModifiedRequestCount
     } else {
       return 'N/A'
     }

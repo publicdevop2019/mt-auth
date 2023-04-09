@@ -944,4 +944,5 @@ export const zhHans = {
     "JOB_THREAD_STARVING": "任务执行线程饥饿",
     "JOB_NAME": "任务名称",
     "INSTANCE_ID": "任务实例ID",
+    "NOT_MODIFIED_COUNT": "304请求",
 }

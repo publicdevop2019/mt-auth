@@ -17,6 +17,7 @@ public class EndpointReport {
     private final AtomicInteger failureResponseCount = new AtomicInteger(0);
     private final AtomicInteger badRequestCount = new AtomicInteger(0);//400
     private final AtomicInteger unauthorizedRequestCount = new AtomicInteger(0);//401
+    private final AtomicInteger notModifiedRequestCount = new AtomicInteger(0);//304
     private final AtomicInteger authenticationRequiredRequestCount = new AtomicInteger(0);//403
     private final AtomicInteger internalServerErrorCount = new AtomicInteger(0);//500
     private final AtomicInteger serviceUnavailableErrorCount = new AtomicInteger(0);//503
@@ -42,6 +43,8 @@ public class EndpointReport {
                     badRequestCount.getAndIncrement();
                 } else if (e.getResponseCode() == 401) {
                     unauthorizedRequestCount.getAndIncrement();
+                } else if (e.getResponseCode() == 304) {
+                    notModifiedRequestCount.getAndIncrement();
                 } else if (e.getResponseCode() == 403) {
                     authenticationRequiredRequestCount.getAndIncrement();
                 } else if (e.getResponseCode() == 500) {
