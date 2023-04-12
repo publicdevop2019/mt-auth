@@ -5,7 +5,7 @@
 
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: space-between;">
         <section>
-            <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
+            <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
                 style="margin-right: 16px;" (click)="showOptions()">
                 {{'BATCH_OPERATION'|translate}}
             </mat-slide-toggle>
@@ -13,7 +13,7 @@
                 <button mat-raised-button color="primary" (click)="doBatchLock()"
                     style="margin-right: 16px;">{{'BATCH_LOCK'|translate}}</button>
                 <button mat-raised-button color="primary" (click)="doBatchUnlock()">{{'BATCH_UNLOCK'|translate}}</button>
-            </ng-container>
+            </ng-container> -->
         </section>
         <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
     </div>

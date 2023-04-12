@@ -2,7 +2,7 @@
     <mat-toolbar color="primary" class="example-toolbar" style="justify-content: space-between; padding: 0px;"
         [style.height.px]="deviceSvc.topBar">
         <div style="display: flex;align-items: center;">
-            <button mat-icon-button (click)="snav.toggle();">
+            <button mat-icon-button (click)="snav.toggle();" style="margin-top: -2px;">
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
             <img *ngIf="avatar" mat-card-avatar [src]="avatar"
