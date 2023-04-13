@@ -2,16 +2,8 @@ import { HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest, Http
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
-import { mockClient1 } from 'src/app/mocks/mock-client';
-import { mockClient } from 'src/app/mocks/mock-clients';
-import { mockSP1 } from 'src/app/mocks/mock-endpoint';
-import { mockSP } from 'src/app/mocks/mock-endpoints';
-import { mockRevokeTokens } from 'src/app/mocks/mock-revoke-tokens';
-import { mockResource1 } from 'src/app/mocks/mock-user';
-import { mockResourceO } from 'src/app/mocks/mock-users';
 import { environment } from 'src/environments/environment';
 import { IAuthorizeCode } from '../../clazz/validation/interfaze-common';
-import { mockMessage } from '../../mocks/mock-message';
 /**
  * use refresh token if call failed
  */
@@ -40,30 +32,9 @@ export class OfflineInterceptor implements HttpInterceptor {
         return of(new HttpResponse({ status: 200 })).pipe(delay(this.DEFAULT_DELAY));
       }
       if (['get'].includes(req.method.toLowerCase())) {
-        if (req.url.includes('revoke-tokens/root')) {
-          return of(new HttpResponse({ status: 200, body: mockRevokeTokens })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('/endpoints/root/')) {
-          return of(new HttpResponse({ status: 200, body: mockSP1 })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('/endpoints/root')) {
-          return of(new HttpResponse({ status: 200, body: mockSP })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('/systemNotifications/root')) {
-          return of(new HttpResponse({ status: 200, body: mockMessage })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('clients/root/')) {
-          return of(new HttpResponse({ status: 200, body: mockClient1 })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('clients/root')) {
-          return of(new HttpResponse({ status: 200, body: mockClient })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('users/admin/')) {
-          return of(new HttpResponse({ status: 200, body: mockResource1 })).pipe(delay(this.DEFAULT_DELAY))
-        }
-        if (req.url.includes('users/admin')) {
-          return of(new HttpResponse({ status: 200, body: mockResourceO })).pipe(delay(this.DEFAULT_DELAY))
-        }
+        // if (req.url.includes('revoke-tokens/root')) {
+        //   return of(new HttpResponse({ status: 200, body: mockRevokeTokens })).pipe(delay(this.DEFAULT_DELAY))
+        // }
       }
     }
     return next.handle(req);

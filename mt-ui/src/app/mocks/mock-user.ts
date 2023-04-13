@@ -1,1 +1,0 @@
-export const mockResource1={"id":0,"email":"haolinwei2015@gmail.com","locked":false,"grantedAuthorities":["ROLE_ROOT","ROLE_ADMIN","ROLE_USER"],"createdBy":"script","createdAt":1598906767000,"modifiedAt":1598906767000,"subscription":true}
