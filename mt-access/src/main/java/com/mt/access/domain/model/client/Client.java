@@ -60,8 +60,20 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     region = "clientRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path"}))
 public class Client extends Auditable {
-
+    private static final String MT_ACCESS_ID = "0C8AZTODP4HT";
+    private static final String MT_PROXY_ID = "0C8AZYTQ5W5C";
+    private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
+    private static final String MT_UI_LOGIN_ID = "0C8AZZ16LZB4";
     private static final String EMPTY_SECRET = "";
+    private static final Set<ClientId> reservedClientIds = new HashSet<>();
+
+    static {
+        reservedClientIds.add(new ClientId(MT_ACCESS_ID));
+        reservedClientIds.add(new ClientId(MT_PROXY_ID));
+        reservedClientIds.add(new ClientId(MT_UI_REGISTER_ID_));
+        reservedClientIds.add(new ClientId(MT_UI_LOGIN_ID));
+    }
+
     /**
      * if lazy then loadClientByClientId needs to be transactional
      * use eager to avoid @Transactional adding too much overhead.
@@ -228,9 +240,6 @@ public class Client extends Auditable {
         if (
             types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
                 && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
-                ||
-                types.stream().anyMatch(e -> e.equals(ClientType.THIRD_PARTY))
-                    && types.stream().anyMatch(e -> e.equals(ClientType.FIRST_PARTY))
         ) {
             throw new DefinedRuntimeException("client type conflict", "0036",
                 HttpResponseCode.BAD_REQUEST,
@@ -469,7 +478,7 @@ public class Client extends Auditable {
     }
 
     public boolean removable() {
-        return types.stream().noneMatch(e -> e.equals(ClientType.ROOT_APPLICATION));
+        return !reservedClientIds.contains(this.clientId);
     }
 
     public void updateExternalResource(Set<ClientId> externalResource) {

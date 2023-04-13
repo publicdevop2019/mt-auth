@@ -62,7 +62,7 @@ public class ClientTest {
     }
 
     @Test
-    public void only_client_w_first_party_n_backend_role_can_be_create_as_resource() {
+    public void only_client_w_n_backend_role_can_be_create_as_resource() {
         TestContext.init();
         Client client = ClientUtility.getInvalidClientAsResource();
         ResponseEntity<String> exchange = ClientUtility.createClient(client);
@@ -245,7 +245,6 @@ public class ClientTest {
             TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, Client.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         Assert.assertTrue(exchange2.getBody().getTypes().contains(ClientType.BACKEND_APP));
-        Assert.assertTrue(exchange2.getBody().getTypes().contains(ClientType.FIRST_PARTY));
 
     }
 
@@ -303,19 +302,12 @@ public class ClientTest {
     }
 
     @Test
-    public void root_client_is_not_deletable() {
+    public void reserved_client_is_not_deletable() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        /**
-         * add ROLE_ROOT so it can not be deleted
-         */
-        oldClient.setTypes(
-            new HashSet<>(Arrays.asList(ClientType.BACKEND_APP, ClientType.ROOT_APPLICATION)));
-        ResponseEntity<String> client1 = ClientUtility.createClient(oldClient);
         String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
+            UrlUtility.getAccessUrl(CLIENTS + "/0C8AZTODP4HT");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -323,13 +315,6 @@ public class ClientTest {
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                client1.getHeaders().getLocation().toString(), oldClient.getClientSecret(),
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-
-        Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
     }
 
     @Test

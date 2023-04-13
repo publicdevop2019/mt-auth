@@ -28,7 +28,6 @@ public class ClientUtility {
         client.setResourceIndicator(false);
         Set<ClientType> types = new HashSet<>();
         types.add(ClientType.BACKEND_APP);
-        types.add(ClientType.FIRST_PARTY);
         client.setTypes(types);
         return client;
     }
@@ -38,7 +37,6 @@ public class ClientUtility {
         client.setResourceIndicator(true);
         Set<ClientType> strings = new HashSet<>();
         strings.add(ClientType.BACKEND_APP);
-        strings.add(ClientType.FIRST_PARTY);
         client.setTypes(strings);
         return client;
     }
@@ -47,7 +45,6 @@ public class ClientUtility {
         Client client = getClientRaw(resourceIds);
         Set<ClientType> strings = new HashSet<>();
         strings.add(ClientType.FRONTEND_APP);
-        strings.add(ClientType.FIRST_PARTY);
         client.setTypes(strings);
         client.setResourceIndicator(true);
         return client;

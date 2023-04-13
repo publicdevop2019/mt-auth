@@ -7,16 +7,8 @@ export enum grantTypeEnums {
   authorization_code = 'AUTHORIZATION_CODE'
 }
 export enum CLIENT_TYPE {
-  root_app = 'ROOT_APPLICATION',
-  firstParty = 'FIRST_PARTY',
-  thirdParty = 'THIRD_PARTY',
   backend_app = 'BACKEND_APP',
   frontend_app = 'FRONTEND_APP'
-}
-export enum scopeEnums {
-  read = 'READ',
-  write = 'WRITE',
-  trust = 'TRUST'
 }
 export interface IClient extends IIdName {
   name: string;

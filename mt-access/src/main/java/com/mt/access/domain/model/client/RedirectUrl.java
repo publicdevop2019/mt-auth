@@ -4,14 +4,15 @@ import com.google.common.base.Objects;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import javax.persistence.Embeddable;
 import javax.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.validator.routines.UrlValidator;
+
 @NoArgsConstructor
 @MappedSuperclass
 public class RedirectUrl implements Serializable {
@@ -23,6 +24,7 @@ public class RedirectUrl implements Serializable {
     private String value;
 
     public RedirectUrl(String url) {
+        Validator.notNull(url);
         if (defaultValidator.isValid(url)) {
             value = url;
         } else {

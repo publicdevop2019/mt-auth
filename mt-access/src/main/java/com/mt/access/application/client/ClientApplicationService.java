@@ -130,7 +130,8 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.isAutoApprove()
                         ),
                         command.getTypes(),
-                        new ExternalUrl(command.getExternalUrl())
+                        command.getExternalUrl() != null ?
+                            new ExternalUrl(command.getExternalUrl()) : null
                     );
                     return client.getClientId().getDomainId();
                 }, CLIENT
@@ -198,7 +199,7 @@ public class ClientApplicationService implements ClientDetailsService {
                             .logUserAction(log, DELETE_TENANT_CLIENT,
                                 client1);
                     } else {
-                        throw new DefinedRuntimeException("root client cannot be deleted", "0009",
+                        throw new DefinedRuntimeException("client cannot be deleted", "0009",
                             HttpResponseCode.BAD_REQUEST,
                             ExceptionCatalog.ILLEGAL_ARGUMENT);
                     }

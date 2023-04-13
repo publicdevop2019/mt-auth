@@ -61,7 +61,9 @@ public class ClientRepresentation {
         if (client.getAuthorizationCodeGrant() != null) {
             autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();
         }
-        externalUrl = client.getExternalUrl().getValue();
+        if (client.getExternalUrl() != null) {
+            externalUrl = client.getExternalUrl().getValue();
+        }
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;

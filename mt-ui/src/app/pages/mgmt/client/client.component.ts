@@ -78,8 +78,6 @@ export class MgmtClientComponent extends Aggregate<MgmtClientComponent, IClient>
       clientSecret: this.aggregate.hasSecret ? '*****' : '',
       name: this.aggregate.name,
       description: this.aggregate.description || '',
-      isRoot: this.aggregate.types.includes(CLIENT_TYPE.root_app),
-      firstOrThirdApp: this.aggregate.types.filter(e => [CLIENT_TYPE.firstParty, CLIENT_TYPE.thirdParty].includes(e))[0],
       frontOrBackApp: this.aggregate.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
       grantType: grantType,
       registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',

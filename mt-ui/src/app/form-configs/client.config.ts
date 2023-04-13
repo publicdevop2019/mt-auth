@@ -47,48 +47,18 @@ export const FORM_CONFIG: IForm = {
             },
         },
         {
-            "type": "checkbox",
-            "display": true,
-            "label": "",
-            "key": "isRoot",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
-            "options": [{
-                label: 'IS_ROOT_APPLICATION', value: 'isRootApplication'
-            }],
-            required: true,
-        },
-        {
             "type": "radio",
             "display": true,
             "label": "SELECT_APP_TYPE_1",
-            "key": "firstOrThirdApp",
-            direction:'row',
-            "position": {
-                "row": "4",
-                "column": "0"
-            },
-            "options": [
-                { label: 'FIRST_PARTY', value: 'FIRST_PARTY'},
-                { label: 'THIRD_PARTY', value: 'THIRD_PARTY'},
-            ],
-            required: true,
-        },
-        {
-            "type": "radio",
-            "display": true,
-            "label": "SELECT_APP_TYPE_2",
             "key": "frontOrBackApp",
-            direction:'row',
+            direction:'column',
             "position": {
                 "row": "5",
                 "column": "0"
             },
             "options": [
-                { label: 'FRONTEND_APP', value: 'FRONTEND_APP'},
-                { label: 'BACKEND_APP', value: 'BACKEND_APP'},
+                { label: 'YES', value: 'FRONTEND_APP'},
+                { label: 'NO', value: 'BACKEND_APP'},
             ],
             required: true,
         },
@@ -127,7 +97,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "select",
-            "display": true,
+            "display": false,
             "label": "SELECT_A_GRANT_TYPE",
             "key": "grantType",
             "position": {
@@ -189,7 +159,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "paginated-select",
-            "display": true,
+            "display": false,
             "multiple": true,
             "label": "PLEASE_SELECT_RESOUCE_ID(S)",
             "key": "resourceId",
@@ -202,7 +172,7 @@ export const FORM_CONFIG: IForm = {
         },
         {
             "type": "text",
-            "display": true,
+            "display": false,
             "label": "ACCESS_TOKEN_VALIDITY_SECONDS",
             "key": "accessTokenValiditySeconds",
             "position": {

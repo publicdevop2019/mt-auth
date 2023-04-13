@@ -21,8 +21,6 @@ import { MyClientService } from 'src/app/services/my-client.service';
 })
 export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy, OnInit {
   bottomSheet: IBottomSheet<IClient>;
-  private formCreatedOb: Observable<string>;
-  private previousPayload: any = {};
   constructor(
     public clientSvc: MyClientService,
     public httpProxySvc: HttpProxyService,
@@ -34,38 +32,53 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     super('client', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     clientSvc.setProjectId(this.bottomSheet.params['projectId'])
-    this.formCreatedOb = this.fis.formCreated(this.formId);
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
     this.fis.formCreated(this.formId).subscribe(() => {
       if (this.bottomSheet.context === 'new') {
         this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
       }
-      this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
-        // prevent infinite loop
-        if (this.findDelta(e) !== undefined) {
-          // clear form value on display = false
-          // this.formInfo.inputs.find(e => e.key === 'clientSecret').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          // this.formInfo.inputs.find(e => e.key === 'path').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          // this.formInfo.inputs.find(e => e.key === 'externalUrl').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          // this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = e['frontOrBackApp'] === 'BACKEND_APP';
-          if(e['frontOrBackApp'] === 'BACKEND_APP'){
-            this.fis.showIfMatch(this.formId,['clientSecret','path','externalUrl','resourceIndicator'])
-          }else{
-            this.fis.hideIfMatch(this.formId,['clientSecret','path','externalUrl','resourceIndicator'])
-          }
-          if (e['frontOrBackApp'] === 'FRONTEND_APP') {
-            this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
-          } else {
-            this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'))
-          }
-          this.formInfo.inputs.find(e => e.key === 'registeredRedirectUri').display = (e['grantType'] as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
-          this.formInfo.inputs.find(e => e.key === 'refreshToken').display = (e['grantType'] as string[] || []).indexOf('PASSWORD') > -1;
-          this.formInfo.inputs.find(e => e.key === 'autoApprove').display = (e['grantType'] as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
-          this.formInfo.inputs.find(e => e.key === 'refreshTokenValiditySeconds').display = (e['grantType'] as string[] || []).indexOf('PASSWORD') > -1 && e['refreshToken'];
+      this.fis.formGroupCollection[this.formId].get('frontOrBackApp').valueChanges.subscribe((next) => {
+        this.fis.formGroupCollection[this.formId].get('grantType').reset(undefined, { emitEvent: false })
+        this.fis.formGroupCollection[this.formId].get('accessTokenValiditySeconds').reset(undefined, { emitEvent: false })
+        if (next === 'BACKEND_APP') {
+          this.fis.showIfMatch(this.formId, ['grantType'])
+          this.fis.showIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
+          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
+        } else {
+          this.fis.showIfMatch(this.formId, ['grantType'])
+          this.fis.hideAndResetIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
+          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
         }
-        this.previousPayload = e;
-        // update form config
-      });
+        if (next === 'FRONTEND_APP') {
+          this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
+        } else {
+          this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'))
+        }
+      })
+      this.fis.formGroupCollection[this.formId].get('grantType').valueChanges.subscribe((next) => {
+        if (next) {
+          this.fis.showIfMatch(this.formId, ['accessTokenValiditySeconds'])
+        } else {
+          this.fis.hideAndResetIfMatch(this.formId, ['accessTokenValiditySeconds'])
+        }
+        if ((next as string[]).includes('PASSWORD')) {
+          this.fis.showIfMatch(this.formId, ['refreshToken'])
+        } else {
+          this.fis.hideAndResetIfMatch(this.formId, ['refreshToken', 'refreshTokenValiditySeconds'])
+        }
+        if ((next as string[]).includes('AUTHORIZATION_CODE')) {
+          this.fis.showIfMatch(this.formId, ['registeredRedirectUri', 'autoApprove'])
+        } else {
+          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'autoApprove'])
+        }
+      })
+      this.fis.formGroupCollection[this.formId].get('refreshToken').valueChanges.subscribe((next) => {
+        if (next) {
+          this.fis.showIfMatch(this.formId, ['refreshTokenValiditySeconds'])
+        } else {
+          this.fis.hideAndResetIfMatch(this.formId, ['refreshTokenValiditySeconds'])
+        }
+      })
       if (this.bottomSheet.context === 'edit') {
 
         const var0: Observable<any>[] = [];
@@ -102,8 +115,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       clientSecret: this.aggregate.hasSecret ? '*****' : '',
       name: this.aggregate.name,
       description: this.aggregate.description || '',
-      isRoot: this.aggregate.types.includes(CLIENT_TYPE.root_app),
-      firstOrThirdApp: this.aggregate.types.filter(e => [CLIENT_TYPE.firstParty, CLIENT_TYPE.thirdParty].includes(e))[0],
       frontOrBackApp: this.aggregate.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
       grantType: grantType,
       registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
@@ -135,9 +146,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     }
     if (formGroup.get('refreshToken').value)
       grants.push(grantTypeEnums.refresh_token);
-    if (formGroup.get('isRoot').value)
-      types.push(CLIENT_TYPE.root_app);
-    types.push(formGroup.get('firstOrThirdApp').value);
     types.push(formGroup.get('frontOrBackApp').value);
 
     return {
@@ -147,7 +155,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       externalUrl: formGroup.get('externalUrl').value ? formGroup.get('externalUrl').value : undefined,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       hasSecret: formGroup.get('clientSecret').value === '*****',
-      clientSecret: formGroup.get('clientSecret').value === '*****' ? null : formGroup.get('clientSecret').value,
+      clientSecret: formGroup.get('clientSecret').value === '*****' ? null : formGroup.get('clientSecret').value || '',
       grantTypeEnums: grants,
       types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
@@ -195,17 +203,5 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         }
       }
     })
-  }
-
-  private findDelta(newPayload: any): string {
-    const changeKeys: string[] = [];
-    for (const p in newPayload) {
-      if (this.previousPayload[p] === newPayload[p] ||
-        JSON.stringify(this.previousPayload[p]) === JSON.stringify(newPayload[p])) {
-      } else {
-        changeKeys.push(p as string);
-      }
-    }
-    return changeKeys[0];
   }
 }

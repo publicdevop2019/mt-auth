@@ -118,7 +118,6 @@ public class RefreshTokenTest {
         enums.add(GrantTypeEnum.REFRESH_TOKEN);
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
-        clientRaw.setTypes(new HashSet<>(List.of(ClientType.FIRST_PARTY)));
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<String> client = ClientUtility.createClient(clientRaw);
