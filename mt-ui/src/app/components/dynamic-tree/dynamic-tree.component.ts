@@ -27,14 +27,16 @@ export class DynamicTreeComponent implements OnInit {
   @Input() loadRoot: Observable<ISumRep<INode>>
   @Input() loadChildren: (id: string) => Observable<ISumRep<INode>>;
   @Input() fg: FormGroup;
+  //field to disable check/uncheck cascading, this is useful when we don't want parent to be auto checked/unchecked
+  @Input() cascade: boolean = true;
   constructor() {
 
   }
   ngOnInit(): void {
     this.loadRoot.subscribe(next => {
       this.rootNodes = next.data;
-      next.data.forEach(e=>{
-        this.flatNodes.push(e)  
+      next.data.forEach(e => {
+        this.flatNodes.push(e)
       })
     })
   }

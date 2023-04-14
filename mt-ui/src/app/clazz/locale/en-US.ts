@@ -170,7 +170,7 @@ export const enUS = {
     "OPT_CONFIRM_MSG": "Please confirm this operation",
     "CANCEL": "Cancel",
     "CONFIRM": "Confirm",
-    "DOCUMENT_TITLE": "MT Auth",
+    "DOCUMENT_TITLE": "MT-AUTH",
     "OPERATION_SUCCESS_TOKEN": "Operation success, token has been revoked",
     "OPERATION_SUCCESS_LOGIN": "Operation success, please login again",
     "OPERATION_SUCCESS": "Operation success",

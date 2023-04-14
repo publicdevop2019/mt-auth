@@ -53,13 +53,9 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     this.fis.queryProvider[this.performanceFormId + '_' + 'cacheProfile'] = cacheSvc;
     combineLatest([this.fis.formCreated(this.formId), this.fis.formCreated(this.basicFormId), this.fis.formCreated(this.secureFormId),this.fis.formCreated(this.performanceFormId)])
       .subscribe(() => {
-        this.fis.formGroupCollection[this.formId].valueChanges.subscribe((next) => {
-          const isExternal: boolean = next['isExternal'] === 'yes' ? true : next['isExternal'] === 'no' ? false : undefined
-          const isShared: boolean = next['isShared'] === 'yes' ? true : next['isShared'] === 'no' ? false : undefined
-          const isSecured: boolean = next['isSecured'] === 'yes' ? true : next['isSecured'] === 'no' ? false : undefined
+        this.fis.formGroupCollection[this.formId].get('isExternal').valueChanges.subscribe((next) => {
+          const isExternal: boolean = next === 'yes' ? true : next === 'no' ? false : undefined
           this.isExternal = isExternal;
-          this.isShared = isShared;
-          this.isSecured = isSecured;
           if (isExternal === false) {
             this.fis.disableIfMatch(this.formId, ['isSecured','isShared'])//internal api does not require user authentication
             this.fis.formGroupCollection[this.formId].get('isSecured').setValue('', { emitEvent: false })
@@ -68,6 +64,14 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
               this.fis.enableIfMatch(this.formId, ['isSecured','isShared'])
             }
           }
+        })
+        this.fis.formGroupCollection[this.formId].get('isShared').valueChanges.subscribe((next) => {
+          const isShared: boolean = next === 'yes' ? true : next === 'no' ? false : undefined
+          this.isShared = isShared;
+        })
+        this.fis.formGroupCollection[this.formId].get('isSecured').valueChanges.subscribe((next) => {
+          const isSecured: boolean = next === 'yes' ? true : next === 'no' ? false : undefined
+          this.isSecured = isSecured;
         })
         this.fis.formGroupCollection[this.basicFormId].get('method').valueChanges.subscribe(next => {
           if ((next as string).toLowerCase() === 'get') {

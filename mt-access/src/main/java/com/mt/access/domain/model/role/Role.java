@@ -41,7 +41,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.Lob;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -301,7 +300,6 @@ public class Role extends Auditable {
                 command.getExternalPermissionIds() == null ? null :
                     command.getExternalPermissionIds().stream().map(PermissionId::new)
                         .collect(Collectors.toSet());
-
             if (this.externalPermissionIds == null) {
                 if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
                     this.externalPermissionIds = externalPermissionIds;
@@ -321,6 +319,7 @@ public class Role extends Auditable {
                     .collect(Collectors.toSet()));
 
         }
+        new RoleValidator(new HttpValidationNotificationHandler(), this).validate();
     }
 
     private void setName(String name) {

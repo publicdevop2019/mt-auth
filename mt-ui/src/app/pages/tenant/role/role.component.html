@@ -38,7 +38,7 @@
                         <mat-icon matChipRemove (click)="apiRemove(e)">cancel</mat-icon>
                     </mat-chip>
                 </mat-chip-list>
-                <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg"
+                <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg" [cascade]="false"
                    ></app-dynamic-tree>
                 <lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
             </div>

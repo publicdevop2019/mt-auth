@@ -20,6 +20,7 @@
         <div class="app-msg-body">
             <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}<span *ngIf="isBeta" style="margin-left: 4px; font-size: 16px; font-weight: 400; color: #673ab7;">beta</span></div>
             <div class="app-msg">{{'APP_DESCRIPTION_2'|translate}}</div>
+            <div *ngIf="isBeta" style="margin-top: 12px;font-size: 12px; font-weight: 400; color: #673ab7;">{{'APP_DESCRIPTION_3'|translate}}</div>
         </div>
         <form [formGroup]="loginOrRegForm" class="page-form">
             <div class="form-body mobile-view">
@@ -110,7 +111,7 @@
                         [type]="'password'" formControlName="confirmPwd"  autocomplete="new-password">
                     <mat-error>{{confirmgPasswordErrorMsg | translate}}</mat-error>
                 </mat-form-field>
-                <ul *ngIf="isRegister || forgetPwd" style="font-size: 12px; padding-left: 16px;">
+                <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
                     <li>{{"PASSWORD_RULE_1"|translate}}</li>
                     <li>{{"PASSWORD_RULE_2"|translate}}</li>
                     <li>{{"PASSWORD_RULE_5"|translate}}</li>

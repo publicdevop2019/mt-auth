@@ -345,4 +345,7 @@ export class LoginComponent implements OnInit {
   openGithub() {
     window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
   }
+  showPasswordHint(){
+    return (this.isRegister || this.forgetPwd) && this.loginOrRegForm.get('registerPwd').value
+  }
 }

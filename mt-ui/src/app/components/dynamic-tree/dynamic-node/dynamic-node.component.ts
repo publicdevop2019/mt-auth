@@ -15,6 +15,7 @@ export class DynamicNodeComponent implements OnInit {
   @Input() flatNodes: INode[];
   @Input() loadChildren: (id: string) => Observable<ISumRep<INode>>;
   @Input() fg?: FormGroup;
+  @Input() cascade: boolean = true;
   @ViewChild(TreeNodeDirective, { static: false }) treeNodeHost: TreeNodeDirective;
   expanded: boolean = false
   loaded: boolean = false
@@ -24,8 +25,8 @@ export class DynamicNodeComponent implements OnInit {
   ngOnInit(): void {
     if (this.fg) {
       const ctrl = new FormControl('unchecked')
-      this.fg.addControl(this.node.id, ctrl)
-      ctrl.valueChanges.subscribe(next => {
+      this.fg.addControl(this.node.id, ctrl);
+      this.cascade && ctrl.valueChanges.subscribe(next => {
         if (next === 'checked') {
           //auto select child nodes
           const children = this.flatNodes.filter(e => e.parentId === this.node.id)
@@ -94,6 +95,7 @@ export class DynamicNodeComponent implements OnInit {
           componentRef.instance.level = this.level + 1;
           componentRef.instance.fg = this.fg;
           componentRef.instance.flatNodes = this.flatNodes;
+          componentRef.instance.cascade = this.cascade;
         })
         next.data.forEach(e => {
           this.flatNodes.push(e)

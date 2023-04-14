@@ -40,7 +40,7 @@ public class PermissionCheckService {
                 HttpResponseCode.FORBIDDEN,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        //second check if has read client access to current project
+        //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery
             .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
         permissionQuery.setNames(Collections.singleton(permissionName));
