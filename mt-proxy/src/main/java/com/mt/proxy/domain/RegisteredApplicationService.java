@@ -17,7 +17,7 @@ public class RegisteredApplicationService {
 
     public void refreshCache() {
         cached = retrieveRegisterApplicationService.fetchAll();
-        log.debug("total registered application cached {}", cached.size());
+        log.info("total registered application cached {}", cached.size());
         scgRouteService.refreshRoutes(cached);
     }
 }

@@ -133,7 +133,6 @@ public class Client extends Auditable {
     private String path;
 
     @Getter
-    @Setter
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "value", column = @Column(name = "externalUrl"))
@@ -211,6 +210,20 @@ public class Client extends Auditable {
         CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+    }
+
+    private void setExternalUrl(ExternalUrl externalUrl) {
+        if (this.externalUrl == null && externalUrl == null) {
+            return;
+        } else if (this.externalUrl == null || externalUrl == null) {
+            CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
+        } else {
+            if (!externalUrl.equals(this.externalUrl)) {
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new ClientPathChanged(clientId));
+            }
+        }
+        this.externalUrl = externalUrl;
     }
 
     public void setAuthorizationCodeGrant(RedirectDetail redirectDetail) {

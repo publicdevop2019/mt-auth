@@ -647,7 +647,7 @@ export const zhHans = {
     "MY_ROLE_DASHBOARD": "角色",
     "MY_PERMISSION_DASHBOARD": "权限",
     "MY_POSITION_DASHBOARD": "岗位",
-    "REGISTER_MY_PROJECT": "创建项目",
+    "REGISTER_MY_PROJECT": "新建项目",
     "MY_PROFILE": "账户",
     "API_CENTER": "API市场",
     "MY_CLIENTS": "应用",

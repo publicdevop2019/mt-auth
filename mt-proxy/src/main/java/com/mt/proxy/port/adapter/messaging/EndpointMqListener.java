@@ -43,14 +43,14 @@ public class EndpointMqListener {
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.sub_req_approved");
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
-                log.debug("start refresh cached endpoints");
+                log.info("start refresh cached endpoints");
                 try {
                     //use auto ack, since admin will have to trigger sync job to match
                     DomainRegistry.getProxyCacheService().reloadProxyCache();
                 } catch (Exception ex) {
                     log.error("error in mq, error will not throw to keep mq connection", ex);
                 }
-                log.debug("cached endpoints refreshed");
+                log.info("cached endpoints refreshed");
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
             });
