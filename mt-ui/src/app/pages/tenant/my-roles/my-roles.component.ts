@@ -6,6 +6,7 @@ import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { pid } from 'process';
+import { combineLatest } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
@@ -13,6 +14,7 @@ import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
 import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
+import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
@@ -26,7 +28,7 @@ export interface INewRole extends IIdBasedEntity {
   projectId: string,
   roleType?: 'USER' | 'CLIENT' | 'PROJECT' | 'CLIENT_ROOT',
   apiPermissionIds: string[],
-  permissionDetails?: {id:string,name:string}[],
+  permissionDetails?: { id: string, name: string }[],
   commonPermissionIds: string[],
   externalPermissionIds?: string[],
   description?: string
@@ -41,7 +43,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
   formId2 = 'summaryRoleCustomerView';
   formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
-  columnList: any={};
+  columnList: any = {};
   sheetComponent = RoleComponent;
   public loadRoot;
   public loadChildren;
@@ -61,6 +63,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
   ]
   constructor(
     public entitySvc: MyRoleService,
+    public authSvc: AuthService,
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
     public deviceSvc: DeviceService,
@@ -70,27 +73,6 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
     public route: ActivatedRoute,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub=this.projectId.subscribe(pId => {
-      this.entitySvc.setProjectId(pId);
-      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null,types:USER.PROJECT")
-      .pipe(map(e => {
-        e.data.forEach(ee => {
-          if (pId === '0P8HE307W6IO') {
-            (ee as INode).enableI18n = true;
-          }
-        })
-        return e
-      }));
-      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
-        e.data.forEach(ee => {
-          if (pId === '0P8HE307W6IO') {
-            (ee as INode).enableI18n = true;
-          }
-        })
-        return e
-      }));
-    });
-    this.subs.add(sub)
     this.fis.formCreated(this.formId2).subscribe(() => {
       const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
         this.viewType = e.view;
@@ -108,8 +90,26 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
         })
       }
     })
-    const sub3 = this.canDo('EDIT_ROLE').subscribe(b => {
-      this.columnList = b.result? {
+    const sub = combineLatest([this.projectId, this.canDo('EDIT_ROLE')]).subscribe(next => {
+      this.entitySvc.setProjectId(next[0]);
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "parentId:null,types:USER.PROJECT")
+        .pipe(map(e => {
+          e.data.forEach(ee => {
+            if (next[0] === '0P8HE307W6IO') {
+              (ee as INode).enableI18n = true;
+            }
+          })
+          return e
+        }));
+      this.loadChildren = (id: string) => this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
+        e.data.forEach(ee => {
+          if (next[0] === '0P8HE307W6IO') {
+            (ee as INode).enableI18n = true;
+          }
+        })
+        return e
+      }));
+      const temp = next[1].result ? {
         id: 'ID',
         name: 'NAME',
         description: 'DESCRIPTION',
@@ -118,16 +118,24 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
         edit: 'EDIT',
         clone: 'CLONE',
         delete: 'DELETE',
-      }:{
+      } : {
         id: 'ID',
         name: 'NAME',
         description: 'DESCRIPTION',
         tenantId: 'TENANT_ID',
         roleType: 'TYPE',
       }
+      if (!this.authSvc.advancedMode) {
+        delete temp.clone
+        delete temp.roleType
+      }
+      if (next[0] !== '0P8HE307W6IO') {
+        delete temp.tenantId
+      }
+      this.columnList = temp;
     })
     this.subs.add(sub2)
-    this.subs.add(sub3)
+    this.subs.add(sub)
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

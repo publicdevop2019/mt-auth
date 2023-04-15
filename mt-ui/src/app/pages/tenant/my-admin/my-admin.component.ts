@@ -82,7 +82,6 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
       if (!this.allLoaded) {
         this.searchPageNumber++;
       }
-      console.dir(this.allLoaded)
     })
   }
   ngOnInit(): void {

@@ -16,6 +16,7 @@ import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ISearchEvent } from 'src/app/components/tenant-search/tenant-search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view-less.config';
+import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -74,14 +75,21 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public route: ActivatedRoute,
-    private translate: TranslateService,
+    private authSvc: AuthService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 5);
+    (!this.authSvc.advancedMode) && this.deviceSvc.refreshSummary.subscribe(() => {
+      const search = {
+        value: 'types:COMMON.PROJECT,parentId:null',
+        resetPage: false
+      }
+      this.doSearch(search);
+    })
     const sub = this.projectId.subscribe(next => {
       this.entitySvc.setProjectId(next);
       this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON.PROJECT,parentId:null")
       this.loadChildren = (id: string) => {
-        return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id) .pipe(map(e => {
+        return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
           e.data.forEach(ee => {
             if (next === '0P8HE307W6IO') {
               (ee as INode).enableI18n = true;
@@ -100,7 +108,7 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       }
     })
     const sub3 = this.canDo('EDIT_PERMISSION').subscribe(b => {
-      this.columnList = b.result ? {
+      const temp = b.result ? {
         id: 'ID',
         name: 'NAME',
         description: 'DESCRIPTION',
@@ -114,6 +122,11 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
         description: 'DESCRIPTION',
         type: 'TYPE',
       }
+      if (!this.authSvc.advancedMode) {
+        delete temp.clone
+        delete temp.type
+      }
+      this.columnList = temp
     })
     this.subs.add(sub)
     this.subs.add(sub2)
@@ -151,7 +164,7 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     }
   }
   displayedApiColumns() {
-    return['id','name']
+    return ['id', 'name']
   };
   apiPageHandler(e: PageEvent) {
     this.apiPageNumber = e.pageIndex;

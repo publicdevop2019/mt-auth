@@ -12,6 +12,7 @@ import { ErrorMessage, StringValidator } from 'src/app/clazz/validation/validato
 import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { LanguageService } from 'src/app/services/language.service';
 import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-login',
@@ -19,10 +20,16 @@ import * as UUID from 'uuid/v1';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
-  isBeta:boolean = true;
+  isBeta: boolean = true;
+  public get hasLoginSuccessfully() {
+    return localStorage.getItem('successLogin') === 'true'
+  }
+  public set hasLoginSuccessfully(next: boolean) {
+    localStorage.setItem('successLogin', next + '')
+  }
   nextUrl: string = '/home';
   forgetPwd: boolean = false;
-  isRegister: boolean = true;
+  isRegister: boolean = this.hasLoginSuccessfully ? false : true;
   emailErrorMsg: string = undefined;
   activationCodeErrorMsg: string = undefined;
   tokenErrorMsg: string = undefined;
@@ -48,6 +55,7 @@ export class LoginComponent implements OnInit {
   });
   private validator = new UserValidator()
   constructor(
+    public langSvc: LanguageService,
     public httpProxy: HttpProxyService,
     private route: Router,
     public dialog: MatDialog,
@@ -111,6 +119,7 @@ export class LoginComponent implements OnInit {
       })
     } else {
       this.httpProxy.login(this.loginOrRegForm).subscribe(next => {
+        this.hasLoginSuccessfully = true;
         if ((next as IMfaResponse).mfaId) {
           this.authSvc.loginFormValue = this.loginOrRegForm;
           this.authSvc.loginNextUrl = this.nextUrl;
@@ -319,33 +328,13 @@ export class LoginComponent implements OnInit {
       email: fg.get('email').value,
     };
   }
-  public toggleLang() {
-    if (this.translate.currentLang === 'enUS') {
-      this.translate.use('zhHans')
-      this.translate.get('DOCUMENT_TITLE').subscribe(
-        next => {
-          document.title = next
-          document.documentElement.lang = 'zh-Hans'
-        }
-      )
-    }
-    else {
-      this.translate.use('enUS')
-      this.translate.get('DOCUMENT_TITLE').subscribe(
-        next => {
-          document.title = next
-          document.documentElement.lang = 'en'
-        }
-      )
-    }
-  }
   openDoc() {
     window.open('./docs', '_blank').focus();
   }
   openGithub() {
     window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
   }
-  showPasswordHint(){
+  showPasswordHint() {
     return (this.isRegister || this.forgetPwd) && this.loginOrRegForm.get('registerPwd').value
   }
 }

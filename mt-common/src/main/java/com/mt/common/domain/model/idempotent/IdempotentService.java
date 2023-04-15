@@ -28,7 +28,7 @@ public class IdempotentService {
                     ChangeRecordQuery.idempotentQuery(changeId, aggregateName));
             Optional<ChangeRecord> reverseChange = reverseChanges.findFirst();
             if (reverseChange.isPresent()) {
-                log.debug("change already exist, no change will happen");
+                log.debug("change already cancelled, no change will happen");
             } else {
                 SumPagedRep<ChangeRecord> forwardChanges =
                     CommonDomainRegistry.getChangeRecordRepository()

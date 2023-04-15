@@ -677,7 +677,7 @@ export const zhHans = {
     "APP_NAME": "MT - AUTH",
     "APP_DESCRIPTION_1": "多租户权限管理平台",
     "APP_DESCRIPTION_2": "用户、角色、权限、 应用、 API一站式管理",
-    "APP_DESCRIPTION_3": "beta版本，请勿使用真实个人信息，系统不会发送邮件，短信",
+    "APP_DESCRIPTION_3": "beta版本，请勿使用真实个人信息，您的数据将在版本更新时丢失，系统不会发送邮件，短信",
     "PLS_LIKE": "请收藏",
     "RAISE_ISSUE": "如有问题, 请提交issue至Github",
     "MIRROR": "镜像仓库",
@@ -934,4 +934,5 @@ export const zhHans = {
     "JOB_NAME": "任务名称",
     "INSTANCE_ID": "任务实例ID",
     "NOT_MODIFIED_COUNT": "304请求",
+    "ADVANCED_MODE": "开启高级设置",
 }

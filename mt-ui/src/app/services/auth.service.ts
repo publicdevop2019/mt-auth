@@ -11,9 +11,15 @@ import { HttpProxyService, IUser } from './http-proxy.service';
 export class AuthService implements CanActivateChild, CanActivate {
   public avatarUpdated$: Subject<void> = new Subject();
   private currentUser$: Observable<IUser>;
-  public loginFormValue:FormGroup;
-  public loginNextUrl:string;
-  public mfaId:string;
+  public loginFormValue: FormGroup;
+  public loginNextUrl: string;
+  public mfaId: string;
+  public get advancedMode() {
+    return localStorage.getItem('advancedMode') === 'true'
+  }
+  public set advancedMode(next: boolean) {
+    localStorage.setItem('advancedMode', next + '')
+  }
   public get currentUser() {
     if (!this.currentUser$) {
       this.currentUser$ = this.httpProxy.getMyProfile().pipe(

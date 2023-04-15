@@ -1,15 +1,16 @@
 import { Injectable } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { DateTime, ToRelativeUnit } from "luxon";
+import { LanguageService } from './language.service';
 @Injectable({
     providedIn: 'root'
 })
 export class TimeService {
-    constructor(private translate: TranslateService) {
+    constructor(private langSvc: LanguageService) {
     }
     public getUserFriendlyTimeDisplay(date: number): string {
         let resolved: string;
-        if (this.translate.currentLang === 'zhHans') {
+        if (this.langSvc.currentLanguage() === 'zhHans') {
             resolved = 'zh-Hans'
         } else {
             resolved = 'en-Us'

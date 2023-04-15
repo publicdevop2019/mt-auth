@@ -3,116 +3,222 @@
         *ngIf="extractResult(canDo('CREATE_ROLE'))|async">{{'ADD'|translate}}</button></h2>
 
 <ng-container *ngIf="extractResult(canDo('VIEW_ROLE'))|async">
-    <mat-tab-group>
-        <mat-tab label="{{'COMMON_ROLE'|translate}}">
-            <div style="width: 230px; margin-top: 16px;">
-                <lib-factory [formId]="formId2" [formInfo]="formInfo"></lib-factory>
-            </div>
-            <ng-container *ngIf="viewType==='LIST_VIEW'">
-        
-                <app-tenant-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs">
-                </app-tenant-search>
-                <div
-                    style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
-                    <section>
-                        <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-                            style="margin-right: 16px;" (click)="showOptions()">
-                            {{'BATCH_OPERATION'|translate}}
-                        </mat-slide-toggle>
-                        <ng-container *ngIf="batchUpdate.checked">
-                            <button mat-raised-button color="primary"
-                                (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
-                        </ng-container> -->
-                    </section>
-                    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
+    <ng-container *ngIf="authSvc.advancedMode">
+        <mat-tab-group>
+            <mat-tab label="{{'COMMON_ROLE'|translate}}">
+                <div style="width: 230px; margin-top: 16px;">
+                    <lib-factory [formId]="formId2" [formInfo]="formInfo"></lib-factory>
+                </div>
+                <ng-container *ngIf="viewType==='LIST_VIEW'">
+
+                    <app-tenant-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs">
+                    </app-tenant-search>
+                    <div
+                        style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
+                        <section>
+                            <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
+                                style="margin-right: 16px;" (click)="showOptions()">
+                                {{'BATCH_OPERATION'|translate}}
+                            </mat-slide-toggle>
+                            <ng-container *ngIf="batchUpdate.checked">
+                                <button mat-raised-button color="primary"
+                                    (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
+                            </ng-container> -->
+                        </section>
+                        <app-table-column-config [formId]="formId"
+                            [columns]="getColumnLabelValue()"></app-table-column-config>
+                    </div>
+                    <div class="mat-elevation-z8">
+                        <div class="table-container">
+                            <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
+                                <!-- Checkbox Column -->
+                                <ng-container matColumnDef="select">
+                                    <th mat-header-cell *matHeaderCellDef>
+                                        <mat-checkbox (change)="$event ? masterToggle() : null"
+                                            [checked]="selection.hasValue() && isAllSelected()"
+                                            [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                            [aria-label]="checkboxLabel()">
+                                        </mat-checkbox>
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <mat-checkbox (click)="$event.stopPropagation()"
+                                            (change)="$event ? selection.toggle(row) : null"
+                                            [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
+                                        </mat-checkbox>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="id">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                        {{columnList['id']|translate}} </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <app-copy-field [inputValue]="row.id"></app-copy-field>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="description">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                        {{columnList['description']|translate}}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <app-editable-field [inputValue]="row.description"
+                                            (newValue)="doPatch(row.id,$event,'description')">
+                                        </app-editable-field>
+                                    </td>
+                                </ng-container>
+
+                                <ng-container matColumnDef="name">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                        {{columnList['name']|translate}} </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <ng-container *ngIf="row.systemCreate">
+                                            {{row.name |translate}}
+                                        </ng-container>
+                                        <app-editable-field *ngIf="row.roleType==='USER' && !row.systemCreate"
+                                            [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
+                                        </app-editable-field>
+                                        <div *ngIf="row.roleType!=='USER' && !row.systemCreate">
+                                            {{row.name}}
+                                        </div>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="roleType">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                        {{columnList['roleType']|translate}}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        <mat-chip [color]="row.roleType==='USER'?'primary':''"
+                                            [selected]="row.roleType==='USER'">
+                                            {{row.roleType|translate}}
+                                        </mat-chip>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="tenantId">
+                                    <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                                        {{columnList['tenantId']|translate}}
+                                    </th>
+                                    <td mat-cell *matCellDef="let row">
+                                        {{row.tenantId}}
+                                    </td>
+                                </ng-container>
+
+
+                                <ng-container matColumnDef="edit">
+                                    <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                        {{columnList['edit']|translate}}</th>
+                                    <td mat-cell *matCellDef="let row" class="table-icon">
+                                        <mat-icon *ngIf="editable(row)" (click)="openBottomSheet(row.id)"
+                                            [color]="'primary'">edit
+                                        </mat-icon>
+                                        <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="clone">
+                                    <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                        {{columnList['clone']|translate}}</th>
+                                    <td mat-cell *matCellDef="let row" class="table-icon"
+                                        style="padding-right: 14px !important; ">
+                                        <mat-icon *ngIf="editable(row)" (click)="doClone(row.id)"
+                                            [color]="'primary'">file_copy
+                                        </mat-icon>
+                                        <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
+                                    </td>
+                                </ng-container>
+                                <ng-container matColumnDef="delete">
+                                    <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                        {{columnList['delete']|translate}}</th>
+                                    <td mat-cell *matCellDef="let row" class="table-icon">
+                                        <mat-icon *ngIf="editable(row)" (click)="doDeleteById(row.id)" [color]="'warn'">
+                                            delete_outline</mat-icon>
+                                        <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
+                                    </td>
+                                </ng-container>
+                                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                                <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                            </table>
+                        </div>
+
+                        <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount"
+                            [pageIndex]="entitySvc.pageNumber" [pageSize]="pageSize" (page)="pageHandler($event)">
+                        </mat-paginator>
+                    </div>
+                </ng-container>
+                <div *ngIf="viewType==='DYNAMIC_TREE_VIEW'">
+                    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"></app-dynamic-tree>
+                </div>
+            </mat-tab>
+            <mat-tab label="{{'SYSTEM_ROLE'|translate}}">
+                <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+                    <app-table-column-config [formId]="formId"
+                        [columns]="getColumnLabelValue()"></app-table-column-config>
                 </div>
                 <div class="mat-elevation-z8">
                     <div class="table-container">
-                        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-                            <!-- Checkbox Column -->
-                            <ng-container matColumnDef="select">
-                                <th mat-header-cell *matHeaderCellDef>
-                                    <mat-checkbox (change)="$event ? masterToggle() : null"
-                                        [checked]="selection.hasValue() && isAllSelected()"
-                                        [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                        [aria-label]="checkboxLabel()">
-                                    </mat-checkbox>
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <mat-checkbox (click)="$event.stopPropagation()"
-                                        (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
-                                        [aria-label]="checkboxLabel(row)">
-                                    </mat-checkbox>
-                                </td>
-                            </ng-container>
-        
+                        <table mat-table [dataSource]="sysDataSource">
+
                             <ng-container matColumnDef="id">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
                                 <td mat-cell *matCellDef="let row">
                                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                                 </td>
                             </ng-container>
-        
+
                             <ng-container matColumnDef="description">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['description']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
-                                    <app-editable-field [inputValue]="row.description"
-                                        (newValue)="doPatch(row.id,$event,'description')">
-                                    </app-editable-field>
+                                    {{row.description}}
                                 </td>
                             </ng-container>
-        
+
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
                                 <td mat-cell *matCellDef="let row">
-                                    <ng-container *ngIf="row.systemCreate">
-                                        {{row.name |translate}}
-                                    </ng-container>
-                                    <app-editable-field *ngIf="row.roleType==='USER' && !row.systemCreate" [inputValue]="row.name"
-                                        (newValue)="doPatch(row.id,$event,'name')">
-                                    </app-editable-field>
-                                    <div *ngIf="row.roleType!=='USER' && !row.systemCreate">
-                                        {{row.name}}
-                                    </div>
+                                    {{row.name}}
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="roleType">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['roleType']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['roleType']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
-                                    <mat-chip [color]="row.roleType==='USER'?'primary':''" [selected]="row.roleType==='USER'">
+                                    <mat-chip>
                                         {{row.roleType|translate}}
                                     </mat-chip>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="tenantId">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['tenantId']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['tenantId']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
                                     {{row.tenantId}}
                                 </td>
                             </ng-container>
-        
-        
+
+
                             <ng-container matColumnDef="edit">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
+                                <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                    {{columnList['edit']|translate}}</th>
                                 <td mat-cell *matCellDef="let row" class="table-icon">
-                                    <mat-icon *ngIf="editable(row)" (click)="openBottomSheet(row.id)" [color]="'primary'">edit
+                                    <mat-icon *ngIf="editable(row)" (click)="openBottomSheet(row.id)"
+                                        [color]="'primary'">edit
                                     </mat-icon>
                                     <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="clone">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['clone']|translate}}</th>
-                                <td mat-cell *matCellDef="let row" class="table-icon" style="padding-right: 14px !important; ">
-                                    <mat-icon *ngIf="editable(row)" (click)="doClone(row.id)" [color]="'primary'">file_copy
+                                <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                    {{columnList['clone']|translate}}</th>
+                                <td mat-cell *matCellDef="let row" class="table-icon"
+                                    style="padding-right: 14px !important; ">
+                                    <mat-icon *ngIf="editable(row)" (click)="doClone(row.id)"
+                                        [color]="'primary'">file_copy
                                     </mat-icon>
                                     <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="delete">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                                <th mat-header-cell *matHeaderCellDef class="table-icon">
+                                    {{columnList['delete']|translate}}</th>
                                 <td mat-cell *matCellDef="let row" class="table-icon">
                                     <mat-icon *ngIf="editable(row)" (click)="doDeleteById(row.id)" [color]="'warn'">
                                         delete_outline</mat-icon>
@@ -123,97 +229,99 @@
                             <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
                         </table>
                     </div>
-        
-                    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-                        [pageSize]="pageSize" (page)="pageHandler($event)">
+
+                    <mat-paginator [showFirstLastButtons]="true" [length]="sysTotoalItemCount"
+                        [pageIndex]="sysPageNumber" [pageSize]="sysPageSize" (page)="sysPageHandler($event)">
                     </mat-paginator>
                 </div>
-            </ng-container>
-            <div *ngIf="viewType==='DYNAMIC_TREE_VIEW'">
-                <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"></app-dynamic-tree>
-            </div>
-        </mat-tab>
-        <mat-tab label="{{'SYSTEM_ROLE'|translate}}">
-            <div
-            style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
-            <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
-        </div>
-            <div class="mat-elevation-z8">
-                <div class="table-container">
-                    <table mat-table [dataSource]="sysDataSource">
-    
-                        <ng-container matColumnDef="id">
-                            <th mat-header-cell *matHeaderCellDef > {{columnList['id']|translate}} </th>
-                            <td mat-cell *matCellDef="let row">
-                                <app-copy-field [inputValue]="row.id"></app-copy-field>
-                            </td>
-                        </ng-container>
-    
-                        <ng-container matColumnDef="description">
-                            <th mat-header-cell *matHeaderCellDef > {{columnList['description']|translate}}
-                            </th>
-                            <td mat-cell *matCellDef="let row">
-                                {{row.description}}
-                            </td>
-                        </ng-container>
-    
-                        <ng-container matColumnDef="name">
-                            <th mat-header-cell *matHeaderCellDef > {{columnList['name']|translate}} </th>
-                            <td mat-cell *matCellDef="let row">
+            </mat-tab>
+        </mat-tab-group>
+    </ng-container>
+    <ng-container *ngIf="!authSvc.advancedMode">
+        <div class="mat-elevation-z8">
+            <div class="table-container">
+                <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="select">
+                        <th mat-header-cell *matHeaderCellDef>
+                            <mat-checkbox (change)="$event ? masterToggle() : null"
+                                [checked]="selection.hasValue() && isAllSelected()"
+                                [indeterminate]="selection.hasValue() && !isAllSelected()"
+                                [aria-label]="checkboxLabel()">
+                            </mat-checkbox>
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <mat-checkbox (click)="$event.stopPropagation()"
+                                (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
+                                [aria-label]="checkboxLabel(row)">
+                            </mat-checkbox>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            <app-copy-field [inputValue]="row.id"></app-copy-field>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="description">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['description']|translate}}
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            <app-editable-field [inputValue]="row.description"
+                                (newValue)="doPatch(row.id,$event,'description')">
+                            </app-editable-field>
+                        </td>
+                    </ng-container>
+
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            <ng-container *ngIf="row.systemCreate">
+                                {{row.name |translate}}
+                            </ng-container>
+                            <app-editable-field *ngIf="row.roleType==='USER' && !row.systemCreate"
+                                [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
+                            </app-editable-field>
+                            <div *ngIf="row.roleType!=='USER' && !row.systemCreate">
                                 {{row.name}}
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="roleType">
-                            <th mat-header-cell *matHeaderCellDef> {{columnList['roleType']|translate}}
-                            </th>
-                            <td mat-cell *matCellDef="let row">
-                                <mat-chip>
-                                    {{row.roleType|translate}}
-                                </mat-chip>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="tenantId">
-                            <th mat-header-cell *matHeaderCellDef> {{columnList['tenantId']|translate}}
-                            </th>
-                            <td mat-cell *matCellDef="let row">
-                                {{row.tenantId}}
-                            </td>
-                        </ng-container>
-    
-    
-                        <ng-container matColumnDef="edit">
-                            <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
-                            <td mat-cell *matCellDef="let row" class="table-icon">
-                                <mat-icon *ngIf="editable(row)" (click)="openBottomSheet(row.id)" [color]="'primary'">edit
-                                </mat-icon>
-                                <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="clone">
-                            <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['clone']|translate}}</th>
-                            <td mat-cell *matCellDef="let row" class="table-icon" style="padding-right: 14px !important; ">
-                                <mat-icon *ngIf="editable(row)" (click)="doClone(row.id)" [color]="'primary'">file_copy
-                                </mat-icon>
-                                <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
-                            </td>
-                        </ng-container>
-                        <ng-container matColumnDef="delete">
-                            <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
-                            <td mat-cell *matCellDef="let row" class="table-icon">
-                                <mat-icon *ngIf="editable(row)" (click)="doDeleteById(row.id)" [color]="'warn'">
-                                    delete_outline</mat-icon>
-                                <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
-                            </td>
-                        </ng-container>
-                        <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-                    </table>
-                </div>
-    
-                <mat-paginator [showFirstLastButtons]="true" [length]="sysTotoalItemCount" [pageIndex]="sysPageNumber"
-                    [pageSize]="sysPageSize" (page)="sysPageHandler($event)">
-                </mat-paginator>
+                            </div>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="tenantId">
+                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['tenantId']|translate}}
+                        </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.tenantId}}
+                        </td>
+                    </ng-container>
+
+
+                    <ng-container matColumnDef="edit">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon *ngIf="editable(row)" (click)="openBottomSheet(row.id)" [color]="'primary'">edit
+                            </mat-icon>
+                            <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon *ngIf="editable(row)" (click)="doDeleteById(row.id)" [color]="'warn'">
+                                delete_outline</mat-icon>
+                            <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                </table>
             </div>
-        </mat-tab>
-      </mat-tab-group>
+
+            <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
+                [pageSize]="pageSize" (page)="pageHandler($event)">
+            </mat-paginator>
+        </div>
+    </ng-container>
 </ng-container>

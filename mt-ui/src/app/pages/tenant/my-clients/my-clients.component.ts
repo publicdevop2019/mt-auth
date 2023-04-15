@@ -10,6 +10,7 @@ import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ClientComponent } from 'src/app/pages/tenant/client/client.component';
+import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
@@ -22,7 +23,7 @@ import { ProjectService } from 'src/app/services/project.service';
 })
 export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IClient> implements OnDestroy {
   public formId = "myClientTableColumnConfig";
-  columnList: any={};
+  columnList: any = {};
   sheetComponent = ClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
   resourceClientList: IOption[] = [];
@@ -67,6 +68,7 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
   ]
   constructor(
     public entitySvc: MyClientService,
+    public authSvc: AuthService,
     public projectSvc: ProjectService,
     public fis: FormInfoService,
     public httpSvc: HttpProxyService,
@@ -75,6 +77,13 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
     public route: ActivatedRoute,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
+    (!this.authSvc.advancedMode) && this.deviceSvc.refreshSummary.subscribe(() => {
+      const search = {
+        value: '',
+        resetPage: false
+      }
+      this.doSearch(search);
+    })
     const sub2 = this.canDo('VIEW_CLIENT').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })

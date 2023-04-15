@@ -139,6 +139,7 @@ import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
+import { LanguageService } from './services/language.service';
 @NgModule({
   declarations: [
     AppComponent,
@@ -328,11 +329,11 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService) {
+  constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService, private langSvc: LanguageService) {
     if (this.httpSvc.currentUserAuthInfo) {
       this.httpSvc.updateLogoutTimer()
     }
-    let lang = this.translate.currentLang
+    let lang = this.langSvc.currentLanguage()
     if (lang === 'zhHans')
       this.fis.i18nLabel = zhHans
     if (lang === 'enUS')
