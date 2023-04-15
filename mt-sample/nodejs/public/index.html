@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="zh-Hans">
+
+<head>
+    <meta charset="utf-8">
+    <title>demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script>
+        const projectId = "0P8OI4E2QPZX";
+        const authorizeClientId = "0C8OI6W92RD0";
+        const clientCreClientId = "0C8OI6W3RQ4G";
+        const passwordClientId = "0C8OI7NAZ66C";
+        let mfaRequired = false;
+        addEventListener("load", (event) => {
+            if (location.search) {
+                getToken(projectId, authorizeClientId, location.search.replace('?code=', ''))
+            }
+        });
+        const redirectUrl = "http://localhost:3000"
+        function authorizationLogin(projectId, clientId) {
+            location.replace(
+                `http://localhost:4300/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=login&project_id=${projectId}`
+            );
+        }
+        function clientCredentialLogin(clientId) {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            const formData = new FormData();
+            formData.append('grant_type', 'client_credentials');
+            formData.append('scope', 'not_used');
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch('http://localhost:8111/auth-svc/oauth/token', options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
+        }
+        function getToken(projectId, clientId, code) {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            const formData = new FormData();
+            formData.append('grant_type', 'authorization_code');
+            formData.append('code', code);
+            formData.append('scope', projectId);
+            formData.append('redirect_uri', redirectUrl);
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch('http://localhost:8111/auth-svc/oauth/token', options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
+                    window.history.pushState({}, document.title, window.location.pathname);
+                })
+            })
+        }
+        function getPasswordToken(projectId, clientId) {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            const formData = new FormData();
+            formData.append('grant_type', 'password');
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+            if (mfaRequired) {
+                formData.append('mfa_code', document.getElementById('mfa_code').value);
+                formData.append('mfa_id', document.getElementById('mfa_id').value);
+            }
+            formData.append('scope', 'not_used');
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch('http://localhost:8111/auth-svc/oauth/token', options).then((next) => {
+                next.json().then(resp => {
+                    if (resp.mfaId) {
+                        mfaRequired = true;
+                        document.getElementById('mfa_id').value = resp.mfaId;
+                        document.getElementById('token').innerText = 'Enter MFA 654321 and try again';
+                    } else {
+                        document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
+                    }
+                })
+            })
+        }
+    </script>
+</head>
+
+<body>
+    <div>
+        <div style="padding: 24px;">
+            <div>
+                <h2>1. Client Credential（获取前端客户端权限）</h2>
+                <button onclick="clientCredentialLogin(clientCreClientId)">Get Token</button>
+            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <div>
+                <h2>2. Authorization Code（获取演示项目权限）</h2>
+                <button onclick="authorizationLogin(projectId,authorizeClientId)">Login</button>
+            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <div>
+
+                <h2>3. Password（获取用户mt-auth权限）</h2>
+                <div>
+                    <label>Username</label>
+                    <input name="username" id="username" />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input name="password" type="password" id="password" />
+                </div>
+                <div>
+                    <label>MFA Token(Optional)</label>
+                    <input name="mfa" id="mfa_code" />
+                    <input name="mfa" id="mfa_id" hidden />
+                </div>
+                <div>
+                    <button onclick="getPasswordToken(projectId,passwordClientId)">Login</button>
+                </div>
+            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <h2>Token Received</h2>
+            <div id="token"></div>
+        </div>
+    </div>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
+</body>
+
+</html>

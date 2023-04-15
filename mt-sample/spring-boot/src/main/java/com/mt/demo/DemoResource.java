@@ -9,9 +9,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(produces = "application/json")
 public class DemoResource {
 
-    @GetMapping(path = "demo")
+    @GetMapping(path = "public")
     public ResponseEntity<String> demo() {
-        return ResponseEntity.ok().body("{\"msg\":\"success\"}");
+        return ResponseEntity.ok().body("{\"msg\":\"I'm public api\"}");
+    }
+
+    @GetMapping(path = "protected")
+    public ResponseEntity<String> demo2() {
+        return ResponseEntity.ok().body("{\"msg\":\"I'm protected api\"}");
     }
 
 }
