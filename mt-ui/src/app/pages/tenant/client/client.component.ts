@@ -39,13 +39,13 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       }
       this.fis.formGroupCollection[this.formId].get('frontOrBackApp').valueChanges.subscribe((next) => {
         this.fis.formGroupCollection[this.formId].get('grantType').reset(undefined, { emitEvent: false })
-        this.fis.formGroupCollection[this.formId].get('accessTokenValiditySeconds').reset(undefined, { emitEvent: false })
+        this.fis.formGroupCollection[this.formId].get('resourceId').reset(undefined, { emitEvent: false })
         if (next === 'BACKEND_APP') {
-          this.fis.showIfMatch(this.formId, ['grantType'])
+          this.fis.showIfMatch(this.formId, ['grantType','resourceId'])
           this.fis.showIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
           this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
         } else {
-          this.fis.showIfMatch(this.formId, ['grantType'])
+          this.fis.showIfMatch(this.formId, ['grantType','resourceId'])
           this.fis.hideAndResetIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
           this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
         }

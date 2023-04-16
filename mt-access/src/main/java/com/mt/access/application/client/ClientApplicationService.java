@@ -170,7 +170,8 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getRegisteredRedirectUri(),
                             command.isAutoApprove()
                         ),
-                        new ExternalUrl(command.getExternalUrl())
+                        command.getExternalUrl() != null ?
+                            new ExternalUrl(command.getExternalUrl()) : null
                     );
                     DomainRegistry.getClientRepository().add(client);
                 }
