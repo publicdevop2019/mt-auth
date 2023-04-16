@@ -46,3 +46,6 @@ mvnw.cmd
 .mvn
 db/
 **/temp
+
+#ignore specific directory
+mt-sample/nodejs/public
