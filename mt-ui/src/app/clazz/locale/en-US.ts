@@ -631,4 +631,5 @@ export const enUS = {
     "UPDATE_TABLE_COLUMN": "Configuration",
     "SELECT_TO_CHANGE_TABLE_COLUMN": "Select to change displayed columns",
     "MY_ROLE_DASHBOARD": "Roles",
+    "SOURCE_CODE_REPO": "Github",
 }

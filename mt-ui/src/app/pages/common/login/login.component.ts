@@ -331,8 +331,12 @@ export class LoginComponent implements OnInit {
   openDoc() {
     window.open('./docs', '_blank').focus();
   }
-  openGithub() {
-    window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
+  openSource() {
+    if(this.langSvc.currentLanguage()==='zhHans'){
+      window.open('https://gitee.com/mirrors/MT-AUTH', '_blank').focus();
+    }else{
+      window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
+    }
   }
   showPasswordHint() {
     return (this.isRegister || this.forgetPwd) && this.loginOrRegForm.get('registerPwd').value

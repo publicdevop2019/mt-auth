@@ -935,4 +935,5 @@ export const zhHans = {
     "INSTANCE_ID": "任务实例ID",
     "NOT_MODIFIED_COUNT": "304请求",
     "ADVANCED_MODE": "开启高级设置",
+    "SOURCE_CODE_REPO": "Gitee",
 }
