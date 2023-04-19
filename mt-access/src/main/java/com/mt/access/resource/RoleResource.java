@@ -59,7 +59,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectId(queryParam, projectId);
+        queryParam = Utility.updateProjectIds(queryParam, projectId);
         SumPagedRep<Role> clients = ApplicationServiceRegistry.getRoleApplicationService()
             .query(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(RoleCardRepresentation

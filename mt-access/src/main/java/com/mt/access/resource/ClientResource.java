@@ -1,6 +1,6 @@
 package com.mt.access.resource;
 
-import static com.mt.access.infrastructure.Utility.updateProjectId;
+import static com.mt.access.infrastructure.Utility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
@@ -60,7 +60,7 @@ public class ClientResource {
         @PathVariable String projectId
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = updateProjectId(queryParam, projectId);
+        queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
             .tenantQuery(queryParam, pageParam, skipCount);
         SumPagedRep<ClientCardRepresentation> rep =

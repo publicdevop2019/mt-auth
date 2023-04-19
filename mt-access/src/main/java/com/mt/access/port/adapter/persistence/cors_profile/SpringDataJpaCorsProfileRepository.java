@@ -41,6 +41,9 @@ public interface SpringDataJpaCorsProfileRepository
             Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                 e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                 CorsProfile_.CORS_ID, queryContext));
+            Optional.ofNullable(query.getProjectId()).ifPresent(e -> QueryUtility.addDomainIdIsPredicate(
+               e.getDomainId(),
+                CorsProfile_.PROJECT_ID, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility

@@ -13,7 +13,7 @@ import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/v
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { BASIC_FORM_CONFIG, CATALOG_FORM_CONFIG, PERFORMANCE_FORM_CONFIG, SECURE_FORM_CONFIG } from 'src/app/form-configs/create-endpoint.config';
 import { CacheService } from 'src/app/services/cache.service';
-import { CORSProfileService } from 'src/app/services/cors-profile.service';
+import { CORSProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';

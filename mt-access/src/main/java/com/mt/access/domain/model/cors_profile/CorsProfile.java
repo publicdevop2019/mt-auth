@@ -2,11 +2,14 @@ package com.mt.access.domain.model.cors_profile;
 
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -65,6 +68,14 @@ public class CorsProfile extends Auditable {
     private Set<String> exposedHeaders;
     private Long maxAge;
 
+    @Embedded
+    @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+        @AttributeOverride(name = "domainId",
+            column = @Column(name = "projectId", updatable = false, nullable = false))
+    })
+    private ProjectId projectId;
+
     public CorsProfile(
         String name,
         String description,
@@ -73,7 +84,9 @@ public class CorsProfile extends Auditable {
         Set<Origin> allowOrigin,
         Set<String> exposedHeaders,
         Long maxAge,
-        CorsProfileId corsId) {
+        CorsProfileId corsId,
+        ProjectId projectId
+    ) {
         super();
         setName(name);
         setDescription(description);
@@ -83,6 +96,7 @@ public class CorsProfile extends Auditable {
         setExposedHeaders(exposedHeaders);
         setMaxAge(maxAge);
         setCorsId(corsId);
+        setProjectId(projectId);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
     }
 

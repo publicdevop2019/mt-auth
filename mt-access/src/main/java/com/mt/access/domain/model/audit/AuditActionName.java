@@ -5,18 +5,21 @@ public class AuditActionName {
     public static final String CREATE_TENANT_CLIENT = "CREATE_TENANT_CLIENT";
     public static final String UPDATE_TENANT_CLIENT = "UPDATE_TENANT_CLIENT";
     public static final String PATCH_TENANT_CLIENT = "PATCH_TENANT_CLIENT";
-    public static final String DELETE_CORS_PROFILE = "DELETE_CORS_PROFILE";
+    public static final String CREATE_TENANT_CORS_PROFILE = "CREATE_TENANT_CORS_PROFILE";
+    public static final String UPDATE_TENANT_CORS_PROFILE = "UPDATE_TENANT_CORS_PROFILE";
+    public static final String PATCH_TENANT_CORS_PROFILE = "PATCH_TENANT_CORS_PROFILE";
+    public static final String DELETE_TENANT_CORS_PROFILE = "DELETE_TENANT_CORS_PROFILE";
     public static final String CREATE_TENANT_ENDPOINT = "CREATE_TENANT_ENDPOINT";
     public static final String UPDATE_TENANT_ENDPOINT = "UPDATE_TENANT_ENDPOINT";
     public static final String PATCH_TENANT_ENDPOINT = "PATCH_TENANT_ENDPOINT";
-    public static final String REMOVE_TENANT_ENDPOINT = "REMOVE_TENANT_ENDPOINT";
-    public static final String REMOVE_TENANT_PERMISSION = "REMOVE_TENANT_PERMISSION";
+    public static final String DELETE_TENANT_ENDPOINT = "DELETE_TENANT_ENDPOINT";
+    public static final String DELETE_TENANT_PERMISSION = "DELETE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PERMISSION = "CREATE_TENANT_PERMISSION";
     public static final String UPDATE_TENANT_PERMISSION = "UPDATE_TENANT_PERMISSION";
     public static final String PATCH_TENANT_PERMISSION = "PATCH_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PROJECT = "CREATE_TENANT_PROJECT";
     public static final String PATCH_TENANT_PROJECT = "PATCH_TENANT_PROJECT";
-    public static final String REMOVE_TENANT_PROJECT = "REMOVE_TENANT_PROJECT";
+    public static final String DELETE_TENANT_PROJECT = "DELETE_TENANT_PROJECT";
     public static final String UPDATE_TENANT_PROJECT = "UPDATE_TENANT_PROJECT";
     public static final String CREATE_SUB_REQUEST = "CREATE_SUB_REQUEST";
     public static final String APPROVE_SUB_REQUEST = "APPROVE_SUB_REQUEST";
@@ -25,7 +28,7 @@ public class AuditActionName {
     public static final String CREATE_TENANT_ROLE = "CREATE_TENANT_ROLE";
     public static final String PATCH_TENANT_ROLE = "PATCH_TENANT_ROLE";
     public static final String UPDATE_TENANT_ROLE = "UPDATE_TENANT_ROLE";
-    public static final String REMOVE_TENANT_ROLE = "REMOVE_TENANT_ROLE";
+    public static final String DELETE_TENANT_ROLE = "DELETE_TENANT_ROLE";
     public static final String MGMT_LOCK_USER = "MGMT_LOCK_USER";
     public static final String MGMT_DELETE_USER = "MGMT_DELETE_USER";
     public static final String MGMT_PATCH_USER = "MGMT_PATCH_USER";
@@ -35,5 +38,5 @@ public class AuditActionName {
     public static final String USER_RESET_PWD = "USER_RESET_PWD";
     public static final String USER_UPDATE_PROFILE = "USER_UPDATE_PROFILE";
     public static final String ADD_TENANT_ADMIN = "ADD_TENANT_ADMIN";
-    public static final String REMOVE_TENANT_ADMIN = "REMOVE_TENANT_ADMIN";
+    public static final String DELETE_TENANT_ADMIN = "DELETE_TENANT_ADMIN";
 }

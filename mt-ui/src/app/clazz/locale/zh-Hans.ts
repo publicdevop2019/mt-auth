@@ -566,7 +566,7 @@ export const zhHans = {
     "CLIENT": "应用",
     "USER": "用户",
     "PLEASE_SELECT_ROLE_TYPE": "请选择权限类别",
-    "CORS_DASHBOARD": "跨域",
+    "MY_CORS": "跨域",
     "CORS_ORIGIN": "Origin",
     "ALLOWED_METHOD": "Allowed Method",
     "SELECT_CORS_PROFILE": "请选择CORS配置",
@@ -936,4 +936,8 @@ export const zhHans = {
     "NOT_MODIFIED_COUNT": "304请求",
     "ADVANCED_MODE": "开启高级设置",
     "SOURCE_CODE_REPO": "Gitee",
+    "CORS_MGMT": "管理跨域",
+    "VIEW_CORS": "查看跨域",
+    "EDIT_CORS": "编辑跨域",
+    "CREATE_CORS": "创建跨域",
 }

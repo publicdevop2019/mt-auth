@@ -1,7 +1,7 @@
 package com.mt.access.application.user;
 
 import static com.mt.access.domain.model.audit.AuditActionName.ADD_TENANT_ADMIN;
-import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_ADMIN;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ADMIN;
 import static com.mt.access.domain.model.permission.Permission.ADMIN_MGMT;
 import static com.mt.access.domain.model.permission.Permission.EDIT_TENANT_USER;
 import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
@@ -196,7 +196,7 @@ public class UserRelationApplicationService {
             }, USER_RELATION);
     }
 
-    @AuditLog(actionName = REMOVE_TENANT_ADMIN)
+    @AuditLog(actionName = DELETE_TENANT_ADMIN)
     public void removeAdmin(String projectId, String rawUserId, String changeId) {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);

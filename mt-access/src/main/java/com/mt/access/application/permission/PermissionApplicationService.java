@@ -2,7 +2,7 @@ package com.mt.access.application.permission;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PERMISSION;
-import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_PERMISSION;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
@@ -137,7 +137,7 @@ public class PermissionApplicationService {
     }
 
 
-    @AuditLog(actionName = REMOVE_TENANT_PERMISSION)
+    @AuditLog(actionName = DELETE_TENANT_PERMISSION)
     public void tenantRemove(String projectId, String id, String changeId) {
         PermissionId permissionId = new PermissionId(id);
         PermissionQuery permissionQuery =
@@ -150,10 +150,10 @@ public class PermissionApplicationService {
             permission.ifPresent(e -> {
                 e.remove();
                 DomainRegistry.getAuditService()
-                    .storeAuditAction(REMOVE_TENANT_PERMISSION,
+                    .storeAuditAction(DELETE_TENANT_PERMISSION,
                         e);
                 DomainRegistry.getAuditService()
-                    .logUserAction(log, REMOVE_TENANT_PERMISSION,
+                    .logUserAction(log, DELETE_TENANT_PERMISSION,
                         e);
             });
             return null;

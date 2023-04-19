@@ -2,7 +2,7 @@ package com.mt.access.application.endpoint;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ENDPOINT;
-import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_ENDPOINT;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.permission.Permission.CREATE_API;
 import static com.mt.access.domain.model.permission.Permission.EDIT_API;
@@ -212,7 +212,7 @@ public class EndpointApplicationService {
         log.debug("end of update endpoint");
     }
 
-    @AuditLog(actionName = REMOVE_TENANT_ENDPOINT)
+    @AuditLog(actionName = DELETE_TENANT_ENDPOINT)
     public void tenantRemove(String projectId, String id, String changeId) {
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
@@ -227,10 +227,10 @@ public class EndpointApplicationService {
                     Endpoint endpoint1 = endpoint.get();
                     endpoint1.remove();
                     DomainRegistry.getAuditService()
-                        .storeAuditAction(REMOVE_TENANT_ENDPOINT,
+                        .storeAuditAction(DELETE_TENANT_ENDPOINT,
                             endpoint1);
                     DomainRegistry.getAuditService()
-                        .logUserAction(log, REMOVE_TENANT_ENDPOINT,
+                        .logUserAction(log, DELETE_TENANT_ENDPOINT,
                             endpoint1);
                 }
                 return null;

@@ -2,7 +2,7 @@ package com.mt.access.application.project;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_PROJECT;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PROJECT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
 
@@ -87,7 +87,7 @@ public class ProjectApplicationService {
     }
 
 
-    @AuditLog(actionName = REMOVE_TENANT_PROJECT)
+    @AuditLog(actionName = DELETE_TENANT_PROJECT)
     public void remove(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
@@ -96,10 +96,10 @@ public class ProjectApplicationService {
             corsProfile.ifPresent(e -> {
                 DomainRegistry.getProjectRepository().remove(e);
                 DomainRegistry.getAuditService()
-                    .storeAuditAction(REMOVE_TENANT_PROJECT,
+                    .storeAuditAction(DELETE_TENANT_PROJECT,
                         e);
                 DomainRegistry.getAuditService()
-                    .logUserAction(log, REMOVE_TENANT_PROJECT,
+                    .logUserAction(log, DELETE_TENANT_PROJECT,
                         e);
             });
             return null;

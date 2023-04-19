@@ -12,4 +12,5 @@ public class CorsProfileUpdateCommand {
     private Long maxAge;
     private String name;
     private String description;
+    private String projectId;
 }

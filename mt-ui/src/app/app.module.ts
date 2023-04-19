@@ -102,10 +102,10 @@ import { ClientService } from './services/mgmt-client.service';
 import { UserService } from './services/user.service';
 import { CacheComponent } from './pages/mgmt/cache/cache.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
-import { CorsComponent } from './pages/mgmt/cors/cors.component';
+import { CorsComponent } from './pages/tenant/cors/cors.component';
 import { SummaryCacheComponent } from './pages/mgmt/summary-cache/summary-cache.component';
 import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
-import { SummaryCorsComponent } from './pages/mgmt/summary-cors/summary-cors.component';
+import { MyCorsComponent } from './pages/tenant/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
 import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-message.component';
 import { SummaryOrgComponent } from './pages/mgmt/summary-org/summary-org.component';
@@ -180,7 +180,7 @@ import { LanguageService } from './services/language.service';
     SummaryRoleComponent,
     RoleComponent,
     CorsComponent,
-    SummaryCorsComponent,
+    MyCorsComponent,
     SummaryCacheComponent,
     CacheComponent,
     SummaryStoredEventAccessComponent,

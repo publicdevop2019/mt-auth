@@ -26,7 +26,6 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -68,11 +67,15 @@ public class Permission extends Auditable {
     public static final String USER_MGMT = "USER_MGMT";
     public static final String PERMISSION_MGMT = "PERMISSION_MGMT";
     public static final String ROLE_MGMT = "ROLE_MGMT";
+    public static final String CORS_MGMT = "CORS_MGMT";
     public static final String API_MGMT = "API_MGMT";
     public static final String CLIENT_MGMT = "CLIENT_MGMT";
     public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
     public static final String PROJECT_INFO_MGMT = "PROJECT_INFO_MGMT";
     public static final String SUB_REQ_MGMT = "SUB_REQ_MGMT";
+    public static final String CREATE_CORS = "CREATE_CORS";
+    public static final String EDIT_CORS = "EDIT_CORS";
+    public static final String VIEW_CORS = "VIEW_CORS";
 
     public static final String ADMIN_MGMT = "ADMIN_MGMT";
     public static final Set<String> reservedName = new HashSet<>();
@@ -103,6 +106,10 @@ public class Permission extends Auditable {
         reservedUIPermissionName.add(EDIT_PROJECT_INFO);
         reservedUIPermissionName.add(PROJECT_INFO_MGMT);
         reservedUIPermissionName.add(SUB_REQ_MGMT);
+        reservedUIPermissionName.add(CORS_MGMT);
+        reservedUIPermissionName.add(CREATE_CORS);
+        reservedUIPermissionName.add(EDIT_CORS);
+        reservedUIPermissionName.add(VIEW_CORS);
         reservedUIPermissionName.add(ADMIN_MGMT);
         reservedName.addAll(reservedUIPermissionName);
 
@@ -312,6 +319,7 @@ public class Permission extends Auditable {
             .autoCreateForProject(projectId, new PermissionId(), CREATE_API, PermissionType.COMMON,
                 apiMgmtId, tenantId, new PermissionId("0Y8HHJ47NBDL"));
 
+        //role
         PermissionId roleMgmtId = new PermissionId();
         Permission p19 = Permission
             .autoCreateForProject(projectId, roleMgmtId, ROLE_MGMT, PermissionType.COMMON, rootId,
@@ -349,7 +357,7 @@ public class Permission extends Auditable {
                 permissionMgmtId, tenantId, Stream
                     .of(new PermissionId("0Y8HLUWKQEJ1"), new PermissionId("0Y8HLUWOH91P"),
                         new PermissionId("0Y8HLUWMX2BX")).collect(Collectors.toSet()));
-        //position mgmt related permission
+        //user mgmt related permission
         PermissionId positionMgmtId = new PermissionId();
         Permission p32 = Permission
             .autoCreateForProject(projectId, positionMgmtId, USER_MGMT, PermissionType.COMMON,
@@ -387,6 +395,27 @@ public class Permission extends Auditable {
                     )
                     .collect(Collectors.toSet()));
 
+        //cors mgmt related permission
+        PermissionId corsMgmtId = new PermissionId();
+        Permission p38 = Permission
+            .autoCreateForProject(projectId, corsMgmtId, CORS_MGMT, PermissionType.COMMON, rootId,
+                tenantId, null);
+        Permission p39 = Permission
+            .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CORS,
+                corsMgmtId, tenantId,
+                Stream.of(new PermissionId("0Y8OK4YM1LAW"), new PermissionId("0Y8OK4YXLDEC"),
+                        new PermissionId("0Y8OK4Z1C7X0"))
+                    .collect(Collectors.toSet()));
+        Permission p40 = Permission
+            .autoCreateForProject(projectId, new PermissionId(), CREATE_CORS, PermissionType.COMMON,
+                corsMgmtId, tenantId, new PermissionId("0Y8OK4YFSUFS"));
+        Permission p41 = Permission
+            .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CORS,
+                corsMgmtId, tenantId,
+                Stream.of(new PermissionId("0Y8OK4YRZ3MC"))
+                    .collect(Collectors.toSet()));
+
+
         Permission apiPermission = Permission
             .autoCreateForProject(tenantId, new PermissionId(), API_ACCESS, PermissionType.API_ROOT,
                 null, null, null);
@@ -417,6 +446,10 @@ public class Permission extends Auditable {
         DomainRegistry.getPermissionRepository().add(p35);
         DomainRegistry.getPermissionRepository().add(p36);
         DomainRegistry.getPermissionRepository().add(p37);
+        DomainRegistry.getPermissionRepository().add(p38);
+        DomainRegistry.getPermissionRepository().add(p39);
+        DomainRegistry.getPermissionRepository().add(p40);
+        DomainRegistry.getPermissionRepository().add(p41);
         //add new permission to event so role can link to it
         Set<Permission> createdPermissions = new HashSet<>();
         createdPermissions.add(p0);
@@ -444,6 +477,10 @@ public class Permission extends Auditable {
         createdPermissions.add(p35);
         createdPermissions.add(p36);
         createdPermissions.add(p37);
+        createdPermissions.add(p38);
+        createdPermissions.add(p39);
+        createdPermissions.add(p40);
+        createdPermissions.add(p41);
         Set<PermissionId> collect = createdPermissions.stream().flatMap(e -> {
             if (e.getLinkedApiPermissionIds() != null && !e.getLinkedApiPermissionIds().isEmpty()) {
                 e.getLinkedApiPermissionIds().add(e.getPermissionId());

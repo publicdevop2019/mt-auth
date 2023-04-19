@@ -3,7 +3,7 @@ package com.mt.access.application.role;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
-import static com.mt.access.domain.model.audit.AuditActionName.REMOVE_TENANT_ROLE;
+import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
@@ -106,7 +106,7 @@ public class RoleApplicationService {
     }
 
 
-    @AuditLog(actionName = REMOVE_TENANT_ROLE)
+    @AuditLog(actionName = DELETE_TENANT_ROLE)
     public void tenantRemove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));

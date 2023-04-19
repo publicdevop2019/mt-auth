@@ -1,5 +1,6 @@
 package com.mt.access.resource;
 
+import static com.mt.access.infrastructure.Utility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
@@ -28,66 +29,77 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mgmt/cors")
+@RequestMapping(produces = "application/json")
 public class CorsProfileResource {
-    @PostMapping
-    public ResponseEntity<Void> create(
+
+    @PostMapping(path = "projects/{projectId}/cors")
+    public ResponseEntity<Void> tenantCreate(
+        @PathVariable String projectId,
         @RequestBody CorsProfileCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        return ResponseEntity.ok().header("Location",
-                ApplicationServiceRegistry.getCorsProfileApplicationService().create(command, changeId))
-            .build();
+        String s =
+            ApplicationServiceRegistry.getCorsProfileApplicationService()
+                .tenantCreate(projectId, command, changeId);
+        return ResponseEntity.ok().header("Location", s).build();
     }
 
-    @GetMapping
-    public ResponseEntity<SumPagedRep<CorsProfileRepresentation>> query(
+    @GetMapping(path = "projects/{projectId}/cors")
+    public ResponseEntity<SumPagedRep<CorsProfileRepresentation>> tenantQuery(
+        @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
+        queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<CorsProfile> corsProfile =
             ApplicationServiceRegistry.getCorsProfileApplicationService()
-                .query(queryParam, pageParam, config);
+                .tenantQuery(projectId,queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(corsProfile, CorsProfileRepresentation::new));
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<Void> update(
+    @PutMapping(path = "projects/{projectId}/cors/{id}")
+    public ResponseEntity<Void> tenantUpdate(
+        @PathVariable String projectId,
         @RequestBody CorsProfileUpdateCommand command,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCorsProfileApplicationService().update(id, command, changeId);
+        command.setProjectId(projectId);
+        ApplicationServiceRegistry.getCorsProfileApplicationService().tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{id}")
-    public ResponseEntity<Void> remove(
+    @DeleteMapping(path = "projects/{projectId}/cors/{id}")
+    public ResponseEntity<Void> tenantRemove(
+        @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCorsProfileApplicationService().remove(id, changeId);
+        ApplicationServiceRegistry.getCorsProfileApplicationService()
+            .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patch(
+    @PatchMapping(path = "projects/{projectId}/cors/{id}", consumes = "application/json-patch+json")
+    public ResponseEntity<Void> tenantPatch(
+        @PathVariable String projectId,
         @PathVariable(name = "id") String id,
         @RequestBody JsonPatch patch,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCorsProfileApplicationService().patch(id, patch, changeId);
+        ApplicationServiceRegistry.getCorsProfileApplicationService()
+            .tenantPatch(projectId, id, patch, changeId);
         return ResponseEntity.ok().build();
     }
 }

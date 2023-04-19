@@ -62,7 +62,7 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectId(queryParam, projectId);
+        queryParam = Utility.updateProjectIds(queryParam, projectId);
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .tenantQuery(queryParam, pageParam, skipCount);

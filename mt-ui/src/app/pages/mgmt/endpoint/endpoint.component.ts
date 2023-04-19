@@ -11,7 +11,7 @@ import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/v
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
 import { CacheService } from 'src/app/services/cache.service';
-import { CORSProfileService } from 'src/app/services/cors-profile.service';
+import { CORSProfileService } from 'src/app/services/my-cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ClientService } from 'src/app/services/mgmt-client.service';

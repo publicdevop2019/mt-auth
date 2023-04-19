@@ -180,7 +180,7 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectId(queryParam, projectId);
+        queryParam = Utility.updateProjectIds(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));

@@ -6,7 +6,6 @@ import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/inter
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { CorsComponent } from '../cors/cors.component';
 @Component({
   selector: 'app-summary-project',
   templateUrl: './summary-project.component.html',
@@ -20,7 +19,6 @@ export class SummaryProjectComponent extends SummaryEntityComponent<IProjectSimp
     createdAt: 'PROJECT_CREATED_AT',
     createdBy: 'CREATED_BY',
   }
-  sheetComponent = CorsComponent;
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',

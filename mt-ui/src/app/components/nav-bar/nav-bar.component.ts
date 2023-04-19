@@ -92,13 +92,6 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'cors-profiles',
-      display: 'CORS_DASHBOARD',
-      icon: 'share',
-      params: {
-      },
-    },
-    {
       link: 'revoke-token',
       display: 'REVOKE_TOKEN_DASHBOARD',
       icon: 'stars',
@@ -153,6 +146,15 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
+    {
+      link: 'my-cors',
+      display: 'MY_CORS',
+      icon: 'share',
+      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
+      params: {
+      },
+    },
+
     {
       link: 'my-permission',
       display: 'MY_PERMISSION_DASHBOARD',

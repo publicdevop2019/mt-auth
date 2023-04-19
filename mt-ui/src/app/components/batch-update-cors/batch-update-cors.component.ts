@@ -6,7 +6,7 @@ import { IForm, IQueryProvider } from "mt-form-builder/lib/classes/template.inte
 import { IEndpoint } from "src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
 import { CacheService } from "src/app/services/cache.service";
-import { CORSProfileService } from "src/app/services/cors-profile.service";
+import { CORSProfileService } from "src/app/services/my-cors-profile.service";
 import { DeviceService } from "src/app/services/device.service";
 import { EndpointService } from "src/app/services/endpoint.service";
 import { HttpProxyService } from "src/app/services/http-proxy.service";
