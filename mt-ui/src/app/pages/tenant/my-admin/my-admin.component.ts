@@ -85,7 +85,6 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
     })
   }
   ngOnInit(): void {
-    this.doRefresh()
   }
   doRefresh() {
     const search = {

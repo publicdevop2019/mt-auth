@@ -12,8 +12,8 @@ import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { BASIC_FORM_CONFIG, CATALOG_FORM_CONFIG, PERFORMANCE_FORM_CONFIG, SECURE_FORM_CONFIG } from 'src/app/form-configs/create-endpoint.config';
-import { CacheService } from 'src/app/services/cache.service';
-import { CORSProfileService } from 'src/app/services/my-cors-profile.service';
+import { MyCacheService } from 'src/app/services/my-cache.service';
+import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
@@ -37,8 +37,8 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
   constructor(
     public endpointSvc: MyEndpointService,
     public clientSvc: MyClientService,
-    public corsSvc: CORSProfileService,
-    public cacheSvc: CacheService,
+    public corsSvc: MyCorsProfileService,
+    public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
@@ -48,6 +48,8 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     super('endpointNew', JSON.parse(JSON.stringify(CATALOG_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     clientSvc.setProjectId(this.bottomSheet.params['projectId'])
+    corsSvc.setProjectId(this.bottomSheet.params['projectId'])
+    cacheSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.basicFormId + '_' + 'resourceId'] = this.getClients();
     this.fis.queryProvider[this.secureFormId + '_' + 'corsProfile'] = corsSvc;
     this.fis.queryProvider[this.performanceFormId + '_' + 'cacheProfile'] = cacheSvc;

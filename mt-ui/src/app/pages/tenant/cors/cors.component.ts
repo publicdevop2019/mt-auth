@@ -8,7 +8,7 @@ import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-
 import { CORSProfileValidator } from 'src/app/clazz/validation/aggregate/cors/validator-cors';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG, ORIGIN_FORM_CONFIG } from 'src/app/form-configs/cors.config';
-import { CORSProfileService } from 'src/app/services/my-cors-profile.service';
+import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 @Component({
   selector: 'app-cors',
   templateUrl: './cors.component.html',
@@ -23,7 +23,7 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
   exposedHeaderFormId: string = 'exposedHeaderFormId'
   exposedHeaderFormInfo: IForm = JSON.parse(JSON.stringify(EXPOSED_HEADERS_FORM_CONFIG));
   constructor(
-    public entityService: CORSProfileService,
+    public entityService: MyCorsProfileService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<CorsComponent>,

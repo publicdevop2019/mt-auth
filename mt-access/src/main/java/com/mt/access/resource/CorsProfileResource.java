@@ -72,7 +72,8 @@ public class CorsProfileResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
-        ApplicationServiceRegistry.getCorsProfileApplicationService().tenantUpdate(id, command, changeId);
+        ApplicationServiceRegistry.getCorsProfileApplicationService()
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

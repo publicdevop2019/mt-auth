@@ -85,13 +85,6 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'cache-profiles',
-      display: 'API_CACHE_DASHBOARD',
-      icon: 'local_offer',
-      params: {
-      },
-    },
-    {
       link: 'revoke-token',
       display: 'REVOKE_TOKEN_DASHBOARD',
       icon: 'stars',
@@ -154,7 +147,14 @@ export class NavBarComponent implements OnInit {
       params: {
       },
     },
-
+    {
+      link: 'my-cache',
+      display: 'MY_CACHE',
+      icon: 'local_offer',
+      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
+      params: {
+      },
+    },
     {
       link: 'my-permission',
       display: 'MY_PERMISSION_DASHBOARD',

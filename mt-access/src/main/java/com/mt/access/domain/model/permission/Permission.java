@@ -68,6 +68,7 @@ public class Permission extends Auditable {
     public static final String PERMISSION_MGMT = "PERMISSION_MGMT";
     public static final String ROLE_MGMT = "ROLE_MGMT";
     public static final String CORS_MGMT = "CORS_MGMT";
+    public static final String CACHE_MGMT = "CACHE_MGMT";
     public static final String API_MGMT = "API_MGMT";
     public static final String CLIENT_MGMT = "CLIENT_MGMT";
     public static final String EDIT_PROJECT_INFO = "EDIT_PROJECT_INFO";
@@ -76,6 +77,9 @@ public class Permission extends Auditable {
     public static final String CREATE_CORS = "CREATE_CORS";
     public static final String EDIT_CORS = "EDIT_CORS";
     public static final String VIEW_CORS = "VIEW_CORS";
+    public static final String CREATE_CACHE = "CREATE_CACHE";
+    public static final String EDIT_CACHE = "EDIT_CACHE";
+    public static final String VIEW_CACHE = "VIEW_CACHE";
 
     public static final String ADMIN_MGMT = "ADMIN_MGMT";
     public static final Set<String> reservedName = new HashSet<>();
@@ -110,6 +114,10 @@ public class Permission extends Auditable {
         reservedUIPermissionName.add(CREATE_CORS);
         reservedUIPermissionName.add(EDIT_CORS);
         reservedUIPermissionName.add(VIEW_CORS);
+        reservedUIPermissionName.add(CACHE_MGMT);
+        reservedUIPermissionName.add(CREATE_CACHE);
+        reservedUIPermissionName.add(EDIT_CACHE);
+        reservedUIPermissionName.add(VIEW_CACHE);
         reservedUIPermissionName.add(ADMIN_MGMT);
         reservedName.addAll(reservedUIPermissionName);
 
@@ -304,8 +312,7 @@ public class Permission extends Auditable {
         Permission p13 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_API,
                 apiMgmtId, tenantId, Stream
-                    .of(new PermissionId("0Y8HHJ47NBEM"), new PermissionId("0Y8HHJ47NBEH"),
-                        new PermissionId("0Y8MLZDBR4T3"),
+                    .of(new PermissionId("0Y8MLZDBR4T3"),
                         new PermissionId("0Y8HHJ47NBDS"), new PermissionId("0Y8HHJ47NBDM"))
                     .collect(Collectors.toSet()));
         Permission p14 = Permission
@@ -415,6 +422,26 @@ public class Permission extends Auditable {
                 Stream.of(new PermissionId("0Y8OK4YRZ3MC"))
                     .collect(Collectors.toSet()));
 
+        //cors mgmt related permission
+        PermissionId cacheMgmtId = new PermissionId();
+        Permission p42 = Permission
+            .autoCreateForProject(projectId, cacheMgmtId, CACHE_MGMT, PermissionType.COMMON, rootId,
+                tenantId, null);
+        Permission p43 = Permission
+            .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CACHE,
+                cacheMgmtId, tenantId,
+                Stream.of(new PermissionId("0Y8OKQGIRTHW"), new PermissionId("0Y8OKQGFNG2C"),
+                        new PermissionId("0Y8OKQGD5JPW"))
+                    .collect(Collectors.toSet()));
+        Permission p44 = Permission
+            .autoCreateForProject(projectId, new PermissionId(), CREATE_CACHE, PermissionType.COMMON,
+                cacheMgmtId, tenantId, new PermissionId("0Y8OKQG3SFF7"));
+        Permission p45 = Permission
+            .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CACHE,
+                cacheMgmtId, tenantId,
+                Stream.of(new PermissionId("0Y8OKQG9PXQM"))
+                    .collect(Collectors.toSet()));
+
 
         Permission apiPermission = Permission
             .autoCreateForProject(tenantId, new PermissionId(), API_ACCESS, PermissionType.API_ROOT,
@@ -450,6 +477,10 @@ public class Permission extends Auditable {
         DomainRegistry.getPermissionRepository().add(p39);
         DomainRegistry.getPermissionRepository().add(p40);
         DomainRegistry.getPermissionRepository().add(p41);
+        DomainRegistry.getPermissionRepository().add(p42);
+        DomainRegistry.getPermissionRepository().add(p43);
+        DomainRegistry.getPermissionRepository().add(p44);
+        DomainRegistry.getPermissionRepository().add(p45);
         //add new permission to event so role can link to it
         Set<Permission> createdPermissions = new HashSet<>();
         createdPermissions.add(p0);
@@ -481,6 +512,10 @@ public class Permission extends Auditable {
         createdPermissions.add(p39);
         createdPermissions.add(p40);
         createdPermissions.add(p41);
+        createdPermissions.add(p42);
+        createdPermissions.add(p43);
+        createdPermissions.add(p44);
+        createdPermissions.add(p45);
         Set<PermissionId> collect = createdPermissions.stream().flatMap(e -> {
             if (e.getLinkedApiPermissionIds() != null && !e.getLinkedApiPermissionIds().isEmpty()) {
                 e.getLinkedApiPermissionIds().add(e.getPermissionId());

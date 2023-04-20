@@ -5,7 +5,7 @@ import { ApiCenterComponent } from './pages/common/api-center/api-center.compone
 import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
-import { SummaryCacheComponent } from './pages/mgmt/summary-cache/summary-cache.component';
+import { MyCacheComponent } from './pages/tenant/my-cache/my-cache.component';
 import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
 import { MyCorsComponent } from './pages/tenant/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
@@ -76,7 +76,6 @@ const routes: Routes = [
       { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'mgmt-user', component: SummaryResourceOwnerComponent },
       { path: 'api-profiles', component: SummaryEndpointComponent },
-      { path: 'cache-profiles', component: SummaryCacheComponent },
       { path: 'role-profiles', component: SummaryRoleComponent },
       { path: 'events-access', component: SummaryStoredEventAccessComponent },
       { path: 'settings', component: SettingComponent },
@@ -96,6 +95,7 @@ const routes: Routes = [
       { path: 'sys-message-center', component: SummaryNotificationComponent },
       { path: 'dashboard', component: DashboardComponent },
       { path: ':id/my-client', component: MyClientsComponent },
+      { path: ':id/my-cache', component: MyCacheComponent },
       { path: ':id/my-cors', component: MyCorsComponent },
       { path: ':id/my-api', component: MyApisComponent },
       { path: ':id/my-permission', component: MyPermissionsComponent },

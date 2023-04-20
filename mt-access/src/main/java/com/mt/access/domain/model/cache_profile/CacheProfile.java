@@ -3,10 +3,13 @@ package com.mt.access.domain.model.cache_profile;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import java.util.Objects;
 import java.util.Set;
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
@@ -69,6 +72,14 @@ public class CacheProfile extends Auditable {
 
     private boolean weakValidation;
 
+    @Embedded
+    @Setter(AccessLevel.PRIVATE)
+    @AttributeOverrides({
+        @AttributeOverride(name = "domainId",
+            column = @Column(name = "projectId", updatable = false, nullable = false))
+    })
+    private ProjectId projectId;
+
     /**
      * constructor of CacheProfile.
      *
@@ -83,6 +94,7 @@ public class CacheProfile extends Auditable {
      * @param allowCache     whether cache is allowed
      * @param etag           value of etag
      * @param weakValidation whether weak validation
+     * @param projectId tenant project id
      */
     public CacheProfile(
         String name,
@@ -95,7 +107,9 @@ public class CacheProfile extends Auditable {
         String vary,
         boolean allowCache,
         boolean etag,
-        boolean weakValidation) {
+        boolean weakValidation,
+        ProjectId projectId
+    ) {
         super();
         setName(name);
         setDescription(description);
@@ -108,6 +122,7 @@ public class CacheProfile extends Auditable {
         setVary(vary);
         setEtag(etag);
         setWeakValidation(weakValidation);
+        setProjectId(projectId);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
     }
 

@@ -5,6 +5,7 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.cache_profile.CacheProfileRepository;
 import com.mt.access.domain.model.cache_profile.CacheProfile_;
+import com.mt.access.domain.model.cors_profile.CorsProfile_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -43,6 +44,9 @@ public interface SpringDataJpaCacheProfileRepository
             Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility.addDomainIdInPredicate(
                 e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                 CacheProfile_.CACHE_PROFILE_ID, queryContext));
+            Optional.ofNullable(query.getProjectId()).ifPresent(e -> QueryUtility.addDomainIdIsPredicate(
+                e.getDomainId(),
+                CorsProfile_.PROJECT_ID, queryContext));
             Order order = null;
             if (query.getSort().isById()) {
                 order = QueryUtility.getDomainIdOrder(CacheProfile_.CACHE_PROFILE_ID, queryContext,

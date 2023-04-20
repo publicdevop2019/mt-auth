@@ -8,9 +8,11 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter(AccessLevel.PUBLIC)
+@ToString
 //cannot be abstract due to serialization issue
 public class DomainEvent implements Serializable {
 
@@ -27,9 +29,11 @@ public class DomainEvent implements Serializable {
     private String topic;
 
     public void setDomainId(DomainId domainId) {
-        Validator.notNull(domainId);
-        Validator.notNull(domainId.getDomainId());
         this.domainId = domainId;
+    }
+
+    public void setDomainIds(Set<DomainId> domainIds) {
+        this.domainIds = domainIds;
     }
 
     public DomainEvent(DomainId domainId) {
@@ -42,24 +46,10 @@ public class DomainEvent implements Serializable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
         setDomainIds(domainIds);
-        setDomainId(new AnyDomainId());//add dummy domain id so it can be deserialized
     }
 
     public DomainEvent() {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setTimestamp(new Date().getTime());
-    }
-
-    @Override
-    public String toString() {
-        return "DomainEvent{" +
-            "id=" + id +
-            ", timestamp=" + timestamp +
-            ", name='" + name + '\'' +
-            ", domainId=" + domainId +
-            ", domainIds=" + domainIds +
-            ", internal=" + internal +
-            ", topic='" + topic + '\'' +
-            '}';
     }
 }

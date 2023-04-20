@@ -68,11 +68,11 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
             }
             if (this.hasLinked && !this.aggregate.parentId) {
               this.fis.updateOption(this.formId, 'apiId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data.map(e=>e.id))
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data.map(e => e.id))
             }
             if (this.hasLinked && this.aggregate.parentId) {
               this.fis.updateOption(this.formId, 'apiId', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data.map(e=>e.id))
+              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data.map(e => e.id))
             }
             this.resumeForm()
             this.cdr.markForCheck()
@@ -114,12 +114,14 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
   }
   convertToPayload(cmpt: PermissionComponent): IPermission {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+
+    const linked = formGroup.get('linkApi').value;
     return {
       id: formGroup.get('id').value,//value is ignored
       parentId: formGroup.get('parentId').value,
       name: formGroup.get('name').value,
       projectId: formGroup.get('projectId').value,
-      linkedApiIds: formGroup.get('apiId').value?formGroup.get('apiId').value:[],
+      linkedApiIds: linked ? formGroup.get('apiId').value ? formGroup.get('apiId').value : [] : [],
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

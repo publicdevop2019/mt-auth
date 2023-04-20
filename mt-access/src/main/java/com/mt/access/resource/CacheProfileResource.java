@@ -1,5 +1,6 @@
 package com.mt.access.resource;
 
+import static com.mt.access.infrastructure.Utility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
@@ -28,10 +29,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(produces = "application/json", path = "mgmt/cache-profile")
+@RequestMapping(produces = "application/json")
 public class CacheProfileResource {
-    @PostMapping
+    @PostMapping(path = "projects/{projectId}/cache")
     public ResponseEntity<Void> create(
+        @PathVariable String projectId,
         @RequestBody CreateCacheProfileCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
@@ -39,56 +41,64 @@ public class CacheProfileResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getCacheProfileApplicationService()
-                .create(command, changeId)).build();
+                .tenantCreate(projectId, command, changeId)).build();
     }
 
-    @GetMapping
+    @GetMapping(path = "projects/{projectId}/cache")
     public ResponseEntity<SumPagedRep<CacheProfileCardRepresentation>> query(
+        @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
+        queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<CacheProfile> users =
             ApplicationServiceRegistry.getCacheProfileApplicationService()
-                .query(queryParam, pageParam, config);
+                .tenantQuery(projectId, queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, CacheProfileCardRepresentation::new));
     }
 
-    @PutMapping("{id}")
+    @PutMapping(path = "projects/{projectId}/cache/{id}")
     public ResponseEntity<Void> update(
+        @PathVariable String projectId,
         @RequestBody ReplaceCacheProfileCommand command,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
+        command.setProjectId(projectId);
         ApplicationServiceRegistry.getCacheProfileApplicationService()
-            .update(id, command, changeId);
+            .tenantUpdate(id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "{id}", consumes = "application/json-patch+json")
+    @PatchMapping(path = "projects/{projectId}/cache/{id}", consumes = "application/json-patch+json")
     public ResponseEntity<Void> patch(
+        @PathVariable String projectId,
         @PathVariable(name = "id") String id,
         @RequestBody JsonPatch command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCacheProfileApplicationService().patch(id, command, changeId);
+        ApplicationServiceRegistry.getCacheProfileApplicationService()
+            .tenantPatch(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping(path = "projects/{projectId}/cache/{id}")
     public ResponseEntity<Void> delete(
+        @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCacheProfileApplicationService().remove(id, changeId);
+        ApplicationServiceRegistry.getCacheProfileApplicationService()
+            .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 }

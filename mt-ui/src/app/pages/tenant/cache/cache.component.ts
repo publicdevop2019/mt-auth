@@ -7,7 +7,7 @@ import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaz
 import { CacheValidator } from 'src/app/clazz/validation/aggregate/cache/validator-cache';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
-import { CacheService } from 'src/app/services/cache.service';
+import { MyCacheService } from 'src/app/services/my-cache.service';
 @Component({
   selector: 'app-cache',
   templateUrl: './cache.component.html',
@@ -16,7 +16,7 @@ import { CacheService } from 'src/app/services/cache.service';
 export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<ICacheProfile>;
   constructor(
-    public entityService: CacheService,
+    public entityService: MyCacheService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
     bottomSheetRef: MatBottomSheetRef<CacheComponent>,

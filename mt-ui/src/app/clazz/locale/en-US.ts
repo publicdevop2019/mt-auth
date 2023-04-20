@@ -561,7 +561,7 @@ export const enUS = {
     "CORS_ORIGIN": "Origin",
     "ALLOWED_METHOD": "Allowed Method",
     "SELECT_CORS_PROFILE": "Please select cors profile",
-    "API_CACHE_DASHBOARD": "Api Cache Dashboard",
+    "MY_CACHE": "Api Cache Dashboard",
     "MUST_REVALIDATE": "must-revalidate",
     "NO_CACHE": "no-cache",
     "NO_STORE": "no-store",

@@ -2,35 +2,35 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { of } from 'rxjs';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaze-cache';
+import { ISearchConfig } from 'src/app/components/search/search.component';
+import { MyCacheService } from 'src/app/services/my-cache.service';
+import { DeviceService } from 'src/app/services/device.service';
+import { CacheComponent } from '../cache/cache.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
+import { ActivatedRoute } from '@angular/router';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { ProjectService } from 'src/app/services/project.service';
+import { of } from 'rxjs';
 import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-cors';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
-import { DeviceService } from 'src/app/services/device.service';
-import { CorsComponent } from '../cors/cors.component';
-import { ActivatedRoute } from '@angular/router';
-import { ProjectService } from 'src/app/services/project.service';
-import { HttpProxyService } from 'src/app/services/http-proxy.service';
 @Component({
-  selector: 'app-my-cors',
-  templateUrl: './my-cors.component.html',
-  styleUrls: ['./my-cors.component.css']
+  selector: 'app-my-cache',
+  templateUrl: './my-cache.component.html',
+  styleUrls: ['./my-cache.component.css']
 })
-export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, ICorsProfile> implements OnDestroy {
-  public formId = "corsTableColumnConfig";
+export class MyCacheComponent extends TenantSummaryEntityComponent<ICacheProfile, ICacheProfile> implements OnDestroy {
+  public formId = "cacheTableColumnConfig";
   columnList = {
     id: 'ID',
     name: 'NAME',
     description: 'DESCRIPTION',
-    origin: 'CORS_ORIGIN',
     edit: 'EDIT',
     clone: 'CLONE',
     delete: 'DELETE',
   }
-  sheetComponent = CorsComponent;
+  sheetComponent = CacheComponent;
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -42,7 +42,7 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     },
   ]
   constructor(
-    public entitySvc: MyCorsProfileService,
+    public entitySvc: MyCacheService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
@@ -51,7 +51,7 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     public httpSvc: HttpProxyService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub2 = this.canDo('VIEW_CORS').subscribe(b => {
+    const sub2 = this.canDo('VIEW_CACHE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
       }
@@ -61,6 +61,9 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
+  getData(id: string) {
+    return this.dataSource.data.find(e => e.id === id)
+  }
   openBottomSheet(id?: string, clone?: boolean): void {
     let config = new MatBottomSheetConfig();
     config.autoFocus = true;
@@ -69,10 +72,10 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
       of(this.dataSource.data.find(e => e.id === id))
         .subscribe(next => {
           if (clone) {
-            config.data = <IBottomSheet<ICorsProfile>>{ context: 'clone', from: next };
+            config.data = <IBottomSheet<ICacheProfile>>{ context: 'clone', from: next };
             this.bottomSheet.open(this.sheetComponent, config);
           } else {
-            config.data = <IBottomSheet<ICorsProfile>>{ context: 'edit', from: next };
+            config.data = <IBottomSheet<ICacheProfile>>{ context: 'edit', from: next };
             this.bottomSheet.open(this.sheetComponent, config);
           }
         })
@@ -80,8 +83,5 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
       config.data = <IBottomSheet<ICorsProfile>>{ context: 'new', from: undefined, params: {} };
       this.bottomSheet.open(this.sheetComponent, config);
     }
-  }
-  removeFirst(input: string[]) {
-    return input.filter((e, i) => i !== 0);
   }
 }

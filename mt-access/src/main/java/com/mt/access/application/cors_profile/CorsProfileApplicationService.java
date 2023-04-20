@@ -39,7 +39,7 @@ public class CorsProfileApplicationService {
         ProjectId projectId = new ProjectId(projectId1);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_CORS);
         return DomainRegistry.getCorsProfileRepository()
-            .corsProfileOfQuery(new CorsProfileQuery(queryParam, pageParam, config));
+            .query(new CorsProfileQuery(queryParam, pageParam, config));
     }
 
     @AuditLog(actionName = CREATE_TENANT_CORS_PROFILE)
@@ -72,8 +72,10 @@ public class CorsProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_CORS);
         CorsProfileId corsProfileId = new CorsProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+            CorsProfileQuery corsProfileQuery =
+                new CorsProfileQuery(projectId, corsProfileId);
             Optional<CorsProfile> corsProfile =
-                DomainRegistry.getCorsProfileRepository().corsProfileOfId(corsProfileId);
+                DomainRegistry.getCorsProfileRepository().query(corsProfileQuery).findFirst();
             corsProfile.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
@@ -96,7 +98,7 @@ public class CorsProfileApplicationService {
             CorsProfileQuery corsProfileQuery =
                 new CorsProfileQuery(projectId1, corsProfileId);
             Optional<CorsProfile> corsProfile =
-                DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(corsProfileQuery)
+                DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
                     .findFirst();
             corsProfile.ifPresent(e -> {
                 e.removeAllReference();
@@ -121,7 +123,7 @@ public class CorsProfileApplicationService {
             .idempotent(changeId, (ignored) -> {
                 CorsProfileQuery corsProfileQuery = new CorsProfileQuery(projectId1, corsProfileId);
                 Optional<CorsProfile> corsProfile =
-                    DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(corsProfileQuery)
+                    DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
                         .findFirst();
                 if (corsProfile.isPresent()) {
                     CorsProfile corsProfile1 = corsProfile.get();

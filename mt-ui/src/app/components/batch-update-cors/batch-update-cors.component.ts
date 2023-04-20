@@ -5,8 +5,8 @@ import { FormInfoService } from "mt-form-builder";
 import { IForm, IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
 import { IEndpoint } from "src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
-import { CacheService } from "src/app/services/cache.service";
-import { CORSProfileService } from "src/app/services/my-cors-profile.service";
+import { MyCacheService } from "src/app/services/my-cache.service";
+import { MyCorsProfileService } from "src/app/services/my-cors-profile.service";
 import { DeviceService } from "src/app/services/device.service";
 import { EndpointService } from "src/app/services/endpoint.service";
 import { HttpProxyService } from "src/app/services/http-proxy.service";
@@ -27,8 +27,8 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     batchJobConfirmed: boolean;
     constructor(
         public dialogRef: MatDialogRef<BatchUpdateCorsComponent>,
-        private corsSvc: CORSProfileService,
-        private cacheSvc: CacheService,
+        private corsSvc: MyCorsProfileService,
+        private cacheSvc: MyCacheService,
         private endpointSvc: EndpointService,
         private httpProxySvc: HttpProxyService,
         private deviceSvc: DeviceService,

@@ -8,7 +8,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 @Injectable({
   providedIn: 'root'
 })
-export class CORSProfileService extends TenantEntityService<ICorsProfile, ICorsProfile>  implements IQueryProvider {
+export class MyCorsProfileService extends TenantEntityService<ICorsProfile, ICorsProfile>  implements IQueryProvider {
   entityName: string = 'cors';
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
     super(httpProxy, interceptor,deviceSvc);

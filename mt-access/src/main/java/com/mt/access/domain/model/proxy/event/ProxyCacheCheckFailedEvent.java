@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.proxy.event;
 
 import com.mt.access.domain.model.audit.AuditEvent;
+import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 
 @AuditEvent
@@ -11,7 +12,7 @@ public class ProxyCacheCheckFailedEvent extends DomainEvent {
     {
         setTopic(PROXY_CACHE_CHECK_FAILED_EVENT);
         setName(name);
-
+        setDomainId(new AnyDomainId());
     }
 
     public ProxyCacheCheckFailedEvent() {

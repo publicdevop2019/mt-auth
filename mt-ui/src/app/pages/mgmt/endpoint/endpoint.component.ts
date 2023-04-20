@@ -10,8 +10,8 @@ import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
-import { CacheService } from 'src/app/services/cache.service';
-import { CORSProfileService } from 'src/app/services/my-cors-profile.service';
+import { MyCacheService } from 'src/app/services/my-cache.service';
+import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ClientService } from 'src/app/services/mgmt-client.service';
@@ -25,8 +25,8 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IEnd
   constructor(
     public endpointSvc: EndpointService,
     public clientSvc: ClientService,
-    public corsSvc: CORSProfileService,
-    public cacheSvc: CacheService,
+    public corsSvc: MyCorsProfileService,
+    public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,

@@ -1,9 +1,11 @@
 package com.mt.access.domain.model.cache_profile;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
@@ -15,11 +17,14 @@ import lombok.Getter;
 @Getter
 public class CacheProfileQuery extends QueryCriteria {
     private static final String ID = "id";
+    private static final String PROJECT_ID = "projectIds";
     private Set<CacheProfileId> ids;
     private CacheProfileSort sort;
+    private ProjectId projectId;
 
     public CacheProfileQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
+        Validator.notNull(projectId);
         setPageConfig(PageConfig.limited(pageParam, 40));
         setQueryConfig(new QueryConfig(config));
         setSort(pageConfig);
@@ -39,15 +44,25 @@ public class CacheProfileQuery extends QueryCriteria {
         setSort(pageConfig);
     }
 
+    public CacheProfileQuery(ProjectId projectId, CacheProfileId cacheProfileId) {
+        this.ids = Collections.singleton(cacheProfileId);
+        this.projectId = projectId;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
+        setSort(pageConfig);
+    }
+
     private void setSort(PageConfig pageConfig) {
         this.sort = CacheProfileSort.byId(pageConfig.isSortOrderAsc());
     }
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-            ID);
+            ID, PROJECT_ID);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
             Arrays.stream(e.split("\\.")).map(CacheProfileId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(PROJECT_ID))
+            .ifPresent(e -> projectId = new ProjectId(e));
     }
 
     @Getter

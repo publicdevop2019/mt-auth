@@ -84,8 +84,9 @@ public class StoredEventApplicationService {
         CommonDomainRegistry.getDomainEventRepository()
             .append(new RejectedMsgReceivedEvent(event));
         CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
-            .ifPresent(
-                StoredEvent::markAsRejected);
+            .ifPresentOrElse(StoredEvent::markAsRejected,
+                () -> log.warn("none-stored event are being rejected, event name is {}",
+                    event.getName()));
     }
 
     /**

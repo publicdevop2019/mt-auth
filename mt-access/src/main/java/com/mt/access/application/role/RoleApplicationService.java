@@ -1,7 +1,6 @@
 package com.mt.access.application.role;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
@@ -116,10 +115,10 @@ public class RoleApplicationService {
             role.ifPresent(e->{
                 e.remove();
                 DomainRegistry.getAuditService()
-                    .storeAuditAction(DELETE_CACHE_PROFILE,
+                    .storeAuditAction(DELETE_TENANT_ROLE,
                         e);
                 DomainRegistry.getAuditService()
-                    .logUserAction(log, DELETE_CACHE_PROFILE,
+                    .logUserAction(log, DELETE_TENANT_ROLE,
                         e);
             });
             return null;

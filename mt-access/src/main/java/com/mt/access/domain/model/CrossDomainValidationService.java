@@ -245,7 +245,7 @@ public class CrossDomainValidationService {
         Set<CorsProfileId> corsProfileIds =
             DomainRegistry.getEndpointRepository().getCorsProfileIds();
         Set<CorsProfile> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().query(e),
                 new CorsProfileQuery(corsProfileIds));
         if (allByQuery.size() != corsProfileIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()

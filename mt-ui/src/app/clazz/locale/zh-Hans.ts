@@ -570,7 +570,7 @@ export const zhHans = {
     "CORS_ORIGIN": "Origin",
     "ALLOWED_METHOD": "Allowed Method",
     "SELECT_CORS_PROFILE": "请选择CORS配置",
-    "API_CACHE_DASHBOARD": "缓存",
+    "MY_CACHE": "缓存",
     "MUST_REVALIDATE": "must-revalidate",
     "NO_CACHE": "no-cache",
     "NO_STORE": "no-store",
@@ -940,4 +940,8 @@ export const zhHans = {
     "VIEW_CORS": "查看跨域",
     "EDIT_CORS": "编辑跨域",
     "CREATE_CORS": "创建跨域",
+    "CACHE_MGMT": "管理缓存",
+    "VIEW_CACHE": "查看缓存",
+    "CREATE_CACHE": "创建缓存",
+    "EDIT_CACHE": "编辑缓存",
 }

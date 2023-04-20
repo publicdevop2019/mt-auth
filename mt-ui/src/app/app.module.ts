@@ -100,10 +100,10 @@ import { RequestIdHttpInterceptor } from './services/interceptors/request-id.int
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
 import { ClientService } from './services/mgmt-client.service';
 import { UserService } from './services/user.service';
-import { CacheComponent } from './pages/mgmt/cache/cache.component';
+import { CacheComponent } from './pages/tenant/cache/cache.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 import { CorsComponent } from './pages/tenant/cors/cors.component';
-import { SummaryCacheComponent } from './pages/mgmt/summary-cache/summary-cache.component';
+import { MyCacheComponent } from './pages/tenant/my-cache/my-cache.component';
 import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-client.component';
 import { MyCorsComponent } from './pages/tenant/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
@@ -181,7 +181,7 @@ import { LanguageService } from './services/language.service';
     RoleComponent,
     CorsComponent,
     MyCorsComponent,
-    SummaryCacheComponent,
+    MyCacheComponent,
     CacheComponent,
     SummaryStoredEventAccessComponent,
     BatchUpdateCorsComponent,

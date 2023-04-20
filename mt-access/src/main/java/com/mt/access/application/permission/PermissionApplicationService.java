@@ -1,8 +1,8 @@
 package com.mt.access.application.permission;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PERMISSION;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PERMISSION;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
@@ -263,6 +263,8 @@ public class PermissionApplicationService {
                 Set<Permission> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
                         permissionQuery);
+                Validator.sizeEqualTo(permissionIds, allByQuery,
+                    "unable to find all permission for deleted endpoints");
                 DomainRegistry.getPermissionRepository().removeAll(allByQuery);
                 return null;
             }, PERMISSION);

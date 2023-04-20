@@ -13,6 +13,7 @@ public class ReplaceCacheProfileCommand {
     private Long maxAge;
     private Long smaxAge;
     private String vary;
+    private String projectId;
     private boolean etag;
     private boolean allowCache;
     private boolean weakValidation;

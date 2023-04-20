@@ -93,7 +93,7 @@ public class EndpointProxyCacheRepresentation
             Set<SubRequest> suReqFetched = null;
             if (cors.size() > 0) {
                 corsFetched = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getCorsProfileRepository().corsProfileOfQuery(query),
+                    (query) -> DomainRegistry.getCorsProfileRepository().query(query),
                     new CorsProfileQuery(cors));
             }
             if (cache.size() > 0) {

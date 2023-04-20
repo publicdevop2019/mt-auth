@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaCorsProfileRepository
     extends CorsProfileRepository, JpaRepository<CorsProfile, Long> {
-    default Optional<CorsProfile> corsProfileOfId(CorsProfileId id) {
-        return corsProfileOfQuery(new CorsProfileQuery(id)).findFirst();
+    default Optional<CorsProfile> id(CorsProfileId id) {
+        return query(new CorsProfileQuery(id)).findFirst();
     }
 
     default void add(CorsProfile corsProfile) {
@@ -29,7 +29,7 @@ public interface SpringDataJpaCorsProfileRepository
         delete(corsProfile);
     }
 
-    default SumPagedRep<CorsProfile> corsProfileOfQuery(CorsProfileQuery query) {
+    default SumPagedRep<CorsProfile> query(CorsProfileQuery query) {
         return QueryBuilderRegistry.getCorsProfileAdaptor().execute(query);
     }
 
