@@ -10,7 +10,6 @@
         const authorizeClientId = "0C8OMAMM2QDC";
         const clientCreClientId = "0C8OMAMBGNWG";
         const passwordClientId = "0C8OMAMTVNY8";
-        const redirectUrl = "http://localhost:3000"
         // const apiUrlPrefix = "http://localhost:8111"
         // const authorizeServerUrlPrefix = "http://localhost:4300";
         const authorizeServerUrlPrefix = "https://www.duoshu.xyz";
@@ -21,9 +20,12 @@
                 getToken(projectId, authorizeClientId, location.search.replace('?code=', ''))
             }
         });
+        function getCurrentLocation(){
+            return location.origin
+        }
         function authorizationLogin(projectId, clientId) {
             location.replace(
-                `${authorizeServerUrlPrefix}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=login&project_id=${projectId}`
+                `${authorizeServerUrlPrefix}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${getCurrentLocation()}&state=login&project_id=${projectId}`
             );
         }
         function clientCredentialLogin(clientId) {
@@ -50,7 +52,7 @@
             formData.append('grant_type', 'authorization_code');
             formData.append('code', code);
             formData.append('scope', projectId);
-            formData.append('redirect_uri', redirectUrl);
+            formData.append('redirect_uri', getCurrentLocation());
             const options = {
                 method: "POST",
                 headers: myHeaders,
