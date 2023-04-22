@@ -20,8 +20,22 @@
                 getToken(projectId, authorizeClientId, location.search.replace('?code=', ''))
             }
         });
-        function getCurrentLocation(){
+        function getCurrentLocation() {
             return location.origin
+        }
+        function callPublicApi() {
+            document.cookie="XSRF-TOKEN=a14156a0-becc-49d8-bef7-5ac4f0aab389;"
+            const myHeaders = new Headers();
+            myHeaders.append("X-XSRF-TOKEN", 'a14156a0-becc-49d8-bef7-5ac4f0aab389');
+            const options = {
+                method: "GET",
+                headers: myHeaders,
+            }
+            fetch(`${apiUrlPrefix}/demo-svc/public`, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('output').innerText = JSON.stringify(resp, undefined, 4);
+                })
+            })
         }
         function authorizationLogin(projectId, clientId) {
             location.replace(
@@ -99,44 +113,57 @@
 
 <body>
     <div>
-        <h1 style="padding-left: 24px;">使用场景</h2>
-        <div style="padding: 24px; padding-top: 0px;">
-            <div>
-                <h2>1. 获取客户端权限 OAuth2模式: Client Credential</h2>
-                <button onclick="clientCredentialLogin(clientCreClientId)">获取Token</button>
-            </div>
-        </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <div>
-                <h2>2. 用户SSO(单点登录)获取演示项目权限 OAuth2模式:Authorization Code </h2>
-                <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
-            </div>
-        </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <div>
-                <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
+        <h1 style="padding-left: 24px;">使用场景</h1>
+            <div style="padding: 24px; padding-top: 0px;">
                 <div>
-                    <label>Username</label>
-                    <input name="username" id="username" />
-                </div>
-                <div>
-                    <label>Password</label>
-                    <input name="password" type="password" id="password" />
-                </div>
-                <div>
-                    <label>MFA Token(选填)</label>
-                    <input name="mfa" id="mfa_code" />
-                    <input name="mfa" id="mfa_id" hidden />
-                </div>
-                <div>
-                    <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
+                    <h2>1. 获取客户端权限 OAuth2模式: Client Credential</h2>
+                    <button onclick="clientCredentialLogin(clientCreClientId)">获取Token</button>
                 </div>
             </div>
-        </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-            <h2>Token 值</h2>
-            <div id="token"></div>
-        </div>
+            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+                <div>
+                    <h2>2. 用户SSO(单点登录)获取演示项目权限 OAuth2模式:Authorization Code </h2>
+                    <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
+                </div>
+            </div>
+            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+                <div>
+                    <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
+                    <div>
+                        <label>Username</label>
+                        <input name="username" id="username" />
+                    </div>
+                    <div>
+                        <label>Password</label>
+                        <input name="password" type="password" id="password" />
+                    </div>
+                    <div>
+                        <label>MFA Token(选填)</label>
+                        <input name="mfa" id="mfa_code" />
+                        <input name="mfa" id="mfa_id" hidden />
+                    </div>
+                    <div>
+                        <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
+                    </div>
+                </div>
+            </div>
+            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+                <h2>Token 值</h2>
+                <div id="token"></div>
+            </div>
+    </div>
+    <div>
+        <h1 style="padding-left: 24px;">演示API调用</h1>
+            <div style="padding: 24px; padding-top: 0px;">
+                <div>
+                    <h2>1. 调用公共API</h2>
+                    <button onclick="callPublicApi()">调用</button>
+                </div>
+            </div>
+            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+                <h2>返回值</h2>
+                <div id="output"></div>
+            </div>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>

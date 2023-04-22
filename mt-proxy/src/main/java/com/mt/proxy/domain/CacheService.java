@@ -56,7 +56,7 @@ public class CacheService {
             .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
         if (endpoint.isEmpty()) {
             LogHelper.log(exchange.getRequest(),
-                (ignored) -> log.debug("unable to find cors config due to missing endpoint"));
+                (ignored) -> log.debug("unable to find cache config due to missing endpoint"));
             return null;
         }
         CacheConfiguration cacheConfiguration = this.configurationMap.get(endpoint.get());

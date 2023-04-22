@@ -36,7 +36,7 @@ CREATE TABLE `allowed_header_map` (
 
 LOCK TABLES `allowed_header_map` WRITE;
 /*!40000 ALTER TABLE `allowed_header_map` DISABLE KEYS */;
-INSERT INTO `allowed_header_map` VALUES (857844656111616,'Accept'),(857844656111616,'Access-Control-Request-Method'),(857844656111616,'Authorization'),(857844656111616,'changeId'),(857844656111616,'Content-Type'),(857844656111616,'lastupdateat'),(857844656111616,'uuid'),(857844656111616,'x-requested-with'),(857844656111616,'X-XSRF-TOKEN'),(881941651914966,'authorization');
+INSERT INTO `allowed_header_map` VALUES (857844656111616,'Accept'),(857844656111616,'Access-Control-Request-Method'),(857844656111616,'Authorization'),(857844656111616,'changeId'),(857844656111616,'Content-Type'),(857844656111616,'lastupdateat'),(857844656111616,'uuid'),(857844656111616,'x-requested-with'),(857844656111616,'X-XSRF-TOKEN'),(881941651914966,'authorization'),(881941651914966,'X-XSRF-TOKEN'),(881941651914966,'uuid');
 /*!40000 ALTER TABLE `allowed_header_map` ENABLE KEYS */;
 UNLOCK TABLES;
 
