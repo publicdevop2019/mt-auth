@@ -5,7 +5,5 @@ package com.mt.access.domain.model.permission;
  */
 public enum PermissionType {
     COMMON,
-    PROJECT,
     API,
-    API_ROOT;
 }

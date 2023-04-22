@@ -62,7 +62,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
     this.fis.queryProvider[this.formIdShared + '_' + 'sharedApi'] = this.getShared();
 
-    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:COMMON.PROJECT").pipe(map(e => {
+    this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:COMMON").pipe(map(e => {
       e.data.forEach(ee => {
         if (ee.type === 'PROJECT') {
           (ee as INode).editable = false;
@@ -82,7 +82,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
         return e
       }))
     }
-    this.loadRootApi = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:API_ROOT").pipe(tap(() => this.cdr.markForCheck()));
+    this.loadRootApi = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:API").pipe(tap(() => this.cdr.markForCheck()));
     this.loadChildrenApi = (id: string) => {
       return this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
         e.data.forEach(ee => {

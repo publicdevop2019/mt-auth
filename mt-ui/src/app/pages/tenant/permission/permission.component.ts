@@ -96,7 +96,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
   getParentPerm(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IPermission>(this.entitySvc.entityRepo, num, size, `types:COMMON.PROJECT`, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IPermission>(this.entitySvc.entityRepo, num, size, `types:COMMON`, by, order, header)
       }
     } as IQueryProvider
   }

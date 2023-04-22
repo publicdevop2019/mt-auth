@@ -80,14 +80,14 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 5);
     (!this.authSvc.advancedMode) && this.deviceSvc.refreshSummary.subscribe(() => {
       const search = {
-        value: 'types:COMMON.PROJECT,parentId:null',
+        value: 'types:COMMON,parentId:null',
         resetPage: false
       }
       this.doSearch(search);
     })
     const sub = this.projectId.subscribe(next => {
       this.entitySvc.setProjectId(next);
-      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON.PROJECT,parentId:null")
+      this.loadRoot = this.entitySvc.readEntityByQuery(0, 1000, "types:COMMON,parentId:null")
       this.loadChildren = (id: string) => {
         return this.entitySvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
           e.data.forEach(ee => {

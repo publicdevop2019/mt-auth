@@ -274,7 +274,7 @@ public class Permission extends Auditable {
         ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
         PermissionId rootId = new PermissionId();
         Permission p0 = Permission
-            .autoCreateForProject(projectId, rootId, tenantId.getDomainId(), PermissionType.PROJECT,
+            .autoCreateForProject(projectId, rootId, tenantId.getDomainId(), PermissionType.COMMON,
                 null, tenantId, null);
         PermissionId projectMgmtId = new PermissionId();
         Permission p1 = Permission
@@ -444,7 +444,7 @@ public class Permission extends Auditable {
 
 
         Permission apiPermission = Permission
-            .autoCreateForProject(tenantId, new PermissionId(), API_ACCESS, PermissionType.API_ROOT,
+            .autoCreateForProject(tenantId, new PermissionId(), API_ACCESS, PermissionType.API,
                 null, null, null);
 
         DomainRegistry.getPermissionRepository().add(apiPermission);
@@ -543,11 +543,11 @@ public class Permission extends Auditable {
     public void replace(String name, Set<PermissionId> permissionIds) {
         updateName(name);
         this.linkedApiPermissionIds = permissionIds;
+        new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
     }
 
     private void updateName(String name) {
-        if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
-            .contains(this.type)) {
+        if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
                 "0049",
                 HttpResponseCode.BAD_REQUEST,
@@ -563,11 +563,11 @@ public class Permission extends Auditable {
 
     public void patch(String name) {
         updateName(name);
+        new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
     }
 
     public void remove() {
-        if (List.of(PermissionType.API, PermissionType.API_ROOT, PermissionType.PROJECT)
-            .contains(this.type)) {
+        if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
                 "0051",
                 HttpResponseCode.BAD_REQUEST,

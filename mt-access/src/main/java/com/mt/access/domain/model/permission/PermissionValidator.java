@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.permission;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 
 public class PermissionValidator {
@@ -17,8 +18,10 @@ public class PermissionValidator {
 
     private void checkName() {
         if (!permission.isSystemCreate()) {
-            if (Permission.reservedName.contains(permission.getName())) {
-                handler.handleError("certain names are not allowed for non system create role");
+            if (Permission.reservedName.contains(permission.getName()) ||
+                permission.getName().startsWith(
+                    ProjectId.getIdPrefix())) {
+                handler.handleError("certain names & prefix are not allowed for non system create role");
             }
         }
 

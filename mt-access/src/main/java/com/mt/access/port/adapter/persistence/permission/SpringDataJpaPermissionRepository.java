@@ -52,7 +52,7 @@ public interface SpringDataJpaPermissionRepository
 
     ;
 
-    @Query("select distinct p.name from Permission p where p.type='API'")
+    @Query("select distinct p.name from Permission p where p.type='API' and p.parentId != null")
     Set<EndpointId> allApiPermissionLinkedEpId_();
 
     @Query("select c from Permission p join p.linkedApiPermissionIds c where p.permissionId in ?1")
@@ -61,7 +61,7 @@ public interface SpringDataJpaPermissionRepository
     @Query("select distinct p.permissionId from Permission p")
     Set<PermissionId> allPermissionId_();
 
-    @Query("select count(*) from Permission p where p.projectId = ?1 and p.type = 'COMMON' ")
+    @Query("select count(*) from Permission p where p.projectId = ?1 and p.type = 'COMMON' and p.parentId != null")
     long countProjectCreateTotal_(ProjectId projectId);
 
     default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {

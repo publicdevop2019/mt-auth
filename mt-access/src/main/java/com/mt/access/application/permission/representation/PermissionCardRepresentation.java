@@ -43,8 +43,9 @@ public class PermissionCardRepresentation {
     public static SumPagedRep<PermissionCardRepresentation> updateName(
         SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
-        Set<ProjectId> collect = data.stream().filter(e -> e.type.equals(PermissionType.PROJECT))
-            .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
+        Set<ProjectId> collect =
+            data.stream().filter(e -> e.type.equals(PermissionType.COMMON) && e.parentId == null)
+                .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
         if (collect.size() > 0) {
             Set<Project> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
@@ -54,7 +55,7 @@ public class PermissionCardRepresentation {
                     .findFirst().ifPresent(ee -> e.name = ee.getName());
             });
         }
-        Set<EndpointId> collect1 = data.stream().filter(e -> e.type.equals(PermissionType.API))
+        Set<EndpointId> collect1 = data.stream().filter(e -> e.type.equals(PermissionType.API) && e.parentId != null)
             .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
         if (collect1.size() > 0) {
             Set<Endpoint> allByQuery2 = QueryUtility
