@@ -37,7 +37,7 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
     if (this.aggregate) {
       this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
       this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
-      this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description)
+      this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description||'')
       this.fis.formGroupCollection[this.formId].get('allowCredentials').setValue(this.aggregate.allowCredentials)
       this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.allowedHeaders, 'allowedHeaders'), this.aggregate.allowedHeaders.length)
       this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.aggregate.allowOrigin, 'allowOrigin'), this.aggregate.allowOrigin.length)

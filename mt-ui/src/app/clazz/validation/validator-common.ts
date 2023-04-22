@@ -173,6 +173,8 @@ export class StringValidator {
     public static isOrigin(var0: any, results: ErrorMessage[], key: string): boolean {
         let regex = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&\/=]*)/)
         let regex2 = new RegExp(/^https?:\/\/localhost:[0-9]{1,5}/)
+        if (var0 === '*')
+            return true
         if (!StringValidator.isString(var0, results, key) || !(regex2.test(var0) || regex.test(var0))) {
             results.push({ type: "isOrigin", message: 'STRING_IS_ORIGIN', key: key })
             return false;

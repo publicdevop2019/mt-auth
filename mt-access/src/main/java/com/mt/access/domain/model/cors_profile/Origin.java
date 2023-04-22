@@ -16,12 +16,13 @@ import org.apache.commons.validator.routines.UrlValidator;
 public class Origin implements Serializable {
     private static final UrlValidator defaultValidator =
         new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
+    private static final String ALL = "*";
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private String value;
 
     public Origin(String url) {
-        if (defaultValidator.isValid(url)) {
+        if (defaultValidator.isValid(url) || ALL.equalsIgnoreCase(url)) {
             value = url;
         } else {
             throw new DefinedRuntimeException("invalid origin value", "0039",
