@@ -35,17 +35,6 @@
         <log4j2.version>2.15.0</log4j2.version>
         <spring-cloud.version>Greenwich.SR2</spring-cloud.version>
     </properties>
-    <developers>
-        <developer>
-            <name>haolinwei</name>
-            <id>haolinwei</id>
-            <email>haolinwei2015@gmail.com</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-    </developers>
     <dependencies>
         <dependency>
             <groupId>org.springframework.cloud</groupId>

@@ -14,10 +14,10 @@
 
 # 云版本
 
-- [官方地址](https://www.duoshu.xyz/login)
-- 演示账号：demo1@duoshu.xyz 密：Password1!
-- 演示账号：demo2@duoshu.xyz 密：Password1!
-- 演示账号：superadmin@duoshu.xyz 密：Password1!
+- [官方地址](https://www.letsauth.cloud/login)
+- 演示账号：demo1@sample.com 密：Password1!
+- 演示账号：demo2@sample.com 密：Password1!
+- 演示账号：superadmin@sample.com 密：Password1!
 - **注：当前版本为beta版，不保证数据安全并且随时回滚**
 
 # 应用场景
@@ -68,4 +68,4 @@
 - [NodeJs](./mt-sample/nodejs)
 - [Spring Boot](./mt-sample/spring-boot)
 # 咨询与合作
-请发送邮件至: duoshu2023@163.com
+请发送邮件至: letsauth@163.com
