@@ -24,12 +24,8 @@
             return location.origin
         }
         function callPublicApi() {
-            document.cookie="XSRF-TOKEN=a14156a0-becc-49d8-bef7-5ac4f0aab389;"
-            const myHeaders = new Headers();
-            myHeaders.append("X-XSRF-TOKEN", 'a14156a0-becc-49d8-bef7-5ac4f0aab389');
             const options = {
                 method: "GET",
-                headers: myHeaders,
             }
             fetch(`${apiUrlPrefix}/demo-svc/public`, options).then((next) => {
                 next.json().then(resp => {
