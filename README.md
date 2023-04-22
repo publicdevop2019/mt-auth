@@ -15,8 +15,7 @@
 # 云版本
 
 - [官方地址](https://www.letsauth.cloud/login)
-- 演示账号：demo1@sample.com 密：Password1!
-- 演示账号：demo2@sample.com 密：Password1!
+- 演示账号：demo@sample.com 密：Password1!
 - 演示账号：superadmin@sample.com 密：Password1!
 - **注：当前版本为beta版，不保证数据安全并且随时回滚**
 
