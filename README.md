@@ -52,7 +52,8 @@
 # 项目示意图
 
 ![arthitecture](./doc/arthitecture/architecture.jpg)
-
+# 基于角色的权限控制(RBAC)示意图
+![rbac](./doc/arthitecture/rbac.jpg)
 # 技术栈
 
 | 模块                  | 概述                     | 技术栈                                                            |  
