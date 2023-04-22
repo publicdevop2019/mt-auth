@@ -6,20 +6,24 @@
     <title>demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
-        const projectId = "0P8OIDLZ4IYS";
-        const authorizeClientId = "0C8OIEH8Q9S0";
-        const clientCreClientId = "0C8OIZ1JKOHS";
-        const passwordClientId = "0C8OIZ3GVD34";
+        const projectId = "0P8OMAHSU0W4";
+        const authorizeClientId = "0C8OMAMM2QDC";
+        const clientCreClientId = "0C8OMAMBGNWG";
+        const passwordClientId = "0C8OMAMTVNY8";
+        const redirectUrl = "http://localhost:3000"
+        // const apiUrlPrefix = "http://localhost:8111"
+        // const authorizeServerUrlPrefix = "http://localhost:4300";
+        const authorizeServerUrlPrefix = "https://www.duoshu.xyz";
+        const apiUrlPrefix = "https://api.duoshu.xyz"
         let mfaRequired = false;
         addEventListener("load", (event) => {
             if (location.search) {
                 getToken(projectId, authorizeClientId, location.search.replace('?code=', ''))
             }
         });
-        const redirectUrl = "http://localhost:3000"
         function authorizationLogin(projectId, clientId) {
             location.replace(
-                `https://www.duoshu.xyz/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=login&project_id=${projectId}`
+                `${authorizeServerUrlPrefix}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUrl}&state=login&project_id=${projectId}`
             );
         }
         function clientCredentialLogin(clientId) {
@@ -33,7 +37,7 @@
                 headers: myHeaders,
                 body: formData
             }
-            fetch('https://api.duoshu.xyz/auth-svc/oauth/token', options).then((next) => {
+            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
                 next.json().then(resp => {
                     document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
                 })
@@ -52,7 +56,7 @@
                 headers: myHeaders,
                 body: formData
             }
-            fetch('https://api.duoshu.xyz/auth-svc/oauth/token', options).then((next) => {
+            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
                 next.json().then(resp => {
                     document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
                     window.history.pushState({}, document.title, window.location.pathname);
@@ -76,7 +80,7 @@
                 headers: myHeaders,
                 body: formData
             }
-            fetch('https://api.duoshu.xyz/auth-svc/oauth/token', options).then((next) => {
+            fetch(`${apiUrlPrefix}/auth-svc/oauth/token`, options).then((next) => {
                 next.json().then(resp => {
                     if (resp.mfaId) {
                         mfaRequired = true;

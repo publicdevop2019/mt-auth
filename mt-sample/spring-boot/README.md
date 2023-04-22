@@ -12,7 +12,7 @@ sh ~/mt-auth/script/deploy/cluster/mt-sampel-spring-boot.sh
 2. 记下调用地址，例如http://127.0.0.1:8080
 ## 场景1:路由请求到目标后端应用
 ### 准备工作
-- 登录演示账户
+- 登录演示账户demo@sample.com
 - 左侧导航栏点击->演示项目->应用
 - 找到演示后端应用，点击编辑按钮，更改路由地址为记录下的调用地址
 - 保存并等待约1分钟缓存刷新
@@ -26,7 +26,7 @@ curl --header "X-XSRF-TOKEN:a14156a0-becc-49d8-bef7-5ac4f0aab389" --header "Cook
 ```shell
 curl --header "X-XSRF-TOKEN:a14156a0-becc-49d8-bef7-5ac4f0aab389" --header "Cookie:XSRF-TOKEN=a14156a0-becc-49d8-bef7-5ac4f0aab389" -v https://api.duoshu.xyz/demo-svc/protected
 ```
-2. 本地启动mt-sample/spring-boot并访问http://localhost:8083/index.html
+2. 本地启动mt-sample/spring-boot并访问http://localhost:8083/index.html或者启动nodejs演示项目
 3. 选择用户账号密码登录，输入测试账号并登录，记录下获得的access_token值(注意不是整个token的值)
 4. 指令中添加获得的token值并重试
 ```shell

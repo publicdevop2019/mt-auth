@@ -6,7 +6,7 @@ import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-cors';
 import { CORSProfileValidator } from 'src/app/clazz/validation/aggregate/cors/validator-cors';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-common';
 import { ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG, ORIGIN_FORM_CONFIG } from 'src/app/form-configs/cors.config';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 @Component({
@@ -63,7 +63,7 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
-      description: formGroup.get('description').value,
+      description: hasValue(formGroup.get('description').value) ? formGroup.get('description').value : undefined,
       allowCredentials: !!formGroup.get('allowCredentials').value,
       allowOrigin: (Object.values(fg0.value) as string[]).filter(e => e),
       allowedHeaders: (Object.values(fg1.value) as string[]).filter(e => e),
