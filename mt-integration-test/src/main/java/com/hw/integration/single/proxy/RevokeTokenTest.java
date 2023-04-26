@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.single.proxy;
 
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
 import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;

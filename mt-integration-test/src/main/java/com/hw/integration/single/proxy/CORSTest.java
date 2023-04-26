@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.single.proxy;
 
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
@@ -102,7 +102,7 @@ public class CORSTest {
         HttpHeaders headers = new HttpHeaders();
         headers.add("Origin", thirdPartyOrigin);
         headers.add("Access-Control-Request-Method", "POST");
-        headers.add("Access-Control-Request-Headers", "authorization,x-requested-with");
+        headers.add("Access-Control-Request-Headers", "authorization");
         HttpEntity<String> request = new HttpEntity<>(headers);
         return TestContext.getRestTemplate()
             .exchange(uri, HttpMethod.OPTIONS, request, String.class);
@@ -114,7 +114,7 @@ public class CORSTest {
         Assert
             .assertEquals("http://localhost:4300", res.getHeaders().getAccessControlAllowOrigin());
         Assert.assertEquals("[POST]", res.getHeaders().getAccessControlAllowMethods().toString());
-        Assert.assertEquals("[authorization, x-requested-with]",
+        Assert.assertEquals("[authorization]",
             res.getHeaders().getAccessControlAllowHeaders().toString());
         Assert.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
     }

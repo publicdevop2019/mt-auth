@@ -2,7 +2,6 @@ package com.hw.helper;
 
 import lombok.Data;
 
-import java.util.List;
 import java.util.Set;
 
 @Data
@@ -13,7 +12,7 @@ public class Client {
     private String name;
     private Set<ClientType> types;
 
-    private Set<GrantTypeEnum> grantTypeEnums;
+    private Set<GrantType> grantTypeEnums;
 
     private Integer accessTokenValiditySeconds;
 

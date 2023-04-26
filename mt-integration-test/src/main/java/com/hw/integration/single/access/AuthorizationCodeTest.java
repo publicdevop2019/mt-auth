@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.oauth2;
+package com.hw.integration.single.access;
 
 import static com.hw.helper.AppConstant.CLIENT_ID_LOGIN_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_OM_ID;
@@ -6,7 +6,7 @@ import static com.hw.helper.AppConstant.EMPTY_CLIENT_SECRET;
 import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;
 import static com.hw.helper.AppConstant.OBJECT_MARKET_REDIRECT_URI;
 
-import com.hw.helper.ServiceUtility;
+import com.hw.helper.utility.JwtUtility;
 import com.hw.helper.utility.OAuth2Utility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
@@ -69,7 +69,7 @@ public class AuthorizationCodeTest {
         Assert.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
         Assert.assertNotNull(authorizationToken.getBody());
         DefaultOAuth2AccessToken body = authorizationToken.getBody();
-        List<String> authorities = ServiceUtility.getPermissions(body.getValue());
+        List<String> authorities = JwtUtility.getPermissions(body.getValue());
         Assert.assertNotEquals(0, authorities.size());
 
     }

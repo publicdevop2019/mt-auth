@@ -1,6 +1,6 @@
-package com.hw.integration.identityaccess.oauth2;
+package com.hw.integration.single.access;
 
-import com.hw.helper.EndpointInfo;
+import com.hw.helper.Endpoint;
 import com.hw.helper.SumTotal;
 import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.TestContext;
@@ -12,7 +12,6 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
@@ -48,28 +47,28 @@ public class EndpointTest {
         log.info("test id {}", TestContext.getTestId());
     }
 
-    private static ResponseEntity<SumTotal<EndpointInfo>> readEndpoints() {
+    private static ResponseEntity<SumTotal<Endpoint>> readEndpoints() {
         String url = UrlUtility.getAccessUrl(ENDPOINTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<EndpointInfo> hashMapHttpEntity1 = new HttpEntity<>(headers1);
+        HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         return TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
             });
     }
 
-    public static ResponseEntity<EndpointInfo> readEndpoint(String id) {
+    public static ResponseEntity<Endpoint> readEndpoint(String id) {
         String url = UrlUtility.getAccessUrl(ENDPOINTS + "/" + id);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<EndpointInfo> hashMapHttpEntity1 = new HttpEntity<>(headers1);
+        HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, EndpointInfo.class);
+            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, Endpoint.class);
     }
 
     @Test
     public void create_new_endpoint_then_delete() {
-        EndpointInfo endpoint = new EndpointInfo();
+        Endpoint endpoint = new Endpoint();
         endpoint.setResourceId("0C8AZTODP4HT");
         endpoint.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
         endpoint.setUserOnly(true);
@@ -88,11 +87,11 @@ public class EndpointTest {
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
     }
 
-    private ResponseEntity<String> updateEndpoint(EndpointInfo endpointInfo, String id) {
+    private ResponseEntity<String> updateEndpoint(Endpoint endpoint, String id) {
         String url = UrlUtility.getAccessUrl(ENDPOINTS + "/" + id);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<EndpointInfo> hashMapHttpEntity1 = new HttpEntity<>(endpointInfo, headers1);
+        HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(endpoint, headers1);
         return TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, hashMapHttpEntity1, String.class);
     }

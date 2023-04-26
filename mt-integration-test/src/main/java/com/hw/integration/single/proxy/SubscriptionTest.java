@@ -1,8 +1,8 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.single.proxy;
 
-import static com.hw.integration.identityaccess.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
+import static com.hw.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
 
-import com.hw.helper.EndpointInfo;
+import com.hw.helper.Endpoint;
 import com.hw.helper.Notification;
 import com.hw.helper.SubscriptionReq;
 import com.hw.helper.SumTotal;
@@ -54,7 +54,7 @@ public class SubscriptionTest {
             NotificationUtility.getUserNotification(login.getBody().getValue());
 
         //mt-auth -> create public shared no auth endpoint
-        EndpointInfo endpoint = new EndpointInfo();
+        Endpoint endpoint = new Endpoint();
         endpoint.setResourceId("0C8AZTODP4HZ");
         endpoint.setName("ExternalSharedNoneAuth");
         endpoint.setMethod("GET");

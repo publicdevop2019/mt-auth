@@ -1,7 +1,7 @@
 package com.hw.helper.utility;
 
-import com.hw.helper.EndpointInfo;
-import com.hw.integration.identityaccess.oauth2.EndpointTest;
+import com.hw.helper.Endpoint;
+import com.hw.integration.single.access.EndpointTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -9,11 +9,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class EndpointUtility {
-    public static ResponseEntity<String> createEndpoint(EndpointInfo endpointInfo) {
+    public static ResponseEntity<String> createEndpoint(Endpoint endpoint) {
         String url = UrlUtility.getAccessUrl(EndpointTest.ENDPOINTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
-        HttpEntity<EndpointInfo> hashMapHttpEntity1 = new HttpEntity<>(endpointInfo, headers1);
+        HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(endpoint, headers1);
         return TestContext.getRestTemplate()
             .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
     }

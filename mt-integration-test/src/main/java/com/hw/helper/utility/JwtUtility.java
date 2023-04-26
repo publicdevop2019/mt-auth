@@ -1,16 +1,14 @@
-package com.hw.helper;
+package com.hw.helper.utility;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 
-public class ServiceUtility {
+public class JwtUtility {
     private static ObjectMapper mapper = new ObjectMapper();
     private static String USER_ID = "uid";
     private static String AUTHORITIES = "permissionIds";
@@ -53,10 +51,5 @@ public class ServiceUtility {
         } catch (IOException e) {
             throw new IllegalArgumentException("unable to find authorities in authorization header");
         }
-    }
-
-
-    public static String getServerTimeStamp() {
-        return OffsetDateTime.now(ZoneOffset.UTC).toString();
     }
 }

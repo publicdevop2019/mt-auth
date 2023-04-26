@@ -3,7 +3,7 @@ package com.hw.helper;
 import lombok.Data;
 
 @Data
-public class PendingResourceOwner {
+public class PendingUser {
     private Long id;
 
     private String email;

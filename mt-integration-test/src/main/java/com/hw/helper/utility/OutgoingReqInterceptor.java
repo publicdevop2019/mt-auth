@@ -1,4 +1,4 @@
-package com.hw.helper;
+package com.hw.helper.utility;
 
 import java.io.IOException;
 import java.util.UUID;

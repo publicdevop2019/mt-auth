@@ -1,12 +1,17 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.single.proxy;
 
+import static com.hw.helper.AppConstant.CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID;
 import static com.hw.helper.AppConstant.CLIENT_MGMT_URL;
+import static com.hw.helper.AppConstant.EMPTY_CLIENT_SECRET;
 import static com.hw.helper.utility.TestContext.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hw.helper.AppConstant;
 import com.hw.helper.Client;
+import com.hw.helper.PendingUser;
+import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
+import com.hw.helper.utility.OAuth2Utility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +28,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 
 /**
@@ -30,7 +36,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-public class ClientApiSecurityTest {
+public class EndpointSecurityTest {
     @Rule
     public TestWatcher watchman = new TestWatcher() {
         @Override
@@ -61,4 +67,15 @@ public class ClientApiSecurityTest {
         Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
     }
 
+    @Test
+    public void should_not_able_to_create_user_w_client_missing_right_role() {
+        User user = UserUtility.createUser();
+        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+            .getOAuth2ClientCredentialToken(CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
+                EMPTY_CLIENT_SECRET);
+        String value = registerTokenResponse.getBody().getValue();
+        ResponseEntity<Void> pendingUser =
+            UserUtility.createPendingUser(user, value, new PendingUser());
+        Assert.assertEquals(HttpStatus.FORBIDDEN, pendingUser.getStatusCode());
+    }
 }

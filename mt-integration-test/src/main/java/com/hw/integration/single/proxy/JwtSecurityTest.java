@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.proxy;
+package com.hw.integration.single.proxy;
 
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;

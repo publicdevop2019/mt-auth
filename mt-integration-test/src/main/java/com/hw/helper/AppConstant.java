@@ -10,7 +10,7 @@ public class AppConstant {
     public static final String CLIENT_ID_TEST_ID = "0C8B00CSATJ6";
     public static final String COMMON_CLIENT_SECRET = "root";
     public static final String EMPTY_CLIENT_SECRET = "";
-    public static final String ACCOUNT_USERNAME_ADMIN = "superAdmin@sample.com";
+    public static final String ACCOUNT_USERNAME_ADMIN = "superadmin@sample.com";
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_MALL_ADMIN = "mall@sample.com";
     public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
@@ -31,5 +31,6 @@ public class AppConstant {
     public static String testUrl = "http://localhost:" + 9999;
     public static final String CLIENT_MGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = proxyUrl + SVC_NAME_AUTH + "/oauth/token";
-
+    public static String ADMIN_USER_ID = "0R8G09BPEZGG";
+    public static String USER_USER_ID = "0R8G09CBKU0W";
 }

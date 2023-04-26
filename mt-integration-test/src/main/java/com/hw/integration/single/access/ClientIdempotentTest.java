@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.oauth2;
+package com.hw.integration.single.access;
 
 import static com.hw.helper.AppConstant.CLIENTS;
 import static com.hw.helper.utility.ConcurrentUtility.assertConcurrent;
@@ -17,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;

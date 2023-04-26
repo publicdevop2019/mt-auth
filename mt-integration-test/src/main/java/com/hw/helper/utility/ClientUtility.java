@@ -4,7 +4,7 @@ import static com.hw.helper.AppConstant.CLIENT_MGMT_URL;
 
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
-import com.hw.helper.GrantTypeEnum;
+import com.hw.helper.GrantType;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,9 +19,9 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class ClientUtility {
     /**
-     * get client as non resource.
+     * get password grant client as non resource.
      *
-     * @return different GRANT_TYPE_PASSWORD client obj
+     * @return client
      */
     public static Client getClientAsNonResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
@@ -41,15 +41,6 @@ public class ClientUtility {
         return client;
     }
 
-    public static Client getInvalidClientAsResource(String... resourceIds) {
-        Client client = getClientRaw(resourceIds);
-        Set<ClientType> strings = new HashSet<>();
-        strings.add(ClientType.FRONTEND_APP);
-        client.setTypes(strings);
-        client.setResourceIndicator(true);
-        return client;
-    }
-
     /**
      * create password grant client with given resource ids.
      *
@@ -60,7 +51,7 @@ public class ClientUtility {
         Client client = new Client();
         client.setName(UUID.randomUUID().toString().replace("-", ""));
         client.setClientSecret(UUID.randomUUID().toString().replace("-", ""));
-        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantTypeEnum.PASSWORD)));
+        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantType.PASSWORD)));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);
@@ -69,7 +60,7 @@ public class ClientUtility {
     }
 
 
-    public static ResponseEntity<String> createClient(Client client) {
+    public static ResponseEntity<Void> createClient(Client client) {
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordAdmin =
             UserUtility.getJwtPasswordAdmin();
         String bearer = jwtPasswordAdmin.getBody().getValue();
@@ -78,7 +69,7 @@ public class ClientUtility {
         headers.setBearerAuth(bearer);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
-            .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
+            .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, Void.class);
     }
 
     public static ResponseEntity<String> createClient(Client client, String changeId) {

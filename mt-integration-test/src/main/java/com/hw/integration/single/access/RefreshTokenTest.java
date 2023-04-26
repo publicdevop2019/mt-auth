@@ -1,12 +1,10 @@
-package com.hw.integration.identityaccess.oauth2;
-
-import static com.hw.integration.identityaccess.oauth2.UserTest.USER_MGMT;
+package com.hw.integration.single.access;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.hw.helper.AppConstant;
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
-import com.hw.helper.GrantTypeEnum;
+import com.hw.helper.GrantType;
 import com.hw.helper.SumTotal;
 import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
@@ -60,15 +58,15 @@ public class RefreshTokenTest {
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw();
         String clientSecret = clientRaw.getClientSecret();
-        HashSet<GrantTypeEnum> enums = new HashSet<>();
-        enums.add(GrantTypeEnum.PASSWORD);
-        enums.add(GrantTypeEnum.REFRESH_TOKEN);
+        HashSet<GrantType> enums = new HashSet<>();
+        enums.add(GrantType.PASSWORD);
+        enums.add(GrantType.REFRESH_TOKEN);
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setTypes(new HashSet<>(List.of(ClientType.BACKEND_APP)));
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
-        ResponseEntity<String> client = ClientUtility.createClient(clientRaw);
+        ResponseEntity<Void> client = ClientUtility.createClient(clientRaw);
         String clientId = client.getHeaders().getLocation().toString();
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
@@ -77,7 +75,7 @@ public class RefreshTokenTest {
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         //access endpoint
-        String url = UrlUtility.getAccessUrl(USER_MGMT);
+        String url = UrlUtility.getAccessUrl(UserTest.USER_MGMT);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -113,14 +111,14 @@ public class RefreshTokenTest {
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw();
         String clientSecret = clientRaw.getClientSecret();
-        HashSet<GrantTypeEnum> enums = new HashSet<>();
-        enums.add(GrantTypeEnum.PASSWORD);
-        enums.add(GrantTypeEnum.REFRESH_TOKEN);
+        HashSet<GrantType> enums = new HashSet<>();
+        enums.add(GrantType.PASSWORD);
+        enums.add(GrantType.REFRESH_TOKEN);
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
-        ResponseEntity<String> client = ClientUtility.createClient(clientRaw);
+        ResponseEntity<Void> client = ClientUtility.createClient(clientRaw);
         String clientId = client.getHeaders().getLocation().toString();
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt

@@ -1,9 +1,8 @@
-package com.hw.integration.identityaccess.oauth2;
+package com.hw.integration.single.access;
 
 import static com.hw.helper.utility.TestContext.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.hw.helper.AccessConstant;
 import com.hw.helper.AppConstant;
 import com.hw.helper.ForgetPasswordRequest;
 import com.hw.helper.SumTotal;
@@ -192,7 +191,7 @@ public class UserTest {
         headers.setBearerAuth(bearer);
 
         user.setGrantedAuthorities(
-            List.of(AccessConstant.ADMIN_USER_ID, AccessConstant.USER_USER_ID));
+            List.of(AppConstant.ADMIN_USER_ID, AppConstant.USER_USER_ID));
         String s1 = mapper.writeValueAsString(user);
         HttpEntity<String> request = new HttpEntity<>(s1, headers);
         String url =
@@ -216,7 +215,7 @@ public class UserTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
-        user.setGrantedAuthorities(List.of(AccessConstant.USER_USER_ID));
+        user.setGrantedAuthorities(List.of(AppConstant.USER_USER_ID));
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);

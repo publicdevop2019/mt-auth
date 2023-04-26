@@ -1,4 +1,4 @@
-package com.hw.integration.identityaccess.oauth2;
+package com.hw.integration.single.access;
 
 import static com.hw.helper.AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS;
 import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;

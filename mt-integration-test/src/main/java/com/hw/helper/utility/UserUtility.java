@@ -10,7 +10,7 @@ import static com.hw.helper.AppConstant.CLIENT_ID_LOGIN_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_REGISTER_ID;
 import static com.hw.helper.AppConstant.EMPTY_CLIENT_SECRET;
 
-import com.hw.helper.PendingResourceOwner;
+import com.hw.helper.PendingUser;
 import com.hw.helper.User;
 import java.util.Objects;
 import java.util.UUID;
@@ -76,39 +76,39 @@ public class UserUtility {
     public static ResponseEntity<DefaultOAuth2AccessToken> register(User user) {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(CLIENT_ID_REGISTER_ID, EMPTY_CLIENT_SECRET);
-        PendingResourceOwner pendingResourceOwner = new PendingResourceOwner();
-        createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingResourceOwner);
+        PendingUser pendingUser = new PendingUser();
+        createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingUser);
         return enterActivationCode(user, registerTokenResponse.getBody().getValue(),
-            pendingResourceOwner);
+            pendingUser);
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> enterActivationCode(User user,
                                                                                String registerToken,
-                                                                               PendingResourceOwner pendingResourceOwner) {
+                                                                               PendingUser pendingUser) {
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setContentType(MediaType.APPLICATION_JSON);
         headers1.setBearerAuth(registerToken);
         headers1.set("changeId", UUID.randomUUID().toString());
-        pendingResourceOwner.setPassword(user.getPassword());
-        pendingResourceOwner.setActivationCode("123456");
-        HttpEntity<PendingResourceOwner> request1 =
-            new HttpEntity<>(pendingResourceOwner, headers1);
+        pendingUser.setPassword(user.getPassword());
+        pendingUser.setActivationCode("123456");
+        HttpEntity<PendingUser> request1 =
+            new HttpEntity<>(pendingUser, headers1);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl("/users"), HttpMethod.POST, request1,
                 DefaultOAuth2AccessToken.class);
     }
 
     public static ResponseEntity<Void> createPendingUser(User user, String registerToken,
-                                                         PendingResourceOwner pendingResourceOwner) {
+                                                         PendingUser pendingUser) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(registerToken);
         headers.set("changeId", UUID.randomUUID().toString());
-        pendingResourceOwner.setEmail(user.getEmail());
-        pendingResourceOwner.setMobileNumber(user.getMobileNumber());
-        pendingResourceOwner.setCountryCode(user.getCountryCode());
+        pendingUser.setEmail(user.getEmail());
+        pendingUser.setMobileNumber(user.getMobileNumber());
+        pendingUser.setCountryCode(user.getCountryCode());
 
-        HttpEntity<PendingResourceOwner> request = new HttpEntity<>(pendingResourceOwner, headers);
+        HttpEntity<PendingUser> request = new HttpEntity<>(pendingUser, headers);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl("/pending-users"), HttpMethod.POST, request,
                 Void.class);

@@ -1,7 +1,7 @@
 package com.hw.helper;
 
 
-public enum GrantTypeEnum {
+public enum GrantType {
     CLIENT_CREDENTIALS,
     PASSWORD,
     REFRESH_TOKEN,
