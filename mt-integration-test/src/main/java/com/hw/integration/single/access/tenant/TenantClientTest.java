@@ -1,4 +1,4 @@
-package com.hw.integration.single.access;
+package com.hw.integration.single.access.tenant;
 
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
 import static com.hw.helper.AppConstant.ACCOUNT_USERNAME_ADMIN;
@@ -17,17 +17,15 @@ import com.hw.helper.utility.OAuth2Utility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
+import com.hw.integration.single.access.UserTest;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -41,22 +39,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantClientTest {
+public class TenantClientTest  extends CommonTest {
 
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     @Test
     public void frontend_type_client_can_not_be_resource() {
@@ -442,5 +426,13 @@ public class TenantClientTest {
             });
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
     }
+    @Test
+    public void client_and_its_endpoint_should_be_deleted(){
 
+    }
+
+    @Test
+    public void client_validation_should_work(){
+
+    }
 }

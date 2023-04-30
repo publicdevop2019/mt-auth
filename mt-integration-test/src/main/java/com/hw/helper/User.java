@@ -16,9 +16,6 @@ public class User {
 
     private Boolean locked;
 
-    private List<String> grantedAuthorities;
-
-    private Set<String> resourceId;
     private Integer version;
     private String mobileNumber;
     private String countryCode;

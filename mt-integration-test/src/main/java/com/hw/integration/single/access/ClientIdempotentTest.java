@@ -14,7 +14,6 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpEntity;
@@ -28,13 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class ClientIdempotentTest {
+public class ClientIdempotentTest  extends CommonTest {
 
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     @Test
     public void create_client_w_same_changeId_two_times() {

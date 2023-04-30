@@ -6,17 +6,14 @@ import com.hw.helper.utility.ConcurrentUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
@@ -30,22 +27,8 @@ import org.springframework.web.client.RestTemplate;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class GatewayFilterTest {
+public class GatewayFilterTest  extends CommonTest {
     public static final String X_MT_RATELIMIT_LEFT = "x-mt-ratelimit-left";
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     @Test
     public void should_get_etag_for_get_resources() {

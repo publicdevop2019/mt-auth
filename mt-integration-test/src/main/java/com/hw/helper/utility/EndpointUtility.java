@@ -1,7 +1,7 @@
 package com.hw.helper.utility;
 
 import com.hw.helper.Endpoint;
-import com.hw.integration.single.access.EndpointTest;
+import com.hw.integration.single.access.tenant.TenantEndpointTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 
 public class EndpointUtility {
     public static ResponseEntity<String> createEndpoint(Endpoint endpoint) {
-        String url = UrlUtility.getAccessUrl(EndpointTest.ENDPOINTS);
+        String url = UrlUtility.getAccessUrl(TenantEndpointTest.ENDPOINTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(endpoint, headers1);
@@ -19,7 +19,7 @@ public class EndpointUtility {
     }
 
     public static ResponseEntity<String> expireEndpoint(String endpointId) {
-        String url = UrlUtility.getAccessUrl(EndpointTest.ENDPOINTS) + "/" + endpointId + "/expire";
+        String url = UrlUtility.getAccessUrl(TenantEndpointTest.ENDPOINTS) + "/" + endpointId + "/expire";
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         headers1.setContentType(MediaType.APPLICATION_JSON);

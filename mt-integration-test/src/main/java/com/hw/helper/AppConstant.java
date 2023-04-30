@@ -14,7 +14,7 @@ public class AppConstant {
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_MALL_ADMIN = "mall@sample.com";
     public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
-    public static final String ACCOUNT_USERNAME_USER = "user1@sample.com";
+    public static final String ACCOUNT_USERNAME_USER = "testuser1@sample.com";
     public static final String ACCOUNT_PASSWORD_USER = "Password1!";
     public static final String SVC_NAME_AUTH = "/auth-svc";
     public static final String SVC_NAME_TEST = "/test-svc";

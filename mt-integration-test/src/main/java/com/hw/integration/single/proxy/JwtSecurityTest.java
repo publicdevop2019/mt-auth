@@ -3,17 +3,13 @@ package com.hw.integration.single.proxy;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,21 +20,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class JwtSecurityTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class JwtSecurityTest  extends CommonTest {
 
 
     @Test

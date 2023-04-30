@@ -6,15 +6,10 @@ import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;
 import com.hw.helper.AppConstant;
 import com.hw.helper.User;
 import com.hw.helper.utility.OAuth2Utility;
-import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,26 +19,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class PasswordFlowTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class PasswordFlowTest  extends CommonTest {
 
     @Test
     public void create_user_then_login() {
-        User user = UserUtility.createUser();
-        ResponseEntity<DefaultOAuth2AccessToken> user1 = UserUtility.register(user);
+        User user = UserUtility.createUserObj();
+        ResponseEntity<Void> user1 = UserUtility.register(user);
         Assert.assertEquals(HttpStatus.OK, user1.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             user.getEmail(), user.getPassword());

@@ -8,17 +8,12 @@ import static com.hw.helper.AppConstant.OBJECT_MARKET_REDIRECT_URI;
 
 import com.hw.helper.utility.JwtUtility;
 import com.hw.helper.utility.OAuth2Utility;
-import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,24 +22,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class AuthorizationCodeTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class AuthorizationCodeTest  extends CommonTest {
 
     @Test
-    public void should_get_authorize_code_after_pwd_login_for_user() {
+    public void get_authorize_code_after_pwd_login_for_user() {
         ResponseEntity<String> code = OAuth2Utility
             .getOAuth2AuthorizationCode(CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
                 OBJECT_MARKET_REDIRECT_URI);
@@ -53,7 +34,7 @@ public class AuthorizationCodeTest {
     }
 
     @Test
-    public void should_authorize_token_has_permission() {
+    public void authorize_token_has_permission() {
         ResponseEntity<String> codeResp = OAuth2Utility
             .getOAuth2AuthorizationCode(CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
                 OBJECT_MARKET_REDIRECT_URI);

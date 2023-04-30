@@ -140,7 +140,7 @@ public class EndpointService {
         Optional<Endpoint> endpoint = findEndpoint(sameResourceId, requestUri, method, websocket);
         boolean passed;
         if (endpoint.isPresent()) {
-            passed = endpoint.get().allowAccess(jwtRaw);
+            passed = endpoint.get().allowAccess(jwtRaw,log);
         } else {
             log.debug("return 403 due to endpoint not found or duplicate endpoints");
             return false;

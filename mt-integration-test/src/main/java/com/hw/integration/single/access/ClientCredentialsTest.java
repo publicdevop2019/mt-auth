@@ -5,15 +5,10 @@ import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;
 
 import com.hw.helper.AppConstant;
 import com.hw.helper.utility.OAuth2Utility;
-import com.hw.helper.utility.TestContext;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,21 +17,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class ClientCredentialsTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class ClientCredentialsTest  extends CommonTest {
 
     @Test
     public void use_client_with_secret() {

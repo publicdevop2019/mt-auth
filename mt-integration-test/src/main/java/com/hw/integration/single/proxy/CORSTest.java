@@ -2,13 +2,10 @@ package com.hw.integration.single.proxy;
 
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
+import com.hw.integration.single.access.CommonTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -22,24 +19,10 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @Slf4j
-public class CORSTest {
+public class CORSTest  extends CommonTest {
     private final String thirdPartyOrigin = "http://localhost:4300";
     private final String[] corsUris = {"/oauth/token", "/mgmt/clients/0", "/mgmt/clients",
         "/authorize", "/mgmt/users", "/mgmt/users/0", "/users/pwd", "/users"};
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     @Test
     public void cors_oauthToken() {

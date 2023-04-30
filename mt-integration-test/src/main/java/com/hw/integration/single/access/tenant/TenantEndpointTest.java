@@ -1,4 +1,4 @@
-package com.hw.integration.single.access;
+package com.hw.integration.single.access.tenant;
 
 import com.hw.helper.Endpoint;
 import com.hw.helper.SumTotal;
@@ -6,16 +6,13 @@ import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -30,22 +27,8 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @Slf4j
-public class EndpointTest {
+public class TenantEndpointTest  extends CommonTest {
     public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     private static ResponseEntity<SumTotal<Endpoint>> readEndpoints() {
         String url = UrlUtility.getAccessUrl(ENDPOINTS);
@@ -103,5 +86,23 @@ public class EndpointTest {
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         return TestContext.getRestTemplate()
             .exchange(url, HttpMethod.DELETE, hashMapHttpEntity1, String.class);
+    }
+
+    @Test
+    public void create_endpoint_then_update() {
+
+    }
+    @Test
+    public void create_endpoint_then_read() {
+
+    }
+
+    @Test
+    public void create_endpoint_for_share_then_expire_and_delete() {
+
+    }
+    @Test
+    public void endpoint_validation_should_work(){
+
     }
 }

@@ -1,7 +1,6 @@
 package com.hw.integration.single.proxy;
 
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
-import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
 import static com.hw.helper.AppConstant.proxyUrl;
 import static com.hw.helper.utility.TestContext.mapper;
 
@@ -10,16 +9,12 @@ import com.hw.helper.AppConstant;
 import com.hw.helper.utility.OAuth2Utility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -28,31 +23,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 
 /**
  * this integration auth requires oauth2service to be running.
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-public class RevokeTokenTest {
+public class RevokeTokenTest  extends CommonTest {
     public static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
-
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
 
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()

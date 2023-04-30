@@ -19,11 +19,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -37,21 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class RefreshTokenTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class RefreshTokenTest  extends CommonTest {
 
     @Test
     public void refresh_token_should_work() throws InterruptedException {
@@ -114,10 +96,12 @@ public class RefreshTokenTest {
         HashSet<GrantType> enums = new HashSet<>();
         enums.add(GrantType.PASSWORD);
         enums.add(GrantType.REFRESH_TOKEN);
+        clientRaw.setTypes(Collections.singleton(ClientType.BACKEND_APP));
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
+
         ResponseEntity<Void> client = ClientUtility.createClient(clientRaw);
         String clientId = client.getHeaders().getLocation().toString();
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());

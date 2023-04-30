@@ -14,13 +14,10 @@ import com.hw.helper.utility.ClientUtility;
 import com.hw.helper.utility.OAuth2Utility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UserUtility;
+import com.hw.integration.single.access.CommonTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -36,21 +33,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @Slf4j
 @RunWith(SpringRunner.class)
-public class EndpointSecurityTest {
-    @Rule
-    public TestWatcher watchman = new TestWatcher() {
-        @Override
-        protected void failed(Throwable e, Description description) {
-            log.error("test failed, method {}, id {}", description.getMethodName(),
-                TestContext.getTestId());
-        }
-    };
-
-    @Before
-    public void setUp() {
-        TestContext.init();
-        log.info("test id {}", TestContext.getTestId());
-    }
+public class EndpointSecurityTest  extends CommonTest {
 
     @Test
     public void should_not_able_to_create_client_w_admin_account_when_going_through_proxy()
@@ -69,7 +52,7 @@ public class EndpointSecurityTest {
 
     @Test
     public void should_not_able_to_create_user_w_client_missing_right_role() {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
                 EMPTY_CLIENT_SECRET);

@@ -53,12 +53,12 @@ public class UserUtility {
 //    }
 
 
-    public static User createUser() {
-        return userCreateDraft(UUID.randomUUID().toString().replace("-", "") + "@gmail.com",
+    public static User createUserObj() {
+        return userCreateDraftObj(UUID.randomUUID().toString().replace("-", "") + "@gmail.com",
             UUID.randomUUID().toString().replace("-", ""));
     }
 
-    public static User userCreateDraft(String username, String password) {
+    public static User userCreateDraftObj(String username, String password) {
         User user = new User();
         user.setEmail(username);
         user.setPassword("P1!" + password.substring(0, 10));
@@ -67,35 +67,30 @@ public class UserUtility {
         return user;
     }
 
-    public static User randomRegisterAnUser() {
-        User random = createUser();
-        register(random);
-        return random;
-    }
-
-    public static ResponseEntity<DefaultOAuth2AccessToken> register(User user) {
+    public static ResponseEntity<Void> register(User user) {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(CLIENT_ID_REGISTER_ID, EMPTY_CLIENT_SECRET);
-        PendingUser pendingUser = new PendingUser();
-        createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingUser);
-        return enterActivationCode(user, registerTokenResponse.getBody().getValue(),
-            pendingUser);
+        createPendingUser(user);
+        return enterActivationCode(user, registerTokenResponse.getBody().getValue());
     }
 
-    public static ResponseEntity<DefaultOAuth2AccessToken> enterActivationCode(User user,
-                                                                               String registerToken,
-                                                                               PendingUser pendingUser) {
+    public static ResponseEntity<Void> enterActivationCode(User user,
+                                                           String registerToken) {
+        PendingUser pendingUser = new PendingUser();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setContentType(MediaType.APPLICATION_JSON);
         headers1.setBearerAuth(registerToken);
         headers1.set("changeId", UUID.randomUUID().toString());
+        pendingUser.setEmail(user.getEmail());
+        pendingUser.setCountryCode(user.getCountryCode());
+        pendingUser.setMobileNumber(user.getMobileNumber());
         pendingUser.setPassword(user.getPassword());
         pendingUser.setActivationCode("123456");
         HttpEntity<PendingUser> request1 =
             new HttpEntity<>(pendingUser, headers1);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl("/users"), HttpMethod.POST, request1,
-                DefaultOAuth2AccessToken.class);
+                Void.class);
     }
 
     public static ResponseEntity<Void> createPendingUser(User user, String registerToken,
@@ -114,13 +109,20 @@ public class UserUtility {
                 Void.class);
     }
 
+    public static ResponseEntity<Void> createPendingUser(User user) {
+        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+            .getOAuth2ClientCredentialToken(CLIENT_ID_REGISTER_ID, EMPTY_CLIENT_SECRET);
+        PendingUser pendingUser = new PendingUser();
+        return createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingUser);
+    }
+
     /**
      * register new user then login.
      *
      * @return login token
      */
     public static String registerNewUserThenLogin() {
-        User randomUser = createUser();
+        User randomUser = createUserObj();
         register(randomUser);
         ResponseEntity<DefaultOAuth2AccessToken> loginTokenResponse =
             login(randomUser.getEmail(), randomUser.getPassword());

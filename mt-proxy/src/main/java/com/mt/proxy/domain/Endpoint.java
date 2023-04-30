@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.slf4j.Logger;
 
 /**
  * mirror of mt-access EndpointProxyCacheRepresentation
@@ -36,15 +37,23 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Subscription> subscriptions;
 
-    public boolean allowAccess(String jwtRaw) throws ParseException {
+    public boolean allowAccess(String jwtRaw, Logger log) throws ParseException {
         if (secured && permissionId == null) {
+            log.debug("not pass check due to permissionId missing");
             return false;
         }
         if (!secured && permissionId == null) {
+            log.debug("pass check due to public endpoint");
             return true;
         }
-        Set<String> roles = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
-        return roles.contains(permissionId);
+        Set<String> permissionIds = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
+        boolean contains = permissionIds.contains(permissionId);
+        if (contains) {
+            log.debug("pass check due to permissionId match");
+        } else {
+            log.debug("not pass check due to permissionId mismatch");
+        }
+        return contains;
     }
 
     public boolean hasCorsInfo() {
