@@ -13,6 +13,7 @@ import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
@@ -85,15 +86,15 @@ public class EndpointResource {
     }
 
     @GetMapping(path = "mgmt/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> mgmtQuery(
+    public ResponseEntity<EndpointMgmtRepresentation> mgmtQuery(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Endpoint> endpoint =
             ApplicationServiceRegistry.getEndpointApplicationService().mgmtQuery(id);
-        return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return endpoint.map(value -> ResponseEntity.ok(new EndpointMgmtRepresentation(value)))
+            .orElseGet(() -> ResponseEntity.badRequest().build());
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.hw.integration.single.proxy;
 
 import static com.hw.helper.AppConstant.ACCOUNT_PASSWORD_ADMIN;
-import static com.hw.helper.AppConstant.proxyUrl;
+import static com.hw.helper.AppConstant.PROXY_URL;
 import static com.hw.helper.utility.TestContext.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,8 +36,8 @@ public class RevokeTokenTest  extends CommonTest {
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()
         throws JsonProcessingException, InterruptedException {
         Thread.sleep(10000);
-        String url = proxyUrl + PROXY_BLACKLIST;
-        String url2 = proxyUrl + AppConstant.SVC_NAME_TEST + "/get/test";
+        String url = PROXY_URL + PROXY_BLACKLIST;
+        String url2 = PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
          * before client get blacklisted, client is able to access auth server non token endpoint
          */
@@ -98,7 +98,7 @@ public class RevokeTokenTest  extends CommonTest {
     @Test
     public void only_root_user_can_add_blacklist_client() throws JsonProcessingException {
 
-        String url = proxyUrl + PROXY_BLACKLIST;
+        String url = PROXY_URL + PROXY_BLACKLIST;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
         stringStringHashMap.put("type", "CLIENT");
@@ -115,7 +115,7 @@ public class RevokeTokenTest  extends CommonTest {
     @Test
     public void receive_request_blacklist_user_then_block_user_old_request()
         throws JsonProcessingException, InterruptedException {
-        String url2 = proxyUrl + AppConstant.SVC_NAME_TEST + "/get/test";
+        String url2 = PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
          * user can login & call resourceOwner api & refresh token should work
          */
@@ -140,7 +140,7 @@ public class RevokeTokenTest  extends CommonTest {
          * blacklist admin account
          */
 
-        String url = proxyUrl + PROXY_BLACKLIST;
+        String url = PROXY_URL + PROXY_BLACKLIST;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", userId);
         stringStringHashMap.put("type", "USER");

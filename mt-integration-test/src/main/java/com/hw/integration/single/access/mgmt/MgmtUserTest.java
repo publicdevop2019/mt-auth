@@ -3,10 +3,13 @@ package com.hw.integration.single.access.mgmt;
 import com.hw.helper.AppConstant;
 import com.hw.helper.SumTotal;
 import com.hw.helper.User;
+import com.hw.helper.UserMgmt;
+import com.hw.helper.utility.RandomUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
 import com.hw.integration.single.access.CommonTest;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -23,26 +26,43 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class MgmtUserTest  extends CommonTest {
+public class MgmtUserTest extends CommonTest {
     public static final String USER_MGMT = "/mgmt/users";
     private static final String root_index = "0U8AZTODP4H0";
-    @Test
-    public void admin_can_view_user_detail(){
-        //include login history
-    }
+
     @Test
     public void admin_can_view_all_users() {
         String url = UrlUtility.getAccessUrl(USER_MGMT);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(tokenResponse.getBody().getValue());
+        headers.setBearerAuth(jwtAdmin);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
             });
 
         Assert.assertNotSame(0, exchange.getBody().getData().size());
+    }
+
+    @Test
+    public void admin_can_view_user_detail_include_login_history() {
+        //include login history
+        String jwtAdmin = UserUtility.getJwtAdmin();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(jwtAdmin);
+        HttpEntity<String> request = new HttpEntity<>(null, headers);
+        ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(USER_MGMT), HttpMethod.GET, request,
+                new ParameterizedTypeReference<>() {
+                });
+        List<User> data = exchange.getBody().getData();
+        int i = RandomUtility.pickRandomFromList(data.size());
+        User user = data.get(i);
+        ResponseEntity<UserMgmt> exchange2 = TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(USER_MGMT, user.getId())),
+                HttpMethod.GET, request, UserMgmt.class);
+        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assert.assertNotNull(exchange2.getBody().getLoginHistory());
     }
 
     @Test
@@ -74,6 +94,7 @@ public class MgmtUserTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
 
     }
+
     @Test
     public void admin_cannot_delete_root_user() {
 
@@ -96,6 +117,7 @@ public class MgmtUserTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
 
     }
+
     @Test
     public void admin_can_lock_then_unlock_user() {
         User user = UserUtility.createUserObj();
@@ -135,9 +157,8 @@ public class MgmtUserTest  extends CommonTest {
     }
 
 
-
     @Test
-    public void user_cannot_update_user_via_mgmt(){
+    public void user_cannot_update_user_via_mgmt() {
         User user = UserUtility.createUserObj();
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(

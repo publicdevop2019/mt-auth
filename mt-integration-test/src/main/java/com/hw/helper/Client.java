@@ -7,6 +7,7 @@ import java.util.Set;
 @Data
 public class Client {
 
+    private String id;
     private String clientSecret;
     private String description;
     private String name;

@@ -7,7 +7,7 @@ import static com.hw.helper.AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS;
 import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;
 import static com.hw.helper.AppConstant.PROJECT_ID;
 import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
-import static com.hw.helper.AppConstant.proxyUrl;
+import static com.hw.helper.AppConstant.PROXY_URL;
 
 import com.hw.helper.AppConstant;
 import com.jayway.jsonpath.JsonPath;
@@ -82,7 +82,7 @@ public class OAuth2Utility {
         headers.setBearerAuth(bearerToken);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
-        String url = proxyUrl + AppConstant.SVC_NAME_AUTH + "/authorize";
+        String url = PROXY_URL + AppConstant.SVC_NAME_AUTH + "/authorize";
         return TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, String.class);
     }
 

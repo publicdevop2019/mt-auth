@@ -19,7 +19,7 @@ import com.hw.integration.single.access.tenant.TenantPermissionTest;
 import com.hw.integration.single.access.tenant.TenantProjectTest;
 import com.hw.integration.single.access.tenant.TenantRoleTest;
 import com.hw.integration.single.access.tenant.TenantUserTest;
-import com.hw.integration.single.proxy.CORSTest;
+import com.hw.integration.single.proxy.CorsTest;
 import com.hw.integration.single.proxy.EndpointSecurityTest;
 import com.hw.integration.single.access.tenant.TenantEndpointTest;
 import com.hw.integration.single.proxy.GatewayFilterTest;
@@ -36,7 +36,7 @@ import org.junit.runners.Suite;
     PasswordFlowTest.class,
     RefreshTokenTest.class,
     UserTest.class,
-    CORSTest.class,
+    CorsTest.class,
     EndpointSecurityTest.class,
     GatewayFilterTest.class,
     JwtSecurityTest.class,

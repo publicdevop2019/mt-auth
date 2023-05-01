@@ -19,7 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
  */
 @RunWith(SpringRunner.class)
 @Slf4j
-public class CORSTest  extends CommonTest {
+public class CorsTest extends CommonTest {
     private final String thirdPartyOrigin = "http://localhost:4300";
     private final String[] corsUris = {"/oauth/token", "/mgmt/clients/0", "/mgmt/clients",
         "/authorize", "/mgmt/users", "/mgmt/users/0", "/users/pwd", "/users"};

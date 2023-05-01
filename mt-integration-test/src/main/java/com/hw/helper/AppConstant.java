@@ -26,11 +26,22 @@ public class AppConstant {
     public static final String AUTHORIZE_RESPONSE_TYPE = "code";
     public static final String PROJECT_ID = "0P8HPG99R56P";
     public static final String CLIENTS = "/projects/0P8HE307W6IO/clients";
-    public static String proxyUrl = "http://localhost:" + 8111;
-    public static String accessUrl = "http://localhost:" + 8080;
-    public static String testUrl = "http://localhost:" + 9999;
-    public static final String CLIENT_MGMT_URL = proxyUrl + SVC_NAME_AUTH + CLIENTS;
-    public static String PROXY_URL_TOKEN = proxyUrl + SVC_NAME_AUTH + "/oauth/token";
+    public static final String MGMT_CLIENTS = "/mgmt/clients";
+    public static final String MGMT_ENDPOINTS = "/mgmt/endpoints";
+    public static final String MGMT_PROJECTS = "/mgmt/projects";
+    public static final String MGMT_JOBS = "/mgmt/jobs";
+    public static final String MGMT_TOKENS = "/mgmt/revoke-tokens";
+    public static final String MGMT_PROXY_CHECK = "/mgmt/proxy/check";
+    public static final String MGMT_PROXY_RELOAD = "/mgmt/endpoints/event/reload";
+    public static final String MGMT_BELL = "/mgmt/notifications/bell";
+    public static final String MGMT_EVENT = "/mgmt/events";
+    public static final String MGMT_NOTIFICATION = "/mgmt/notifications";
+    public static final String MGMT_EVENT_AUDIT = "/mgmt/events/audit";
+    public static String PROXY_URL = "http://localhost:" + 8111;
+    public static String ACCESS_URL = "http://localhost:" + 8080;
+    public static String TEST_URL = "http://localhost:" + 9999;
+    public static final String CLIENT_MGMT_URL = PROXY_URL + SVC_NAME_AUTH + CLIENTS;
+    public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";
     public static String ADMIN_USER_ID = "0R8G09BPEZGG";
     public static String USER_USER_ID = "0R8G09CBKU0W";
 }
