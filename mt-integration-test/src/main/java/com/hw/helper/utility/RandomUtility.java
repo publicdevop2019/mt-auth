@@ -62,6 +62,14 @@ public class RandomUtility {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
+    public static String randomStringWithNumNullable() {
+        int i = random.nextInt(2);
+        if (i == 0) {
+            return null;
+        }
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
     public static String randomStringNoNum() {
         return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
     }

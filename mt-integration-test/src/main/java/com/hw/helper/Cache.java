@@ -16,5 +16,5 @@ public class Cache {
     private boolean etag;
     private boolean allowCache;
     private boolean weakValidation;
-    private int version;
+    private Integer version;
 }

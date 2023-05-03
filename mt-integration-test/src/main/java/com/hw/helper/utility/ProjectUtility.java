@@ -40,4 +40,16 @@ public class ProjectUtility {
                 });
         return exchange.getBody();
     }
+
+    public static Project tenantCreateProject(User tenantUser) {
+        //create new project
+        createTenantProject(RandomUtility.randomStringWithNum(), tenantUser);
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        SumTotal<Project> tenantProjects = getTenantProjects(tenantUser);
+        return tenantProjects.getData().get(0);
+    }
 }

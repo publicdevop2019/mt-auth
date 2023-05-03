@@ -73,11 +73,15 @@ public class FormattedAccessRecord {
             Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap.get(REQ_TIMESTAMP))));
         this.method = recordAsMap.get(METHOD);
         this.endpointId = new EndpointId(recordAsMap.get(ENDPOINT_ID_KEY));
-        this.clientIp = recordAsMap.get(CLIENT_IP);
+        setClientIp(recordAsMap.get(CLIENT_IP));
         Map<String, String> recordAsMap1 = response.getRecordAsMap();
         this.responseAt =
             Date.from(Instant.ofEpochMilli(Long.parseLong(recordAsMap1.get(RESP_TIMESTAMP))));
         this.responseCode = Integer.parseInt(recordAsMap1.get(STATUS_CODE));
         this.responseContentSize = Integer.parseInt(recordAsMap1.get(CONTENT_LENGTH));
+    }
+
+    private void setClientIp(String clientIp) {
+        this.clientIp = clientIp.replace("_", ":");
     }
 }

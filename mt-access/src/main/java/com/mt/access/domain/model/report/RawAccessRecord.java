@@ -52,7 +52,11 @@ public class RawAccessRecord {
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         String[] split = record.split(",");
         Arrays.stream(split).forEach(str -> {
-            stringStringHashMap.put(str.split(":")[0], str.split(":")[1]);
+            if (str.split(":").length != 2) {
+                log.error("invalid record format {}", str);
+            } else {
+                stringStringHashMap.put(str.split(":")[0], str.split(":")[1]);
+            }
         });
         return stringStringHashMap;
     }

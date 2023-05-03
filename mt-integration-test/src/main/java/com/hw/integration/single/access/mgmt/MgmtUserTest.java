@@ -68,7 +68,7 @@ public class MgmtUserTest extends CommonTest {
 
     @Test
     public void admin_can_delete_user() {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
         String s = Objects.requireNonNull(user1.getHeaders().getLocation()).toString();
@@ -121,7 +121,7 @@ public class MgmtUserTest extends CommonTest {
 
     @Test
     public void admin_can_lock_then_unlock_user() {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> createResp = UserUtility.register(user);
         String s = Objects.requireNonNull(createResp.getHeaders().getLocation()).toString();
 
@@ -160,7 +160,7 @@ public class MgmtUserTest extends CommonTest {
 
     @Test
     public void user_cannot_update_user_via_mgmt() {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER);

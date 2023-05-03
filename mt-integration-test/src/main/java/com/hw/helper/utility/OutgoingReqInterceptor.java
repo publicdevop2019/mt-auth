@@ -25,7 +25,14 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
         throws IOException {
         httpRequest.getHeaders().set("testId", testId.toString());
         if (httpRequest.getHeaders().get("changeId") == null) {
-            httpRequest.getHeaders().set("changeId", UUID.randomUUID().toString());
+            String s = UUID.randomUUID().toString();
+            log.debug("change id for request is {}", s);
+            httpRequest.getHeaders().set("changeId", s);
+        }
+        if (httpRequest.getHeaders().get("uuid") == null) {
+            String s = UUID.randomUUID().toString();
+            log.info("{} uuid {}", httpRequest.getURI(), s);
+            httpRequest.getHeaders().set("uuid", s);
         }
         httpRequest.getHeaders().set("X-XSRF-TOKEN", "123");
         httpRequest.getHeaders().add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");

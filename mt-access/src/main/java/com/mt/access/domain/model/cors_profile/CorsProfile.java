@@ -123,6 +123,33 @@ public class CorsProfile extends Auditable {
         }
     }
 
+    private void setAllowedHeaders(Set<String> allowedHeaders) {
+        if (!Objects.equals(allowedHeaders, this.allowedHeaders)) {
+            if (this.allowedHeaders != null) {
+                this.allowedHeaders.clear();
+            }
+            this.allowedHeaders = allowedHeaders;
+        }
+    }
+
+    private void setAllowOrigin(Set<Origin> allowOrigin) {
+        if (!Objects.equals(allowOrigin, this.allowOrigin)) {
+            if (this.allowOrigin != null) {
+                this.allowOrigin.clear();
+            }
+            this.allowOrigin = allowOrigin;
+        }
+    }
+
+    private void setExposedHeaders(Set<String> exposedHeaders) {
+        if (!Objects.equals(exposedHeaders, this.exposedHeaders)) {
+            if (this.exposedHeaders != null) {
+                this.exposedHeaders.clear();
+            }
+            this.exposedHeaders = exposedHeaders;
+        }
+    }
+
     public void removeAllReference() {
         CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileRemoved(this));
     }

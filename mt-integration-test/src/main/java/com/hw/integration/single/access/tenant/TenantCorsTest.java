@@ -1,38 +1,139 @@
 package com.hw.integration.single.access.tenant;
 
+import com.hw.helper.Cache;
 import com.hw.helper.Client;
+import com.hw.helper.Cors;
+import com.hw.helper.Endpoint;
+import com.hw.helper.SumTotal;
+import com.hw.helper.utility.CacheUtility;
 import com.hw.helper.utility.ClientUtility;
-import com.hw.integration.single.access.CommonTest;
+import com.hw.helper.utility.CorsUtility;
+import com.hw.helper.utility.EndpointUtility;
+import com.hw.helper.utility.RandomUtility;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantCorsTest  extends CommonTest {
+public class TenantCorsTest extends TenantTest {
     @Test
-    public void tenant_can_create_cors(){
+    public void tenant_can_create_cors() {
+        Cors randomCorsObj = CorsUtility.createRandomCorsObj();
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, randomCorsObj);
+        Assert.assertEquals(HttpStatus.OK, cors.getStatusCode());
+        Assert.assertNotNull(Objects.requireNonNull(cors.getHeaders().getLocation()).toString());
     }
 
     @Test
-    public void tenant_can_update_cors(){
+    public void tenant_can_update_cors() {
+        Cors corsObj = CorsUtility.createRandomCorsObj();
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
+        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
 
+        corsObj.setName(RandomUtility.randomStringWithNum());
+        corsObj.setId(corsId);
+        ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
+
+        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        ResponseEntity<SumTotal<Cors>> read =
+            CorsUtility.readTenantCors(tenantContext);
+        List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
+            .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
+                Collectors.toList());
+        Cors cors1 = collect.get(0);
+        Assert.assertEquals(1, cors1.getVersion().intValue());
+    }
+
+    @Test
+    public void tenant_can_view_cors_list() {
+        ResponseEntity<SumTotal<Cors>> read =
+            CorsUtility.readTenantCors(tenantContext);
+        Assert.assertEquals(HttpStatus.OK, read.getStatusCode());
+    }
+
+    @Test
+    public void tenant_can_delete_cors() {
+        Cors cors1 = CorsUtility.createRandomCorsObj();
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, cors1);
+        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+
+        cors1.setId(corsId);
+        ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, cors1);
+        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        ResponseEntity<SumTotal<Cors>> cors3 =
+            CorsUtility.readTenantCors(tenantContext);
+        Optional<Cors> first = cors3.getBody().getData().stream()
+            .filter(e -> e.getId().equalsIgnoreCase(corsId)).findFirst();
+        Assert.assertEquals(HttpStatus.OK, cors3.getStatusCode());
+        Assert.assertTrue(first.isEmpty());
+    }
+
+    @Test
+    public void tenant_update_cors_no_change_version_should_not_change() {
+        Cors corsObj = CorsUtility.createRandomCorsObj();
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
+        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+
+        corsObj.setId(corsId);
+        ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
+
+        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        ResponseEntity<SumTotal<Cors>> read =
+            CorsUtility.readTenantCors(tenantContext);
+        List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
+            .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
+                Collectors.toList());
+        Cors cors1 = collect.get(0);
+        Assert.assertEquals(0, cors1.getVersion().intValue());
     }
     @Test
-    public void tenant_can_view_cors_list(){
-
+    public void tenant_can_delete_assigned_cors() throws InterruptedException {
+        //create cors
+        Cors corsObj = CorsUtility.createRandomCorsObj();
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
+        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+        corsObj.setId(corsId);
+        //create backend client
+        Client randomClient = ClientUtility.createRandomBackendClientObj();
+        ResponseEntity<Void> client =
+            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClient,
+                tenantContext.getProject().getId());
+        String clientId = client.getHeaders().getLocation().toString();
+        randomClient.setId(clientId);
+        //create client's endpoint
+        Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
+        randomEndpointObj.setCorsProfileId(corsId);
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), randomEndpointObj,
+                tenantContext.getProject().getId());
+        String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        //delete cors
+        ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, corsObj);
+        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        Thread.sleep(10000);
+        //read endpoint to verify cache id remove
+        ResponseEntity<Endpoint> endpointResponseEntity =
+            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpointId,
+                tenantContext.getProject().getId());
+        Assert.assertNull(endpointResponseEntity.getBody().getCorsProfileId());
     }
-    @Test
-    public void tenant_can_delete_cors(){
 
-    }
     @Test
-    public void tenant_can_delete_assigned_cors(){
-
-    }
-    @Test
-    public void cors_validation_should_work(){
+    public void cors_validation_should_work() {
+        Cors randomCorsObj = CorsUtility.createRandomCorsObj();
+        randomCorsObj.setAllowOrigin(Collections.singleton(RandomUtility.randomStringNoNum()));
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, randomCorsObj);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, cors.getStatusCode());
 
     }
 }

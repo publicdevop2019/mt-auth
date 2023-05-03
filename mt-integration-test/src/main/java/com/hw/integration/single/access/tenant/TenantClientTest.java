@@ -10,17 +10,16 @@ import static com.hw.helper.AppConstant.TEST_REDIRECT_URL;
 
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
+import com.hw.helper.Endpoint;
 import com.hw.helper.GrantType;
-import com.hw.helper.Project;
 import com.hw.helper.SumTotal;
 import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
+import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.OAuth2Utility;
-import com.hw.helper.utility.TenantUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
-import com.hw.integration.single.access.CommonTest;
 import com.hw.integration.single.access.UserTest;
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,7 +41,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantClientTest extends CommonTest {
+public class TenantClientTest extends TenantTest {
 
 
     @Test
@@ -431,28 +430,67 @@ public class TenantClientTest extends CommonTest {
     }
 
     @Test
-    public void client_and_its_endpoint_should_be_deleted() {
+    public void client_and_its_endpoint_should_be_deleted() throws InterruptedException {
+        //create backend client
+        Client randomClient = ClientUtility.createRandomBackendClientObj();
+        ResponseEntity<Void> client =
+            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClient,
+                tenantContext.getProject().getId());
+        String clientId = client.getHeaders().getLocation().toString();
+        randomClient.setId(clientId);
+        //create client's endpoint
+        Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), randomEndpointObj,
+                tenantContext.getProject().getId());
+        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        //delete client
+        ResponseEntity<Void> client2 =
+            ClientUtility.deleteTenantClient(tenantContext.getCreator(), randomClient,
+                tenantContext.getProject().getId());
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        Thread.sleep(10000);
+        //wait sometime and read endpoint again
 
+        ResponseEntity<Endpoint> endpointResponseEntity =
+            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpointId,
+                tenantContext.getProject().getId());
+
+        Assert.assertEquals(HttpStatus.OK, endpointResponseEntity.getStatusCode());
+        Assert.assertNull(endpointResponseEntity.getBody());
     }
 
     @Test
     public void client_validation_should_work() {
-
+        //1. backend client requires external url
+        Client randomClientObj = ClientUtility.createRandomClientObj();
+        ResponseEntity<Void> tenantClient =
+            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClientObj,
+                tenantContext.getProject().getId());
+        randomClientObj.setTypes(Collections.singleton(ClientType.BACKEND_APP));
+        randomClientObj.setExternalUrl(null);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantClient.getStatusCode());
+        //2. backend client requires path
+        Client randomClientObj2 = ClientUtility.createRandomClientObj();
+        randomClientObj.setPath(null);
+        randomClientObj2.setTypes(Collections.singleton(ClientType.BACKEND_APP));
+        ResponseEntity<Void> tenantClient2 =
+            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClientObj2,
+                tenantContext.getProject().getId());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantClient2.getStatusCode());
     }
 
     @Test
     public void create_frontend_client_for_single_sign_on() {
-        User tenant = TenantUtility.createTenant();
-        Project project1 = TenantUtility.tenantCreateProject(tenant);
-        String clientId = TenantUtility.createSsoLoginClient(tenant, project1);
-
-        String login = UserUtility.login(tenant);
+        String login = UserUtility.login(tenantContext.getCreator());
         ResponseEntity<String> codeResponse =
-            OAuth2Utility.authorizeLogin(project1.getId(), clientId, login, TEST_REDIRECT_URL);
+            OAuth2Utility.authorizeLogin(tenantContext.getProject().getId(),
+                tenantContext.getLoginClientId(), login, TEST_REDIRECT_URL);
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
-                TEST_REDIRECT_URL, clientId, "");
+                TEST_REDIRECT_URL, tenantContext.getLoginClientId(), "");
         Assert.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
     }
 }

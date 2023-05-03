@@ -7,6 +7,7 @@ import static com.hw.helper.AppConstant.TEST_REDIRECT_URL;
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
 import com.hw.helper.GrantType;
+import com.hw.helper.Project;
 import com.hw.helper.User;
 import java.util.Arrays;
 import java.util.Collections;
@@ -77,6 +78,20 @@ public class ClientUtility {
         return client;
     }
 
+    /**
+     * create valid backend client with client_credential grant
+     *
+     * @return client
+     */
+    public static Client createRandomBackendClientObj() {
+        Client randomClient = ClientUtility.createRandomClientObj();
+        randomClient.setTypes(Collections.singleton(ClientType.BACKEND_APP));
+        randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS));
+        randomClient.setAccessTokenValiditySeconds(180);
+        randomClient.setRefreshTokenValiditySeconds(null);
+        return randomClient;
+    }
+
     public static Client createAuthorizationClientObj() {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
@@ -117,6 +132,21 @@ public class ClientUtility {
                 HttpMethod.POST, request, Void.class);
     }
 
+    public static ResponseEntity<Void> deleteTenantClient(User user, Client client,
+                                                          String projectId) {
+        String bearer =
+            UserUtility.login(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        HttpEntity<Client> request = new HttpEntity<>(client, headers);
+        return TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId,
+                        "clients/" + client.getId())),
+                HttpMethod.DELETE, request, Void.class);
+    }
+
     public static ResponseEntity<String> createClient(Client client, String changeId) {
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordAdmin =
             UserUtility.getJwtPasswordAdmin();
@@ -130,5 +160,20 @@ public class ClientUtility {
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
             .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
+    }
+
+    /**
+     * create sso login client for tenant project
+     *
+     * @param tenantUser tenant user
+     * @param project    project obj
+     * @return new client id
+     */
+    public static String createTenantSsoLoginClient(User tenantUser, Project project) {
+        //create sso login client
+        Client client = createAuthorizationClientObj();
+        ResponseEntity<Void> tenantClient =
+            createTenantClient(tenantUser, client, project.getId());
+        return tenantClient.getHeaders().getLocation().toString();
     }
 }

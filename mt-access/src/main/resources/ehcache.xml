@@ -69,7 +69,7 @@
         <heap-store-settings>
             <!--            max object graph size is a counter of java references-->
             <!--            if the total of distinct references in this graph goes beyond the value specified, the mapping will not be cached.-->
-            <max-object-graph-size>2000</max-object-graph-size>
+            <max-object-graph-size>3000</max-object-graph-size>
         </heap-store-settings>
     </cache-template>
 </config>

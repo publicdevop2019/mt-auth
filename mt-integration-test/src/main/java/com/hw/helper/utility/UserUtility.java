@@ -9,8 +9,10 @@ import static com.hw.helper.AppConstant.ACCOUNT_USERNAME_USER;
 import static com.hw.helper.AppConstant.CLIENT_ID_LOGIN_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_REGISTER_ID;
 import static com.hw.helper.AppConstant.EMPTY_CLIENT_SECRET;
+import static com.hw.helper.AppConstant.TEST_REDIRECT_URL;
 
 import com.hw.helper.PendingUser;
+import com.hw.helper.Project;
 import com.hw.helper.User;
 import java.util.Objects;
 import java.util.UUID;
@@ -53,9 +55,9 @@ public class UserUtility {
 //    }
 
 
-    public static User createUserObj() {
-        return userCreateDraftObj(UUID.randomUUID().toString().replace("-", "") + "@gmail.com",
-            UUID.randomUUID().toString().replace("-", ""));
+    public static User createRandomUserObj() {
+        return userCreateDraftObj(RandomUtility.randomStringWithNum() + "@gmail.com",
+            RandomUtility.randomStringWithNum());
     }
 
     public static User userCreateDraftObj(String username, String password) {
@@ -123,7 +125,7 @@ public class UserUtility {
      * @return login token
      */
     public static String registerNewUserThenLogin() {
-        User randomUser = createUserObj();
+        User randomUser = createRandomUserObj();
         register(randomUser);
         ResponseEntity<DefaultOAuth2AccessToken> loginTokenResponse =
             login(randomUser.getEmail(), randomUser.getPassword());
@@ -163,4 +165,40 @@ public class UserUtility {
         return login(ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN).getBody().getValue();
     }
 
+    /**
+     * create new user without any login to tenant project
+     * @return created user
+     */
+    public static User createNewUser() {
+        User randomUser = createRandomUserObj();
+        ResponseEntity<Void> register = register(randomUser);
+        String s = register.getHeaders().getLocation().toString();
+        randomUser.setId(s);
+        return randomUser;
+    }
+
+    public static User createTenant() {
+        //create new tenant user
+        User tenantUser = createRandomUserObj();
+        register(tenantUser);
+        return tenantUser;
+    }
+
+    /**
+     * create user whom login to tenant project
+     *
+     * @param project  tenant project
+     * @param clientId sso client id
+     * @return user logged in
+     */
+    public static User userLoginToTenant(Project project, String clientId) {
+        //create new user then login to created project
+        User tenantUser = createNewUser();
+        String user1Token = login(tenantUser);
+        ResponseEntity<String> codeResponse =
+            OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token, TEST_REDIRECT_URL);
+        OAuth2Utility.getOAuth2AuthorizationToken(OAuth2Utility.getAuthorizationCode(codeResponse),
+            TEST_REDIRECT_URL, clientId, "");
+        return tenantUser;
+    }
 }

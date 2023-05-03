@@ -32,12 +32,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 public class SubscriptionTest  extends CommonTest {
 
-    @Test
-    @Ignore//TODO
-    public void proxy_should_reject_any_call_to_internal_api_from_external_network() {
-
-    }
-
     //public api shared
     @Test
     public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mgmt()

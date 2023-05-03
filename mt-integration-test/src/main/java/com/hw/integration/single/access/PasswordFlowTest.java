@@ -23,7 +23,7 @@ public class PasswordFlowTest  extends CommonTest {
 
     @Test
     public void create_user_then_login() {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
         Assert.assertEquals(HttpStatus.OK, user1.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(

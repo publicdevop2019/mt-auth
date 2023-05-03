@@ -16,6 +16,7 @@ public class CorsProfileRepresentation {
     private String name;
     private String id;
     private String description;
+    private int version;
 
     public CorsProfileRepresentation(CorsProfile corsProfile) {
         this.allowCredentials = corsProfile.isAllowCredentials();
@@ -27,5 +28,6 @@ public class CorsProfileRepresentation {
         this.name = corsProfile.getName();
         this.id = corsProfile.getCorsId().getDomainId();
         this.description = corsProfile.getDescription();
+        this.version = corsProfile.getVersion();
     }
 }

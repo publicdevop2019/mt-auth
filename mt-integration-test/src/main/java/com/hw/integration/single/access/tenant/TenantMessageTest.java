@@ -8,7 +8,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantMessageTest  extends CommonTest {
+public class TenantMessageTest extends CommonTest {
     @Test
     public void tenant_can_get_endpoint_expire_msg(){
 

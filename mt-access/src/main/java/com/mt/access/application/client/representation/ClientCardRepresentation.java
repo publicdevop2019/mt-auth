@@ -54,7 +54,9 @@ public class ClientCardRepresentation {
             registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
-        refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
+        if (client1.getTokenDetail() != null) {
+            refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
+        }
         if (!ObjectUtils.isEmpty(client1.getResources())) {
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId)
                 .collect(Collectors.toSet());

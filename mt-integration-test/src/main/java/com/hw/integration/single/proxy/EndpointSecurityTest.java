@@ -52,7 +52,7 @@ public class EndpointSecurityTest  extends CommonTest {
 
     @Test
     public void should_not_able_to_create_user_w_client_missing_right_role() {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
                 EMPTY_CLIENT_SECRET);

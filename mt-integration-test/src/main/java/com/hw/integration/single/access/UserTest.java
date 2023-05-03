@@ -1,13 +1,10 @@
 package com.hw.integration.single.access;
 
-import static com.hw.helper.AppConstant.CLIENT_ID_REGISTER_ID;
-import static com.hw.helper.AppConstant.EMPTY_CLIENT_SECRET;
 import static com.hw.helper.utility.TestContext.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hw.helper.AppConstant;
 import com.hw.helper.ForgetPasswordRequest;
-import com.hw.helper.PendingUser;
 import com.hw.helper.User;
 import com.hw.helper.UserUpdatePwd;
 import com.hw.helper.utility.OAuth2Utility;
@@ -45,7 +42,7 @@ public class UserTest  extends CommonTest {
 
     @Test
     public void cannot_update_user_password_without_current_pwd() throws JsonProcessingException {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
         String url = UrlUtility.getAccessUrl("/users" + "/pwd");
@@ -72,7 +69,7 @@ public class UserTest  extends CommonTest {
             .getOAuth2ClientCredentialToken(
                 AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
@@ -107,7 +104,7 @@ public class UserTest  extends CommonTest {
 
     @Test
     public void update_user_password_with_current_pwd() throws JsonProcessingException {
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         UserUpdatePwd resourceOwnerUpdatePwd = new UserUpdatePwd();
         resourceOwnerUpdatePwd.setCurrentPwd(user.getPassword());
         resourceOwnerUpdatePwd.setEmail(user.getEmail());
@@ -146,14 +143,14 @@ public class UserTest  extends CommonTest {
 
     @Test
     public void create_pending_user(){
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> pendingUser = UserUtility.createPendingUser(user);
         Assert.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
     }
 
     @Test
     public void register_new_user(){
-        User user = UserUtility.createUserObj();
+        User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> register = UserUtility.register(user);
         Assert.assertEquals(HttpStatus.OK, register.getStatusCode());
     }

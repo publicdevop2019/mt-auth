@@ -29,6 +29,8 @@ public class AppConstant {
     public static final String TENANT_PROJECTS_PREFIX = "/projects";
     public static final String TENANT_PROJECTS_CREATE = "/projects";
     public static final String TENANT_PROJECTS_LOOKUP = "/projects/tenant";
+    public static final String MARKET_ENDPOINT = "/endpoints/shared";
+    public static final String MARKET_ENDPOINT_SUB = "/subscriptions/requests";
     public static final String MGMT_CLIENTS = "/mgmt/clients";
     public static final String MGMT_ENDPOINTS = "/mgmt/endpoints";
     public static final String MGMT_PROJECTS = "/mgmt/projects";

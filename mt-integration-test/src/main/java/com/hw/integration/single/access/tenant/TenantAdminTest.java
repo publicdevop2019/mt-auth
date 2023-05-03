@@ -5,22 +5,19 @@ import static com.hw.helper.AppConstant.TENANT_PROJECTS_PREFIX;
 import com.hw.helper.ProjectAdmin;
 import com.hw.helper.SumTotal;
 import com.hw.helper.User;
+import com.hw.helper.utility.AdminUtility;
 import com.hw.helper.utility.RandomUtility;
-import com.hw.helper.utility.TenantUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
-import com.hw.integration.single.access.CommonTest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -34,162 +31,66 @@ public class TenantAdminTest extends TenantTest {
 
     @Test
     public void tenant_can_view_admin() {
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
 
     }
 
     @Test
     public void tenant_can_add_admin() {
-        //search user
-        String login2 =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login2);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/users")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
-        List<ProjectAdmin> collect = Objects.requireNonNull(exchange.getBody()).getData().stream()
-            .filter(e -> !e.getEmail().equalsIgnoreCase(tenantContext.getCreator().getEmail()))
-            .collect(
-                Collectors.toList());
-        Assert.assertNotSame(0, collect.size());
-        String userId = collect.get(0).getId();
+        //create new tenant user
+        User tenantUser = UserUtility.userLoginToTenant(tenantContext.getProject(),
+            tenantContext.getLoginClientId());
         //record before add
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange3 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange3 =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer previousCount = Objects.requireNonNull(exchange3.getBody()).getTotalItemCount();
         //add admin
-        ResponseEntity<Void> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + userId)),
-                HttpMethod.POST, request,
-                Void.class);
+        ResponseEntity<Void> exchange2 =
+            AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
+                tenantUser);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         //record after add
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange4 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange4 =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer currentCount = Objects.requireNonNull(exchange4.getBody()).getTotalItemCount();
         Assert.assertNotEquals(currentCount, previousCount);
     }
 
     @Test
     public void tenant_can_remove_admin() {
-        //search user
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/users")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
-        List<ProjectAdmin> collect = Objects.requireNonNull(exchange.getBody()).getData().stream()
-            .filter(e -> !e.getEmail().equalsIgnoreCase(tenantContext.getCreator().getEmail()))
-            .collect(
-                Collectors.toList());
-        Assert.assertNotSame(1, collect.size());
-        String userId = collect.get(0).getId();
-        String userId2 = collect.get(1).getId();
-        //add one admin so 2 admin present
-        ResponseEntity<Void> exchange6 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + userId2)),
-                HttpMethod.POST, request,
-                Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange6.getStatusCode());
+        //create new tenant user
+        User tenantUser = UserUtility.userLoginToTenant(tenantContext.getProject(),
+            tenantContext.getLoginClientId());
         //record before remove
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange3 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange3 =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer previousCount = Objects.requireNonNull(exchange3.getBody()).getTotalItemCount();
         //add admin
-        ResponseEntity<Void> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + userId)),
-                HttpMethod.POST, request,
-                Void.class);
+        ResponseEntity<Void> exchange2 =
+            AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
+                tenantUser);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         //remove admin
-        ResponseEntity<Void> exchange5 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + userId)),
-                HttpMethod.DELETE, request,
-                Void.class);
+        ResponseEntity<Void> exchange5 =
+            AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
+                tenantUser);
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
-        //record after add
-        ResponseEntity<SumTotal<ProjectAdmin>> exchange4 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        //record after remove
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange4 =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer currentCount = Objects.requireNonNull(exchange4.getBody()).getTotalItemCount();
         Assert.assertEquals(currentCount, previousCount);
     }
 
     @Test
     public void tenant_cannot_add_user_not_using_project_as_admin() {
-
         //create new user but not login to created project
-        User userObj = UserUtility.createUserObj();
-        ResponseEntity<Void> register = UserUtility.register(userObj);
-        String userId = Objects.requireNonNull(register.getHeaders().getLocation()).toString();
+        User userObj = UserUtility.createNewUser();
         //add admin
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        ResponseEntity<Void> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + userId)),
-                HttpMethod.POST, request,
-                Void.class);
+        ResponseEntity<Void> exchange2 =
+            AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(), userObj);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
     }
 
@@ -210,21 +111,35 @@ public class TenantAdminTest extends TenantTest {
                 Void.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //2. try to remove admin when total admin equal to 2
-        List<User> users = new ArrayList<>(tenantContext.getUserSet());
-        //add admin
-        TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" + users.get(0))),
-                HttpMethod.POST, request,
-                Void.class);
+        //check admin count
+        ResponseEntity<SumTotal<ProjectAdmin>> exchange =
+            AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
+        SumTotal<ProjectAdmin> body = exchange.getBody();
+        Integer adminCount = body.getTotalItemCount();
+        int numOfAdminToRemove = adminCount - 2;
+        List<ProjectAdmin> otherAdmins = body.getData().stream()
+            .filter(e -> !e.getEmail().equalsIgnoreCase(tenantContext.getCreator().getEmail()))
+            .collect(
+                Collectors.toList());
+        log.info("num of admin to remove is {}", numOfAdminToRemove);
+        IntStream.range(0, numOfAdminToRemove).forEach((in) -> {
+            log.info("removing admin {}", otherAdmins.get(in).toUser().getEmail());
+            ResponseEntity<Void> exchange5 =
+                AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
+                    otherAdmins.get(in).toUser());
+            Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
+        });
+        int index;
+        if (numOfAdminToRemove == 0) {
+            index = 0;
+        } else {
+            index = otherAdmins.size() - 1;
+        }
         //remove admin
-        ResponseEntity<Void> exchange5 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/admins/" +  users.get(0))),
-                HttpMethod.DELETE, request,
-                Void.class);
+        log.info("removing admin {}", otherAdmins.get(index).toUser().getEmail());
+        ResponseEntity<Void> exchange5 =
+            AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
+                otherAdmins.get(index).toUser());
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
     }
 }
