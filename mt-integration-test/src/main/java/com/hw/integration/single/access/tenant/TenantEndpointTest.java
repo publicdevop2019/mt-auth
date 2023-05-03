@@ -53,8 +53,6 @@ public class TenantEndpointTest  extends CommonTest {
     public void create_new_endpoint_then_delete() {
         Endpoint endpoint = new Endpoint();
         endpoint.setResourceId("0C8AZTODP4HT");
-        endpoint.setUserRoles(new HashSet<>(List.of("ROLE_ADMIN")));
-        endpoint.setUserOnly(true);
         endpoint.setName("test");
         endpoint.setMethod("GET");
         endpoint.setWebsocket(false);

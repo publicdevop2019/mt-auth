@@ -26,6 +26,9 @@ public class AppConstant {
     public static final String AUTHORIZE_RESPONSE_TYPE = "code";
     public static final String PROJECT_ID = "0P8HPG99R56P";
     public static final String CLIENTS = "/projects/0P8HE307W6IO/clients";
+    public static final String TENANT_PROJECTS_PREFIX = "/projects";
+    public static final String TENANT_PROJECTS_CREATE = "/projects";
+    public static final String TENANT_PROJECTS_LOOKUP = "/projects/tenant";
     public static final String MGMT_CLIENTS = "/mgmt/clients";
     public static final String MGMT_ENDPOINTS = "/mgmt/endpoints";
     public static final String MGMT_PROJECTS = "/mgmt/projects";
@@ -44,4 +47,5 @@ public class AppConstant {
     public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";
     public static String ADMIN_USER_ID = "0R8G09BPEZGG";
     public static String USER_USER_ID = "0R8G09CBKU0W";
+    public static String TEST_REDIRECT_URL = "http://localhost:3000";
 }

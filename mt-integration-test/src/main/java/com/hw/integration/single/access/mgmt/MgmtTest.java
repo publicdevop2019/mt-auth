@@ -12,7 +12,6 @@ import static com.hw.helper.AppConstant.MGMT_TOKENS;
 import com.hw.helper.BellNotification;
 import com.hw.helper.CheckSum;
 import com.hw.helper.Job;
-import com.hw.helper.Notification;
 import com.hw.helper.RevokeToken;
 import com.hw.helper.StoredEvent;
 import com.hw.helper.SumTotal;
@@ -22,6 +21,7 @@ import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
 import com.hw.integration.single.access.CommonTest;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -55,7 +55,7 @@ public class MgmtTest extends CommonTest {
         ResponseEntity<Job[]> exchange = TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(MGMT_JOBS), HttpMethod.GET, request,
                 Job[].class);
-        Assert.assertNotSame(0, exchange.getBody().length);
+        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).length);
     }
 
     @Test
@@ -65,6 +65,7 @@ public class MgmtTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(MGMT_JOBS), HttpMethod.GET, request,
                 Job[].class);
         Job[] body = exchange.getBody();
+        assert body != null;
         int i = RandomUtility.pickRandomFromList(body.length);
         Job job = body[i];
         String id = job.getId();
@@ -106,7 +107,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 CheckSum.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        Assert.assertNotNull(exchange2.getBody().getHostValue());
+        Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getHostValue());
     }
 
 
@@ -184,7 +185,6 @@ public class MgmtTest extends CommonTest {
             UserUtility.getJwtAdmin();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-        return request;
+        return new HttpEntity<>(null, headers);
     }
 }

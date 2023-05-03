@@ -24,16 +24,13 @@ public class Endpoint {
     private String query;
     private boolean websocket;
     private String fragment;
+    private String cacheProfileId;
+    private String corsProfileId;
     private Integer version;
     private String description;
-    private Set<String> clientRoles;
-    private Set<String> userRoles;
-    private Set<String> clientScopes;
     private boolean secured;
     private boolean external;
     private boolean shared;
-    private boolean userOnly;
-    private boolean clientOnly;
     private int replenishRate = 10;
 
     private int burstCapacity = 10;

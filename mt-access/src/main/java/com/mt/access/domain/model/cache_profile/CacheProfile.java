@@ -2,7 +2,6 @@ package com.mt.access.domain.model.cache_profile;
 
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
-import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -11,7 +10,6 @@ import java.util.Set;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -52,7 +50,7 @@ public class CacheProfile extends Auditable {
     private boolean allowCache;
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER,targetClass = CacheControlValue.class)
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = CacheControlValue.class)
     @JoinTable(name = "cache_control_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "cache_control")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -94,7 +92,7 @@ public class CacheProfile extends Auditable {
      * @param allowCache     whether cache is allowed
      * @param etag           value of etag
      * @param weakValidation whether weak validation
-     * @param projectId tenant project id
+     * @param projectId      tenant project id
      */
     public CacheProfile(
         String name,
@@ -152,7 +150,7 @@ public class CacheProfile extends Auditable {
                        boolean weakValidation) {
         this.name = name;
         this.description = description;
-        this.cacheControl = cacheControl;
+        setCacheControl(cacheControl);
         this.expires = expires;
         this.maxAge = maxAge;
         this.smaxAge = smaxAge;
@@ -161,6 +159,15 @@ public class CacheProfile extends Auditable {
         this.weakValidation = weakValidation;
         this.allowCache = allowCache;
         CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
+    }
+
+    private void setCacheControl(Set<CacheControlValue> cacheControl) {
+        if (!Objects.equals(cacheControl, this.cacheControl)) {
+            if (this.cacheControl != null) {
+                this.cacheControl.clear();
+            }
+            this.cacheControl = cacheControl;
+        }
     }
 
     @Override

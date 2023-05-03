@@ -16,7 +16,7 @@ public class ClientPatchCommand {
     private String path;
     private boolean resourceIndicator;
     private Set<GrantType> grantTypeEnums;
-    private int accessTokenValiditySeconds = 0;
+    private Integer accessTokenValiditySeconds;
     private Set<String> resourceIds;
 
     public ClientPatchCommand(Client bizClient) {

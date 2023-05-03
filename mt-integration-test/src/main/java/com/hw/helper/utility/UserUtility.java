@@ -61,7 +61,8 @@ public class UserUtility {
     public static User userCreateDraftObj(String username, String password) {
         User user = new User();
         user.setEmail(username);
-        user.setPassword("P1!" + password.substring(0, 10));
+//        user.setPassword("P1!" + password.substring(0, 10));
+        user.setPassword("Password1!");
         user.setMobileNumber("1231231234");
         user.setCountryCode("1");
         return user;
@@ -129,12 +130,17 @@ public class UserUtility {
         return Objects.requireNonNull(loginTokenResponse.getBody()).getValue();
     }
 
-
     public static ResponseEntity<DefaultOAuth2AccessToken> login(String username,
                                                                  String userPwd) {
         return OAuth2Utility
             .getOAuth2PasswordToken(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, username,
                 userPwd);
+    }
+
+    public static String login(User user) {
+        return OAuth2Utility
+            .getOAuth2PasswordToken(CLIENT_ID_LOGIN_ID, EMPTY_CLIENT_SECRET, user.getEmail(),
+                user.getPassword()).getBody().getValue();
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {

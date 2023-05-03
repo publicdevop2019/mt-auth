@@ -23,10 +23,10 @@ public class ClientCreateCommand implements Serializable {
     private Set<GrantType> grantTypeEnums;
     private Set<ClientType> types;
 
-    private int accessTokenValiditySeconds = 0;
+    private Integer accessTokenValiditySeconds;
     @Nullable
     private Set<String> registeredRedirectUri;
-    private int refreshTokenValiditySeconds = 0;
+    private Integer refreshTokenValiditySeconds;
     @Nullable
     private Set<String> resourceIds;
 

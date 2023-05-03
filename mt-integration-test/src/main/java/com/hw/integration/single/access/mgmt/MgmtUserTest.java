@@ -10,6 +10,7 @@ import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
 import com.hw.integration.single.access.CommonTest;
 import java.util.List;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class MgmtUserTest extends CommonTest {
             .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
             });
 
-        Assert.assertNotSame(0, exchange.getBody().getData().size());
+        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
     }
 
     @Test
@@ -55,14 +56,14 @@ public class MgmtUserTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(USER_MGMT), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        List<User> data = exchange.getBody().getData();
+        List<User> data = Objects.requireNonNull(exchange.getBody()).getData();
         int i = RandomUtility.pickRandomFromList(data.size());
         User user = data.get(i);
         ResponseEntity<UserMgmt> exchange2 = TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(USER_MGMT, user.getId())),
                 HttpMethod.GET, request, UserMgmt.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        Assert.assertNotNull(exchange2.getBody().getLoginHistory());
+        Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getLoginHistory());
     }
 
     @Test
@@ -70,7 +71,7 @@ public class MgmtUserTest extends CommonTest {
         User user = UserUtility.createUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
-        String s = user1.getHeaders().getLocation().toString();
+        String s = Objects.requireNonNull(user1.getHeaders().getLocation()).toString();
         String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + s);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
@@ -81,7 +82,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(tokenResponse.getBody().getValue());
+        headers.setBearerAuth(Objects.requireNonNull(tokenResponse.getBody()).getValue());
         HttpEntity<Object> request = new HttpEntity<>(null, headers);
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
@@ -109,7 +110,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(tokenResponse.getBody().getValue());
+        headers.setBearerAuth(Objects.requireNonNull(tokenResponse.getBody()).getValue());
         HttpEntity<Object> request = new HttpEntity<>(null, headers);
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
@@ -122,11 +123,11 @@ public class MgmtUserTest extends CommonTest {
     public void admin_can_lock_then_unlock_user() {
         User user = UserUtility.createUserObj();
         ResponseEntity<Void> createResp = UserUtility.register(user);
-        String s = createResp.getHeaders().getLocation().toString();
+        String s = Objects.requireNonNull(createResp.getHeaders().getLocation()).toString();
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
+        String bearer = Objects.requireNonNull(tokenResponse.getBody()).getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
@@ -163,7 +164,7 @@ public class MgmtUserTest extends CommonTest {
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER);
-        String bearer = tokenResponse.getBody().getValue();
+        String bearer = Objects.requireNonNull(tokenResponse.getBody()).getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);

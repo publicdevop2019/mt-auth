@@ -2,6 +2,8 @@ package com.hw.helper.utility;
 
 import com.hw.helper.SumTotal;
 import java.util.Random;
+import java.util.UUID;
+import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 
 public class RandomUtility {
@@ -39,11 +41,12 @@ public class RandomUtility {
 
     /**
      * pick random page
-     * @param url url to combine
+     *
+     * @param url      url to combine
      * @param sumTotal sum total
      * @param pageSize page size
+     * @param <T>      type
      * @return combined url
-     * @param <T> type
      */
     public static <T> String pickRandomPage(String url, SumTotal<T> sumTotal,
                                             @Nullable Integer pageSize) {
@@ -55,4 +58,37 @@ public class RandomUtility {
         return UrlUtility.appendQuery(url, UrlUtility.getPageQuery(i, pageSize));
     }
 
+    public static String randomStringWithNum() {
+        return UUID.randomUUID().toString().replaceAll("-", "");
+    }
+
+    public static String randomStringNoNum() {
+        return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
+    }
+
+    public static Long randomLong() {
+        return random.nextLong();
+    }
+
+    public static Integer randomInt() {
+        return random.nextInt();
+    }
+
+    public static boolean randomBoolean() {
+        int i = random.nextInt(2);
+        return i == 0 ? Boolean.TRUE : Boolean.FALSE;
+    }
+
+    public static <E extends Enum<E>> E randomEnum(Enum<E>[] e) {
+        int i = pickRandomFromList(e.length);
+        return (E) e[i];
+    }
+
+    public static String randomHttpMethod() {
+        return randomEnum(HttpMethod.values()).name();
+    }
+
+    public static String randomLocalHostUrl() {
+        return "http://localhost:" + random.nextInt(10000);
+    }
 }

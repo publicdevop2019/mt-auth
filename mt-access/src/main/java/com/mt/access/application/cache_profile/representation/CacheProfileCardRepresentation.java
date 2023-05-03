@@ -18,6 +18,7 @@ public class CacheProfileCardRepresentation {
     private boolean allowCache;
     private boolean etag;
     private boolean weakValidation;
+    private int version;
 
     public CacheProfileCardRepresentation(CacheProfile profile) {
         this.name = profile.getName();
@@ -32,5 +33,6 @@ public class CacheProfileCardRepresentation {
         this.etag = profile.isEtag();
         this.weakValidation = profile.isWeakValidation();
         this.allowCache = profile.isAllowCache();
+        this.version = profile.getVersion();
     }
 }

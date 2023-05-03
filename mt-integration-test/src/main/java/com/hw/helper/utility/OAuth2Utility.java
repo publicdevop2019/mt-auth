@@ -87,6 +87,35 @@ public class OAuth2Utility {
     }
 
     /**
+     * single sign on with authorization flow.
+     *
+     * @param projectId    project id
+     * @param clientId    client id
+     * @param userBearerToken user jwt bearer token
+     * @param redirectUri redirect uri
+     * @return code raw response
+     */
+    public static ResponseEntity<String> authorizeLogin(
+        String projectId,
+        String clientId,
+        String userBearerToken,
+        String redirectUri
+    ) {
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("response_type", AUTHORIZE_RESPONSE_TYPE);
+        params.add("client_id", clientId);
+        params.add("state", AUTHORIZE_STATE);
+        params.add("redirect_uri", redirectUri);
+        params.add("project_id", projectId);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(userBearerToken);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
+        String url = PROXY_URL + AppConstant.SVC_NAME_AUTH + "/authorize";
+        return TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, String.class);
+    }
+
+    /**
      * get token for authorization flow after code generated.
      *
      * @param code         generated code

@@ -108,8 +108,7 @@ public interface SpringDataJpaUserRelationRepository
     default Long countProjectAdmin_(RoleId roleId) {
         EntityManager entityManager = QueryUtility.getEntityManager();
         javax.persistence.Query countQuery = entityManager.createNativeQuery(
-            "SELECT COUNT(*) FROM user_relation_role_map mt WHERE mt.role = :roleId",
-            Long.class);
+            "SELECT COUNT(*) FROM user_relation_role_map mt WHERE mt.role = :roleId");
         countQuery.setParameter("roleId", roleId.getDomainId());
         return ((Number) countQuery.getSingleResult()).longValue();
     }

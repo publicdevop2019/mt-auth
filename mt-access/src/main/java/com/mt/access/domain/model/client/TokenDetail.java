@@ -14,7 +14,7 @@ public class TokenDetail implements Serializable {
     private Integer accessTokenValiditySeconds;
     private Integer refreshTokenValiditySeconds;
 
-    public TokenDetail(int accessTokenValiditySeconds, int refreshTokenValiditySeconds) {
+    public TokenDetail(Integer accessTokenValiditySeconds, Integer refreshTokenValiditySeconds) {
         setAccessTokenValiditySeconds(accessTokenValiditySeconds);
         setRefreshTokenValiditySeconds(refreshTokenValiditySeconds);
     }

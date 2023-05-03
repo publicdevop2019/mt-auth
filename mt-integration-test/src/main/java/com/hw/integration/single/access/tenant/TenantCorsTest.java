@@ -1,5 +1,7 @@
 package com.hw.integration.single.access.tenant;
 
+import com.hw.helper.Client;
+import com.hw.helper.utility.ClientUtility;
 import com.hw.integration.single.access.CommonTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -11,7 +13,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TenantCorsTest  extends CommonTest {
     @Test
     public void tenant_can_create_cors(){
-
     }
 
     @Test

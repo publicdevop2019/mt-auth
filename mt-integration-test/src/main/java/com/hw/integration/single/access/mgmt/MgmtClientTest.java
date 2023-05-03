@@ -10,6 +10,7 @@ import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
 import com.hw.integration.single.access.CommonTest;
+import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -37,7 +38,7 @@ public class MgmtClientTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(MGMT_CLIENTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertNotSame(0, exchange.getBody().getData().size());
+        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
     }
 
     @Test
@@ -54,13 +55,14 @@ public class MgmtClientTest extends CommonTest {
                 new ParameterizedTypeReference<>() {
                 });
         //get random page
-        String randomPageUrl = RandomUtility.pickRandomPage(accessUrl, exchange.getBody(), null);
+        String randomPageUrl = RandomUtility.pickRandomPage(accessUrl,
+            Objects.requireNonNull(exchange.getBody()), null);
         log.info("page url is {}",randomPageUrl);
         ResponseEntity<SumTotal<Client>> exchange3 = TestContext.getRestTemplate()
             .exchange(randomPageUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertNotSame(0, exchange3.getBody().getData().size());
+        Assert.assertNotSame(0, Objects.requireNonNull(exchange3.getBody()).getData().size());
         //get random client
         int size = exchange3.getBody().getData().size();
         log.info("size is {}",size);
@@ -73,6 +75,6 @@ public class MgmtClientTest extends CommonTest {
                 Client.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         log.info("body {}",exchange2.getBody());
-        Assert.assertNotNull(exchange2.getBody().getGrantTypeEnums());
+        Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getGrantTypeEnums());
     }
 }

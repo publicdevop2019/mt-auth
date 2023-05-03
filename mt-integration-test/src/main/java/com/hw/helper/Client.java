@@ -11,6 +11,8 @@ public class Client {
     private String clientSecret;
     private String description;
     private String name;
+    private String path;
+    private String externalUrl;
     private Set<ClientType> types;
 
     private Set<GrantType> grantTypeEnums;

@@ -117,24 +117,26 @@ public class UserRelationApplicationService {
     public UserRelation internalOnboardUserToTenant(UserId userId, ProjectId projectId) {
         AtomicReference<UserRelation> userRelation = new AtomicReference<>();
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(projectId.getDomainId() + "_onboard_user", (ignored) -> {
-                userRelation.set(
-                    CommonDomainRegistry.getTransactionService().returnedTransactional(() -> {
-                        Optional<Role> first =
-                            DomainRegistry.getRoleRepository()
-                                .getByQuery(new RoleQuery(projectId, PROJECT_USER))
-                                .findFirst();
-                        if (first.isEmpty()) {
-                            throw new DefinedRuntimeException(
-                                "unable to find default user role for project",
-                                "0024",
-                                HttpResponseCode.BAD_REQUEST,
-                                ExceptionCatalog.ILLEGAL_ARGUMENT);
-                        }
-                        return UserRelation.initNewUser(first.get().getRoleId(), userId, projectId);
-                    }));
-                return null;
-            }, USER_RELATION);
+            .idempotent(projectId.getDomainId() + "_onboard_user" + userId.getDomainId(),
+                (ignored) -> {
+                    userRelation.set(
+                        CommonDomainRegistry.getTransactionService().returnedTransactional(() -> {
+                            Optional<Role> first =
+                                DomainRegistry.getRoleRepository()
+                                    .getByQuery(new RoleQuery(projectId, PROJECT_USER))
+                                    .findFirst();
+                            if (first.isEmpty()) {
+                                throw new DefinedRuntimeException(
+                                    "unable to find default user role for project",
+                                    "0024",
+                                    HttpResponseCode.BAD_REQUEST,
+                                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                            }
+                            return UserRelation.initNewUser(first.get().getRoleId(), userId,
+                                projectId);
+                        }));
+                    return null;
+                }, USER_RELATION);
         return userRelation.get();
     }
 
@@ -263,10 +265,10 @@ public class UserRelationApplicationService {
             throw new DefinedRuntimeException("you can not add/remove yourself", "0079",
                 HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        Optional<User> targetUser = DomainRegistry.getUserRepository()
-            .userOfId(userId);
+        Optional<UserRelation> targetUser = DomainRegistry.getUserRelationRepository()
+            .getByQuery(new UserRelationQuery(userId, tenantProjectId)).findFirst();
         if (targetUser.isEmpty()) {
-            throw new DefinedRuntimeException("unable to find user", "0078",
+            throw new DefinedRuntimeException("unable to find user relation", "0078",
                 HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);

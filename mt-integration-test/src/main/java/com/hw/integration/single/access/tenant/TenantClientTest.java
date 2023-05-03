@@ -6,14 +6,17 @@ import static com.hw.helper.AppConstant.CLIENTS;
 import static com.hw.helper.AppConstant.CLIENT_ID_OAUTH2_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_RESOURCE_ID;
 import static com.hw.helper.AppConstant.CLIENT_ID_TEST_ID;
+import static com.hw.helper.AppConstant.TEST_REDIRECT_URL;
 
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
 import com.hw.helper.GrantType;
+import com.hw.helper.Project;
 import com.hw.helper.SumTotal;
 import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
 import com.hw.helper.utility.OAuth2Utility;
+import com.hw.helper.utility.TenantUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
@@ -39,7 +42,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantClientTest  extends CommonTest {
+public class TenantClientTest extends CommonTest {
 
 
     @Test
@@ -184,7 +187,7 @@ public class TenantClientTest  extends CommonTest {
     }
 
     @Test
-    public void client_type_cannot_change(){
+    public void client_type_cannot_change() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
@@ -426,13 +429,30 @@ public class TenantClientTest  extends CommonTest {
             });
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
     }
+
     @Test
-    public void client_and_its_endpoint_should_be_deleted(){
+    public void client_and_its_endpoint_should_be_deleted() {
 
     }
 
     @Test
-    public void client_validation_should_work(){
+    public void client_validation_should_work() {
 
+    }
+
+    @Test
+    public void create_frontend_client_for_single_sign_on() {
+        User tenant = TenantUtility.createTenant();
+        Project project1 = TenantUtility.tenantCreateProject(tenant);
+        String clientId = TenantUtility.createSsoLoginClient(tenant, project1);
+
+        String login = UserUtility.login(tenant);
+        ResponseEntity<String> codeResponse =
+            OAuth2Utility.authorizeLogin(project1.getId(), clientId, login, TEST_REDIRECT_URL);
+        ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
+            OAuth2Utility.getOAuth2AuthorizationToken(
+                OAuth2Utility.getAuthorizationCode(codeResponse),
+                TEST_REDIRECT_URL, clientId, "");
+        Assert.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
     }
 }

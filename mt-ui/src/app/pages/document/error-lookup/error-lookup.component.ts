@@ -71,7 +71,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0075',explain:'找不到用户'},
     {code:'0076',explain:'找不到项目'},
     {code:'0077',explain:'该项目禁止此改动'},
-    {code:'0078',explain:'找不到该用户'},
+    {code:'0078',explain:'项目找不到该用户'},
     {code:'0079',explain:'不可以对自己的权限进行操作'},
     {code:'0080',explain:'已经是管理员'},
     {code:'0081',explain:'不是管理员'},
