@@ -1,4 +1,4 @@
-package com.hw.integration.single.proxy;
+package com.hw.integration.single.access.tenant;
 
 import static com.hw.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
 
@@ -108,22 +108,4 @@ public class SubscriptionTest  extends CommonTest {
 
     }
 
-    @Test
-    @Ignore//TODO
-    public void external_shared_auth_api_has_rate_limit_on_user_id_and_lifecycle_mgmt() {
-
-    }
-
-    //public api none-shared
-    @Test
-    @Ignore//TODO
-    public void external_none_shared_none_auth_api_has_rate_limit_on_ip_without_lifecycle_mgmt() {
-
-    }
-
-    @Test
-    @Ignore//TODO
-    public void external_none_shared_auth_api_has_rate_limit_on_user_id_without_lifecycle_mgmt() {
-
-    }
 }

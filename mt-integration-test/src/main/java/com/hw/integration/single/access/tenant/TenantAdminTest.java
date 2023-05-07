@@ -87,7 +87,7 @@ public class TenantAdminTest extends TenantTest {
     @Test
     public void tenant_cannot_add_user_not_using_project_as_admin() {
         //create new user but not login to created project
-        User userObj = UserUtility.createNewUser();
+        User userObj = UserUtility.createUser();
         //add admin
         ResponseEntity<Void> exchange2 =
             AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(), userObj);

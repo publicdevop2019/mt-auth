@@ -8,14 +8,18 @@ import com.hw.helper.ForgetPasswordRequest;
 import com.hw.helper.User;
 import com.hw.helper.UserUpdatePwd;
 import com.hw.helper.utility.OAuth2Utility;
+import com.hw.helper.utility.RandomUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -24,6 +28,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.util.ResourceUtils;
 
 @RunWith(SpringRunner.class)
 @Slf4j
@@ -105,27 +112,23 @@ public class UserTest  extends CommonTest {
     @Test
     public void update_user_password_with_current_pwd() throws JsonProcessingException {
         User user = UserUtility.createRandomUserObj();
-        UserUpdatePwd resourceOwnerUpdatePwd = new UserUpdatePwd();
-        resourceOwnerUpdatePwd.setCurrentPwd(user.getPassword());
-        resourceOwnerUpdatePwd.setEmail(user.getEmail());
-        resourceOwnerUpdatePwd.setPassword(
+        UserUpdatePwd updatePwd = new UserUpdatePwd();
+        updatePwd.setCurrentPwd(user.getPassword());
+        updatePwd.setEmail(user.getEmail());
+        updatePwd.setPassword(
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
         String url = UrlUtility.getAccessUrl("/users" + "/pwd");
         //Login
         String oldPassword = user.getPassword();
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
-            UserUtility.login(user.getEmail(), user.getPassword());
-        String bearer = tokenResponse.getBody().getValue();
+        String bearer = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
 
-        String s1 = mapper.writeValueAsString(resourceOwnerUpdatePwd);
-        HttpEntity<String> request = new HttpEntity<>(s1, headers);
-        ResponseEntity<Object> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Object.class);
+        HttpEntity<UserUpdatePwd> request = new HttpEntity<>(updatePwd, headers);
+        ResponseEntity<Void> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
@@ -135,7 +138,7 @@ public class UserTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, resp3.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> resp4 =
-            UserUtility.login(user.getEmail(), resourceOwnerUpdatePwd.getPassword());
+            UserUtility.login(user.getEmail(), updatePwd.getPassword());
 
         Assert.assertEquals(HttpStatus.OK, resp4.getStatusCode());
 
@@ -157,9 +160,69 @@ public class UserTest  extends CommonTest {
 
     @Test
     public void user_can_update_profile(){
+        User user = UserUtility.createUser();
+        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String bearer = UserUtility.login(user);
+        user.setUsername(RandomUtility.randomStringWithNum().substring(0,10));
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+
+        HttpEntity<User> request = new HttpEntity<>(user, headers);
+        ResponseEntity<Void> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
+
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        ResponseEntity<User> exchange2 =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, User.class);
+        Assert.assertEquals(user.getUsername(), exchange2.getBody().getUsername());
+
     }
     @Test
-    public void user_can_update_avatar(){
+    public void user_can_view_profile(){
+        User user = UserUtility.createUser();
+        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String bearer = UserUtility.login(user);
+        user.setUsername(RandomUtility.randomStringWithNum());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+
+        HttpEntity<User> request = new HttpEntity<>(user, headers);
+        ResponseEntity<User> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, User.class);
+
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertNotNull(exchange.getBody().getEmail());
+
+    }
+    @Test
+    public void user_can_update_avatar() throws FileNotFoundException {
+        //created user has no avatar by default
+        String url = UrlUtility.getAccessUrl("/users" + "/profile/avatar");
+        User user = UserUtility.createUser();
+        String bearer = UserUtility.login(user);
+        HttpHeaders headers2 = new HttpHeaders();
+        headers2.setBearerAuth(bearer);
+        HttpEntity<Void> objectHttpEntity = new HttpEntity<>(headers2);
+        ResponseEntity<String> exchange2 =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
+        //add avatar
+        File file = ResourceUtils.getFile("classpath:test-avatar.jpg");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        MultiValueMap<String, Object> body
+            = new LinkedMultiValueMap<>();
+        FileSystemResource fileSystemResource = new FileSystemResource(file);
+        body.add("file", fileSystemResource);
+        HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+        ResponseEntity<Void> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
+        //get avatar
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        ResponseEntity<String> exchange23 =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
+        Assert.assertEquals(HttpStatus.OK, exchange23.getStatusCode());
     }
 
 }

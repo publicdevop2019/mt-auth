@@ -63,6 +63,7 @@ public class EndpointUtility {
     public static Endpoint createRandomPublicEndpointObj(String clientId) {
         Endpoint randomEndpointObj = EndpointUtility.createRandomEndpointObj(clientId);
         randomEndpointObj.setSecured(false);
+        randomEndpointObj.setExternal(true);
         return randomEndpointObj;
     }
 
@@ -75,17 +76,18 @@ public class EndpointUtility {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
     }
 
-    public static ResponseEntity<Void> createTenantEndpoint(User user, Endpoint endpoint,
-                                                            String projectId) {
+    public static ResponseEntity<Void> createTenantEndpoint(
+        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
         String bearer =
-            UserUtility.login(user);
+            UserUtility.login(tenantContext.getCreator());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         HttpEntity<Endpoint> request = new HttpEntity<>(endpoint, headers);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId, "endpoints")),
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                        "endpoints")),
                 HttpMethod.POST, request, Void.class);
     }
 
@@ -119,13 +121,13 @@ public class EndpointUtility {
                 HttpMethod.DELETE, request, Void.class);
     }
 
-    public static ResponseEntity<Void> expireTenantEndpoint(User user, Endpoint endpoint,
-                                                            String projectId) {
+    public static ResponseEntity<Void> expireTenantEndpoint(
+        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
         String bearer =
-            UserUtility.login(user);
+            UserUtility.login(tenantContext.getCreator());
         String accessUrl = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId,
-                "endpoints/" + endpoint.getId()+"/expire"));
+            UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                "endpoints/" + endpoint.getId() + "/expire"));
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer);
         headers1.setContentType(MediaType.APPLICATION_JSON);
@@ -148,12 +150,13 @@ public class EndpointUtility {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
     }
 
-    public static ResponseEntity<Endpoint> readTenantEndpoint(User user, String endpointId,
-                                                              String projectId) {
+    public static ResponseEntity<Endpoint> readTenantEndpoint(
+        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
         String bearer =
-            UserUtility.login(user);
+            UserUtility.login(tenantContext.getCreator());
         String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId, "endpoints/" + endpointId));
+            UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                "endpoints/" + endpoint.getId()));
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer);
         HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(headers1);

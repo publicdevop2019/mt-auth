@@ -2,14 +2,20 @@ package com.hw.integration.single.access.tenant;
 
 import com.hw.helper.Client;
 import com.hw.helper.Endpoint;
+import com.hw.helper.Permission;
+import com.hw.helper.Role;
 import com.hw.helper.SubscriptionReq;
 import com.hw.helper.SumTotal;
+import com.hw.helper.UpdateType;
 import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
 import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.MarketUtility;
+import com.hw.helper.utility.PermissionUtility;
+import com.hw.helper.utility.RoleUtility;
 import com.hw.helper.utility.TenantUtility;
 import com.hw.helper.utility.TestContext;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class TenantMarketTest{
+public class TenantMarketTest {
     protected static TenantUtility.TenantContext tenantContextA;
     protected static TenantUtility.TenantContext tenantContextB;
     protected static Client clientA;
@@ -38,8 +44,7 @@ public class TenantMarketTest{
         clientA = ClientUtility.createRandomBackendClientObj();
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContextA.getCreator(), clientA,
-                tenantContextA.getProject().getId());
+            ClientUtility.createTenantClient(tenantContextA, clientA);
         clientA.setId(tenantClient.getHeaders().getLocation().toString());
 
         log.info("init tenant complete");
@@ -82,13 +87,12 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
-            MarketUtility.searchMarketEndpoint(creator,endpoint.getId());
+            MarketUtility.searchMarketEndpoint(creator, endpoint.getId());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertSame(1, response.getBody().getData().size());
     }
@@ -99,13 +103,12 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
-            MarketUtility.searchMarketEndpoint(creator,endpoint.getId());
+            MarketUtility.searchMarketEndpoint(creator, endpoint.getId());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertSame(1, response.getBody().getData().size());
         Assert.assertTrue(response.getBody().getData().stream().findFirst().get().isShared());
@@ -117,8 +120,7 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
@@ -134,8 +136,7 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
@@ -151,8 +152,7 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
@@ -168,8 +168,7 @@ public class TenantMarketTest{
         Endpoint endpoint =
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContextA.getCreator(), endpoint,
-                tenantContextA.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
@@ -200,7 +199,37 @@ public class TenantMarketTest{
     }
 
     @Test
-    public void tenant_can_assign_approved_api_to_role() {
+    public void tenant_can_assign_approved_api_to_role() throws InterruptedException {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        //send sub req tenantB
+        SubscriptionReq randomTenantSubReqObj =
+            MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> voidResponseEntity =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
+        String subReqId = voidResponseEntity.getHeaders().getLocation().toString();
+        //approve sub req
+        MarketUtility.approveSubReq(tenantContextA, subReqId);
 
+        //create tenantB role
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> tenantRole =
+            RoleUtility.createTenantRole(tenantContextB, role);
+        role.setId(tenantRole.getHeaders().getLocation().toString());
+        //wait for cache to expire
+        Thread.sleep(20*1000);
+        //update it's api
+        ResponseEntity<SumTotal<Permission>> shared =
+            PermissionUtility.readTenantPermissionShared(tenantContextB);
+        String permissionId = shared.getBody().getData().get(0).getId();
+        role.setApiPermissionIds(Collections.singleton(permissionId));
+        role.setType(UpdateType.API_PERMISSION.name());
+        ResponseEntity<Void> response4 =
+            RoleUtility.updateTenantRole(tenantContextB, role);
+        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
     }
 }

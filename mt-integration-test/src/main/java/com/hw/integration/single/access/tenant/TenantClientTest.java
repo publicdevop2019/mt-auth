@@ -434,15 +434,13 @@ public class TenantClientTest extends TenantTest {
         //create backend client
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClient,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, randomClient);
         String clientId = client.getHeaders().getLocation().toString();
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), randomEndpointObj,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
         //delete client
@@ -452,10 +450,9 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         Thread.sleep(10000);
         //wait sometime and read endpoint again
-
+        randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =
-            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpointId,
-                tenantContext.getProject().getId());
+            EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);
 
         Assert.assertEquals(HttpStatus.OK, endpointResponseEntity.getStatusCode());
         Assert.assertNull(endpointResponseEntity.getBody());
@@ -466,8 +463,7 @@ public class TenantClientTest extends TenantTest {
         //1. backend client requires external url
         Client randomClientObj = ClientUtility.createRandomClientObj();
         ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClientObj,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, randomClientObj);
         randomClientObj.setTypes(Collections.singleton(ClientType.BACKEND_APP));
         randomClientObj.setExternalUrl(null);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantClient.getStatusCode());
@@ -476,8 +472,7 @@ public class TenantClientTest extends TenantTest {
         randomClientObj.setPath(null);
         randomClientObj2.setTypes(Collections.singleton(ClientType.BACKEND_APP));
         ResponseEntity<Void> tenantClient2 =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClientObj2,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, randomClientObj2);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantClient2.getStatusCode());
     }
 

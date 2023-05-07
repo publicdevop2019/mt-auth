@@ -103,25 +103,23 @@ public class TenantCacheTest extends TenantTest {
         //create backend client
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClient,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, randomClient);
         String clientId = client.getHeaders().getLocation().toString();
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         randomEndpointObj.setCacheProfileId(cacheId);
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), randomEndpointObj,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
         String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        randomEndpointObj.setId(endpointId);
         //delete cache
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
         Assert.assertEquals(HttpStatus.OK, cache2.getStatusCode());
         Thread.sleep(10000);
         //read endpoint to verify cache id remove
         ResponseEntity<Endpoint> endpointResponseEntity =
-            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpointId,
-                tenantContext.getProject().getId());
+            EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);
         Assert.assertNull(endpointResponseEntity.getBody().getCacheProfileId());
 
     }

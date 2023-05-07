@@ -92,6 +92,21 @@ public class ClientUtility {
         return randomClient;
     }
 
+    /**
+     * create valid backend client with client_credential grant
+     *
+     * @return client
+     */
+    public static Client createRandomSharedBackendClientObj() {
+        Client randomBackendClientObj = createRandomBackendClientObj();
+        randomBackendClientObj.setResourceIndicator(true);
+        return randomBackendClientObj;
+    }
+
+    /**
+     * create sso login client
+     * @return client
+     */
     public static Client createAuthorizationClientObj() {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
@@ -118,17 +133,16 @@ public class ClientUtility {
             .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, Void.class);
     }
 
-    public static ResponseEntity<Void> createTenantClient(User user, Client client,
-                                                          String projectId) {
+    public static ResponseEntity<Void> createTenantClient(TenantUtility.TenantContext tenantContext, Client client) {
         String bearer =
-            UserUtility.login(user);
+            UserUtility.login(tenantContext.getCreator());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId, "clients")),
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(), "clients")),
                 HttpMethod.POST, request, Void.class);
     }
 
@@ -162,18 +176,4 @@ public class ClientUtility {
             .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
     }
 
-    /**
-     * create sso login client for tenant project
-     *
-     * @param tenantUser tenant user
-     * @param project    project obj
-     * @return new client id
-     */
-    public static String createTenantSsoLoginClient(User tenantUser, Project project) {
-        //create sso login client
-        Client client = createAuthorizationClientObj();
-        ResponseEntity<Void> tenantClient =
-            createTenantClient(tenantUser, client, project.getId());
-        return tenantClient.getHeaders().getLocation().toString();
-    }
 }

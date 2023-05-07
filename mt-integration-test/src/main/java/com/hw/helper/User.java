@@ -19,4 +19,6 @@ public class User {
     private Integer version;
     private String mobileNumber;
     private String countryCode;
+    private String username;
+    private List<String> roles;
 }

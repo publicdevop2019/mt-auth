@@ -2,6 +2,7 @@ package com.hw.helper.utility;
 
 import static com.hw.helper.AppConstant.TENANT_PROJECTS_CREATE;
 import static com.hw.helper.AppConstant.TENANT_PROJECTS_LOOKUP;
+import static com.hw.helper.AppConstant.TENANT_PROJECTS_PREFIX;
 
 import com.hw.helper.Project;
 import com.hw.helper.SumTotal;
@@ -14,19 +15,25 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class ProjectUtility {
-    public static void createTenantProject(String name, User user) {
+    public static Project createRandomProjectObj() {
+        Project project = new Project();
+        project.setName(RandomUtility.randomStringWithNum());
+        return project;
+    }
+
+    public static ResponseEntity<Void> createTenantProject(Project project, User user) {
         String login =
             UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(login);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request2 =
-            new HttpEntity<>("{\"name\":\"" + name + "\"}", headers);
-        TestContext.getRestTemplate()
+        HttpEntity<Project> request2 =
+            new HttpEntity<>(project, headers);
+        return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(TENANT_PROJECTS_CREATE), HttpMethod.POST, request2,
                 Void.class);
     }
-    public static SumTotal<Project> getTenantProjects(User user){
+
+    public static ResponseEntity<SumTotal<Project>> readTenantProjects(User user) {
         String login =
             UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
@@ -34,22 +41,37 @@ public class ProjectUtility {
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<String> request =
             new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<Project>> exchange = TestContext.getRestTemplate()
+        return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(TENANT_PROJECTS_LOOKUP), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        return exchange.getBody();
+    }
+
+    public static ResponseEntity<Project> readTenantProject(User user, Project project) {
+        String login =
+            UserUtility.login(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(login);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<String> request =
+            new HttpEntity<>(null, headers);
+        return TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, project.getId())), HttpMethod.GET,
+                request,
+                Project.class);
     }
 
     public static Project tenantCreateProject(User tenantUser) {
         //create new project
-        createTenantProject(RandomUtility.randomStringWithNum(), tenantUser);
+        Project randomProjectObj = createRandomProjectObj();
+        createTenantProject(randomProjectObj, tenantUser);
         try {
             Thread.sleep(20000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        SumTotal<Project> tenantProjects = getTenantProjects(tenantUser);
+        SumTotal<Project> tenantProjects = readTenantProjects(tenantUser).getBody();
         return tenantProjects.getData().get(0);
     }
 }

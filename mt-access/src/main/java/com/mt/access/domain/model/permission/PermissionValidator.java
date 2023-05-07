@@ -18,10 +18,12 @@ public class PermissionValidator {
 
     private void checkName() {
         if (!permission.isSystemCreate()) {
-            if (Permission.reservedName.contains(permission.getName()) ||
+            if (permission.getName() == null ||
+                Permission.reservedName.contains(permission.getName()) ||
                 permission.getName().startsWith(
                     ProjectId.getIdPrefix())) {
-                handler.handleError("certain names & prefix are not allowed for non system create role");
+                handler.handleError(
+                    "value is not allowed for non system create role");
             }
         }
 

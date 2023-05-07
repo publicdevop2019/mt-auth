@@ -106,25 +106,23 @@ public class TenantCorsTest extends TenantTest {
         //create backend client
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), randomClient,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, randomClient);
         String clientId = client.getHeaders().getLocation().toString();
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         randomEndpointObj.setCorsProfileId(corsId);
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), randomEndpointObj,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
         String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
         //delete cors
         ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, corsObj);
         Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
         Thread.sleep(10000);
         //read endpoint to verify cache id remove
+        randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =
-            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpointId,
-                tenantContext.getProject().getId());
+            EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);
         Assert.assertNull(endpointResponseEntity.getBody().getCorsProfileId());
     }
 

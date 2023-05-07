@@ -1,10 +1,13 @@
 package com.hw.helper.utility;
 
+import com.hw.helper.Client;
 import com.hw.helper.Project;
 import com.hw.helper.User;
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 
 @Slf4j
 public class TenantUtility {
@@ -16,20 +19,23 @@ public class TenantUtility {
      */
     public static TenantContext initTenant() {
         TenantContext tenantContext = new TenantContext();
-        User tenant = UserUtility.createTenant();
+        User tenant = UserUtility.createUser();
         log.info("created tenant {}", tenant.getEmail());
-        Project project = ProjectUtility.tenantCreateProject(tenant);
-        String ssoLoginClient = ClientUtility.createTenantSsoLoginClient(tenant, project);
-        User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient);
-        log.info("created user {}", user1.getEmail());
-        User user2 = UserUtility.userLoginToTenant(project, ssoLoginClient);
-        log.info("created user {}", user2.getEmail());
         tenantContext.creator = tenant;
+        Project project = ProjectUtility.tenantCreateProject(tenant);
         tenantContext.project = project;
-        tenantContext.loginClientId = ssoLoginClient;
-        tenantContext.userSet = new LinkedHashSet<>();
-        tenantContext.userSet.add(user1);
-        tenantContext.userSet.add(user2);
+        Client ssoLoginClient = ClientUtility.createAuthorizationClientObj();
+        ResponseEntity<Void> tenantClient =
+            ClientUtility.createTenantClient(tenantContext, ssoLoginClient);
+        ssoLoginClient.setId(tenantClient.getHeaders().getLocation().toString());
+        User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
+        log.info("created user {}", user1.getEmail());
+        User user2 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
+        log.info("created user {}", user2.getEmail());
+        tenantContext.loginClientId = ssoLoginClient.getId();
+        tenantContext.users = new ArrayList<>();
+        tenantContext.users.add(user1);
+        tenantContext.users.add(user2);
         AdminUtility.makeAdmin(tenant,project,user1);
         AdminUtility.makeAdmin(tenant,project,user2);
         return tenantContext;
@@ -40,6 +46,6 @@ public class TenantUtility {
         private User creator;
         private Project project;
         private String loginClientId;
-        private LinkedHashSet<User> userSet;
+        private List<User> users;
     }
 }

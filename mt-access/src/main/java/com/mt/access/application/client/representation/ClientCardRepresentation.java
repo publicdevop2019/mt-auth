@@ -32,7 +32,7 @@ public class ClientCardRepresentation {
 
     private Set<String> registeredRedirectUri;
 
-    private int refreshTokenValiditySeconds;
+    private Integer refreshTokenValiditySeconds;
 
     private Set<ResourceClientInfo> resources;
 

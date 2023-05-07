@@ -14,10 +14,12 @@ public class PermissionRepresentation {
     private String parentId;
     private PermissionType type;
     private boolean systemCreate;
+    private Integer version;
     private Set<String> linkedApiPermissionIds;
 
     public PermissionRepresentation(Permission permission) {
         this.id = permission.getPermissionId().getDomainId();
+        this.version = permission.getVersion();
         this.name = permission.getName();
         this.type = permission.getType();
         this.systemCreate = permission.isSystemCreate();

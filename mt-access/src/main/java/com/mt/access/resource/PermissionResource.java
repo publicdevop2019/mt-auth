@@ -66,8 +66,11 @@ public class PermissionResource {
         SumPagedRep<Permission> clients =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .tenantQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<PermissionCardRepresentation> sumPagedRep =
+            PermissionCardRepresentation
+                .updateEndpointName(new SumPagedRep<>(clients, PermissionCardRepresentation::new));
         return ResponseEntity.ok(PermissionCardRepresentation
-            .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
+            .updateProjectName(projectId, sumPagedRep));
     }
 
     @GetMapping(path = "permissions/shared")
@@ -81,7 +84,7 @@ public class PermissionResource {
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .sharedQuery(queryParam, pageParam);
         return ResponseEntity.ok(PermissionCardRepresentation
-            .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
+            .updateEndpointName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
     }
 
     @GetMapping(path = "projects/{projectId}/permissions/{id}")

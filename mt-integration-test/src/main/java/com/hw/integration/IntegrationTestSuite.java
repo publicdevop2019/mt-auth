@@ -23,13 +23,12 @@ import com.hw.integration.single.access.tenant.TenantProjectTest;
 import com.hw.integration.single.access.tenant.TenantRoleTest;
 import com.hw.integration.single.access.tenant.TenantUserTest;
 import com.hw.integration.single.proxy.CorsTest;
-import com.hw.integration.single.proxy.CsrfTest;
 import com.hw.integration.single.proxy.EndpointSecurityTest;
 import com.hw.integration.single.access.tenant.TenantEndpointTest;
 import com.hw.integration.single.proxy.GatewayFilterTest;
 import com.hw.integration.single.proxy.JwtSecurityTest;
 import com.hw.integration.single.proxy.RevokeTokenTest;
-import com.hw.integration.single.proxy.SubscriptionTest;
+import com.hw.integration.single.access.tenant.SubscriptionTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
@@ -59,7 +58,6 @@ import org.junit.runners.Suite;
     RefreshTokenTest.class,
     UserTest.class,
     CorsTest.class,
-    CsrfTest.class,
     EndpointSecurityTest.class,
     GatewayFilterTest.class,
     JwtSecurityTest.class,

@@ -33,8 +33,7 @@ public class TenantEndpointTest extends TenantTest {
         client = ClientUtility.createRandomBackendClientObj();
         client.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), client,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, client);
         client.setId(tenantClient.getHeaders().getLocation().toString());
         log.info("init tenant complete");
     }
@@ -45,8 +44,7 @@ public class TenantEndpointTest extends TenantTest {
         Endpoint endpoint =
             EndpointUtility.createRandomEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), endpoint,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         //delete endpoint
@@ -63,8 +61,7 @@ public class TenantEndpointTest extends TenantTest {
         Endpoint endpoint =
             EndpointUtility.createRandomEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), endpoint,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         endpoint.setName(RandomUtility.randomStringWithNum());
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
@@ -75,8 +72,7 @@ public class TenantEndpointTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         //read endpoint
         ResponseEntity<Endpoint> endpointResponseEntity =
-            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpoint.getId(),
-                tenantContext.getProject().getId());
+            EndpointUtility.readTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(1, endpointResponseEntity.getBody().getVersion().intValue());
     }
 
@@ -86,13 +82,11 @@ public class TenantEndpointTest extends TenantTest {
         Endpoint endpoint =
             EndpointUtility.createRandomEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), endpoint,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //read endpoint
         ResponseEntity<Endpoint> endpointResponseEntity =
-            EndpointUtility.readTenantEndpoint(tenantContext.getCreator(), endpoint.getId(),
-                tenantContext.getProject().getId());
+            EndpointUtility.readTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, endpointResponseEntity.getStatusCode());
         Assert.assertNotNull(endpointResponseEntity.getBody().getId());
     }
@@ -103,8 +97,7 @@ public class TenantEndpointTest extends TenantTest {
         Endpoint endpoint =
             EndpointUtility.createRandomSharedEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), endpoint,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
         //try to delete endpoint
@@ -114,8 +107,7 @@ public class TenantEndpointTest extends TenantTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
         //expire endpoint
         ResponseEntity<Void> expireTenantEndpoint =
-            EndpointUtility.expireTenantEndpoint(tenantContext.getCreator(), endpoint,
-                tenantContext.getProject().getId());
+            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, expireTenantEndpoint.getStatusCode());
         //try to delete endpoint again
         ResponseEntity<Void> voidResponseEntity2 =
@@ -139,15 +131,13 @@ public class TenantEndpointTest extends TenantTest {
         Client client = ClientUtility.createRandomBackendClientObj();
         client.setResourceIndicator(false);
         ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContext.getCreator(), client,
-                tenantContext.getProject().getId());
+            ClientUtility.createTenantClient(tenantContext, client);
         client.setId(tenantClient.getHeaders().getLocation().toString());
         Endpoint endpoint2 =
             EndpointUtility.createRandomEndpointObj(client.getId());
         endpoint2.setShared(true);
         ResponseEntity<Void> tenantEndpoint2 =
-            EndpointUtility.createTenantEndpoint(tenantContext.getCreator(), endpoint2,
-                tenantContext.getProject().getId());
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint2);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantEndpoint2.getStatusCode());
     }
 
