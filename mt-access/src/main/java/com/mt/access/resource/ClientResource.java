@@ -17,6 +17,7 @@ import com.mt.access.application.client.representation.ClientProxyRepresentation
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,7 @@ public class ClientResource {
         ClientCardRepresentation.updateDetails(rep.getData());
         return ResponseEntity.ok(rep);
     }
-
+    @RecordElapseTime
     @GetMapping(path = "mgmt/clients")
     public ResponseEntity<SumPagedRep<ClientCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -78,7 +79,7 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
-            .adminQuery(queryParam, pageParam, skipCount);
+            .mgmtQuery(queryParam, pageParam, skipCount);
         SumPagedRep<ClientCardRepresentation> rep =
             new SumPagedRep<>(clients, ClientCardRepresentation::new);
         ClientCardRepresentation.updateDetails(rep.getData());
@@ -92,7 +93,7 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Client> client =
-            ApplicationServiceRegistry.getClientApplicationService().adminQueryById(id);
+            ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);
         return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value)))
             .orElseGet(() -> ResponseEntity.ok().build());
     }

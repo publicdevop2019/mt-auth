@@ -29,7 +29,7 @@ public class NewUserService {
                          UserMobile mobile,
                          UserId userId) {
         Optional<PendingUser> pendingUser = DomainRegistry.getPendingUserRepository()
-            .pendingUserOfEmail(new RegistrationEmail(email.getEmail()));
+            .by(new RegistrationEmail(email.getEmail()));
         UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
             new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
         if (pendingUser.isPresent()) {

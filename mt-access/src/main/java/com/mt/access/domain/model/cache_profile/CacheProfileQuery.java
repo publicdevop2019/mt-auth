@@ -31,6 +31,7 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(CacheProfileId id) {
+        Validator.notNull(id);
         this.ids = Collections.singleton(id);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
@@ -38,6 +39,8 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(Set<CacheProfileId> collect) {
+        Validator.notNull(collect);
+        Validator.noNullMember(collect);
         this.ids = collect;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
@@ -45,6 +48,8 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(ProjectId projectId, CacheProfileId cacheProfileId) {
+        Validator.notNull(cacheProfileId);
+        Validator.notNull(projectId);
         this.ids = Collections.singleton(cacheProfileId);
         this.projectId = projectId;
         setPageConfig(PageConfig.defaultConfig());

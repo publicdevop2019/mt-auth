@@ -8,13 +8,13 @@ import java.util.Set;
 
 public interface UserRepository {
 
-    Optional<User> userOfId(UserId userId);
+    Optional<User> by(UserId userId);
+
+    Optional<User> by(UserEmail email);
 
     void add(User user);
 
-    Optional<User> searchExistingUserWith(UserEmail email);
-
-    SumPagedRep<User> usersOfQuery(UserQuery userQuery);
+    SumPagedRep<User> query(UserQuery userQuery);
 
     void remove(User user1);
 
@@ -22,5 +22,5 @@ public interface UserRepository {
 
     long countTotal();
 
-    Set<UserId> getUserIds();
+    Set<UserId> getIds();
 }

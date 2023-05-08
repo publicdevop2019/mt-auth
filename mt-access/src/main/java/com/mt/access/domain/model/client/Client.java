@@ -421,11 +421,17 @@ public class Client extends Auditable {
         }
     }
 
-    public int accessTokenValiditySeconds() {
+    public Integer accessTokenValiditySeconds() {
+        if (tokenDetail == null) {
+            return null;
+        }
         return tokenDetail.getAccessTokenValiditySeconds();
     }
 
-    public int refreshTokenValiditySeconds() {
+    public Integer refreshTokenValiditySeconds() {
+        if (tokenDetail == null) {
+            return null;
+        }
         return tokenDetail.getRefreshTokenValiditySeconds();
     }
 

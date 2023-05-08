@@ -45,7 +45,7 @@ public class PermissionCheckService {
             .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
         permissionQuery.setNames(Collections.singleton(permissionName));
         Set<Permission> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 permissionQuery);
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));

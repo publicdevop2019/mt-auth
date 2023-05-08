@@ -60,9 +60,9 @@ public interface SpringDataJpaClientRepository
     @Query("select count(*) from Client c where c.projectId = ?1")
     Long countProjectTotal_(ProjectId projectId);
 
-    default Optional<Client> clientOfId(ClientId clientId) {
+    default Client byNullable(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
-            .findFirst();
+            .findFirst().orElse(null);
     }
 
     default void add(Client client) {
@@ -77,7 +77,7 @@ public interface SpringDataJpaClientRepository
         deleteAll(clients);
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
+    default SumPagedRep<Client> query(ClientQuery clientQuery) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(clientQuery);
     }
 

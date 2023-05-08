@@ -1,10 +1,15 @@
 package com.mt.access.domain.model.cors_profile;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import com.mt.common.domain.model.validate.Validator;
 
 public interface CorsProfileRepository {
-    Optional<CorsProfile> id(CorsProfileId id);
+    CorsProfile byNullable(CorsProfileId id);
+    default CorsProfile by(CorsProfileId id){
+        CorsProfile corsProfile = byNullable(id);
+        Validator.notNull(corsProfile);
+        return corsProfile;
+    }
 
     void add(CorsProfile corsProfile);
 

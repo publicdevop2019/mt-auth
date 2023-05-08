@@ -1,19 +1,17 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EndpointValidationService {
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
-        hasValidClient(endpoint, handler);
-        hasValidCacheProfileId(endpoint, handler);
+        hasValidClient(endpoint);
+        hasValidCacheProfileId(endpoint);
         sharedClientMustBeAccessible(endpoint, handler);
     }
 
@@ -21,39 +19,26 @@ public class EndpointValidationService {
                                               ValidationNotificationHandler handler) {
         if (endpoint.isShared()) {
             ClientId clientId = endpoint.getClientId();
-            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
-            if (client.isEmpty()) {
-                handler.handleError(
-                    "endpoint client not found: " + endpoint.getClientId().getDomainId());
-            } else {
-                if (!client.get().isAccessible()) {
-                    handler.handleError("shared endpoint client must be accessible: "
-                        +
-                        endpoint.getClientId().getDomainId());
-                }
-            }
-        }
-
-    }
-
-    private void hasValidCacheProfileId(Endpoint endpoint, ValidationNotificationHandler handler) {
-        if (endpoint.getCacheProfileId() != null) {
-            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository()
-                .id(endpoint.getCacheProfileId());
-            if (cacheProfile.isEmpty()) {
-                handler.handleError("unable to find cache profile with id: "
+            Client client = DomainRegistry.getClientRepository().by(clientId);
+            if (!client.isAccessible()) {
+                handler.handleError("shared endpoint client must be accessible: "
                     +
-                    endpoint.getCacheProfileId().getDomainId());
+                    endpoint.getClientId().getDomainId());
             }
+        }
+
+    }
+
+    private void hasValidCacheProfileId(Endpoint endpoint) {
+        if (endpoint.getCacheProfileId() != null) {
+            DomainRegistry.getCacheProfileRepository()
+                .by(endpoint.getCacheProfileId());
         }
     }
 
 
-    private void hasValidClient(Endpoint endpoint, ValidationNotificationHandler handler) {
+    private void hasValidClient(Endpoint endpoint) {
         ClientId clientId = endpoint.getClientId();
-        Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
-        if (client.isEmpty()) {
-            handler.handleError("can not update endpoint it which clientId is deleted or unknown");
-        }
+        DomainRegistry.getClientRepository().by(clientId);
     }
 }

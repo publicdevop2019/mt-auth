@@ -5,13 +5,18 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
 
 public interface EndpointRepository {
 
-    Optional<Endpoint> endpointOfId(EndpointId endpointId);
+    default Endpoint by(EndpointId endpointId){
+        Endpoint endpoint = byNullable(endpointId);
+        Validator.notNull(endpoint);
+        return endpoint;
+    }
+    Endpoint byNullable(EndpointId endpointId);
 
     void add(Endpoint endpoint);
 
@@ -19,7 +24,7 @@ public interface EndpointRepository {
 
     void remove(Collection<Endpoint> endpoints);
 
-    SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery endpointQuery);
+    SumPagedRep<Endpoint> query(EndpointQuery endpointQuery);
 
     Set<CacheProfileId> getCacheProfileIds();
 

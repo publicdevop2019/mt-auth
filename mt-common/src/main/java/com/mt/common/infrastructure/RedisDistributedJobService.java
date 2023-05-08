@@ -148,7 +148,7 @@ public class RedisDistributedJobService implements DistributedJobService {
             // 2. job status committed
             try {
                 JobDetail jobDetail =
-                    CommonDomainRegistry.getJobRepository().getById(jobId).get();
+                    CommonDomainRegistry.getJobRepository().getById(jobId);
                 jobWrapper(function, transactional, jobDetail);
             } finally {
                 lock.unlock();

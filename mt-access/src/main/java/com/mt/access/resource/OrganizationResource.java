@@ -67,10 +67,9 @@ public class OrganizationResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Organization> client =
+        Organization organization =
             ApplicationServiceRegistry.getOrganizationApplicationService().tenantQuery(id);
-        return client.map(value -> ResponseEntity.ok(new OrganizationRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new OrganizationRepresentation(organization));
     }
 
     @PutMapping("{id}")

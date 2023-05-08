@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaOrganizationRepository
     extends OrganizationRepository, JpaRepository<Organization, Long> {
-    default Optional<Organization> getById(OrganizationId id) {
-        return getByQuery(new OrganizationQuery(id)).findFirst();
+    default Organization byNullable(OrganizationId id) {
+        return query(new OrganizationQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Organization organization) {
@@ -29,7 +29,7 @@ public interface SpringDataJpaOrganizationRepository
         delete(organization);
     }
 
-    default SumPagedRep<Organization> getByQuery(OrganizationQuery organizationQuery) {
+    default SumPagedRep<Organization> query(OrganizationQuery organizationQuery) {
         return QueryBuilderRegistry.getOrganizationAdaptor().execute(organizationQuery);
     }
 

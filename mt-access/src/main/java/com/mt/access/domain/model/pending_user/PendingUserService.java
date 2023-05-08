@@ -15,7 +15,7 @@ public class PendingUserService {
         ActivationCode activationCode
     ) {
         Optional<PendingUser> pendingResourceOwner =
-            DomainRegistry.getPendingUserRepository().pendingUserOfEmail(email);
+            DomainRegistry.getPendingUserRepository().by(email);
         if (pendingResourceOwner.isEmpty()) {
             PendingUser pendingUser = new PendingUser(email, activationCode);
             DomainRegistry.getPendingUserRepository().add(pendingUser);

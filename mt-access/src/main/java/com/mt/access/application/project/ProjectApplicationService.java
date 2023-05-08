@@ -45,19 +45,13 @@ public class ProjectApplicationService {
     public SumPagedRep<Project> mgmtQuery(String queryParam, String pageParam,
                                           String skipCount) {
         ProjectQuery projectQuery = new ProjectQuery(queryParam, pageParam, skipCount);
-        return DomainRegistry.getProjectRepository().getByQuery(projectQuery);
+        return DomainRegistry.getProjectRepository().query(projectQuery);
     }
 
     public ProjectRepresentation tenantQueryDetail(String id) {
         ProjectId projectId = new ProjectId(id);
         canReadProject(Collections.singleton(projectId));
-        Optional<Project> byId = DomainRegistry.getProjectRepository().getById(projectId);
-        if (byId.isEmpty()) {
-            throw new DefinedRuntimeException("no project found", "0076",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        Project project = byId.get();
+        Project project = DomainRegistry.getProjectRepository().by(projectId);
         long clientCount = DomainRegistry.getClientRepository().countProjectTotal(projectId);
         long epCount = DomainRegistry.getEndpointRepository().countProjectTotal(projectId);
         long userCount =
@@ -76,7 +70,7 @@ public class ProjectApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Project> first =
-                    DomainRegistry.getProjectRepository().getByQuery(new ProjectQuery(projectId))
+                    DomainRegistry.getProjectRepository().query(new ProjectQuery(projectId))
                         .findFirst();
                 first.ifPresent(e -> {
                     e.replace(command.getName());
@@ -91,17 +85,15 @@ public class ProjectApplicationService {
     public void remove(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Project> corsProfile =
-                DomainRegistry.getProjectRepository().getById(projectId);
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getProjectRepository().remove(e);
+            Project project =
+                DomainRegistry.getProjectRepository().by(projectId);
+                DomainRegistry.getProjectRepository().remove(project);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_PROJECT,
-                        e);
+                        project);
                 DomainRegistry.getAuditService()
                     .logUserAction(log, DELETE_TENANT_PROJECT,
-                        e);
-            });
+                        project);
             return null;
         }, PROJECT);
     }
@@ -112,18 +104,15 @@ public class ProjectApplicationService {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<Project> corsProfile =
-                    DomainRegistry.getProjectRepository().getById(projectId);
-                if (corsProfile.isPresent()) {
-                    Project corsProfile1 = corsProfile.get();
-                    ProjectPatchCommand beforePatch = new ProjectPatchCommand(corsProfile1);
+                Project project =
+                    DomainRegistry.getProjectRepository().by(projectId);
+                    ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
                     ProjectPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, ProjectPatchCommand.class);
-                    corsProfile1.replace(
+                    project.replace(
                         afterPatch.getName()
                     );
-                }
                 return null;
             }, PROJECT);
     }
@@ -147,7 +136,7 @@ public class ProjectApplicationService {
             return SumPagedRep.empty();
         }
         return DomainRegistry.getProjectRepository()
-            .getByQuery(new ProjectQuery(tenantIds, pageParam));
+            .query(new ProjectQuery(tenantIds, pageParam));
     }
 
     /**
@@ -158,7 +147,7 @@ public class ProjectApplicationService {
      */
     public Set<Project> internalQuery(Set<ProjectId> projectIds) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getProjectRepository()
-            .getByQuery(e), new ProjectQuery(projectIds));
+            .query(e), new ProjectQuery(projectIds));
     }
 
     public DashboardRepresentation mgmtQuery() {
@@ -196,7 +185,7 @@ public class ProjectApplicationService {
             .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), tenantIds);
         permissionQuery.setNames(Collections.singleton(VIEW_PROJECT_INFO));
         Set<Permission> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 permissionQuery);
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));

@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +24,7 @@ public class ProxyService {
         Map<ProxyInfo, CheckSumValue> cacheEndpointSum =
             DomainRegistry.getRemoteProxyService().getCacheEndpointSum();
         Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-            (query) -> DomainRegistry.getEndpointRepository().endpointsOfQuery(query),
+            (query) -> DomainRegistry.getEndpointRepository().query(query),
             new EndpointQuery());
         Set<EndpointProxyCacheRepresentation> collect =
             allByQuery.stream().map(EndpointProxyCacheRepresentation::new)

@@ -11,10 +11,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SpringDataJpaLoginHistoryRepository extends JpaRepository<LoginHistory, Long>,
     LoginHistoryRepository {
-    default Optional<LoginHistory> ofId(UserId userId) {
-        return findByUserId(userId);
-    }
-
     default void add(LoginHistory info) {
         save(info);
     }
@@ -23,7 +19,6 @@ public interface SpringDataJpaLoginHistoryRepository extends JpaRepository<Login
         return new HashSet<>(findTop100ByUserId(userId));
     }
 
-    Optional<LoginHistory> findByUserId(UserId u);
 
     List<LoginHistory> findTop100ByUserId(UserId u);
 }

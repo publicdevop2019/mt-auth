@@ -17,8 +17,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaPositionRepository
     extends PositionRepository, JpaRepository<Position, Long> {
-    default Optional<Position> getById(PositionId id) {
-        return getByQuery(new PositionQuery(id)).findFirst();
+    default Position byNullable(PositionId id) {
+        return query(new PositionQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Position position) {
@@ -29,7 +29,7 @@ public interface SpringDataJpaPositionRepository
         delete(position);
     }
 
-    default SumPagedRep<Position> getByQuery(PositionQuery positionquery) {
+    default SumPagedRep<Position> query(PositionQuery positionquery) {
         return QueryBuilderRegistry.getPositionAdaptor().execute(positionquery);
     }
 

@@ -74,8 +74,8 @@ public class UserApplicationService implements UserDetailsService {
 
     public Optional<UserProfileRepresentation> myProfile() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().by(userId);
         return user.flatMap((e) -> {
             UserProfileRepresentation userProfileRepresentation =
                 new UserProfileRepresentation(e, loginInfo.get());
@@ -86,20 +86,20 @@ public class UserApplicationService implements UserDetailsService {
 
     public SumPagedRep<User> query(String queryParam, String pageParam, String config) {
         return DomainRegistry.getUserRepository()
-            .usersOfQuery(new UserQuery(queryParam, pageParam, config));
+            .query(new UserQuery(queryParam, pageParam, config));
     }
 
     public Set<User> query(Set<UserId> userIdSet) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository()
-            .usersOfQuery(e), new UserQuery(userIdSet));
+            .query(e), new UserQuery(userIdSet));
     }
 
     public Optional<User> query(String userId) {
-        return DomainRegistry.getUserRepository().userOfId(new UserId(userId));
+        return DomainRegistry.getUserRepository().by(new UserId(userId));
     }
 
     public UserMgmtRepresentation mgmtQuery(String userId) {
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(userId));
+        Optional<User> user = DomainRegistry.getUserRepository().by(new UserId(userId));
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("unable to find user", "0075",
                 HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
@@ -112,16 +112,16 @@ public class UserApplicationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> client;
+        Optional<User> user;
         if (Validator.isValidEmail(username)) {
             //for login
-            client =
-                DomainRegistry.getUserRepository().searchExistingUserWith(new UserEmail(username));
+            user =
+                DomainRegistry.getUserRepository().by(new UserEmail(username));
         } else {
             //for refresh token
-            client = DomainRegistry.getUserRepository().userOfId(new UserId(username));
+            user = DomainRegistry.getUserRepository().by(new UserId(username));
         }
-        return client.map(UserSpringRepresentation::new).orElse(null);
+        return user.map(UserSpringRepresentation::new).orElse(null);
     }
 
     @AuditLog(actionName = MGMT_LOCK_USER)
@@ -130,7 +130,7 @@ public class UserApplicationService implements UserDetailsService {
             .logUserAction(log, "lock user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         if (user.isPresent()) {
             User user1 = user.get();
             CommonApplicationServiceRegistry.getIdempotentService()
@@ -165,7 +165,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = MGMT_DELETE_USER)
     public void remove(String id, String changeId) {
         UserId userId = new UserId(id);
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         if (user.isPresent()) {
             User user1 = user.get();
             if (!DEFAULT_USERID.equals(user1.getUserId().getDomainId())) {
@@ -198,7 +198,7 @@ public class UserApplicationService implements UserDetailsService {
         UserId userId = new UserId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+                Optional<User> user = DomainRegistry.getUserRepository().by(userId);
                 if (user.isPresent()) {
                     User original = user.get();
                     UserPatchingCommand beforePatch = new UserPatchingCommand(original);
@@ -230,7 +230,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = USER_UPDATE_PWD)
     public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         if (user.isPresent()) {
             User user1 = user.get();
             CommonApplicationServiceRegistry.getIdempotentService()
@@ -271,7 +271,7 @@ public class UserApplicationService implements UserDetailsService {
 
     public Optional<Image> profileAvatar() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         return user.flatMap((e) -> {
             if (e.getUserAvatar() != null) {
                 String value = e.getUserAvatar().getValue();
@@ -284,7 +284,7 @@ public class UserApplicationService implements UserDetailsService {
 
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("cannot find user " + userId, "0022",
                 HttpResponseCode.BAD_REQUEST,
@@ -302,7 +302,7 @@ public class UserApplicationService implements UserDetailsService {
         if ("password".equalsIgnoreCase(grantType) && username != null) {
             UserEmail userEmail = new UserEmail(username);
             Optional<User> user =
-                DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
+                DomainRegistry.getUserRepository().by(userEmail);
             if (user.isEmpty()) {
                 throw new DefinedRuntimeException("user not found", "0023",
                     HttpResponseCode.UNAUTHORIZED,
@@ -339,7 +339,7 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = USER_UPDATE_PROFILE)
     public void updateProfile(UserUpdateProfileCommand command) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
+        Optional<User> user = DomainRegistry.getUserRepository().by(userId);
         user.ifPresent(
             e -> CommonDomainRegistry.getTransactionService().transactional(() -> e.update(
                 new UserMobile(command.getCountryCode(), command.getMobileNumber()),

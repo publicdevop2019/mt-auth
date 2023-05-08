@@ -9,13 +9,13 @@ import java.util.Set;
 public interface UserRelationRepository {
     void add(UserRelation userRelation);
 
-    SumPagedRep<UserRelation> getByQuery(UserRelationQuery query);
+    SumPagedRep<UserRelation> query(UserRelationQuery query);
 
     void remove(UserRelation e);
 
-    SumPagedRep<UserRelation> getByUserId(UserId id);
+    SumPagedRep<UserRelation> by(UserId id);
 
-    Optional<UserRelation> getByUserIdAndProjectId(UserId id, ProjectId projectId);
+    Optional<UserRelation> by(UserId id, ProjectId projectId);
 
     Set<ProjectId> getProjectIds();
 

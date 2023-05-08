@@ -161,10 +161,9 @@ public class NotificationApplicationService {
                         DomainRegistry.getWsPushNotificationService()
                             .notifyMgmt(event.value());
                     }
-                    DomainRegistry.getNotificationRepository()
-                        .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                        .ifPresent(
-                            Notification::markAsDelivered);
+                    Notification notification = DomainRegistry.getNotificationRepository()
+                        .by(new NotificationId(event.getDomainId().getDomainId()));
+                    notification.markAsDelivered();
                     return null;
                 }, NOTIFICATION + "_" + instanceId);
 
@@ -185,10 +184,9 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (ignored) -> {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
-                DomainRegistry.getNotificationRepository()
-                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                    .ifPresent(
-                        Notification::markAsDelivered);
+                Notification notification = DomainRegistry.getNotificationRepository()
+                    .by(new NotificationId(event.getDomainId().getDomainId()));
+                notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);
 
@@ -205,10 +203,9 @@ public class NotificationApplicationService {
                 DomainRegistry.getEmailNotificationService()
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
-                DomainRegistry.getNotificationRepository()
-                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                    .ifPresent(
-                        Notification::markAsDelivered);
+                Notification notification = DomainRegistry.getNotificationRepository()
+                    .by(new NotificationId(event.getDomainId().getDomainId()));
+                notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);
     }

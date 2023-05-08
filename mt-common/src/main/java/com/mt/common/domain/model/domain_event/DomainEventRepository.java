@@ -10,7 +10,7 @@ public interface DomainEventRepository {
 
     void append(DomainEvent event);
 
-    Optional<StoredEvent> getById(long id);
+    StoredEvent getById(long id);
 
     SumPagedRep<StoredEvent> query(StoredEventQuery storedEventQuery);
 }

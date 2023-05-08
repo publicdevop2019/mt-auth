@@ -49,7 +49,7 @@ public class PermissionCardRepresentation {
                 .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
         if (collect1.size() > 0) {
             Set<Endpoint> allByQuery2 = QueryUtility.getAllByQuery(
-                e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+                e -> DomainRegistry.getEndpointRepository().query(e),
                 new EndpointQuery(collect1));
             data.forEach(e -> allByQuery2.stream()
                 .filter(ee -> ee.getEndpointId().getDomainId().equals(e.name)).findFirst()
@@ -69,7 +69,7 @@ public class PermissionCardRepresentation {
                 .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
             if (collect.size() > 0) {
                 Set<Project> allByQuery = QueryUtility.getAllByQuery(
-                    e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                    e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect));
                 data.forEach(e -> {
                     allByQuery.stream().filter(ee -> ee.getProjectId().getDomainId().equals(e.name))
@@ -80,7 +80,7 @@ public class PermissionCardRepresentation {
                 .map(e -> new ProjectId(e.tenantId)).collect(Collectors.toSet());
             if (collect2.size() > 0) {
                 Set<Project> allByQuery2 = QueryUtility.getAllByQuery(
-                    e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                    e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect2));
                 data.forEach(e -> {
                     allByQuery2.stream()

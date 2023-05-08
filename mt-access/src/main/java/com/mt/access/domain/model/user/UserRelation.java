@@ -111,7 +111,7 @@ public class UserRelation extends Auditable {
                                          ProjectId tenantId, ProjectId authProjectId) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
-            .getByUserIdAndProjectId(creator, authProjectId);
+            .by(creator, authProjectId);
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
@@ -127,7 +127,7 @@ public class UserRelation extends Auditable {
         //to target project
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
-        Project project = DomainRegistry.getProjectRepository().getById(tenantId).get();
+        Project project = DomainRegistry.getProjectRepository().by(tenantId);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new ProjectOnboardingComplete(project));
     }
@@ -143,7 +143,7 @@ public class UserRelation extends Auditable {
         this.standaloneRoles = collect;
         Validator.notEmpty(collect);
         Set<Role> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                 new RoleQuery(collect));
         if (collect.size() != allByQuery.size()) {
             HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();

@@ -53,7 +53,7 @@ public class RoleCardRepresentation {
         collect.addAll(collect2);
         if (collect.size() > 0) {
             Set<Project> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect));
             data.forEach(e -> {
                 if (e.roleType.equals(RoleType.PROJECT)) {
@@ -71,7 +71,7 @@ public class RoleCardRepresentation {
             .map(e -> new ClientId(e.name)).collect(Collectors.toSet());
         if (collect1.size() > 0) {
             Set<Client> allByQuery2 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                     new ClientQuery(collect1));
             data.forEach(e -> {
                 if (e.roleType.equals(RoleType.CLIENT)) {

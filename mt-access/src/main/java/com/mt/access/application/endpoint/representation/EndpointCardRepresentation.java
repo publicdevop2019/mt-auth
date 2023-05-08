@@ -56,7 +56,7 @@ public class EndpointCardRepresentation {
             data.stream().map(e -> new ClientId(e.resourceId)).collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             Set<Client> allByIds =
-                ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
+                ApplicationServiceRegistry.getClientApplicationService().internalQuery(collect);
             data.forEach(e -> allByIds.stream()
                 .filter(ee -> ee.getClientId().getDomainId().equals(e.resourceId)).findFirst()
                 .ifPresent(ee -> {

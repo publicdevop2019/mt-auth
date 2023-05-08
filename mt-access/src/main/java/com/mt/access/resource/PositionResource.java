@@ -66,10 +66,9 @@ public class PositionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Position> client =
+        Position position =
             ApplicationServiceRegistry.getPositionApplicationService().tenantQuery(id);
-        return client.map(value -> ResponseEntity.ok(new PositionRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new PositionRepresentation(position));
     }
 
     @PutMapping("{id}")

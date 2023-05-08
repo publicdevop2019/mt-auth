@@ -24,14 +24,12 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 @Slf4j
 @Service
 public class SubRequestApplicationService {
@@ -51,7 +49,7 @@ public class SubRequestApplicationService {
             .canAccess(tenantIds, SUB_REQ_MGMT);
         SubRequestQuery subRequestQuery = new SubRequestQuery(queryParam, pageParam);
         return DomainRegistry.getSubRequestRepository()
-            .getByQuery(subRequestQuery);
+            .query(subRequestQuery);
     }
 
     /**
@@ -90,24 +88,18 @@ public class SubRequestApplicationService {
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 EndpointId endpointId = new EndpointId(command.getEndpointId());
-                Optional<Endpoint> endpoint =
-                    DomainRegistry.getEndpointRepository().endpointOfId(endpointId);
-                if (endpoint.isEmpty()) {
-                    throw new DefinedRuntimeException("unable to find related endpoint", "0020",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
-                }
-                Endpoint endpoint1 = endpoint.get();
-                ProjectId epProjectId = endpoint1.getProjectId();
+                Endpoint endpoint =
+                    DomainRegistry.getEndpointRepository().by(endpointId);
+                ProjectId epProjectId = endpoint.getProjectId();
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
                     endpointId,
                     command.getBurstCapacity(),
                     command.getReplenishRate(),
                     epProjectId,
-                    endpoint1.isExpired(),
-                    endpoint1.isAuthRequired(),
-                    endpoint1.isShared()
+                    endpoint.isExpired(),
+                    endpoint.isAuthRequired(),
+                    endpoint.isShared()
                 );
                 DomainRegistry.getSubRequestRepository().add(subRequest);
                 return subRequest.getSubRequestId().getDomainId();
@@ -122,16 +114,15 @@ public class SubRequestApplicationService {
      * @param changeId unique change id
      */
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
-        Optional<SubRequest> byId =
-            DomainRegistry.getSubRequestRepository().getById(new SubRequestId(id));
-        byId.ifPresent(ee -> {
-            DomainRegistry.getPermissionCheckService().sameCreatedBy(ee);
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    ee.update(command.getBurstCapacity(), command.getReplenishRate());
-                    return null;
-                }, SUB_REQUEST);
-        });
+        SubRequest byId =
+            DomainRegistry.getSubRequestRepository().by(new SubRequestId(id));
+        Validator.notNull(byId);
+        DomainRegistry.getPermissionCheckService().sameCreatedBy(byId);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                byId.update(command.getBurstCapacity(), command.getReplenishRate());
+                return null;
+            }, SUB_REQUEST);
     }
 
     /**
@@ -145,18 +136,16 @@ public class SubRequestApplicationService {
         SubRequestId subRequestId = new SubRequestId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<SubRequest> byId =
-                    DomainRegistry.getSubRequestRepository().getById(subRequestId);
-                byId.ifPresent(e -> {
-                    DomainRegistry.getPermissionCheckService().sameCreatedBy(e);
-                    DomainRegistry.getSubRequestRepository().remove(e);
-                    DomainRegistry.getAuditService()
-                        .storeAuditAction(CANCEL_SUB_REQUEST,
-                            e);
-                    DomainRegistry.getAuditService()
-                        .logUserAction(log, CANCEL_SUB_REQUEST,
-                            e);
-                });
+                SubRequest subRequest =
+                    DomainRegistry.getSubRequestRepository().by(subRequestId);
+                DomainRegistry.getPermissionCheckService().sameCreatedBy(subRequest);
+                DomainRegistry.getSubRequestRepository().remove(subRequest);
+                DomainRegistry.getAuditService()
+                    .storeAuditAction(CANCEL_SUB_REQUEST,
+                        subRequest);
+                DomainRegistry.getAuditService()
+                    .logUserAction(log, CANCEL_SUB_REQUEST,
+                        subRequest);
                 return null;
             }, SUB_REQUEST);
     }
@@ -170,20 +159,18 @@ public class SubRequestApplicationService {
     @AuditLog(actionName = APPROVE_SUB_REQUEST)
     public void approve(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
-        byId.ifPresent(e -> {
-            ProjectId endpointProjectId = e.getEndpointProjectId();
-            DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, SUB_REQ_MGMT);
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                    byId.ifPresent(e1 -> e1.approve(userId));
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new SubRequestApprovedEvent(e.getSubRequestId()));
-                    return null;
-                }, SUB_REQUEST);
-        });
+        SubRequest subRequest = DomainRegistry.getSubRequestRepository().by(subRequestId);
+        ProjectId endpointProjectId = subRequest.getEndpointProjectId();
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointProjectId, SUB_REQ_MGMT);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                subRequest.approve(userId);
+                CommonDomainRegistry.getDomainEventRepository()
+                    .append(new SubRequestApprovedEvent(subRequest.getSubRequestId()));
+                return null;
+            }, SUB_REQUEST);
     }
 
     /**
@@ -196,18 +183,16 @@ public class SubRequestApplicationService {
     @AuditLog(actionName = REJECT_SUB_REQUEST)
     public void reject(String id, RejectSubRequestCommand command, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        Optional<SubRequest> byId = DomainRegistry.getSubRequestRepository().getById(subRequestId);
-        byId.ifPresent(e -> {
-            ProjectId endpointProjectId = e.getEndpointProjectId();
+        SubRequest subRequest = DomainRegistry.getSubRequestRepository().by(subRequestId);
+            ProjectId endpointProjectId = subRequest.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
                 .canAccess(endpointProjectId, SUB_REQ_MGMT);
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId, (ignored) -> {
                     UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                    byId.ifPresent(reject -> reject.reject(command.getRejectionReason(), userId));
+                    subRequest.reject(command.getRejectionReason(), userId);
                     return null;
                 }, SUB_REQUEST);
-        });
     }
 
     /**

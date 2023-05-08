@@ -30,23 +30,23 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
 
     Optional<User> findByEmailEmail(String email);
 
-    default Optional<User> userOfId(UserId userId) {
-        return usersOfQuery(new UserQuery(userId)).findFirst();
+    default Optional<User> by(UserId userId) {
+        return query(new UserQuery(userId)).findFirst();
+    }
+
+    default Optional<User> by(UserEmail email) {
+        return findByEmailEmail(email.getEmail());
     }
 
     default void add(User user) {
         save(user);
     }
 
-    default Optional<User> searchExistingUserWith(UserEmail email) {
-        return findByEmailEmail(email.getEmail());
-    }
-
     default void remove(User user) {
         delete(user);
     }
 
-    default SumPagedRep<User> usersOfQuery(UserQuery query) {
+    default SumPagedRep<User> query(UserQuery query) {
         return QueryBuilderRegistry.getUserQueryBuilder().execute(query);
     }
 
@@ -58,7 +58,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         return countTotal_();
     }
 
-    default Set<UserId> getUserIds() {
+    default Set<UserId> getIds() {
         return getUserIds_();
     }
 

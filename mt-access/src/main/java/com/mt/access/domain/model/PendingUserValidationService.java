@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class PendingUserValidationService {
     public void validate(PendingUser pendingUser, ValidationNotificationHandler handler) {
         Optional<User> user = DomainRegistry.getUserRepository()
-            .searchExistingUserWith(
+            .by(
                 new UserEmail(pendingUser.getRegistrationEmail().getDomainId()));
         if (user.isPresent()) {
             handler

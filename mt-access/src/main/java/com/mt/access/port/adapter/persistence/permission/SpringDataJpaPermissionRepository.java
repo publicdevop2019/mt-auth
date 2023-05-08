@@ -22,8 +22,8 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaPermissionRepository
     extends PermissionRepository, JpaRepository<Permission, Long> {
 
-    default Optional<Permission> getById(PermissionId id) {
-        return getByQuery(new PermissionQuery(id)).findFirst();
+    default Permission byNullable(PermissionId id) {
+        return query(new PermissionQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Permission permission) {
@@ -64,7 +64,7 @@ public interface SpringDataJpaPermissionRepository
     @Query("select count(*) from Permission p where p.projectId = ?1 and p.type = 'COMMON' and p.parentId != null")
     long countProjectCreateTotal_(ProjectId projectId);
 
-    default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
+    default SumPagedRep<Permission> query(PermissionQuery permissionQuery) {
         return QueryBuilderRegistry.getPermissionAdaptor().execute(permissionQuery);
     }
 

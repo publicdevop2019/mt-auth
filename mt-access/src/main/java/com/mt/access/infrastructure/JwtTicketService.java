@@ -48,7 +48,7 @@ public class JwtTicketService implements TicketService {
 
         JWK jwk = publicKeys.getKeys().get(0);
         Set<Endpoint> allWsEndpoint = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
                 EndpointQuery.websocketQuery());
         Set<String> allWsPermission =
             allWsEndpoint.stream().filter(e -> e.getPermissionId() != null)

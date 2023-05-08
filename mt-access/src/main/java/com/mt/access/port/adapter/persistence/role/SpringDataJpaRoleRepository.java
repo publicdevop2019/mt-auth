@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaRoleRepository extends RoleRepository, JpaRepository<Role, Long> {
 
-    default Optional<Role> getById(RoleId id) {
-        return getByQuery(new RoleQuery(id)).findFirst();
+    default Role byNullable(RoleId id) {
+        return query(new RoleQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Role role) {
@@ -32,7 +32,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         delete(role);
     }
 
-    default SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
+    default SumPagedRep<Role> query(RoleQuery roleQuery) {
         return QueryBuilderRegistry.getRoleAdaptor().execute(roleQuery);
     }
 

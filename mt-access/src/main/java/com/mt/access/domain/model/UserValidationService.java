@@ -12,12 +12,12 @@ import org.springframework.stereotype.Service;
 public class UserValidationService {
     public void validate(User user, ValidationNotificationHandler handler) {
         Optional<PendingUser> pendingUser = DomainRegistry.getPendingUserRepository()
-            .pendingUserOfEmail(new RegistrationEmail(user.getEmail().getEmail()));
+            .by(new RegistrationEmail(user.getEmail().getEmail()));
         if (pendingUser.isEmpty()) {
             handler.handleError("please get activation code first");
         }
         Optional<User> user1 =
-            DomainRegistry.getUserRepository().searchExistingUserWith(user.getEmail());
+            DomainRegistry.getUserRepository().by(user.getEmail());
         if (user1.isPresent()) {
             handler.handleError("already an user " + user.getEmail().getEmail());
         }

@@ -103,7 +103,7 @@ public class RevokeTokenApplicationService {
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 Set<Client> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    (query) -> DomainRegistry.getClientRepository().query(query),
                     ClientQuery
                         .queryByResource(new ClientId(deserialize.getDomainId().getDomainId()))
                 );

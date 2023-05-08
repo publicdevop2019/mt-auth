@@ -31,7 +31,7 @@ public class RoleValidator {
     private void checkPermission(Set<PermissionId> permissionIds, PermissionType type) {
         if (permissionIds != null && !permissionIds.isEmpty()) {
             Set<Permission> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                     new PermissionQuery(permissionIds, type));
             if (log.isDebugEnabled() && allByQuery.size() != permissionIds.size()) {
                 Set<PermissionId> collect =

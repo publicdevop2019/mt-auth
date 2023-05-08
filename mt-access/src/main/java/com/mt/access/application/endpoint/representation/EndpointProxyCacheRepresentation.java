@@ -103,7 +103,7 @@ public class EndpointProxyCacheRepresentation
             }
             if (clients.size() > 0) {
                 clientFetched = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    (query) -> DomainRegistry.getClientRepository().query(query),
                     new ClientQuery(clients));
             }
             if (epIds.size() > 0) {

@@ -29,7 +29,7 @@ public class UserTenantRepresentation {
                 .collect(Collectors.toSet());
             Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
             Set<Role> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                     new RoleQuery(standaloneRoles));
             roleDetails =
                 allByQuery.stream().map(RoleDetail::new).collect(Collectors.toSet());

@@ -32,6 +32,7 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -59,48 +60,49 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
         DomainRegistry.getPermissionCheckService()
             .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
+        return DomainRegistry.getClientRepository().query(clientQuery);
     }
 
     public Optional<Client> tenantQuery(String id, String projectId) {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
             .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
     }
 
-    public SumPagedRep<Client> adminQuery(String queryParam, String pagingParam,
-                                          String configParam) {
+    @RecordElapseTime
+    public SumPagedRep<Client> mgmtQuery(String queryParam, String pagingParam,
+                                         String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery);
+        return DomainRegistry.getClientRepository().query(clientQuery);
     }
 
-    public Optional<Client> adminQueryById(String id) {
+    public Optional<Client> mgmtQueryById(String id) {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id));
-        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
         return DomainRegistry.getClientRepository()
-            .clientsOfQuery(ClientQuery.internalQuery(pagingParam, configParam));
+            .query(ClientQuery.internalQuery(pagingParam, configParam));
     }
 
 
-    public Optional<Client> internalQuery(ClientId id) {
-        return DomainRegistry.getClientRepository().clientOfId(id);
+    public Client internalQuery(ClientId id) {
+        return DomainRegistry.getClientRepository().by(id);
+    }
+
+
+    public Set<Client> internalQuery(Set<ClientId> ids) {
+        return QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                new ClientQuery(ids));
     }
 
 
     public Optional<Client> canAutoApprove(String projectId, String id) {
         ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
-        return DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
-    }
-
-
-    public Set<Client> findAllByIds(Set<ClientId> ids) {
-        return QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
-                new ClientQuery(ids));
+        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
     }
 
     @AuditLog(actionName = CREATE_TENANT_CLIENT)
@@ -149,7 +151,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 ClientQuery clientQuery =
                     new ClientQuery(clientId, new ProjectId(command.getProjectId()));
                 Optional<Client> optionalClient =
-                    DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+                    DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (optionalClient.isPresent()) {
                     Client client = optionalClient.get();
                     client.replace(
@@ -187,7 +189,7 @@ public class ClientApplicationService implements ClientDetailsService {
             .idempotent(changeId, (change) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
                 Optional<Client> client =
-                    DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+                    DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (client.isPresent()) {
                     Client client1 = client.get();
                     if (client1.removable()) {
@@ -218,7 +220,7 @@ public class ClientApplicationService implements ClientDetailsService {
             .idempotent(changeId, (ignored) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, projectId1);
                 Optional<Client> client =
-                    DomainRegistry.getClientRepository().clientsOfQuery(clientQuery).findFirst();
+                    DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (client.isPresent()) {
                     Client original = client.get();
                     ClientPatchCommand beforePatch = new ClientPatchCommand(original);
@@ -247,8 +249,8 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(new ClientId(id));
-        return client.map(ClientSpringOAuth2Representation::new).orElse(null);
+        Client client = DomainRegistry.getClientRepository().by(new ClientId(id));
+        return new ClientSpringOAuth2Representation(client);
     }
 
     public void handle(ClientAsResourceDeleted deserialize) {
@@ -258,7 +260,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 DomainId domainId = deserialize.getDomainId();
                 ClientId removedClientId = new ClientId(domainId.getDomainId());
                 Set<Client> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    (query) -> DomainRegistry.getClientRepository().query(query),
                     ClientQuery.resourceIds(removedClientId));
                 allByQuery.forEach(e -> e.removeResource(removedClientId));
                 Set<ClientId> collect =
@@ -280,17 +282,17 @@ public class ClientApplicationService implements ClientDetailsService {
             .idempotent(event.getId().toString(), (ignored) -> {
                 ProjectId projectId = new ProjectId(event.getDomainId().getDomainId());
                 Set<Client> projectClients = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
+                    .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                         new ClientQuery(projectId));
                 Set<Role> allRoles = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                         new RoleQuery(projectId));
                 Set<PermissionId> externalPermissions =
                     allRoles.stream().filter(e -> e.getExternalPermissionIds() != null)
                         .flatMap(e -> e.getExternalPermissionIds().stream())
                         .collect(Collectors.toSet());
                 Set<Endpoint> referredClients = QueryUtility.getAllByQuery(e ->
-                        DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+                        DomainRegistry.getEndpointRepository().query(e),
                     EndpointQuery.permissionQuery(externalPermissions));
                 Set<ClientId> collect =
                     referredClients.stream().map(Endpoint::getClientId).collect(Collectors.toSet());

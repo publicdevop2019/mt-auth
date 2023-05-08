@@ -50,7 +50,7 @@ public class MgmtEndpointTest extends CommonTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        String accessUrl = UrlUtility.getAccessUrl(MGMT_CLIENTS);
+        String accessUrl = UrlUtility.getAccessUrl(MGMT_ENDPOINTS);
         ResponseEntity<SumTotal<Endpoint>> exchange = TestContext.getRestTemplate()
             .exchange(accessUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
@@ -64,14 +64,14 @@ public class MgmtEndpointTest extends CommonTest {
                 new ParameterizedTypeReference<>() {
                 });
         Assert.assertNotSame(0, Objects.requireNonNull(exchange3.getBody()).getData().size());
-        //get random client
+        //get random endpoint
         int size = exchange3.getBody().getData().size();
         log.info("size is {}", size);
         int picked = RandomUtility.pickRandomFromList(size);
-        log.info("picked index {}", picked);
-        String clientId = exchange3.getBody().getData().get(picked).getId();
+        String epId = exchange3.getBody().getData().get(picked).getId();
+        log.info("picked endpointId {}", epId);
         ResponseEntity<Endpoint> exchange4 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(CLIENTS, clientId)),
+            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(MGMT_ENDPOINTS, epId)),
                 HttpMethod.GET, request,
                 Endpoint.class);
         Assert.assertEquals(HttpStatus.OK, exchange4.getStatusCode());

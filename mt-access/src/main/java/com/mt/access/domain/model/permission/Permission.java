@@ -14,7 +14,6 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -531,7 +530,7 @@ public class Permission extends Auditable {
     public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId,
                                       PermissionId permissionId, boolean shared) {
         Optional<Permission> apiRoot = DomainRegistry.getPermissionRepository()
-            .getByQuery(new PermissionQuery(projectId, API_ACCESS)).findFirst();
+            .query(new PermissionQuery(projectId, API_ACCESS)).findFirst();
         apiRoot.ifPresent(e -> {
             Permission apiPermission = Permission
                 .autoCreateForEndpoint(projectId, permissionId, endpointId.getDomainId(),

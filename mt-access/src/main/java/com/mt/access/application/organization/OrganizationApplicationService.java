@@ -23,11 +23,11 @@ public class OrganizationApplicationService {
 
     public SumPagedRep<Organization> tenantQuery(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getOrganizationRepository()
-            .getByQuery(new OrganizationQuery(queryParam, pageParam, skipCount));
+            .query(new OrganizationQuery(queryParam, pageParam, skipCount));
     }
 
-    public Optional<Organization> tenantQuery(String id) {
-        return DomainRegistry.getOrganizationRepository().getById(new OrganizationId(id));
+    public Organization tenantQuery(String id) {
+        return DomainRegistry.getOrganizationRepository().by(new OrganizationId(id));
     }
 
 
@@ -36,7 +36,7 @@ public class OrganizationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Organization> first = DomainRegistry.getOrganizationRepository()
-                    .getByQuery(new OrganizationQuery(organizationId)).findFirst();
+                    .query(new OrganizationQuery(organizationId)).findFirst();
                 first.ifPresent(e -> {
                     e.replace(command.getName());
                     DomainRegistry.getOrganizationRepository().add(e);
@@ -49,11 +49,9 @@ public class OrganizationApplicationService {
     public void tenantRemove(String id, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Organization> corsProfile =
-                DomainRegistry.getOrganizationRepository().getById(organizationId);
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getOrganizationRepository().remove(e);
-            });
+            Organization corsProfile =
+                DomainRegistry.getOrganizationRepository().by(organizationId);
+                DomainRegistry.getOrganizationRepository().remove(corsProfile);
             return null;
         }, ORGANIZATION);
     }
@@ -63,19 +61,16 @@ public class OrganizationApplicationService {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<Organization> corsProfile =
-                    DomainRegistry.getOrganizationRepository().getById(organizationId);
-                if (corsProfile.isPresent()) {
-                    Organization corsProfile1 = corsProfile.get();
+                Organization organization =
+                    DomainRegistry.getOrganizationRepository().by(organizationId);
                     OrganizationPatchCommand beforePatch =
-                        new OrganizationPatchCommand(corsProfile1);
+                        new OrganizationPatchCommand(organization);
                     OrganizationPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, OrganizationPatchCommand.class);
-                    corsProfile1.replace(
+                    organization.replace(
                         afterPatch.getName()
                     );
-                }
                 return null;
             }, ORGANIZATION);
     }

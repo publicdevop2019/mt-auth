@@ -30,8 +30,8 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaEndpointRepository
     extends JpaRepository<Endpoint, Long>, EndpointRepository {
 
-    default Optional<Endpoint> endpointOfId(EndpointId endpointId) {
-        return endpointsOfQuery(new EndpointQuery(endpointId)).findFirst();
+    default Endpoint byNullable(EndpointId endpointId) {
+        return query(new EndpointQuery(endpointId)).findFirst().orElse(null);
     }
 
     default Set<CacheProfileId> getCacheProfileIds() {
@@ -79,7 +79,7 @@ public interface SpringDataJpaEndpointRepository
         deleteAll(endpoints);
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query) {
+    default SumPagedRep<Endpoint> query(EndpointQuery query) {
         return QueryBuilderRegistry.getEndpointQueryBuilder().execute(query);
     }
 

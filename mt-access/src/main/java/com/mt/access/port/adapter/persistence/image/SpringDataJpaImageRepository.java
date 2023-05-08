@@ -20,7 +20,7 @@ public interface SpringDataJpaImageRepository extends JpaRepository<Image, Long>
         save(address);
     }
 
-    default SumPagedRep<Image> imageOfQuery(ImageQuery query) {
+    default SumPagedRep<Image> query(ImageQuery query) {
         QueryUtility.QueryContext<Image> context = QueryUtility.prepareContext(Image.class, query);
         Optional.ofNullable(query.getIds()).ifPresent(
             e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)

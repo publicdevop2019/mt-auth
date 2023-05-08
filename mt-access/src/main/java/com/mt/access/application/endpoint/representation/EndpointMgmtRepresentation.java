@@ -57,17 +57,22 @@ public class EndpointMgmtRepresentation {
         this.clientId = endpoint.getClientId();
 
         Optional<Client> clientFetched =
-            DomainRegistry.getClientRepository().clientsOfQuery(new ClientQuery(clientId))
+            DomainRegistry.getClientRepository().query(new ClientQuery(clientId))
                 .findFirst();
-        Optional<CacheProfile> cacheFetched =
-            DomainRegistry.getCacheProfileRepository().query(new CacheProfileQuery(cacheProfileId))
-                .findFirst();
-        Optional<CorsProfile> corsFetched =
-            DomainRegistry.getCorsProfileRepository().query(new CorsProfileQuery(corsProfileId))
-                .findFirst();
-        this.cacheConfig = new CacheConfig(cacheFetched.get());
+        if (cacheProfileId != null) {
+            Optional<CacheProfile> cacheFetched =
+                DomainRegistry.getCacheProfileRepository()
+                    .query(new CacheProfileQuery(cacheProfileId))
+                    .findFirst();
+            this.cacheConfig = new CacheConfig(cacheFetched.get());
+        }
+        if (corsProfileId != null) {
+            Optional<CorsProfile> corsFetched =
+                DomainRegistry.getCorsProfileRepository().query(new CorsProfileQuery(corsProfileId))
+                    .findFirst();
+            this.corsConfig = new CorsConfig(corsFetched.get());
+        }
         this.resourceName = clientFetched.get().getName();
-        this.corsConfig = new CorsConfig(corsFetched.get());
         this.path = "/" + clientFetched.get().getPath() + "/" + this.path;
     }
 

@@ -53,10 +53,10 @@ public class EndpointSharedCardRepresentation {
             Set<ProjectId> collect2 =
                 original.stream().map(e -> e.originalProjectId).collect(Collectors.toSet());
             Set<Client> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                     new ClientQuery(collect));
             Set<Project> allByQuery2 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect2));
             original.forEach(e -> {
                 Optional<Client> first =

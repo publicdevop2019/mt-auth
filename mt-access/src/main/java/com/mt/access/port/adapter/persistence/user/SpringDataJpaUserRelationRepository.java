@@ -28,8 +28,12 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaUserRelationRepository
     extends UserRelationRepository, JpaRepository<UserRelation, Long> {
 
-    default SumPagedRep<UserRelation> getByUserId(UserId id) {
-        return getByQuery(new UserRelationQuery(id));
+    default SumPagedRep<UserRelation> by(UserId id) {
+        return query(new UserRelationQuery(id));
+    }
+
+    default Optional<UserRelation> by(UserId id, ProjectId projectId) {
+        return getByUserIdAndProjectId(id, projectId);
     }
 
     default void add(UserRelation role) {
@@ -52,7 +56,7 @@ public interface SpringDataJpaUserRelationRepository
         return getUserIds_();
     }
 
-    default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
+    default SumPagedRep<UserRelation> query(UserRelationQuery query) {
         if (query.getEmailLike() != null) {
             return searchUserByEmailLike(query);
         }
@@ -62,6 +66,8 @@ public interface SpringDataJpaUserRelationRepository
     default long countProjectOwnedTotal(ProjectId projectId) {
         return countProjectOwnedTotal_(projectId);
     }
+
+    Optional<UserRelation> getByUserIdAndProjectId(UserId id, ProjectId projectId);
 
     /**
      * count project admin
@@ -103,7 +109,7 @@ public interface SpringDataJpaUserRelationRepository
         return new SumPagedRep<>(data, count);
     }
 
-//      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
+    //      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
 //      ref: https://stackoverflow.com/questions/25789176/aliases-expected-length-is-0-actual-length-is-1-on-hibernate-query-cache
     default Long countProjectAdmin_(RoleId roleId) {
         EntityManager entityManager = QueryUtility.getEntityManager();

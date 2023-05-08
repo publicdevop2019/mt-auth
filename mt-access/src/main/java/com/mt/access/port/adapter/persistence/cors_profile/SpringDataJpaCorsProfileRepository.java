@@ -17,8 +17,9 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaCorsProfileRepository
     extends CorsProfileRepository, JpaRepository<CorsProfile, Long> {
-    default Optional<CorsProfile> id(CorsProfileId id) {
-        return query(new CorsProfileQuery(id)).findFirst();
+
+    default CorsProfile byNullable(CorsProfileId id) {
+        return query(new CorsProfileQuery(id)).findFirst().orElse(null);
     }
 
     default void add(CorsProfile corsProfile) {

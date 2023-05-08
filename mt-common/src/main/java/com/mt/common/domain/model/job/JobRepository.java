@@ -9,7 +9,7 @@ public interface JobRepository {
 
     void store(JobDetail jobDetail);
 
-    Optional<JobDetail> getById(JobId jobId);
+    JobDetail getById(JobId jobId);
 
     /**
      * update job without version check

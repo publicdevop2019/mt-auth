@@ -57,24 +57,25 @@ public class MgmtClientTest extends CommonTest {
         //get random page
         String randomPageUrl = RandomUtility.pickRandomPage(accessUrl,
             Objects.requireNonNull(exchange.getBody()), null);
-        log.info("page url is {}",randomPageUrl);
+        log.info("page url is {}", randomPageUrl);
         ResponseEntity<SumTotal<Client>> exchange3 = TestContext.getRestTemplate()
             .exchange(randomPageUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
+        Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
         Assert.assertNotSame(0, Objects.requireNonNull(exchange3.getBody()).getData().size());
         //get random client
         int size = exchange3.getBody().getData().size();
-        log.info("size is {}",size);
+        log.info("size is {}", size);
         int picked = RandomUtility.pickRandomFromList(size);
-        log.info("picked index {}",picked);
         String clientId = exchange3.getBody().getData().get(picked).getId();
+        log.info("picked client id {}", clientId);
         ResponseEntity<Client> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(CLIENTS, clientId)),
+            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(MGMT_CLIENTS, clientId)),
                 HttpMethod.GET, request,
                 Client.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        log.info("body {}",exchange2.getBody());
+        log.info("body {}", exchange2.getBody());
         Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getGrantTypeEnums());
     }
 }

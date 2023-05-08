@@ -26,8 +26,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     JpaRepository<SubRequest, Long> {
-    default Optional<SubRequest> getById(SubRequestId id) {
-        return getByQuery(new SubRequestQuery(id)).findFirst();
+    default SubRequest byNullable(SubRequestId id) {
+        return query(new SubRequestQuery(id)).findFirst().orElse(null);
     }
 
     default void add(SubRequest subRequest) {
@@ -38,7 +38,7 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         delete(subRequest);
     }
 
-    default SumPagedRep<SubRequest> getByQuery(SubRequestQuery query) {
+    default SumPagedRep<SubRequest> query(SubRequestQuery query) {
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
 

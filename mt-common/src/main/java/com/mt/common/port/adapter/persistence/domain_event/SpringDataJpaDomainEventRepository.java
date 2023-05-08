@@ -30,8 +30,8 @@ public interface SpringDataJpaDomainEventRepository
         save(new StoredEvent(event));
     }
 
-    default Optional<StoredEvent> getById(long id) {
-        return findById(id);
+    default StoredEvent getById(long id) {
+        return findById(id).orElse(null);
     }
 
     @Override

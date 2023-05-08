@@ -19,8 +19,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaProjectRepository
     extends ProjectRepository, JpaRepository<Project, Long> {
-    default Optional<Project> getById(ProjectId id) {
-        return getByQuery(new ProjectQuery(id)).findFirst();
+    default Project byNullable(ProjectId id) {
+        return query(new ProjectQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Project project) {
@@ -31,7 +31,7 @@ public interface SpringDataJpaProjectRepository
         delete(project);
     }
 
-    default SumPagedRep<Project> getByQuery(ProjectQuery query) {
+    default SumPagedRep<Project> query(ProjectQuery query) {
         return QueryBuilderRegistry.getProjectAdaptor().execute(query);
     }
 

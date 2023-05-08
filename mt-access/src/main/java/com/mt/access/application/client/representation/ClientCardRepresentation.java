@@ -71,7 +71,7 @@ public class ClientCardRepresentation {
             .collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             Set<Client> allByIds =
-                ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
+                ApplicationServiceRegistry.getClientApplicationService().internalQuery(collect);
             data.forEach(e -> {
                 if (e.getResourceIds() != null) {
                     e.resources = e.getResourceIds().stream().map(ee -> {

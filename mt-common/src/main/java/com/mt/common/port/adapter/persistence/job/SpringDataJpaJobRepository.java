@@ -28,8 +28,8 @@ public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository
     }
 
 
-    default Optional<JobDetail> getById(JobId id) {
-        return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst();
+    default JobDetail getById(JobId id) {
+        return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst().orElse(null);
     }
 
 

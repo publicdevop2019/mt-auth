@@ -95,19 +95,15 @@ public class CustomTokenEnhancer implements TokenEnhancer {
         } else {
             //for client
             ClientId clientId = new ClientId(authentication.getName());
-            Optional<Client> client =
+            Client client =
                 ApplicationServiceRegistry.getClientApplicationService().internalQuery(clientId);
-            client.ifPresent(client1 -> {
-                RoleId roleId = client1.getRoleId();
-                Optional<Role> byId =
-                    ApplicationServiceRegistry.getRoleApplicationService().internalQuery(roleId);
-                byId.ifPresent(role -> {
-                    info.put(PROJECT_ID, client1.getProjectId().getDomainId());
-                    info.put(JWT_CLAIM_PERM,
-                        role.getTotalPermissionIds().stream().map(DomainId::getDomainId)
-                            .collect(Collectors.toSet()));
-                });
-            });
+            RoleId roleId = client.getRoleId();
+            Role byId =
+                ApplicationServiceRegistry.getRoleApplicationService().internalQueryById(roleId);
+            info.put(PROJECT_ID, client.getProjectId().getDomainId());
+            info.put(JWT_CLAIM_PERM,
+                byId.getTotalPermissionIds().stream().map(DomainId::getDomainId)
+                    .collect(Collectors.toSet()));
         }
 
         ((DefaultOAuth2AccessToken) accessToken).setAdditionalInformation(info);

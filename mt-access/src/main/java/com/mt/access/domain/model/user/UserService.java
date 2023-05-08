@@ -28,7 +28,7 @@ public class UserService {
     }
 
     public void forgetPassword(UserEmail email) {
-        Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
+        Optional<User> user = DomainRegistry.getUserRepository().by(email);
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("user does not exist", "0001",
                 HttpResponseCode.BAD_REQUEST,
@@ -41,7 +41,7 @@ public class UserService {
     }
 
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
-        Optional<User> user = DomainRegistry.getUserRepository().searchExistingUserWith(email);
+        Optional<User> user = DomainRegistry.getUserRepository().by(email);
         if (user.isEmpty()) {
             throw new DefinedRuntimeException("user does not exist", "0002",
                 HttpResponseCode.BAD_REQUEST,
@@ -74,7 +74,7 @@ public class UserService {
 
     public void updateLastLogin(UserLoginRequest command) {
         UserId userId = command.getUserId();
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().by(userId);
         loginInfo.ifPresentOrElse(e -> e.updateLastLogin(command), () -> {
             LoginInfo loginInfo1 = new LoginInfo(command);
             DomainRegistry.getLoginInfoRepository().add(loginInfo1);
