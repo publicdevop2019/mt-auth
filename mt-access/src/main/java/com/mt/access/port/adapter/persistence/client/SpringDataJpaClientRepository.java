@@ -60,7 +60,7 @@ public interface SpringDataJpaClientRepository
     @Query("select count(*) from Client c where c.projectId = ?1")
     Long countProjectTotal_(ProjectId projectId);
 
-    default Client byNullable(ClientId clientId) {
+    default Client query(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
             .findFirst().orElse(null);
     }

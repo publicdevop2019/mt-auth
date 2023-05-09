@@ -17,9 +17,7 @@ import com.mt.access.application.client.representation.ClientProxyRepresentation
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -69,7 +67,6 @@ public class ClientResource {
         ClientCardRepresentation.updateDetails(rep.getData());
         return ResponseEntity.ok(rep);
     }
-    @RecordElapseTime
     @GetMapping(path = "mgmt/clients")
     public ResponseEntity<SumPagedRep<ClientCardRepresentation>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -92,10 +89,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Client> client =
+        Client client =
             ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);
-        return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new ClientRepresentation(client));
     }
 
     //for internal proxy to create router
@@ -116,10 +112,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Client> client =
-            ApplicationServiceRegistry.getClientApplicationService().tenantQuery(id, projectId);
-        return client.map(value -> ResponseEntity.ok(new ClientRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        Client client =
+            ApplicationServiceRegistry.getClientApplicationService().tenantQueryById(id, projectId);
+        return ResponseEntity.ok(new ClientRepresentation(client));
     }
 
     @PutMapping("projects/{projectId}/clients/{id}")
@@ -172,10 +167,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Client> client =
+        Client client =
             ApplicationServiceRegistry.getClientApplicationService().canAutoApprove(projectId, id);
-        return client.map(value -> ResponseEntity.ok(new ClientAutoApproveRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new ClientAutoApproveRepresentation(client));
     }
 
 }

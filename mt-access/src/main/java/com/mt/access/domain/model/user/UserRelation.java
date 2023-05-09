@@ -111,7 +111,7 @@ public class UserRelation extends Auditable {
                                          ProjectId tenantId, ProjectId authProjectId) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
-            .by(creator, authProjectId);
+            .query(new UserRelationQuery(creator, authProjectId)).findFirst();
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
@@ -127,7 +127,7 @@ public class UserRelation extends Auditable {
         //to target project
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
-        Project project = DomainRegistry.getProjectRepository().by(tenantId);
+        Project project = DomainRegistry.getProjectRepository().get(tenantId);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new ProjectOnboardingComplete(project));
     }

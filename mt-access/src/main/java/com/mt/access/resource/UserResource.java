@@ -193,10 +193,10 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<UserTenantRepresentation> user =
+        UserTenantRepresentation user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
                 .tenantUser(projectId, id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(user);
     }
 
     /**
@@ -210,10 +210,9 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<UserProfileRepresentation> user =
+        UserProfileRepresentation user =
             ApplicationServiceRegistry.getUserApplicationService().myProfile();
-        return user.map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(user);
     }
 
     /**

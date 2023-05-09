@@ -63,11 +63,11 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().query(clientQuery);
     }
 
-    public Optional<Client> tenantQuery(String id, String projectId) {
-        ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
+    public Client tenantQueryById(String clientId, String projectId) {
+        ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
+            .canAccess(projectId1, VIEW_CLIENT);
+        return DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
     }
 
     @RecordElapseTime
@@ -77,9 +77,8 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().query(clientQuery);
     }
 
-    public Optional<Client> mgmtQueryById(String id) {
-        ClientQuery clientQuery = new ClientQuery(new ClientId(id));
-        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
+    public Client mgmtQueryById(String id) {
+        return DomainRegistry.getClientRepository().get(new ClientId(id));
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
@@ -89,7 +88,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
 
     public Client internalQuery(ClientId id) {
-        return DomainRegistry.getClientRepository().by(id);
+        return DomainRegistry.getClientRepository().get(id);
     }
 
 
@@ -100,9 +99,9 @@ public class ClientApplicationService implements ClientDetailsService {
     }
 
 
-    public Optional<Client> canAutoApprove(String projectId, String id) {
-        ClientQuery clientQuery = new ClientQuery(new ClientId(id), new ProjectId(projectId));
-        return DomainRegistry.getClientRepository().query(clientQuery).findFirst();
+    public Client canAutoApprove(String projectId, String id) {
+        return
+            DomainRegistry.getClientRepository().get(new ProjectId(projectId),new ClientId(id));
     }
 
     @AuditLog(actionName = CREATE_TENANT_CLIENT)
@@ -249,7 +248,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        Client client = DomainRegistry.getClientRepository().by(new ClientId(id));
+        Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
         return new ClientSpringOAuth2Representation(client);
     }
 

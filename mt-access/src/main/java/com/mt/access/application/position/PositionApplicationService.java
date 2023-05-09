@@ -27,7 +27,7 @@ public class PositionApplicationService {
     }
 
     public Position tenantQuery(String id) {
-        return DomainRegistry.getPositionRepository().by(new PositionId(id));
+        return DomainRegistry.getPositionRepository().get(new PositionId(id));
     }
 
 
@@ -51,7 +51,7 @@ public class PositionApplicationService {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Position position =
-                DomainRegistry.getPositionRepository().by(positionId);
+                DomainRegistry.getPositionRepository().get(positionId);
                 DomainRegistry.getPositionRepository().remove(position);
             return null;
         }, PERMISSION);
@@ -63,7 +63,7 @@ public class PositionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Position position =
-                    DomainRegistry.getPositionRepository().by(positionId);
+                    DomainRegistry.getPositionRepository().get(positionId);
                     PositionPatchCommand beforePatch = new PositionPatchCommand(position);
                     PositionPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()

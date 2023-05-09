@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaCacheProfileRepository
     extends CacheProfileRepository, JpaRepository<CacheProfile, Long> {
 
-    default CacheProfile byNullable(CacheProfileId id) {
+    default CacheProfile query(CacheProfileId id) {
         return query(new CacheProfileQuery(id)).findFirst().orElse(null);
     }
 

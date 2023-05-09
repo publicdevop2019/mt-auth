@@ -27,7 +27,7 @@ public class OrganizationApplicationService {
     }
 
     public Organization tenantQuery(String id) {
-        return DomainRegistry.getOrganizationRepository().by(new OrganizationId(id));
+        return DomainRegistry.getOrganizationRepository().get(new OrganizationId(id));
     }
 
 
@@ -50,7 +50,7 @@ public class OrganizationApplicationService {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Organization corsProfile =
-                DomainRegistry.getOrganizationRepository().by(organizationId);
+                DomainRegistry.getOrganizationRepository().get(organizationId);
                 DomainRegistry.getOrganizationRepository().remove(corsProfile);
             return null;
         }, ORGANIZATION);
@@ -62,7 +62,7 @@ public class OrganizationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Organization organization =
-                    DomainRegistry.getOrganizationRepository().by(organizationId);
+                    DomainRegistry.getOrganizationRepository().get(organizationId);
                     OrganizationPatchCommand beforePatch =
                         new OrganizationPatchCommand(organization);
                     OrganizationPatchCommand afterPatch =

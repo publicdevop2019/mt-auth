@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaProjectRepository
     extends ProjectRepository, JpaRepository<Project, Long> {
-    default Project byNullable(ProjectId id) {
+    default Project query(ProjectId id) {
         return query(new ProjectQuery(id)).findFirst().orElse(null);
     }
 

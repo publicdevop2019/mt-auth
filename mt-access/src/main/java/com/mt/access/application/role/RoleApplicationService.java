@@ -55,14 +55,14 @@ public class RoleApplicationService {
         return DomainRegistry.getRoleRepository().query(roleQuery);
     }
 
-    public Optional<Role> query(String projectId, String id) {
-        RoleQuery roleQuery = new RoleQuery(new RoleId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
+    public Role query(String projectId, String id) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
+        return DomainRegistry.getRoleRepository().get(projectId1,new RoleId(id));
     }
 
     public Role internalQueryById(RoleId id) {
-        return DomainRegistry.getRoleRepository().by(id);
+        return DomainRegistry.getRoleRepository().get(id);
     }
 
 
@@ -111,7 +111,7 @@ public class RoleApplicationService {
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Role role = DomainRegistry.getRoleRepository().by(roleId);
+            Role role = DomainRegistry.getRoleRepository().get(roleId);
             role.remove();
             DomainRegistry.getAuditService()
                 .storeAuditAction(DELETE_TENANT_ROLE,

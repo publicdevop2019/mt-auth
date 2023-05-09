@@ -33,7 +33,7 @@ public interface SpringDataJpaNotificationRepository
         ackNotificationUser(id, userId);
     }
 
-    default Notification byNullable(NotificationId notificationId) {
+    default Notification query(NotificationId notificationId) {
         return notificationsOfQuery(new NotificationQuery(notificationId)).findFirst().orElse(null);
     }
 

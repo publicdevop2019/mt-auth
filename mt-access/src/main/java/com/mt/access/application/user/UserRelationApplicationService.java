@@ -47,20 +47,17 @@ public class UserRelationApplicationService {
 
     public Optional<UserRelation> query(UserId userId, ProjectId projectId) {
         return DomainRegistry.getUserRelationRepository()
-            .by(userId, projectId);
+            .query(new UserRelationQuery(userId, projectId)).findFirst();
     }
 
-    public Optional<UserTenantRepresentation> tenantUser(String projectId, String userId) {
-        UserRelationQuery userRelationQuery =
-            new UserRelationQuery(new UserId(userId), new ProjectId(projectId));
+    public UserTenantRepresentation tenantUser(String projectId, String userId) {
+        ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
-        return DomainRegistry.getUserRelationRepository().query(userRelationQuery).findFirst()
-            .map(userRelation -> {
-                UserQuery userQuery = new UserQuery(userRelation.getUserId());
-                return DomainRegistry.getUserRepository().query(userQuery).findFirst()
-                    .map(e -> new UserTenantRepresentation(userRelation, e));
-            }).orElseGet(Optional::empty);
+            .canAccess(projectId1, VIEW_TENANT_USER);
+        UserRelation relation =
+            DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
+        User user = DomainRegistry.getUserRepository().get(relation.getUserId());
+        return new UserTenantRepresentation(relation, user);
     }
 
 
@@ -146,9 +143,9 @@ public class UserRelationApplicationService {
             .idempotent(changeId, (ignored) -> {
                 ProjectId projectId1 = new ProjectId(projectId);
                 DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_TENANT_USER);
-                Optional<UserRelation> byUserIdAndProjectId =
+                UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
-                        .by(new UserId(userId), projectId1);
+                        .get(new UserId(userId), projectId1);
                 Set<RoleId> collect =
                     command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet());
                 if (collect.size() > 0) {
@@ -164,18 +161,14 @@ public class UserRelationApplicationService {
                         removeDefaultUser.stream().map(Role::getTenantId)
                             .collect(Collectors.toSet());
                     //update tenant list based on role selected
-                    byUserIdAndProjectId.ifPresent(e -> {
-                        e.setStandaloneRoles(
+                    relation.setStandaloneRoles(
                             command.getRoles().stream().map(RoleId::new)
                                 .collect(Collectors.toSet()));
-                        e.setTenantIds(collect1);
-                    });
+                    relation.setTenantIds(collect1);
 
                 } else {
-                    byUserIdAndProjectId.ifPresent(e -> {
-                        e.setStandaloneRoles(Collections.emptySet());
-                        e.setTenantIds(Collections.emptySet());
-                    });
+                        relation.setStandaloneRoles(Collections.emptySet());
+                        relation.setTenantIds(Collections.emptySet());
                 }
                 return null;
             }, USER_RELATION);
@@ -272,17 +265,16 @@ public class UserRelationApplicationService {
                 HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-        Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
-            .by(userId,
+        UserRelation relation = DomainRegistry.getUserRelationRepository()
+            .get(userId,
                 new ProjectId(MT_AUTH_PROJECT_ID));
-        UserRelation userRelation = byUserIdAndProjectId.get();
         if (isAdd) {
-            if (userRelation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+            if (relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
                 throw new DefinedRuntimeException("already admin", "0080",
                     HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
         } else {
-            if (!userRelation.getStandaloneRoles().contains(tenantAdminRoleId)) {
+            if (!relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
                 throw new DefinedRuntimeException("not admin", "0081",
                     HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
             }
@@ -295,7 +287,7 @@ public class UserRelationApplicationService {
             }
 
         }
-        return userRelation;
+        return relation;
     }
 
     private RoleId getTenantAdminRoleId(ProjectId tenantProjectId) {

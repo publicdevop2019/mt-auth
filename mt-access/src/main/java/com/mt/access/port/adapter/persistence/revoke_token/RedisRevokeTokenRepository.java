@@ -23,7 +23,7 @@ public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    public SumPagedRep<RevokeToken> revokeTokensOfQuery(RevokeTokenQuery query) {
+    public SumPagedRep<RevokeToken> query(RevokeTokenQuery query) {
         return QueryBuilderRegistry.getRedisRevokeTokenAdaptor().execute(query, redisTemplate);
     }
 

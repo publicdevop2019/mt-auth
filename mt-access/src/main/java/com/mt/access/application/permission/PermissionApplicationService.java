@@ -94,12 +94,11 @@ public class PermissionApplicationService {
         return DomainRegistry.getPermissionRepository().query(permissionQuery);
     }
 
-    public Optional<Permission> tenantQuery(String projectId, String id) {
-        PermissionQuery permissionQuery =
-            new PermissionQuery(new PermissionId(id), new ProjectId(projectId));
+    public Permission tenantQueryById(String projectId, String id) {
+        ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
-        return DomainRegistry.getPermissionRepository().query(permissionQuery).findFirst();
+            .canAccess(projectId1, VIEW_PERMISSION);
+        return DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
     }
 
 

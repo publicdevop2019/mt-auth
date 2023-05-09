@@ -28,39 +28,29 @@ public class UserService {
     }
 
     public void forgetPassword(UserEmail email) {
-        Optional<User> user = DomainRegistry.getUserRepository().by(email);
-        if (user.isEmpty()) {
-            throw new DefinedRuntimeException("user does not exist", "0001",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
+        User user = DomainRegistry.getUserRepository().get(email);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
-        user.get().setPwdResetToken(passwordResetToken);
-        DomainRegistry.getUserRepository().add(user.get());
+        user.setPwdResetToken(passwordResetToken);
+        DomainRegistry.getUserRepository().add(user);
 
     }
 
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
-        Optional<User> user = DomainRegistry.getUserRepository().by(email);
-        if (user.isEmpty()) {
-            throw new DefinedRuntimeException("user does not exist", "0002",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        if (user.get().getPwdResetToken() == null) {
+        User user = DomainRegistry.getUserRepository().get(email);
+        if (user.getPwdResetToken() == null) {
             throw new DefinedRuntimeException("token not exist", "0003",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        if (!user.get().getPwdResetToken().equals(token)) {
+        if (!user.getPwdResetToken().equals(token)) {
             throw new DefinedRuntimeException("token mismatch", "0004",
                 HttpResponseCode.BAD_REQUEST,
                 ExceptionCatalog.ILLEGAL_ARGUMENT);
         }
-        user.get().setPassword(newPassword);
-        DomainRegistry.getUserRepository().add(user.get());
+        user.setPassword(newPassword);
+        DomainRegistry.getUserRepository().add(user);
         CommonDomainRegistry.getDomainEventRepository()
-            .append(new UserPasswordChanged(user.get().getUserId()));
+            .append(new UserPasswordChanged(user.getUserId()));
     }
 
     public void batchLock(List<PatchCommand> commands) {
@@ -74,7 +64,7 @@ public class UserService {
 
     public void updateLastLogin(UserLoginRequest command) {
         UserId userId = command.getUserId();
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().by(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().query(userId);
         loginInfo.ifPresentOrElse(e -> e.updateLastLogin(command), () -> {
             LoginInfo loginInfo1 = new LoginInfo(command);
             DomainRegistry.getLoginInfoRepository().add(loginInfo1);

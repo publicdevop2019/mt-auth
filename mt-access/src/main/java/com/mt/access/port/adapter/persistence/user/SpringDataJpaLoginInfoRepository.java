@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SpringDataJpaLoginInfoRepository extends JpaRepository<LoginInfo, Long>,
     LoginInfoRepository {
-    default Optional<LoginInfo> by(UserId userId) {
+    default Optional<LoginInfo> query(UserId userId) {
         return findByUserId(userId);
     }
 

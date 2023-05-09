@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaOrganizationRepository
     extends OrganizationRepository, JpaRepository<Organization, Long> {
-    default Organization byNullable(OrganizationId id) {
+    default Organization query(OrganizationId id) {
         return query(new OrganizationQuery(id)).findFirst().orElse(null);
     }
 

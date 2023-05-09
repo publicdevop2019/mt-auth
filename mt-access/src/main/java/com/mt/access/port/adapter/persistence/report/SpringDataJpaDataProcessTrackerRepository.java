@@ -17,15 +17,15 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaDataProcessTrackerRepository extends DataProcessTrackerRepository,
     JpaRepository<DataProcessTracker, Long> {
 
-    default DataProcessTracker getTracker() {
+    default DataProcessTracker get() {
         Iterable<DataProcessTracker> all = findAll();
         List<DataProcessTracker> objects = new ArrayList<>(1);
         all.forEach(objects::add);
         return objects.isEmpty() ? new DataProcessTracker() : objects.get(0);
     }
 
-    default void updateTracker(DataProcessTracker tracker,
-                               Set<RawAccessRecord> requests) {
+    default void update(DataProcessTracker tracker,
+                        Set<RawAccessRecord> requests) {
         Optional<Long> reduce = requests.stream().map(RawAccessRecord::getId).reduce(Math::max);
         reduce.ifPresent(tracker::setLastProcessedId);
         LogHolder.LOGGER

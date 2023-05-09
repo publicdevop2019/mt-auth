@@ -11,7 +11,7 @@ public interface SpringDataJpaValidationResultRepository extends ValidationResul
         save(result);
     }
 
-    default Optional<ValidationResult> get() {
+    default Optional<ValidationResult> query() {
         return findAll().stream().findAny();
     }
 

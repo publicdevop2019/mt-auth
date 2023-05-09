@@ -4,13 +4,13 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 
 public interface CacheProfileRepository {
-    default CacheProfile by(CacheProfileId id) {
-        CacheProfile cacheProfile = byNullable(id);
+    default CacheProfile get(CacheProfileId id) {
+        CacheProfile cacheProfile = query(id);
         Validator.notNull(cacheProfile);
         return cacheProfile;
     }
 
-    CacheProfile byNullable(CacheProfileId id);
+    CacheProfile query(CacheProfileId id);
 
     void add(CacheProfile cacheProfile);
 

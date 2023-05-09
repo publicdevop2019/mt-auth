@@ -15,12 +15,18 @@ public interface PermissionRepository {
 
     void removeAll(Set<Permission> e);
 
-    default Permission byId(PermissionId id){
-        Permission byIdNullable = byNullable(id);
-        Validator.notNull(byIdNullable);
-        return byIdNullable;
+    default Permission get(PermissionId id){
+        Permission permission = query(id);
+        Validator.notNull(permission);
+        return permission;
     }
-    Permission byNullable(PermissionId id);
+    default Permission get(ProjectId projectId, PermissionId id){
+        PermissionQuery permissionQuery = new PermissionQuery(id, projectId);
+        Permission permission = query(permissionQuery).findFirst().orElse(null);
+        Validator.notNull(permission);
+        return permission;
+    }
+    Permission query(PermissionId id);
 
     Set<EndpointId> allApiPermissionLinkedEpId();
 

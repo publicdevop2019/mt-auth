@@ -61,13 +61,13 @@ public class RoleRepresentation {
         }
         if (this.roleType.equals(RoleType.CLIENT)) {
             Client client =
-                DomainRegistry.getClientRepository().by(new ClientId(role.getName()));
+                DomainRegistry.getClientRepository().get(new ClientId(role.getName()));
             this.name = client.getName();
 
         }
         if (this.roleType.equals(RoleType.PROJECT)) {
             Project byId =
-                DomainRegistry.getProjectRepository().by(new ProjectId(role.getName()));
+                DomainRegistry.getProjectRepository().get(new ProjectId(role.getName()));
                 this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();

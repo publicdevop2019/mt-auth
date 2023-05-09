@@ -162,7 +162,7 @@ public class NotificationApplicationService {
                             .notifyMgmt(event.value());
                     }
                     Notification notification = DomainRegistry.getNotificationRepository()
-                        .by(new NotificationId(event.getDomainId().getDomainId()));
+                        .get(new NotificationId(event.getDomainId().getDomainId()));
                     notification.markAsDelivered();
                     return null;
                 }, NOTIFICATION + "_" + instanceId);
@@ -185,7 +185,7 @@ public class NotificationApplicationService {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
                 Notification notification = DomainRegistry.getNotificationRepository()
-                    .by(new NotificationId(event.getDomainId().getDomainId()));
+                    .get(new NotificationId(event.getDomainId().getDomainId()));
                 notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);
@@ -204,7 +204,7 @@ public class NotificationApplicationService {
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
                 Notification notification = DomainRegistry.getNotificationRepository()
-                    .by(new NotificationId(event.getDomainId().getDomainId()));
+                    .get(new NotificationId(event.getDomainId().getDomainId()));
                 notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);

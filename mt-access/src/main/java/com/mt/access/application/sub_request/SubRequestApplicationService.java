@@ -89,7 +89,7 @@ public class SubRequestApplicationService {
             .idempotent(changeId, (ignored) -> {
                 EndpointId endpointId = new EndpointId(command.getEndpointId());
                 Endpoint endpoint =
-                    DomainRegistry.getEndpointRepository().by(endpointId);
+                    DomainRegistry.getEndpointRepository().get(endpointId);
                 ProjectId epProjectId = endpoint.getProjectId();
                 SubRequest subRequest = new SubRequest(
                     new ProjectId(command.getProjectId()),
@@ -115,7 +115,7 @@ public class SubRequestApplicationService {
      */
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
         SubRequest byId =
-            DomainRegistry.getSubRequestRepository().by(new SubRequestId(id));
+            DomainRegistry.getSubRequestRepository().get(new SubRequestId(id));
         Validator.notNull(byId);
         DomainRegistry.getPermissionCheckService().sameCreatedBy(byId);
         CommonApplicationServiceRegistry.getIdempotentService()
@@ -137,7 +137,7 @@ public class SubRequestApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 SubRequest subRequest =
-                    DomainRegistry.getSubRequestRepository().by(subRequestId);
+                    DomainRegistry.getSubRequestRepository().get(subRequestId);
                 DomainRegistry.getPermissionCheckService().sameCreatedBy(subRequest);
                 DomainRegistry.getSubRequestRepository().remove(subRequest);
                 DomainRegistry.getAuditService()
@@ -159,7 +159,7 @@ public class SubRequestApplicationService {
     @AuditLog(actionName = APPROVE_SUB_REQUEST)
     public void approve(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        SubRequest subRequest = DomainRegistry.getSubRequestRepository().by(subRequestId);
+        SubRequest subRequest = DomainRegistry.getSubRequestRepository().get(subRequestId);
         ProjectId endpointProjectId = subRequest.getEndpointProjectId();
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointProjectId, SUB_REQ_MGMT);
@@ -183,7 +183,7 @@ public class SubRequestApplicationService {
     @AuditLog(actionName = REJECT_SUB_REQUEST)
     public void reject(String id, RejectSubRequestCommand command, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        SubRequest subRequest = DomainRegistry.getSubRequestRepository().by(subRequestId);
+        SubRequest subRequest = DomainRegistry.getSubRequestRepository().get(subRequestId);
             ProjectId endpointProjectId = subRequest.getEndpointProjectId();
             DomainRegistry.getPermissionCheckService()
                 .canAccess(endpointProjectId, SUB_REQ_MGMT);

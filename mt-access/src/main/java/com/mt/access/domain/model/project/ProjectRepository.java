@@ -11,13 +11,13 @@ public interface ProjectRepository {
 
     void remove(Project e);
 
-    default Project by(ProjectId id){
-        Project byIdNullable = byNullable(id);
-        Validator.notNull(byIdNullable);
-        return byIdNullable;
+    default Project get(ProjectId id){
+        Project project = query(id);
+        Validator.notNull(project);
+        return project;
     }
 
-    Project byNullable(ProjectId id);
+    Project query(ProjectId id);
 
     Set<ProjectId> allProjectIds();
 

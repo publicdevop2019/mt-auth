@@ -51,7 +51,7 @@ public class ProjectApplicationService {
     public ProjectRepresentation tenantQueryDetail(String id) {
         ProjectId projectId = new ProjectId(id);
         canReadProject(Collections.singleton(projectId));
-        Project project = DomainRegistry.getProjectRepository().by(projectId);
+        Project project = DomainRegistry.getProjectRepository().get(projectId);
         long clientCount = DomainRegistry.getClientRepository().countProjectTotal(projectId);
         long epCount = DomainRegistry.getEndpointRepository().countProjectTotal(projectId);
         long userCount =
@@ -86,7 +86,7 @@ public class ProjectApplicationService {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Project project =
-                DomainRegistry.getProjectRepository().by(projectId);
+                DomainRegistry.getProjectRepository().get(projectId);
                 DomainRegistry.getProjectRepository().remove(project);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_PROJECT,
@@ -105,7 +105,7 @@ public class ProjectApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Project project =
-                    DomainRegistry.getProjectRepository().by(projectId);
+                    DomainRegistry.getProjectRepository().get(projectId);
                     ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
                     ProjectPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()

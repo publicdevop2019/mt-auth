@@ -25,7 +25,7 @@ public class CrossDomainValidationApplicationService {
 
     @Transactional
     public void reset() {
-        DomainRegistry.getValidationResultRepository().get().ifPresent(
+        DomainRegistry.getValidationResultRepository().query().ifPresent(
             ValidationResult::resetFailureCount);
     }
 }

@@ -3,6 +3,7 @@ package com.mt.access.domain.model.user;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 
@@ -13,9 +14,15 @@ public interface UserRelationRepository {
 
     void remove(UserRelation e);
 
-    SumPagedRep<UserRelation> by(UserId id);
+    SumPagedRep<UserRelation> get(UserId id);
 
-    Optional<UserRelation> by(UserId id, ProjectId projectId);
+    default UserRelation get(UserId id, ProjectId projectId){
+        UserRelation userRelation = query(id, projectId).orElse(null);
+        Validator.notNull(userRelation);
+        return userRelation;
+    }
+
+    Optional<UserRelation> query(UserId id, ProjectId projectId);
 
     Set<ProjectId> getProjectIds();
 

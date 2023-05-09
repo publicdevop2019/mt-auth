@@ -13,11 +13,11 @@ public interface NotificationRepository {
 
     SumPagedRep<Notification> notificationsOfQuery(NotificationQuery notificationQuery);
 
-    default Notification by(NotificationId notificationId){
-        Notification notification = byNullable(notificationId);
+    default Notification get(NotificationId notificationId){
+        Notification notification = query(notificationId);
         Validator.notNull(notification);
         return notification;
     }
 
-    Notification byNullable(NotificationId notificationId);
+    Notification query(NotificationId notificationId);
 }

@@ -30,7 +30,7 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaEndpointRepository
     extends JpaRepository<Endpoint, Long>, EndpointRepository {
 
-    default Endpoint byNullable(EndpointId endpointId) {
+    default Endpoint query(EndpointId endpointId) {
         return query(new EndpointQuery(endpointId)).findFirst().orElse(null);
     }
 

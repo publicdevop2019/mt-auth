@@ -10,10 +10,10 @@ public interface PositionRepository {
 
     void remove(Position e);
 
-    default Position by(PositionId id){
-        Position byIdNullable = byNullable(id);
-        Validator.notNull(byIdNullable);
-        return byIdNullable;
+    default Position get(PositionId id){
+        Position position = query(id);
+        Validator.notNull(position);
+        return position;
     }
-    Position byNullable(PositionId id);
+    Position query(PositionId id);
 }

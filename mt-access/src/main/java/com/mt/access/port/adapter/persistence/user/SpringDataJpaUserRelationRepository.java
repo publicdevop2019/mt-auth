@@ -28,11 +28,11 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaUserRelationRepository
     extends UserRelationRepository, JpaRepository<UserRelation, Long> {
 
-    default SumPagedRep<UserRelation> by(UserId id) {
+    default SumPagedRep<UserRelation> get(UserId id) {
         return query(new UserRelationQuery(id));
     }
 
-    default Optional<UserRelation> by(UserId id, ProjectId projectId) {
+    default Optional<UserRelation> query(UserId id, ProjectId projectId) {
         return getByUserIdAndProjectId(id, projectId);
     }
 

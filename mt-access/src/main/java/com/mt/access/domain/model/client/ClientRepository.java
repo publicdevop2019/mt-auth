@@ -8,12 +8,18 @@ import java.util.Set;
 
 public interface ClientRepository {
 
-    default Client by(ClientId clientId){
-        Client client = byNullable(clientId);
+    default Client get(ClientId clientId){
+        Client client = query(clientId);
         Validator.notNull(client);
         return client;
     }
-    Client byNullable(ClientId clientId);
+    default Client get(ProjectId projectId, ClientId clientId){
+        SumPagedRep<Client> query = query(new ClientQuery(clientId, projectId));
+        Client client = query.findFirst().orElse(null);
+        Validator.notNull(client);
+        return client;
+    }
+    Client query(ClientId clientId);
 
     void add(Client client);
 

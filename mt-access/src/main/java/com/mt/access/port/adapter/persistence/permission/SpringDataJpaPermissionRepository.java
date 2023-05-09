@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaPermissionRepository
     extends PermissionRepository, JpaRepository<Permission, Long> {
 
-    default Permission byNullable(PermissionId id) {
+    default Permission query(PermissionId id) {
         return query(new PermissionQuery(id)).findFirst().orElse(null);
     }
 

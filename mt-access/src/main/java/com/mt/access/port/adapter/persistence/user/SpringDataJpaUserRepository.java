@@ -30,11 +30,11 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
 
     Optional<User> findByEmailEmail(String email);
 
-    default Optional<User> by(UserId userId) {
+    default Optional<User> query(UserId userId) {
         return query(new UserQuery(userId)).findFirst();
     }
 
-    default Optional<User> by(UserEmail email) {
+    default Optional<User> query(UserEmail email) {
         return findByEmailEmail(email.getEmail());
     }
 

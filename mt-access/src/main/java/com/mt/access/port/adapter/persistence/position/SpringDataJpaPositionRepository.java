@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaPositionRepository
     extends PositionRepository, JpaRepository<Position, Long> {
-    default Position byNullable(PositionId id) {
+    default Position query(PositionId id) {
         return query(new PositionQuery(id)).findFirst().orElse(null);
     }
 

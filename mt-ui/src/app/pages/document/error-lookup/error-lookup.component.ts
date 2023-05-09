@@ -8,7 +8,6 @@ import { Component, OnInit } from '@angular/core';
 export class ErrorLookupComponent implements OnInit {
   public data: {code:string,explain:string}[]=[
     {code:'0000',explain:'登录：密码错误'},
-    {code:'0001,0002,0022,0023',explain:'用户不存在'},
     {code:'0003',explain:'密码重置：找不到重置令牌'},
     {code:'0004',explain:'密码重置：重置令牌错误'},
     {code:'0005',explain:'Authorization找不到所请求客户端'},
@@ -66,7 +65,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0072',explain:'无法识别的query值'},
     {code:'0073',explain:'无法识别的order by值'},
     {code:'0074',explain:'无法识别的boolean值'},
-    {code:'0075',explain:'找不到用户'},
     {code:'0077',explain:'该项目禁止此改动'},
     {code:'0078',explain:'项目找不到该用户'},
     {code:'0079',explain:'不可以对自己的权限进行操作'},

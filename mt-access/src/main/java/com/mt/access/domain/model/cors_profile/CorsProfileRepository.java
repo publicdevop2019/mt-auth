@@ -4,9 +4,9 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 
 public interface CorsProfileRepository {
-    CorsProfile byNullable(CorsProfileId id);
-    default CorsProfile by(CorsProfileId id){
-        CorsProfile corsProfile = byNullable(id);
+    CorsProfile query(CorsProfileId id);
+    default CorsProfile get(CorsProfileId id){
+        CorsProfile corsProfile = query(id);
         Validator.notNull(corsProfile);
         return corsProfile;
     }

@@ -52,7 +52,7 @@ public class RevokeTokenApplicationService {
     public SumPagedRep<RevokeToken> query(String queryParam, String pageParam,
                                           String config) {
         return DomainRegistry.getRevokeTokenRepository()
-            .revokeTokensOfQuery(new RevokeTokenQuery(queryParam, pageParam, config));
+            .query(new RevokeTokenQuery(queryParam, pageParam, config));
     }
 
     public void handle(ClientResourceCleanUpCompleted deserialize) {

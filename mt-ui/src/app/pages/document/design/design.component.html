@@ -50,6 +50,6 @@
     <div style="padding-left: 8px;">git branch名称：feature/**,bugfix/**,release/2023-03-31</div>
     <div style="padding-left: 8px;">git commit规范：小的，有意义的，能读懂的commit message 例如：update property to fix foo</div>
     <h1>RESTful</h1>
-    <div style="padding-left: 8px;">GET /resource/$id 返回400,如果找不到资源</div>
-    <div style="padding-left: 8px;">GET /resource?query=id:$id 返回200空body,如果找不到资源</div>
+    <div style="padding-left: 8px;">GET /resource/$id 返回400错误码，找不到资源,等价于get by id</div>
+    <div style="padding-left: 8px;">GET /resource?query=id:$id 找不到资源返回200空body，等价于query by id</div>
 </div>

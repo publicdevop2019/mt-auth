@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaRoleRepository extends RoleRepository, JpaRepository<Role, Long> {
 
-    default Role byNullable(RoleId id) {
+    default Role query(RoleId id) {
         return query(new RoleQuery(id)).findFirst().orElse(null);
     }
 

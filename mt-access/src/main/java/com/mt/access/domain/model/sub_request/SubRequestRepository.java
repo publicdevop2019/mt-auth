@@ -15,14 +15,14 @@ public interface SubRequestRepository {
 
     void remove(SubRequest e);
 
-    default SubRequest by(SubRequestId id) {
-        SubRequest byIdNullable = byNullable(id);
-        Validator.notNull(byIdNullable);
-        return byIdNullable;
+    default SubRequest get(SubRequestId id) {
+        SubRequest subRequest = query(id);
+        Validator.notNull(subRequest);
+        return subRequest;
     }
 
 
-    SubRequest byNullable(SubRequestId id);
+    SubRequest query(SubRequestId id);
 
     Set<UserId> getEndpointSubscriber(EndpointId endpointId);
 

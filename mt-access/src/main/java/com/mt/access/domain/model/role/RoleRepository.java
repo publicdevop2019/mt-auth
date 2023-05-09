@@ -12,12 +12,17 @@ public interface RoleRepository {
 
     void remove(Role e);
 
-    Role byNullable(RoleId id);
+    Role query(RoleId id);
 
-    default Role by(RoleId id){
-        Role byId = byNullable(id);
+    default Role get(RoleId id){
+        Role byId = query(id);
         Validator.notNull(byId);
         return byId;
+    }
+    default Role get(ProjectId projectId, RoleId id){
+        Role role = query(new RoleQuery(id, projectId)).findFirst().orElse(null);
+        Validator.notNull(role);
+        return role;
     }
 
     Set<ProjectId> getProjectIds();

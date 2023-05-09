@@ -10,11 +10,11 @@ public interface OrganizationRepository {
 
     void remove(Organization e);
 
-    default Organization by(OrganizationId id) {
-        Organization byIdNullable = byNullable(id);
-        Validator.notNull(byIdNullable);
-        return byIdNullable;
+    default Organization get(OrganizationId id) {
+        Organization organization = query(id);
+        Validator.notNull(organization);
+        return organization;
     }
 
-    Organization byNullable(OrganizationId id);
+    Organization query(OrganizationId id);
 }

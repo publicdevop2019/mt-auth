@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     JpaRepository<SubRequest, Long> {
-    default SubRequest byNullable(SubRequestId id) {
+    default SubRequest query(SubRequestId id) {
         return query(new SubRequestQuery(id)).findFirst().orElse(null);
     }
 

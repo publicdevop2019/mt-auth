@@ -73,10 +73,9 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Role> client =
+        Role role =
             ApplicationServiceRegistry.getRoleApplicationService().query(projectId, id);
-        return client.map(value -> ResponseEntity.ok(new RoleRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new RoleRepresentation(role));
     }
 
     @PutMapping("projects/{projectId}/roles/{id}")

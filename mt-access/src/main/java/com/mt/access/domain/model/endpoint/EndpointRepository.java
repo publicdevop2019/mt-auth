@@ -11,12 +11,21 @@ import java.util.Set;
 
 public interface EndpointRepository {
 
-    default Endpoint by(EndpointId endpointId){
-        Endpoint endpoint = byNullable(endpointId);
+    default Endpoint get(EndpointId endpointId){
+        Endpoint endpoint = query(endpointId);
         Validator.notNull(endpoint);
         return endpoint;
     }
-    Endpoint byNullable(EndpointId endpointId);
+
+    default Endpoint get(ProjectId projectId, EndpointId endpointId){
+        EndpointQuery endpointQuery =
+            new EndpointQuery(endpointId,projectId );
+        Endpoint endpoint = query(endpointQuery).findFirst().orElse(null);
+        Validator.notNull(endpoint);
+        return endpoint;
+    }
+
+    Endpoint query(EndpointId endpointId);
 
     void add(Endpoint endpoint);
 

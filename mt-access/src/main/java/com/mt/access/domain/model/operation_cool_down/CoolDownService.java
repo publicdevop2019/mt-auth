@@ -23,7 +23,7 @@ public class CoolDownService {
         Validator.notNull(executor);
         Optional<OperationCoolDown> coolDownInfo =
             DomainRegistry.getOperationCoolDownRepository()
-                .by(executor, operationType);
+                .query(executor, operationType);
         if (coolDownInfo.isPresent()) {
             OperationCoolDown operationCoolDown = coolDownInfo.get();
             boolean cool = operationCoolDown.hasCoolDown();

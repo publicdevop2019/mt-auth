@@ -91,10 +91,9 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Endpoint> endpoint =
-            ApplicationServiceRegistry.getEndpointApplicationService().mgmtQuery(id);
-        return endpoint.map(value -> ResponseEntity.ok(new EndpointMgmtRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.badRequest().build());
+        Endpoint endpoint =
+            ApplicationServiceRegistry.getEndpointApplicationService().mgmtQueryById(id);
+        return ResponseEntity.ok(new EndpointMgmtRepresentation(endpoint));
     }
 
     /**
@@ -120,10 +119,9 @@ public class EndpointResource {
         @PathVariable String id
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Endpoint> endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantQuery(projectId, id);
-        return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        Endpoint endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
+            .tenantQueryById(projectId, id);
+        return ResponseEntity.ok(new EndpointRepresentation(endpoint));
     }
 
     @PutMapping("projects/{projectId}/endpoints/{id}")

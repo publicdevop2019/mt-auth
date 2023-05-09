@@ -19,7 +19,7 @@ public class EndpointValidationService {
                                               ValidationNotificationHandler handler) {
         if (endpoint.isShared()) {
             ClientId clientId = endpoint.getClientId();
-            Client client = DomainRegistry.getClientRepository().by(clientId);
+            Client client = DomainRegistry.getClientRepository().get(clientId);
             if (!client.isAccessible()) {
                 handler.handleError("shared endpoint client must be accessible: "
                     +
@@ -32,13 +32,13 @@ public class EndpointValidationService {
     private void hasValidCacheProfileId(Endpoint endpoint) {
         if (endpoint.getCacheProfileId() != null) {
             DomainRegistry.getCacheProfileRepository()
-                .by(endpoint.getCacheProfileId());
+                .get(endpoint.getCacheProfileId());
         }
     }
 
 
     private void hasValidClient(Endpoint endpoint) {
         ClientId clientId = endpoint.getClientId();
-        DomainRegistry.getClientRepository().by(clientId);
+        DomainRegistry.getClientRepository().get(clientId);
     }
 }

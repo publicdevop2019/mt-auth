@@ -49,7 +49,7 @@ public class CrossDomainValidationService {
     public void validate() {
         log.trace("start of validate job");
         Optional<ValidationResult> validationResult1 =
-            DomainRegistry.getValidationResultRepository().get();
+            DomainRegistry.getValidationResultRepository().query();
         ValidationResult validationResult;
         validationResult = validationResult1.orElseGet(ValidationResult::create);
         if (validationResult.shouldPause()) {
@@ -58,7 +58,7 @@ public class CrossDomainValidationService {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new CrossDomainValidationFailureCheck(adminEmail));
             }
-            log.debug("end of validate job, job is paused due to continuous failure");
+            log.warn("end of validate job, job is paused due to continuous failure");
             return;
         }
         boolean b = validateCacheProfileAndEndpoint();

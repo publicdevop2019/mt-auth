@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataJpaPendingUserRepository
     extends JpaRepository<PendingUser, Long>, PendingUserRepository {
-    default Optional<PendingUser> by(RegistrationEmail email) {
+    default Optional<PendingUser> query(RegistrationEmail email) {
         return findByRegistrationEmailDomainId(email.getDomainId());
     }
 
