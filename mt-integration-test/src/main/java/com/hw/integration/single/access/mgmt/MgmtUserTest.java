@@ -92,7 +92,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse123 =
             UserUtility.login(user.getEmail(), user.getPassword());
 
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse123.getStatusCode());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse123.getStatusCode());
 
     }
 

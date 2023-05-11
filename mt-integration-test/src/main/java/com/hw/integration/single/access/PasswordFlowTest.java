@@ -53,7 +53,7 @@ public class PasswordFlowTest  extends CommonTest {
     public void should_not_get_token_when_user_credentials_are_wrong_even_client_is_valid() {
         ResponseEntity<?> tokenResponse = UserUtility.login("root2@gmail.com",
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse.getStatusCode());
     }
 
     @Test

@@ -17,6 +17,7 @@ import com.hw.helper.User;
 import com.hw.helper.utility.ClientUtility;
 import com.hw.helper.utility.EndpointUtility;
 import com.hw.helper.utility.OAuth2Utility;
+import com.hw.helper.utility.RandomUtility;
 import com.hw.helper.utility.TestContext;
 import com.hw.helper.utility.UrlUtility;
 import com.hw.helper.utility.UserUtility;
@@ -34,7 +35,6 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -48,22 +48,20 @@ public class TenantClientTest extends TenantTest {
     public void frontend_type_client_can_not_be_resource() {
         Client client = ClientUtility.getClientAsResource();
         client.setTypes(Collections.singleton(ClientType.FRONTEND_APP));
-        ResponseEntity<Void> exchange = ClientUtility.createClient(client);
+        ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void create_client_then_login() {
         Client client = ClientUtility.getClientAsNonResource();
-        ResponseEntity<Void> exchange = ClientUtility.createClient(client);
+        ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Assert.assertNotNull(exchange.getHeaders().getLocation());
-
+        client.setId(exchange.getHeaders().getLocation().toString());
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                exchange.getHeaders().getLocation().toString(), client.getClientSecret(),
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(client, tenantContext.getCreator(),
+                tenantContext);
 
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
@@ -72,56 +70,44 @@ public class TenantClientTest extends TenantTest {
     @Test
     public void resource_client_must_be_accessible() {
         Client client = ClientUtility.getClientAsResource(CLIENT_ID_TEST_ID);
-        ResponseEntity<Void> exchange = ClientUtility.createClient(client);
+        ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void resource_client_must_exist() {
         Client client = ClientUtility.getClientAsNonResource(UUID.randomUUID().toString());
-        ResponseEntity<Void> exchange = ClientUtility.createClient(client);
+        ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 
     @Test
     public void tenant_can_read_client_list() {
-        ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordAdmin =
-            UserUtility.getJwtPasswordAdmin();
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(jwtPasswordAdmin.getBody().getValue());
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<Client>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(CLIENTS), HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
-        Assert.assertNotSame(0, exchange.getBody().getData().size());
+        Client client = ClientUtility.getClientAsNonResource();
+        ClientUtility.createTenantClient(tenantContext, client);
+        ResponseEntity<SumTotal<Client>> response =
+            ClientUtility.readTenantClients(tenantContext);
+        Assert.assertNotSame(0, response.getBody().getData().size());
     }
 
     @Test
     public void client_password_will_not_change_when_update_value_empty() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        Client newClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        newClient.setClientSecret(" ");
-        newClient.setVersion(0);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(newClient, headers);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Client client = ClientUtility.createRandomBackendClientObj();
+        client.setVersion(0);
+        client.setGrantTypeEnums(Collections.singleton(GrantType.PASSWORD));
+        client.setAccessTokenValiditySeconds(60);
+        String oldSecret = client.getClientSecret();
+        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        client.setClientSecret(" ");
+        client.setId(client1.getHeaders().getLocation().toString());
+        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
 
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        client.setClientSecret(oldSecret);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                client1.getHeaders().getLocation().toString(), oldClient.getClientSecret(),
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-
+            OAuth2Utility.getTenantPasswordToken(
+                client,
+                tenantContext.getCreator(), tenantContext);
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
 
@@ -129,57 +115,37 @@ public class TenantClientTest extends TenantTest {
 
     @Test
     public void replace_client_w_same_value_multiple_time_will_not_increase_version() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        oldClient.setClientSecret(" ");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        ResponseEntity<String> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        ResponseEntity<Client> exchange1 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, Client.class);
-
-        Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
-        Assert.assertEquals(0, (int) exchange1.getBody().getVersion());
+        Client client = ClientUtility.createRandomBackendClientObj();
+        client.setClientSecret(" ");
+        ResponseEntity<Void> tenantClient =
+            ClientUtility.createTenantClient(tenantContext, client);
+        client.setId(tenantClient.getHeaders().getLocation().toString());
+        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        ResponseEntity<Void> client3 = ClientUtility.updateTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client3.getStatusCode());
+        ResponseEntity<Client> clientResponseEntity =
+            ClientUtility.readTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, clientResponseEntity.getStatusCode());
+        Assert.assertEquals(0, (int) clientResponseEntity.getBody().getVersion());
     }
 
     @Test
     public void create_client_then_update_it_to_be_resource() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        Client oldClient = ClientUtility.getClientAsResource(CLIENT_ID_RESOURCE_ID);
-        oldClient.setResourceIndicator(true);
-        oldClient.setClientSecret(" ");
-        oldClient.setVersion(0);
-        HttpHeaders headers = new HttpHeaders();
-        String bearer = tokenResponse.getBody().getValue();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String clientSecret = oldClient.getClientSecret();
-
+        Client client = ClientUtility.createRandomBackendClientObj();
+        client.setVersion(0);
+        client.setGrantTypeEnums(Collections.singleton(GrantType.PASSWORD));
+        client.setAccessTokenValiditySeconds(60);
+        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        client.setResourceIndicator(true);
+        client.setClientSecret(RandomUtility.randomStringWithNum());
+        client.setId(client1.getHeaders().getLocation().toString());
+        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                client1.getHeaders().getLocation().toString(), clientSecret, ACCOUNT_USERNAME_ADMIN,
-                ACCOUNT_PASSWORD_ADMIN);
-
+            OAuth2Utility.getTenantPasswordToken(
+                client, tenantContext.getCreator(), tenantContext);
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
 
@@ -187,52 +153,35 @@ public class TenantClientTest extends TenantTest {
 
     @Test
     public void client_type_cannot_change() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        Client newClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        newClient.setClientSecret(" ");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        HttpEntity<Client> request = new HttpEntity<>(newClient, headers);
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        ResponseEntity<Client> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, Client.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        Assert.assertTrue(exchange2.getBody().getTypes().contains(ClientType.BACKEND_APP));
+        Client client = ClientUtility.createRandomBackendClientObj();
+        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        client.setClientSecret(" ");
+        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP));
+        client.setId(client1.getHeaders().getLocation().toString());
+        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client3.getStatusCode());
+        Assert.assertTrue(client3.getBody().getTypes().contains(ClientType.BACKEND_APP));
 
     }
 
     @Test
     public void change_client_secret() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        Client newClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        newClient.setVersion(0);
-        HttpEntity<Client> request = new HttpEntity<>(newClient, headers);
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Client client = ClientUtility.createRandomBackendClientObj();
+        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        client.setVersion(0);
+        client.setGrantTypeEnums(Collections.singleton(GrantType.PASSWORD));
+        client.setAccessTokenValiditySeconds(60);
+        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        client.setId(client1.getHeaders().getLocation().toString());
+        client.setClientSecret(RandomUtility.randomStringWithNum());
+        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                client1.getHeaders().getLocation().toString(), newClient.getClientSecret(),
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(
+                client, tenantContext.getCreator(), tenantContext);
 
         Assert.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
         Assert.assertNotNull(tokenResponse1.getBody().getValue());
@@ -240,27 +189,13 @@ public class TenantClientTest extends TenantTest {
 
     @Test
     public void delete_client() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        Client oldClient = ClientUtility.getClientAsNonResource(CLIENT_ID_RESOURCE_ID);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(oldClient);
-        String url =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + client1.getHeaders().getLocation().toString());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
-
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
-                client1.getHeaders().getLocation().toString(), oldClient.getClientSecret(),
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse1.getStatusCode());
+        Client client = ClientUtility.createRandomBackendClientObj();
+        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        client.setId(client1.getHeaders().getLocation().toString());
+        ResponseEntity<Void> client2 = ClientUtility.deleteTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, client3.getStatusCode());
     }
 
     @Test
@@ -272,9 +207,9 @@ public class TenantClientTest extends TenantTest {
             UrlUtility.getAccessUrl(CLIENTS + "/0C8AZTODP4HT");
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
-        HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<String> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<Void> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Void.class);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
@@ -283,56 +218,53 @@ public class TenantClientTest extends TenantTest {
     public void create_resource_client_and_client_which_access_it_then_delete_resource_client()
         throws InterruptedException {
         Client clientAsResource = ClientUtility.getClientAsResource();
-        clientAsResource.setName("resource client");
-        ResponseEntity<Void> client = ClientUtility.createClient(clientAsResource);
+        Client clientAsResource2 = ClientUtility.getClientAsResource();
+        clientAsResource2.setExternalUrl("http://localhost:9999");
+        ResponseEntity<Void> client =
+            ClientUtility.createTenantClient(tenantContext, clientAsResource);
+        ResponseEntity<Void> client4 =
+            ClientUtility.createTenantClient(tenantContext, clientAsResource2);
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
-        String resourceClientId = client.getHeaders().getLocation().toString();
+        Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
+        clientAsResource.setId(client.getHeaders().getLocation().toString());
+        clientAsResource2.setId(client4.getHeaders().getLocation().toString());
+        //create endpoint
+        Endpoint endpoint =
+            EndpointUtility.createRandomPublicEndpointObj(clientAsResource2.getId());
+        endpoint.setPath("get/**");
+        endpoint.setMethod("GET");
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        Thread.sleep(20*1000);
         Client clientAsNonResource =
-            ClientUtility.getClientAsNonResource(resourceClientId, CLIENT_ID_OAUTH2_ID);
+            ClientUtility.getClientAsNonResource(clientAsResource.getId(),clientAsResource2.getId());
         HashSet<GrantType> enums = new HashSet<>();
         enums.add(GrantType.PASSWORD);
         enums.add(GrantType.REFRESH_TOKEN);
         clientAsNonResource.setGrantTypeEnums(enums);
         clientAsNonResource.setRefreshTokenValiditySeconds(120);
-        clientAsNonResource.setName("non resource client");
-        ResponseEntity<Void> client1 = ClientUtility.createClient(clientAsNonResource);
+        ResponseEntity<Void> client1 =
+            ClientUtility.createTenantClient(tenantContext, clientAsNonResource);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        String clientId = client1.getHeaders().getLocation().toString();
-        String clientSecret = clientAsNonResource.getClientSecret();
+        clientAsNonResource.setId(client1.getHeaders().getLocation().toString());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
-            OAuth2Utility.getOAuth2PasswordToken(clientId, clientSecret,
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(clientAsNonResource, tenantContext.getCreator(),
+                tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getAccessUrl(UserTest.USER_MGMT);
+        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),"get"+"/"+RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
-            });
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        //delete resource client
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        String url4 =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + resourceClientId);
-        HttpHeaders headers4 = new HttpHeaders();
-        headers4.setBearerAuth(bearer);
-        HttpEntity<String> request4 = new HttpEntity<>(null, headers4);
-        ResponseEntity<String> exchange1 =
-            TestContext.getRestTemplate().exchange(url4, HttpMethod.DELETE, request4, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
+        //remove resource client
+        ResponseEntity<Void> client2 = ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
+        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         Thread.sleep(10000);
-        //clientAsNonResource should not have removed client
-        String url5 = UrlUtility.getAccessUrl(CLIENTS + "/" + clientId);
-        ResponseEntity<Client> exchange3 =
-            TestContext.getRestTemplate().exchange(url5, HttpMethod.GET, request4, Client.class);
-        Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
-        Set<String> resourceIds = exchange3.getBody().getResourceIds();
-        Assert.assertEquals(1, resourceIds.size());
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<SumTotal<User>> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
@@ -340,21 +272,20 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
-            .getRefreshTokenResponse(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
-                clientId, clientSecret);
+            .getTenantRefreshToken(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
+                clientAsNonResource,tenantContext);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =
-            OAuth2Utility.getOAuth2PasswordToken(clientId, clientSecret,
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(clientAsNonResource,
+                tenantContext.getCreator(),tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient3.getStatusCode());
         // clientAsNonResource can access endpoint again
         HttpHeaders headers5 = new HttpHeaders();
         headers5.setBearerAuth(jwtPasswordWithClient3.getBody().getValue());
-        HttpEntity<String> request5 = new HttpEntity<>(null, headers5);
-        ResponseEntity<SumTotal<User>> exchange5 = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request5, new ParameterizedTypeReference<>() {
-            });
+        HttpEntity<Void> request5 = new HttpEntity<>(headers5);
+        ResponseEntity<String> exchange5 = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request5, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
     }
 
@@ -362,46 +293,53 @@ public class TenantClientTest extends TenantTest {
     public void create_resource_client_and_client_which_access_it_then_resource_client_is_not_accessible()
         throws InterruptedException {
         Client clientAsResource = ClientUtility.getClientAsResource();
-        ResponseEntity<Void> client = ClientUtility.createClient(clientAsResource);
+        Client clientAsResource2 = ClientUtility.getClientAsResource();
+        clientAsResource2.setExternalUrl("http://localhost:9999");
+        ResponseEntity<Void> client =
+            ClientUtility.createTenantClient(tenantContext, clientAsResource);
+        ResponseEntity<Void> client4 =
+            ClientUtility.createTenantClient(tenantContext, clientAsResource2);
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
-        String resourceClientId = client.getHeaders().getLocation().toString();
+        Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
+        clientAsResource.setId(client.getHeaders().getLocation().toString());
+        clientAsResource2.setId(client4.getHeaders().getLocation().toString());
+        //create endpoint
+        Endpoint endpoint =
+            EndpointUtility.createRandomPublicEndpointObj(clientAsResource2.getId());
+        endpoint.setPath("get/**");
+        endpoint.setMethod("GET");
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        Thread.sleep(20*1000);
         Client clientAsNonResource =
-            ClientUtility.getClientAsNonResource(resourceClientId, CLIENT_ID_OAUTH2_ID);
+            ClientUtility.getClientAsNonResource(clientAsResource.getId(),clientAsResource2.getId());
         HashSet<GrantType> enums = new HashSet<>();
         enums.add(GrantType.PASSWORD);
         enums.add(GrantType.REFRESH_TOKEN);
         clientAsNonResource.setGrantTypeEnums(enums);
         clientAsNonResource.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> client1 = ClientUtility.createClient(clientAsNonResource);
+        ResponseEntity<Void> client1 =
+            ClientUtility.createTenantClient(tenantContext, clientAsNonResource);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        String clientId = client1.getHeaders().getLocation().toString();
-        String clientSecret = clientAsNonResource.getClientSecret();
+        clientAsNonResource.setId(client1.getHeaders().getLocation().toString());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
-            OAuth2Utility.getOAuth2PasswordToken(clientId, clientSecret,
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(clientAsNonResource, tenantContext.getCreator(),
+                tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getAccessUrl(UserTest.USER_MGMT);
+        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),"get"+"/"+RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
-            });
+        ResponseEntity<String> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //update resource client to remove access
         clientAsResource.setResourceIndicator(false);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        String url4 =
-            UrlUtility.getAccessUrl(CLIENTS + "/" + resourceClientId);
-        HttpHeaders headers4 = new HttpHeaders();
-        headers4.setBearerAuth(bearer);
-        HttpEntity<Client> request4 = new HttpEntity<>(clientAsResource, headers4);
-        ResponseEntity<String> exchange1 =
-            TestContext.getRestTemplate().exchange(url4, HttpMethod.PUT, request4, String.class);
+        ResponseEntity<Void> exchange1 =
+            ClientUtility.updateTenantClient(tenantContext, clientAsResource);
         Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
         Thread.sleep(10000);
         //clientAsNonResource can not access endpoint both access token
@@ -411,22 +349,22 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
-            .getRefreshTokenResponse(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
-                clientId, clientSecret);
+            .getTenantRefreshToken(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
+                clientAsNonResource,tenantContext);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =
-            OAuth2Utility.getOAuth2PasswordToken(clientId, clientSecret,
-                ACCOUNT_USERNAME_ADMIN, ACCOUNT_PASSWORD_ADMIN);
+            OAuth2Utility.getTenantPasswordToken(clientAsNonResource,
+                tenantContext.getCreator(),tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient3.getStatusCode());
         // clientAsNonResource can access endpoint again
         HttpHeaders headers5 = new HttpHeaders();
         headers5.setBearerAuth(jwtPasswordWithClient3.getBody().getValue());
-        HttpEntity<String> request5 = new HttpEntity<>(null, headers5);
-        ResponseEntity<SumTotal<User>> exchange5 = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request5, new ParameterizedTypeReference<>() {
-            });
+        HttpEntity<Void> request5 = new HttpEntity<>(headers5);
+        ResponseEntity<String> exchange5 = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request5, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
+
     }
 
     @Test
@@ -445,8 +383,7 @@ public class TenantClientTest extends TenantTest {
         String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
         //delete client
         ResponseEntity<Void> client2 =
-            ClientUtility.deleteTenantClient(tenantContext.getCreator(), randomClient,
-                tenantContext.getProject().getId());
+            ClientUtility.deleteTenantClient(tenantContext, randomClient);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         Thread.sleep(10000);
         //wait sometime and read endpoint again
@@ -454,8 +391,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Endpoint> endpointResponseEntity =
             EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);
 
-        Assert.assertEquals(HttpStatus.OK, endpointResponseEntity.getStatusCode());
-        Assert.assertNull(endpointResponseEntity.getBody());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, endpointResponseEntity.getStatusCode());
     }
 
     @Test

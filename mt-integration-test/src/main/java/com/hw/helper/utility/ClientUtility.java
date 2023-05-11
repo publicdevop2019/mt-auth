@@ -7,12 +7,13 @@ import static com.hw.helper.AppConstant.TEST_REDIRECT_URL;
 import com.hw.helper.Client;
 import com.hw.helper.ClientType;
 import com.hw.helper.GrantType;
-import com.hw.helper.Project;
+import com.hw.helper.SumTotal;
 import com.hw.helper.User;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,8 @@ public class ClientUtility {
         Set<ClientType> types = new HashSet<>();
         types.add(ClientType.BACKEND_APP);
         client.setTypes(types);
+        client.setPath(RandomUtility.randomStringNoNum());
+        client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
     }
 
@@ -41,6 +44,8 @@ public class ClientUtility {
         Set<ClientType> strings = new HashSet<>();
         strings.add(ClientType.BACKEND_APP);
         client.setTypes(strings);
+        client.setPath(RandomUtility.randomStringNoNum());
+        client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
     }
 
@@ -89,6 +94,8 @@ public class ClientUtility {
         randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS));
         randomClient.setAccessTokenValiditySeconds(180);
         randomClient.setRefreshTokenValiditySeconds(null);
+        randomClient.setPath(RandomUtility.randomStringNoNum());
+        randomClient.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return randomClient;
     }
 
@@ -105,6 +112,7 @@ public class ClientUtility {
 
     /**
      * create sso login client
+     *
      * @return client
      */
     public static Client createAuthorizationClientObj() {
@@ -122,18 +130,62 @@ public class ClientUtility {
         return client;
     }
 
-    public static ResponseEntity<Void> createClient(Client client) {
+    public static ResponseEntity<Void> createTenantClient(TenantUtility.TenantContext tenantContext,
+                                                          Client client) {
         String bearer =
-            UserUtility.getJwtAdmin();
+            UserUtility.login(tenantContext.getCreator());
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
-            .exchange(CLIENT_MGMT_URL, HttpMethod.POST, request, Void.class);
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                        "clients")),
+                HttpMethod.POST, request, Void.class);
     }
 
-    public static ResponseEntity<Void> createTenantClient(TenantUtility.TenantContext tenantContext, Client client) {
+    public static ResponseEntity<Void> updateTenantClient(TenantUtility.TenantContext tenantContext,
+                                                          Client client) {
+        String bearer =
+            UserUtility.login(tenantContext.getCreator());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        HttpEntity<Client> request = new HttpEntity<>(client, headers);
+        return TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                        "clients/"+client.getId())),
+                HttpMethod.PUT, request, Void.class);
+    }
+
+    public static ResponseEntity<Client> readTenantClient(TenantUtility.TenantContext tenantContext,
+                                                          Client client) {
+        String bearer =
+            UserUtility.login(tenantContext.getCreator());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        return TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                        "clients/" + client.getId())),
+                HttpMethod.GET, request, Client.class);
+    }
+    public static ResponseEntity<SumTotal<Client>> readTenantClients(TenantUtility.TenantContext tenantContext) {
+        String bearer =
+            UserUtility.login(tenantContext.getCreator());
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        return TestContext.getRestTemplate()
+            .exchange(UrlUtility.getAccessUrl(
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+                        "clients")),
+                HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+                });
+    }
+
+    public static ResponseEntity<Void> deleteTenantClient(TenantUtility.TenantContext tenantContext, Client client) {
         String bearer =
             UserUtility.login(tenantContext.getCreator());
         HttpHeaders headers = new HttpHeaders();
@@ -142,21 +194,7 @@ public class ClientUtility {
         HttpEntity<Client> request = new HttpEntity<>(client, headers);
         return TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(), "clients")),
-                HttpMethod.POST, request, Void.class);
-    }
-
-    public static ResponseEntity<Void> deleteTenantClient(User user, Client client,
-                                                          String projectId) {
-        String bearer =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, projectId,
+                    UrlUtility.combinePath(TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
                         "clients/" + client.getId())),
                 HttpMethod.DELETE, request, Void.class);
     }

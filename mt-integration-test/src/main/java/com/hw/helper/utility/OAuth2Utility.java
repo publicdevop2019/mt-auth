@@ -6,10 +6,12 @@ import static com.hw.helper.AppConstant.GRANT_TYPE_AUTHORIZATION_CODE;
 import static com.hw.helper.AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS;
 import static com.hw.helper.AppConstant.GRANT_TYPE_PASSWORD;
 import static com.hw.helper.AppConstant.PROJECT_ID;
-import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
 import static com.hw.helper.AppConstant.PROXY_URL;
+import static com.hw.helper.AppConstant.PROXY_URL_TOKEN;
 
 import com.hw.helper.AppConstant;
+import com.hw.helper.Client;
+import com.hw.helper.User;
 import com.jayway.jsonpath.JsonPath;
 import java.util.Objects;
 import org.springframework.http.HttpEntity;
@@ -44,6 +46,24 @@ public class OAuth2Utility {
         String userPwd
     ) {
         return getOAuth2WithUser(GRANT_TYPE_PASSWORD, clientId, clientSecret, username, userPwd);
+    }
+
+    /**
+     * get oauth2 password response.
+     *
+     * @param client  client
+     * @param user    user
+     * @param context tenant context
+     * @return oauth2 password token
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTenantPasswordToken(
+        Client client,
+        User user,
+        TenantUtility.TenantContext context
+    ) {
+        return getOAuth2WithUser(GRANT_TYPE_PASSWORD, client.getId(), client.getClientSecret(),
+            user.getEmail(), user.getPassword(),
+            context.getProject().getId());
     }
 
     /**
@@ -89,10 +109,10 @@ public class OAuth2Utility {
     /**
      * single sign on with authorization flow.
      *
-     * @param projectId    project id
-     * @param clientId    client id
+     * @param projectId       project id
+     * @param clientId        client id
      * @param userBearerToken user jwt bearer token
-     * @param redirectUri redirect uri
+     * @param redirectUri     redirect uri
      * @return code raw response
      */
     public static ResponseEntity<String> authorizeLogin(
@@ -203,11 +223,33 @@ public class OAuth2Utility {
         String username,
         String userPwd
     ) {
+        return getOAuth2WithUser(grantType, clientId, clientSecret, username, userPwd, "not_used");
+    }
+
+    /**
+     * get oauth2 password response, also taken care of mfa if required.
+     *
+     * @param grantType    grant type
+     * @param clientId     client id
+     * @param clientSecret client secret
+     * @param username     login username
+     * @param userPwd      login password
+     * @param tenantId     tenant project id
+     * @return oauth2 token raw response
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithUser(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String username,
+        String userPwd,
+        String tenantId
+    ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
         params.add("username", username);
         params.add("password", userPwd);
-        params.add("scope", "not_used");
+        params.add("scope", tenantId);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -216,10 +258,12 @@ public class OAuth2Utility {
             .exchange(PROXY_URL_TOKEN, HttpMethod.POST, request,
                 DefaultOAuth2AccessToken.class);
         //avoid duplicate calls when request error or server error
-        if(exchange.getStatusCode().is4xxClientError())
+        if (exchange.getStatusCode().is4xxClientError()) {
             return exchange;
-        if(exchange.getStatusCode().is5xxServerError())
+        }
+        if (exchange.getStatusCode().is5xxServerError()) {
             return exchange;
+        }
         if (Objects.requireNonNull(exchange.getBody()).getValue() != null) {
             return exchange;
         } else {
@@ -276,18 +320,54 @@ public class OAuth2Utility {
 
     /**
      * get refresh token response
+     *
      * @param refreshToken refresh token
-     * @param clientId client id
+     * @param clientId     client id
      * @param clientSecret client secret
      * @return oauth2 token
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(String refreshToken,
-                                                                             String clientId,
-                                                                             String clientSecret) {
+    public static ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(
+        String refreshToken,
+        String clientId,
+        String clientSecret) {
+        return getRefreshTokenResponse(refreshToken, clientId, clientSecret, "not_used");
+    }
+
+    /**
+     * get refresh token response
+     *
+     * @param refreshToken refresh token
+     * @param client client
+     * @param tenantContext tenant context
+     * @return oauth2 token
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTenantRefreshToken(
+        String refreshToken,
+        Client client,
+        TenantUtility.TenantContext tenantContext
+    ) {
+        return getRefreshTokenResponse(refreshToken, client.getId(), client.getClientSecret(), tenantContext.getProject().getId());
+    }
+
+    /**
+     * get refresh token response
+     *
+     * @param refreshToken refresh token
+     * @param clientId     client id
+     * @param clientSecret client secret
+     * @param projectId    project id
+     * @return oauth2 token
+     */
+    public static ResponseEntity<DefaultOAuth2AccessToken> getRefreshTokenResponse(
+        String refreshToken,
+        String clientId,
+        String clientSecret,
+        String projectId
+    ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", "refresh_token");
         params.add("refresh_token", refreshToken);
-        params.add("scope", "not_used");
+        params.add("scope", projectId);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

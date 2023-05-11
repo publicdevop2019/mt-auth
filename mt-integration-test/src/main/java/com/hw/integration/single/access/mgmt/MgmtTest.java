@@ -82,7 +82,7 @@ public class MgmtTest extends CommonTest {
         HttpEntity<String> request = getAdminHttpEntity();
         ResponseEntity<Void> exchange2 = TestContext.getRestTemplate()
             .exchange(
-                UrlUtility.getAccessUrl(UrlUtility.combinePath(MGMT_JOBS, "validation/reset")),
+                UrlUtility.getAccessUrl(UrlUtility.combinePath("mgmt/job", "validation/reset")),
                 HttpMethod.POST, request,
                 Void.class);
         Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());

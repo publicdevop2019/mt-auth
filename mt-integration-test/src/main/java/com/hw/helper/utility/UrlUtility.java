@@ -5,16 +5,16 @@ import static com.hw.helper.AppConstant.PROXY_URL;
 import static com.hw.helper.AppConstant.TEST_URL;
 
 public class UrlUtility {
-    private static final boolean enableProxy = true;
 
     public static String getAccessUrl(String path) {
         String normalized = removeLeadingSlash(path);
-        if (enableProxy) {
             return PROXY_URL + "/auth-svc/" + normalized;
-        }
-        return ACCESS_URL + "/"
-            +
-            normalized;
+    }
+
+    public static String getTenantUrl(String clientPath,String path) {
+        String normalized = removeLeadingSlash(path);
+        String normalized2 = removeLeadingSlash(clientPath);
+            return PROXY_URL + "/"+normalized2+"/" + normalized;
     }
 
     public static String getPageQuery(int pageNum, int size) {
@@ -46,12 +46,7 @@ public class UrlUtility {
 
     public static String getTestUrl(String path) {
         String normalized = removeLeadingSlash(path);
-        if (enableProxy) {
             return PROXY_URL + "/test-svc/" + normalized;
-        }
-        return TEST_URL + "/"
-            +
-            normalized;
     }
 
     private static String removeLeadingSlash(String path) {
