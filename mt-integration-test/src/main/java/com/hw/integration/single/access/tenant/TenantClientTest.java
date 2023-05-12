@@ -266,9 +266,8 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         Thread.sleep(10000);
         //clientAsNonResource can not access endpoint both access token
-        ResponseEntity<SumTotal<User>> exchange2 = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
-            });
+        ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request, String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
@@ -343,9 +342,8 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
         Thread.sleep(10000);
         //clientAsNonResource can not access endpoint both access token
-        ResponseEntity<SumTotal<User>> exchange2 = TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
-            });
+        ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.GET, request, String.class);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
