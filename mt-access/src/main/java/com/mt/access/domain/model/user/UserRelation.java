@@ -60,7 +60,7 @@ public class UserRelation extends Auditable {
     })
     private ProjectId projectId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "role")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -68,7 +68,7 @@ public class UserRelation extends Auditable {
     @Convert(converter = RoleIdConverter.class)
     private Set<RoleId> standaloneRoles;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "tenant")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,

@@ -74,7 +74,7 @@ public class Role extends Auditable {
     @Embedded
     private RoleId roleId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_common_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -82,7 +82,7 @@ public class Role extends Auditable {
     @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> commonPermissionIds;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -91,7 +91,7 @@ public class Role extends Auditable {
     private Set<PermissionId> apiPermissionIds;
 
     @Setter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,

@@ -50,7 +50,7 @@ public class CacheProfile extends Auditable {
     private boolean allowCache;
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = CacheControlValue.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cache_control_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "cache_control")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,

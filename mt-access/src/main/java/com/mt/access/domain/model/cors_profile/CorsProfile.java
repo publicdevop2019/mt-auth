@@ -44,7 +44,7 @@ public class CorsProfile extends Auditable {
     private CorsProfileId corsId;
     private boolean allowCredentials;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -52,7 +52,7 @@ public class CorsProfile extends Auditable {
     private Set<String> allowedHeaders;
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = Origin.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_origin")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -60,7 +60,7 @@ public class CorsProfile extends Auditable {
     @Convert(converter = Origin.OriginConverter.class)
     private Set<Origin> allowOrigin;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "exposed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,

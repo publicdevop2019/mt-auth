@@ -132,7 +132,7 @@ public class Permission extends Auditable {
     @Embedded
     private PermissionId permissionId;
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "linked_permission_ids_map",
         joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),

@@ -28,6 +28,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -190,13 +191,14 @@ public class RoleApplicationService {
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
-                log.debug("handle client created event");
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleId roleId = event.getRoleId();
+                log.trace("before get project root role");
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                         RoleQuery.getRootRole(projectId));
+                log.trace("get project root role");
                 Optional<Role> first =
                     allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
                         .findFirst();
@@ -207,6 +209,7 @@ public class RoleApplicationService {
                 }
                 Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
                     first.get().getRoleId());
+                log.trace("create user role");
                 DomainRegistry.getRoleRepository().add(userRole);
                 return null;
             }, (cmd) -> null, ROLE);

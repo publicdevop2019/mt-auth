@@ -9,7 +9,7 @@ import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
-import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
+import com.mt.common.infrastructure.thread_pool.JobThreadPoolExecutor;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RedisDistributedJobService implements DistributedJobService {
     @Autowired
-    private CustomThreadPoolExecutor taskExecutor;
+    private JobThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
     @Value("${instanceId}")

@@ -120,7 +120,7 @@ public class ReadOnlyOAuthClient {
 
     @Getter
     @Embedded
-    private RedirectDetail authorizationCodeGrant;
+    private OAuthRedirectDetail authorizationCodeGrant;
 
     @Getter
     @ElementCollection(fetch = FetchType.EAGER)

@@ -18,10 +18,12 @@ import com.hw.helper.SumTotal;
 import com.hw.helper.User;
 import java.util.Objects;
 import java.util.UUID;
+import org.junit.Assert;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
@@ -194,8 +196,12 @@ public class UserUtility {
         String user1Token = login(tenantUser);
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token, TEST_REDIRECT_URL);
-        OAuth2Utility.getOAuth2AuthorizationToken(OAuth2Utility.getAuthorizationCode(codeResponse),
-            TEST_REDIRECT_URL, clientId, "");
+        Assert.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
+        ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
+            OAuth2Utility.getOAuth2AuthorizationToken(
+                OAuth2Utility.getAuthorizationCode(codeResponse),
+                TEST_REDIRECT_URL, clientId, "");
+        Assert.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
         return tenantUser;
     }
 

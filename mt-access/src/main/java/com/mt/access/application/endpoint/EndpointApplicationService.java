@@ -287,7 +287,6 @@ public class EndpointApplicationService {
     public void handle(ClientDeleted deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
-                log.debug("handle delete client event");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new ClientId(deserialize.getDomainId().getDomainId())));
