@@ -24,6 +24,7 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -236,9 +237,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 StoredEvent storedEvent =
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .deserialize(s, StoredEvent.class);
-                log.debug("handling {} with id {}",
-                    ClassUtility.getShortName(storedEvent.getName()),
-                    storedEvent.getId());
+                if (log.isDebugEnabled()) {
+                    long l = Instant.now().toEpochMilli();
+                    Long timestamp = storedEvent.getTimestamp();
+                    log.debug("handling {} with id {}, total time taken before consume is {} milli",
+                        ClassUtility.getShortName(storedEvent.getName()),
+                        storedEvent.getId(), l - timestamp);
+                }
                 long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                 boolean consumeSuccess = true;
                 try {

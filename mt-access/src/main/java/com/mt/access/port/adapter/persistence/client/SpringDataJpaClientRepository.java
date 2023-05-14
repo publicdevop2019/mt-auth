@@ -5,6 +5,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.Client_;
+import com.mt.access.domain.model.client.ReadOnlyOAuthClient;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
@@ -40,6 +41,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataJpaClientRepository
     extends JpaRepository<Client, Long>, ClientRepository {
+
+    default ReadOnlyOAuthClient getForLogin(ClientId clientId){
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
+            "SELECT * FROM client c " +
+                "LEFT JOIN client_grant_type_map cgtm ON c.id = cgtm.id " +
+                "LEFT JOIN client_type_map ctm ON c.id = ctm.id " +
+                "LEFT JOIN client_redirect_url_map crum ON c.id = crum .id " +
+                "LEFT JOIN resources_map rm ON c.id = rm.id " +
+                "LEFT JOIN external_resources_map erm ON c.id = erm .id " +
+                "WHERE c.domain_id = :clientId"
+        , ReadOnlyOAuthClient.class);
+        nativeQuery.setParameter("clientId",clientId.getDomainId());
+        Object singleResult = nativeQuery.getSingleResult();
+        return (ReadOnlyOAuthClient) singleResult;
+    }
+
     default Set<ProjectId> getProjectIds() {
         return getProjectIds_();
     }

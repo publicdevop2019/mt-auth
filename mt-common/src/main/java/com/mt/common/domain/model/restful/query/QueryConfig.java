@@ -1,15 +1,9 @@
 package com.mt.common.domain.model.restful.query;
 
+import javax.annotation.Nullable;
+
 public class QueryConfig {
-    private final String value;
-
-    public QueryConfig(String configParam) {
-        value = configParam;
-    }
-
-    private QueryConfig() {
-        value = null;
-    }
+    private final String rawValue;
 
     public static QueryConfig skipCount() {
 
@@ -21,11 +15,20 @@ public class QueryConfig {
         return new QueryConfig();
     }
 
-    public String value() {
-        return value;
+    /**
+     * create QueryConfig,
+     * count total if input is null
+     * @param configParam config string
+     */
+    public QueryConfig(@Nullable String configParam) {
+        rawValue = configParam;
+    }
+
+    private QueryConfig() {
+        rawValue = null;
     }
 
     public boolean count() {
-        return value == null || value.contains("sc:1");
+        return rawValue == null || rawValue.contains("sc:1");
     }
 }

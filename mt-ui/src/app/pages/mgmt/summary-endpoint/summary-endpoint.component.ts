@@ -11,7 +11,7 @@ import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/b
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
 @Component({
   selector: 'app-summary-endpoint',
@@ -53,7 +53,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public entitySvc: EndpointService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public clientSvc: ClientService,
+    public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {

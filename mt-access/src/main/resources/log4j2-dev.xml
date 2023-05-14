@@ -24,7 +24,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.mt" level="info" additivity="false">
+        <Logger name="com.mt" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
@@ -32,6 +32,24 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
+        <!--        start of hibernate-->
+<!--        <Logger name="org.hibernate.SQL" level="debug" additivity="false">-->
+<!--            <appender-ref ref="console"/>-->
+<!--            <appender-ref ref="fileLogger"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="org.hibernate.stat" level="debug" additivity="false">-->
+<!--            <appender-ref ref="console"/>-->
+<!--            <appender-ref ref="fileLogger"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="org.hibernate.SQL_SLOW" level="info" additivity="false">-->
+<!--            <appender-ref ref="console"/>-->
+<!--            <appender-ref ref="fileLogger"/>-->
+<!--        </Logger>-->
+<!--        <Logger name="org.hibernate.cache" level="debug" additivity="false">-->
+<!--            <appender-ref ref="console"/>-->
+<!--            <appender-ref ref="fileLogger"/>-->
+<!--        </Logger>-->
+        <!--        end of hibernate-->
         <Root level="info" additivity="false" includeLocation="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

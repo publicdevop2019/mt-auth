@@ -98,7 +98,7 @@ import { LoadingInterceptor } from './services/interceptors/loading.interceptor'
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
-import { ClientService } from './services/mgmt-client.service';
+import { MgmtClientService } from './services/mgmt-client.service';
 import { UserService } from './services/user.service';
 import { CacheComponent } from './pages/tenant/cache/cache.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
@@ -325,7 +325,7 @@ import { LanguageService } from './services/language.service';
       useClass: OfflineInterceptor,
       multi: true
     },
-    HttpProxyService, ClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, MgmtClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

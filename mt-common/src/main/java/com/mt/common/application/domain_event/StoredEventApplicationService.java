@@ -7,6 +7,7 @@ import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import java.time.Instant;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -94,7 +95,12 @@ public class StoredEventApplicationService {
     public void markAsSent(StoredEvent storedEvent) {
         Long id = storedEvent.getId();
         if (id != null) {
-            log.debug("marking event with id = {} as sent", id);
+            if (log.isDebugEnabled()) {
+                long epochSecond = Instant.now().toEpochMilli();
+                Long timestamp = storedEvent.getTimestamp();
+                log.debug("marking event with id = {} as sent, time taken to emit is {} milli", id,
+                    epochSecond - timestamp);
+            }
             StoredEvent byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
             byId.sendToMQ();
         } else {

@@ -70,7 +70,7 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       if (b.result) {
         //prepare search
         this.clientSvc.setProjectId(b.projectId)
-        this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
+        this.clientSvc.getDropdownClients(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
           .subscribe(next => {
             if (next.data)
               this.searchConfigs = [...this.initSearchConfig, {

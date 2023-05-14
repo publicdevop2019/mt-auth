@@ -13,6 +13,7 @@ import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientAutoApproveRepresentation;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
+import com.mt.access.application.client.representation.ClientDropdownRepresentation;
 import com.mt.access.application.client.representation.ClientProxyRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -60,31 +61,54 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
+        SumPagedRep<ClientCardRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
             .tenantQuery(queryParam, pageParam, skipCount);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        ClientCardRepresentation.updateDetails(rep.getData());
         return ResponseEntity.ok(rep);
     }
+
+    @GetMapping(path = "projects/{projectId}/clients/dropdown")
+    public ResponseEntity<SumPagedRep<ClientDropdownRepresentation>> tenantDropdownQuery(
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @PathVariable String projectId
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        queryParam = updateProjectIds(queryParam, projectId);
+        SumPagedRep<ClientDropdownRepresentation> clients = ApplicationServiceRegistry.getClientApplicationService()
+            .tenantDropdownQuery(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(clients);
+    }
+
     @GetMapping(path = "mgmt/clients")
-    public ResponseEntity<SumPagedRep<ClientCardRepresentation>> mgmtQuery(
+    public ResponseEntity<SumPagedRep<?>> mgmtQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<Client> clients = ApplicationServiceRegistry.getClientApplicationService()
+        SumPagedRep<ClientCardRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
             .mgmtQuery(queryParam, pageParam, skipCount);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        ClientCardRepresentation.updateDetails(rep.getData());
+        return ResponseEntity.ok(rep);
+    }
+
+    @GetMapping(path = "mgmt/clients/dropdown")
+    public ResponseEntity<SumPagedRep<?>> mgmtDropdownQuery(
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        SumPagedRep<ClientDropdownRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
+            .mgmtDropdownQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(rep);
     }
 
     @GetMapping("mgmt/clients/{id}")
-    public ResponseEntity<ClientRepresentation> mgmtQuery(
+    public ResponseEntity<ClientRepresentation> mgmtGet(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
@@ -106,7 +130,7 @@ public class ClientResource {
     }
 
     @GetMapping("projects/{projectId}/clients/{id}")
-    public ResponseEntity<ClientRepresentation> tenantQueryById(
+    public ResponseEntity<ClientRepresentation> tenantGet(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt

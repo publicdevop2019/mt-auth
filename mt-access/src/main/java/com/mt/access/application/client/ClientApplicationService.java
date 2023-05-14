@@ -12,6 +12,8 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientPatchCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
+import com.mt.access.application.client.representation.ClientCardRepresentation;
+import com.mt.access.application.client.representation.ClientDropdownRepresentation;
 import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -19,6 +21,7 @@ import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ExternalUrl;
+import com.mt.access.domain.model.client.ReadOnlyOAuthClient;
 import com.mt.access.domain.model.client.RedirectDetail;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
@@ -32,7 +35,6 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.ExceptionCatalog;
@@ -55,12 +57,31 @@ public class ClientApplicationService implements ClientDetailsService {
 
     private static final String CLIENT = "Client";
 
-    public SumPagedRep<Client> tenantQuery(String queryParam, String pagingParam,
+    public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
                                            String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
         DomainRegistry.getPermissionCheckService()
             .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-        return DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<ClientCardRepresentation> rep =
+            new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        ClientCardRepresentation.updateDetails(rep.getData());
+        return rep;
+    }
+    /**
+     * query client for dropdown with the best performance for client
+     * @param queryParam query string
+     * @param pagingParam page string
+     * @param configParam config string
+     * @return paginated dropdown client
+     */
+    public SumPagedRep<ClientDropdownRepresentation> tenantDropdownQuery(String queryParam, String pagingParam,
+                                           String configParam) {
+        ClientQuery clientQuery =ClientQuery.dropdownQuery(queryParam, pagingParam, configParam,1000);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
+        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
+        return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
 
     public Client tenantQueryById(String clientId, String projectId) {
@@ -70,11 +91,29 @@ public class ClientApplicationService implements ClientDetailsService {
         return DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
     }
 
-    @RecordElapseTime
-    public SumPagedRep<Client> mgmtQuery(String queryParam, String pagingParam,
-                                         String configParam) {
+    public SumPagedRep<ClientCardRepresentation> mgmtQuery(String queryParam, String pagingParam,
+                                                           String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        return DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<ClientCardRepresentation> rep =
+            new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        ClientCardRepresentation.updateDetails(rep.getData());
+        return rep;
+    }
+
+    /**
+     * query client for dropdown with best performance
+     * @param queryParam query string
+     * @param pagingParam page string
+     * @param configParam config string
+     * @return paginated dropdown client
+     */
+    public SumPagedRep<ClientDropdownRepresentation> mgmtDropdownQuery(String queryParam,
+                                                                       String pagingParam,
+                                                                       String configParam) {
+        ClientQuery clientQuery =ClientQuery.dropdownQuery(queryParam, pagingParam, configParam,1000);
+        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
+        return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
 
     public Client mgmtQueryById(String id) {
@@ -101,7 +140,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     public Client canAutoApprove(String projectId, String id) {
         return
-            DomainRegistry.getClientRepository().get(new ProjectId(projectId),new ClientId(id));
+            DomainRegistry.getClientRepository().get(new ProjectId(projectId), new ClientId(id));
     }
 
     @AuditLog(actionName = CREATE_TENANT_CLIENT)
@@ -248,7 +287,8 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
+        ReadOnlyOAuthClient client =
+            DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
         return new ClientSpringOAuth2Representation(client);
     }
 

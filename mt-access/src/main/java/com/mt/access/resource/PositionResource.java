@@ -15,7 +15,6 @@ import com.mt.access.application.position.representation.PositionRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.position.Position;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

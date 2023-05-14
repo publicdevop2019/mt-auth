@@ -20,7 +20,6 @@ import com.mt.access.application.endpoint.representation.EndpointSharedCardRepre
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -70,7 +69,7 @@ public class EndpointResource {
     }
 
     @GetMapping(path = "mgmt/endpoints")
-    public ResponseEntity<SumPagedRep<?>> mgmtQuery(
+    public ResponseEntity<SumPagedRep<EndpointCardRepresentation>> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -86,7 +85,7 @@ public class EndpointResource {
     }
 
     @GetMapping(path = "mgmt/endpoints/{id}")
-    public ResponseEntity<EndpointMgmtRepresentation> mgmtQuery(
+    public ResponseEntity<EndpointMgmtRepresentation> mgmtGet(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
@@ -113,7 +112,7 @@ public class EndpointResource {
     }
 
     @GetMapping("projects/{projectId}/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> tenantQuery(
+    public ResponseEntity<EndpointRepresentation> tenantGet(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String projectId,
         @PathVariable String id

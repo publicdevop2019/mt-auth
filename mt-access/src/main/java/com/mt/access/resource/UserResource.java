@@ -82,7 +82,7 @@ public class UserResource {
 
 
     @GetMapping("mgmt/users/{id}")
-    public ResponseEntity<UserMgmtRepresentation> mgmtQuery(
+    public ResponseEntity<UserMgmtRepresentation> mgmtGet(
         @PathVariable String id
     ) {
         UserMgmtRepresentation detail =
@@ -172,7 +172,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantUsers(
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -187,7 +187,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<UserTenantRepresentation> tenantUser(
+    public ResponseEntity<UserTenantRepresentation> tenantGet(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt

@@ -16,7 +16,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.infrastructure.Utility;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

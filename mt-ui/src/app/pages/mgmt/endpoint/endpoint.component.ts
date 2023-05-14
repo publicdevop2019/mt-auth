@@ -14,7 +14,7 @@ import { MyCacheService } from 'src/app/services/my-cache.service';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 @Component({
   selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -24,7 +24,7 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IEnd
   bottomSheet: IBottomSheet<IEndpoint>;
   constructor(
     public endpointSvc: EndpointService,
-    public clientSvc: ClientService,
+    public clientSvc: MgmtClientService,
     public corsSvc: MyCorsProfileService,
     public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,

@@ -1,11 +1,11 @@
 package com.mt.access.domain.model.client;
 
+import com.mt.access.port.adapter.persistence.client.RedirectUrlConverter;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeConverter;
 import javax.persistence.Column;
 import javax.persistence.Convert;
 import javax.persistence.ElementCollection;
@@ -24,7 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class RedirectDetail implements Serializable {
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_redirect_url_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "redirect_url")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -48,25 +48,6 @@ public class RedirectDetail implements Serializable {
         if (!this.redirectUrls.equals(redirectUrls)) {
             this.redirectUrls.clear();
             this.redirectUrls.addAll(redirectUrls);
-        }
-    }
-
-    private static class RedirectUrlConverter
-        implements AttributeConverter<RedirectUrl, String> {
-        @Override
-        public String convertToDatabaseColumn(RedirectUrl redirectUrls) {
-            if (redirectUrls == null) {
-                return null;
-            }
-            return redirectUrls.getValue();
-        }
-
-        @Override
-        public RedirectUrl convertToEntityAttribute(String string) {
-            if (string == null) {
-                return null;
-            }
-            return new RedirectUrl(string);
         }
     }
 

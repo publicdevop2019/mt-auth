@@ -8,7 +8,7 @@ import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { SharedEndpointService } from 'src/app/services/shared-endpoint.service';
 import { MgmtEndpointComponent } from '../../mgmt/endpoint/endpoint.component';
 import { SubRequestComponent } from '../sub-request/sub-request.component';
@@ -53,7 +53,7 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
     public entitySvc: SharedEndpointService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public clientSvc: ClientService,
+    public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {

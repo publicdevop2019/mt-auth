@@ -12,4 +12,5 @@ public class AppConstant {
     public static String MT_AUTH_USER_ROLE_ID = "0Z8HHJ489SEE";
     public static String MT_AUTH_PROJECT_ID = "0P8HE307W6IO";
     public static String MT_AUTH_DEFAULT_USER_ROLE = "0Z8HHJ489SEE";
+    public static final String QUERY_PROJECT_IDS = "projectIds";
 }

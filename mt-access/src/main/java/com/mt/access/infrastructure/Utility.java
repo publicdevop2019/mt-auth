@@ -1,6 +1,6 @@
 package com.mt.access.infrastructure;
 
-import static com.mt.access.domain.model.client.ClientQuery.PROJECT_ID;
+import static com.mt.access.infrastructure.AppConstant.QUERY_PROJECT_IDS;
 
 public class Utility {
     /**
@@ -11,9 +11,9 @@ public class Utility {
      */
     public static String updateProjectIds(String original, String projectId) {
         if (original == null) {
-            return PROJECT_ID + ":" + projectId;
+            return QUERY_PROJECT_IDS + ":" + projectId;
         }
-        original = original + "," + PROJECT_ID + ":" + projectId;
+        original = original + "," + QUERY_PROJECT_IDS + ":" + projectId;
         return original;
     }
 }

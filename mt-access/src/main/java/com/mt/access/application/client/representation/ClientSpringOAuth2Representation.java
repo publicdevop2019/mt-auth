@@ -3,6 +3,7 @@ package com.mt.access.application.client.representation;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.ReadOnlyOAuthClient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -23,7 +24,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
     private Set<String> resourceIds;
     private boolean autoApprove = false;
 
-    public ClientSpringOAuth2Representation(Client client) {
+    public ClientSpringOAuth2Representation(ReadOnlyOAuthClient client) {
         setClientId(client.getClientId());
         setClientSecret(client.getSecret());
         setGrantTypeEnums(client.getGrantTypes());
@@ -37,7 +38,6 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setResourceIds(collect2);
         setAutoApprove(client.getAutoApprove());
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
-
     }
 
     @Override

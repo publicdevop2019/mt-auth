@@ -79,7 +79,7 @@ public class Client extends Auditable {
      * use eager to avoid @Transactional adding too much overhead.
      */
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "resources_map",
         joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
@@ -93,7 +93,7 @@ public class Client extends Auditable {
     private final Set<ClientId> resources = new HashSet<>();
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "external_resources_map",
         joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
@@ -146,7 +146,7 @@ public class Client extends Auditable {
     private String description;
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = ClientType.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "type")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -163,7 +163,7 @@ public class Client extends Auditable {
     private RedirectDetail authorizationCodeGrant;
 
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = GrantType.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "grant_type")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
