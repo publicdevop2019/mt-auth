@@ -67,7 +67,7 @@ eureka:
   client:
     serviceUrl:
       defaultZone:
-    registryFetchIntervalSeconds: 1
+    registryFetchIntervalSeconds: 10
   instance:
     preferIpAddress: true
     ip-address:

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,11 +33,15 @@ public class ScgRouteService implements ApplicationEventPublisherAware {
     public void refreshRoutes(Set<RegisteredApplication> registeredApplicationSet) {
         Set<String> collect = registeredApplicationSet.stream().filter(e -> e.getBasePath() != null)
             .map(RegisteredApplication::getId).collect(Collectors.toSet());
+        AtomicInteger count = new AtomicInteger();
         collect.forEach(e -> {
             routeDefinitionWriter.delete(Mono.just(e)).subscribe(null, (error) -> {
-                log.debug("ignore not found ex when delete routes");
+                count.getAndIncrement();
             });
         });
+        if (log.isDebugEnabled()) {
+            log.debug("ignore not found ex when delete routes, count {}", count);
+        }
         registeredApplicationSet.stream().filter(e -> e.getBasePath() != null).forEach(e -> {
             RouteDefinition definition = new RouteDefinition();
             definition.setId(e.getId());

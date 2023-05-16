@@ -31,6 +31,7 @@ public class EndpointMqListener {
         try {
             Connection connection = factory.newConnection("mt-proxy-sub");
             Channel channel = connection.createChannel();
+            channel.basicQos(1);
             String queueName = channel.queueDeclare().getQueue();
             channel.queueBind(queueName, MT_GLOBAL_EXCHANGE,
                 MT_ACCESS_ID + ".external.started_access");
