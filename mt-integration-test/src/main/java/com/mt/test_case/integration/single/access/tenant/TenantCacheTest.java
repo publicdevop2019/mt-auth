@@ -9,6 +9,7 @@ import com.mt.test_case.helper.utility.CacheUtility;
 import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
+import com.mt.test_case.helper.utility.UrlUtility;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -28,17 +29,17 @@ public class TenantCacheTest extends TenantTest {
 
     @Test
     public void tenant_can_create_cache() {
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assert.assertEquals(HttpStatus.OK, cache.getStatusCode());
-        Assert.assertNotNull(Objects.requireNonNull(cache.getHeaders().getLocation()).toString());
+        Assert.assertNotNull(UrlUtility.getId(cache));
     }
 
     @Test
     public void tenant_can_update_cache() {
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = Objects.requireNonNull(cache.getHeaders().getLocation()).toString();
+        String cacheId = UrlUtility.getId(cache);
 
         cacheObj.setName(RandomUtility.randomStringWithNum());
         cacheObj.setId(cacheId);
@@ -55,9 +56,9 @@ public class TenantCacheTest extends TenantTest {
 
     @Test
     public void tenant_update_cache_no_change_version_should_not_change() {
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = Objects.requireNonNull(cache.getHeaders().getLocation()).toString();
+        String cacheId = UrlUtility.getId(cache);
         cacheObj.setId(cacheId);
         CacheUtility.updateTenantCache(tenantContext, cacheObj);
         CacheUtility.updateTenantCache(tenantContext, cacheObj);
@@ -79,9 +80,9 @@ public class TenantCacheTest extends TenantTest {
 
     @Test
     public void tenant_can_delete_cache() {
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = Objects.requireNonNull(cache.getHeaders().getLocation()).toString();
+        String cacheId = UrlUtility.getId(cache);
         cacheObj.setId(cacheId);
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
         Assert.assertEquals(HttpStatus.OK, cache2.getStatusCode());
@@ -97,22 +98,22 @@ public class TenantCacheTest extends TenantTest {
     @Test
     public void tenant_can_delete_assigned_cache() throws InterruptedException {
         //create cache
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = Objects.requireNonNull(cache.getHeaders().getLocation()).toString();
+        String cacheId = UrlUtility.getId(cache);
         cacheObj.setId(cacheId);
         //create backend client
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
             ClientUtility.createTenantClient(tenantContext, randomClient);
-        String clientId = client.getHeaders().getLocation().toString();
+        String clientId = UrlUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         randomEndpointObj.setCacheProfileId(cacheId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
-        String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        String endpointId = UrlUtility.getId(tenantEndpoint);
         randomEndpointObj.setId(endpointId);
         //delete cache
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
@@ -128,7 +129,7 @@ public class TenantCacheTest extends TenantTest {
     @Test
     public void cache_validation_should_work() {
         //invalid cache control value
-        Cache cacheObj = CacheUtility.createRandomCacheObj();
+        Cache cacheObj = CacheUtility.createRandomCache();
         cacheObj.setCacheControl(Collections.singleton(RandomUtility.randomStringNoNum()));
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, cache.getStatusCode());

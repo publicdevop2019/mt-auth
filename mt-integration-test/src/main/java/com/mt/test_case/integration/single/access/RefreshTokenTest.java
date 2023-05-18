@@ -44,7 +44,7 @@ public class RefreshTokenTest extends TenantTest {
         ResponseEntity<Void> client4 =
             ClientUtility.createTenantClient(tenantContext, clientAsResource);
         Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
-        clientAsResource.setId(client4.getHeaders().getLocation().toString());
+        clientAsResource.setId(UrlUtility.getId(client4));
         //create endpoint
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource.getId());
@@ -67,7 +67,7 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
-        clientRaw.setId(client.getHeaders().getLocation().toString());
+        clientRaw.setId(UrlUtility.getId(client));
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> token = OAuth2Utility
@@ -118,7 +118,7 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setPath(RandomUtility.randomStringNoNum());
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
-        clientRaw.setId(client.getHeaders().getLocation().toString());
+        clientRaw.setId(UrlUtility.getId(client));
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =

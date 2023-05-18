@@ -1,17 +1,21 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
-import com.mt.test_case.helper.AppConstant;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class ProjectUtility {
+    private static final ParameterizedTypeReference<SumTotal<Project>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl() {
+        return UrlUtility.getAccessUrl(AppConstant.TENANT_PROJECTS_CREATE);
+    }
+
     public static Project createRandomProjectObj() {
         Project project = new Project();
         project.setName(RandomUtility.randomStringWithNum());
@@ -19,44 +23,17 @@ public class ProjectUtility {
     }
 
     public static ResponseEntity<Void> createTenantProject(Project project, User user) {
-        String login =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<Project> request2 =
-            new HttpEntity<>(project, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.TENANT_PROJECTS_CREATE), HttpMethod.POST, request2,
-                Void.class);
+        return Utility.createResource(user, getUrl(), project);
     }
 
     public static ResponseEntity<SumTotal<Project>> readTenantProjects(User user) {
-        String login =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.TENANT_PROJECTS_LOOKUP), HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        String accessUrl = UrlUtility.getAccessUrl(AppConstant.TENANT_PROJECTS_LOOKUP);
+        return Utility.readResource(user, accessUrl, reference);
     }
 
     public static ResponseEntity<Project> readTenantProject(User user, Project project) {
-        String login =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId())), HttpMethod.GET,
-                request,
-                Project.class);
+        String accessUrl = UrlUtility.getAccessUrl(AppConstant.TENANT_PROJECTS_PREFIX);
+        return Utility.readResource(user, accessUrl, project.getId(), Project.class);
     }
 
     public static Project tenantCreateProject(User tenantUser) {

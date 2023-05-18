@@ -1,87 +1,49 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Cache;
 import com.mt.test_case.helper.pojo.CacheControlValue;
+import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
-import com.mt.test_case.helper.AppConstant;
 import java.util.HashSet;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 public class CacheUtility {
+    private static final ParameterizedTypeReference<SumTotal<Cache>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl(Project project) {
+        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "cache");
+    }
+
     public static ResponseEntity<SumTotal<Cache>> readTenantCache(
-        TenantUtility.TenantContext tenantContext) {
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/cache")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        TenantContext tenantContext) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
-    public static ResponseEntity<Void> createTenantCache(
-        TenantUtility.TenantContext tenantContext, Cache cacheObj) {
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<Cache> request =
-            new HttpEntity<>(cacheObj, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/cache")),
-                HttpMethod.POST, request,
-                Void.class);
+    public static ResponseEntity<Void> createTenantCache(TenantContext tenantContext, Cache cache) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.createResource(tenantContext.getCreator(), url, cache);
     }
 
-    public static ResponseEntity<Void> updateTenantCache(
-        TenantUtility.TenantContext tenantContext, Cache cacheObj) {
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<Cache> request =
-            new HttpEntity<>(cacheObj, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/cache/" + cacheObj.getId())),
-                HttpMethod.PUT, request,
-                Void.class);
+    public static ResponseEntity<Void> updateTenantCache(TenantContext tenantContext,
+                                                         Cache cache) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.updateResource(tenantContext.getCreator(), url, cache, cache.getId());
     }
 
     public static ResponseEntity<Void> deleteTenantCache(
-        TenantUtility.TenantContext tenantContext, Cache cacheObj) {
-        String login =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<Cache> request =
-            new HttpEntity<>(cacheObj, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "/cache/" + cacheObj.getId())),
-                HttpMethod.DELETE, request,
-                Void.class);
+        TenantContext tenantContext,
+        Cache cache
+    ) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.deleteResource(tenantContext.getCreator(), url, cache.getId());
     }
 
-    public static Cache createRandomCacheObj() {
+    public static Cache createRandomCache() {
         Cache cache = new Cache();
         cache.setName(RandomUtility.randomStringWithNum());
         cache.setAllowCache(RandomUtility.randomBoolean());

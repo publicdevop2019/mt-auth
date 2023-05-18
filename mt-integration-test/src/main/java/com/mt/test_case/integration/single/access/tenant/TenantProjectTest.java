@@ -4,6 +4,7 @@ import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
 import com.mt.test_case.helper.utility.ProjectUtility;
+import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import com.mt.test_case.helper.CommonTest;
 import lombok.extern.slf4j.Slf4j;
@@ -47,7 +48,7 @@ public class TenantProjectTest extends CommonTest {
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assert.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
         Thread.sleep(20000);
-        String id = tenantProject.getHeaders().getLocation().toString();
+        String id = UrlUtility.getId(tenantProject);
         randomProjectObj.setId(id);
         //get updated project list
         ResponseEntity<SumTotal<Project>> exchange2 = ProjectUtility.readTenantProjects(user);

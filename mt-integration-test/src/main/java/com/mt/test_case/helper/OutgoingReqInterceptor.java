@@ -1,4 +1,4 @@
-package com.mt.test_case.helper.utility;
+package com.mt.test_case.helper;
 
 import java.io.IOException;
 import java.util.UUID;

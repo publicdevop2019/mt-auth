@@ -4,56 +4,31 @@ import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.ProjectAdmin;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
-import com.mt.test_case.helper.AppConstant;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 public class AdminUtility {
+    private static final ParameterizedTypeReference<SumTotal<ProjectAdmin>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl(Project project) {
+        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "admins");
+    }
+
+
     public static ResponseEntity<SumTotal<ProjectAdmin>> readAdmin(User creator, Project project) {
-        String login =
-            UserUtility.login(creator);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId(),
-                        "/admins")),
-                HttpMethod.GET, request,
-                new ParameterizedTypeReference<>() {
-                });
+        String adminUrl = getUrl(project);
+        return Utility.readResource(creator, adminUrl, reference);
     }
 
     public static ResponseEntity<Void> makeAdmin(User creator, Project project, User user) {
-        String login2 =
-            UserUtility.login(creator);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login2);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId(),
-                        "/admins/" + user.getId())),
-                HttpMethod.POST, request,
-                Void.class);
+        String adminUrl = getUrl(project);
+        return Utility.createResource(creator, UrlUtility.appendPath(adminUrl, user.getId()));
     }
+
     public static ResponseEntity<Void> removeAdmin(User creator, Project project, User user) {
-        String login2 =
-            UserUtility.login(creator);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(login2);
-        HttpEntity<String> request =
-            new HttpEntity<>(null, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId(),
-                        "/admins/" + user.getId())),
-                HttpMethod.DELETE, request,
-                Void.class);
+        String adminUrl = getUrl(project);
+        return Utility.deleteResource(creator, adminUrl, user.getId());
     }
 }

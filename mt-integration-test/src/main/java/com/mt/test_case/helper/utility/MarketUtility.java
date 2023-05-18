@@ -1,57 +1,42 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.SubscriptionReq;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
-import com.mt.test_case.helper.AppConstant;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
 public class MarketUtility {
+
+    private static final ParameterizedTypeReference<SumTotal<Endpoint>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+    private static final ParameterizedTypeReference<SumTotal<SubscriptionReq>> reference2 =
+        new ParameterizedTypeReference<>() {
+        };
+
     public static ResponseEntity<SumTotal<Endpoint>> readMarketEndpoint(User user) {
-        String bearer =
-            UserUtility.login(user);
         String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<Void> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        return Utility.readResource(user, url, reference);
     }
 
     public static ResponseEntity<SumTotal<Endpoint>> searchMarketEndpoint(User user,
                                                                           String endpointId) {
-        String bearer =
-            UserUtility.login(user);
         String url = UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT),
             "query=id:" + endpointId);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<Void> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        return Utility.readResource(user, url, reference);
     }
 
     public static ResponseEntity<Void> subToEndpoint(User user, SubscriptionReq req) {
-        String bearer =
-            UserUtility.login(user);
         String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<SubscriptionReq> hashMapHttpEntity1 = new HttpEntity<>(req, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.POST, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        return Utility.createResource(user, url, req);
     }
 
     public static SubscriptionReq createRandomTenantSubReqObj(
-        TenantUtility.TenantContext tenantContext,
+        TenantContext tenantContext,
         String endpointId) {
         SubscriptionReq subscriptionReq = new SubscriptionReq();
         subscriptionReq.setProjectId(tenantContext.getProject().getId());
@@ -61,57 +46,32 @@ public class MarketUtility {
         return subscriptionReq;
     }
 
-    public static ResponseEntity<Void> approveSubReq(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<Void> approveSubReq(TenantContext tenantContext,
                                                      String subReqId) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
         String url = UrlUtility.getAccessUrl(
             UrlUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "approve"));
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<SubscriptionReq> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.POST, hashMapHttpEntity1, Void.class);
+        return Utility.createResource(tenantContext.getCreator(), url);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubReq(
-        TenantUtility.TenantContext tenantContext) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
-            "query=type:my_request");
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<SubscriptionReq> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        TenantContext tenantContext) {
+        String url =
+            UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+                "query=type:my_request");
+        return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMyPendingApprove(
-        TenantUtility.TenantContext tenantContext) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
-            "query=type:PENDING_APPROVAL");
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<SubscriptionReq> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        TenantContext tenantContext) {
+        String url =
+            UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+                "query=type:PENDING_APPROVAL");
+        return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubs(
-        TenantUtility.TenantContext tenantContext) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
+        TenantContext tenantContext) {
         String url = UrlUtility.getAccessUrl("subscriptions");
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<SubscriptionReq> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
 }

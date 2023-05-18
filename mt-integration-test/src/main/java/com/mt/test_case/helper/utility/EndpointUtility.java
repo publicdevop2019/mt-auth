@@ -1,9 +1,12 @@
 package com.mt.test_case.helper.utility;
 
-import com.mt.test_case.helper.pojo.Endpoint;
-import com.mt.test_case.helper.pojo.User;
-import com.mt.test_case.integration.single.access.tenant.TenantEndpointTest;
 import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.TenantContext;
+import com.mt.test_case.helper.pojo.Endpoint;
+import com.mt.test_case.helper.pojo.Project;
+import com.mt.test_case.helper.pojo.SumTotal;
+import com.mt.test_case.integration.single.access.tenant.TenantEndpointTest;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -11,6 +14,14 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
 public class EndpointUtility {
+    private static final ParameterizedTypeReference<SumTotal<Endpoint>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl(Project project) {
+        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "endpoints");
+    }
+
     public static Endpoint createRandomEndpointObj(String clientId) {
         Endpoint endpoint = new Endpoint();
         endpoint.setResourceId(clientId);
@@ -75,58 +86,31 @@ public class EndpointUtility {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
     }
 
-    public static ResponseEntity<Void> createTenantEndpoint(
-        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Endpoint> request = new HttpEntity<>(endpoint, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "endpoints")),
-                HttpMethod.POST, request, Void.class);
+    public static ResponseEntity<Void> createTenantEndpoint(TenantContext tenantContext,
+                                                            Endpoint endpoint) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.createResource(tenantContext.getCreator(), url, endpoint);
     }
 
-    public static ResponseEntity<Void> updateTenantEndpoint(User user, Endpoint endpoint,
-                                                            String projectId) {
-        String bearer =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Endpoint> request = new HttpEntity<>(endpoint, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, projectId,
-                        "endpoints/" + endpoint.getId())),
-                HttpMethod.PUT, request, Void.class);
+    public static ResponseEntity<Void> updateTenantEndpoint(TenantContext tenantContext,
+                                                            Endpoint endpoint) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.updateResource(tenantContext.getCreator(), url, endpoint, endpoint.getId());
     }
 
-    public static ResponseEntity<Void> deleteTenantEndpoint(User user, Endpoint endpoint,
-                                                            String projectId) {
-        String bearer =
-            UserUtility.login(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Endpoint> request = new HttpEntity<>(endpoint, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, projectId,
-                        "endpoints/" + endpoint.getId())),
-                HttpMethod.DELETE, request, Void.class);
+    public static ResponseEntity<Void> deleteTenantEndpoint(TenantContext tenantContext,
+                                                            Endpoint endpoint) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.deleteResource(tenantContext.getCreator(), url, endpoint.getId());
     }
 
     public static ResponseEntity<Void> expireTenantEndpoint(
-        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
+        TenantContext tenantContext, Endpoint endpoint) {
         String bearer =
             UserUtility.login(tenantContext.getCreator());
         String accessUrl = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
+            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX,
+                tenantContext.getProject().getId(),
                 "endpoints/" + endpoint.getId() + "/expire"));
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer);
@@ -150,17 +134,10 @@ public class EndpointUtility {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
     }
 
-    public static ResponseEntity<Endpoint> readTenantEndpoint(
-        TenantUtility.TenantContext tenantContext, Endpoint endpoint) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                "endpoints/" + endpoint.getId()));
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, Endpoint.class);
+    public static ResponseEntity<Endpoint> readTenantEndpoint(TenantContext tenantContext,
+                                                              Endpoint endpoint) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, endpoint.getId(),
+            Endpoint.class);
     }
 }

@@ -11,8 +11,10 @@ import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.PermissionUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.RoleUtility;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
+import com.mt.test_case.helper.utility.UrlUtility;
 import java.util.Collections;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class TenantPermissionTest {
-    private static TenantUtility.TenantContext tenantContext;
+    private static TenantContext tenantContext;
     private static Permission rootPermission;
     private static Endpoint publicEndpointObj;
     private static Endpoint sharedEndpointObj;
@@ -42,28 +44,28 @@ public class TenantPermissionTest {
         rootPermission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response = PermissionUtility.createTenantPermission(tenantContext,
             rootPermission);
-        rootPermission.setId(response.getHeaders().getLocation().toString());
+        rootPermission.setId(UrlUtility.getId(response));
         log.info("init tenant complete");
         //create client for endpoint
         Client randomBackendClientObj = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, randomBackendClientObj);
-        String clientId = tenantClient.getHeaders().getLocation().toString();
+        String clientId = UrlUtility.getId(tenantClient);
         //create public endpoint
         publicEndpointObj = EndpointUtility.createRandomPublicEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, publicEndpointObj);
-        publicEndpointObj.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        publicEndpointObj.setId(UrlUtility.getId(tenantEndpoint));
         //create shared endpoint
         sharedEndpointObj = EndpointUtility.createRandomSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
-        sharedEndpointObj.setId(tenantEndpoint2.getHeaders().getLocation().toString());
+        sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
         //create rol
         role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(tenantRole.getHeaders().getLocation().toString());
+        role.setId(UrlUtility.getId(tenantRole));
 
     }
 
@@ -73,8 +75,7 @@ public class TenantPermissionTest {
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(
-            Objects.requireNonNull(response.getHeaders().getLocation()).toString());
+        Assert.assertNotNull(UrlUtility.getId(response));
     }
 
     @Test
@@ -82,7 +83,7 @@ public class TenantPermissionTest {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = response.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         randomPermissionObj.setName(RandomUtility.randomStringWithNum());
         ResponseEntity<Void> voidResponseEntity =
@@ -107,7 +108,7 @@ public class TenantPermissionTest {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = response.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         ResponseEntity<Void> voidResponseEntity =
             PermissionUtility.deleteTenantPermission(tenantContext, randomPermissionObj);
@@ -119,7 +120,7 @@ public class TenantPermissionTest {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = response.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         role.setCommonPermissionIds(Collections.singleton(randomPermissionObj.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
@@ -137,7 +138,7 @@ public class TenantPermissionTest {
         randomPermissionObj.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = response.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         role.setCommonPermissionIds(Collections.singleton(randomPermissionObj.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
@@ -156,9 +157,8 @@ public class TenantPermissionTest {
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(
-            Objects.requireNonNull(response.getHeaders().getLocation()).toString());
-        String s = response.getHeaders().getLocation().toString();
+        Assert.assertNotNull(UrlUtility.getId(response));
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         ResponseEntity<Permission> permissionResponseEntity =
             PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
@@ -174,9 +174,8 @@ public class TenantPermissionTest {
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, permission);
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(
-            Objects.requireNonNull(response.getHeaders().getLocation()).toString());
-        String s = response.getHeaders().getLocation().toString();
+        Assert.assertNotNull(UrlUtility.getId(response));
+        String s = UrlUtility.getId(response);
         permission.setId(s);
         permission.setLinkedApiIds(Collections.emptyList());
         //update
@@ -205,7 +204,7 @@ public class TenantPermissionTest {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = response.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(response);
         randomPermissionObj.setId(s);
         ResponseEntity<Permission> response2 =
             PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);

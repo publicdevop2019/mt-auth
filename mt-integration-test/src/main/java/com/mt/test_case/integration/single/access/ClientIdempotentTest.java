@@ -57,7 +57,7 @@ public class ClientIdempotentTest  extends CommonTest {
         headers.set("X-XSRF-TOKEN", "123");
         headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + client1.getHeaders().getLocation().toString());
+            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
         oldClient.setVersion(0);
         HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
         ResponseEntity<String> exchange =
@@ -80,7 +80,7 @@ public class ClientIdempotentTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + client1.getHeaders().getLocation().toString());
+            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
@@ -147,7 +147,7 @@ public class ClientIdempotentTest  extends CommonTest {
         AtomicReference<Integer> success = new AtomicReference<>(0);
         AtomicReference<Integer> failed = new AtomicReference<>(0);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + client1.getHeaders().getLocation().toString());
+            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
         Runnable runnable2 = () -> {
             TestContext.init();
             ResponseEntity<String> exchange =
@@ -182,7 +182,7 @@ public class ClientIdempotentTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + client1.getHeaders().getLocation().toString());
+            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);

@@ -1,6 +1,7 @@
 package com.mt.test_case.helper.utility;
 
 import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.User;
 import com.jayway.jsonpath.JsonPath;
@@ -50,7 +51,7 @@ public class OAuth2Utility {
     public static ResponseEntity<DefaultOAuth2AccessToken> getTenantPasswordToken(
         Client client,
         User user,
-        TenantUtility.TenantContext context
+        TenantContext context
     ) {
         return getOAuth2WithUser(AppConstant.GRANT_TYPE_PASSWORD, client.getId(), client.getClientSecret(),
             user.getEmail(), user.getPassword(),
@@ -335,7 +336,7 @@ public class OAuth2Utility {
     public static ResponseEntity<DefaultOAuth2AccessToken> getTenantRefreshToken(
         String refreshToken,
         Client client,
-        TenantUtility.TenantContext tenantContext
+        TenantContext tenantContext
     ) {
         return getRefreshTokenResponse(refreshToken, client.getId(), client.getClientSecret(), tenantContext.getProject().getId());
     }

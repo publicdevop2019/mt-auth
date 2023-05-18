@@ -13,8 +13,10 @@ import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.MarketUtility;
 import com.mt.test_case.helper.utility.PermissionUtility;
 import com.mt.test_case.helper.utility.RoleUtility;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
+import com.mt.test_case.helper.utility.UrlUtility;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,8 +32,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class TenantMarketTest {
-    protected static TenantUtility.TenantContext tenantContextA;
-    protected static TenantUtility.TenantContext tenantContextB;
+    protected static TenantContext tenantContextA;
+    protected static TenantContext tenantContextB;
     protected static Client clientA;
 
     @BeforeClass
@@ -45,7 +47,7 @@ public class TenantMarketTest {
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
-        clientA.setId(tenantClient.getHeaders().getLocation().toString());
+        clientA.setId(UrlUtility.getId(tenantClient));
 
         log.info("init tenant complete");
     }
@@ -88,7 +90,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
@@ -104,7 +106,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
@@ -121,7 +123,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
@@ -137,7 +139,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextA, endpoint.getId());
@@ -153,7 +155,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
@@ -169,14 +171,14 @@ public class TenantMarketTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
         Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-        String subReqId = voidResponseEntity.getHeaders().getLocation().toString();
+        String subReqId = UrlUtility.getId(voidResponseEntity);
         //tenantB can view sub req
         ResponseEntity<SumTotal<SubscriptionReq>> voidResponseEntity12 =
             MarketUtility.viewMySubReq(tenantContextB);
@@ -205,13 +207,13 @@ public class TenantMarketTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = voidResponseEntity.getHeaders().getLocation().toString();
+        String subReqId = UrlUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
 
@@ -219,7 +221,7 @@ public class TenantMarketTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB, role);
-        role.setId(tenantRole.getHeaders().getLocation().toString());
+        role.setId(UrlUtility.getId(tenantRole));
         //wait for cache to expire
         Thread.sleep(20*1000);
         //update it's api

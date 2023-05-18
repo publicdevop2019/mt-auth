@@ -9,6 +9,7 @@ import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.CorsUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
+import com.mt.test_case.helper.utility.UrlUtility;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -30,14 +31,14 @@ public class TenantCorsTest extends TenantTest {
         Cors randomCorsObj = CorsUtility.createRandomCorsObj();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, randomCorsObj);
         Assert.assertEquals(HttpStatus.OK, cors.getStatusCode());
-        Assert.assertNotNull(Objects.requireNonNull(cors.getHeaders().getLocation()).toString());
+        Assert.assertNotNull(UrlUtility.getId(cors));
     }
 
     @Test
     public void tenant_can_update_cors() {
         Cors corsObj = CorsUtility.createRandomCorsObj();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+        String corsId = UrlUtility.getId(cors);
 
         corsObj.setName(RandomUtility.randomStringWithNum());
         corsObj.setId(corsId);
@@ -64,7 +65,7 @@ public class TenantCorsTest extends TenantTest {
     public void tenant_can_delete_cors() {
         Cors cors1 = CorsUtility.createRandomCorsObj();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, cors1);
-        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+        String corsId = UrlUtility.getId(cors);
 
         cors1.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, cors1);
@@ -81,7 +82,7 @@ public class TenantCorsTest extends TenantTest {
     public void tenant_update_cors_no_change_version_should_not_change() {
         Cors corsObj = CorsUtility.createRandomCorsObj();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+        String corsId = UrlUtility.getId(cors);
 
         corsObj.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
@@ -100,20 +101,20 @@ public class TenantCorsTest extends TenantTest {
         //create cors
         Cors corsObj = CorsUtility.createRandomCorsObj();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = Objects.requireNonNull(cors.getHeaders().getLocation()).toString();
+        String corsId = UrlUtility.getId(cors);
         corsObj.setId(corsId);
         //create backend client
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
             ClientUtility.createTenantClient(tenantContext, randomClient);
-        String clientId = client.getHeaders().getLocation().toString();
+        String clientId = UrlUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         randomEndpointObj.setCorsProfileId(corsId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
-        String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        String endpointId = UrlUtility.getId(tenantEndpoint);
         //delete cors
         ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, corsObj);
         Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());

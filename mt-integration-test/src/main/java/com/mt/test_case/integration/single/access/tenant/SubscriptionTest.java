@@ -59,7 +59,7 @@ public class SubscriptionTest  extends CommonTest {
                     "/random");
         ResponseEntity<String> endpoint1 = EndpointUtility.createEndpoint(endpoint);
         Assert.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
-        String endpointId = endpoint1.getHeaders().getLocation().toString();
+        String endpointId = UrlUtility.getId(endpoint1);
         Assert.assertNotNull(endpointId);
         Thread.sleep(20000);//wait for proxy update
         //mt-mall can subscribe to it
@@ -72,7 +72,7 @@ public class SubscriptionTest  extends CommonTest {
         ResponseEntity<String> subReq = SubReqUtility.createSubReqForMallProject(subscriptionReq);
         Assert.assertEquals(HttpStatus.OK, subReq.getStatusCode());
 
-        String s = subReq.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(subReq);
         ResponseEntity<String> approveResult = SubReqUtility.approveSubReq(s);
         Assert.assertEquals(HttpStatus.OK, approveResult.getStatusCode());
         //rate limit should work

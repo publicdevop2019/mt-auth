@@ -48,7 +48,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> exchange = ClientUtility.createTenantClient(tenantContext, client);
 
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        client.setId(exchange.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(exchange));
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
             OAuth2Utility.getTenantPasswordToken(client, tenantContext.getCreator(),
                 tenantContext);
@@ -89,7 +89,7 @@ public class TenantClientTest extends TenantTest {
         String oldSecret = client.getClientSecret();
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
         client.setClientSecret(" ");
-        client.setId(client1.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(client1));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
 
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
@@ -109,7 +109,7 @@ public class TenantClientTest extends TenantTest {
         client.setClientSecret(" ");
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(tenantClient.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(tenantClient));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Void> client3 = ClientUtility.updateTenantClient(tenantContext, client);
@@ -130,7 +130,7 @@ public class TenantClientTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
         client.setResourceIndicator(true);
         client.setClientSecret(RandomUtility.randomStringWithNum());
-        client.setId(client1.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(client1));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
@@ -147,7 +147,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
         client.setClientSecret(" ");
         client.setTypes(Collections.singleton(ClientType.FRONTEND_APP));
-        client.setId(client1.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(client1));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
@@ -164,7 +164,7 @@ public class TenantClientTest extends TenantTest {
         client.setGrantTypeEnums(Collections.singleton(GrantType.PASSWORD));
         client.setAccessTokenValiditySeconds(60);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        client.setId(client1.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(client1));
         client.setClientSecret(RandomUtility.randomStringWithNum());
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
@@ -181,7 +181,7 @@ public class TenantClientTest extends TenantTest {
     public void delete_client() {
         Client client = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(client1.getHeaders().getLocation().toString());
+        client.setId(UrlUtility.getId(client1));
         ResponseEntity<Void> client2 = ClientUtility.deleteTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
@@ -216,8 +216,8 @@ public class TenantClientTest extends TenantTest {
             ClientUtility.createTenantClient(tenantContext, clientAsResource2);
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
-        clientAsResource.setId(client.getHeaders().getLocation().toString());
-        clientAsResource2.setId(client4.getHeaders().getLocation().toString());
+        clientAsResource.setId(UrlUtility.getId(client));
+        clientAsResource2.setId(UrlUtility.getId(client4));
         //create endpoint
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource2.getId());
@@ -237,7 +237,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client1 =
             ClientUtility.createTenantClient(tenantContext, clientAsNonResource);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        clientAsNonResource.setId(client1.getHeaders().getLocation().toString());
+        clientAsNonResource.setId(UrlUtility.getId(client1));
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
             OAuth2Utility.getTenantPasswordToken(clientAsNonResource, tenantContext.getCreator(),
@@ -290,8 +290,8 @@ public class TenantClientTest extends TenantTest {
             ClientUtility.createTenantClient(tenantContext, clientAsResource2);
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
-        clientAsResource.setId(client.getHeaders().getLocation().toString());
-        clientAsResource2.setId(client4.getHeaders().getLocation().toString());
+        clientAsResource.setId(UrlUtility.getId(client));
+        clientAsResource2.setId(UrlUtility.getId(client4));
         //create endpoint
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource2.getId());
@@ -311,7 +311,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client1 =
             ClientUtility.createTenantClient(tenantContext, clientAsNonResource);
         Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
-        clientAsNonResource.setId(client1.getHeaders().getLocation().toString());
+        clientAsNonResource.setId(UrlUtility.getId(client1));
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
             OAuth2Utility.getTenantPasswordToken(clientAsNonResource, tenantContext.getCreator(),
@@ -361,14 +361,14 @@ public class TenantClientTest extends TenantTest {
         Client randomClient = ClientUtility.createRandomBackendClientObj();
         ResponseEntity<Void> client =
             ClientUtility.createTenantClient(tenantContext, randomClient);
-        String clientId = client.getHeaders().getLocation().toString();
+        String clientId = UrlUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        String endpointId = tenantEndpoint.getHeaders().getLocation().toString();
+        String endpointId = UrlUtility.getId(tenantEndpoint);
         //delete client
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, randomClient);

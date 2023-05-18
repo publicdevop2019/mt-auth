@@ -71,8 +71,7 @@ public class MgmtUserTest extends CommonTest {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
-        String s = Objects.requireNonNull(user1.getHeaders().getLocation()).toString();
-        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + s);
+        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(user1));
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
@@ -123,7 +122,6 @@ public class MgmtUserTest extends CommonTest {
     public void admin_can_lock_then_unlock_user() {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> createResp = UserUtility.register(user);
-        String s = Objects.requireNonNull(createResp.getHeaders().getLocation()).toString();
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
@@ -134,7 +132,7 @@ public class MgmtUserTest extends CommonTest {
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + s);
+        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(createResp));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 

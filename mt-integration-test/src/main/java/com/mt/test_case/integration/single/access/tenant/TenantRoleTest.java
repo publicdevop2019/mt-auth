@@ -12,8 +12,10 @@ import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.PermissionUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.RoleUtility;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
+import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +32,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class TenantRoleTest {
-    private static TenantUtility.TenantContext tenantContext;
+    private static TenantContext tenantContext;
     private static Role rootRole;
     private static Endpoint sharedEndpointObj;
 
@@ -42,19 +44,19 @@ public class TenantRoleTest {
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
-        rootRole.setId(tenantRole.getHeaders().getLocation().toString());
+        rootRole.setId(UrlUtility.getId(tenantRole));
         log.info("init tenant complete");
 
         //create client for endpoint
         Client randomBackendClientObj = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, randomBackendClientObj);
-        String clientId = tenantClient.getHeaders().getLocation().toString();
+        String clientId = UrlUtility.getId(tenantClient);
         //create shared endpoint
         sharedEndpointObj = EndpointUtility.createRandomSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
-        sharedEndpointObj.setId(tenantEndpoint2.getHeaders().getLocation().toString());
+        sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
     }
 
     @Test
@@ -63,8 +65,7 @@ public class TenantRoleTest {
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
         Assert.assertEquals(HttpStatus.OK, tenantRole.getStatusCode());
-        Assert.assertNotNull(
-            Objects.requireNonNull(tenantRole.getHeaders().getLocation()).toString());
+        Assert.assertNotNull(UrlUtility.getId(tenantRole));
     }
 
     @Test
@@ -103,7 +104,7 @@ public class TenantRoleTest {
         Role randomRoleObj = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
-        randomRoleObj.setId(tenantRole.getHeaders().getLocation().toString());
+        randomRoleObj.setId(UrlUtility.getId(tenantRole));
         ResponseEntity<Void> voidResponseEntity = RoleUtility.deleteTenantRole(tenantContext,
             randomRoleObj);
         Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
@@ -115,7 +116,7 @@ public class TenantRoleTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(tenantRole.getHeaders().getLocation().toString());
+        role.setId(UrlUtility.getId(tenantRole));
         //read user
         User user = tenantContext.getUsers().get(0);
         ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);
@@ -139,12 +140,12 @@ public class TenantRoleTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(tenantRole.getHeaders().getLocation().toString());
+        role.setId(UrlUtility.getId(tenantRole));
         //update it's permission
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(response.getHeaders().getLocation().toString());
+        permission.setId(UrlUtility.getId(response));
         role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> response2 =

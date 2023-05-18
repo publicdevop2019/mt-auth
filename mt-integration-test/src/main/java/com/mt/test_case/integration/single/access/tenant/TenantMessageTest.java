@@ -9,8 +9,10 @@ import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.MarketUtility;
 import com.mt.test_case.helper.utility.MessageUtility;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
+import com.mt.test_case.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -22,8 +24,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 @RunWith(SpringRunner.class)
 @Slf4j
 public class TenantMessageTest {
-    protected static TenantUtility.TenantContext tenantContextA;
-    protected static TenantUtility.TenantContext tenantContextB;
+    protected static TenantContext tenantContextA;
+    protected static TenantContext tenantContextB;
     protected static Client clientA;
 
     @BeforeClass
@@ -37,7 +39,7 @@ public class TenantMessageTest {
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
-        clientA.setId(tenantClient.getHeaders().getLocation().toString());
+        clientA.setId(UrlUtility.getId(tenantClient));
 
         log.info("init tenant complete");
     }
@@ -49,13 +51,13 @@ public class TenantMessageTest {
             EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(tenantEndpoint.getHeaders().getLocation().toString());
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = voidResponseEntity.getHeaders().getLocation().toString();
+        String subReqId = UrlUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         //wait for cache to expire

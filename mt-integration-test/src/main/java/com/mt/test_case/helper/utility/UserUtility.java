@@ -1,7 +1,9 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.PendingUser;
 import com.mt.test_case.helper.pojo.Project;
+import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
 import com.mt.test_case.helper.AppConstant;
@@ -18,6 +20,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class UserUtility {
+    private static final ParameterizedTypeReference<SumTotal<User>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl(Project project) {
+        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "users");
+    }
 //    public void initTestUser() {
 //        if (testUser.size() == 0) {
 //            log.debug("start of creating test users");
@@ -150,10 +159,6 @@ public class UserUtility {
             AppConstant.ACCOUNT_USERNAME_MALL_ADMIN, AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
     }
 
-    public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordUser() {
-        return login(AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER);
-    }
-
     public static String getJwtUser() {
         return login(AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER).getBody().getValue();
     }
@@ -170,7 +175,7 @@ public class UserUtility {
     public static User createUser() {
         User user = createRandomUserObj();
         ResponseEntity<Void> register = register(user);
-        String s = register.getHeaders().getLocation().toString();
+        String s = UrlUtility.getId(register);
         user.setId(s);
         return user;
     }
@@ -197,63 +202,28 @@ public class UserUtility {
         return tenantUser;
     }
 
-    public static ResponseEntity<Void> updateTenantUser(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<Void> updateTenantUser(TenantContext tenantContext,
                                                         User user) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                "users/" + user.getId()));
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<User> hashMapHttpEntity1 = new HttpEntity<>(user, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.PUT, hashMapHttpEntity1, Void.class);
+        String url = getUrl(tenantContext.getProject());
+        return Utility.updateResource(tenantContext.getCreator(), url, user,user.getId());
     }
 
-    public static ResponseEntity<User> readTenantUser(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<User> readTenantUser(TenantContext tenantContext,
                                                       User user) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                "users/" + user.getId()));
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<User> hashMapHttpEntity1 = new HttpEntity<>(user, headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET
-                , hashMapHttpEntity1, User.class);
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, user.getId(), User.class);
     }
 
     public static ResponseEntity<SumTotal<User>> readTenantUsers(
-        TenantUtility.TenantContext tenantContext) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                "users"));
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<Void> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return TestContext.getRestTemplate()
-            .exchange(url, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        TenantContext tenantContext) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
     public static ResponseEntity<SumTotal<User>> readTenantUsersByQuery(
-        TenantUtility.TenantContext tenantContext, String query) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                "users"));
-        String next = UrlUtility.appendQuery(url, query);
-        HttpHeaders headers1 = new HttpHeaders();
-        headers1.setBearerAuth(bearer);
-        HttpEntity<Void> hashMapHttpEntity1 = new HttpEntity<>(headers1);
-        return TestContext.getRestTemplate()
-            .exchange(next, HttpMethod.GET, hashMapHttpEntity1, new ParameterizedTypeReference<>() {
-            });
+        TenantContext tenantContext, String query) {
+        String accessUrl = getUrl(tenantContext.getProject());
+        String url = UrlUtility.appendQuery(accessUrl, query);
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 }

@@ -1,10 +1,12 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.ClientType;
 import com.mt.test_case.helper.pojo.GrantType;
+import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
-import com.mt.test_case.helper.AppConstant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -18,6 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
 public class ClientUtility {
+    private static final ParameterizedTypeReference<SumTotal<Client>> reference =
+        new ParameterizedTypeReference<>() {
+        };
+
+    private static String getUrl(Project project) {
+        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "clients");
+    }
+
     /**
      * get password grant client as non resource.
      *
@@ -126,78 +136,34 @@ public class ClientUtility {
         return client;
     }
 
-    public static ResponseEntity<Void> createTenantClient(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<Void> createTenantClient(TenantContext tenantContext,
                                                           Client client) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "clients")),
-                HttpMethod.POST, request, Void.class);
+        String url = getUrl(tenantContext.getProject());
+        return Utility.createResource(tenantContext.getCreator(), url, client);
     }
 
-    public static ResponseEntity<Void> updateTenantClient(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<Void> updateTenantClient(TenantContext tenantContext,
                                                           Client client) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "clients/"+client.getId())),
-                HttpMethod.PUT, request, Void.class);
+        String url = getUrl(tenantContext.getProject());
+        return Utility.updateResource(tenantContext.getCreator(), url, client, client.getId());
     }
 
-    public static ResponseEntity<Client> readTenantClient(TenantUtility.TenantContext tenantContext,
+    public static ResponseEntity<Client> readTenantClient(TenantContext tenantContext,
                                                           Client client) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "clients/" + client.getId())),
-                HttpMethod.GET, request, Client.class);
-    }
-    public static ResponseEntity<SumTotal<Client>> readTenantClients(TenantUtility.TenantContext tenantContext) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "clients")),
-                HttpMethod.GET, request, new ParameterizedTypeReference<>() {
-                });
+
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, client.getId(), Client.class);
     }
 
-    public static ResponseEntity<Void> deleteTenantClient(TenantUtility.TenantContext tenantContext, Client client) {
-        String bearer =
-            UserUtility.login(tenantContext.getCreator());
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(bearer);
-        HttpEntity<Client> request = new HttpEntity<>(client, headers);
-        return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
-                        AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
-                        "clients/" + client.getId())),
-                HttpMethod.DELETE, request, Void.class);
+    public static ResponseEntity<SumTotal<Client>> readTenantClients(TenantContext tenantContext) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
+    }
+
+    public static ResponseEntity<Void> deleteTenantClient(TenantContext tenantContext,
+                                                          Client client) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.deleteResource(tenantContext.getCreator(), url, client.getId());
     }
 
     public static ResponseEntity<String> createClient(Client client, String changeId) {
