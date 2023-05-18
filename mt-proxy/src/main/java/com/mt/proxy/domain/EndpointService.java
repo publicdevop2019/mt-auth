@@ -63,6 +63,7 @@ public class EndpointService {
 
     public void refreshCache() {
         cached = DomainRegistry.getRetrieveEndpointService().loadAllEndpoints();
+        log.info("total endpoints retrieved {}", cached.size());
         DomainRegistry.getCsrfService().refresh(cached);
         DomainRegistry.getCorsService().refresh(cached);
         DomainRegistry.getCacheService().refresh(cached);
