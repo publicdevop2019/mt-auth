@@ -24,7 +24,7 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.mt" level="debug" additivity="false">
+        <Logger name="com.mt.proxy" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
