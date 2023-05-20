@@ -16,7 +16,7 @@ public class JobThreadPoolExecutor extends ThreadPoolExecutor {
                                  long keepAliveTime,
                                  TimeUnit unit,
                                  BlockingQueue<Runnable> workQueue,
-                                 ThreadFactory threadFactory,
+                                 JobThreadFactory threadFactory,
                                  RejectedExecutionHandler handler) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory,
             handler);

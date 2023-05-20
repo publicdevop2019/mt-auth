@@ -49,6 +49,7 @@ public class RedisDistributedJobService implements DistributedJobService {
             return;
         }
         taskExecutor.execute(() -> {
+            log.debug("running job {}", jobName);
             //check if job exist
             Optional<JobDetail> byName =
                 CommonDomainRegistry.getJobRepository().getByName(jobName);

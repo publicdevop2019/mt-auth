@@ -64,5 +64,5 @@ import org.junit.runners.Suite;
     RevokeTokenTest.class,
     SubscriptionTest.class,
 })
-public class IntegrationTestSuite {
+public class TestSuite {
 }

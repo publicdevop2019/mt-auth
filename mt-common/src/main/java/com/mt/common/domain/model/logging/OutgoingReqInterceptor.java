@@ -20,7 +20,8 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
         if (null == MDC.get("UUID")) {
             String s = UUID.randomUUID().toString();
             MDC.put("UUID", s);
-            log.debug("UUID not found for outgoing request, auto generate value {}", s);
+            log.info("UUID not found for outgoing request {}, auto generate value {}",
+                httpRequest.getURI(),s);
         }
         httpRequest.getHeaders().set("UUID", MDC.get("UUID"));
         return clientHttpRequestExecution.execute(httpRequest, bytes);
