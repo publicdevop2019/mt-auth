@@ -37,7 +37,7 @@ public class JwtService {
     private String jwtKeyUrl;
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
-        return new NimbusReactiveJwtDecoder(jwtKeyUrl);
+        return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -50,7 +50,9 @@ public class JwtService {
             e.printStackTrace();
         }
     }
-
+    public String getJwtKeyUrl() {
+        return httpHelper.resolveAccessPath() + jwtKeyUrl;
+    }
     public boolean verify(String jwt) {
         SignedJWT parse;
         try {

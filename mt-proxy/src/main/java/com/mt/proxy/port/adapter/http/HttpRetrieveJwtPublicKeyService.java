@@ -14,8 +14,6 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyService {
-    @Value("${manytree.url.jwtKey}")
-    private String jwtKeyUrl;
     @Autowired
     private JwtService jwtService;
     @Autowired
@@ -24,7 +22,7 @@ public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyServ
     @Override
     public JWKSet loadKeys() {
         ResponseEntity<String> exchange = httpHelper.getRestTemplate()
-            .exchange(jwtKeyUrl, HttpMethod.GET, null, String.class);
+            .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null, String.class);
         try {
             return JWKSet.parse(exchange.getBody());
         } catch (ParseException e) {

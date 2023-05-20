@@ -1,9 +1,9 @@
 manytree:
   url:
-    jwtKey: http://localhost:8080/.well-known/jwks.json
-    endpoint: http://localhost:8080/endpoints/proxy
-    report: http://localhost:8080/reports/proxy
-    clients: http://localhost:8080/clients/proxy
+    jwtKey: .well-known/jwks.json
+    endpoint: endpoints/proxy
+    report: reports/proxy
+    clients: clients/proxy
   domain-name:
   instance-id: 0
 mt:
@@ -50,9 +50,9 @@ hystrix:
             timeoutInMilliseconds: 35000
 eureka:
   client:
-    fetchRegistry: false
     serviceUrl:
       defaultZone:
+    registryFetchIntervalSeconds: 1
   instance:
     preferIpAddress: true
     ip-address:

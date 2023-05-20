@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { ApiCenterComponent } from './pages/common/api-center/api-center.component';
-import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
+import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { MyCacheComponent } from './pages/tenant/my-cache/my-cache.component';

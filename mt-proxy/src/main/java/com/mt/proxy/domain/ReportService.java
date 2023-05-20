@@ -1,5 +1,6 @@
 package com.mt.proxy.domain;
 
+import com.mt.proxy.port.adapter.http.HttpUtility;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,8 +48,7 @@ public class ReportService {
     @Value("${manytree.url.report}")
     private String endpointUrl;
     @Autowired
-    private RestTemplate restTemplate;
-
+    private HttpUtility httpHelper;
     /**
      * log response access record.
      * response is linked to request via uuid, method & path is not logged because
@@ -137,7 +137,8 @@ public class ReportService {
         log.trace("start of scheduled task 2");
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
-        String url = endpointUrl;
+
+        String url = httpHelper.resolveAccessPath() + endpointUrl;
         //read all unsend files
         File dir =
             new File(REPORT_DIR);
@@ -176,7 +177,7 @@ public class ReportService {
                             HttpEntity<List<String>> request1 =
                                 new HttpEntity<>(requestBody, headers1);
                             try {
-                                ResponseEntity<Void> exchange = restTemplate
+                                httpHelper.getRestTemplate()
                                     .exchange(url, HttpMethod.POST, request1, Void.class);
                                 boolean b = unsendFile
                                     .renameTo(

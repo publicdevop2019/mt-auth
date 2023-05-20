@@ -66,7 +66,7 @@ import { TreeNodeDirective } from './directive/tree-node.directive';
 import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
 import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { ApiCenterComponent } from './pages/common/api-center/api-center.component';
-import { CacheControlComponent } from './pages/common/proxy-check/proxy-check.component';
+import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
 import { NewProjectComponent } from './pages/common/new-project/new-project.component';

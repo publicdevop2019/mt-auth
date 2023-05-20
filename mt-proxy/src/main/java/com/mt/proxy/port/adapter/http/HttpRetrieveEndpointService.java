@@ -20,7 +20,8 @@ public class HttpRetrieveEndpointService implements RetrieveEndpointService {
 
     @Override
     public Set<Endpoint> loadAllEndpoints() {
-        return  httpHelper.loadAllData(endpointUrl, 40, false ,new ParameterizedTypeReference<>() {
-        });
+        return httpHelper.loadAllData(httpHelper.resolveAccessPath() + endpointUrl,
+            40, false, new ParameterizedTypeReference<>() {
+            });
     }
 }

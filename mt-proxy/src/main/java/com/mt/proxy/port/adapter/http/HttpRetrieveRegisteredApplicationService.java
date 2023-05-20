@@ -21,7 +21,7 @@ public class HttpRetrieveRegisteredApplicationService
 
     @Override
     public Set<RegisteredApplication> fetchAll() {
-        return httpHelper.loadAllData(url, 40, false,
+        return httpHelper.loadAllData(httpHelper.resolveAccessPath() +url, 40, false,
             new ParameterizedTypeReference<>() {
             });
     }
