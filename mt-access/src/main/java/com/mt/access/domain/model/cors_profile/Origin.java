@@ -2,7 +2,6 @@ package com.mt.access.domain.model.cors_profile;
 
 import com.google.common.base.Objects;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import javax.persistence.AttributeConverter;
@@ -25,9 +24,8 @@ public class Origin implements Serializable {
         if (defaultValidator.isValid(url) || ALL.equalsIgnoreCase(url)) {
             value = url;
         } else {
-            throw new DefinedRuntimeException("invalid origin value", "0039",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("invalid origin value", "1039",
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 

@@ -5,7 +5,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.port.adapter.persistence.client.RedirectUrlConverter;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;

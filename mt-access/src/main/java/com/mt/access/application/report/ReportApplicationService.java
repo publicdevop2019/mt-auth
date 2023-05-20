@@ -10,7 +10,6 @@ import com.mt.access.domain.model.report.EndpointReport;
 import com.mt.access.domain.model.report.RawAccessRecord;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -55,8 +54,8 @@ public class ReportApplicationService {
                 report.set(
                     DomainRegistry.getReportGenerateService().generateAllTimeReport(endpointId));
             } else {
-                throw new DefinedRuntimeException("unsupported report type", "0018",
-                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("unsupported report type", "1018",
+                    HttpResponseCode.BAD_REQUEST);
             }
         });
         return report.get();

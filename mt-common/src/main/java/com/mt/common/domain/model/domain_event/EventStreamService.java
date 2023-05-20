@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.domain_event;
 
 import java.util.function.Consumer;
-import javax.annotation.Nullable;
 
 public interface EventStreamService {
 

@@ -1,6 +1,5 @@
 package com.mt.access.application.client.representation;
 
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.ReadOnlyOAuthClient;

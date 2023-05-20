@@ -37,7 +37,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -240,9 +239,8 @@ public class ClientApplicationService implements ClientDetailsService {
                             .logUserAction(log, DELETE_TENANT_CLIENT,
                                 client1);
                     } else {
-                        throw new DefinedRuntimeException("client cannot be deleted", "0009",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        throw new DefinedRuntimeException("client cannot be deleted", "1009",
+                            HttpResponseCode.BAD_REQUEST);
                     }
                 }
                 return null;

@@ -1,10 +1,6 @@
 package com.mt.access.port.adapter.persistence;
 
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.common.domain.model.domain_event.DomainId;
-import java.util.Arrays;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.AttributeConverter;
 
 public class ProjectIdConverter implements AttributeConverter<ProjectId, String> {

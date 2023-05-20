@@ -58,7 +58,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public dialog: MatDialog
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
+    this.clientSvc.getDropdownClients(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
       .subscribe(next => {
         if (next.data)
           this.searchConfigs = [...this.initSearchConfig, {

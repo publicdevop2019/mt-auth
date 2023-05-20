@@ -5,7 +5,6 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
@@ -52,17 +51,15 @@ public class SubRequestQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, TYPE);
         String s = stringStringMap.get(TYPE);
         if (s == null || s.isBlank()) {
-            throw new DefinedRuntimeException("missing sub request query type", "0060",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("missing sub request query type", "1060",
+                HttpResponseCode.BAD_REQUEST);
         } else {
             SubRequestQueryType subRequestQueryType;
             try {
                 subRequestQueryType = SubRequestQueryType.valueOf(s.toUpperCase());
             } catch (NullPointerException ex) {
-                throw new DefinedRuntimeException("missing sub request query type", "0061",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
+                throw new DefinedRuntimeException("missing sub request query type", "1061",
+                    HttpResponseCode.BAD_REQUEST, ex);
             }
             if (subRequestQueryType.equals(SubRequestQueryType.MY_REQUEST)) {
                 this.createdBy = DomainRegistry.getCurrentUserService().getUserId();

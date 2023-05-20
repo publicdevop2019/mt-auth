@@ -28,7 +28,6 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -125,9 +124,8 @@ public class UserRelationApplicationService {
                             if (first.isEmpty()) {
                                 throw new DefinedRuntimeException(
                                     "unable to find default user role for project",
-                                    "0024",
-                                    HttpResponseCode.BAD_REQUEST,
-                                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                                    "1024",
+                                    HttpResponseCode.BAD_REQUEST);
                             }
                             return UserRelation.initNewUser(first.get().getRoleId(), userId,
                                 projectId);
@@ -249,20 +247,20 @@ public class UserRelationApplicationService {
     private UserRelation checkCondition(UserId userId, ProjectId tenantProjectId,
                                         ProjectId projectId2, boolean isAdd) {
         if (tenantProjectId.equals(projectId2)) {
-            throw new DefinedRuntimeException("admin modify is not allowed", "0077",
-                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("admin modify is not allowed", "1077",
+                HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, EDIT_TENANT_USER);
         if (userId
             .equals(DomainRegistry.getCurrentUserService().getUserId())) {
-            throw new DefinedRuntimeException("you can not add/remove yourself", "0079",
-                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("you can not add/remove yourself", "1079",
+                HttpResponseCode.BAD_REQUEST);
         }
         Optional<UserRelation> targetUser = DomainRegistry.getUserRelationRepository()
             .query(new UserRelationQuery(userId, tenantProjectId)).findFirst();
         if (targetUser.isEmpty()) {
-            throw new DefinedRuntimeException("unable to find user relation", "0078",
-                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("unable to find user relation", "1078",
+                HttpResponseCode.BAD_REQUEST);
         }
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
         UserRelation relation = DomainRegistry.getUserRelationRepository()
@@ -270,20 +268,20 @@ public class UserRelationApplicationService {
                 new ProjectId(MT_AUTH_PROJECT_ID));
         if (isAdd) {
             if (relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
-                throw new DefinedRuntimeException("already admin", "0080",
-                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("already admin", "1080",
+                    HttpResponseCode.BAD_REQUEST);
             }
         } else {
             if (!relation.getStandaloneRoles().contains(tenantAdminRoleId)) {
-                throw new DefinedRuntimeException("not admin", "0081",
-                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("not admin", "1081",
+                    HttpResponseCode.BAD_REQUEST);
             }
             //at least two admin present, for future maker & checker process
             long byQuery = DomainRegistry.getUserRelationRepository()
                 .countProjectAdmin(tenantAdminRoleId);
             if (byQuery <= 2) {
-                throw new DefinedRuntimeException("at least two admin", "0082",
-                    HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("at least two admin", "1082",
+                    HttpResponseCode.BAD_REQUEST);
             }
 
         }

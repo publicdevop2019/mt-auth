@@ -6,7 +6,6 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import java.io.Serializable;
@@ -84,9 +83,8 @@ public class JwtCurrentUserService implements CurrentUserService {
         try {
             userId = JwtUtility.getUserId(jwt);
         } catch (Exception ex) {
-            throw new DefinedRuntimeException("error getting current user id", "0083",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("error getting current user id", "1083",
+                HttpResponseCode.BAD_REQUEST);
         }
         return new UserId(userId);
     }

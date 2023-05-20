@@ -7,14 +7,12 @@ import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
@@ -120,9 +118,8 @@ public class User extends Auditable {
     public void lockUser(boolean locked) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
-            throw new DefinedRuntimeException("root account cannot be locked", "0062",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("root account cannot be locked", "1062",
+                HttpResponseCode.BAD_REQUEST);
         }
         CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
@@ -154,9 +151,8 @@ public class User extends Auditable {
         if (userName != null) {
             if (this.userName != null && this.userName.getValue() != null
                 && !this.userName.equals(userName)) {
-                throw new DefinedRuntimeException("username can only be set once", "0063",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("username can only be set once", "1063",
+                    HttpResponseCode.BAD_REQUEST);
             }
             this.userName = userName;
         }

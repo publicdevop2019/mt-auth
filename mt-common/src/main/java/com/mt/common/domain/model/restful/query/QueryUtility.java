@@ -2,14 +2,12 @@ package com.mt.common.domain.model.restful.query;
 
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -129,8 +127,7 @@ public class QueryUtility {
                 String[] split1 = str.split(":");
                 if (split1.length != 2) {
                     throw new DefinedRuntimeException("unable to parse query string" + rawQuery, "0027",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        HttpResponseCode.BAD_REQUEST);
                 }
                 parsed.put(split1[0], split1[1]);
             }
@@ -144,8 +141,7 @@ public class QueryUtility {
         List<String> list = List.of(supportedFields);
         if (parsedMap.keySet().stream().anyMatch(e -> !list.contains(e))) {
             throw new DefinedRuntimeException("unknown query key", "0028",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 
@@ -248,8 +244,7 @@ public class QueryUtility {
                                                   QueryContext<T> queryContext) {
         if ("null".equalsIgnoreCase(value)) {
             throw new DefinedRuntimeException("literal null is not allowed", "0029",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         } else {
             queryContext.getPredicates().add(queryContext.getCriteriaBuilder().equal(
                 queryContext.getRoot().get(sqlFieldName).get(CommonConstant.DOMAIN_ID)
@@ -318,8 +313,7 @@ public class QueryUtility {
                 results.add(cb.greaterThan(root.get(entityFieldName), i));
             } else {
                 throw new DefinedRuntimeException("unsupported query value", "0030",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                    HttpResponseCode.BAD_REQUEST);
             }
         }
         return cb.and(results.toArray(new Predicate[0]));

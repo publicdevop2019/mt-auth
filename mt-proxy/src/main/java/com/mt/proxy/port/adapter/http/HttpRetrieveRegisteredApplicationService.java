@@ -2,7 +2,6 @@ package com.mt.proxy.port.adapter.http;
 
 import com.mt.proxy.domain.RegisteredApplication;
 import com.mt.proxy.domain.RetrieveRegisterApplicationService;
-import com.mt.proxy.domain.SumPagedRep;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,12 +17,10 @@ public class HttpRetrieveRegisteredApplicationService
     @Value("${manytree.url.clients}")
     private String url;
     @Autowired
-    private HttpHelper httpHelper;
+    private HttpUtility httpHelper;
 
     @Override
     public Set<RegisteredApplication> fetchAll() {
-        String homePageUrl = httpHelper.resolveAccessPath();
-        String url = homePageUrl + this.url;
         return httpHelper.loadAllData(url, 40, false,
             new ParameterizedTypeReference<>() {
             });

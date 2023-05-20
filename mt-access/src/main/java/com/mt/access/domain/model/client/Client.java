@@ -20,7 +20,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
@@ -236,9 +235,8 @@ public class Client extends Auditable {
 
     public void setRoleId() {
         if (this.roleId != null) {
-            throw new DefinedRuntimeException("client role cannot be overwritten", "0034",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("client role cannot be overwritten", "1034",
+                HttpResponseCode.BAD_REQUEST);
         }
         this.roleId = new RoleId();
     }
@@ -246,17 +244,15 @@ public class Client extends Auditable {
     private void setTypes(Set<ClientType> types) {
         Validator.notEmpty(types);
         if (this.types != null) {
-            throw new DefinedRuntimeException("client type can not be updated once created", "0035",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("client type can not be updated once created", "1035",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (
             types.stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
                 && types.stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))
         ) {
-            throw new DefinedRuntimeException("client type conflict", "0036",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("client type conflict", "1036",
+                HttpResponseCode.BAD_REQUEST);
         }
         this.types = types;
     }
@@ -285,9 +281,8 @@ public class Client extends Auditable {
         if (grantTypes.contains(GrantType.REFRESH_TOKEN)
             &&
             !grantTypes.contains(GrantType.PASSWORD)) {
-            throw new DefinedRuntimeException("refresh token grant requires password grant", "0037",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("refresh token grant requires password grant", "1037",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (!grantTypes.equals(this.grantTypes)) {
             if (this.grantTypes != null) {

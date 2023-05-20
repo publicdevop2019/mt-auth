@@ -5,7 +5,6 @@ import com.mt.common.domain.model.audit.Auditable;
 import java.time.Instant;
 import java.util.Date;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

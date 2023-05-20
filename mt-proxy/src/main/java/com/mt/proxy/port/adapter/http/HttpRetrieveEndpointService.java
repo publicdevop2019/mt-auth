@@ -16,13 +16,11 @@ public class HttpRetrieveEndpointService implements RetrieveEndpointService {
     @Value("${manytree.url.endpoint}")
     private String endpointUrl;
     @Autowired
-    private HttpHelper httpHelper;
+    private HttpUtility httpHelper;
 
     @Override
     public Set<Endpoint> loadAllEndpoints() {
-        String base = httpHelper.resolveAccessPath();
-        String url = base + endpointUrl;
-        return  httpHelper.loadAllData(url, 40, false ,new ParameterizedTypeReference<>() {
+        return  httpHelper.loadAllData(endpointUrl, 40, false ,new ParameterizedTypeReference<>() {
         });
     }
 }

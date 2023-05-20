@@ -3,7 +3,6 @@ package com.mt.common.domain.model.jwt;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.IOException;
 import java.time.OffsetDateTime;
@@ -35,8 +34,7 @@ public class JwtUtility {
             jwtBody = replace.split("\\.")[1];
         } catch (ArrayIndexOutOfBoundsException ex) {
             throw new DefinedRuntimeException("unable to extract jwt token", "0014",
-                HttpResponseCode.INTERNAL_SERVER_ERROR,
-                ExceptionCatalog.OPERATION_ERROR, ex);
+                HttpResponseCode.INTERNAL_SERVER_ERROR, ex);
         }
         Base64.Decoder decoder = Base64.getDecoder();
         byte[] decode = decoder.decode(jwtBody);
@@ -48,8 +46,7 @@ public class JwtUtility {
             return (T) var0.get(field);
         } catch (IOException ex) {
             throw new DefinedRuntimeException("unable to extract jwt token", "0015",
-                HttpResponseCode.INTERNAL_SERVER_ERROR,
-                ExceptionCatalog.OPERATION_ERROR, ex);
+                HttpResponseCode.INTERNAL_SERVER_ERROR, ex);
         }
     }
 

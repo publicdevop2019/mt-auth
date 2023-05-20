@@ -25,7 +25,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorMessage errorMessage = new ErrorMessage(ex);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
-        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_CODE, ex.getCombinedErrorCode());
+        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_CODE, ex.getErrorCode());
         return handleExceptionInternal(ex, errorMessage, httpHeaders,
             ex.getResponseType().getHttpCode(),
             request);

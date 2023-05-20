@@ -15,7 +15,6 @@ import com.mt.access.port.adapter.persistence.PermissionIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -202,9 +201,8 @@ public class Role extends Auditable {
                 .size() > 1;
             if (b) {
                 throw new DefinedRuntimeException(
-                    "permissions added to role must belong to same tenant project", "0053",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                    "permissions added to role must belong to same tenant project", "1053",
+                    HttpResponseCode.BAD_REQUEST);
             }
             if (apiPermission != null) {
                 linkedApiPermission.addAll(apiPermission);
@@ -339,14 +337,12 @@ public class Role extends Auditable {
     private void updateName(String name) {
         if (List.of(RoleType.CLIENT, RoleType.PROJECT, RoleType.CLIENT_ROOT).contains(this.type)) {
             throw new DefinedRuntimeException(
-                "client project client root type's name cannot be changed", "0054",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "client project client root type's name cannot be changed", "1054",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (isSystemCreate()) {
-            throw new DefinedRuntimeException("system created role cannot be changed", "0055",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("system created role cannot be changed", "1055",
+                HttpResponseCode.BAD_REQUEST);
         }
         this.name = name;
     }
@@ -373,9 +369,8 @@ public class Role extends Auditable {
 
     public void remove() {
         if (this.systemCreate) {
-            throw new DefinedRuntimeException("cannot delete system created role", "0056",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("cannot delete system created role", "1056",
+                HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getRoleRepository().remove(this);
     }

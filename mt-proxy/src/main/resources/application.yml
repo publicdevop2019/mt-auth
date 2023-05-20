@@ -1,11 +1,9 @@
 manytree:
-  mt-access:
-    appId: 0C8AZTODP4HT
   url:
-    endpoint: endpoints/proxy
-    subscription: subscriptions/proxy
-    report: reports/proxy
-    clients: clients/proxy
+    jwtKey: http://localhost:8080/.well-known/jwks.json
+    endpoint: http://localhost:8080/endpoints/proxy
+    report: http://localhost:8080/reports/proxy
+    clients: http://localhost:8080/clients/proxy
   domain-name:
   instance-id: 0
 mt:
@@ -30,11 +28,6 @@ spring:
   loadbalancer:
     ribbon:
       enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: .well-known/jwks.json
   redis:
     port:
     database: 0
@@ -55,19 +48,11 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 35000
-logging:
-  level:
-    org:
-      springframework:
-        web: INFO
-        security: INFO
-    com:
-      netflix: INFO
 eureka:
   client:
+    fetchRegistry: false
     serviceUrl:
       defaultZone:
-    registryFetchIntervalSeconds: 10
   instance:
     preferIpAddress: true
     ip-address:

@@ -35,7 +35,6 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -135,9 +134,8 @@ public class EndpointApplicationService {
                 Client client =
                     DomainRegistry.getClientRepository().get(new ClientId(clientId));
                 if (!client.getProjectId().equals(projectId)) {
-                    throw new DefinedRuntimeException("project id mismatch", "0010",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
+                    throw new DefinedRuntimeException("project id mismatch", "1010",
+                        HttpResponseCode.BAD_REQUEST);
                 }
                 Endpoint endpoint = client.addNewEndpoint(
                     command.getCacheProfileId() != null

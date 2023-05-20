@@ -2,7 +2,6 @@ package com.mt.access.domain.model.client;
 
 import com.google.common.base.Objects;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
@@ -28,9 +27,8 @@ public class RedirectUrl implements Serializable {
         if (defaultValidator.isValid(url)) {
             value = url;
         } else {
-            throw new DefinedRuntimeException("invalid redirect url", "0038",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("invalid redirect url", "1038",
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 

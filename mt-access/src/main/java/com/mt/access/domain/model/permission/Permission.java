@@ -9,7 +9,6 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
@@ -548,14 +547,12 @@ public class Permission extends Auditable {
     private void updateName(String name) {
         if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
-                "0049",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1049",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (isSystemCreate()) {
-            throw new DefinedRuntimeException("system created permission cannot be changed", "0050",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("system created permission cannot be changed", "1050",
+                HttpResponseCode.BAD_REQUEST);
         }
         this.name = name;
     }
@@ -568,9 +565,8 @@ public class Permission extends Auditable {
     public void remove() {
         if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
-                "0051",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1051",
+                HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getPermissionRepository().remove(this);
     }

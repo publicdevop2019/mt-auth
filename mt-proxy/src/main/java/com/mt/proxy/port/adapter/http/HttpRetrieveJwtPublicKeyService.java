@@ -6,6 +6,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -13,16 +14,17 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyService {
-
+    @Value("${manytree.url.jwtKey}")
+    private String jwtKeyUrl;
     @Autowired
     private JwtService jwtService;
     @Autowired
-    private HttpHelper httpHelper;
+    private HttpUtility httpHelper;
 
     @Override
     public JWKSet loadKeys() {
         ResponseEntity<String> exchange = httpHelper.getRestTemplate()
-            .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null, String.class);
+            .exchange(jwtKeyUrl, HttpMethod.GET, null, String.class);
         try {
             return JWKSet.parse(exchange.getBody());
         } catch (ParseException e) {

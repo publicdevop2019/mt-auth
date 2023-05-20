@@ -1,18 +1,13 @@
 package com.mt.proxy.port.adapter.http;
 
 import com.mt.proxy.domain.SumPagedRep;
-import com.mt.proxy.infrastructure.LogHelper;
-import com.netflix.discovery.EurekaClient;
 import java.math.BigDecimal;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Set;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
@@ -21,25 +16,10 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 @Slf4j
-public class HttpHelper {
-    @Value("${manytree.mt-access.appId}")
-    private String appName;
-    @Autowired
-    private EurekaClient eurekaClient;
+public class HttpUtility {
     @Autowired
     @Getter
     private RestTemplate restTemplate;
-
-    public String resolveAccessPath() {
-        if (eurekaClient.getApplication(appName) != null) {
-            log.debug("update property value with resolve access path");
-            return eurekaClient.getApplication(appName).getInstances().get(0).getHomePageUrl();
-        } else {
-            log.error("unable to resolve due to service is not ready");
-            throw new IllegalStateException(
-                "unable to resolve due to service is not ready");
-        }
-    }
 
     /**
      * load all paginated data

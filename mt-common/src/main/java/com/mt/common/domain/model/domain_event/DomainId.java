@@ -2,7 +2,6 @@ package com.mt.common.domain.model.domain_event;
 
 import com.google.common.base.Objects;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import javax.persistence.Column;
@@ -29,13 +28,11 @@ public class DomainId implements Serializable {
     protected DomainId(String domainId) {
         if (domainId == null) {
             throw new DefinedRuntimeException("null domain id is not allowed", "0010",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         }
         if (domainId.isBlank() || domainId.isEmpty()) {
             throw new DefinedRuntimeException("empty or blank domain id is not allowed", "0011",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         }
         this.domainId = domainId;
     }

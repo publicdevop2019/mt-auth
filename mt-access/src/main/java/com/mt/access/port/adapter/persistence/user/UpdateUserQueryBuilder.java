@@ -5,7 +5,6 @@ import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.User_;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.sql.builder.UpdateByIdQueryBuilder;
@@ -37,9 +36,8 @@ public class UpdateUserQueryBuilder extends UpdateByIdQueryBuilder<User> {
 
     private Boolean parseBoolean(@Nullable Object input) {
         if (input == null) {
-            throw new DefinedRuntimeException("unable parse boolean", "0074",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("unable parse boolean", "1074",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (input.getClass().equals(Boolean.class)) {
             return ((Boolean) input);

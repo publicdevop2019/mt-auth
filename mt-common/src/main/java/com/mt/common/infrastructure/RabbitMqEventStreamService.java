@@ -16,7 +16,6 @@ import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
@@ -74,8 +73,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             connectionSub = factory.newConnection("mt-access-sub");
         } catch (IOException | TimeoutException ex) {
             throw new DefinedRuntimeException("unable to create subscribe connection", "0000",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, ex);
+                HttpResponseCode.NOT_HTTP, ex);
         }
         try {
             connectionPub = factory.newConnection("mt-access-pub");
@@ -85,12 +83,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 connectionSub.close();
             } catch (IOException ex) {
                 throw new DefinedRuntimeException("error during close subscribe connection", "0001",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, ex);
+                    HttpResponseCode.NOT_HTTP, ex);
             }
             throw new DefinedRuntimeException("unable to create publish connection", "0002",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, e);
+                HttpResponseCode.NOT_HTTP, e);
         }
         log.debug("event stream service initialize success");
     }
@@ -204,8 +200,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     throw new DefinedRuntimeException(
                         "unable create subscribe channel with routing key " + routingKeyPrefix +
                             " and queue name " + queueName, "0003",
-                        HttpResponseCode.NOT_HTTP,
-                        ExceptionCatalog.OPERATION_ERROR, e);
+                        HttpResponseCode.NOT_HTTP, e);
                 }
                 subChannel.put(thread, channel);
             }
@@ -235,8 +230,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     "unable create queue with routing key " + routingKeyPrefix +
                         " and queue name " +
                         queueName, "0004",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, e);
+                    HttpResponseCode.NOT_HTTP, e);
             }
             Channel finalChannel = channel;
             try {
@@ -308,8 +302,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     "unable consume message with routing key " + routingKeyPrefix +
                         " and queue name " +
                         queueName, "0005",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR);
+                    HttpResponseCode.NOT_HTTP);
             }
         });
 
@@ -405,8 +398,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 throw new DefinedRuntimeException(
                     "unable create channel for " + appId + " with routing key " + routingKey,
                     "0006",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, e);
+                    HttpResponseCode.NOT_HTTP, e);
             }
             channel.addConfirmListener(
                 ackCallback,
@@ -427,8 +419,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             //when msg has no matching route and alternate exchange is also down
             throw new DefinedRuntimeException(
                 "unable publish message for " + appId + " with routing key " + routingKey, "0007",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, e);
+                HttpResponseCode.NOT_HTTP, e);
         }
     }
 

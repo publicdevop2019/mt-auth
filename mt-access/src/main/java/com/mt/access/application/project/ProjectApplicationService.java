@@ -1,8 +1,8 @@
 package com.mt.access.application.project;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PROJECT;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PROJECT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
 
@@ -24,7 +24,6 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -163,22 +162,19 @@ public class ProjectApplicationService {
 
     private void canReadProject(Set<ProjectId> tenantIds) {
         if (tenantIds == null) {
-            throw new DefinedRuntimeException("no project id found", "0014",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("no project id found", "1014",
+                HttpResponseCode.FORBIDDEN);
         }
         if (tenantIds.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "0015",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("no project id found", "1015",
+                HttpResponseCode.FORBIDDEN);
         }
         //first check access to target project
         Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
         boolean b = authorizedTenantId.containsAll(tenantIds);
         if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "0016",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("not allowed project", "1016",
+                HttpResponseCode.FORBIDDEN);
         }
         //second check has read project access to current project
         PermissionQuery permissionQuery = PermissionQuery
@@ -190,9 +186,8 @@ public class ProjectApplicationService {
         boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
-            throw new DefinedRuntimeException("no project read access", "0017",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("no project read access", "1017",
+                HttpResponseCode.FORBIDDEN);
         }
     }
 }

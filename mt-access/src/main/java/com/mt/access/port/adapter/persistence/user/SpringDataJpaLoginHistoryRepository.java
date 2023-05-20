@@ -5,7 +5,6 @@ import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.UserId;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 

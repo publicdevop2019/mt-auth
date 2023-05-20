@@ -24,7 +24,19 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.mt" level="info" additivity="false">
+        <Logger name="com.mt" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="org.springframework.web" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="org.springframework.security" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="com.netflix" level="info" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>

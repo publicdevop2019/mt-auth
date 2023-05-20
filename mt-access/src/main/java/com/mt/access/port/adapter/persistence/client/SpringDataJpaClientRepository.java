@@ -12,7 +12,6 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.DomainId_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
@@ -281,9 +280,8 @@ public interface SpringDataJpaClientRepository
                         results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL)
                             .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else {
-                        throw new DefinedRuntimeException("unsupported query value", "0072",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        throw new DefinedRuntimeException("unsupported query value", "1072",
+                            HttpResponseCode.BAD_REQUEST);
                     }
                 }
                 return cb.and(results.toArray(new Predicate[0]));
@@ -362,9 +360,8 @@ public interface SpringDataJpaClientRepository
                         Order asc = cb.asc(root.get(Client_.NAME));
                         return Collections.singletonList(asc);
                     } else {
-                        throw new DefinedRuntimeException("unsupported order by value", "0073",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        throw new DefinedRuntimeException("unsupported order by value", "1073",
+                            HttpResponseCode.BAD_REQUEST);
                     }
                 }
             }

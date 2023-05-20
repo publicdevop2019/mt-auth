@@ -8,7 +8,6 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
@@ -22,23 +21,20 @@ import org.springframework.stereotype.Service;
 public class PermissionCheckService {
     public void canAccess(@NotNull Set<ProjectId> ids, String permissionName) {
         if (ids == null) {
-            throw new DefinedRuntimeException("no project id found", "0027",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("no project id found", "1027",
+                HttpResponseCode.FORBIDDEN);
         }
         Set<ProjectId> collect = ids.stream().filter(Objects::nonNull).collect(Collectors.toSet());
         if (collect.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "0028",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("no project id found", "1028",
+                HttpResponseCode.FORBIDDEN);
         }
         //first check access to tenant project, query projectId must be one of jwt tenant ids
         Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
         boolean b = authorizedTenantId.containsAll(ids);
         if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "0029",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("not allowed project", "1029",
+                HttpResponseCode.FORBIDDEN);
         }
         //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery
@@ -51,9 +47,8 @@ public class PermissionCheckService {
             allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
         if (!b1) {
             throw new DefinedRuntimeException("no required access permission: " + permissionName,
-                "0030",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1030",
+                HttpResponseCode.FORBIDDEN);
         }
     }
 
@@ -64,9 +59,8 @@ public class PermissionCheckService {
     public void sameCreatedBy(Auditable e) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         if (!new UserId(e.getCreatedBy()).equals(userId)) {
-            throw new DefinedRuntimeException("not created by same user", "0031",
-                HttpResponseCode.FORBIDDEN,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("not created by same user", "1031",
+                HttpResponseCode.FORBIDDEN);
         }
     }
 }

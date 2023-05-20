@@ -14,7 +14,6 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
@@ -175,9 +174,8 @@ public class Endpoint extends Auditable {
     private void canBeRemoved() {
         if (shared && !expired) {
             throw new DefinedRuntimeException(
-                "shared endpoint must be expired first before deletion", "0040",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "shared endpoint must be expired first before deletion", "1040",
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 
@@ -190,9 +188,8 @@ public class Endpoint extends Auditable {
         int burstCapacity
     ) {
         if (expired) {
-            throw new DefinedRuntimeException("expired endpoint cannot be updated", "0041",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("expired endpoint cannot be updated", "1041",
+                HttpResponseCode.BAD_REQUEST);
         }
         setName(name);
         setDescription(description);
@@ -269,14 +266,12 @@ public class Endpoint extends Auditable {
 
     public void expire(String expireReason) {
         if (this.expired) {
-            throw new DefinedRuntimeException("endpoint can only expire once", "0042",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("endpoint can only expire once", "1042",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (!this.external) {
-            throw new DefinedRuntimeException("internal endpoint cannot be expired", "0043",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("internal endpoint cannot be expired", "1043",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (this.shared) {
             this.expired = true;
@@ -284,9 +279,8 @@ public class Endpoint extends Auditable {
             this.expireReason = expireReason;
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
         } else {
-            throw new DefinedRuntimeException("only shared endpoint can be expired", "0044",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("only shared endpoint can be expired", "1044",
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 }
