@@ -2,17 +2,20 @@ package com.mt.test_case.integration.single.access.tenant;
 
 import static com.mt.test_case.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
 
+import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.CommonTest;
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.Notification;
 import com.mt.test_case.helper.pojo.SubscriptionReq;
 import com.mt.test_case.helper.pojo.SumTotal;
+import com.mt.test_case.helper.pojo.User;
 import com.mt.test_case.helper.utility.EndpointUtility;
-import com.mt.test_case.helper.utility.NotificationUtility;
-import com.mt.test_case.helper.utility.SubReqUtility;
+import com.mt.test_case.helper.utility.MarketUtility;
+import com.mt.test_case.helper.utility.MessageUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.CommonTest;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
@@ -24,23 +27,25 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit4.SpringRunner;
 
 @Slf4j
 @RunWith(SpringRunner.class)
-public class SubscriptionTest  extends CommonTest {
+public class SubscriptionTest extends CommonTest {
 
     //public api shared
     @Test
     public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mgmt()
         throws InterruptedException {
         //check current notifications for later verify
-        ResponseEntity<DefaultOAuth2AccessToken> login =
-            UserUtility.getJwtPasswordMallTenant();
+        User user = new User();
+        user.setEmail(AppConstant.ACCOUNT_USERNAME_MALL_ADMIN);
+        user.setPassword(AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
+        User adminUser = new User();
+        adminUser.setEmail(AppConstant.ACCOUNT_USERNAME_ADMIN);
+        adminUser.setPassword(AppConstant.ACCOUNT_PASSWORD_ADMIN);
         ResponseEntity<SumTotal<Notification>> oldNotifications =
-            NotificationUtility.getUserNotification(login.getBody().getValue());
-
+            MessageUtility.readMessages(user);
         //mt-auth -> create public shared no auth endpoint
         Endpoint endpoint = new Endpoint();
         endpoint.setResourceId("0C8AZTODP4HZ");
@@ -69,11 +74,14 @@ public class SubscriptionTest  extends CommonTest {
         subscriptionReq.setProjectId("0P8HPG99R56P");
         subscriptionReq.setEndpointId(endpointId);
 
-        ResponseEntity<String> subReq = SubReqUtility.createSubReqForMallProject(subscriptionReq);
+        ResponseEntity<Void> subReq =
+            MarketUtility.subToEndpoint(user, subscriptionReq);
         Assert.assertEquals(HttpStatus.OK, subReq.getStatusCode());
 
-        String s = UrlUtility.getId(subReq);
-        ResponseEntity<String> approveResult = SubReqUtility.approveSubReq(s);
+        TenantContext tenantContext = new TenantContext();
+        tenantContext.setCreator(adminUser);
+        ResponseEntity<Void> approveResult =
+            MarketUtility.approveSubReq(tenantContext, UrlUtility.getId(subReq));
         Assert.assertEquals(HttpStatus.OK, approveResult.getStatusCode());
         //rate limit should work
         String path = endpoint.getPath();
@@ -95,10 +103,8 @@ public class SubscriptionTest  extends CommonTest {
         Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
 
         Thread.sleep(20000);//wait for notification send
-        ResponseEntity<DefaultOAuth2AccessToken> login2 =
-            UserUtility.getJwtPasswordMallTenant();
         ResponseEntity<SumTotal<Notification>> newNotification =
-            NotificationUtility.getUserNotification(login2.getBody().getValue());
+            MessageUtility.readMessages(user);
         Assert.assertNotEquals(newNotification.getBody().getTotalItemCount(),
             oldNotifications.getBody().getTotalItemCount());
         List<Notification> data = newNotification.getBody().getData();
