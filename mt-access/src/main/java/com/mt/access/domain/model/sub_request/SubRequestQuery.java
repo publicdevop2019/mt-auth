@@ -15,8 +15,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class SubRequestQuery extends QueryCriteria {
     private static final String TYPE = "type";
     private final Sort sort;

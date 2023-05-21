@@ -18,8 +18,10 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ClientQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String CLIENT_ID = "clientId";

@@ -6,7 +6,9 @@ import com.mt.common.domain.model.restful.query.QueryCriteria;
 import java.util.Collections;
 import java.util.Set;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class ImageQuery extends QueryCriteria {
     @Getter
     private final Set<ImageId> ids;

@@ -290,11 +290,11 @@ public class ClientApplicationService implements ClientDetailsService {
         return new ClientSpringOAuth2Representation(client);
     }
 
-    public void handle(ClientAsResourceDeleted deserialize) {
+    public void handle(ClientAsResourceDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 //remove deleted client from resource_map
-                DomainId domainId = deserialize.getDomainId();
+                DomainId domainId = event.getDomainId();
                 ClientId removedClientId = new ClientId(domainId.getDomainId());
                 Set<Client> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getClientRepository().query(query),

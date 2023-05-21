@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class UserQuery extends QueryCriteria {
     public static final String EMAIL = "email";
     public static final String ID = "id";

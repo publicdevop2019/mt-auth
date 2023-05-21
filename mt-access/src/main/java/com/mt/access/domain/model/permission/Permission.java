@@ -2,6 +2,7 @@ package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
@@ -295,7 +296,7 @@ public class Permission extends Auditable {
         Permission p6 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CLIENT,
                 clientMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),new PermissionId("0Y8OYYTVSIL0"))
+                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),new PermissionId("0Y8OYY45NEVK"))
                     .collect(Collectors.toSet()));
         Permission p7 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CLIENT,
@@ -564,11 +565,12 @@ public class Permission extends Auditable {
 
     public void remove() {
         if (Objects.equals(PermissionType.API, this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
+            throw new DefinedRuntimeException("api type cannot be changed",
                 "1051",
                 HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getPermissionRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }
 
     @Override
@@ -589,5 +591,10 @@ public class Permission extends Auditable {
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), permissionId);
+    }
+
+    public void internalRemove() {
+        DomainRegistry.getPermissionRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }
 }

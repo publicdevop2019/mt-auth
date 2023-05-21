@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class StoredEventQuery extends QueryCriteria {
     public static final String ID = "id";
     public static final String DOMAIN_ID = "domainId";

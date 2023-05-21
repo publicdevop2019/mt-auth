@@ -17,8 +17,7 @@ public class EndpointCollectionModified extends DomainEvent {
     }
 
     public EndpointCollectionModified() {
-        super();
+        super(new AnyDomainId());
         setInternal(false);
-        setDomainId(new AnyDomainId());
     }
 }

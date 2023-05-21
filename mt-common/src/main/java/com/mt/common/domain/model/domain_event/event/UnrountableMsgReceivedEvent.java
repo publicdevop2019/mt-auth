@@ -20,12 +20,10 @@ public class UnrountableMsgReceivedEvent extends DomainEvent {
 
     }
     public UnrountableMsgReceivedEvent(StoredEvent event) {
-        super();
+        super(new AnyDomainId());
         this.sourceTopic = event.getTopic();
         this.sourceName = event.getName();
         this.sourceEventId = event.getId();
-        this.setDomainId(new AnyDomainId(event.getDomainId()));
-
     }
 
 }

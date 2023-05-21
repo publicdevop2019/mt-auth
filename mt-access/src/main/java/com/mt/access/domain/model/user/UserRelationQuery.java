@@ -16,7 +16,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class UserRelationQuery extends QueryCriteria {
     private static final String USER_ID = "userId";
     private static final String PROJECT_ID = "projectIds";

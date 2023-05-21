@@ -12,10 +12,9 @@ public class ProxyCacheCheckFailedEvent extends DomainEvent {
     {
         setTopic(PROXY_CACHE_CHECK_FAILED_EVENT);
         setName(name);
-        setDomainId(new AnyDomainId());
     }
 
     public ProxyCacheCheckFailedEvent() {
-        super();
+        super(new AnyDomainId());
     }
 }

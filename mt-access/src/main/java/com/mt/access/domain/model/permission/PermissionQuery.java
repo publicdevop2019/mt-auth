@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class PermissionQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";

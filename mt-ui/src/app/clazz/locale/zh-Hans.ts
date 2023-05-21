@@ -560,4 +560,6 @@ export const zhHans = {
     "VIEW_CACHE": "查看缓存",
     "CREATE_CACHE": "创建缓存",
     "EDIT_CACHE": "编辑缓存",
+    "REFERENCE_ID": "关联ID",
+    "PROJECT_PERMISSION_REMOVED": "项目权限移除",
 }

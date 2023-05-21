@@ -146,20 +146,6 @@ public class Endpoint extends Auditable {
         CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
     }
 
-    public static void remove(Set<Endpoint> endpointSet) {
-        endpointSet.forEach(Endpoint::canBeRemoved);
-        DomainRegistry.getEndpointRepository().remove(endpointSet);
-        CommonDomainRegistry.getDomainEventRepository().append(
-            new EndpointCollectionModified()
-        );
-        Set<Endpoint> collect =
-            endpointSet.stream().filter(Endpoint::isAuthRequired).collect(Collectors.toSet());
-        if (!collect.isEmpty()) {
-            CommonDomainRegistry.getDomainEventRepository()
-                .append(new SecureEndpointRemoved(collect));
-        }
-    }
-
     public void remove() {
         canBeRemoved();
         DomainRegistry.getEndpointRepository().remove(this);
@@ -167,7 +153,7 @@ public class Endpoint extends Auditable {
             .append(new EndpointCollectionModified());
         if (authRequired) {
             CommonDomainRegistry.getDomainEventRepository()
-                .append(new SecureEndpointRemoved(Collections.singleton(this)));
+                .append(new SecureEndpointRemoved(this));
         }
     }
 

@@ -13,9 +13,11 @@ import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class ChangeRecordQuery extends QueryCriteria {
     public static final String ENTITY_TYPE = "entityType";
     public static final String CHANGE_ID = "changeId";

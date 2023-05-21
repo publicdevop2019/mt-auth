@@ -19,9 +19,11 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class RoleQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
@@ -36,7 +38,7 @@ public class RoleQuery extends QueryCriteria {
     private Set<String> names;
     private Set<ProjectId> tenantIds;
     private Set<RoleType> types;
-    private PermissionId externalPermissionIds;
+    private PermissionId referredPermissionId;
 
     public RoleQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap =
@@ -109,13 +111,6 @@ public class RoleQuery extends QueryCriteria {
         this.sort = RoleSort.byId(true);
     }
 
-    public RoleQuery(PermissionId permissionId) {
-        externalPermissionIds = permissionId;
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.countRequired());
-        this.sort = RoleSort.byId(true);
-    }
-
     public RoleQuery(ProjectId projectId) {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
@@ -130,7 +125,7 @@ public class RoleQuery extends QueryCriteria {
         this.sort = RoleSort.byId(true);
     }
 
-    public static RoleQuery getRootRole(ProjectId projectId) {
+    public static RoleQuery getRootRole() {
         RoleQuery roleQuery = new RoleQuery();
         roleQuery.parentIdNull = true;
         roleQuery.setPageConfig(PageConfig.defaultConfig());
@@ -178,6 +173,15 @@ public class RoleQuery extends QueryCriteria {
         roleQuery.sort = RoleSort.byId(true);
         roleQuery.names = Collections.singleton(PROJECT_ADMIN);
         roleQuery.tenantIds = Collections.singleton(tenantProjectId);
+        return roleQuery;
+    }
+
+    public static RoleQuery referredPermissions(PermissionId permissionId) {
+        RoleQuery roleQuery = new RoleQuery();
+        roleQuery.setPageConfig(PageConfig.defaultConfig());
+        roleQuery.setQueryConfig(QueryConfig.skipCount());
+        roleQuery.sort = RoleSort.byId(true);
+        roleQuery.referredPermissionId = permissionId;
         return roleQuery;
     }
 

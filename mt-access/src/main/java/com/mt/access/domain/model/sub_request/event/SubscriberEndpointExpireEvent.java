@@ -25,8 +25,7 @@ public class SubscriberEndpointExpireEvent extends DomainEvent {
 
     public SubscriberEndpointExpireEvent(EndpointId endpointId,
                                          Set<UserId> ids) {
-        super();
-        setDomainIds(new HashSet<>(ids));
+        super(new HashSet<>(ids));
         this.endpointId = endpointId;
     }
 }

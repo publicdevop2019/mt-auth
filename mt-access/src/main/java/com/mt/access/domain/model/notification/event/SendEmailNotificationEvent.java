@@ -27,8 +27,7 @@ public class SendEmailNotificationEvent extends DomainEvent {
     }
 
     private SendEmailNotificationEvent(Notification notification) {
-        super();
-        setDomainId(notification.getNotificationId());
+        super(notification.getNotificationId());
     }
 
     public SendEmailNotificationEvent(UserPwdResetCodeUpdated event, Notification notification) {

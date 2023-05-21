@@ -38,6 +38,7 @@ public class QueryUtility {
 
     public static <T, S extends QueryCriteria> Set<T> getAllByQuery(
         Function<S, SumPagedRep<T>> ofQuery, S query) {
+        long l1 = System.currentTimeMillis();
         SumPagedRep<T> sumPagedRep = ofQuery.apply(query);
         if (sumPagedRep.getData().size() == 0) {
             return Collections.emptySet();
@@ -50,6 +51,12 @@ public class QueryUtility {
         Set<T> data = new LinkedHashSet<>(sumPagedRep.getData());
         for (int a = 1; a < i; a++) {
             data.addAll(ofQuery.apply(query.pageOf(a)).getData());
+        }
+        long l2 = System.currentTimeMillis();
+        if (l2 - l1 > 5 * 1000) {
+            log.warn(
+                "current query all takes {} milli to execute! detail {}",
+                l2 - l1, query);
         }
         return data;
     }
@@ -126,7 +133,8 @@ public class QueryUtility {
             for (String str : split) {
                 String[] split1 = str.split(":");
                 if (split1.length != 2) {
-                    throw new DefinedRuntimeException("unable to parse query string" + rawQuery, "0027",
+                    throw new DefinedRuntimeException("unable to parse query string" + rawQuery,
+                        "0027",
                         HttpResponseCode.BAD_REQUEST);
                 }
                 parsed.put(split1[0], split1[1]);

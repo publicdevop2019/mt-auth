@@ -18,6 +18,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
@@ -29,10 +30,12 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLock;
+import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -57,7 +60,7 @@ public class RoleApplicationService {
     public Role query(String projectId, String id) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().get(projectId1,new RoleId(id));
+        return DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
     }
 
     public Role internalQueryById(RoleId id) {
@@ -160,7 +163,6 @@ public class RoleApplicationService {
 
     /**
      * create admin role to mt-auth and default user role to target project.
-     *
      * @param event permission created event
      */
     public void handle(ProjectPermissionCreated event) {
@@ -179,13 +181,30 @@ public class RoleApplicationService {
     }
 
     /**
+     * remove roles refer to deleted permissions
+     * @param event permission remove event
+     */
+    public void handle(PermissionRemoved event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotentMsg(event.getId().toString(), (ignored) -> {
+                log.debug("handle permission removed event");
+                PermissionId permissionId = new PermissionId(event.getDomainId().getDomainId());
+                Set<Role> allByQuery = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getRoleRepository().query(query),
+                    RoleQuery.referredPermissions(permissionId));
+                allByQuery.forEach(e-> e.removePermission(permissionId));
+                return null;
+            }, (cmd) -> null, ROLE);
+    }
+
+    /**
      * create placeholder role when new client created,
      * use saga lock to make sure event get consumed correctly.
      * e.g client deleted consumed first then client created consumed next
      *
      * @param event client created event
      */
-    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
@@ -195,7 +214,7 @@ public class RoleApplicationService {
                 log.trace("before get project root role");
                 Set<Role> allByQuery = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                        RoleQuery.getRootRole(projectId));
+                        RoleQuery.getRootRole());
                 log.trace("get project root role");
                 Optional<Role> first =
                     allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
@@ -220,7 +239,7 @@ public class RoleApplicationService {
      *
      * @param event clientDeleted event
      */
-    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {

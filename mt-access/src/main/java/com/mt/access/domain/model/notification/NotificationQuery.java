@@ -11,8 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class NotificationQuery extends QueryCriteria {
     private static final String UN_ACK = "unAck";
     private final Sort sort;

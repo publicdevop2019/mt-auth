@@ -4,8 +4,10 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class JobQuery extends QueryCriteria {
     private final JobSort sort = JobSort.byId(true);
     private String name;

@@ -336,12 +336,12 @@ public class CrossDomainValidationService {
         private String message;
 
         {
-            setDomainId(new AnyDomainId());
             setName(name);
             setTopic(SYSTEM_VALIDATION_FAILED);
         }
 
         public ValidationFailedEvent(String message) {
+            super(new AnyDomainId());
             log.debug("creating event for {}", message);
             this.message = message;
         }

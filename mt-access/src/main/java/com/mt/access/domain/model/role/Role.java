@@ -378,4 +378,16 @@ public class Role extends Auditable {
     public void patch(String name) {
         updateName(name);
     }
+
+    public void removePermission(PermissionId permissionId) {
+        if (this.externalPermissionIds != null) {
+            this.externalPermissionIds.remove(permissionId);
+        }
+        if(this.commonPermissionIds!=null) {
+            this.commonPermissionIds.remove(permissionId);
+        }
+        if(this.apiPermissionIds!=null) {
+            this.apiPermissionIds.remove(permissionId);
+        }
+    }
 }

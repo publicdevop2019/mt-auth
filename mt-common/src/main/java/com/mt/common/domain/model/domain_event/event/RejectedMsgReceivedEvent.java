@@ -20,11 +20,10 @@ public class RejectedMsgReceivedEvent extends DomainEvent {
 
     }
     public RejectedMsgReceivedEvent(StoredEvent event) {
-        super();
+        super(new AnyDomainId());
         this.sourceTopic = event.getTopic();
         this.sourceName = event.getName();
         this.sourceEventId = event.getId();
-        this.setDomainId(new AnyDomainId(event.getDomainId()));
 
     }
 

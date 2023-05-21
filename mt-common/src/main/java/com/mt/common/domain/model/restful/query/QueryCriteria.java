@@ -2,7 +2,9 @@ package com.mt.common.domain.model.restful.query;
 
 import lombok.AccessLevel;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 public abstract class QueryCriteria {
     @Setter(AccessLevel.PROTECTED)
     protected PageConfig pageConfig;

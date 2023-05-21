@@ -29,6 +29,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
@@ -234,7 +235,7 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
     public void handle(SecureEndpointCreated deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(deserialize.getId().toString(), (ignored) -> {
@@ -253,18 +254,14 @@ public class PermissionApplicationService {
      *
      * @param event SecureEndpointRemoved event
      */
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
     public void handle(SecureEndpointRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle secured endpoint remove event");
-                Set<PermissionId> permissionIds = event.getPermissionIds();
-                PermissionQuery permissionQuery = new PermissionQuery(permissionIds);
-                Set<Permission> allByQuery = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                        permissionQuery);
-                Validator.sizeEqualTo(permissionIds, allByQuery,
-                    "unable to find all permission for deleted endpoints");
-                DomainRegistry.getPermissionRepository().removeAll(allByQuery);
+                PermissionId permissionId = event.getPermissionId();
+                Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
+                permission.internalRemove();
                 return null;
             }, PERMISSION);
     }

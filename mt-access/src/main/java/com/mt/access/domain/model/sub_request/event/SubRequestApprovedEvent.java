@@ -20,8 +20,7 @@ public class SubRequestApprovedEvent extends DomainEvent {
     }
 
     public SubRequestApprovedEvent(SubRequestId endpointId) {
-        super();
-        setDomainId(endpointId);
+        super(endpointId);
         setInternal(false);
     }
 }

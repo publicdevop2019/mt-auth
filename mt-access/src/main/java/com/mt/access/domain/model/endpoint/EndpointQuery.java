@@ -21,8 +21,10 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class EndpointQuery extends QueryCriteria {
     public static final String ID = "id";
     public static final String RESOURCE_ID = "resourceId";

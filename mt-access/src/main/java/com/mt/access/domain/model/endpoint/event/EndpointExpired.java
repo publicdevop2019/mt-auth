@@ -17,7 +17,6 @@ public class EndpointExpired extends DomainEvent {
     }
 
     public EndpointExpired(Endpoint endpoint) {
-        super();
-        setDomainId(endpoint.getEndpointId());
+        super(endpoint.getEndpointId());
     }
 }

@@ -27,26 +27,29 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
     value = "mt.distributed_lock",
     havingValue = "true",
     matchIfMissing = true)
-public class SagaDistLockAspectConfig {
+public class SagaDistLockV2AspectConfig {
 
     private final RedissonClient redissonClient;
 
-    public SagaDistLockAspectConfig(RedissonClient redissonClient) {
+    public SagaDistLockV2AspectConfig(RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
     @Around(value = "@annotation(SagaDistLock)", argNames = "SagaDistLock")
-    public Object around(ProceedingJoinPoint joinPoint, SagaDistLock sagaDistLock)
+    public Object around(ProceedingJoinPoint joinPoint, SagaDistLockV2 sagaDistLock)
         throws Throwable {
         String lockKeyValue = extractKey(joinPoint, sagaDistLock);
         String key = lockKeyValue.replace("_cancel", "") + "_dist_lock";
         Object obj;
         RLock lock = redissonClient.getLock(key + "_" + sagaDistLock.aggregateName());
         long l1 = Instant.now().toEpochMilli();
-        lock.lock(sagaDistLock.unlockAfter(), TimeUnit.SECONDS);//todo check if lock still acquired when task finish
+        lock.lock();//lock infinitely to avoid unexpected release
         long l2 = Instant.now().toEpochMilli();
         log.debug("acquire lock success for {} time taken {} milli", key, l2 - l1);
         obj = joinPoint.proceed();
+        if(lock.isHeldByCurrentThread()) {
+            lock.unlock();
+        }
         return obj;
     }
 
@@ -58,7 +61,7 @@ public class SagaDistLockAspectConfig {
             .getMethod(agentMethod.getName(), agentMethod.getParameterTypes());
     }
 
-    private String extractKey(ProceedingJoinPoint joinPoint, SagaDistLock lockConfig)
+    private String extractKey(ProceedingJoinPoint joinPoint, SagaDistLockV2 lockConfig)
         throws NoSuchMethodException {
         String lockParam = lockConfig.keyExpression();
         Method targetMethod = getTargetMethod(joinPoint);
