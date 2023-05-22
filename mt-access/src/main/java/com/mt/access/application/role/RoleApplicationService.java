@@ -29,13 +29,11 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.distributed_lock.SagaDistLock;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -78,7 +76,7 @@ public class RoleApplicationService {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.update(command);
+                    e.replace(command);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;

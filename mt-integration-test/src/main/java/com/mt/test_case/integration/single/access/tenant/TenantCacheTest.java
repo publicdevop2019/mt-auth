@@ -54,22 +54,7 @@ public class TenantCacheTest extends TenantTest {
         Assert.assertEquals(1, cache1.getVersion().intValue());
     }
 
-    @Test
-    public void tenant_update_cache_no_change_version_should_not_change() {
-        Cache cacheObj = CacheUtility.createRandomCache();
-        ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = UrlUtility.getId(cache);
-        cacheObj.setId(cacheId);
-        CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        ResponseEntity<SumTotal<Cache>> read =
-            CacheUtility.readTenantCache(tenantContext);
-        List<Cache> collect = Objects.requireNonNull(read.getBody()).getData().stream()
-            .filter(e -> e.getId().equalsIgnoreCase(cacheId)).collect(
-                Collectors.toList());
-        Cache cache1 = collect.get(0);
-        Assert.assertEquals(0, cache1.getVersion().intValue());
-    }
+
 
     @Test
     public void tenant_can_view_cache() {

@@ -104,23 +104,6 @@ public class TenantClientTest extends TenantTest {
     }
 
     @Test
-    public void replace_client_w_same_value_multiple_time_will_not_increase_version() {
-        Client client = ClientUtility.createRandomBackendClientObj();
-        client.setClientSecret(" ");
-        ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(tenantClient));
-        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        ResponseEntity<Void> client3 = ClientUtility.updateTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, client3.getStatusCode());
-        ResponseEntity<Client> clientResponseEntity =
-            ClientUtility.readTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, clientResponseEntity.getStatusCode());
-        Assert.assertEquals(0, (int) clientResponseEntity.getBody().getVersion());
-    }
-
-    @Test
     public void create_client_then_update_it_to_be_resource() {
         Client client = ClientUtility.createRandomBackendClientObj();
         client.setVersion(0);

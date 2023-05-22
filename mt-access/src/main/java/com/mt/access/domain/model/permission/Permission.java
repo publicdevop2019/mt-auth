@@ -296,7 +296,8 @@ public class Permission extends Auditable {
         Permission p6 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CLIENT,
                 clientMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),new PermissionId("0Y8OYY45NEVK"))
+                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),
+                        new PermissionId("0Y8OYY45NEVK"))
                     .collect(Collectors.toSet()));
         Permission p7 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CLIENT,
@@ -433,7 +434,8 @@ public class Permission extends Auditable {
                         new PermissionId("0Y8OKQGD5JPW"))
                     .collect(Collectors.toSet()));
         Permission p44 = Permission
-            .autoCreateForProject(projectId, new PermissionId(), CREATE_CACHE, PermissionType.COMMON,
+            .autoCreateForProject(projectId, new PermissionId(), CREATE_CACHE,
+                PermissionType.COMMON,
                 cacheMgmtId, tenantId, new PermissionId("0Y8OKQG3SFF7"));
         Permission p45 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CACHE,
@@ -541,8 +543,22 @@ public class Permission extends Auditable {
 
     public void replace(String name, Set<PermissionId> permissionIds) {
         updateName(name);
-        this.linkedApiPermissionIds = permissionIds;
+        setLinkedApiPermissionIds(permissionIds);
         new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
+    }
+
+    private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
+        if (permissionIds == null && this.linkedApiPermissionIds == null) {
+            return;
+        }
+        if (permissionIds == null) {
+            this.linkedApiPermissionIds.clear();
+            return;
+        }
+        if (!permissionIds.equals(this.linkedApiPermissionIds)) {
+            this.linkedApiPermissionIds.clear();
+            this.linkedApiPermissionIds.addAll(permissionIds);
+        }
     }
 
     private void updateName(String name) {
@@ -593,7 +609,7 @@ public class Permission extends Auditable {
         return Objects.hash(super.hashCode(), permissionId);
     }
 
-    public void internalRemove() {
+    public void secureEndpointRemoveCleanUp() {
         DomainRegistry.getPermissionRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }

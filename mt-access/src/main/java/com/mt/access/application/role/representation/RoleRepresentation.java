@@ -34,10 +34,12 @@ public class RoleRepresentation {
     private Set<String> commonPermissionIds;
     private Set<String> externalPermissionIds;
     private boolean systemCreate;
+    private Integer version;
 
     public RoleRepresentation(Role role) {
         this.id = role.getRoleId().getDomainId();
         this.name = role.getName();
+        this.version = role.getVersion();
         this.description = role.getDescription();
         if (role.getParentId() != null) {
             this.parentId = role.getParentId().getDomainId();

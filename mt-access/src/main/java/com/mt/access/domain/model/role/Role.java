@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -43,7 +42,6 @@ import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
@@ -89,7 +87,6 @@ public class Role extends Auditable {
     @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> apiPermissionIds;
 
-    @Setter
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
@@ -282,7 +279,7 @@ public class Role extends Auditable {
      *
      * @param command update command
      */
-    public void update(RoleUpdateCommand command) {
+    public void replace(RoleUpdateCommand command) {
         if (command.getType().equals(UpdateType.BASIC)) {
             setName(command.getName());
             this.description = command.getDescription();
@@ -290,34 +287,77 @@ public class Role extends Auditable {
                 this.parentId = new RoleId(command.getParentId());
             }
         } else if (command.getType().equals(UpdateType.API_PERMISSION)) {
-            Optional.ofNullable(command.getApiPermissionIds())
-                .ifPresentOrElse(e -> this.apiPermissionIds =
+            Set<PermissionId> update = null;
+            if (command.getApiPermissionIds() != null) {
+                update =
                     command.getApiPermissionIds().stream().map(PermissionId::new)
-                        .collect(Collectors.toSet()), () -> this.apiPermissionIds = null);
-            Set<PermissionId> externalPermissionIds =
-                command.getExternalPermissionIds() == null ? null :
+                        .collect(Collectors.toSet());
+            }
+            setApiPermissionIds(update);
+            Set<PermissionId> update2 = null;
+            if (command.getExternalPermissionIds() != null) {
+                update2 =
                     command.getExternalPermissionIds().stream().map(PermissionId::new)
                         .collect(Collectors.toSet());
-            if (this.externalPermissionIds == null) {
-                if (externalPermissionIds != null && externalPermissionIds.size() > 0) {
-                    this.externalPermissionIds = externalPermissionIds;
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new ExternalPermissionUpdated(projectId));
-                }
-            } else {
-                if (!this.externalPermissionIds.equals(externalPermissionIds)) {
-                    this.externalPermissionIds = externalPermissionIds;
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new ExternalPermissionUpdated(projectId));
-                }
             }
+            setExternalPermissionIds(update2);
         } else if (command.getType().equals(UpdateType.COMMON_PERMISSION)) {
-            Optional.ofNullable(command.getCommonPermissionIds())
-                .ifPresent(e -> this.commonPermissionIds = e.stream().map(PermissionId::new)
-                    .collect(Collectors.toSet()));
+            Set<PermissionId> update = null;
+            if (command.getCommonPermissionIds() != null) {
+                update =
+                    command.getCommonPermissionIds().stream().map(PermissionId::new)
+                        .collect(Collectors.toSet());
+            }
+            setCommonPermissionIds(update);
 
         }
         new RoleValidator(new HttpValidationNotificationHandler(), this).validate();
+    }
+
+    private void setApiPermissionIds(Set<PermissionId> permissionIds) {
+        if (permissionIds == null && this.apiPermissionIds == null) {
+            return;
+        }
+        if (permissionIds == null) {
+            this.apiPermissionIds.clear();
+            return;
+        }
+        if (!permissionIds.equals(this.apiPermissionIds)) {
+            this.apiPermissionIds.clear();
+            this.apiPermissionIds.addAll(permissionIds);
+        }
+    }
+
+    private void setExternalPermissionIds(Set<PermissionId> permissionIds) {
+        if (permissionIds == null && this.externalPermissionIds == null) {
+            return;
+        }
+        if (permissionIds == null) {
+            this.externalPermissionIds.clear();
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ExternalPermissionUpdated(projectId));
+            return;
+        }
+        if (!permissionIds.equals(this.externalPermissionIds)) {
+            this.externalPermissionIds.clear();
+            this.externalPermissionIds.addAll(permissionIds);
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new ExternalPermissionUpdated(projectId));
+        }
+    }
+
+    private void setCommonPermissionIds(Set<PermissionId> permissionIds) {
+        if (permissionIds == null && this.commonPermissionIds == null) {
+            return;
+        }
+        if (permissionIds == null) {
+            this.commonPermissionIds.clear();
+            return;
+        }
+        if (!permissionIds.equals(this.commonPermissionIds)) {
+            this.commonPermissionIds.clear();
+            this.commonPermissionIds.addAll(permissionIds);
+        }
     }
 
     private void setName(String name) {
@@ -383,10 +423,10 @@ public class Role extends Auditable {
         if (this.externalPermissionIds != null) {
             this.externalPermissionIds.remove(permissionId);
         }
-        if(this.commonPermissionIds!=null) {
+        if (this.commonPermissionIds != null) {
             this.commonPermissionIds.remove(permissionId);
         }
-        if(this.apiPermissionIds!=null) {
+        if (this.apiPermissionIds != null) {
             this.apiPermissionIds.remove(permissionId);
         }
     }

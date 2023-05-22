@@ -13,6 +13,7 @@ public class Role {
     private String parentId;
     private String projectId;
     private String description;
+    private Integer version;
     private Set<String> apiPermissionIds;
     private Set<String> commonPermissionIds;
     private Set<String> externalPermissionIds;

@@ -261,7 +261,7 @@ public class PermissionApplicationService {
                 log.debug("handle secured endpoint remove event");
                 PermissionId permissionId = event.getPermissionId();
                 Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
-                permission.internalRemove();
+                permission.secureEndpointRemoveCleanUp();
                 return null;
             }, PERMISSION);
     }

@@ -135,39 +135,16 @@ public class UserRelationApplicationService {
         return userRelation.get();
     }
 
-    public void update(String projectId, String userId, UpdateUserRelationCommand command,
-                       String changeId) {
+    public void tenantUpdate(String projectId, String userId, UpdateUserRelationCommand command,
+                             String changeId) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_TENANT_USER);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                ProjectId projectId1 = new ProjectId(projectId);
-                DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_TENANT_USER);
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
                         .get(new UserId(userId), projectId1);
-                Set<RoleId> collect =
-                    command.getRoles().stream().map(RoleId::new).collect(Collectors.toSet());
-                if (collect.size() > 0) {
-                    Set<Role> allByQuery = QueryUtility
-                        .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                            new RoleQuery(collect));
-                    //remove default user so mt-auth will not be miss added to tenant list
-                    Set<Role> removeDefaultUser = allByQuery.stream().filter(
-                            e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(
-                                e.getRoleId().getDomainId()))
-                        .collect(Collectors.toSet());
-                    Set<ProjectId> collect1 =
-                        removeDefaultUser.stream().map(Role::getTenantId)
-                            .collect(Collectors.toSet());
-                    //update tenant list based on role selected
-                    relation.setStandaloneRoles(
-                            command.getRoles().stream().map(RoleId::new)
-                                .collect(Collectors.toSet()));
-                    relation.setTenantIds(collect1);
-
-                } else {
-                        relation.setStandaloneRoles(Collections.emptySet());
-                        relation.setTenantIds(Collections.emptySet());
-                }
+                relation.tenantUpdate(command.getRoles());
                 return null;
             }, USER_RELATION);
     }

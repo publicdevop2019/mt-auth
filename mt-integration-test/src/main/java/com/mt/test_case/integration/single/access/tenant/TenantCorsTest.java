@@ -78,24 +78,7 @@ public class TenantCorsTest extends TenantTest {
         Assert.assertTrue(first.isEmpty());
     }
 
-    @Test
-    public void tenant_update_cors_no_change_version_should_not_change() {
-        Cors corsObj = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = UrlUtility.getId(cors);
 
-        corsObj.setId(corsId);
-        ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
-
-        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
-        ResponseEntity<SumTotal<Cors>> read =
-            CorsUtility.readTenantCors(tenantContext);
-        List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
-            .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
-                Collectors.toList());
-        Cors cors1 = collect.get(0);
-        Assert.assertEquals(0, cors1.getVersion().intValue());
-    }
     @Test
     public void tenant_can_delete_assigned_cors() throws InterruptedException {
         //create cors

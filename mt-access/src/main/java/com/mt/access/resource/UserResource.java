@@ -282,7 +282,7 @@ public class UserResource {
      * @return http response 200
      */
     @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<Void> update(
+    public ResponseEntity<Void> tenantUpdate(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -291,7 +291,7 @@ public class UserResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .update(projectId, id, command, changeId);
+            .tenantUpdate(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

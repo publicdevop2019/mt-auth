@@ -17,12 +17,14 @@ import lombok.Getter;
 public class UserTenantRepresentation {
     private final String id;
     private final String email;
+    private final Integer version;
     private Set<String> roles;
     private Set<RoleDetail> roleDetails;
 
     public UserTenantRepresentation(UserRelation userRelation, User user) {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
+        this.version = userRelation.getVersion();
         if (userRelation.getStandaloneRoles() != null
             && userRelation.getStandaloneRoles().size() > 0) {
             this.roles = userRelation.getStandaloneRoles().stream().map(DomainId::getDomainId)
