@@ -60,9 +60,9 @@ public class CacheProfileApplicationService {
                 command.getMaxAge(),
                 command.getSmaxAge(),
                 command.getVary(),
-                command.isAllowCache(),
-                command.isEtag(),
-                command.isWeakValidation(),
+                command.getAllowCache(),
+                command.getEtag(),
+                command.getWeakValidation(),
                 projectId1
             );
             DomainRegistry.getCacheProfileRepository().add(cacheProfile);
@@ -89,9 +89,9 @@ public class CacheProfileApplicationService {
                 command.getMaxAge(),
                 command.getSmaxAge(),
                 command.getVary(),
-                command.isAllowCache(),
-                command.isEtag(),
-                command.isWeakValidation()
+                command.getAllowCache(),
+                command.getEtag(),
+                command.getWeakValidation()
             ));
             return null;
         }, CACHE_PROFILE);
@@ -108,23 +108,22 @@ public class CacheProfileApplicationService {
                 Optional<CacheProfile> cacheProfile =
                     DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
                 if (cacheProfile.isPresent()) {
-                    CacheProfile profile = cacheProfile.get();
-                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(profile);
+                    CacheProfile original = cacheProfile.get();
+                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(original);
                     PatchCacheProfileCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
-                    profile.update(
+                    original.update(
                         afterPatch.getName(),
                         afterPatch.getDescription(),
-                        afterPatch.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                            .collect(Collectors.toSet()),
-                        afterPatch.getExpires(),
-                        afterPatch.getMaxAge(),
-                        afterPatch.getSmaxAge(),
-                        afterPatch.getVary(),
-                        profile.isAllowCache(),
-                        afterPatch.isEtag(),
-                        afterPatch.isWeakValidation()
+                        original.getCacheControl(),
+                        original.getExpires(),
+                        original.getMaxAge(),
+                        original.getSmaxAge(),
+                        original.getVary(),
+                        original.isAllowCache(),
+                        original.isEtag(),
+                        original.isWeakValidation()
                     );
                 }
                 return null;

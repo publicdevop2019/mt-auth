@@ -274,4 +274,123 @@ public class TenantRoleTest {
 //            RoleUtility.createTenantRole(tenantContext, randomRoleObj);
 //        Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantRole.getStatusCode());
     }
+
+    @Test
+    public void validation_create_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_create_parent_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_project_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_api_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_common_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_external_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_type(){
+        //null
+        //invalid value
+    }
+    @Test
+    public void validation_update_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_parent_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_project_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_api_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_common_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_external_permission_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_patch_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

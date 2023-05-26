@@ -1,23 +1,22 @@
 package com.mt.access.application.endpoint.command;
 
-import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class EndpointCreateCommand implements Serializable {
-    private static final long serialVersionUID = 1;
+public class EndpointCreateCommand {
     private String name;
     private String description;
-    private boolean secured;
-    private boolean isWebsocket;
-    private boolean csrfEnabled;
-    private boolean shared;
+    private String projectId;
+    private Boolean secured;
+    private Boolean isWebsocket;
+    private Boolean csrfEnabled;
+    private Boolean shared;
     private String corsProfileId;
     private String cacheProfileId;
     private String resourceId;
     private String path;
-    private boolean external;
-    private int replenishRate;
-    private int burstCapacity;
+    private Boolean external;
+    private Integer replenishRate;
+    private Integer burstCapacity;
     private String method;
 }

@@ -157,7 +157,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getPath(),
                         command.getClientSecret(),
                         command.getDescription(),
-                        command.isResourceIndicator(),
+                        command.getResourceIndicator(),
                         command.getResourceIds() != null
                             ? command.getResourceIds().stream().map(ClientId::new)
                             .collect(Collectors.toSet()) : Collections.emptySet(),
@@ -166,7 +166,7 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getRefreshTokenValiditySeconds()),
                         new RedirectDetail(
                             command.getRegisteredRedirectUri(),
-                            command.isAutoApprove()
+                            command.getAutoApprove()
                         ),
                         command.getTypes(),
                         command.getExternalUrl() != null ?
@@ -196,7 +196,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getClientSecret(),
                         command.getPath(),
                         command.getDescription(),
-                        command.isResourceIndicator(),
+                        command.getResourceIndicator(),
                         command.getResourceIds() != null
                             ?
                             command.getResourceIds().stream().map(ClientId::new)
@@ -207,7 +207,7 @@ public class ClientApplicationService implements ClientDetailsService {
                             command.getRefreshTokenValiditySeconds()),
                         new RedirectDetail(
                             command.getRegisteredRedirectUri(),
-                            command.isAutoApprove()
+                            command.getAutoApprove()
                         ),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null
@@ -267,7 +267,7 @@ public class ClientApplicationService implements ClientDetailsService {
                         null,
                         afterPatch.getPath(),
                         afterPatch.getDescription(),
-                        afterPatch.isResourceIndicator(),
+                        afterPatch.getResourceIndicator(),
                         afterPatch.getResourceIds() != null
                             ?
                             afterPatch.getResourceIds().stream().map(ClientId::new)

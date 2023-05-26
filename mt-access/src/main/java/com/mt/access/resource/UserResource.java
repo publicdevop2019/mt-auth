@@ -13,7 +13,7 @@ import com.mt.access.application.user.command.UpdateUserRelationCommand;
 import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
@@ -137,7 +137,7 @@ public class UserResource {
 
     @PutMapping(path = "users/pwd")
     public ResponseEntity<Void> updatePassword(
-        @RequestBody UserUpdateBizUserPasswordCommand command,
+        @RequestBody UserUpdatePasswordCommand command,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {

@@ -119,4 +119,148 @@ public class TenantCacheTest extends TenantTest {
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, cache.getStatusCode());
     }
+
+    @Test
+    public void validation_create_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_create_description(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_create_cache_control(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid value
+    }
+    @Test
+    public void validation_create_expires(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_create_max_age(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_create_s_max_age(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_create_vary(){
+        //null
+        //blank
+        //empty
+        //invalid value
+    }
+    @Test
+    public void validation_create_allow_cache(){
+        //null
+        //false but other config present
+    }
+    @Test
+    public void validation_create_weak_validation(){
+        //null
+        //true but etag not true
+    }
+
+    @Test
+    public void validation_update_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_description(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_cache_control(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid value
+    }
+    @Test
+    public void validation_update_expires(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_update_max_age(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_update_s_max_age(){
+        //null
+        //min value
+        //max value
+    }
+    @Test
+    public void validation_update_vary(){
+        //null
+        //blank
+        //empty
+        //invalid value
+    }
+    @Test
+    public void validation_update_allow_cache(){
+        //null
+        //false but other config present
+    }
+    @Test
+    public void validation_update_weak_validation(){
+        //null
+        //true but etag not true
+    }
+    @Test
+    public void validation_patch_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_patch_description(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

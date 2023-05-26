@@ -7,7 +7,7 @@ import lombok.Data;
 public class CorsProfileCreateCommand {
     private String name;
     private String description;
-    private boolean allowCredentials;
+    private Boolean allowCredentials;
     private Set<String> allowedHeaders;
     private Set<String> allowOrigin;
     private Set<String> exposedHeaders;

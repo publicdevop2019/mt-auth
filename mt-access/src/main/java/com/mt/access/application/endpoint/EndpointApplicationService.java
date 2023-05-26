@@ -123,10 +123,10 @@ public class EndpointApplicationService {
     }
 
     @AuditLog(actionName = CREATE_TENANT_ENDPOINT)
-    public String tenantCreate(String rawProjectId, EndpointCreateCommand command,
+    public String tenantCreate(EndpointCreateCommand command,
                                String changeId) {
         EndpointId endpointId = new EndpointId();
-        ProjectId projectId = new ProjectId(rawProjectId);
+        ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
@@ -146,14 +146,14 @@ public class EndpointApplicationService {
                     command.getPath(),
                     endpointId,
                     command.getMethod(),
-                    command.isSecured(),
-                    command.isWebsocket(),
-                    command.isCsrfEnabled(),
+                    command.getSecured(),
+                    command.getIsWebsocket(),
+                    command.getCsrfEnabled(),
                     command.getCorsProfileId() != null
                         ?
                         new CorsProfileId(command.getCorsProfileId()) : null,
-                    command.isShared(),
-                    command.isExternal(),
+                    command.getShared(),
+                    command.getExternal(),
                     command.getReplenishRate(),
                     command.getBurstCapacity()
                 );
@@ -182,8 +182,8 @@ public class EndpointApplicationService {
                     command.getDescription(),
                     command.getPath(),
                     command.getMethod(),
-                    command.isWebsocket(),
-                    command.isCsrfEnabled(),
+                    command.getIsWebsocket(),
+                    command.getCsrfEnabled(),
                     command.getCorsProfileId() != null
                         ?
                         new CorsProfileId(command.getCorsProfileId()) : null,
@@ -233,22 +233,22 @@ public class EndpointApplicationService {
                 Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository()
                     .query(new EndpointQuery(endpointId, projectId1)).findFirst();
                 if (endpoint.isPresent()) {
-                    Endpoint endpoint1 = endpoint.get();
-                    EndpointPatchCommand beforePatch = new EndpointPatchCommand(endpoint1);
+                    Endpoint original = endpoint.get();
+                    EndpointPatchCommand beforePatch = new EndpointPatchCommand(original);
                     EndpointPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
-                    endpoint1.update(
-                        endpoint1.getCacheProfileId(),
+                    original.update(
+                        original.getCacheProfileId(),
                         afterPatch.getName(),
                         afterPatch.getDescription(),
                         afterPatch.getPath(),
                         afterPatch.getMethod(),
-                        endpoint1.isWebsocket(),
-                        endpoint1.isCsrfEnabled(),
-                        endpoint1.getCorsProfileId(),
-                        endpoint1.getReplenishRate(),
-                        endpoint1.getBurstCapacity()
+                        original.isWebsocket(),
+                        original.isCsrfEnabled(),
+                        original.getCorsProfileId(),
+                        original.getReplenishRate(),
+                        original.getBurstCapacity()
                     );
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());

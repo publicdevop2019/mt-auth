@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class UpdateSubRequestCommand {
-    private int burstCapacity;
-    private int replenishRate;
+    private Integer burstCapacity;
+    private Integer replenishRate;
 }

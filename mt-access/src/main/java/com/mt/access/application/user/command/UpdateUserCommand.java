@@ -6,5 +6,5 @@ import lombok.Data;
 @Data
 public class UpdateUserCommand implements Serializable {
     private static final long serialVersionUID = 1;
-    private boolean locked;
+    private Boolean locked;
 }

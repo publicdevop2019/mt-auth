@@ -60,4 +60,31 @@ public class TenantProjectTest extends CommonTest {
         Assert.assertEquals(HttpStatus.OK, projectResponseEntity.getStatusCode());
         Assert.assertEquals(1, projectResponseEntity.getBody().getTotalUserOwned().intValue());
     }
+    @Test
+    public void validation_create_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_patch_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

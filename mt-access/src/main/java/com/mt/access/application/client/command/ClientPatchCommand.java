@@ -14,19 +14,19 @@ public class ClientPatchCommand {
     private String description;
     private String name;
     private String path;
-    private boolean resourceIndicator;
+    private Boolean resourceIndicator;
     private Set<GrantType> grantTypeEnums;
     private Integer accessTokenValiditySeconds;
     private Set<String> resourceIds;
 
-    public ClientPatchCommand(Client bizClient) {
-        this.description = bizClient.getDescription();
-        this.name = bizClient.getName();
-        this.path = bizClient.getPath();
-        this.resourceIndicator = bizClient.isAccessible();
-        this.grantTypeEnums = bizClient.getGrantTypes();
-        this.accessTokenValiditySeconds = bizClient.accessTokenValiditySeconds();
-        this.resourceIds = bizClient.getResources().stream().map(ClientId::getDomainId)
+    public ClientPatchCommand(Client client) {
+        this.description = client.getDescription();
+        this.name = client.getName();
+        this.path = client.getPath();
+        this.resourceIndicator = client.isAccessible();
+        this.grantTypeEnums = client.getGrantTypes();
+        this.accessTokenValiditySeconds = client.accessTokenValiditySeconds();
+        this.resourceIds = client.getResources().stream().map(ClientId::getDomainId)
             .collect(Collectors.toSet());
     }
 

@@ -174,5 +174,13 @@ public class RevokeTokenTest  extends CommonTest {
 
     }
 
-
+    @Test
+    public void validation_revoke_token_id(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

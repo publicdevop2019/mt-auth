@@ -33,12 +33,13 @@ import org.springframework.util.ResourceUtils;
 
 @RunWith(SpringRunner.class)
 @Slf4j
-public class UserTest  extends CommonTest {
+public class UserTest extends CommonTest {
 
     @Test
     public void should_not_able_to_create_user_with_user_name_not_email() {
         User user =
-            UserUtility.userCreateDraftObj(UUID.randomUUID().toString(), UUID.randomUUID().toString());
+            UserUtility.userCreateDraftObj(UUID.randomUUID().toString(),
+                UUID.randomUUID().toString());
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
         Assert.assertEquals(HttpStatus.BAD_REQUEST, user1.getStatusCode());
@@ -143,25 +144,25 @@ public class UserTest  extends CommonTest {
     }
 
     @Test
-    public void create_pending_user(){
+    public void create_pending_user() {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> pendingUser = UserUtility.createPendingUser(user);
         Assert.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
     }
 
     @Test
-    public void register_new_user(){
+    public void register_new_user() {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> register = UserUtility.register(user);
         Assert.assertEquals(HttpStatus.OK, register.getStatusCode());
     }
 
     @Test
-    public void user_can_update_profile(){
+    public void user_can_update_profile() {
         User user = UserUtility.createUser();
         String url = UrlUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
-        user.setUsername(RandomUtility.randomStringWithNum().substring(0,10));
+        user.setUsername(RandomUtility.randomStringWithNum().substring(0, 10));
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -175,8 +176,9 @@ public class UserTest  extends CommonTest {
         Assert.assertEquals(user.getUsername(), exchange2.getBody().getUsername());
 
     }
+
     @Test
-    public void user_can_view_profile(){
+    public void user_can_view_profile() {
         User user = UserUtility.createUser();
         String url = UrlUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
@@ -192,6 +194,7 @@ public class UserTest  extends CommonTest {
         Assert.assertNotNull(exchange.getBody().getEmail());
 
     }
+
     @Test
     public void user_can_update_avatar() throws FileNotFoundException {
         //created user has no avatar by default
@@ -202,7 +205,8 @@ public class UserTest  extends CommonTest {
         headers2.setBearerAuth(bearer);
         HttpEntity<Void> objectHttpEntity = new HttpEntity<>(headers2);
         ResponseEntity<String> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
+            TestContext.getRestTemplate()
+                .exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //add avatar
         File file = ResourceUtils.getFile("classpath:test-avatar.jpg");
@@ -219,8 +223,171 @@ public class UserTest  extends CommonTest {
         //get avatar
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         ResponseEntity<String> exchange23 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
+            TestContext.getRestTemplate()
+                .exchange(url, HttpMethod.GET, objectHttpEntity, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange23.getStatusCode());
     }
 
+    @Test
+    public void validation_create_avatar() {
+        //type
+        //max size
+        //empty
+        //null
+    }
+
+    @Test
+    public void validation_pending_user_email() {
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_update_user_profile_name() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_user_profile_country_code() {
+        //null
+        //blank
+        //empty
+        //invalid value
+    }
+    @Test
+    public void validation_update_user_profile_mobile() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_update_user_profile_language() {
+        //null
+        //blank
+        //empty
+        //invalid value
+    }
+    @Test
+    public void validation_create_user_email() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_create_user_activation_code() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid value
+    }
+    @Test
+    public void validation_create_user_country_code() {
+        //null
+        //blank
+        //empty
+        //invalid value
+    }
+    @Test
+    public void validation_create_user_mobile() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_create_password() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_mgmt_lock_user() {
+        //null
+    }
+    @Test
+    public void validation_update_user_role_ids() {
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_forget_pwd_email() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_mgmt_patch_user() {
+        //null
+    }
+    @Test
+    public void validation_reset_pwd_email() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_reset_pwd_token() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid value
+    }
+    @Test
+    public void validation_reset_pwd_password() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_update_pwd_password() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
+    @Test
+    public void validation_update_pwd_current_password() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid format
+    }
 }

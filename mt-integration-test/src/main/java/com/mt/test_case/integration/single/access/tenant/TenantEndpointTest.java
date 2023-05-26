@@ -140,4 +140,253 @@ public class TenantEndpointTest extends TenantTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantEndpoint2.getStatusCode());
     }
 
+    @Test
+    public void validation_create_name(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_create_description(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_create_secured(){
+        //null
+    }
+    @Test
+    public void validation_create_is_websocket(){
+        //null
+        //true with wrong config
+
+    }
+    @Test
+    public void validation_create_csrf_enabled(){
+        //null
+        //true but is websocket
+    }
+    @Test
+    public void validation_create_shared(){
+        //null
+        //websocket and shared
+
+    }
+    @Test
+    public void validation_create_cors_id(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_cache_profile_id(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_resource_id(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_path(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+    }
+    @Test
+    public void validation_create_external(){
+        //null
+    }
+    @Test
+    public void validation_create_replenish_rate(){
+        //min value
+        //max value
+        //null
+    }
+    @Test
+    public void validation_create_burst_capacity(){
+        //min value
+        //max value
+        //null
+    }
+    @Test
+    public void validation_create_method(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //invalid value
+
+    }
+
+
+    @Test
+    public void validation_update_name(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_update_description(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_update_is_websocket(){
+        //null
+        //true with wrong config
+
+    }
+    @Test
+    public void validation_update_csrf_enabled(){
+        //null
+        //true but is websocket
+    }
+    @Test
+    public void validation_update_cors_id(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+    }
+    @Test
+    public void validation_update_cache_profile_id(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+    }
+    @Test
+    public void validation_update_version() {
+        //null
+        //min value
+        //max value
+        //version mismatch
+    }
+    @Test
+    public void validation_update_project_id() {
+        //mismatch
+        //blank
+        //empty
+        //wrong format
+        //null
+    }
+    @Test
+    public void validation_update_path(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+    }
+    @Test
+    public void validation_update_replenish_rate(){
+        //min value
+        //max value
+        //null
+    }
+    @Test
+    public void validation_update_burst_capacity(){
+        //min value
+        //max value
+        //null
+    }
+    @Test
+    public void validation_update_method(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //invalid value
+
+    }
+
+    @Test
+    public void validation_patch_name(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_patch_description(){
+        //min length
+        //max length
+        //invalid char
+        //null
+        //empty
+        //blank
+    }
+    @Test
+    public void validation_patch_path(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+    }
+    @Test
+    public void validation_patch_method(){
+        //null
+        //blank
+        //empty
+        //wrong format
+        //min length
+        //max length
+        //invalid value
+
+    }
+    @Test
+    public void validation_expire_reason(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

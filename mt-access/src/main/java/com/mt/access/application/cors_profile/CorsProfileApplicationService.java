@@ -53,7 +53,7 @@ public class CorsProfileApplicationService {
                 command.getName(),
                 command.getDescription(),
                 command.getAllowedHeaders(),
-                command.isAllowCredentials(),
+                command.getAllowCredentials(),
                 command.getAllowOrigin().stream().map(Origin::new).collect(Collectors.toSet()),
                 command.getExposedHeaders(),
                 command.getMaxAge(),
@@ -126,20 +126,19 @@ public class CorsProfileApplicationService {
                     DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
                         .findFirst();
                 if (corsProfile.isPresent()) {
-                    CorsProfile corsProfile1 = corsProfile.get();
-                    CorsProfilePatchCommand beforePatch = new CorsProfilePatchCommand(corsProfile1);
+                    CorsProfile original = corsProfile.get();
+                    CorsProfilePatchCommand beforePatch = new CorsProfilePatchCommand(original);
                     CorsProfilePatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, CorsProfilePatchCommand.class);
-                    corsProfile1.update(
+                    original.update(
                         afterPatch.getName(),
                         afterPatch.getDescription(),
-                        afterPatch.getAllowedHeaders(),
-                        afterPatch.isAllowCredentials(),
-                        afterPatch.getAllowOrigin().stream().map(Origin::new)
-                            .collect(Collectors.toSet()),
-                        afterPatch.getExposedHeaders(),
-                        afterPatch.getMaxAge()
+                        original.getAllowedHeaders(),
+                        original.isAllowCredentials(),
+                        original.getAllowOrigin(),
+                        original.getExposedHeaders(),
+                        original.getMaxAge()
                     );
                 }
                 return null;

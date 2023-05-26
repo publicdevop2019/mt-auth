@@ -117,4 +117,144 @@ public class TenantCorsTest extends TenantTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, cors.getStatusCode());
 
     }
+
+    @Test
+    public void validation_create_name() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_create_description() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_create_allow_credential() {
+        //null
+    }
+
+    @Test
+    public void validation_create_allowed_headers() {
+        //null
+        //empty
+        //blank
+        //invalid char
+        //max elements
+    }
+
+    @Test
+    public void validation_create_allow_origin() {
+        //null
+        //empty
+        //blank
+        //invalid format
+        //max elements
+
+    }
+
+    @Test
+    public void validation_create_exposed_headers() {
+        //null
+        //empty
+        //blank
+        //invalid char
+        //max elements
+    }
+
+    @Test
+    public void validation_create_max_age() {
+        //null
+        //min value
+        //max value
+    }
+
+    @Test
+    public void validation_update_name() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_update_description() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_update_allow_credential() {
+        //null
+    }
+
+    @Test
+    public void validation_update_allowed_headers() {
+        //null
+        //empty
+        //blank
+        //invalid char
+        //max elements
+    }
+
+    @Test
+    public void validation_update_allow_origin() {
+        //null
+        //empty
+        //blank
+        //invalid format
+        //max elements
+
+    }
+
+    @Test
+    public void validation_update_exposed_headers() {
+        //null
+        //empty
+        //blank
+        //invalid char
+        //max elements
+    }
+
+    @Test
+    public void validation_update_max_age() {
+        //null
+        //min value
+        //max value
+    }
+
+    @Test
+    public void validation_patch_name() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_patch_description() {
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

@@ -234,4 +234,67 @@ public class TenantMarketTest {
             RoleUtility.updateTenantRole(tenantContextB, role);
         Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
     }
+
+    @Test
+    public void validation_create_endpoint_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_project_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_burst_capacity(){
+        //null
+        //blank
+        //empty
+        //min value
+        //max value
+        //invalid value
+    }
+    @Test
+    public void validation_create_replenish_rate(){
+        //null
+        //blank
+        //empty
+        //min value
+        //max value
+        //invalid value
+    }
+    @Test
+    public void validation_update_burst_capacity(){
+        //null
+        //blank
+        //empty
+        //min value
+        //max value
+        //invalid value
+    }
+    @Test
+    public void validation_update_replenish_rate(){
+        //null
+        //blank
+        //empty
+        //min value
+        //max value
+        //invalid value
+    }
+
+    @Test
+    public void validation_reject(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

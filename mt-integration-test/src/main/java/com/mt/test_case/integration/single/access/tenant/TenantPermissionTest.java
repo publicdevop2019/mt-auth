@@ -222,4 +222,74 @@ public class TenantPermissionTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //cannot add public endpoints
     }
+
+    @Test
+    public void validation_create_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_create_parent_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_project_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_create_linked_api_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
+    @Test
+    public void validation_update_project_id(){
+        //null
+        //blank
+        //empty
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_update_linked_api_ids(){
+        //null
+        //blank
+        //empty
+        //too many elements
+        //invalid value
+        //other tenant's id
+    }
+    @Test
+    public void validation_patch_name(){
+        //null
+        //blank
+        //empty
+        //min length
+        //max length
+        //invalid char
+    }
 }

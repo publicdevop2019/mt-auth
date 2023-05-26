@@ -44,10 +44,11 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
+        command.setProjectId(projectId);
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
-                .tenantCreate(projectId, command, changeId)).build();
+                .tenantCreate(command, changeId)).build();
     }
 
     @GetMapping(path = "projects/{projectId}/endpoints")

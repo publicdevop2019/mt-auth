@@ -16,7 +16,7 @@ import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
@@ -125,7 +125,7 @@ public class UserApplicationService implements UserDetailsService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 user.lockUser(
-                    command.isLocked()
+                    command.getLocked()
                 );
                 return null;
             }, USER);
@@ -188,7 +188,7 @@ public class UserApplicationService implements UserDetailsService {
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
                 user.lockUser(
-                    afterPatch.isLocked()
+                    afterPatch.getLocked()
                 );
                 return null;
             }, USER);
@@ -209,7 +209,7 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @AuditLog(actionName = USER_UPDATE_PWD)
-    public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
+    public void updatePassword(UserUpdatePasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         User user = DomainRegistry.getUserRepository().get(userId);
         CommonApplicationServiceRegistry.getIdempotentService()

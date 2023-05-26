@@ -1,5 +1,6 @@
 package com.mt.test_case.integration.single.access.tenant;
 
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantTest;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.ClientType;
@@ -13,7 +14,6 @@ import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.AppConstant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.UUID;
@@ -209,9 +209,10 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(20*1000);
+        Thread.sleep(20 * 1000);
         Client clientAsNonResource =
-            ClientUtility.getClientAsNonResource(clientAsResource.getId(),clientAsResource2.getId());
+            ClientUtility.getClientAsNonResource(clientAsResource.getId(),
+                clientAsResource2.getId());
         HashSet<GrantType> enums = new HashSet<>();
         enums.add(GrantType.PASSWORD);
         enums.add(GrantType.REFRESH_TOKEN);
@@ -227,7 +228,8 @@ public class TenantClientTest extends TenantTest {
                 tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),"get"+"/"+RandomUtility.randomStringNoNum());
+        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),
+            "get" + "/" + RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -235,7 +237,8 @@ public class TenantClientTest extends TenantTest {
             .exchange(url, HttpMethod.GET, request, String.class);
         Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //remove resource client
-        ResponseEntity<Void> client2 = ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
+        ResponseEntity<Void> client2 =
+            ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         Thread.sleep(10000);
         //clientAsNonResource can not access endpoint both access token
@@ -245,12 +248,12 @@ public class TenantClientTest extends TenantTest {
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
             .getTenantRefreshToken(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
-                clientAsNonResource,tenantContext);
+                clientAsNonResource, tenantContext);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =
             OAuth2Utility.getTenantPasswordToken(clientAsNonResource,
-                tenantContext.getCreator(),tenantContext);
+                tenantContext.getCreator(), tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient3.getStatusCode());
         // clientAsNonResource can access endpoint again
         HttpHeaders headers5 = new HttpHeaders();
@@ -283,9 +286,10 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(20*1000);
+        Thread.sleep(20 * 1000);
         Client clientAsNonResource =
-            ClientUtility.getClientAsNonResource(clientAsResource.getId(),clientAsResource2.getId());
+            ClientUtility.getClientAsNonResource(clientAsResource.getId(),
+                clientAsResource2.getId());
         HashSet<GrantType> enums = new HashSet<>();
         enums.add(GrantType.PASSWORD);
         enums.add(GrantType.REFRESH_TOKEN);
@@ -301,7 +305,8 @@ public class TenantClientTest extends TenantTest {
                 tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         // clientAsNonResource can access endpoint
-        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),"get"+"/"+RandomUtility.randomStringNoNum());
+        String url = UrlUtility.getTenantUrl(clientAsResource2.getPath(),
+            "get" + "/" + RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtPasswordWithClient.getBody().getValue());
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -321,12 +326,12 @@ public class TenantClientTest extends TenantTest {
         //even refresh token will not work
         ResponseEntity<DefaultOAuth2AccessToken> exchange4 = OAuth2Utility
             .getTenantRefreshToken(jwtPasswordWithClient.getBody().getRefreshToken().getValue(),
-                clientAsNonResource,tenantContext);
+                clientAsNonResource, tenantContext);
         Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange4.getStatusCode());
         //get new jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient3 =
             OAuth2Utility.getTenantPasswordToken(clientAsNonResource,
-                tenantContext.getCreator(),tenantContext);
+                tenantContext.getCreator(), tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient3.getStatusCode());
         // clientAsNonResource can access endpoint again
         HttpHeaders headers5 = new HttpHeaders();
@@ -394,5 +399,297 @@ public class TenantClientTest extends TenantTest {
                 OAuth2Utility.getAuthorizationCode(codeResponse),
                 AppConstant.TEST_REDIRECT_URL, tenantContext.getLoginClientId(), "");
         Assert.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_name() {
+        //null
+        //blank
+        //empty
+        //invalid char
+        //max length
+        //min length
+    }
+
+    @Test
+    public void validation_create_description() {
+        //blank
+        //invalid char
+        //max length
+    }
+
+    @Test
+    public void validation_create_has_secret() {
+        //true but no secret
+        //false but secret present
+        //null but secret present
+
+    }
+
+    @Test
+    public void validation_create_secret() {
+        //type is backend and secret is missing
+        //type is frontend but secret is present
+        //secret format
+    }
+
+    @Test
+    public void validation_create_project_id() {
+        //other tenant's id
+        //blank
+        //empty
+        //wrong format
+        //null
+    }
+
+    @Test
+    public void validation_create_path() {
+        //wrong path format
+        //type is backend and path is missing
+        //type is frontend but path is present
+        //max length
+        //min length
+        //unique across application
+    }
+
+    @Test
+    public void validation_create_external_url() {
+        //externalUrl format is wrong
+        //type is backend and externalUrl is missing
+        //type is frontend but externalUrl is present
+        //max length
+    }
+
+    @Test
+    public void validation_create_grant_type() {
+        //grantType is empty
+        //grantType is null
+        //grantType invalid value
+        //refresh requires password first
+        //authorization grant but registered redirect uri is empty
+        //authorization grant but registered redirect uri is null
+        //password grant but refresh token is 0
+        //password grant but refresh token is null
+    }
+
+    @Test
+    public void validation_create_type() {
+        //type is null
+        //type is empty
+        //type is invalid
+        //both type cannot present
+    }
+
+    @Test
+    public void validation_create_access_token_validity_second() {
+        //accessTokenValiditySeconds is null
+        //accessTokenValiditySeconds is 0
+        //value too large
+        //value too small
+    }
+
+
+    @Test
+    public void validation_create_registered_redirect_url() {
+        //has value but not authorization grant
+        //wrong format
+        //too many elements
+    }
+
+    @Test
+    public void validation_create_refresh_token_validity_second() {
+        //has value but not password grant
+        //value too large
+        //value too small
+    }
+
+    @Test
+    public void validation_create_resource_ids() {
+        //too many elements
+        //format
+        //resource id that belong to another project
+
+    }
+
+    @Test
+    public void validation_create_resource_indicator() {
+        //null
+        //true but is frontend
+    }
+
+    @Test
+    public void validation_create_auto_approve() {
+        //missing when authorization grant
+        //present when not authorization grant
+    }
+    @Test
+    public void validation_update_project_id() {
+        //mismatch
+        //blank
+        //empty
+        //wrong format
+        //null
+    }
+    @Test
+    public void validation_update_has_secret() {
+        //true but no secret
+        //false but secret present
+        //null but secret present
+
+    }
+
+    @Test
+    public void validation_update_secret() {
+        //type is backend and secret is missing
+        //type is frontend but secret is present
+        //secret format
+        //secret will not change
+    }
+
+    @Test
+    public void validation_update_description() {
+        //blank
+        //invalid char
+        //max length
+    }
+
+    @Test
+    public void validation_update_path() {
+        //wrong path format
+        //type is backend and path is missing
+        //type is frontend but path is present
+        //max length
+        //min length
+        //unique across application
+    }
+
+    @Test
+    public void validation_update_external_url() {
+        //externalUrl format is wrong
+        //type is backend and externalUrl is missing
+        //type is frontend but externalUrl is present
+        //max length
+    }
+
+    @Test
+    public void validation_update_grant_type() {
+        //grantType is empty
+        //grantType is null
+        //grantType invalid value
+        //refresh requires password first
+        //authorization grant but registered redirect uri is empty
+        //authorization grant but registered redirect uri is null
+        //password grant but refresh token is 0
+        //password grant but refresh token is null
+    }
+
+    @Test
+    public void validation_update_access_token_validity_second() {
+        //accessTokenValiditySeconds is null
+        //accessTokenValiditySeconds is 0
+        //value too large
+        //value too small
+    }
+
+
+    @Test
+    public void validation_update_registered_redirect_url() {
+        //has value but not authorization grant
+        //wrong format
+        //too many elements
+    }
+
+    @Test
+    public void validation_update_refresh_token_validity_second() {
+        //has value but not password grant
+        //value too large
+        //value too small
+    }
+
+    @Test
+    public void validation_update_resource_ids() {
+        //too many elements
+        //format
+        //resource id that belong to another project
+
+    }
+
+    @Test
+    public void validation_update_version() {
+        //null
+        //min value
+        //max value
+        //version mismatch
+    }
+
+    @Test
+    public void validation_update_resource_indicator() {
+        //null
+        //true but is frontend
+    }
+
+    @Test
+    public void validation_update_auto_approve() {
+        //missing when authorization grant
+        //present when not authorization grant
+    }
+
+    @Test
+    public void validation_patch_project_id() {
+        //mismatch
+        //blank
+        //empty
+        //wrong format
+        //null
+    }
+    @Test
+    public void validation_patch_description() {
+        //blank
+        //invalid char
+        //max length
+    }
+
+    @Test
+    public void validation_patch_path() {
+        //wrong path format
+        //type is backend and path is missing
+        //type is frontend but path is present
+        //max length
+        //min length
+        //unique across application
+    }
+
+    @Test
+    public void validation_patch_grant_type() {
+        //grantType is empty
+        //grantType is null
+        //grantType invalid value
+        //refresh requires password first
+        //authorization grant but registered redirect uri is empty
+        //authorization grant but registered redirect uri is null
+        //password grant but refresh token is 0
+        //password grant but refresh token is null
+    }
+
+    @Test
+    public void validation_patch_access_token_validity_second() {
+        //accessTokenValiditySeconds is null
+        //accessTokenValiditySeconds is 0
+        //value too large
+        //value too small
+    }
+
+    @Test
+    public void validation_patch_resource_ids() {
+        //too many elements
+        //format
+        //resource id that belong to another project
+
+    }
+
+    @Test
+    public void validation_patch_resource_indicator() {
+        //null
+        //true but is frontend
     }
 }
