@@ -13,9 +13,9 @@ public class Client {
     private String name;
     private String path;
     private String externalUrl;
-    private Set<ClientType> types;
+    private Set<String> types;
 
-    private Set<GrantType> grantTypeEnums;
+    private Set<String> grantTypeEnums;
 
     private Integer accessTokenValiditySeconds;
 

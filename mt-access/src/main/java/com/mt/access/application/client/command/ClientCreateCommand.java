@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 public class ClientCreateCommand {
     private String clientSecret;
     private String projectId;
-    private Boolean hasSecret;
     private String description;
     private String name;
     private String path;

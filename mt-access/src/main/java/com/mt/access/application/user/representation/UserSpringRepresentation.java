@@ -16,7 +16,7 @@ public class UserSpringRepresentation implements UserDetails {
     public UserSpringRepresentation(User user) {
         id = user.getUserId().getDomainId();
         password = user.getPassword().getPassword();
-        locked = user.isLocked();
+        locked = user.getLocked();
     }
 
     @Override

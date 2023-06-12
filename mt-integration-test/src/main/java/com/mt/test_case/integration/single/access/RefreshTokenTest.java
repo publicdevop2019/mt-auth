@@ -57,13 +57,13 @@ public class RefreshTokenTest extends TenantTest {
 
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw(clientAsResource.getId());
-        HashSet<GrantType> enums = new HashSet<>();
-        enums.add(GrantType.PASSWORD);
-        enums.add(GrantType.REFRESH_TOKEN);
+        HashSet<String> enums = new HashSet<>();
+        enums.add(GrantType.PASSWORD.name());
+        enums.add(GrantType.REFRESH_TOKEN.name());
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setPath(RandomUtility.randomStringNoNum());
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
-        clientRaw.setTypes(new HashSet<>(List.of(ClientType.BACKEND_APP)));
+        clientRaw.setTypes(new HashSet<>(List.of(ClientType.BACKEND_APP.name())));
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
@@ -107,10 +107,10 @@ public class RefreshTokenTest extends TenantTest {
     public void refresh_token_should_have_exp(){
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw();
-        HashSet<GrantType> enums = new HashSet<>();
-        enums.add(GrantType.PASSWORD);
-        enums.add(GrantType.REFRESH_TOKEN);
-        clientRaw.setTypes(Collections.singleton(ClientType.BACKEND_APP));
+        HashSet<String> enums = new HashSet<>();
+        enums.add(GrantType.PASSWORD.name());
+        enums.add(GrantType.REFRESH_TOKEN.name());
+        clientRaw.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
         clientRaw.setAccessTokenValiditySeconds(60);

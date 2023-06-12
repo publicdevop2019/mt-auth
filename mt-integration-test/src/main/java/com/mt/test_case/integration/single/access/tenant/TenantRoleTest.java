@@ -1,9 +1,13 @@
 package com.mt.test_case.integration.single.access.tenant;
 
+import static com.mt.test_case.helper.AppConstant.MT_ACCESS_PERMISSION_ID;
+
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.Permission;
+import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.UpdateType;
@@ -17,8 +21,10 @@ import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
+import com.mt.test_case.helper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -244,7 +250,8 @@ public class TenantRoleTest {
         ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity2 =
             PermissionUtility.readTenantPermissionWithQuery(tenantContext,
                 "query=parentId:" + permissionId + ",types:API");
-        String permissionId2 = sumTotalResponseEntity2.getBody().getData().stream().filter(e->e.getName().equals(ep.getName())).findFirst().get().getId();
+        String permissionId2 = sumTotalResponseEntity2.getBody().getData().stream()
+            .filter(e -> e.getName().equals(ep.getName())).findFirst().get().getId();
         role.setApiPermissionIds(Collections.singleton(permissionId2));
         role.setType(UpdateType.API_PERMISSION.name());
         RoleUtility.updateTenantRole(tenantContext, role);
@@ -265,18 +272,320 @@ public class TenantRoleTest {
     }
 
     @Test
-    public void role_validation_should_work() {
-        //update type is required
-        //name is required
-//        Role randomRoleObj = RoleUtility.createRandomRoleObj();
-//        randomRoleObj.setName(null);
-//        ResponseEntity<Void> tenantRole =
-//            RoleUtility.createTenantRole(tenantContext, randomRoleObj);
-//        Assert.assertEquals(HttpStatus.BAD_REQUEST, tenantRole.getStatusCode());
+    public void validation_create_name() {
+        //create role
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //null
+        role.setName(null);
+        ResponseEntity<Void> response1 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        //blank
+        role.setName(" ");
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setName("");
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //max length
+        role.setName("012345678901234567890123456789012345678901234567890123456789");
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid char
+        role.setName("<");
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
     }
 
     @Test
-    public void validation_create_name(){
+    public void validation_create_description() {
+        //create role
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //blank
+        role.setName(" ");
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setName("");
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //max length
+        role.setName("012345678901234567890123456789012345678901234567890123456789" +
+            "012345678901234567890123456789012345678901234567890123456789");
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid char
+        role.setName("<");
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_parent_id() {
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+
+        //null
+        role.setParentId(null);
+        ResponseEntity<Void> response1 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        //blank
+        role.setParentId(" ");
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setParentId("");
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //invalid value
+        role.setParentId("123");
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //other tenant's id
+        role.setParentId(AppConstant.MT_ACCESS_ROLE_ID);
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        //not exist id
+        role.setParentId("0R99999999");
+        ResponseEntity<Void> response6 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_project_id() {
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //null
+        Project project1 = new Project();
+        project1.setId("null");
+        String url = RoleUtility.getUrl(project1);
+        ResponseEntity<Void> resource =
+            Utility.createResource(tenantContext.getCreator(), url, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
+        //empty
+        project1.setId("");
+        String url3 = RoleUtility.getUrl(project1);
+        ResponseEntity<Void> resource3 =
+            Utility.createResource(tenantContext.getCreator(), url3, role);
+        Assert.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
+        //blank
+        project1.setId(" ");
+        String url4 = RoleUtility.getUrl(project1);
+        ResponseEntity<Void> resource4 =
+            Utility.createResource(tenantContext.getCreator(), url4, role);
+        Assert.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
+        //other tenant's project id
+        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
+        String url2 = RoleUtility.getUrl(project1);
+        ResponseEntity<Void> resource2 =
+            Utility.createResource(tenantContext.getCreator(), url2, role);
+        Assert.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_api_permission_ids() {
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //null
+        role.setApiPermissionIds(null);
+        ResponseEntity<Void> response1 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        //blank
+        role.setApiPermissionIds(Collections.singleton(" "));
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setApiPermissionIds(Collections.emptySet());
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //too many elements
+        HashSet<String> strings = new HashSet<>();
+        strings.add("0Y0000000000");
+        strings.add("0Y0000000001");
+        strings.add("0Y0000000002");
+        strings.add("0Y0000000003");
+        strings.add("0Y0000000004");
+        strings.add("0Y0000000005");
+        strings.add("0Y0000000006");
+        strings.add("0Y0000000007");
+        strings.add("0Y0000000008");
+        strings.add("0Y0000000009");
+        strings.add("0Y0000000010");
+        role.setApiPermissionIds(strings);
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid value
+        HashSet<String> strings1 = new HashSet<>();
+        strings.add("abc");
+        role.setApiPermissionIds(strings1);
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        //other tenant's id
+        HashSet<String> strings2 = new HashSet<>();
+        strings.add(MT_ACCESS_PERMISSION_ID);
+        role.setApiPermissionIds(strings2);
+        ResponseEntity<Void> response6 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_common_permission_ids() {
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //null
+        role.setCommonPermissionIds(null);
+        ResponseEntity<Void> response1 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        //blank
+        role.setCommonPermissionIds(Collections.singleton(" "));
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setCommonPermissionIds(Collections.emptySet());
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //too many elements
+        HashSet<String> strings = new HashSet<>();
+        strings.add("0Y0000000000");
+        strings.add("0Y0000000001");
+        strings.add("0Y0000000002");
+        strings.add("0Y0000000003");
+        strings.add("0Y0000000004");
+        strings.add("0Y0000000005");
+        strings.add("0Y0000000006");
+        strings.add("0Y0000000007");
+        strings.add("0Y0000000008");
+        strings.add("0Y0000000009");
+        strings.add("0Y0000000010");
+        role.setCommonPermissionIds(strings);
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid value
+        HashSet<String> strings1 = new HashSet<>();
+        strings.add("abc");
+        role.setCommonPermissionIds(strings1);
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        //other tenant's id
+        HashSet<String> strings2 = new HashSet<>();
+        strings.add(MT_ACCESS_PERMISSION_ID);
+        role.setCommonPermissionIds(strings2);
+        ResponseEntity<Void> response6 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_external_permission_ids() {
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> response =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        //null
+        role.setExternalPermissionIds(null);
+        ResponseEntity<Void> response1 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        //blank
+        role.setExternalPermissionIds(Collections.singleton(" "));
+        ResponseEntity<Void> response2 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        role.setExternalPermissionIds(Collections.emptySet());
+        ResponseEntity<Void> response3 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //too many elements
+        HashSet<String> strings = new HashSet<>();
+        strings.add("0Y0000000000");
+        strings.add("0Y0000000001");
+        strings.add("0Y0000000002");
+        strings.add("0Y0000000003");
+        strings.add("0Y0000000004");
+        strings.add("0Y0000000005");
+        strings.add("0Y0000000006");
+        strings.add("0Y0000000007");
+        strings.add("0Y0000000008");
+        strings.add("0Y0000000009");
+        strings.add("0Y0000000010");
+        role.setExternalPermissionIds(strings);
+        ResponseEntity<Void> response4 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid value
+        HashSet<String> strings1 = new HashSet<>();
+        strings.add("abc");
+        role.setExternalPermissionIds(strings1);
+        ResponseEntity<Void> response5 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        //other tenant's id
+        HashSet<String> strings2 = new HashSet<>();
+        strings.add(MT_ACCESS_PERMISSION_ID);
+        role.setExternalPermissionIds(strings2);
+        ResponseEntity<Void> response6 =
+            RoleUtility.createTenantRole(tenantContext, role);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+    }
+
+    @Test
+    public void validation_update_type() {
+        //null
+        //invalid value
+    }
+
+    @Test
+    public void validation_update_description() {
+        //null
+        //blank
+        //empty
+        //max length
+        //invalid char
+    }
+
+    @Test
+    public void validation_update_name() {
         //null
         //blank
         //empty
@@ -284,24 +593,27 @@ public class TenantRoleTest {
         //max length
         //invalid char
     }
+
     @Test
-    public void validation_create_parent_id(){
+    public void validation_update_parent_id() {
         //null
         //blank
         //empty
         //invalid value
         //other tenant's id
     }
+
     @Test
-    public void validation_create_project_id(){
+    public void validation_update_project_id() {
         //null
         //blank
         //empty
         //invalid value
         //other tenant's id
     }
+
     @Test
-    public void validation_create_api_permission_ids(){
+    public void validation_update_api_permission_ids() {
         //null
         //blank
         //empty
@@ -309,8 +621,9 @@ public class TenantRoleTest {
         //invalid value
         //other tenant's id
     }
+
     @Test
-    public void validation_create_common_permission_ids(){
+    public void validation_update_common_permission_ids() {
         //null
         //blank
         //empty
@@ -318,8 +631,9 @@ public class TenantRoleTest {
         //invalid value
         //other tenant's id
     }
+
     @Test
-    public void validation_create_external_permission_ids(){
+    public void validation_update_external_permission_ids() {
         //null
         //blank
         //empty
@@ -327,65 +641,9 @@ public class TenantRoleTest {
         //invalid value
         //other tenant's id
     }
+
     @Test
-    public void validation_update_type(){
-        //null
-        //invalid value
-    }
-    @Test
-    public void validation_update_name(){
-        //null
-        //blank
-        //empty
-        //min length
-        //max length
-        //invalid char
-    }
-    @Test
-    public void validation_update_parent_id(){
-        //null
-        //blank
-        //empty
-        //invalid value
-        //other tenant's id
-    }
-    @Test
-    public void validation_update_project_id(){
-        //null
-        //blank
-        //empty
-        //invalid value
-        //other tenant's id
-    }
-    @Test
-    public void validation_update_api_permission_ids(){
-        //null
-        //blank
-        //empty
-        //too many elements
-        //invalid value
-        //other tenant's id
-    }
-    @Test
-    public void validation_update_common_permission_ids(){
-        //null
-        //blank
-        //empty
-        //too many elements
-        //invalid value
-        //other tenant's id
-    }
-    @Test
-    public void validation_update_external_permission_ids(){
-        //null
-        //blank
-        //empty
-        //too many elements
-        //invalid value
-        //other tenant's id
-    }
-    @Test
-    public void validation_patch_name(){
+    public void validation_patch_name() {
         //null
         //blank
         //empty

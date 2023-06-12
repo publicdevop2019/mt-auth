@@ -1,12 +1,19 @@
 package com.mt.access.domain.model.cache_profile;
 
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -37,7 +44,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Getter
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "cacheProfileRegion")
-@Setter(AccessLevel.PRIVATE)
 @ToString
 public class CacheProfile extends Auditable {
 
@@ -47,7 +53,7 @@ public class CacheProfile extends Auditable {
     @Embedded
     private CacheProfileId cacheProfileId;
 
-    private boolean allowCache;
+    private Boolean allowCache;
 
     @Getter
     @ElementCollection(fetch = FetchType.LAZY)
@@ -57,18 +63,32 @@ public class CacheProfile extends Auditable {
         region = "cacheControlRegion")
     @Enumerated(EnumType.STRING)
     private Set<CacheControlValue> cacheControl;
-
+    /**
+     * HTTP header contains the date/time after which the response is considered expired.
+     * ignored if maxAge or smaxAge
+     */
     private Long expires;
-
+    /**
+     * indicates that the response remains fresh until N seconds after the response is generated.
+     * min 1 sec
+     * max 31536000 = 1 year
+     */
     private Long maxAge;
-
+    /**
+     * indicates how long the response is fresh for (similar to max-age)
+     * but it is specific to shared caches, and will ignore max-age when it is present.
+     */
     private Long smaxAge;
-
+    /**
+     * used to create a cache key when content negotiation is in use
+     * aside from the method and URL
+     * "*" implies that the response is uncacheable
+     */
     private String vary;
 
-    private boolean etag;
+    private Boolean etag;
 
-    private boolean weakValidation;
+    private Boolean weakValidation;
 
     @Embedded
     @Setter(AccessLevel.PRIVATE)
@@ -98,14 +118,14 @@ public class CacheProfile extends Auditable {
         String name,
         String description,
         CacheProfileId cacheProfileId,
-        Set<CacheControlValue> cacheControl,
+        Set<String> cacheControl,
         Long expires,
         Long maxAge,
         Long smaxAge,
         String vary,
-        boolean allowCache,
-        boolean etag,
-        boolean weakValidation,
+        Boolean allowCache,
+        Boolean etag,
+        Boolean weakValidation,
         ProjectId projectId
     ) {
         super();
@@ -122,6 +142,66 @@ public class CacheProfile extends Auditable {
         setWeakValidation(weakValidation);
         setProjectId(projectId);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.getCacheProfileValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setWeakValidation(Boolean weakValidation) {
+        this.weakValidation = weakValidation;
+    }
+
+    private void setEtag(Boolean etag) {
+        this.etag = etag;
+    }
+
+    private void setVary(String vary) {
+        Validator.validOptionalString(100, vary);
+        this.vary = vary;
+    }
+
+    private void setSmaxAge(Long smaxAge) {
+        if (Checker.notNull(smaxAge)) {
+            Validator.lessThanOrEqualTo(smaxAge, 31536000);
+            Validator.greaterThanOrEqualTo(smaxAge, 1);
+        }
+        this.smaxAge = smaxAge;
+    }
+
+    private void setMaxAge(Long maxAge) {
+        if (Checker.notNull(maxAge)) {
+            Validator.lessThanOrEqualTo(maxAge, 31536000);
+            Validator.greaterThanOrEqualTo(maxAge, 1);
+        }
+        this.maxAge = maxAge;
+    }
+
+    private void setExpires(Long expires) {
+        if (Checker.notNull(expires)) {
+            Validator.lessThanOrEqualTo(expires, 31536000);
+            Validator.greaterThanOrEqualTo(expires, 1);
+        }
+        this.expires = expires;
+    }
+
+    private void setCacheProfileId(CacheProfileId cacheProfileId) {
+        Validator.notNull(cacheProfileId);
+        this.cacheProfileId = cacheProfileId;
+    }
+
+    private void setAllowCache(Boolean allowCache) {
+        Validator.notNull(allowCache);
+        this.allowCache = allowCache;
+    }
+
+    private void setDescription(String description) {
+        Validator.validOptionalString(100, description);
+        this.description = description;
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name;
     }
 
     /**
@@ -140,34 +220,52 @@ public class CacheProfile extends Auditable {
      */
     public void update(String name,
                        String description,
-                       Set<CacheControlValue> cacheControl,
+                       Set<String> cacheControl,
                        Long expires,
                        Long maxAge,
                        Long smaxAge,
                        String vary,
-                       boolean allowCache,
-                       boolean etag,
-                       boolean weakValidation) {
-        this.name = name;
-        this.description = description;
+                       Boolean allowCache,
+                       Boolean etag,
+                       Boolean weakValidation) {
+        setName(name);
+        setDescription(description);
         setCacheControl(cacheControl);
-        this.expires = expires;
-        this.maxAge = maxAge;
-        this.smaxAge = smaxAge;
-        this.vary = vary;
-        this.etag = etag;
-        this.weakValidation = weakValidation;
-        this.allowCache = allowCache;
+        setExpires(expires);
+        setMaxAge(maxAge);
+        setSmaxAge(smaxAge);
+        setVary(vary);
+        setEtag(etag);
+        setWeakValidation(weakValidation);
+        setAllowCache(allowCache);
         CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
+        validate(new HttpValidationNotificationHandler());
+        DomainRegistry.getCacheProfileValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
     }
 
-    private void setCacheControl(Set<CacheControlValue> cacheControl) {
-        if (!Objects.equals(cacheControl, this.cacheControl)) {
+    private void setCacheControl(Set<String> cacheControl) {
+        Set<CacheControlValue> collect = null;
+        if (Checker.notNull(cacheControl)) {
+            Validator.notEmpty(cacheControl);
+            Validator.memberOf(cacheControl,
+                Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(
+                    Collectors.toSet()));
+            collect = cacheControl.stream().map(CacheControlValue::valueOfLabel)
+                .collect(Collectors.toSet());
+            Validator.lessThanOrEqualTo(collect, 9);
+        }
+        if (!Objects.equals(collect, this.cacheControl)) {
             if (this.cacheControl != null) {
                 this.cacheControl.clear();
             }
-            this.cacheControl = cacheControl;
+            this.cacheControl = collect;
         }
+    }
+
+    @Override
+    public void validate(ValidationNotificationHandler handler) {
+        (new CacheProfileValidator(this, handler)).validate();
     }
 
     @Override
@@ -192,5 +290,10 @@ public class CacheProfile extends Auditable {
 
     public void removeAllReference() {
         CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileRemoved(this));
+    }
+
+    public void updateNameAndDescription(String name, String description) {
+        setName(name);
+        setDescription(description);
     }
 }

@@ -8,7 +8,7 @@ public class EndpointCreateCommand {
     private String description;
     private String projectId;
     private Boolean secured;
-    private Boolean isWebsocket;
+    private Boolean websocket;
     private Boolean csrfEnabled;
     private Boolean shared;
     private String corsProfileId;

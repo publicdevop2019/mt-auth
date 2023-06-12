@@ -35,7 +35,7 @@ public class TenantMessageTest {
         tenantContextA = TenantUtility.initTenant();
         tenantContextB = TenantUtility.initTenant();
 
-        clientA = ClientUtility.createRandomBackendClientObj();
+        clientA = ClientUtility.createValidBackendClient();
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);

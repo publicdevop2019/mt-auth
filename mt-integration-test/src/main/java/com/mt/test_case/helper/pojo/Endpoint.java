@@ -20,16 +20,17 @@ public class Endpoint {
     private Integer port;
     private String path;
     private String query;
-    private boolean websocket;
     private String fragment;
     private String cacheProfileId;
     private String corsProfileId;
     private Integer version;
     private String description;
-    private boolean secured;
-    private boolean external;
-    private boolean shared;
-    private int replenishRate = 10;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
+    private Boolean external;
+    private Boolean shared;
+    private Integer replenishRate;
 
-    private int burstCapacity = 10;
+    private Integer burstCapacity;
 }

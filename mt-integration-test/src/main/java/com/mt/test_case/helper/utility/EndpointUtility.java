@@ -18,7 +18,7 @@ public class EndpointUtility {
         new ParameterizedTypeReference<>() {
         };
 
-    private static String getUrl(Project project) {
+    public static String getUrl(Project project) {
         return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "endpoints");
     }
 
@@ -29,10 +29,7 @@ public class EndpointUtility {
         endpoint.setMethod(RandomUtility.randomHttpMethod());
         endpoint.setWebsocket(RandomUtility.randomBoolean());
         endpoint
-            .setPath(
-                "/test/" + RandomUtility.randomStringNoNum()
-                    +
-                    "/abc");
+            .setPath(RandomUtility.randomHttpPath());
         return endpoint;
     }
 
@@ -45,7 +42,12 @@ public class EndpointUtility {
     public static Endpoint createRandomGetEndpointObj(String clientId) {
         Endpoint randomEndpointObj = EndpointUtility.createRandomEndpointObj(clientId);
         randomEndpointObj.setWebsocket(false);
+        randomEndpointObj.setShared(false);
+        randomEndpointObj.setExternal(true);
+        randomEndpointObj.setSecured(true);
         randomEndpointObj.setMethod("GET");
+        randomEndpointObj.setBurstCapacity(60);
+        randomEndpointObj.setReplenishRate(20);
         return randomEndpointObj;
     }
 
@@ -74,6 +76,9 @@ public class EndpointUtility {
         Endpoint randomEndpointObj = EndpointUtility.createRandomEndpointObj(clientId);
         randomEndpointObj.setSecured(false);
         randomEndpointObj.setExternal(true);
+        randomEndpointObj.setShared(false);
+        randomEndpointObj.setReplenishRate(60);
+        randomEndpointObj.setBurstCapacity(120);
         return randomEndpointObj;
     }
 
@@ -106,6 +111,11 @@ public class EndpointUtility {
 
     public static ResponseEntity<Void> expireTenantEndpoint(
         TenantContext tenantContext, Endpoint endpoint) {
+        return expireTenantEndpoint(tenantContext, endpoint, RandomUtility.randomStringWithNum());
+    }
+
+    public static ResponseEntity<Void> expireTenantEndpoint(
+        TenantContext tenantContext, Endpoint endpoint, String reason) {
         String bearer =
             UserUtility.login(tenantContext.getCreator());
         String accessUrl = UrlUtility.getAccessUrl(
@@ -115,7 +125,6 @@ public class EndpointUtility {
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer);
         headers1.setContentType(MediaType.APPLICATION_JSON);
-        String reason = RandomUtility.randomStringWithNum();
         HttpEntity<String> hashMapHttpEntity1 =
             new HttpEntity<>("{\"expireReason\":\"" + reason + "\"}", headers1);
         return TestContext.getRestTemplate()

@@ -1,12 +1,11 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.PendingUser;
 import com.mt.test_case.helper.pojo.Project;
-import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
-import com.mt.test_case.helper.AppConstant;
 import java.util.Objects;
 import java.util.UUID;
 import org.junit.Assert;
@@ -59,7 +58,7 @@ public class UserUtility {
 
 
     public static User createRandomUserObj() {
-        return userCreateDraftObj(RandomUtility.randomStringWithNum() + "@gmail.com",
+        return userCreateDraftObj(RandomUtility.randomEmail(),
             RandomUtility.randomStringWithNum());
     }
 
@@ -83,6 +82,11 @@ public class UserUtility {
 
     public static ResponseEntity<Void> enterActivationCode(User user,
                                                            String registerToken) {
+        return enterActivationCode(user, registerToken, "123456");
+    }
+
+    public static ResponseEntity<Void> enterActivationCode(User user,
+                                                           String registerToken, String code) {
         PendingUser pendingUser = new PendingUser();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setContentType(MediaType.APPLICATION_JSON);
@@ -92,7 +96,7 @@ public class UserUtility {
         pendingUser.setCountryCode(user.getCountryCode());
         pendingUser.setMobileNumber(user.getMobileNumber());
         pendingUser.setPassword(user.getPassword());
-        pendingUser.setActivationCode("123456");
+        pendingUser.setActivationCode(code);
         HttpEntity<PendingUser> request1 =
             new HttpEntity<>(pendingUser, headers1);
         return TestContext.getRestTemplate()
@@ -140,13 +144,15 @@ public class UserUtility {
     public static ResponseEntity<DefaultOAuth2AccessToken> login(String username,
                                                                  String userPwd) {
         return OAuth2Utility
-            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET, username,
+            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                username,
                 userPwd);
     }
 
     public static String login(User user) {
         return OAuth2Utility
-            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET, user.getEmail(),
+            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                user.getEmail(),
                 user.getPassword()).getBody().getValue();
     }
 
@@ -160,11 +166,13 @@ public class UserUtility {
     }
 
     public static String getJwtUser() {
-        return login(AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER).getBody().getValue();
+        return login(AppConstant.ACCOUNT_USERNAME_USER, AppConstant.ACCOUNT_PASSWORD_USER).getBody()
+            .getValue();
     }
 
     public static String getJwtAdmin() {
-        return login(AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN).getBody().getValue();
+        return login(AppConstant.ACCOUNT_USERNAME_ADMIN,
+            AppConstant.ACCOUNT_PASSWORD_ADMIN).getBody().getValue();
     }
 
     /**
@@ -192,7 +200,8 @@ public class UserUtility {
         User tenantUser = createUser();
         String user1Token = login(tenantUser);
         ResponseEntity<String> codeResponse =
-            OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token, AppConstant.TEST_REDIRECT_URL);
+            OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token,
+                AppConstant.TEST_REDIRECT_URL);
         Assert.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
@@ -205,7 +214,7 @@ public class UserUtility {
     public static ResponseEntity<Void> updateTenantUser(TenantContext tenantContext,
                                                         User user) {
         String url = getUrl(tenantContext.getProject());
-        return Utility.updateResource(tenantContext.getCreator(), url, user,user.getId());
+        return Utility.updateResource(tenantContext.getCreator(), url, user, user.getId());
     }
 
     public static ResponseEntity<User> readTenantUser(TenantContext tenantContext,

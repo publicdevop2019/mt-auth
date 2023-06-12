@@ -13,7 +13,7 @@ public interface ClientRepository {
      * @param clientId client
      * @return client used for login
      */
-    ReadOnlyOAuthClient getForLogin(ClientId clientId);
+    LoginOAuthClient getForLogin(ClientId clientId);
 
     default Client get(ClientId clientId) {
         Client client = query(clientId);

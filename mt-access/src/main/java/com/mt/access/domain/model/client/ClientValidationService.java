@@ -21,7 +21,7 @@ public class ClientValidationService {
             if (allByQuery.size() != client.getResources().size()) {
                 handler.handleError("unable to find all resource(s)");
             }
-            boolean b = allByQuery.stream().anyMatch(e -> !e.isAccessible());
+            boolean b = allByQuery.stream().anyMatch(e -> !e.getAccessible());
             if (b) {
                 handler.handleError("resource(s) not accessible");
             }
@@ -36,7 +36,7 @@ public class ClientValidationService {
             if (allByQuery.size() != client.getExternalResources().size()) {
                 handler.handleError("unable to find all external resource(s)");
             }
-            boolean b = allByQuery.stream().anyMatch(e -> !e.isAccessible());
+            boolean b = allByQuery.stream().anyMatch(e -> !e.getAccessible());
             if (b) {
                 handler.handleError("resource(s) not accessible");
             }

@@ -24,7 +24,7 @@ public class ClientUtility {
         new ParameterizedTypeReference<>() {
         };
 
-    private static String getUrl(Project project) {
+    public static String getUrl(Project project) {
         return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "clients");
     }
 
@@ -36,8 +36,8 @@ public class ClientUtility {
     public static Client getClientAsNonResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
         client.setResourceIndicator(false);
-        Set<ClientType> types = new HashSet<>();
-        types.add(ClientType.BACKEND_APP);
+        Set<String> types = new HashSet<>();
+        types.add(ClientType.BACKEND_APP.name());
         client.setTypes(types);
         client.setPath(RandomUtility.randomStringNoNum());
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
@@ -47,8 +47,8 @@ public class ClientUtility {
     public static Client getClientAsResource(String... resourceIds) {
         Client client = getClientRaw(resourceIds);
         client.setResourceIndicator(true);
-        Set<ClientType> strings = new HashSet<>();
-        strings.add(ClientType.BACKEND_APP);
+        Set<String> strings = new HashSet<>();
+        strings.add(ClientType.BACKEND_APP.name());
         client.setTypes(strings);
         client.setPath(RandomUtility.randomStringNoNum());
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
@@ -65,7 +65,7 @@ public class ClientUtility {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
         client.setClientSecret(RandomUtility.randomStringWithNum());
-        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantType.PASSWORD)));
+        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantType.PASSWORD.name())));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);
@@ -79,8 +79,8 @@ public class ClientUtility {
         client.setClientSecret(RandomUtility.randomStringWithNum());
         GrantType grantType = RandomUtility.randomEnum(GrantType.values());
         ClientType clientType = RandomUtility.randomEnum(ClientType.values());
-        client.setGrantTypeEnums(Collections.singleton(grantType));
-        client.setTypes(Collections.singleton(clientType));
+        client.setGrantTypeEnums(Collections.singleton(grantType.name()));
+        client.setTypes(Collections.singleton(clientType.name()));
         client.setAccessTokenValiditySeconds(RandomUtility.randomInt());
         client.setRefreshTokenValiditySeconds(RandomUtility.randomInt());
         client.setHasSecret(RandomUtility.randomBoolean());
@@ -94,14 +94,31 @@ public class ClientUtility {
      *
      * @return client
      */
-    public static Client createRandomBackendClientObj() {
+    public static Client createValidBackendClient() {
         Client randomClient = ClientUtility.createRandomClientObj();
-        randomClient.setTypes(Collections.singleton(ClientType.BACKEND_APP));
-        randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS));
+        randomClient.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
+        randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
         randomClient.setAccessTokenValiditySeconds(180);
         randomClient.setRefreshTokenValiditySeconds(null);
         randomClient.setPath(RandomUtility.randomStringNoNum());
         randomClient.setExternalUrl(RandomUtility.randomLocalHostUrl());
+        randomClient.setResourceIndicator(RandomUtility.randomBoolean());
+        return randomClient;
+    }
+
+    /**
+     * create valid frontend client with client_credential grant
+     *
+     * @return client
+     */
+    public static Client createValidFrontendClient() {
+        Client randomClient = ClientUtility.createRandomClientObj();
+        randomClient.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
+        randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
+        randomClient.setAccessTokenValiditySeconds(180);
+        randomClient.setRefreshTokenValiditySeconds(null);
+        randomClient.setPath(null);
+        randomClient.setExternalUrl(null);
         return randomClient;
     }
 
@@ -111,7 +128,7 @@ public class ClientUtility {
      * @return client
      */
     public static Client createRandomSharedBackendClientObj() {
-        Client randomBackendClientObj = createRandomBackendClientObj();
+        Client randomBackendClientObj = createValidBackendClient();
         randomBackendClientObj.setResourceIndicator(true);
         return randomBackendClientObj;
     }
@@ -125,14 +142,16 @@ public class ClientUtility {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
         client.setClientSecret(RandomUtility.randomStringWithNum());
-        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP));
+        client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
         client.setGrantTypeEnums(
-            new HashSet<>(Collections.singletonList(GrantType.AUTHORIZATION_CODE)));
+            new HashSet<>(Collections.singletonList(GrantType.AUTHORIZATION_CODE.name())));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);
         client.setRegisteredRedirectUri(Collections.singleton(AppConstant.TEST_REDIRECT_URL));
+        client.setAutoApprove(Boolean.TRUE);
         client.setResourceIds(Collections.emptySet());
+        client.setResourceIndicator(null);
         return client;
     }
 

@@ -23,7 +23,7 @@ public class ClientPatchCommand {
         this.description = client.getDescription();
         this.name = client.getName();
         this.path = client.getPath();
-        this.resourceIndicator = client.isAccessible();
+        this.resourceIndicator = client.getAccessible();
         this.grantTypeEnums = client.getGrantTypes();
         this.accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         this.resourceIds = client.getResources().stream().map(ClientId::getDomainId)

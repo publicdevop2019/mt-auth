@@ -73,7 +73,11 @@ public class RandomUtility {
     public static String randomStringNoNum() {
         return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
     }
-
+    public static String randomHttpPath(){
+        return "/test/" + RandomUtility.randomStringNoNum()
+            +
+            "/abc";
+    }
     public static Long randomLong() {
         return random.nextLong();
     }
@@ -100,4 +104,7 @@ public class RandomUtility {
         return "http://localhost:" + random.nextInt(10000);
     }
 
+    public static String randomEmail() {
+        return RandomUtility.randomStringWithNum() + "@gmail.com";
+    }
 }

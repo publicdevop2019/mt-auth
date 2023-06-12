@@ -20,7 +20,7 @@ public class PasswordResetCode {
     }
 
     private void setValue(String value) {
-        Validator.lengthGreaterThanOrEqualTo(value, 9);
+        Validator.greaterThanOrEqualTo(value, 9);
         this.value = value;
     }
 

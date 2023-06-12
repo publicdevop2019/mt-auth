@@ -40,7 +40,7 @@ import org.hibernate.annotations.Immutable;
 @Immutable
 @NoArgsConstructor
 @Table(name = "client")
-public class ReadOnlyOAuthClient {
+public class LoginOAuthClient {
     @Id
     @Getter(AccessLevel.PRIVATE)
     private Long id;
@@ -115,7 +115,7 @@ public class ReadOnlyOAuthClient {
 
     @Getter
     @Column(name = "accessible_")
-    private boolean accessible = false;
+    private Boolean accessible;
 
     @Getter
     @Embedded
@@ -144,7 +144,7 @@ public class ReadOnlyOAuthClient {
         private final Set<RedirectUrl> redirectUrls = new HashSet<>();
 
         @Getter
-        private boolean autoApprove = false;
+        private final Boolean autoApprove = false;
     }
 
     public Integer accessTokenValiditySeconds() {
@@ -164,7 +164,7 @@ public class ReadOnlyOAuthClient {
     }
     public boolean getAutoApprove() {
         if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getAuthorizationCodeGrant().isAutoApprove();
+            return getAuthorizationCodeGrant().getAutoApprove();
         }
         return false;
     }

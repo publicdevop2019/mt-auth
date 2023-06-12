@@ -12,7 +12,7 @@ public class UserMgmtRepresentation {
     private String id;
 
     private String email;
-    private boolean locked;
+    private Boolean locked;
     private Set<String> grantedAuthorities;
     private String createdBy;
 
@@ -21,14 +21,14 @@ public class UserMgmtRepresentation {
     private String modifiedBy;
 
     private Long modifiedAt;
-    private boolean subscription;
+    private Boolean subscription;
 
     private List<UserLoginHistory> loginHistory;
 
     public UserMgmtRepresentation(User user, Set<LoginHistory> loginInfoList) {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
-        this.locked = user.isLocked();
+        this.locked = user.getLocked();
         this.createdBy = user.getCreatedBy();
         this.createdAt = user.getCreatedAt().getTime();
         this.modifiedBy = user.getModifiedBy();

@@ -9,6 +9,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Arrays;
 import javax.annotation.Nullable;
@@ -64,9 +65,8 @@ public class User extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
     @Column
-    @Setter(AccessLevel.PRIVATE)
     @Getter
-    private boolean locked = false;
+    private Boolean locked;
 
     @Getter
     @Embedded
@@ -81,11 +81,16 @@ public class User extends Auditable {
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);
-        setLocked(false);
+        setLocked(Boolean.FALSE);
         setMobile(mobile);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setLocked(Boolean locked) {
+        Validator.notNull(locked);
+        this.locked = locked;
     }
 
     private User() {
@@ -115,7 +120,7 @@ public class User extends Auditable {
     }
 
 
-    public void lockUser(boolean locked) {
+    public void lockUser(Boolean locked) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
             throw new DefinedRuntimeException("root account cannot be locked", "1062",

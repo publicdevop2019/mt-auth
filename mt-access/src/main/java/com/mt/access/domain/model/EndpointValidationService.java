@@ -17,10 +17,10 @@ public class EndpointValidationService {
 
     private void sharedClientMustBeAccessible(Endpoint endpoint,
                                               ValidationNotificationHandler handler) {
-        if (endpoint.isShared()) {
+        if (endpoint.getShared()) {
             ClientId clientId = endpoint.getClientId();
             Client client = DomainRegistry.getClientRepository().get(clientId);
-            if (!client.isAccessible()) {
+            if (!client.getAccessible()) {
                 handler.handleError("shared endpoint client must be accessible: "
                     +
                     endpoint.getClientId().getDomainId());

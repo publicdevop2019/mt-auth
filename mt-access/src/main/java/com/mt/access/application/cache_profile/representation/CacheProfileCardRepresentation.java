@@ -15,10 +15,10 @@ public class CacheProfileCardRepresentation {
     private Long maxAge;
     private Long smaxAge;
     private String vary;
-    private boolean allowCache;
-    private boolean etag;
-    private boolean weakValidation;
-    private int version;
+    private Boolean allowCache;
+    private Boolean etag;
+    private Boolean weakValidation;
+    private Integer version;
 
     public CacheProfileCardRepresentation(CacheProfile profile) {
         this.name = profile.getName();
@@ -30,9 +30,9 @@ public class CacheProfileCardRepresentation {
         this.maxAge = profile.getMaxAge();
         this.vary = profile.getVary();
         this.smaxAge = profile.getSmaxAge();
-        this.etag = profile.isEtag();
-        this.weakValidation = profile.isWeakValidation();
-        this.allowCache = profile.isAllowCache();
+        this.etag = profile.getEtag();
+        this.weakValidation = profile.getWeakValidation();
+        this.allowCache = profile.getAllowCache();
         this.version = profile.getVersion();
     }
 }

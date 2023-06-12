@@ -13,8 +13,8 @@ public class Cache {
     private Long maxAge;
     private Long smaxAge;
     private String vary;
-    private boolean etag;
-    private boolean allowCache;
-    private boolean weakValidation;
+    private Boolean etag;
+    private Boolean allowCache;
+    private Boolean weakValidation;
     private Integer version;
 }

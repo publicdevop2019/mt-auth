@@ -6,7 +6,7 @@ import lombok.Data;
 public class EndpointUpdateCommand {
     private String name;
     private String description;
-    private Boolean isWebsocket;
+    private Boolean websocket;
     private Boolean csrfEnabled;
     private String corsProfileId;
     private String cacheProfileId;

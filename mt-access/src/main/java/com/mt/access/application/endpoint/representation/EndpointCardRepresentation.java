@@ -19,12 +19,12 @@ public class EndpointCardRepresentation {
     private String path;
     private String method;
     private Integer version;
-    private boolean websocket;
-    private boolean csrfEnabled;
-    private boolean secured;
-    private boolean shared;
-    private boolean expired;
-    private boolean external;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
+    private Boolean shared;
+    private Boolean expired;
+    private Boolean external;
     private String expireReason;
     private String corsProfileId;
     private String cacheProfileId;
@@ -32,20 +32,20 @@ public class EndpointCardRepresentation {
     public EndpointCardRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
-        this.external = endpoint.isExternal();
+        this.external = endpoint.getExternal();
         this.name = endpoint.getName();
         this.cacheProfileId =
             endpoint.getCacheProfileId() != null ? endpoint.getCacheProfileId().getDomainId() :
                 null;
-        this.websocket = endpoint.isWebsocket();
+        this.websocket = endpoint.getWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.secured = endpoint.isAuthRequired();
-        this.csrfEnabled = endpoint.isCsrfEnabled();
-        this.shared = endpoint.isShared();
-        this.expired = endpoint.isExpired();
+        this.secured = endpoint.getSecured();
+        this.csrfEnabled = endpoint.getCsrfEnabled();
+        this.shared = endpoint.getShared();
+        this.expired = endpoint.getExpired();
         this.expireReason = endpoint.getExpireReason();
         this.corsProfileId =
             endpoint.getCorsProfileId() != null ? endpoint.getCorsProfileId().getDomainId() : null;

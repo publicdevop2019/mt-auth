@@ -175,4 +175,31 @@ public class MgmtUserTest extends CommonTest {
 
     }
 
+    @Test
+    public void validation_mgmt_lock_user() {
+        User user = UserUtility.createRandomUserObj();
+        ResponseEntity<Void> createResp = UserUtility.register(user);
+
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
+            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        String bearer = Objects.requireNonNull(tokenResponse.getBody()).getValue();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        user.setLocked(null);
+        user.setVersion(0);
+        HttpEntity<User> request = new HttpEntity<>(user, headers);
+        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(createResp));
+        ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
+            .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
+
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+    }
+
+
+    @Test
+    public void validation_mgmt_patch_user() {
+        //null
+    }
+
 }

@@ -15,13 +15,11 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -46,15 +44,15 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     region = "endpointRegion")
 public class Endpoint extends Auditable {
 
-    @Column(name = "secured", updatable = false)
-    private boolean authRequired;
+    @Column(name = "secured")
+    private Boolean secured;
 
     @Setter(AccessLevel.PRIVATE)
     private String description;
     private String name;
 
-    @Setter(AccessLevel.PRIVATE)
-    private boolean isWebsocket;
+    @Column(name = "websocket")
+    private Boolean websocket;
 
     @Embedded
     @Setter(AccessLevel.PUBLIC)
@@ -80,14 +78,14 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId",
-            column = @Column(name = "clientId", updatable = false, nullable = false))
+            column = @Column(name = "clientId"))
     })
     private ClientId clientId;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId",
-            column = @Column(name = "projectId", updatable = false, nullable = false))
+            column = @Column(name = "projectId"))
     })
     private ProjectId projectId;
 
@@ -101,28 +99,28 @@ public class Endpoint extends Auditable {
     private String method;
 
     @Setter(AccessLevel.PRIVATE)
-    private boolean csrfEnabled = true;
+    private Boolean csrfEnabled;
 
-    @Column(updatable = false)
-    private boolean shared = false;
+    @Column
+    private Boolean shared;
 
-    @Column(updatable = false)
-    private boolean external = false;
+    @Column
+    private Boolean external;
 
-    private int replenishRate = 0;
+    private Integer replenishRate = 0;
 
-    private int burstCapacity = 0;
+    private Integer burstCapacity = 0;
 
-    private boolean expired = false;
+    private Boolean expired;
     private String expireReason;
 
 
     public Endpoint(ClientId clientId, ProjectId projectId, CacheProfileId cacheProfileId,
                     String name, String description,
                     String path, EndpointId endpointId, String method,
-                    boolean authRequired, boolean isWebsocket, boolean csrfEnabled,
-                    CorsProfileId corsProfileId, boolean shared,
-                    boolean external, int replenishRate, int burstCapacity
+                    Boolean secured, Boolean websocket, Boolean csrfEnabled,
+                    CorsProfileId corsProfileId, Boolean shared,
+                    Boolean external, Integer replenishRate, Integer burstCapacity
     ) {
         super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
@@ -131,19 +129,25 @@ public class Endpoint extends Auditable {
         setEndpointId(endpointId);
         setName(name);
         setDescription(description);
-        setWebsocket(isWebsocket);
+        setWebsocket(websocket);
         setCacheProfileId(cacheProfileId);
         setPath(path);
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        validate(new HttpValidationNotificationHandler());
-        setEndpointCatalogOnCreation(shared, authRequired, external);
+        setEndpointCatalogOnCreation(shared, secured, external);
+        setExpired(Boolean.FALSE);
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
         CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
+        validate(new HttpValidationNotificationHandler());
+    }
+
+    private void setExpired(Boolean expired) {
+        Validator.notNull(expired);
+        this.expired = expired;
     }
 
     public void remove() {
@@ -151,7 +155,7 @@ public class Endpoint extends Auditable {
         DomainRegistry.getEndpointRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new EndpointCollectionModified());
-        if (authRequired) {
+        if (secured) {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointRemoved(this));
         }
@@ -168,10 +172,10 @@ public class Endpoint extends Auditable {
     public void update(
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
-        boolean isWebsocket,
-        boolean csrfEnabled, CorsProfileId corsProfileId,
-        int replenishRate,
-        int burstCapacity
+        Boolean isWebsocket,
+        Boolean csrfEnabled, CorsProfileId corsProfileId,
+        Integer replenishRate,
+        Integer burstCapacity
     ) {
         if (expired) {
             throw new DefinedRuntimeException("expired endpoint cannot be updated", "1041",
@@ -192,17 +196,41 @@ public class Endpoint extends Auditable {
             .validate(this, new HttpValidationNotificationHandler());
     }
 
-    private void setEndpointCatalogOnCreation(boolean shared, boolean secured, boolean external) {
-        if (secured) {
+    private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external) {
+        if (Boolean.TRUE.equals(secured)) {
             permissionId = new PermissionId();
         }
-        this.shared = shared;
-        this.authRequired = secured;
-        this.external = external;
+        setShared(shared);
+        setSecured(secured);
+        setExternal(external);
         if (secured) {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new SecureEndpointCreated(getProjectId(), this));
         }
+    }
+
+    private void setSecured(Boolean secured) {
+        Validator.notNull(secured);
+        Validator.isNull(this.secured);
+        this.secured = secured;
+    }
+
+    private void setWebsocket(Boolean websocket) {
+        Validator.notNull(websocket);
+        Validator.isNull(this.websocket);
+        this.websocket = websocket;
+    }
+
+    private void setShared(Boolean shared) {
+        Validator.notNull(shared);
+        Validator.isNull(this.shared);
+        this.shared = shared;
+    }
+
+    private void setExternal(Boolean external) {
+        Validator.notNull(external);
+        Validator.isNull(this.external);
+        this.external = external;
     }
 
     private void setName(String name) {
@@ -210,12 +238,14 @@ public class Endpoint extends Auditable {
         this.name = name;
     }
 
-    public void setReplenishRate(int replenishRate) {
+    private void setReplenishRate(Integer replenishRate) {
+        Validator.notNull(replenishRate);
         Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
         this.replenishRate = replenishRate;
     }
 
-    public void setBurstCapacity(int burstCapacity) {
+    private void setBurstCapacity(Integer burstCapacity) {
+        Validator.notNull(burstCapacity);
         Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
         this.burstCapacity = burstCapacity;
     }

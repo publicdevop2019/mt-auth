@@ -23,8 +23,8 @@ public class UserPassword {
     private void setPassword(String rawPassword) {
         Validator.notNull(rawPassword);
         Validator.notBlank(rawPassword);
-        Validator.lengthLessThanOrEqualTo(rawPassword, 16);
-        Validator.lengthGreaterThanOrEqualTo(rawPassword, 10);
+        Validator.lessThanOrEqualTo(rawPassword, 16);
+        Validator.greaterThanOrEqualTo(rawPassword, 10);
         Pattern p = Pattern.compile("[a-z]");
         Matcher m = p.matcher(rawPassword);
         if (!m.find()) {

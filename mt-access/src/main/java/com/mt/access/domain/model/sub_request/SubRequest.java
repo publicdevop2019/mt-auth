@@ -69,10 +69,10 @@ public class SubRequest extends Auditable {
 
     public SubRequest(ProjectId projectId,
                       EndpointId endpointId,
-                      int replenishRate,
-                      int burstCapacity,
+                      Integer replenishRate,
+                      Integer burstCapacity,
                       ProjectId endpointProjectId,
-                      boolean expired, boolean secured, boolean shared) {
+                      Boolean expired, Boolean secured, Boolean shared) {
         if (projectId.equals(endpointProjectId)) {
             throw new DefinedRuntimeException("cannot subscribe to itself", "1057",
                 HttpResponseCode.BAD_REQUEST);

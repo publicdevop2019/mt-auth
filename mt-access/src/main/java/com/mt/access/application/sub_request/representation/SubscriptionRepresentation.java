@@ -42,7 +42,7 @@ public class SubscriptionRepresentation extends BasicSubRequest {
                     ee.getEndpointId().equals(new EndpointId(e.getEndpointId()))).findAny()
                 .ifPresent(ep -> {
                     e.setEndpointName(ep.getName());
-                    e.setExpired(ep.isExpired());
+                    e.setExpired(ep.getExpired());
                     e.setExpireReason(ep.getExpireReason());
                 }));
         }

@@ -8,7 +8,6 @@ import lombok.Data;
 public class ClientUpdateCommand {
     private String clientSecret;
     private String projectId;
-    private Boolean hasSecret;
     private String description;
     private String name;
     private String path;

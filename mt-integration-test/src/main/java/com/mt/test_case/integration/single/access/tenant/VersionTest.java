@@ -1,7 +1,6 @@
 package com.mt.test_case.integration.single.access.tenant;
 
 import com.mt.test_case.helper.TenantContext;
-import com.mt.test_case.helper.TenantTest;
 import com.mt.test_case.helper.pojo.Cache;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Cors;
@@ -72,7 +71,7 @@ public class VersionTest{
     }
     @Test
     public void client_version_will_not_increase() {
-        Client client = ClientUtility.createRandomBackendClientObj();
+        Client client = ClientUtility.createValidBackendClient();
         client.setClientSecret(" ");
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);

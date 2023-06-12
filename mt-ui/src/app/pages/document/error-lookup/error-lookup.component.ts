@@ -72,6 +72,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1081',explain:'不是管理员'},
     {code:'1082',explain:'至少两个管理员'},
     {code:'1083',explain:'当前用户ID提取错误'},
+    {code:'1084',explain:'path格式错误'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},
@@ -106,7 +107,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0040',explain:'校验：非法字符'},
     {code:'0041',explain:'校验：不能为空'},
     {code:'0042',explain:'校验：元素不能为null'},
-    {code:'0043,0044',explain:'校验：数值过小或不等'},
+    {code:'0044',explain:'校验：数值过小或不等'},
     {code:'0045',explain:'校验：数值不等'},
     {code:'0046',explain:'校验：数值过小'},
     {code:'0047',explain:'校验：不是Email'},
@@ -114,6 +115,9 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0049',explain:'Http Validation'},
     {code:'0050,0051,0052,0053,0054,0055,0056',explain:'反/序列化错误'},
     {code:'0057',explain:'JSON patch失败'},
+    {code:'0058',explain:'错误的枚举值'},
+    {code:'0059',explain:'值必须为空'},
+    {code:'0061',explain:'实际值与期待值校验失败'},
   ]
   constructor() { }
 

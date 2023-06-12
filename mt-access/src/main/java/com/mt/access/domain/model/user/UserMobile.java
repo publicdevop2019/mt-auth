@@ -29,10 +29,10 @@ public class UserMobile implements Serializable {
     public UserMobile(String countryCode, String mobileNumber) {
         this.countryCode = countryCode;
         this.mobileNumber = mobileNumber;
-        Validator.lengthGreaterThanOrEqualTo(mobileNumber, 10);
-        Validator.lengthLessThanOrEqualTo(mobileNumber, 11);
-        Validator.lengthGreaterThanOrEqualTo(countryCode, 1);
-        Validator.lengthLessThanOrEqualTo(countryCode, 3);
+        Validator.greaterThanOrEqualTo(mobileNumber, 10);
+        Validator.lessThanOrEqualTo(mobileNumber, 11);
+        Validator.greaterThanOrEqualTo(countryCode, 1);
+        Validator.lessThanOrEqualTo(countryCode, 3);
     }
 
     @Override

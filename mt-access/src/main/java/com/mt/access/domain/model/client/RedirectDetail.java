@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.client;
 
 import com.mt.access.port.adapter.persistence.client.RedirectUrlConverter;
+import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -13,10 +14,8 @@ import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Embeddable
@@ -32,22 +31,28 @@ public class RedirectDetail implements Serializable {
     @Convert(converter = RedirectUrlConverter.class)
     private final Set<RedirectUrl> redirectUrls = new HashSet<>();
 
-    @Setter(value = AccessLevel.PRIVATE)
     @Getter
-    private boolean autoApprove = false;
+    private Boolean autoApprove;
 
-    public RedirectDetail(Set<String> redirectUrls, boolean autoApprove) {
-        if (redirectUrls != null) {
-            setRedirectUrls(
-                redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet()));
-        }
+    public RedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
+        setRedirectUrls(redirectUrls);
         setAutoApprove(autoApprove);
     }
 
-    private void setRedirectUrls(Set<RedirectUrl> redirectUrls) {
-        if (!this.redirectUrls.equals(redirectUrls)) {
+    private void setAutoApprove(Boolean autoApprove) {
+        Validator.notNull(autoApprove);
+        this.autoApprove = autoApprove;
+    }
+
+    private void setRedirectUrls(Set<String> redirectUrls) {
+        Validator.notNull(redirectUrls);
+        Validator.notEmpty(redirectUrls);
+        Validator.lessThanOrEqualTo(redirectUrls, 5);
+        Set<RedirectUrl> collect =
+            redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet());
+        if (!this.redirectUrls.equals(collect)) {
             this.redirectUrls.clear();
-            this.redirectUrls.addAll(redirectUrls);
+            this.redirectUrls.addAll(collect);
         }
     }
 

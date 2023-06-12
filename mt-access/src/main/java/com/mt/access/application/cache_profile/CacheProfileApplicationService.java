@@ -44,18 +44,17 @@ public class CacheProfileApplicationService {
     }
 
     @AuditLog(actionName = CREATE_TENANT_CACHE_PROFILE)
-    public String tenantCreate(String projectId, CreateCacheProfileCommand command,
+    public String tenantCreate(String rawProjectId, CreateCacheProfileCommand command,
                                String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_CACHE);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_CACHE);
         CacheProfileId cacheProfileId = new CacheProfileId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             CacheProfile cacheProfile = new CacheProfile(
                 command.getName(),
                 command.getDescription(),
                 cacheProfileId,
-                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                    .collect(Collectors.toSet()),
+                command.getCacheControl(),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
@@ -63,7 +62,7 @@ public class CacheProfileApplicationService {
                 command.getAllowCache(),
                 command.getEtag(),
                 command.getWeakValidation(),
-                projectId1
+                projectId
             );
             DomainRegistry.getCacheProfileRepository().add(cacheProfile);
             return null;
@@ -83,8 +82,7 @@ public class CacheProfileApplicationService {
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
-                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                    .collect(Collectors.toSet()),
+                command.getCacheControl(),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
@@ -113,17 +111,9 @@ public class CacheProfileApplicationService {
                     PatchCacheProfileCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
-                    original.update(
+                    original.updateNameAndDescription(
                         afterPatch.getName(),
-                        afterPatch.getDescription(),
-                        original.getCacheControl(),
-                        original.getExpires(),
-                        original.getMaxAge(),
-                        original.getSmaxAge(),
-                        original.getVary(),
-                        original.isAllowCache(),
-                        original.isEtag(),
-                        original.isWeakValidation()
+                        afterPatch.getDescription()
                     );
                 }
                 return null;

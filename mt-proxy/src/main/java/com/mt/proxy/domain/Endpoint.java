@@ -28,9 +28,9 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String path;
     private String method;
 
-    private boolean websocket;
-    private boolean csrfEnabled;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     private String permissionId;
@@ -98,7 +98,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     public static class CorsConfig implements Serializable {
         @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> origin;
-        private boolean credentials;
+        private Boolean credentials;
         @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> allowedHeaders;
         @JsonDeserialize(as = LinkedHashSet.class)
@@ -112,7 +112,7 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
 
     @Data
     public static class CacheConfig implements Serializable {
-        private boolean allowCache;
+        private Boolean allowCache;
         @JsonDeserialize(as = LinkedHashSet.class)
         private Set<String> cacheControl;
 
@@ -124,9 +124,9 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
 
         private String vary;
 
-        private boolean etag;
+        private Boolean etag;
 
-        private boolean weakValidation;
+        private Boolean weakValidation;
 
 
         public CacheConfig() {
@@ -136,8 +136,8 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @Data
     public static class Subscription implements Serializable, Comparable<Subscription> {
         private String projectId;
-        private int replenishRate;
-        private int burstCapacity;
+        private Integer replenishRate;
+        private Integer burstCapacity;
 
         public Subscription() {
         }

@@ -5,6 +5,7 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
 import java.util.Set;
 import javax.persistence.AttributeOverride;
@@ -39,7 +40,7 @@ public class CorsProfile extends Auditable {
     private String description;
     @Embedded
     private CorsProfileId corsId;
-    private boolean allowCredentials;
+    private Boolean allowCredentials;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
@@ -77,7 +78,7 @@ public class CorsProfile extends Auditable {
         String name,
         String description,
         Set<String> allowedHeaders,
-        boolean allowCredentials,
+        Boolean allowCredentials,
         Set<Origin> allowOrigin,
         Set<String> exposedHeaders,
         Long maxAge,
@@ -102,6 +103,10 @@ public class CorsProfile extends Auditable {
         String description,
         Set<String> allowedHeaders, Boolean allowCredentials, Set<Origin> allowOrigin,
         Set<String> exposedHeaders, Long maxAge) {
+        CorsProfile original =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        original.setName(null);
+        original.setDescription(null);
         setName(name);
         setDescription(description);
         setAllowedHeaders(allowedHeaders);
@@ -109,15 +114,26 @@ public class CorsProfile extends Auditable {
         setAllowOrigin(allowOrigin);
         setExposedHeaders(exposedHeaders);
         setMaxAge(maxAge);
-        CorsProfile copy = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        CorsProfile copy2 = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        copy.setName(null);
-        copy2.setName(null);
-        copy.setDescription(null);
-        copy2.setDescription(null);
-        if (!copy.equals(copy2)) {
+        CorsProfile afterUpdate =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        afterUpdate.setName(null);
+        afterUpdate.setDescription(null);
+        if (!original.equals(afterUpdate)) {
             CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileUpdated(this));
         }
+    }
+
+    public void update(
+        String name,
+        String description
+    ) {
+        setName(name);
+        setDescription(description);
+    }
+
+    public void setAllowCredentials(Boolean allowCredentials) {
+        Validator.notNull(allowCredentials);
+        this.allowCredentials = allowCredentials;
     }
 
     private void setAllowedHeaders(Set<String> allowedHeaders) {
@@ -130,6 +146,9 @@ public class CorsProfile extends Auditable {
     }
 
     private void setAllowOrigin(Set<Origin> allowOrigin) {
+        Validator.notNull(allowOrigin);
+        Validator.notEmpty(allowOrigin);
+        Validator.lessThanOrEqualTo(allowOrigin, 5);
         if (!Objects.equals(allowOrigin, this.allowOrigin)) {
             if (this.allowOrigin != null) {
                 this.allowOrigin.clear();

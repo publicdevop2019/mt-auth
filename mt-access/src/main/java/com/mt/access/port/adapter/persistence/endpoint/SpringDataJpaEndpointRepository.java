@@ -61,7 +61,7 @@ public interface SpringDataJpaEndpointRepository
     @Query("select count(*) from Endpoint ep where ep.shared = true")
     Long countSharedTotal_();
 
-    @Query("select count(*) from Endpoint ep where ep.authRequired = false and ep.external = true")
+    @Query("select count(*) from Endpoint ep where ep.secured = false and ep.external = true")
     Long countPublicTotal_();
 
     @Query("select count(*) from Endpoint ep where ep.projectId = ?1")
@@ -130,7 +130,7 @@ public interface SpringDataJpaEndpointRepository
             Optional.ofNullable(endpointQuery.getMethod()).ifPresent(
                 e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
             Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility
-                .addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
+                .addBooleanEqualPredicate(e, Endpoint_.WEBSOCKET, queryContext));
             Optional.ofNullable(endpointQuery.getIsShared()).ifPresent(
                 e -> {
                     if (e) {
@@ -149,7 +149,7 @@ public interface SpringDataJpaEndpointRepository
 
             Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(
                 e -> QueryUtility
-                    .addBooleanEqualPredicate(e, Endpoint_.AUTH_REQUIRED, queryContext));
+                    .addBooleanEqualPredicate(e, Endpoint_.SECURED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
@@ -179,7 +179,7 @@ public interface SpringDataJpaEndpointRepository
             public static Predicate getPredicate(CriteriaBuilder cb,
                                                  Root<Endpoint> root) {
                 Predicate isShared = cb.isTrue(root.get(Endpoint_.SHARED));
-                Predicate noAuth = cb.isFalse(root.get(Endpoint_.AUTH_REQUIRED));
+                Predicate noAuth = cb.isFalse(root.get(Endpoint_.SECURED));
                 Predicate isExternal = cb.isTrue(root.get(Endpoint_.EXTERNAL));
                 Predicate and = cb.and(isExternal, noAuth);
                 return cb.or(isShared, and);

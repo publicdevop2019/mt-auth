@@ -10,6 +10,6 @@ public class UserPatchingCommand {
     private Boolean locked;
 
     public UserPatchingCommand(User bizUser) {
-        this.locked = bizUser.isLocked();
+        this.locked = bizUser.getLocked();
     }
 }

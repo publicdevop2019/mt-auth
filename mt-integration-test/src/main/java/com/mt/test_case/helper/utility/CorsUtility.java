@@ -14,7 +14,7 @@ public class CorsUtility {
         new ParameterizedTypeReference<>() {
         };
 
-    private static String getUrl(Project project) {
+    public static String getUrl(Project project) {
         return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "cors");
     }
 
@@ -30,7 +30,7 @@ public class CorsUtility {
         strings.add(s2);
         cors.setAllowOrigin(strings);
         cors.setMaxAge(RandomUtility.randomLong());
-        cors.setAllowedHeaders(Collections.singleton(RandomUtility.randomStringWithNum()));
+        cors.setAllowedHeaders(Collections.singleton(RandomUtility.randomStringWithNum()+"-"+RandomUtility.randomStringWithNum()));
         cors.setExposedHeaders(Collections.singleton(RandomUtility.randomStringWithNum()));
         return cors;
     }

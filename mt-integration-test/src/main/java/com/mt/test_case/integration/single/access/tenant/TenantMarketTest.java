@@ -43,7 +43,7 @@ public class TenantMarketTest {
         tenantContextA = TenantUtility.initTenant();
         tenantContextB = TenantUtility.initTenant();
 
-        clientA = ClientUtility.createRandomBackendClientObj();
+        clientA = ClientUtility.createValidBackendClient();
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
@@ -66,7 +66,7 @@ public class TenantMarketTest {
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
             MarketUtility.readMarketEndpoint(creator);
-        List<Endpoint> collect = response.getBody().getData().stream().filter(e -> !e.isSecured())
+        List<Endpoint> collect = response.getBody().getData().stream().filter(e -> !e.getSecured())
             .collect(Collectors.toList());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertNotSame(0, collect.size());
@@ -77,7 +77,7 @@ public class TenantMarketTest {
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
             MarketUtility.readMarketEndpoint(creator);
-        List<Endpoint> collect = response.getBody().getData().stream().filter(Endpoint::isShared)
+        List<Endpoint> collect = response.getBody().getData().stream().filter(Endpoint::getSecured)
             .collect(Collectors.toList());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertNotSame(0, collect.size());
@@ -113,7 +113,7 @@ public class TenantMarketTest {
             MarketUtility.searchMarketEndpoint(creator, endpoint.getId());
         Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assert.assertSame(1, response.getBody().getData().size());
-        Assert.assertTrue(response.getBody().getData().stream().findFirst().get().isShared());
+        Assert.assertTrue(response.getBody().getData().stream().findFirst().get().getSecured());
     }
 
     @Test

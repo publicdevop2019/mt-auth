@@ -38,12 +38,12 @@ public class EndpointSharedCardRepresentation {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();
-        this.websocket = endpoint.isWebsocket();
+        this.websocket = endpoint.getWebsocket();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.shared = endpoint.isShared();
-        this.secured = endpoint.isAuthRequired();
+        this.shared = endpoint.getShared();
+        this.secured = endpoint.getSecured();
     }
 
     public static void updateDetail(List<EndpointSharedCardRepresentation> original) {

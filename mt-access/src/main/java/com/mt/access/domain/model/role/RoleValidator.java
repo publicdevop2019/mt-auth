@@ -43,8 +43,7 @@ public class RoleValidator {
                 log.debug("unable find permission id(s) {}", collect1);
             }
             Validator
-                .equalTo(allByQuery.size(), permissionIds.size(),
-                    "unable to find all permissionIds");
+                .equalTo(allByQuery.size(), permissionIds.size());
         }
     }
 

@@ -21,8 +21,7 @@ import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ExternalUrl;
-import com.mt.access.domain.model.client.ReadOnlyOAuthClient;
-import com.mt.access.domain.model.client.RedirectDetail;
+import com.mt.access.domain.model.client.LoginOAuthClient;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
@@ -164,10 +163,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
-                        new RedirectDetail(
-                            command.getRegisteredRedirectUri(),
-                            command.getAutoApprove()
-                        ),
+                        command.getRegisteredRedirectUri(),
+                        command.getAutoApprove(),
                         command.getTypes(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null
@@ -205,10 +202,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getGrantTypeEnums(),
                         new TokenDetail(command.getAccessTokenValiditySeconds(),
                             command.getRefreshTokenValiditySeconds()),
-                        new RedirectDetail(
-                            command.getRegisteredRedirectUri(),
-                            command.getAutoApprove()
-                        ),
+                        command.getRegisteredRedirectUri(),
+                        command.getAutoApprove(),
                         command.getExternalUrl() != null ?
                             new ExternalUrl(command.getExternalUrl()) : null
                     );
@@ -274,9 +269,7 @@ public class ClientApplicationService implements ClientDetailsService {
                                 .collect(Collectors.toSet()) : Collections.emptySet(),
                         afterPatch.getGrantTypeEnums(),
                         new TokenDetail(afterPatch.getAccessTokenValiditySeconds(),
-                            original.getTokenDetail().getRefreshTokenValiditySeconds()),
-                        original.getAuthorizationCodeGrant(),
-                        original.getExternalUrl()
+                            original.getTokenDetail().getRefreshTokenValiditySeconds())
                     );
                 }
                 return null;
@@ -285,7 +278,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        ReadOnlyOAuthClient client =
+        LoginOAuthClient client =
             DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
         return new ClientSpringOAuth2Representation(client);
     }

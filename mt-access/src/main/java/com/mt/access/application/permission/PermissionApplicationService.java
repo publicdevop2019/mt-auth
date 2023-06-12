@@ -124,8 +124,7 @@ public class PermissionApplicationService {
                         Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                             e -> DomainRegistry.getEndpointRepository().query(e),
                             new EndpointQuery(collect));
-                        Validator.equalTo(allByQuery.size(), collect.size(),
-                            "unable to find all endpoint");
+                        Validator.equalTo(allByQuery.size(), collect.size());
                         linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
                             .collect(Collectors.toSet());
                     }
@@ -204,7 +203,7 @@ public class PermissionApplicationService {
                         e -> DomainRegistry.getEndpointRepository().query(e),
                         new EndpointQuery(collect));
                     Validator
-                        .equalTo(allByQuery.size(), collect.size(), "unable to find all endpoint");
+                        .equalTo(allByQuery.size(), collect.size());
                     linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
                         .collect(Collectors.toSet());
                 }
@@ -244,7 +243,7 @@ public class PermissionApplicationService {
                 PermissionId permissionId = deserialize.getPermissionId();
                 ProjectId projectId = deserialize.getProjectId();
                 Permission
-                    .addNewEndpoint(projectId, endpointId, permissionId, deserialize.isShared());
+                    .addNewEndpoint(projectId, endpointId, permissionId, deserialize.getShared());
                 return null;
             }, PERMISSION);
     }

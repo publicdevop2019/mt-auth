@@ -28,7 +28,7 @@ public class ClientCardRepresentation {
 
     private Set<ClientType> types;
 
-    private int accessTokenValiditySeconds;
+    private Integer accessTokenValiditySeconds;
 
     private Set<String> registeredRedirectUri;
 
@@ -38,11 +38,11 @@ public class ClientCardRepresentation {
 
     private Set<String> resourceIds;
 
-    private boolean resourceIndicator;
+    private Boolean resourceIndicator;
 
-    private boolean autoApprove;
+    private Boolean autoApprove;
 
-    private int version;
+    private Integer version;
 
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
@@ -50,8 +50,8 @@ public class ClientCardRepresentation {
         grantTypeEnums = client1.getGrantTypes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
-        if (client1.getAuthorizationCodeGrant() != null) {
-            registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream()
+        if (client1.getRedirectDetail() != null) {
+            registeredRedirectUri = client1.getRedirectDetail().getRedirectUrls().stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
         if (client1.getTokenDetail() != null) {
@@ -61,7 +61,7 @@ public class ClientCardRepresentation {
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId)
                 .collect(Collectors.toSet());
         }
-        resourceIndicator = client1.isAccessible();
+        resourceIndicator = client1.getAccessible();
         types = client1.getTypes();
     }
 

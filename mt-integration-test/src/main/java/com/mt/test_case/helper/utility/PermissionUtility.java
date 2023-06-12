@@ -13,7 +13,7 @@ public class PermissionUtility {
         new ParameterizedTypeReference<>() {
         };
 
-    private static String getUrl(Project project) {
+    public static String getUrl(Project project) {
         return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "permissions");
     }
 

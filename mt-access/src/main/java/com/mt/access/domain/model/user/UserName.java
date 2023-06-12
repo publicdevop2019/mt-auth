@@ -22,7 +22,7 @@ public class UserName {
     public UserName(String value) {
         Validator.notBlank(value);
         Validator.whitelistOnly(value);
-        Validator.lengthLessThanOrEqualTo(value, 25);
+        Validator.lessThanOrEqualTo(value, 25);
         this.value = value;
     }
 }

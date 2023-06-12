@@ -21,13 +21,14 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -65,6 +66,8 @@ public class Client extends Auditable {
     private static final String MT_UI_LOGIN_ID = "0C8AZZ16LZB4";
     private static final String EMPTY_SECRET = "";
     private static final Set<ClientId> reservedClientIds = new HashSet<>();
+    private static final Pattern PATH_REGEX =
+        Pattern.compile("^[a-z\\-/]*$");
 
     static {
         reservedClientIds.add(new ClientId(MT_ACCESS_ID));
@@ -155,11 +158,11 @@ public class Client extends Auditable {
 
     @Getter
     @Column(name = "accessible_")
-    private boolean accessible = false;
+    private Boolean accessible;
 
     @Getter
     @Embedded
-    private RedirectDetail authorizationCodeGrant;
+    private RedirectDetail redirectDetail;
 
     @Getter
     @ElementCollection(fetch = FetchType.LAZY)
@@ -180,11 +183,12 @@ public class Client extends Auditable {
                   String path,
                   @Nullable String secret,
                   String description,
-                  boolean accessible,
+                  Boolean accessible,
                   Set<ClientId> resources,
                   Set<GrantType> grantTypes,
                   TokenDetail tokenDetail,
-                  RedirectDetail authorizationCodeGrant,
+                  Set<String> redirectUrls,
+                  Boolean autoApprove,
                   Set<ClientType> types,
                   ExternalUrl externalUrl
     ) {
@@ -198,17 +202,17 @@ public class Client extends Auditable {
         setPath(path);
         setTypes(types);
         initSecret(secret);
-        setGrantTypes(grantTypes);
+        setGrantTypes(grantTypes, true);
         setTokenDetail(tokenDetail);
-        setAuthorizationCodeGrant(authorizationCodeGrant);
+        setRedirectDetail(redirectUrls, autoApprove);
         setRoleId();
         setExternalUrl(externalUrl);
         //set id last so we know it's new object
         setId(CommonDomainRegistry.getUniqueIdGeneratorService()
             .id());
         CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
-        validate(new HttpValidationNotificationHandler());
         DomainRegistry.getClientRepository().add(this);
+        validate(new HttpValidationNotificationHandler());
     }
 
     private void setExternalUrl(ExternalUrl externalUrl) {
@@ -225,11 +229,17 @@ public class Client extends Auditable {
         this.externalUrl = externalUrl;
     }
 
-    public void setAuthorizationCodeGrant(RedirectDetail redirectDetail) {
-        if (this.authorizationCodeGrant == null) {
-            this.authorizationCodeGrant = redirectDetail;
-        } else if (!this.authorizationCodeGrant.equals(redirectDetail)) {
-            this.authorizationCodeGrant = redirectDetail;
+    public void setRedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
+        RedirectDetail redirectDetail;
+        if (Checker.isNull(redirectUrls) && Checker.isNull(autoApprove)) {
+            redirectDetail = null;
+        } else {
+            redirectDetail = new RedirectDetail(redirectUrls, autoApprove);
+        }
+        if (this.redirectDetail == null) {
+            this.redirectDetail = redirectDetail;
+        } else if (!this.redirectDetail.equals(redirectDetail)) {
+            this.redirectDetail = redirectDetail;
         }
     }
 
@@ -242,6 +252,7 @@ public class Client extends Auditable {
     }
 
     private void setTypes(Set<ClientType> types) {
+        Validator.notNull(types);
         Validator.notEmpty(types);
         if (this.types != null) {
             throw new DefinedRuntimeException("client type can not be updated once created", "1035",
@@ -268,11 +279,43 @@ public class Client extends Auditable {
                     .append(new ClientPathChanged(clientId));
             }
         }
+        if (Checker.notNull(path)) {
+            Validator.lessThanOrEqualTo(path, 50);
+            Validator.greaterThanOrEqualTo(path, 5);
+            Matcher matcher = PATH_REGEX.matcher(path);//alpha - / only
+            boolean result = false;
+            if (matcher.find()) {
+                if (!path.startsWith("/") && !path.endsWith("/")) { //avoid /test/
+                    if (!path.endsWith("-") && !path.startsWith("-")) { //avoid -test-
+                        if (path.contains("/")) {
+                            boolean valid = true;
+                            for (String s : path.split("/")) {
+                                if (s.startsWith("-") || s.endsWith("-")) {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            if (valid) {
+                                result = true;
+                            }
+                        } else {
+                            result = true;
+                        }
+                    }
+                }
+            }
+            if (!result) {
+                throw new DefinedRuntimeException("invalid path format", "1084",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        }
         this.path = path;
     }
 
-    private void setGrantTypes(Set<GrantType> grantTypes) {
-        if (id != null) {
+    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate) {
+        Validator.notNull(grantTypes);
+        Validator.notEmpty(grantTypes);
+        if (!isCreate) {
             if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new ClientGrantTypeChanged(clientId));
@@ -296,8 +339,8 @@ public class Client extends Auditable {
         Validator.notNull(name);
         String trim = name.trim();
         Validator.notBlank(trim);
-        Validator.lengthGreaterThanOrEqualTo(trim, 1);
-        Validator.lengthLessThanOrEqualTo(trim, 50);
+        Validator.greaterThanOrEqualTo(trim, 5);
+        Validator.lessThanOrEqualTo(trim, 50);
         Validator.whitelistOnly(trim);
         this.name = trim;
     }
@@ -305,7 +348,7 @@ public class Client extends Auditable {
     private void setDescription(String description) {
         if (description != null) {
             String trim = description.trim();
-            Validator.lengthLessThanOrEqualTo(trim, 50);
+            Validator.lessThanOrEqualTo(trim, 50);
             Validator.whitelistOnly(trim);
             this.description = description;
         }
@@ -321,9 +364,8 @@ public class Client extends Auditable {
         this.tokenDetail = tokenDetail;
     }
 
-    private void setAccessible(boolean accessible) {
-        if (id != null) {
-
+    private void setAccessible(Boolean accessible) {
+        if (Checker.notNull(id)) {
             if (this.accessible && !accessible) {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new ClientAccessibilityRemoved(clientId));
@@ -337,7 +379,10 @@ public class Client extends Auditable {
     }
 
     private void setResources(Set<ClientId> resources) {
-        if (id != null) {
+        if (Checker.notNull(resources)) {
+            Validator.lessThanOrEqualTo(resources, 10);
+        }
+        if (Checker.notNull(id)) {
             if (resourcesChanged(resources)) {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new ClientResourcesChanged(clientId));
@@ -356,23 +401,44 @@ public class Client extends Auditable {
                         String secret,
                         String path,
                         String description,
-                        boolean accessible,
+                        Boolean accessible,
                         Set<ClientId> resources,
                         Set<GrantType> grantTypes,
                         TokenDetail tokenDetail,
-                        RedirectDetail redirectDetail,
+                        Set<String> redirectUrl,
+                        Boolean autoApprove,
                         ExternalUrl externalUrl
     ) {
         setPath(path);
         setResources(resources);
         setAccessible(accessible);
         updateSecret(secret);
-        setGrantTypes(grantTypes);
+        setGrantTypes(grantTypes, false);
         setTokenDetail(tokenDetail);
         setName(name);
         setDescription(description);
-        setAuthorizationCodeGrant(redirectDetail);
+        setRedirectDetail(redirectUrl, autoApprove);
         setExternalUrl(externalUrl);
+        validate(new HttpValidationNotificationHandler());
+    }
+
+    public void replace(String name,
+                        String secret,
+                        String path,
+                        String description,
+                        Boolean accessible,
+                        Set<ClientId> resources,
+                        Set<GrantType> grantTypes,
+                        TokenDetail tokenDetail
+    ) {
+        setName(name);
+        setDescription(description);
+        setPath(path);
+        setResources(resources);
+        setAccessible(accessible);
+        updateSecret(secret);
+        setGrantTypes(grantTypes, false);
+        setTokenDetail(tokenDetail);
         validate(new HttpValidationNotificationHandler());
     }
 
@@ -384,13 +450,13 @@ public class Client extends Auditable {
     public Endpoint addNewEndpoint(CacheProfileId cacheProfileId,
                                    String name, String description, String path,
                                    EndpointId endpointId, String method,
-                                   boolean secured,
-                                   boolean isWebsocket, boolean csrfEnabled,
-                                   CorsProfileId corsConfig, boolean shared, boolean external,
-                                   int replenishRate, int burstCapacity) {
+                                   Boolean secured,
+                                   Boolean websocket, Boolean csrfEnabled,
+                                   CorsProfileId corsConfig, Boolean shared, Boolean external,
+                                   Integer replenishRate, Integer burstCapacity) {
         return new Endpoint(getClientId(), getProjectId(), cacheProfileId,
             name, description, path, endpointId, method, secured,
-            isWebsocket, csrfEnabled, corsConfig, shared, external, replenishRate, burstCapacity);
+            websocket, csrfEnabled, corsConfig, shared, external, replenishRate, burstCapacity);
     }
 
     // for create
@@ -460,35 +526,17 @@ public class Client extends Auditable {
 
     public void removeAllReferenced() {
         CommonDomainRegistry.getDomainEventRepository().append(new ClientDeleted(clientId));
-        if (isAccessible()) {
+        if (getAccessible()) {
             CommonDomainRegistry.getDomainEventRepository()
                 .append(new ClientAsResourceDeleted(clientId));
         }
     }
 
-    public int getRefreshTokenValiditySeconds() {
-        if (grantTypes.contains(GrantType.PASSWORD)
-            &&
-            grantTypes.contains(GrantType.REFRESH_TOKEN)) {
-            return getTokenDetail().getRefreshTokenValiditySeconds();
-        }
-        return 0;
-    }
-
-    public boolean getAutoApprove() {
+    public Boolean getAutoApprove() {
         if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getAuthorizationCodeGrant().isAutoApprove();
+            return getRedirectDetail().getAutoApprove();
         }
         return false;
-    }
-
-    public Set<String> getRegisteredRedirectUri() {
-        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
-            return getAuthorizationCodeGrant().getRedirectUrls().stream().map(RedirectUrl::getValue)
-                .collect(Collectors.toSet());
-        }
-        return Collections.emptySet();
-
     }
 
     public boolean removable() {

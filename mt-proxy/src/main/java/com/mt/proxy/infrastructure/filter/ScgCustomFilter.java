@@ -209,7 +209,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         ServerHttpResponse originalResponse = exchange.getResponse();
         CacheConfiguration cacheConfiguration =
             cacheService.getCacheConfiguration(exchange, true);
-        if (cacheConfiguration != null && cacheConfiguration.isEtag() &&
+        if (cacheConfiguration != null && Boolean.TRUE.equals(cacheConfiguration.getEtag()) &&
             HttpStatus.OK.equals(exchange.getResponse().getStatusCode())) {
             // length of W/ + " + 0 + 32bits md5 hash + "
             StringBuilder builder = new StringBuilder(37);
@@ -244,7 +244,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                     exchange.getResponse().getHeaders().remove("Cache-Control");
                     exchange.getResponse().getHeaders().remove("Expires");
                     exchange.getResponse().getHeaders().remove("Pragma");
-                    if (!cacheConfiguration.isAllowCache()) {
+                    if (Boolean.FALSE.equals(cacheConfiguration.getAllowCache())) {
                         exchange.getResponse().getHeaders()
                             .setCacheControl("no-cache, no-store, must-revalidate");
                         exchange.getResponse().getHeaders().setPragma("no-cache");

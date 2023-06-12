@@ -180,9 +180,9 @@ public class CrossDomainValidationService {
                 new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT"));
             return false;
         }
-        if (allByQuery.stream().anyMatch(e -> !e.isAuthRequired())) {
+        if (allByQuery.stream().anyMatch(e -> !e.getSecured())) {
             Set<EndpointId> publicEpIds =
-                allByQuery.stream().filter(e -> !e.isAuthRequired()).map(Endpoint::getEndpointId)
+                allByQuery.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
                     .collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", publicEpIds);
             CommonDomainRegistry.getDomainEventRepository()

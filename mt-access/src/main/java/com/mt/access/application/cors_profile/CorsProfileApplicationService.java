@@ -133,12 +133,7 @@ public class CorsProfileApplicationService {
                             .applyJsonPatch(command, beforePatch, CorsProfilePatchCommand.class);
                     original.update(
                         afterPatch.getName(),
-                        afterPatch.getDescription(),
-                        original.getAllowedHeaders(),
-                        original.isAllowCredentials(),
-                        original.getAllowOrigin(),
-                        original.getExposedHeaders(),
-                        original.getMaxAge()
+                        afterPatch.getDescription()
                     );
                 }
                 return null;

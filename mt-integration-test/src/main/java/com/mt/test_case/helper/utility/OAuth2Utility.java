@@ -89,7 +89,7 @@ public class OAuth2Utility {
         params.add("client_id", clientId);
         params.add("state", AppConstant.AUTHORIZE_STATE);
         params.add("redirect_uri", redirectUri);
-        params.add("project_id", AppConstant.PROJECT_ID);
+        params.add("project_id", AppConstant.MT_ACCESS_PROJECT_ID);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearerToken);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);

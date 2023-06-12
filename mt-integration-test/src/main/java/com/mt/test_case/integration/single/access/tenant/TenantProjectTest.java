@@ -62,12 +62,41 @@ public class TenantProjectTest extends CommonTest {
     }
     @Test
     public void validation_create_name(){
+        User user = UserUtility.createUser();
+        Project randomProjectObj = ProjectUtility.createRandomProjectObj();
+        ResponseEntity<Void> tenantProject =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
         //null
+        randomProjectObj.setName(null);
+        ResponseEntity<Void> response =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
+        randomProjectObj.setName(" ");
+        ResponseEntity<Void> response1 =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
+        randomProjectObj.setName("");
+        ResponseEntity<Void> response2 =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //min length
+        randomProjectObj.setName("01");
+        ResponseEntity<Void> response3 =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //max length
+        randomProjectObj.setName("0123456789012345678901234567890123456789012345678901234567890123456789");
+        ResponseEntity<Void> response4 =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid char
+        randomProjectObj.setName("<");
+        ResponseEntity<Void> response5 =
+            ProjectUtility.createTenantProject(randomProjectObj, user);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
     }
     @Test
     public void validation_update_name(){

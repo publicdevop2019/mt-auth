@@ -18,8 +18,19 @@ public class ClientValidator {
         encryptedSecret();
         tokenAndGrantType();
         typeAndGrantType();
+        redirectAndGrantType();
         pathAndType();
         externalUrlAndType();
+    }
+
+    private void redirectAndGrantType() {
+        if ((client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
+            client.getRedirectDetail() == null) ||
+            (!client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
+                client.getRedirectDetail() != null)) {
+            handler
+                .handleError("authorization grant must have redirect details");
+        }
     }
 
     private void tokenAndGrantType() {
@@ -37,7 +48,7 @@ public class ClientValidator {
                     handler
                         .handleError("refresh grant must has valid refresh token validity seconds");
                 }
-            }else{
+            } else {
                 if (client.getTokenDetail().getRefreshTokenValiditySeconds() != null) {
                     handler
                         .handleError("refresh token validity seconds requires refresh grant");
@@ -89,7 +100,7 @@ public class ClientValidator {
     }
 
     private void accessAndType() {
-        if (client.isAccessible()) {
+        if (client.getAccessible() != null && client.getAccessible()) {
             if (
                 client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))
             ) {
@@ -97,6 +108,20 @@ public class ClientValidator {
                     "invalid client type to be a resource, "
                         +
                         "must be backend application");
+            }
+        }
+        if (client.getTypes().stream().anyMatch(e -> e.equals(ClientType.FRONTEND_APP))) {
+            if (client.getAccessible() != null) {
+                handler.handleError(
+                    "only backend can specify accessible"
+                );
+            }
+        }
+        if (client.getTypes().stream().anyMatch(e -> e.equals(ClientType.BACKEND_APP))) {
+            if (client.getAccessible() == null) {
+                handler.handleError(
+                    "backend must specify accessible"
+                );
             }
         }
     }

@@ -30,9 +30,9 @@ public class EndpointMgmtRepresentation {
     private String projectId;
     private String path;
     private String method;
-    private boolean websocket;
-    private boolean csrfEnabled;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     @JsonIgnore
@@ -45,13 +45,13 @@ public class EndpointMgmtRepresentation {
     public EndpointMgmtRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
-        this.websocket = endpoint.isWebsocket();
+        this.websocket = endpoint.getWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
-        this.secured = endpoint.isAuthRequired();
-        this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.secured = endpoint.getSecured();
+        this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
@@ -88,7 +88,7 @@ public class EndpointMgmtRepresentation {
             this.origin =
                 e.getAllowOrigin().stream().map(Origin::getValue).sorted().collect(
                     Collectors.toCollection(LinkedHashSet::new));
-            this.credentials = e.isAllowCredentials();
+            this.credentials = e.getAllowCredentials();
             this.allowedHeaders = e.getAllowedHeaders().stream().sorted().collect(
                 Collectors.toCollection(LinkedHashSet::new));
             this.exposedHeaders = e.getExposedHeaders().stream().sorted().collect(
@@ -115,15 +115,15 @@ public class EndpointMgmtRepresentation {
         private boolean weakValidation;
 
         public CacheConfig(CacheProfile cacheProfile) {
-            allowCache = cacheProfile.isAllowCache();
+            allowCache = cacheProfile.getAllowCache();
             cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
                 .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();
             vary = cacheProfile.getVary();
-            etag = cacheProfile.isEtag();
-            weakValidation = cacheProfile.isWeakValidation();
+            etag = cacheProfile.getEtag();
+            weakValidation = cacheProfile.getWeakValidation();
         }
     }
 }

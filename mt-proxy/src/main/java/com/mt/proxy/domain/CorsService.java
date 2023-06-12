@@ -44,7 +44,7 @@ public class CorsService implements CorsConfigurationSource {
         Endpoint.CorsConfig corsConfig = endpoint.getCorsConfig();
         if (corsConfig != null) {
             corsConfig.getOrigin().forEach(configuration::addAllowedOrigin);
-            configuration.setAllowCredentials(corsConfig.isCredentials());
+            configuration.setAllowCredentials(corsConfig.getCredentials());
             configuration.setAllowedHeaders(List.copyOf(corsConfig.getAllowedHeaders()));
             configuration.setExposedHeaders(List.copyOf(corsConfig.getExposedHeaders()));
             configuration.addAllowedMethod(endpoint.getMethod());

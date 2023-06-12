@@ -1,5 +1,6 @@
 package com.mt.access.domain;
 
+import com.mt.access.domain.model.CacheProfileValidationService;
 import com.mt.access.domain.model.ComputePermissionService;
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.CurrentUserService;
@@ -162,7 +163,13 @@ public class DomainRegistry {
     private static DataProcessTrackerRepository dataProcessTrackerRepository;
     @Getter
     private static AuditRecordRepository auditRepository;
+    @Getter
+    private static CacheProfileValidationService cacheProfileValidationService;
 
+    @Autowired
+    public void setCacheProfileValidationService(CacheProfileValidationService service) {
+        DomainRegistry.cacheProfileValidationService = service;
+    }
     @Autowired
     public void setAuditRepository(AuditRecordRepository auditRepository) {
         DomainRegistry.auditRepository = auditRepository;

@@ -24,7 +24,7 @@ public class AppConstant {
     public static final String GRANT_TYPE_AUTHORIZATION_CODE = "authorization_code";
     public static final String AUTHORIZE_STATE = "login";
     public static final String AUTHORIZE_RESPONSE_TYPE = "code";
-    public static final String PROJECT_ID = "0P8HPG99R56P";
+    public static final String MT_ACCESS_PROJECT_ID = "0P8HPG99R56P";
     public static final String CLIENTS = "/projects/0P8HE307W6IO/clients";
     public static final String TENANT_PROJECTS_PREFIX = "/projects";
     public static final String TENANT_PROJECTS_CREATE = "/projects";
@@ -49,5 +49,10 @@ public class AppConstant {
     public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";
     public static String ADMIN_USER_ID = "0R8G09BPEZGG";
     public static String USER_USER_ID = "0R8G09CBKU0W";
+    public static String MT_ACCESS_CORS_ID = "0O8G2WE71L35";
+    public static String MT_ACCESS_CACHE_ID = "0X8G900BJFGG";
+    public static String MT_ACCESS_PERMISSION_ID = "0Y8HM3TG2CJL";
+    public static String MT_ACCESS_ENDPOINT_ID = "0E8AZTODP400";
+    public static String MT_ACCESS_ROLE_ID = "0Z8HHJ489SEC";
     public static String TEST_REDIRECT_URL = "http://localhost:3000";
 }

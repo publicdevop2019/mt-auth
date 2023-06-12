@@ -32,14 +32,14 @@ public class ClientRepresentation {
 
     private Set<String> resourceIds;
 
-    private boolean resourceIndicator;
+    private Boolean resourceIndicator;
 
-    private boolean autoApprove;
+    private Boolean autoApprove;
 
     private Integer version;
     private String clientSecret;
 
-    private boolean hasSecret;
+    private Boolean hasSecret;
 
     public ClientRepresentation(Client client) {
         id = client.getClientId().getDomainId();
@@ -48,8 +48,8 @@ public class ClientRepresentation {
         description = client.getDescription();
         grantTypeEnums = client.getGrantTypes();
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
-        if (client.getAuthorizationCodeGrant() != null) {
-            registeredRedirectUri = client.getAuthorizationCodeGrant().getRedirectUrls().stream()
+        if (client.getRedirectDetail() != null) {
+            registeredRedirectUri = client.getRedirectDetail().getRedirectUrls().stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
@@ -57,9 +57,9 @@ public class ClientRepresentation {
             resourceIds = client.getResources().stream().map(ClientId::getDomainId)
                 .collect(Collectors.toSet());
         }
-        resourceIndicator = client.isAccessible();
-        if (client.getAuthorizationCodeGrant() != null) {
-            autoApprove = client.getAuthorizationCodeGrant().isAutoApprove();
+        resourceIndicator = client.getAccessible();
+        if (client.getRedirectDetail() != null) {
+            autoApprove = client.getRedirectDetail().getAutoApprove();
         }
         if (client.getExternalUrl() != null) {
             externalUrl = client.getExternalUrl().getValue();

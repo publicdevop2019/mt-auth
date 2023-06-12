@@ -14,7 +14,7 @@ public class CacheUtility {
         new ParameterizedTypeReference<>() {
         };
 
-    private static String getUrl(Project project) {
+    public static String getUrl(Project project) {
         return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "cache");
     }
 
@@ -56,5 +56,13 @@ public class CacheUtility {
         cache.setEtag(RandomUtility.randomBoolean());
         cache.setExpires(RandomUtility.randomLong());
         return cache;
+    }
+    public static Cache getValidNoCache(){
+        Cache randomCache = createRandomCache();
+        randomCache.setCacheControl(null);
+        randomCache.setEtag(null);
+        randomCache.setExpires(null);
+        randomCache.setAllowCache(false);
+        return randomCache;
     }
 }
