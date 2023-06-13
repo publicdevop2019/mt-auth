@@ -196,12 +196,15 @@ public class CacheProfile extends Auditable {
 
     private void setDescription(String description) {
         Validator.validOptionalString(100, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
+        }
         this.description = description;
     }
 
     private void setName(String name) {
         Validator.validRequiredString(1, 50, name);
-        this.name = name;
+        this.name = name.trim();
     }
 
     /**

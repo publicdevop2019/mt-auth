@@ -210,17 +210,18 @@ public class Validator {
                                                Collection<?> collection) {
         Validator.notNull(collection);
         Validator.notEmpty(collection);
+        Validator.noNullMember(collection);
         Validator.greaterThanOrEqualTo(collection, minCount);
         Validator.lessThanOrEqualTo(collection, maxCount);
 
     }
 
-    public static void validOptionalCollection(Integer minCount, Integer maxCount,
+    public static void validOptionalCollection(Integer maxCount,
                                                Collection<?> collection) {
         if (collection == null) {
             return;
         }
-        validRequiredCollection(minCount, maxCount, collection);
+        validRequiredCollection(0, maxCount, collection);
     }
 
     private static void checkMinLength(boolean failed) {

@@ -5,9 +5,15 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.CollectionTable;
@@ -36,6 +42,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     region = "corsProfileRegion")
 @Setter(AccessLevel.PRIVATE)
 public class CorsProfile extends Auditable {
+    private static Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-z-]+$");
     private String name;
     private String description;
     @Embedded
@@ -79,7 +86,7 @@ public class CorsProfile extends Auditable {
         String description,
         Set<String> allowedHeaders,
         Boolean allowCredentials,
-        Set<Origin> allowOrigin,
+        Set<String> allowOrigin,
         Set<String> exposedHeaders,
         Long maxAge,
         CorsProfileId corsId,
@@ -101,12 +108,13 @@ public class CorsProfile extends Auditable {
     public void update(
         String name,
         String description,
-        Set<String> allowedHeaders, Boolean allowCredentials, Set<Origin> allowOrigin,
+        Set<String> allowedHeaders, Boolean allowCredentials, Set<String> allowOrigin,
         Set<String> exposedHeaders, Long maxAge) {
         CorsProfile original =
             CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        original.setName(null);
-        original.setDescription(null);
+        //exclude name and description from comparison and bypass setter check
+        original.name = null;
+        original.description = null;
         setName(name);
         setDescription(description);
         setAllowedHeaders(allowedHeaders);
@@ -116,8 +124,8 @@ public class CorsProfile extends Auditable {
         setMaxAge(maxAge);
         CorsProfile afterUpdate =
             CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        afterUpdate.setName(null);
-        afterUpdate.setDescription(null);
+        afterUpdate.name = null;
+        afterUpdate.description = null;
         if (!original.equals(afterUpdate)) {
             CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileUpdated(this));
         }
@@ -131,12 +139,46 @@ public class CorsProfile extends Auditable {
         setDescription(description);
     }
 
-    public void setAllowCredentials(Boolean allowCredentials) {
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name.trim();
+    }
+
+    public void setDescription(String description) {
+        Validator.validOptionalString(100, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
+        }
+        this.description = description;
+    }
+
+    /**
+     * set Access-Control-Max-Age for preflight request
+     * note: Firefox caps this at 24 hours (86400 seconds)
+     * Chromium (prior to v76) caps at 10 minutes (600 seconds)
+     * Chromium (starting in v76) caps at 2 hours (7200 seconds)
+     * The default value is 5 seconds
+     *
+     * @param maxAge max age
+     */
+    private void setMaxAge(Long maxAge) {
+        if (Checker.notNull(maxAge)) {
+            Validator.lessThanOrEqualTo(maxAge, 60 * 60 * 2);
+            Validator.greaterThanOrEqualTo(maxAge, 5);
+        }
+        this.maxAge = maxAge;
+    }
+
+    private void setAllowCredentials(Boolean allowCredentials) {
         Validator.notNull(allowCredentials);
         this.allowCredentials = allowCredentials;
     }
 
     private void setAllowedHeaders(Set<String> allowedHeaders) {
+        Validator.validOptionalCollection(10, allowedHeaders);
+        if (Checker.notNull(allowedHeaders)) {
+            validateHeaderName(allowedHeaders);
+        }
         if (!Objects.equals(allowedHeaders, this.allowedHeaders)) {
             if (this.allowedHeaders != null) {
                 this.allowedHeaders.clear();
@@ -145,10 +187,26 @@ public class CorsProfile extends Auditable {
         }
     }
 
-    private void setAllowOrigin(Set<Origin> allowOrigin) {
-        Validator.notNull(allowOrigin);
-        Validator.notEmpty(allowOrigin);
-        Validator.lessThanOrEqualTo(allowOrigin, 5);
+    private static void validateHeaderName(Set<String> headerNames) {
+        headerNames.forEach(header -> {
+            boolean pass = false;
+            Matcher matcher = HEADER_NAME_REGEX.matcher(header);
+            if (matcher.find()) {
+                if (!header.startsWith("-") && !header.endsWith("-") &&
+                    !header.equalsIgnoreCase("-")) {
+                    pass = true;
+                }
+            }
+            if (!pass) {
+                throw new DefinedRuntimeException("invalid header format", "1085",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        });
+    }
+
+    private void setAllowOrigin(Set<String> origins) {
+        Validator.validRequiredCollection(1, 5, origins);
+        Set<Origin> allowOrigin = origins.stream().map(Origin::new).collect(Collectors.toSet());
         if (!Objects.equals(allowOrigin, this.allowOrigin)) {
             if (this.allowOrigin != null) {
                 this.allowOrigin.clear();
@@ -158,6 +216,10 @@ public class CorsProfile extends Auditable {
     }
 
     private void setExposedHeaders(Set<String> exposedHeaders) {
+        Validator.validOptionalCollection(10, exposedHeaders);
+        if (exposedHeaders != null) {
+            validateHeaderName(exposedHeaders);
+        }
         if (!Objects.equals(exposedHeaders, this.exposedHeaders)) {
             if (this.exposedHeaders != null) {
                 this.exposedHeaders.clear();

@@ -54,7 +54,7 @@ public class CorsProfileApplicationService {
                 command.getDescription(),
                 command.getAllowedHeaders(),
                 command.getAllowCredentials(),
-                command.getAllowOrigin().stream().map(Origin::new).collect(Collectors.toSet()),
+                command.getAllowOrigin(),
                 command.getExposedHeaders(),
                 command.getMaxAge(),
                 corsProfileId,
@@ -81,7 +81,7 @@ public class CorsProfileApplicationService {
                 command.getDescription(),
                 command.getAllowedHeaders(),
                 command.getAllowCredentials(),
-                command.getAllowOrigin().stream().map(Origin::new).collect(Collectors.toSet()),
+                command.getAllowOrigin(),
                 command.getExposedHeaders(),
                 command.getMaxAge()
             ));

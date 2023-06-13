@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 public class TenantCorsTest extends TenantTest {
     @Test
     public void tenant_can_create_cors() {
-        Cors randomCorsObj = CorsUtility.createRandomCorsObj();
+        Cors randomCorsObj = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, randomCorsObj);
         Assert.assertEquals(HttpStatus.OK, cors.getStatusCode());
         Assert.assertNotNull(UrlUtility.getId(cors));
@@ -42,7 +42,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void tenant_can_update_cors() {
-        Cors corsObj = CorsUtility.createRandomCorsObj();
+        Cors corsObj = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
         String corsId = UrlUtility.getId(cors);
 
@@ -69,7 +69,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void tenant_can_delete_cors() {
-        Cors cors1 = CorsUtility.createRandomCorsObj();
+        Cors cors1 = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, cors1);
         String corsId = UrlUtility.getId(cors);
 
@@ -88,7 +88,7 @@ public class TenantCorsTest extends TenantTest {
     @Test
     public void tenant_can_delete_assigned_cors() throws InterruptedException {
         //create cors
-        Cors corsObj = CorsUtility.createRandomCorsObj();
+        Cors corsObj = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
         String corsId = UrlUtility.getId(cors);
         corsObj.setId(corsId);
@@ -116,19 +116,14 @@ public class TenantCorsTest extends TenantTest {
     }
 
     @Test
-    public void cors_validation_should_work() {
-        Cors randomCorsObj = CorsUtility.createRandomCorsObj();
-        randomCorsObj.setAllowOrigin(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, randomCorsObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, cors.getStatusCode());
-
-    }
-
-    @Test
-    public void validation_create_name() {
-        Cors cors = CorsUtility.createRandomCorsObj();
+    public void validation_create_valid(){
+        Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
         Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+    }
+    @Test
+    public void validation_create_name() {
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setName(null);
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -142,9 +137,9 @@ public class TenantCorsTest extends TenantTest {
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //min length
-        cors.setName("01");
+        cors.setName("1");
         ResponseEntity<Void> response5 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response5.getStatusCode());
         //max length
         cors.setName("0123456789012345678901234567890123456789012345678901234567890123456789");
         ResponseEntity<Void> response6 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -157,9 +152,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_description() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //blank
         cors.setDescription(" ");
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -182,9 +175,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_allow_credential() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setAllowCredentials(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -193,13 +184,11 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_allowed_headers() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setAllowedHeaders(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //empty
         cors.setAllowedHeaders(Collections.emptySet());
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -212,6 +201,10 @@ public class TenantCorsTest extends TenantTest {
         cors.setAllowedHeaders(Collections.singleton("<>"));
         ResponseEntity<Void> response6 = CorsUtility.createTenantCors(tenantContext, cors);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        //invalid char
+        cors.setAllowedHeaders(Collections.singleton("123"));
+        ResponseEntity<Void> response8 = CorsUtility.createTenantCors(tenantContext, cors);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
         //max elements
         HashSet<String> strings = new HashSet<>();
         strings.add(RandomUtility.randomStringWithNum());
@@ -233,9 +226,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_allow_origin() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setAllowOrigin(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -267,13 +258,11 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_exposed_headers() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setExposedHeaders(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //empty
         cors.setExposedHeaders(Collections.emptySet());
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -307,13 +296,11 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_max_age() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         cors.setMaxAge(null);
         ResponseEntity<Void> response3 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //min value
         cors.setMaxAge(1L);
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -326,9 +313,7 @@ public class TenantCorsTest extends TenantTest {
 
     @Test
     public void validation_create_project_id() {
-        Cors cors = CorsUtility.createRandomCorsObj();
-        ResponseEntity<Void> response1 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        Cors cors = CorsUtility.createValidCors();
         //null
         Project project1 = new Project();
         project1.setId("null");

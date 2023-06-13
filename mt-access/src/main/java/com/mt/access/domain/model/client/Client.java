@@ -336,22 +336,16 @@ public class Client extends Auditable {
     }
 
     private void setName(String name) {
-        Validator.notNull(name);
-        String trim = name.trim();
-        Validator.notBlank(trim);
-        Validator.greaterThanOrEqualTo(trim, 5);
-        Validator.lessThanOrEqualTo(trim, 50);
-        Validator.whitelistOnly(trim);
-        this.name = trim;
+        Validator.validRequiredString(5, 50, name);
+        this.name = name.trim();
     }
 
     private void setDescription(String description) {
-        if (description != null) {
-            String trim = description.trim();
-            Validator.lessThanOrEqualTo(trim, 50);
-            Validator.whitelistOnly(trim);
-            this.description = description;
+        Validator.validOptionalString(50, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
         }
+        this.description = description;
     }
 
     private void setTokenDetail(TokenDetail tokenDetail) {
