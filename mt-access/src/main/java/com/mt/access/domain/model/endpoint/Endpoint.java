@@ -19,7 +19,11 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.math.BigDecimal;
+import java.util.Arrays;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -34,6 +38,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.http.HttpMethod;
 
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
@@ -43,7 +48,11 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "endpointRegion")
 public class Endpoint extends Auditable {
-
+    private static final Set<String> HTTP_METHODS =
+        Arrays.stream(HttpMethod.values()).map(Enum::name).collect(
+            Collectors.toSet());
+    private static final Pattern PATH_REGEX =
+        Pattern.compile("^[a-z\\-/*]*$");
     @Column(name = "secured")
     private Boolean secured;
 
@@ -95,10 +104,8 @@ public class Endpoint extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private EndpointId endpointId;
 
-    @Setter(AccessLevel.PRIVATE)
     private String method;
 
-    @Setter(AccessLevel.PRIVATE)
     private Boolean csrfEnabled;
 
     @Column
@@ -107,9 +114,9 @@ public class Endpoint extends Auditable {
     @Column
     private Boolean external;
 
-    private Integer replenishRate = 0;
+    private Integer replenishRate;
 
-    private Integer burstCapacity = 0;
+    private Integer burstCapacity;
 
     private Boolean expired;
     private String expireReason;
@@ -136,18 +143,29 @@ public class Endpoint extends Auditable {
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
         setEndpointCatalogOnCreation(shared, secured, external);
-        setExpired(Boolean.FALSE);
+        initExpired();
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
+        CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
-        CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
         validate(new HttpValidationNotificationHandler());
     }
 
-    private void setExpired(Boolean expired) {
-        Validator.notNull(expired);
-        this.expired = expired;
+    private void setCsrfEnabled(Boolean csrfEnabled) {
+        this.csrfEnabled = csrfEnabled;
+    }
+
+    private void setMethod(String method) {
+        if (Checker.notNull(method)) {
+            method = method.toUpperCase();
+            Validator.memberOf(method, HTTP_METHODS);
+        }
+        this.method = method;
+    }
+
+    private void initExpired() {
+        this.expired = Boolean.FALSE;
     }
 
     public void remove() {
@@ -172,7 +190,6 @@ public class Endpoint extends Auditable {
     public void update(
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
-        Boolean isWebsocket,
         Boolean csrfEnabled, CorsProfileId corsProfileId,
         Integer replenishRate,
         Integer burstCapacity
@@ -183,7 +200,6 @@ public class Endpoint extends Auditable {
         }
         setName(name);
         setDescription(description);
-        setWebsocket(isWebsocket);
         setCacheProfileId(cacheProfileId);
         setPath(path);
         setMethod(method);
@@ -239,19 +255,63 @@ public class Endpoint extends Auditable {
     }
 
     private void setReplenishRate(Integer replenishRate) {
-        Validator.notNull(replenishRate);
-        Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
+        if (Checker.notNull(replenishRate)) {
+            Validator.greaterThanOrEqualTo(replenishRate, 1);
+            Validator.lessThanOrEqualTo(replenishRate, 1000);
+        }
         this.replenishRate = replenishRate;
     }
 
     private void setBurstCapacity(Integer burstCapacity) {
-        Validator.notNull(burstCapacity);
-        Validator.greaterThan(new BigDecimal(replenishRate), BigDecimal.ZERO);
+        if (Checker.notNull(burstCapacity)) {
+            Validator.greaterThanOrEqualTo(burstCapacity, 1);
+            Validator.lessThanOrEqualTo(burstCapacity, 1500);
+        }
         this.burstCapacity = burstCapacity;
     }
 
     private void setPath(String path) {
-        Validator.notBlank(path);
+        Validator.notNull(path);
+        Validator.lessThanOrEqualTo(path, 100);
+        Validator.greaterThanOrEqualTo(path, 5);
+        Matcher matcher = PATH_REGEX.matcher(path);//alpha - / * only
+        boolean result = false;
+        if (matcher.find()) {
+            if (!path.startsWith("/") && !path.endsWith("/")) { //avoid /test/
+                if (!path.endsWith("-") && !path.startsWith("-")) { //avoid -test-
+                    if (!path.startsWith("*")) { //avoid *test
+                        if (path.contains("/")) {
+                            boolean valid = true;
+                            for (String s : path.split("/")) {
+                                if (s.isBlank()) {
+                                    valid = false;
+                                    break;
+                                }
+                                if (s.startsWith("-") || s.endsWith("-")) {
+                                    valid = false;
+                                    break;
+                                }
+                                if (s.contains("*") && !s.equalsIgnoreCase("**")) {
+                                    valid = false;
+                                    break;
+                                }
+                            }
+                            if (valid) {
+                                result = true;
+                            }
+                        } else {
+                            if (!path.contains("*")) {
+                                result = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (!result) {
+            throw new DefinedRuntimeException("invalid endpoint path format", "1086",
+                HttpResponseCode.BAD_REQUEST);
+        }
         this.path = path;
     }
 
@@ -281,6 +341,7 @@ public class Endpoint extends Auditable {
     }
 
     public void expire(String expireReason) {
+        Validator.validRequiredString(1, 50, expireReason);
         if (this.expired) {
             throw new DefinedRuntimeException("endpoint can only expire once", "1042",
                 HttpResponseCode.BAD_REQUEST);
@@ -291,7 +352,6 @@ public class Endpoint extends Auditable {
         }
         if (this.shared) {
             this.expired = true;
-            Validator.notBlank(expireReason);
             this.expireReason = expireReason;
             CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
         } else {

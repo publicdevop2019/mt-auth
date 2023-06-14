@@ -48,7 +48,7 @@ public class TenantMessageTest {
     public void tenant_can_get_endpoint_expire_msg() throws InterruptedException {
         //create shared endpoint tenantA
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));

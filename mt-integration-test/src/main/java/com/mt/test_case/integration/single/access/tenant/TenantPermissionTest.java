@@ -11,7 +11,6 @@ import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.UpdateType;
-import com.mt.test_case.helper.utility.CacheUtility;
 import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.PermissionUtility;
@@ -23,7 +22,6 @@ import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.Utility;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
@@ -65,7 +63,7 @@ public class TenantPermissionTest {
             EndpointUtility.createTenantEndpoint(tenantContext, publicEndpointObj);
         publicEndpointObj.setId(UrlUtility.getId(tenantEndpoint));
         //create shared endpoint
-        sharedEndpointObj = EndpointUtility.createRandomSharedEndpointObj(clientId);
+        sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));

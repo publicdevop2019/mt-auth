@@ -76,13 +76,15 @@ public class Validator {
         }
     }
 
-    public static <T extends Enum<T>> void memberOf(Collection<String> rawString,
-                                                    Set<String> targetStrings) {
-        rawString.forEach(e -> {
-            if (!targetStrings.contains(e)) {
-                throw new DefinedRuntimeException(NOT_MEMBER, "0058", HttpResponseCode.BAD_REQUEST);
-            }
-        });
+    public static void memberOf(String value, Set<String> assertions) {
+        if (!assertions.contains(value)) {
+            throw new DefinedRuntimeException(NOT_MEMBER, "0058", HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public static void memberOf(Collection<String> value,
+                                Set<String> assertions) {
+        value.forEach(e -> memberOf(e, assertions));
     }
 
     public static void noNullMember(Collection<?> objects) {

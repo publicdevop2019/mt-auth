@@ -39,15 +39,16 @@ public class EndpointUtility {
      * @param clientId client id
      * @return created endpoint
      */
-    public static Endpoint createRandomGetEndpointObj(String clientId) {
+    public static Endpoint createValidGetEndpoint(String clientId) {
         Endpoint randomEndpointObj = EndpointUtility.createRandomEndpointObj(clientId);
         randomEndpointObj.setWebsocket(false);
         randomEndpointObj.setShared(false);
         randomEndpointObj.setExternal(true);
         randomEndpointObj.setSecured(true);
+        randomEndpointObj.setCsrfEnabled(true);
         randomEndpointObj.setMethod("GET");
-        randomEndpointObj.setBurstCapacity(60);
         randomEndpointObj.setReplenishRate(20);
+        randomEndpointObj.setBurstCapacity(60);
         return randomEndpointObj;
     }
 
@@ -58,11 +59,15 @@ public class EndpointUtility {
      * @param clientId client id
      * @return created endpoint
      */
-    public static Endpoint createRandomSharedEndpointObj(String clientId) {
+    public static Endpoint createValidSharedEndpointObj(String clientId) {
         Endpoint randomEndpointObj = EndpointUtility.createRandomEndpointObj(clientId);
         randomEndpointObj.setShared(true);
         randomEndpointObj.setExternal(true);
         randomEndpointObj.setSecured(true);
+        randomEndpointObj.setWebsocket(false);
+        randomEndpointObj.setCsrfEnabled(false);
+        randomEndpointObj.setBurstCapacity(60);
+        randomEndpointObj.setReplenishRate(20);
         return randomEndpointObj;
     }
 

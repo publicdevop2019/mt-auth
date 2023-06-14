@@ -64,7 +64,7 @@ public class VersionTest{
         String clientId = UrlUtility.getId(tenantClient);
         client.setId(clientId);
         //create shared endpoint
-        sharedEndpointObj = EndpointUtility.createRandomSharedEndpointObj(clientId);
+        sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));

@@ -44,7 +44,7 @@ public class TenantEndpointTest extends TenantTest {
     public void tenant_can_delete_endpoint() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -60,7 +60,7 @@ public class TenantEndpointTest extends TenantTest {
     public void tenant_can_update_endpoint() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -81,7 +81,7 @@ public class TenantEndpointTest extends TenantTest {
     public void tenant_can_read_endpoint() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -96,7 +96,7 @@ public class TenantEndpointTest extends TenantTest {
     public void tenant_create_endpoint_for_share_then_expire_and_delete() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(client.getId());
+            EndpointUtility.createValidSharedEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
@@ -114,16 +114,19 @@ public class TenantEndpointTest extends TenantTest {
             EndpointUtility.deleteTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
     }
-
+    @Test
+    public void validation_create_valid(){
+        Endpoint endpoint =
+            EndpointUtility.createValidGetEndpoint(client.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+    }
 
     @Test
     public void validation_create_name() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setName(null);
         ResponseEntity<Void> response =
@@ -140,10 +143,10 @@ public class TenantEndpointTest extends TenantTest {
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //min length
-        endpoint.setName("01");
+        endpoint.setName("1");
         ResponseEntity<Void> response3 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //max length
         endpoint.setName("012345678901234567890123456789012345678901234567890123456789");
         ResponseEntity<Void> response4 =
@@ -159,11 +162,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_description() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setDescription(null);
         ResponseEntity<Void> response =
@@ -195,11 +194,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_secured() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setSecured(null);
         ResponseEntity<Void> response =
@@ -210,11 +205,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_is_websocket() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setWebsocket(null);
         ResponseEntity<Void> response =
@@ -230,11 +221,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_csrf_enabled() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setCsrfEnabled(null);
         ResponseEntity<Void> response =
@@ -251,11 +238,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_shared() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setShared(null);
         ResponseEntity<Void> response =
@@ -284,12 +267,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_cors_id() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
-
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setCorsProfileId(null);
         ResponseEntity<Void> response =
@@ -325,11 +303,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_cache_profile_id() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
 
         //null
         endpoint.setCacheProfileId(null);
@@ -366,11 +340,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_resource_id() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
 
         //null
         endpoint.setResourceId(null);
@@ -407,11 +377,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_path() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setPath(null);
         ResponseEntity<Void> response =
@@ -429,15 +395,30 @@ public class TenantEndpointTest extends TenantTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //max length
         endpoint.setPath(RandomUtility.randomHttpPath() +
-            "/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij");
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij" +
+            "abcdefghij");
         ResponseEntity<Void> response4 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //wrong format
-        endpoint.setPath(RandomUtility.randomStringNoNum() + "./test");
+        endpoint.setPath(RandomUtility.randomStringNoNum() + "-/-test");
         ResponseEntity<Void> response5 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        //wrong format
+        endpoint.setPath(RandomUtility.randomStringNoNum() + "//test");
+        ResponseEntity<Void> response7 =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
         //invalid char
         endpoint.setPath("<");
         ResponseEntity<Void> response6 =
@@ -448,11 +429,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_external() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setExternal(null);
         ResponseEntity<Void> response =
@@ -463,11 +440,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_replenish_rate() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null but burst capacity not null
         endpoint.setReplenishRate(null);
         endpoint.setBurstCapacity(10);
@@ -481,21 +454,23 @@ public class TenantEndpointTest extends TenantTest {
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max value
-        endpoint.setReplenishRate(Integer.MAX_VALUE);
-        endpoint.setBurstCapacity(10);
+        endpoint.setReplenishRate(1001);
+        endpoint.setBurstCapacity(1500);
         ResponseEntity<Void> response2 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //replenish rate must =< burst capacity
+        endpoint.setReplenishRate(100);
+        endpoint.setBurstCapacity(50);
+        ResponseEntity<Void> response3 =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 
     @Test
     public void validation_create_burst_capacity() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null but burst capacity not null
         endpoint.setReplenishRate(10);
         endpoint.setBurstCapacity(null);
@@ -519,11 +494,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_method() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         endpoint.setMethod(null);
         ResponseEntity<Void> response2 =
@@ -549,11 +520,7 @@ public class TenantEndpointTest extends TenantTest {
     @Test
     public void validation_create_project_id() {
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
-        ResponseEntity<Void> tenantEndpoint =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setPath(RandomUtility.randomHttpPath());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         //null
         Project project1 = new Project();
         project1.setId("null");
@@ -733,15 +700,11 @@ public class TenantEndpointTest extends TenantTest {
     public void validation_expire_reason() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(client.getId());
+            EndpointUtility.createValidSharedEndpointObj(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
-        //null
-        ResponseEntity<Void> expireTenantEndpoint =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, null);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, expireTenantEndpoint.getStatusCode());
         //blank
         ResponseEntity<Void> response1 =
             EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, " ");
@@ -753,7 +716,7 @@ public class TenantEndpointTest extends TenantTest {
         //min length
         ResponseEntity<Void> response3 =
             EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, "a");
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //max length
         ResponseEntity<Void> response4 =
             EndpointUtility.expireTenantEndpoint(tenantContext, endpoint,

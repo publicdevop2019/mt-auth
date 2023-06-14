@@ -5,13 +5,11 @@ import com.mt.test_case.helper.TenantTest;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Cors;
 import com.mt.test_case.helper.pojo.Endpoint;
-import com.mt.test_case.helper.pojo.Permission;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.CorsUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
-import com.mt.test_case.helper.utility.PermissionUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.Utility;
@@ -99,7 +97,7 @@ public class TenantCorsTest extends TenantTest {
         String clientId = UrlUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
-        Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
+        Endpoint randomEndpointObj = EndpointUtility.createValidGetEndpoint(clientId);
         randomEndpointObj.setCorsProfileId(corsId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);

@@ -184,15 +184,15 @@ public class SubRequestApplicationService {
     public void reject(String id, RejectSubRequestCommand command, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
         SubRequest subRequest = DomainRegistry.getSubRequestRepository().get(subRequestId);
-            ProjectId endpointProjectId = subRequest.getEndpointProjectId();
-            DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointProjectId, SUB_REQ_MGMT);
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                    subRequest.reject(command.getRejectionReason(), userId);
-                    return null;
-                }, SUB_REQUEST);
+        ProjectId endpointProjectId = subRequest.getEndpointProjectId();
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointProjectId, SUB_REQ_MGMT);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                subRequest.reject(command.getRejectionReason(), userId);
+                return null;
+            }, SUB_REQUEST);
     }
 
     /**
@@ -207,8 +207,12 @@ public class SubRequestApplicationService {
                 EndpointId endpointId = new EndpointId(domainId.getDomainId());
                 Set<UserId> subscribers =
                     DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
-                CommonDomainRegistry.getDomainEventRepository()
-                    .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
+                if (!subscribers.isEmpty()) {
+                    CommonDomainRegistry.getDomainEventRepository()
+                        .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
+                }else{
+                    log.debug("skip sending SubscriberEndpointExpireEvent due to not subscribed");
+                }
                 return null;
             }, SUB_REQUEST);
 

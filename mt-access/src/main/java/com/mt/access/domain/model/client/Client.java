@@ -294,6 +294,10 @@ public class Client extends Auditable {
                                     valid = false;
                                     break;
                                 }
+                                if (s.isBlank()) {
+                                    valid = false;
+                                    break;
+                                }
                             }
                             if (valid) {
                                 result = true;

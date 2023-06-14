@@ -60,7 +60,7 @@ public class TenantRoleTest {
         String clientId = UrlUtility.getId(tenantClient);
         client.setId(clientId);
         //create shared endpoint
-        sharedEndpointObj = EndpointUtility.createRandomSharedEndpointObj(clientId);
+        sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
@@ -228,7 +228,7 @@ public class TenantRoleTest {
         throws InterruptedException {
         //create none-shared endpoint
         Endpoint ep =
-            EndpointUtility.createRandomSharedEndpointObj(client.getId());
+            EndpointUtility.createValidSharedEndpointObj(client.getId());
         ep.setShared(false);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, ep);

@@ -103,7 +103,7 @@ public class TenantMarketTest {
     public void tenant_can_view_its_shared_api_in_market() {
         //create shared endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -120,7 +120,7 @@ public class TenantMarketTest {
     public void tenant_can_send_sub_req_for_shared_api() {
         //create shared endpoint tenantA
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -136,7 +136,7 @@ public class TenantMarketTest {
     public void tenant_cannot_send_sub_req_for_its_shared_api() {
         //create shared endpoint tenantA
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -168,7 +168,7 @@ public class TenantMarketTest {
     public void tenant_can_approve_sub_req_for_shared_endpoint() {
         //create shared endpoint tenantA
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
@@ -204,7 +204,7 @@ public class TenantMarketTest {
     public void tenant_can_assign_approved_api_to_role() throws InterruptedException {
         //create shared endpoint tenantA
         Endpoint endpoint =
-            EndpointUtility.createRandomSharedEndpointObj(clientA.getId());
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));

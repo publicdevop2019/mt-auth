@@ -182,7 +182,6 @@ public class EndpointApplicationService {
                     command.getDescription(),
                     command.getPath(),
                     command.getMethod(),
-                    command.getWebsocket(),
                     command.getCsrfEnabled(),
                     command.getCorsProfileId() != null
                         ?
@@ -244,7 +243,6 @@ public class EndpointApplicationService {
                         afterPatch.getDescription(),
                         afterPatch.getPath(),
                         afterPatch.getMethod(),
-                        original.getWebsocket(),
                         original.getCsrfEnabled(),
                         original.getCorsProfileId(),
                         original.getReplenishRate(),

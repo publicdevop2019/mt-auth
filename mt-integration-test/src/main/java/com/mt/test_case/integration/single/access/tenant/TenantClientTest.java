@@ -355,7 +355,7 @@ public class TenantClientTest extends TenantTest {
         String clientId = UrlUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
-        Endpoint randomEndpointObj = EndpointUtility.createRandomGetEndpointObj(clientId);
+        Endpoint randomEndpointObj = EndpointUtility.createValidGetEndpoint(clientId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());

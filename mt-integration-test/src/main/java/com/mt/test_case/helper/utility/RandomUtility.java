@@ -74,7 +74,7 @@ public class RandomUtility {
         return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
     }
     public static String randomHttpPath(){
-        return "/test/" + RandomUtility.randomStringNoNum()
+        return "test/" + RandomUtility.randomStringNoNum()
             +
             "/abc";
     }
