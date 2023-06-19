@@ -2,6 +2,7 @@ package com.mt.access.domain.model.client;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import java.util.Set;
 import org.springframework.stereotype.Service;
@@ -29,7 +30,8 @@ public class ClientValidationService {
     }
 
     private void validateExternalResource(Client client, ValidationNotificationHandler handler) {
-        if (!client.getExternalResources().isEmpty()) {
+        if (Checker.notNull(client.getExternalResources()) &&
+            Checker.notEmpty(client.getExternalResources())) {
             Set<Client> allByQuery = QueryUtility.getAllByQuery(
                 (query) -> DomainRegistry.getClientRepository().query(query),
                 new ClientQuery(client.getExternalResources()));

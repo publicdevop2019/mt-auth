@@ -107,4 +107,8 @@ public class RandomUtility {
     public static String randomEmail() {
         return RandomUtility.randomStringWithNum() + "@gmail.com";
     }
+
+    public static String randomPassword() {
+        return "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10);
+    }
 }

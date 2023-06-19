@@ -4,9 +4,11 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.util.StringUtils;
 
@@ -21,7 +23,7 @@ public class Validator {
         "condition not match decimal greaterThanOrEqualTo";
     private static final String DEC_GREATER_TO_MSG = "condition not match decimal greaterThan";
     private static final String EMAIL_MSG = "condition not match isValidEmail";
-    private static final String NUM_EQUAL_TO_MSG = "condition not match int equals";
+    private static final String NUM_EQUAL_TO_MSG = "condition not match equals";
     private static final String URL_MSG = "condition not match isHttpUrl";
     private static final String HAS_TEXT_MSG = "condition not match hasText";
     private static final String GREATER_OR_EQUAL_TO_MSG =
@@ -30,7 +32,7 @@ public class Validator {
         "condition not match lengthLessThanOrEqualTo";
     private static final String TEXT_WHITE_LIST_MSG = "condition not match whitelistOnly";
     private static final Pattern TEXT_WHITE_LIST =
-        Pattern.compile("^[a-zA-Z0-9 +\\-x/:(),.!\\u4E00-\\u9FFF\\uff0c\\u3002]+$");
+        Pattern.compile("^[a-zA-Z0-9_ +\\-x/:(),.!\\u4E00-\\u9FFF\\uff0c\\u3002]+$");
     private static final Pattern HTTP_URL = Pattern.compile(
         "^https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}"
             +
@@ -51,6 +53,13 @@ public class Validator {
     public static void isNull(Object obj) {
         if (!Checker.isNull(obj)) {
             throw new DefinedRuntimeException(IS_NULL_MSG, "0059",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public static void isEmpty(Collection<?> obj) {
+        if (!Checker.isEmpty(obj)) {
+            throw new DefinedRuntimeException(IS_NULL_MSG, "0062",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
@@ -161,15 +170,15 @@ public class Validator {
         }
     }
 
-    public static void equalTo(int value, int target) {
-        if (value != target) {
+    public static void equals(@Nullable Object value, @Nullable Object target) {
+        if (!Objects.equals(value, target)) {
             throw new DefinedRuntimeException(NUM_EQUAL_TO_MSG, "0045",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
 
-    public static void sizeEqualTo(Collection<?> value, Collection<?> target) {
-        equalTo(value.size(), target.size());
+    public static void sizeEquals(Collection<?> value, Collection<?> target) {
+        equals(value.size(), target.size());
     }
 
     public static void isEmail(String email) {

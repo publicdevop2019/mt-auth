@@ -2,8 +2,8 @@ package com.mt.access.domain.model.client;
 
 import com.mt.access.port.adapter.persistence.client.RedirectUrlConverter;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,7 +29,7 @@ public class RedirectDetail implements Serializable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "clientRedirectUrlRegion")
     @Convert(converter = RedirectUrlConverter.class)
-    private final Set<RedirectUrl> redirectUrls = new HashSet<>();
+    private Set<RedirectUrl> redirectUrls;
 
     @Getter
     private Boolean autoApprove;
@@ -50,10 +50,8 @@ public class RedirectDetail implements Serializable {
         Validator.lessThanOrEqualTo(redirectUrls, 5);
         Set<RedirectUrl> collect =
             redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet());
-        if (!this.redirectUrls.equals(collect)) {
-            this.redirectUrls.clear();
-            this.redirectUrls.addAll(collect);
-        }
+        CommonUtility.updateCollection(this.redirectUrls, collect,
+            () -> this.redirectUrls = collect);
     }
 
     @Override

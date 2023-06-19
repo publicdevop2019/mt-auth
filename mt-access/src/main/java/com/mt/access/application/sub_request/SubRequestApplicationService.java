@@ -25,7 +25,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.validate.Validator;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -71,9 +70,8 @@ public class SubRequestApplicationService {
      *
      * @return unique endpoint ids
      */
-    public Set<EndpointId> internalSubscribedEndpointIds() {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        return DomainRegistry.getSubRequestRepository().getSubscribeEndpointIds(userId);
+    public Set<EndpointId> internalSubscribedEndpointIds(ProjectId projectId) {
+        return DomainRegistry.getSubRequestRepository().getSubscribeEndpointIds(projectId);
     }
 
     /**
@@ -85,6 +83,8 @@ public class SubRequestApplicationService {
      */
     @AuditLog(actionName = CREATE_SUB_REQUEST)
     public String create(CreateSubRequestCommand command, String changeId) {
+        ProjectId projectId = new ProjectId(command.getProjectId());
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, SUB_REQ_MGMT);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 EndpointId endpointId = new EndpointId(command.getEndpointId());
@@ -92,10 +92,10 @@ public class SubRequestApplicationService {
                     DomainRegistry.getEndpointRepository().get(endpointId);
                 ProjectId epProjectId = endpoint.getProjectId();
                 SubRequest subRequest = new SubRequest(
-                    new ProjectId(command.getProjectId()),
+                    projectId,
                     endpointId,
-                    command.getBurstCapacity(),
                     command.getReplenishRate(),
+                    command.getBurstCapacity(),
                     epProjectId,
                     endpoint.getExpired(),
                     endpoint.getSecured(),
@@ -116,11 +116,11 @@ public class SubRequestApplicationService {
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
         SubRequest byId =
             DomainRegistry.getSubRequestRepository().get(new SubRequestId(id));
-        Validator.notNull(byId);
+        DomainRegistry.getPermissionCheckService().canAccess(byId.getProjectId(), SUB_REQ_MGMT);
         DomainRegistry.getPermissionCheckService().sameCreatedBy(byId);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                byId.update(command.getBurstCapacity(), command.getReplenishRate());
+                byId.update(command.getReplenishRate(), command.getBurstCapacity());
                 return null;
             }, SUB_REQUEST);
     }
@@ -210,7 +210,7 @@ public class SubRequestApplicationService {
                 if (!subscribers.isEmpty()) {
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
-                }else{
+                } else {
                     log.debug("skip sending SubscriberEndpointExpireEvent due to not subscribed");
                 }
                 return null;

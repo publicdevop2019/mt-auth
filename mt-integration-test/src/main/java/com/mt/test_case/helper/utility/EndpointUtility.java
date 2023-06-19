@@ -66,8 +66,8 @@ public class EndpointUtility {
         randomEndpointObj.setSecured(true);
         randomEndpointObj.setWebsocket(false);
         randomEndpointObj.setCsrfEnabled(false);
-        randomEndpointObj.setBurstCapacity(60);
         randomEndpointObj.setReplenishRate(20);
+        randomEndpointObj.setBurstCapacity(60);
         return randomEndpointObj;
     }
 
@@ -82,6 +82,8 @@ public class EndpointUtility {
         randomEndpointObj.setSecured(false);
         randomEndpointObj.setExternal(true);
         randomEndpointObj.setShared(false);
+        randomEndpointObj.setWebsocket(false);
+        randomEndpointObj.setCsrfEnabled(false);
         randomEndpointObj.setReplenishRate(60);
         randomEndpointObj.setBurstCapacity(120);
         return randomEndpointObj;

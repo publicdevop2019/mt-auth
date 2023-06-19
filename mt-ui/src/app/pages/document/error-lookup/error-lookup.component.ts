@@ -47,7 +47,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1049,1051,1054',explain:'该对象不允许更改名称'},
     {code:'1050,1055',explain:'系统创建权限不允许更改'},
     {code:'1052',explain:'生成报告：reponse code无法识别'},
-    {code:'1053',explain:'角色赋予权限：必须属于同一个项目'},
     {code:'1056',explain:'无法删除系统创建角色'},
     {code:'1057',explain:'不允许订阅自己的端口'},
     {code:'1058',explain:'不允许订阅过期端口'},
@@ -74,6 +73,9 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1083',explain:'当前用户ID提取错误'},
     {code:'1084',explain:'path格式错误'},
     {code:'1085',explain:'header格式错误'},
+    {code:'1086',explain:'endpoint path格式错误'},
+    {code:'1087',explain:'角色应属于同一项目'},
+    {code:'1088',explain:'电话号码格式错误'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},
@@ -109,7 +111,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0041',explain:'校验：不能为空'},
     {code:'0042',explain:'校验：元素不能为null'},
     {code:'0044',explain:'校验：数值过小或不等'},
-    {code:'0045',explain:'校验：数值不等'},
+    {code:'0045',explain:'校验：不等'},
     {code:'0046',explain:'校验：数值过小'},
     {code:'0047',explain:'校验：不是Email'},
     {code:'0048',explain:'校验：不是URL'},
@@ -119,6 +121,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0058',explain:'错误的枚举值'},
     {code:'0059',explain:'值必须为空'},
     {code:'0061',explain:'实际值与期待值校验失败'},
+    {code:'0062',explain:'校验：不是空集合'},
   ]
   constructor() { }
 

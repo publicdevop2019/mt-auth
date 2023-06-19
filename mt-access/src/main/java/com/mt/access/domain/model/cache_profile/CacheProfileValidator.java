@@ -36,7 +36,12 @@ public class CacheProfileValidator {
 
     private void validateCacheableFlag() {
         if (Checker.isFalse(cacheProfile.getAllowCache())) {
-            Validator.isNull(cacheProfile.getCacheControl());
+            if (Checker.notNull(cacheProfile.getCacheControl())) {
+                //@todo find better fix
+                //hibernate will create empty set instead of null
+                //check null will fail
+                Validator.isEmpty(cacheProfile.getCacheControl());
+            }
             Validator.isNull(cacheProfile.getExpires());
             Validator.isNull(cacheProfile.getMaxAge());
             Validator.isNull(cacheProfile.getSmaxAge());
@@ -46,7 +51,8 @@ public class CacheProfileValidator {
         } else {
             //at lease some cache configuration should present
             if (
-                Checker.isNull(cacheProfile.getCacheControl()) &&
+                (Checker.isNull(cacheProfile.getCacheControl()) ||
+                    Checker.isEmpty(cacheProfile.getCacheControl())) &&
                     Checker.isNull(cacheProfile.getVary()) &&
                     Checker.isNull(cacheProfile.getMaxAge()) &&
                     Checker.isNull(cacheProfile.getSmaxAge()) &&

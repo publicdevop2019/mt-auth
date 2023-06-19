@@ -127,6 +127,16 @@ public class EndpointQuery extends QueryCriteria {
         return endpointQuery;
     }
 
+    public static EndpointQuery tenantQuery(Set<EndpointId> endpointIds, Set<ProjectId> tenantIds) {
+        EndpointQuery endpointQuery = new EndpointQuery();
+        endpointQuery.endpointIds = endpointIds;
+        endpointQuery.projectIds = tenantIds;
+        endpointQuery.setPageConfig(PageConfig.defaultConfig());
+        endpointQuery.setQueryConfig(QueryConfig.countRequired());
+        endpointQuery.setEndpointSort(endpointQuery.pageConfig);
+        return endpointQuery;
+    }
+
     public static EndpointQuery websocketQuery() {
         EndpointQuery endpointQuery = new EndpointQuery();
         endpointQuery.setIsWebsocket(true);

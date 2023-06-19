@@ -56,7 +56,7 @@ public class ClientApplicationService implements ClientDetailsService {
     private static final String CLIENT = "Client";
 
     public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
-                                           String configParam) {
+                                                             String configParam) {
         ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
         DomainRegistry.getPermissionCheckService()
             .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
@@ -66,16 +66,20 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientCardRepresentation.updateDetails(rep.getData());
         return rep;
     }
+
     /**
      * query client for dropdown with the best performance for client
-     * @param queryParam query string
+     *
+     * @param queryParam  query string
      * @param pagingParam page string
      * @param configParam config string
      * @return paginated dropdown client
      */
-    public SumPagedRep<ClientDropdownRepresentation> tenantDropdownQuery(String queryParam, String pagingParam,
-                                           String configParam) {
-        ClientQuery clientQuery =ClientQuery.dropdownQuery(queryParam, pagingParam, configParam,1000);
+    public SumPagedRep<ClientDropdownRepresentation> tenantDropdownQuery(String queryParam,
+                                                                         String pagingParam,
+                                                                         String configParam) {
+        ClientQuery clientQuery =
+            ClientQuery.dropdownQuery(queryParam, pagingParam, configParam, 1000);
         DomainRegistry.getPermissionCheckService()
             .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
         SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
@@ -101,7 +105,8 @@ public class ClientApplicationService implements ClientDetailsService {
 
     /**
      * query client for dropdown with best performance
-     * @param queryParam query string
+     *
+     * @param queryParam  query string
      * @param pagingParam page string
      * @param configParam config string
      * @return paginated dropdown client
@@ -109,7 +114,8 @@ public class ClientApplicationService implements ClientDetailsService {
     public SumPagedRep<ClientDropdownRepresentation> mgmtDropdownQuery(String queryParam,
                                                                        String pagingParam,
                                                                        String configParam) {
-        ClientQuery clientQuery =ClientQuery.dropdownQuery(queryParam, pagingParam, configParam,1000);
+        ClientQuery clientQuery =
+            ClientQuery.dropdownQuery(queryParam, pagingParam, configParam, 1000);
         SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
         return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
@@ -321,12 +327,15 @@ public class ClientApplicationService implements ClientDetailsService {
                     allRoles.stream().filter(e -> e.getExternalPermissionIds() != null)
                         .flatMap(e -> e.getExternalPermissionIds().stream())
                         .collect(Collectors.toSet());
-                Set<Endpoint> referredClients = QueryUtility.getAllByQuery(e ->
-                        DomainRegistry.getEndpointRepository().query(e),
-                    EndpointQuery.permissionQuery(externalPermissions));
-                Set<ClientId> collect =
-                    referredClients.stream().map(Endpoint::getClientId).collect(Collectors.toSet());
-                projectClients.forEach(client -> client.updateExternalResource(collect));
+                if (!externalPermissions.isEmpty()) {
+                    Set<Endpoint> referredClients = QueryUtility.getAllByQuery(e ->
+                            DomainRegistry.getEndpointRepository().query(e),
+                        EndpointQuery.permissionQuery(externalPermissions));
+                    Set<ClientId> collect =
+                        referredClients.stream().map(Endpoint::getClientId)
+                            .collect(Collectors.toSet());
+                    projectClients.forEach(client -> client.updateExternalResource(collect));
+                }
                 return null;
             }, CLIENT);
     }

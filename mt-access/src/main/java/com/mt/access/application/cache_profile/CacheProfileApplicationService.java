@@ -23,6 +23,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -82,7 +83,7 @@ public class CacheProfileApplicationService {
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
-                command.getCacheControl(),
+                CommonUtility.map(command.getCacheControl(),CacheControlValue::valueOf),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),

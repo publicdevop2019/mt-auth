@@ -11,8 +11,10 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -36,7 +38,6 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Table
@@ -155,26 +156,59 @@ public class Permission extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
     })
     private ProjectId tenantId;
-    @Setter
-    private boolean shared = false;
+    private Boolean shared;
     @Enumerated(EnumType.STRING)
     private PermissionType type;
-    private boolean systemCreate = false;
+    private Boolean systemCreate;
 
     private Permission(ProjectId projectId, PermissionId permissionId, String name,
                        PermissionType type, @Nullable PermissionId parentId,
                        @Nullable ProjectId tenantId,
-                       @Nullable Set<PermissionId> linkedApiPermissionIds, boolean shared) {
+                       @Nullable Set<PermissionId> linkedApiPermissionIds, Boolean shared) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.permissionId = permissionId;
-        this.linkedApiPermissionIds = linkedApiPermissionIds;
+        setPermissionId(permissionId);
+        setLinkedApiPermissionIds(linkedApiPermissionIds);
+        setParentId(parentId);
+        setProjectId(projectId);
+        setTenantId(tenantId);
+        setName(name);
+        setType(type);
+        setShared(shared);
+        setSystemCreate(false);
+    }
+
+    private void setParentId(PermissionId parentId) {
         this.parentId = parentId;
+    }
+
+    private void setPermissionId(PermissionId permissionId) {
+        Validator.notNull(permissionId);
+        this.permissionId = permissionId;
+    }
+
+    private void setProjectId(ProjectId projectId) {
+        Validator.notNull(projectId);
         this.projectId = projectId;
+    }
+
+    private void setTenantId(ProjectId tenantId) {
         this.tenantId = tenantId;
-        this.name = name;
-        this.type = type;
+    }
+
+    private void setShared(Boolean shared) {
+        Validator.notNull(shared);
         this.shared = shared;
+    }
+
+    private void setType(PermissionType type) {
+        Validator.notNull(type);
+        this.type = type;
+    }
+
+    private void setSystemCreate(Boolean systemCreate) {
+        Validator.notNull(systemCreate);
+        this.systemCreate = systemCreate;
     }
 
     /**
@@ -196,8 +230,9 @@ public class Permission extends Auditable {
                                                    @Nullable PermissionId linkedApiPermissionId) {
         Permission permission =
             new Permission(projectId, permissionId, name, type, parentId, tenantId,
-                Stream.of(linkedApiPermissionId).collect(Collectors.toSet()), false);
-        permission.systemCreate = true;
+                linkedApiPermissionId == null ? null :
+                    Stream.of(linkedApiPermissionId).collect(Collectors.toSet()), false);
+        permission.setSystemCreate(true);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -244,7 +279,7 @@ public class Permission extends Auditable {
                                                     boolean shared) {
         Permission permission =
             new Permission(projectId, permissionId, apiDomainId, PermissionType.API, parentId, null,
-                Collections.singleton(null), shared);
+                null, shared);
         permission.systemCreate = true;
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
@@ -260,6 +295,11 @@ public class Permission extends Auditable {
                 linkedApiPermissionId, false);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name;
     }
 
     /**
@@ -548,17 +588,12 @@ public class Permission extends Auditable {
     }
 
     private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
-        if (permissionIds == null && this.linkedApiPermissionIds == null) {
-            return;
+        if (Checker.notNull(permissionIds)) {
+            Validator.noNullMember(permissionIds);
+            Validator.lessThanOrEqualTo(permissionIds, 20);
         }
-        if (permissionIds == null) {
-            this.linkedApiPermissionIds.clear();
-            return;
-        }
-        if (!permissionIds.equals(this.linkedApiPermissionIds)) {
-            this.linkedApiPermissionIds.clear();
-            this.linkedApiPermissionIds.addAll(permissionIds);
-        }
+        CommonUtility.updateCollection(this.linkedApiPermissionIds, permissionIds,
+            () -> this.linkedApiPermissionIds = permissionIds);
     }
 
     private void updateName(String name) {
@@ -567,11 +602,11 @@ public class Permission extends Auditable {
                 "1049",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (isSystemCreate()) {
+        if (Checker.isTrue(getSystemCreate())) {
             throw new DefinedRuntimeException("system created permission cannot be changed", "1050",
                 HttpResponseCode.BAD_REQUEST);
         }
-        this.name = name;
+        setName(name);
     }
 
     public void patch(String name) {

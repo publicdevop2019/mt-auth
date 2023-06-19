@@ -33,7 +33,7 @@ public class RoleRepresentation {
     private Set<PermissionDetail> permissionDetails;
     private Set<String> commonPermissionIds;
     private Set<String> externalPermissionIds;
-    private boolean systemCreate;
+    private Boolean systemCreate;
     private Integer version;
 
     public RoleRepresentation(Role role) {
@@ -45,7 +45,7 @@ public class RoleRepresentation {
             this.parentId = role.getParentId().getDomainId();
         }
         this.originalName = role.getName();
-        this.systemCreate = role.isSystemCreate();
+        this.systemCreate = role.getSystemCreate();
         this.roleType = role.getType();
         if (role.getApiPermissionIds() != null) {
             this.apiPermissionIds = role.getApiPermissionIds().stream().map(DomainId::getDomainId)

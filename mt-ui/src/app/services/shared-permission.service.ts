@@ -9,10 +9,12 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class SharedPermissionService extends EntityCommonService<IEndpoint, IEndpoint>{
-  private ENTITY_NAME = '/auth-svc/permissions/shared';
-  entityRepo: string = environment.serverUri + this.ENTITY_NAME;
+  entityRepo: string = undefined;
   role: string = '';
-  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor,deviceSvc:DeviceService) {
-    super(httpProxy, interceptor,deviceSvc);
+  constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
+    super(httpProxy, interceptor, deviceSvc);
+  }
+  public setProjectId(projectId: string) {
+    this.entityRepo = environment.serverUri + '/auth-svc/projects/' + projectId + '/permissions/shared';
   }
 }

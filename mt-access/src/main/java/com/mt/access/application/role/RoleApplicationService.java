@@ -34,6 +34,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -143,16 +144,10 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    command.getCommonPermissionIds().stream().map(PermissionId::new)
-                        .collect(Collectors.toSet()),
-                    command.getApiPermissionIds().stream().map(PermissionId::new)
-                        .collect(Collectors.toSet()),
-                    RoleType.USER,
-                    command.getParentId() != null ? new RoleId(command.getParentId()) : null,
-                    command.getExternalPermissionIds() != null
-                        ?
-                        command.getExternalPermissionIds().stream().map(PermissionId::new)
-                            .collect(Collectors.toSet()) : null
+                    CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new),
+                    CommonUtility.map(command.getApiPermissionIds(), PermissionId::new),
+                    command.getParentId() == null ? null : new RoleId(command.getParentId()),
+                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new)
                 );
                 DomainRegistry.getRoleRepository().add(role);
                 return roleId.getDomainId();
@@ -161,6 +156,7 @@ public class RoleApplicationService {
 
     /**
      * create admin role to mt-auth and default user role to target project.
+     *
      * @param event permission created event
      */
     public void handle(ProjectPermissionCreated event) {
@@ -180,6 +176,7 @@ public class RoleApplicationService {
 
     /**
      * remove roles refer to deleted permissions
+     *
      * @param event permission remove event
      */
     public void handle(PermissionRemoved event) {
@@ -190,7 +187,7 @@ public class RoleApplicationService {
                 Set<Role> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getRoleRepository().query(query),
                     RoleQuery.referredPermissions(permissionId));
-                allByQuery.forEach(e-> e.removePermission(permissionId));
+                allByQuery.forEach(e -> e.removePermission(permissionId));
                 return null;
             }, (cmd) -> null, ROLE);
     }
@@ -215,16 +212,17 @@ public class RoleApplicationService {
                         RoleQuery.getRootRole());
                 log.trace("get project root role");
                 Optional<Role> first =
-                    allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
+                    allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()) &&
+                            e.getProjectId().equals(projectId))
                         .findFirst();
                 if (first.isEmpty()) {
                     throw new DefinedRuntimeException("unable to find root client role", "1019",
                         HttpResponseCode.NOT_HTTP);
                 }
-                Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
+                Role clientRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
                     first.get().getRoleId());
-                log.trace("create user role");
-                DomainRegistry.getRoleRepository().add(userRole);
+                log.trace("create client role");
+                DomainRegistry.getRoleRepository().add(clientRole);
                 return null;
             }, (cmd) -> null, ROLE);
     }

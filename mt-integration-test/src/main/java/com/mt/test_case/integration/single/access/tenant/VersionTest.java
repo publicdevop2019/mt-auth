@@ -88,7 +88,7 @@ public class VersionTest{
 
     @Test
     public void cache_version_will_not_increase() {
-        Cache cacheObj = CacheUtility.createRandomCache();
+        Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         String cacheId = UrlUtility.getId(cache);
         cacheObj.setId(cacheId);
@@ -105,7 +105,7 @@ public class VersionTest{
 
     @Test
     public void cors_version_will_not_increase() {
-        Cors corsObj = CorsUtility.createRandomCorsObj();
+        Cors corsObj = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
         String corsId = UrlUtility.getId(cors);
 
@@ -121,11 +121,33 @@ public class VersionTest{
         Cors cors1 = collect.get(0);
         Assert.assertEquals(0, cors1.getVersion().intValue());
     }
+    //allow headers and exposed headers are empty
+    @Test
+    public void cors_version_will_not_increase_empty_headers() {
+        Cors corsObj = CorsUtility.createValidCors();
+        corsObj.setAllowedHeaders(null);
+        corsObj.setExposedHeaders(null);
+        ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
+        String corsId = UrlUtility.getId(cors);
+
+        corsObj.setId(corsId);
+        ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
+
+        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        ResponseEntity<SumTotal<Cors>> read =
+            CorsUtility.readTenantCors(tenantContext);
+        List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
+            .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
+                Collectors.toList());
+        Cors cors1 = collect.get(0);
+        Assert.assertEquals(0, cors1.getVersion().intValue());
+    }
+
     @Test
     public void endpoint_version_will_not_increase() {
         //create endpoint
         Endpoint endpoint =
-            EndpointUtility.createRandomEndpointObj(client.getId());
+            EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));

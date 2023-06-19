@@ -1,6 +1,7 @@
 package com.mt.access.port.adapter.persistence.sub_request;
 
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
@@ -42,8 +43,8 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
         return QueryBuilderRegistry.getSubRequestAdaptor().execute(query);
     }
 
-    default Set<EndpointId> getSubscribeEndpointIds(UserId userId) {
-        return getSubscribeEndpointIds_(userId.getDomainId());
+    default Set<EndpointId> getSubscribeEndpointIds(ProjectId projectId) {
+        return getSubscribeEndpointIds_(projectId);
     }
 
     default Set<UserId> getEndpointSubscriber(EndpointId endpointId) {
@@ -53,8 +54,8 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
     @Query("select distinct sr.createdBy from SubRequest sr where sr.endpointId = ?1 and sr.subRequestStatus='APPROVED'")
     Set<UserId> getEndpointSubscriber_(EndpointId id);
 
-    @Query("select distinct sr.endpointId from SubRequest sr where sr.createdBy = ?1 and sr.subRequestStatus='APPROVED'")
-    Set<EndpointId> getSubscribeEndpointIds_(String userId);
+    @Query("select distinct sr.endpointId from SubRequest sr where sr.projectId = ?1 and sr.subRequestStatus='APPROVED'")
+    Set<EndpointId> getSubscribeEndpointIds_(ProjectId projectId);
 
     default SumPagedRep<SubRequest> getMySubscriptions(SubRequestQuery query) {
         EntityManager entityManager = QueryUtility.getEntityManager();

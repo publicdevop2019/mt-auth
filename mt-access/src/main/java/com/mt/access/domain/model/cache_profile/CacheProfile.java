@@ -9,11 +9,10 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
@@ -133,7 +132,7 @@ public class CacheProfile extends Auditable {
         setDescription(description);
         setAllowCache(allowCache);
         setCacheProfileId(cacheProfileId);
-        setCacheControl(cacheControl);
+        setCacheControl(CommonUtility.map(cacheControl, CacheControlValue::valueOfLabel));
         setExpires(expires);
         setMaxAge(maxAge);
         setSmaxAge(smaxAge);
@@ -223,7 +222,7 @@ public class CacheProfile extends Auditable {
      */
     public void update(String name,
                        String description,
-                       Set<String> cacheControl,
+                       Set<CacheControlValue> cacheControl,
                        Long expires,
                        Long maxAge,
                        Long smaxAge,
@@ -231,6 +230,9 @@ public class CacheProfile extends Auditable {
                        Boolean allowCache,
                        Boolean etag,
                        Boolean weakValidation) {
+        CacheProfile original =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        //exclude name and description from comparison and bypass setter check
         setName(name);
         setDescription(description);
         setCacheControl(cacheControl);
@@ -241,29 +243,30 @@ public class CacheProfile extends Auditable {
         setEtag(etag);
         setWeakValidation(weakValidation);
         setAllowCache(allowCache);
-        CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
+        CacheProfile afterUpdate =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        original.name = null;
+        original.description = null;
+        afterUpdate.name = null;
+        afterUpdate.description = null;
+        log.debug("original hashcode is {}, updated hashcode is{}", original.hashCode(),
+            afterUpdate.hashCode());
+        if (!afterUpdate.equals(original)) {
+            log.debug("domain object updated");
+            CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
+        }
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getCacheProfileValidationService()
             .validate(this, new HttpValidationNotificationHandler());
     }
 
-    private void setCacheControl(Set<String> cacheControl) {
-        Set<CacheControlValue> collect = null;
+    private void setCacheControl(Set<CacheControlValue> cacheControl) {
         if (Checker.notNull(cacheControl)) {
             Validator.notEmpty(cacheControl);
-            Validator.memberOf(cacheControl,
-                Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(
-                    Collectors.toSet()));
-            collect = cacheControl.stream().map(CacheControlValue::valueOfLabel)
-                .collect(Collectors.toSet());
-            Validator.lessThanOrEqualTo(collect, 9);
+            Validator.lessThanOrEqualTo(cacheControl, 9);
         }
-        if (!Objects.equals(collect, this.cacheControl)) {
-            if (this.cacheControl != null) {
-                this.cacheControl.clear();
-            }
-            this.cacheControl = collect;
-        }
+        CommonUtility.updateCollection(this.cacheControl, cacheControl,
+            () -> this.cacheControl = cacheControl);
     }
 
     @Override
@@ -288,7 +291,8 @@ public class CacheProfile extends Auditable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(super.hashCode(), cacheProfileId);
+        log.debug("super hashcode is {}", super.hashCode());
+        return Objects.hash(cacheProfileId);
     }
 
     public void removeAllReference() {

@@ -2,6 +2,7 @@ package com.mt.test_case.integration.single.access;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.TenantTest;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.ClientType;
 import com.mt.test_case.helper.pojo.Endpoint;
@@ -12,7 +13,6 @@ import com.mt.test_case.helper.utility.OAuth2Utility;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
-import com.mt.test_case.helper.TenantTest;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
@@ -53,7 +53,7 @@ public class RefreshTokenTest extends TenantTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
 
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw(clientAsResource.getId());
@@ -64,6 +64,7 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setPath(RandomUtility.randomStringNoNum());
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
         clientRaw.setTypes(new HashSet<>(List.of(ClientType.BACKEND_APP.name())));
+        clientRaw.setResourceIndicator(true);
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
@@ -75,7 +76,8 @@ public class RefreshTokenTest extends TenantTest {
                 tenantContext.getCreator(), tenantContext);
         Assert.assertEquals(HttpStatus.OK, token.getStatusCode());
         //access endpoint
-        String url = UrlUtility.getTenantUrl(clientAsResource.getPath(),"get"+"/"+RandomUtility.randomStringNoNum());
+        String url = UrlUtility.getTenantUrl(clientAsResource.getPath(),
+            "get" + "/" + RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getBody().getValue());
         HttpEntity<Void> request = new HttpEntity<>(headers);
@@ -104,7 +106,7 @@ public class RefreshTokenTest extends TenantTest {
     }
 
     @Test
-    public void refresh_token_should_have_exp(){
+    public void refresh_token_should_have_exp() {
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw();
         HashSet<String> enums = new HashSet<>();
@@ -113,6 +115,7 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setTypes(Collections.singleton(ClientType.BACKEND_APP.name()));
         clientRaw.setResourceIds(Collections.singleton(AppConstant.CLIENT_ID_OAUTH2_ID));
         clientRaw.setGrantTypeEnums(enums);
+        clientRaw.setResourceIndicator(true);
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         clientRaw.setPath(RandomUtility.randomStringNoNum());
@@ -122,7 +125,7 @@ public class RefreshTokenTest extends TenantTest {
         Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
-            OAuth2Utility.getTenantPasswordToken(clientRaw,tenantContext.getCreator()
+            OAuth2Utility.getTenantPasswordToken(clientRaw, tenantContext.getCreator()
                 , tenantContext);
         Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         OAuth2RefreshToken refreshToken = jwtPasswordWithClient.getBody().getRefreshToken();

@@ -13,7 +13,7 @@ public class PermissionRepresentation {
     private String id;
     private String parentId;
     private PermissionType type;
-    private boolean systemCreate;
+    private Boolean systemCreate;
     private Integer version;
     private Set<String> linkedApiPermissionIds;
 
@@ -22,7 +22,7 @@ public class PermissionRepresentation {
         this.version = permission.getVersion();
         this.name = permission.getName();
         this.type = permission.getType();
-        this.systemCreate = permission.isSystemCreate();
+        this.systemCreate = permission.getSystemCreate();
         if (permission.getParentId() != null) {
             this.parentId = permission.getParentId().getDomainId();
         }

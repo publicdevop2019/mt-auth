@@ -14,10 +14,13 @@ import com.mt.access.port.adapter.persistence.ProjectIdConverter;
 import com.mt.access.port.adapter.persistence.RoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -142,34 +145,29 @@ public class UserRelation extends Auditable {
     }
 
     private void setStandaloneRoles(Set<RoleId> roleIds) {
-        Validator.notEmpty(roleIds);
-        if (!roleIds.equals(this.standaloneRoles)) {
-            this.standaloneRoles.clear();
-            this.standaloneRoles.addAll(roleIds);
+        if (Checker.notNull(roleIds)) {
+            Validator.notEmpty(roleIds);
         }
-        Set<Role> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                new RoleQuery(roleIds));
-        if (roleIds.size() != allByQuery.size()) {
-            HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
-            handler.handleError("not able to find all roles");
+        CommonUtility.updateCollection(this.standaloneRoles, roleIds,
+            () -> this.standaloneRoles = roleIds);
+        //@todo move this logic to custom validator
+        if (Checker.notNull(roleIds)) {
+            Set<Role> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                    new RoleQuery(roleIds));
+            if (roleIds.size() != allByQuery.size()) {
+                HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+                handler.handleError("not able to find all roles");
+            }
         }
     }
 
     private void setTenantIds(Set<ProjectId> tenantIds) {
-        if (tenantIds == null && this.tenantIds == null) {
-            return;
+        if (Checker.notNull(tenantIds)) {
+            Validator.notEmpty(tenantIds);
+            Validator.noNullMember(tenantIds);
         }
-        if (tenantIds == null) {
-            this.tenantIds.clear();
-            return;
-        }
-        Set<ProjectId> collect =
-            tenantIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-        if (!collect.equals(this.tenantIds)) {
-            this.tenantIds.clear();
-            this.tenantIds.addAll(tenantIds);
-        }
+        CommonUtility.updateCollection(this.tenantIds, tenantIds, () -> this.tenantIds = tenantIds);
     }
 
     @Override
@@ -215,28 +213,35 @@ public class UserRelation extends Auditable {
     }
 
     public void tenantUpdate(Set<String> roles) {
-        if (roles == null || roles.isEmpty()) {
-            setStandaloneRoles(Collections.emptySet());
-            setTenantIds(Collections.emptySet());
-            return;
-        }
-        Set<RoleId> collect =
+        //@todo move to validator
+        Validator.notNull(roles);
+        Validator.notEmpty(roles);
+        Set<RoleId> roleIds =
             roles.stream().map(RoleId::new).collect(Collectors.toSet());
-        Set<Role> allByQuery = QueryUtility
+        Set<Role> roleSet = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                new RoleQuery(collect));
+                new RoleQuery(roleIds));
+        Set<ProjectId> projectIds =
+            roleSet.stream().map(Role::getProjectId).collect(Collectors.toSet());
+        if (projectIds.size() != 1 ||
+            !projectIds.stream().findFirst().get().equals(this.projectId)) {
+            throw new DefinedRuntimeException("role project id should be same", "1087",
+                HttpResponseCode.BAD_REQUEST);
+        }
         //remove default user so mt-auth will not be miss added to tenant list
-        Set<Role> removeDefaultUser = allByQuery.stream().filter(
+        Set<Role> removeDefaultUser = roleSet.stream().filter(
                 e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(
                     e.getRoleId().getDomainId()))
             .collect(Collectors.toSet());
         Set<ProjectId> collect1 =
-            removeDefaultUser.stream().map(Role::getTenantId)
+            removeDefaultUser.stream().map(Role::getTenantId).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         //update tenant list based on role selected
         setStandaloneRoles(
             roles.stream().map(RoleId::new)
                 .collect(Collectors.toSet()));
-        setTenantIds(collect1);
+        if (collect1.isEmpty()) {
+            setTenantIds(null);
+        }
     }
 }

@@ -33,7 +33,9 @@ import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -49,17 +51,23 @@ public class PermissionApplicationService {
     /**
      * get subscribed endpoint permissions
      *
+     * @param rawProjectId
      * @param queryParam query string
      * @param pageParam  page config
      * @return paged permission
      */
-    public SumPagedRep<Permission> sharedQuery(String queryParam, String pageParam) {
+    public SumPagedRep<Permission> sharedQuery(String rawProjectId, String queryParam,
+                                               String pageParam) {
+        //get subscribed endpoints
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_PERMISSION);
         Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
-            .internalSubscribedEndpointIds();
+            .internalSubscribedEndpointIds(projectId);
         if (!endpointIds.isEmpty()) {
             Set<Endpoint> endpoints =
                 ApplicationServiceRegistry.getEndpointApplicationService()
                     .internalQuery(endpointIds);
+            //get endpoint's permission
             Set<PermissionId> subPermissionIds =
                 endpoints.stream().map(Endpoint::getPermissionId)
                     .filter(Objects::nonNull)//filter shared endpoint that has no permission check
@@ -90,6 +98,8 @@ public class PermissionApplicationService {
     public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam,
                                                String skipCount) {
         PermissionQuery permissionQuery = new PermissionQuery(queryParam, pageParam, skipCount);
+        Validator.notNull(permissionQuery.getProjectIds());
+        Validator.notEmpty(permissionQuery.getProjectIds());
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
         return DomainRegistry.getPermissionRepository().query(permissionQuery);
@@ -116,19 +126,10 @@ public class PermissionApplicationService {
                     DomainRegistry.getPermissionRepository().query(permissionQuery)
                         .findFirst();
                 first.ifPresent(ee -> {
-                    Set<PermissionId> linkedPermId = null;
-                    if (command.getLinkedApiIds() != null && !command.getLinkedApiIds().isEmpty()) {
-                        Set<EndpointId> collect =
-                            command.getLinkedApiIds().stream().map(EndpointId::new)
-                                .collect(Collectors.toSet());
-                        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                            e -> DomainRegistry.getEndpointRepository().query(e),
-                            new EndpointQuery(collect));
-                        Validator.equalTo(allByQuery.size(), collect.size());
-                        linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
-                            .collect(Collectors.toSet());
-                    }
-                    ee.replace(command.getName(), linkedPermId);
+                    Set<PermissionId> permissionIds =
+                        findPermissionIdsByEndpointId(command.getLinkedApiIds(),
+                            permissionQuery.getProjectIds());
+                    ee.replace(command.getName(), permissionIds);
                     DomainRegistry.getPermissionRepository().add(ee);
                 });
                 return null;
@@ -190,35 +191,23 @@ public class PermissionApplicationService {
     @AuditLog(actionName = CREATE_TENANT_PERMISSION)
     public String tenantCreate(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
+        ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(command.getProjectId()), CREATE_PERMISSION);
+            .canAccess(projectId, CREATE_PERMISSION);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
-                Set<PermissionId> linkedPermId = null;
-                if (command.getLinkedApiIds() != null && !command.getLinkedApiIds().isEmpty()) {
-                    Set<EndpointId> collect =
-                        command.getLinkedApiIds().stream().map(EndpointId::new)
-                            .collect(Collectors.toSet());
-                    Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                        e -> DomainRegistry.getEndpointRepository().query(e),
-                        new EndpointQuery(collect));
-                    Validator
-                        .equalTo(allByQuery.size(), collect.size());
-                    linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
-                        .collect(Collectors.toSet());
-                }
-                Permission permission;
-                if (command.getParentId() != null && !command.getParentId().isBlank()) {
-                    permission = Permission
-                        .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                            command.getName(), PermissionType.COMMON,
-                            new PermissionId(command.getParentId()), null, linkedPermId);
-                } else {
-                    permission = Permission
-                        .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                            command.getName(), PermissionType.COMMON, null, null, linkedPermId);
-                }
+                Set<PermissionId> linkedPermId =
+                    findPermissionIdsByEndpointId(command.getLinkedApiIds(),
+                        Collections.singleton(projectId));
+                Permission permission = Permission
+                    .manualCreate(new ProjectId(command.getProjectId()), permissionId,
+                        command.getName(), PermissionType.COMMON,
+                        command.getParentId() != null ? new PermissionId(command.getParentId()) :
+                            null, null, linkedPermId);
                 DomainRegistry.getPermissionRepository().add(permission);
+                DomainRegistry.getPermissionValidationService()
+                    .validate(permission, command,
+                        new HttpValidationNotificationHandler());
                 return permissionId.getDomainId();
             }, PERMISSION);
     }
@@ -235,15 +224,15 @@ public class PermissionApplicationService {
     }
 
     @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
-    public void handle(SecureEndpointCreated deserialize) {
+    public void handle(SecureEndpointCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint created event");
-                EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
-                PermissionId permissionId = deserialize.getPermissionId();
-                ProjectId projectId = deserialize.getProjectId();
+                EndpointId endpointId = new EndpointId(event.getDomainId().getDomainId());
+                PermissionId permissionId = event.getPermissionId();
+                ProjectId projectId = event.getProjectId();
                 Permission
-                    .addNewEndpoint(projectId, endpointId, permissionId, deserialize.getShared());
+                    .addNewEndpoint(projectId, endpointId, permissionId, event.getShared());
                 return null;
             }, PERMISSION);
     }
@@ -265,5 +254,19 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-
+    private Set<PermissionId> findPermissionIdsByEndpointId(List<String> endpointIds,
+                                                            Set<ProjectId> projectIds) {
+        Set<PermissionId> linkedPermId = null;
+        if (endpointIds != null && !endpointIds.isEmpty()) {
+            Set<EndpointId> collect =
+                endpointIds.stream().map(EndpointId::new)
+                    .collect(Collectors.toSet());
+            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
+                e -> DomainRegistry.getEndpointRepository().query(e),
+                EndpointQuery.tenantQuery(collect, projectIds));
+            linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
+                .collect(Collectors.toSet());
+        }
+        return linkedPermId;
+    }
 }

@@ -25,7 +25,7 @@ public class UserPassword {
         Validator.notBlank(rawPassword);
         Validator.lessThanOrEqualTo(rawPassword, 16);
         Validator.greaterThanOrEqualTo(rawPassword, 10);
-        Pattern p = Pattern.compile("[a-z]");
+        Pattern p = Pattern.compile("[a-zA-Z]");
         Matcher m = p.matcher(rawPassword);
         if (!m.find()) {
             throw new DefinedRuntimeException("at least one letter", "1064",

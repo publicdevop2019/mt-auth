@@ -24,12 +24,12 @@ public class RoleCardRepresentation {
     private final String id;
     private String name;
     private String tenantId;
-    private boolean systemCreate;
+    private Boolean systemCreate;
 
     public RoleCardRepresentation(Role role) {
         this.id = role.getRoleId().getDomainId();
         this.name = role.getName();
-        this.systemCreate = role.isSystemCreate();
+        this.systemCreate = role.getSystemCreate();
         this.description = role.getDescription();
         this.roleType = role.getType();
         if (role.getTenantId() != null) {

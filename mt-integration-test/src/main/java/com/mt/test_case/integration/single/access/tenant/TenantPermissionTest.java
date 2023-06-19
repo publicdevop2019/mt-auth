@@ -358,7 +358,7 @@ public class TenantPermissionTest {
         randomPermissionObj.setLinkedApiIds(Collections.singletonList(""));
         ResponseEntity<Void> response3 =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //empty
         randomPermissionObj.setLinkedApiIds(Collections.singletonList(" "));
         ResponseEntity<Void> response4 =
@@ -390,8 +390,34 @@ public class TenantPermissionTest {
         randomPermissionObj.setLinkedApiIds(Collections.singletonList("0E99999999"));
         ResponseEntity<Void> response8 =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
+        //too many elements
+        List<String> strings2 = new ArrayList<>();
+        strings.add("0E8AZTODP400");
+        strings.add("0E8AZTODP401");
+        strings.add("0E8AZTODP402");
+        strings.add("0E8AZTODP403");
+        strings.add("0E8AZTODP404");
+        strings.add("0E8AZTODP405");
+        strings.add("0E8AZTODP406");
+        strings.add("0E8AZTODP407");
+        strings.add("0E8AZTODP408");
+        strings.add("0E8AZTODP409");
+        strings.add("0E8AZTODP410");
+        strings.add("0E8AZTODP411");
+        strings.add("0E8AZTODP412");
+        strings.add("0E8AZTODP413");
+        strings.add("0E8AZTODP414");
+        strings.add("0E8AZTODP415");
+        strings.add("0E8AZTODP416");
+        strings.add("0E8AZTODP417");
+        strings.add("0E8AZTODP418");
+        strings.add("0E8AZTODP419");
+        strings.add("0E8AZTODP420");
+        randomPermissionObj.setLinkedApiIds(strings);
+        ResponseEntity<Void> response9 =
+            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
     }
 
     @Test

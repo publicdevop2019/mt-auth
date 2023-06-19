@@ -10,11 +10,11 @@ public class SubRequestRepresentation extends BasicSubRequest {
     private final String id;
     private final String status;
     private final String rejectionReason;
-    private final int replenishRate;
-    private final int burstCapacity;
+    private final Integer replenishRate;
+    private final Integer burstCapacity;
     private final String createdBy;
-    private final long updateAt;
-    private final long createAt;
+    private final Long updateAt;
+    private final Long createAt;
     private final String endpointProjectId;
     private String approvedBy;
     private String rejectedBy;

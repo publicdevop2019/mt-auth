@@ -13,11 +13,11 @@ import com.mt.test_case.helper.pojo.User;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.MarketUtility;
 import com.mt.test_case.helper.utility.MessageUtility;
+import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.List;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -47,21 +47,13 @@ public class SubscriptionTest extends CommonTest {
         ResponseEntity<SumTotal<Notification>> oldNotifications =
             MessageUtility.readMessages(user);
         //mt-auth -> create public shared no auth endpoint
-        Endpoint endpoint = new Endpoint();
-        endpoint.setResourceId("0C8AZTODP4HZ");
-        endpoint.setName("ExternalSharedNoneAuth");
-        endpoint.setMethod("GET");
-        endpoint.setWebsocket(false);
-        endpoint.setExternal(true);
-        endpoint.setShared(true);
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj("0C8AZTODP4HZ");
         endpoint.setSecured(false);
+        endpoint.setPath("test/expire/" + RandomUtility.randomStringNoNum() + "/random");
+        endpoint.setMethod("GET");
         endpoint.setReplenishRate(10);
         endpoint.setBurstCapacity(20);
-        endpoint
-            .setPath(
-                "test/expire/" + UUID.randomUUID().toString().replace("-", "").replaceAll("\\d", "")
-                    +
-                    "/random");
         ResponseEntity<String> endpoint1 = EndpointUtility.createEndpoint(endpoint);
         Assert.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
         String endpointId = UrlUtility.getId(endpoint1);

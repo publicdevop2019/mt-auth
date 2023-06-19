@@ -114,8 +114,7 @@ public class UserTest extends CommonTest {
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());
         updatePwd.setEmail(user.getEmail());
-        updatePwd.setPassword(
-            "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
+        updatePwd.setPassword(RandomUtility.randomPassword());
         UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
         String url = UrlUtility.getAccessUrl("/users" + "/pwd");
@@ -284,10 +283,6 @@ public class UserTest extends CommonTest {
         user.setEmail("");
         ResponseEntity<Void> response1 = UserUtility.createPendingUser(user);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //min length
-        user.setEmail("1@gmail.com");
-        ResponseEntity<Void> response2 = UserUtility.createPendingUser(user);
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
         //max length
         user.setEmail(RandomUtility.randomStringWithNum() + RandomUtility.randomStringWithNum() +
             RandomUtility.randomEmail());
@@ -312,7 +307,7 @@ public class UserTest extends CommonTest {
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //blank
         user.setUsername(" ");
         HttpEntity<User> request2 = new HttpEntity<>(user, headers);
@@ -406,7 +401,7 @@ public class UserTest extends CommonTest {
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
         //one of is null
         user.setCountryCode(null);
         user.setMobileNumber("1231231234");
@@ -469,12 +464,12 @@ public class UserTest extends CommonTest {
         ResponseEntity<Void> exchange5 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
-        //invalid value
+        //valid number value
         user.setLanguage(0);
         HttpEntity<User> request6 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> request7 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request6, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, request7.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, request7.getStatusCode());
     }
 
     @Test
@@ -499,11 +494,6 @@ public class UserTest extends CommonTest {
         ResponseEntity<Void> response2 =
             UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        user.setEmail("1@gmail.com");
-        ResponseEntity<Void> response3 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
-        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //max length
         user.setEmail(RandomUtility.randomStringWithNum() + RandomUtility.randomStringWithNum() +
             RandomUtility.randomEmail());
@@ -687,11 +677,6 @@ public class UserTest extends CommonTest {
         ResponseEntity<Void> response6 =
             UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-        //invalid format, missing capital letter
-        user.setPassword("password1!");
-        ResponseEntity<Void> response7 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
         //invalid format, missing letter
         user.setPassword("123123123!");
         ResponseEntity<Void> response8 =
@@ -973,13 +958,6 @@ public class UserTest extends CommonTest {
         ResponseEntity<Object> exchange7 =
             TestContext.getRestTemplate().exchange(url2, HttpMethod.POST, request7, Object.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange7.getStatusCode());
-        //invalid format, missing capital letter
-        user.setPassword("password1!");
-        HttpEntity<ForgetPasswordRequest> request8 =
-            new HttpEntity<>(forgetPasswordRequest, header2);
-        ResponseEntity<Object> exchange8 =
-            TestContext.getRestTemplate().exchange(url2, HttpMethod.POST, request8, Object.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange8.getStatusCode());
         //invalid format, missing letter
         user.setPassword("123123123!");
         HttpEntity<ForgetPasswordRequest> request9 =
@@ -1044,12 +1022,6 @@ public class UserTest extends CommonTest {
         ResponseEntity<Void> exchange5 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
-        //invalid format, missing capital letter
-        updatePwd.setPassword("assword1!");
-        HttpEntity<UserUpdatePwd> request6 = new HttpEntity<>(updatePwd, headers);
-        ResponseEntity<Void> exchange6 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request6, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange6.getStatusCode());
         //invalid format, missing letter
         updatePwd.setPassword("0123456789!");
         HttpEntity<UserUpdatePwd> request7 = new HttpEntity<>(updatePwd, headers);
@@ -1112,12 +1084,6 @@ public class UserTest extends CommonTest {
         ResponseEntity<Void> exchange5 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
-        //invalid format, missing capital letter
-        updatePwd.setCurrentPwd("assword1!");
-        HttpEntity<UserUpdatePwd> request6 = new HttpEntity<>(updatePwd, headers);
-        ResponseEntity<Void> exchange6 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request6, Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange6.getStatusCode());
         //invalid format, missing letter
         updatePwd.setCurrentPwd("0123456789!");
         HttpEntity<UserUpdatePwd> request7 = new HttpEntity<>(updatePwd, headers);

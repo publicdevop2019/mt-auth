@@ -97,7 +97,12 @@ public class PermissionQuery extends QueryCriteria {
         return permissionQuery;
     }
 
-    //create query to find read project permission for tenant
+    /**
+     * create query to find read project permission for tenant
+     * @param projectId project id
+     * @param tenantIds tenant id
+     * @return PermissionQuery
+     */
     public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> tenantIds) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.projectIds = Collections.singleton(projectId);
@@ -127,6 +132,16 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
         permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.shared = true;
+        return permissionQuery;
+    }
+
+    public static PermissionQuery tenantQuery(ProjectId tenantId, PermissionId parentId) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setTenantIds(Collections.singleton(tenantId));
+        permissionQuery.setIds(Collections.singleton(parentId));
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.sort = PermissionSort.byId(true);
         return permissionQuery;
     }
 

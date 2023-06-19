@@ -41,6 +41,7 @@ import org.junit.runners.Suite;
     MgmtTest.class,
     MgmtUserTest.class,
     MgmtUtilityTest.class,
+    SubscriptionTest.class,
     TenantAdminTest.class,
     TenantCacheTest.class,
     TenantClientTest.class,
@@ -52,6 +53,7 @@ import org.junit.runners.Suite;
     TenantProjectTest.class,
     TenantRoleTest.class,
     TenantUserTest.class,
+    VersionTest.class,
     AuthorizationCodeTest.class,
     ClientCredentialsTest.class,
     ClientIdempotentTest.class,
@@ -63,8 +65,6 @@ import org.junit.runners.Suite;
     GatewayFilterTest.class,
     JwtSecurityTest.class,
     RevokeTokenTest.class,
-    SubscriptionTest.class,
-    VersionTest.class,
 })
 public class TestSuite {
 }

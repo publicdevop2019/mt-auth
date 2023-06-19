@@ -32,6 +32,7 @@ import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
+import com.mt.access.domain.model.permission.PermissionValidationService;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
@@ -43,6 +44,7 @@ import com.mt.access.domain.model.report.ReportGenerateService;
 import com.mt.access.domain.model.revoke_token.RevokeTokenRepository;
 import com.mt.access.domain.model.revoke_token.RevokeTokenService;
 import com.mt.access.domain.model.role.RoleRepository;
+import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.ticket.TicketService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
@@ -54,10 +56,12 @@ import com.mt.access.domain.model.user.UserRelationRepository;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.UserService;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class DomainRegistry {
     @Getter
     private static ClientRepository clientRepository;
@@ -89,6 +93,8 @@ public class DomainRegistry {
     private static EndpointValidationService endpointValidationService;
     @Getter
     private static ClientValidationService clientValidationService;
+    @Getter
+    private static PermissionValidationService permissionValidationService;
     @Getter
     private static PendingUserValidationService pendingUserValidationService;
     @Getter
@@ -165,11 +171,24 @@ public class DomainRegistry {
     private static AuditRecordRepository auditRepository;
     @Getter
     private static CacheProfileValidationService cacheProfileValidationService;
+    @Getter
+    private static RoleValidationService roleValidationService;
+
+    @Autowired
+    public void setRoleValidationService(RoleValidationService roleValidationService) {
+        DomainRegistry.roleValidationService = roleValidationService;
+    }
 
     @Autowired
     public void setCacheProfileValidationService(CacheProfileValidationService service) {
         DomainRegistry.cacheProfileValidationService = service;
     }
+
+    @Autowired
+    public void setPermissionValidationService(PermissionValidationService service) {
+        DomainRegistry.permissionValidationService = service;
+    }
+
     @Autowired
     public void setAuditRepository(AuditRecordRepository auditRepository) {
         DomainRegistry.auditRepository = auditRepository;

@@ -3,6 +3,7 @@ package com.mt.access.domain.model.endpoint;
 
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 
 public class EndpointValidator {
     private final Endpoint endpoint;
@@ -14,11 +15,22 @@ public class EndpointValidator {
     }
 
     protected void validate() {
+        checkNotNullValue();
         websocketAndHttpMethod();
         websocketAndCsrf();
         ifSecureThenPermissionIdMustExist();
         onlyGetCanHaveCacheConfig();
         replenishRateAndBurstCapacity();
+    }
+
+    private void checkNotNullValue() {
+        Validator.notNull(endpoint.getEndpointId());
+        Validator.notNull(endpoint.getProjectId());
+        Validator.notNull(endpoint.getName());
+        Validator.notNull(endpoint.getClientId());
+        Validator.notNull(endpoint.getShared());
+        Validator.notNull(endpoint.getExternal());
+        Validator.notNull(endpoint.getSecured());
     }
 
     private void replenishRateAndBurstCapacity() {

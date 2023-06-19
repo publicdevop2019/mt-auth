@@ -427,7 +427,7 @@ public class TenantRoleTest {
         role.setApiPermissionIds(Collections.emptySet());
         ResponseEntity<Void> response3 =
             RoleUtility.createTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //too many elements
         HashSet<String> strings = new HashSet<>();
         strings.add("0Y0000000000");
@@ -447,14 +447,14 @@ public class TenantRoleTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
         HashSet<String> strings1 = new HashSet<>();
-        strings.add("abc");
+        strings1.add("abc");
         role.setApiPermissionIds(strings1);
         ResponseEntity<Void> response5 =
             RoleUtility.createTenantRole(tenantContext, role);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //other tenant's id
         HashSet<String> strings2 = new HashSet<>();
-        strings.add(MT_ACCESS_PERMISSION_ID);
+        strings2.add(MT_ACCESS_PERMISSION_ID);
         role.setApiPermissionIds(strings2);
         ResponseEntity<Void> response6 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -481,7 +481,7 @@ public class TenantRoleTest {
         role.setCommonPermissionIds(Collections.emptySet());
         ResponseEntity<Void> response3 =
             RoleUtility.createTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //too many elements
         HashSet<String> strings = new HashSet<>();
         strings.add("0Y0000000000");
@@ -501,14 +501,14 @@ public class TenantRoleTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
         HashSet<String> strings1 = new HashSet<>();
-        strings.add("abc");
+        strings1.add("abc");
         role.setCommonPermissionIds(strings1);
         ResponseEntity<Void> response5 =
             RoleUtility.createTenantRole(tenantContext, role);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //other tenant's id
         HashSet<String> strings2 = new HashSet<>();
-        strings.add(MT_ACCESS_PERMISSION_ID);
+        strings2.add(MT_ACCESS_PERMISSION_ID);
         role.setCommonPermissionIds(strings2);
         ResponseEntity<Void> response6 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -535,7 +535,7 @@ public class TenantRoleTest {
         role.setExternalPermissionIds(Collections.emptySet());
         ResponseEntity<Void> response3 =
             RoleUtility.createTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //too many elements
         HashSet<String> strings = new HashSet<>();
         strings.add("0Y0000000000");
@@ -555,14 +555,14 @@ public class TenantRoleTest {
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
         HashSet<String> strings1 = new HashSet<>();
-        strings.add("abc");
+        strings1.add("abc");
         role.setExternalPermissionIds(strings1);
         ResponseEntity<Void> response5 =
             RoleUtility.createTenantRole(tenantContext, role);
         Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //other tenant's id
+        //other subscribed tenant's id is allowed
         HashSet<String> strings2 = new HashSet<>();
-        strings.add(MT_ACCESS_PERMISSION_ID);
+        strings2.add(MT_ACCESS_PERMISSION_ID);
         role.setExternalPermissionIds(strings2);
         ResponseEntity<Void> response6 =
             RoleUtility.createTenantRole(tenantContext, role);

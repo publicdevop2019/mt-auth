@@ -9,6 +9,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -179,12 +180,8 @@ public class CorsProfile extends Auditable {
         if (Checker.notNull(allowedHeaders)) {
             validateHeaderName(allowedHeaders);
         }
-        if (!Objects.equals(allowedHeaders, this.allowedHeaders)) {
-            if (this.allowedHeaders != null) {
-                this.allowedHeaders.clear();
-            }
-            this.allowedHeaders = allowedHeaders;
-        }
+        CommonUtility.updateCollection(this.allowedHeaders, allowedHeaders,
+            () -> this.allowedHeaders = allowedHeaders);
     }
 
     private static void validateHeaderName(Set<String> headerNames) {
@@ -207,25 +204,17 @@ public class CorsProfile extends Auditable {
     private void setAllowOrigin(Set<String> origins) {
         Validator.validRequiredCollection(1, 5, origins);
         Set<Origin> allowOrigin = origins.stream().map(Origin::new).collect(Collectors.toSet());
-        if (!Objects.equals(allowOrigin, this.allowOrigin)) {
-            if (this.allowOrigin != null) {
-                this.allowOrigin.clear();
-            }
-            this.allowOrigin = allowOrigin;
-        }
+        CommonUtility.updateCollection(this.allowOrigin, allowOrigin,
+            () -> this.allowOrigin = allowOrigin);
     }
 
     private void setExposedHeaders(Set<String> exposedHeaders) {
         Validator.validOptionalCollection(10, exposedHeaders);
-        if (exposedHeaders != null) {
+        if (Checker.notNull(exposedHeaders)) {
             validateHeaderName(exposedHeaders);
         }
-        if (!Objects.equals(exposedHeaders, this.exposedHeaders)) {
-            if (this.exposedHeaders != null) {
-                this.exposedHeaders.clear();
-            }
-            this.exposedHeaders = exposedHeaders;
-        }
+        CommonUtility.updateCollection(this.exposedHeaders, exposedHeaders,
+            () -> this.exposedHeaders = exposedHeaders);
     }
 
     public void removeAllReference() {

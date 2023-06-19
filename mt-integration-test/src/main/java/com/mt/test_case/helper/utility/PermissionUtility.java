@@ -46,7 +46,8 @@ public class PermissionUtility {
 
     public static ResponseEntity<SumTotal<Permission>> readTenantPermissionShared(
         TenantContext tenantContext) {
-        String url = UrlUtility.getAccessUrl("/permissions/shared");
+        String url = UrlUtility.appendPath(TenantUtility.getTenantUrl(tenantContext.getProject()),
+            "permissions/shared");
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 

@@ -3,6 +3,7 @@ package com.mt.test_case.helper.utility;
 import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Endpoint;
+import com.mt.test_case.helper.pojo.RejectSubRequestCommand;
 import com.mt.test_case.helper.pojo.SubscriptionReq;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
@@ -35,9 +36,8 @@ public class MarketUtility {
         return Utility.createResource(user, url, req);
     }
 
-    public static SubscriptionReq createRandomTenantSubReqObj(
-        TenantContext tenantContext,
-        String endpointId) {
+    public static SubscriptionReq createRandomTenantSubReqObj(TenantContext tenantContext,
+                                                              String endpointId) {
         SubscriptionReq subscriptionReq = new SubscriptionReq();
         subscriptionReq.setProjectId(tenantContext.getProject().getId());
         subscriptionReq.setEndpointId(endpointId);
@@ -46,11 +46,29 @@ public class MarketUtility {
         return subscriptionReq;
     }
 
+    public static SubscriptionReq createValidSubReq(TenantContext tenantContext,
+                                                    String endpointId) {
+        SubscriptionReq req =
+            createRandomTenantSubReqObj(tenantContext, endpointId);
+        req.setBurstCapacity(20);
+        req.setReplenishRate(10);
+        return req;
+    }
+
     public static ResponseEntity<Void> approveSubReq(TenantContext tenantContext,
                                                      String subReqId) {
         String url = UrlUtility.getAccessUrl(
             UrlUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "approve"));
         return Utility.createResource(tenantContext.getCreator(), url);
+    }
+
+    public static ResponseEntity<Void> rejectSubReq(TenantContext tenantContext,
+                                                    String subReqId,
+                                                    RejectSubRequestCommand command
+    ) {
+        String url = UrlUtility.getAccessUrl(
+            UrlUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "reject"));
+        return Utility.createResource(tenantContext.getCreator(), url, command);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubReq(

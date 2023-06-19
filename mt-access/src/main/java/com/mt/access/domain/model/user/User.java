@@ -110,7 +110,6 @@ public class User extends Auditable {
 
     @Override
     public void validate(@NotNull ValidationNotificationHandler handler) {
-        (new UserValidator(this, handler)).validate();
     }
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {

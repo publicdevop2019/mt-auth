@@ -12,6 +12,7 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,12 +26,12 @@ public class PermissionCardRepresentation {
     private String tenantName;
     private String id;
     private String parentId;
-    private boolean systemCreate;
+    private Boolean systemCreate;
     private PermissionType type;
 
     public PermissionCardRepresentation(Permission permission) {
         this.name = permission.getName();
-        this.systemCreate = permission.isSystemCreate();
+        this.systemCreate = permission.getSystemCreate();
         this.type = permission.getType();
         if (permission.getParentId() != null) {
             this.parentId = permission.getParentId().getDomainId();
@@ -44,13 +45,13 @@ public class PermissionCardRepresentation {
     public static SumPagedRep<PermissionCardRepresentation> updateEndpointName(
         SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
-        Set<EndpointId> collect1 =
+        Set<EndpointId> endpointIds =
             data.stream().filter(e -> e.type.equals(PermissionType.API) && e.parentId != null)
                 .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
-        if (collect1.size() > 0) {
+        if (endpointIds.size() > 0) {
             Set<Endpoint> allByQuery2 = QueryUtility.getAllByQuery(
                 e -> DomainRegistry.getEndpointRepository().query(e),
-                new EndpointQuery(collect1));
+                new EndpointQuery(endpointIds));
             data.forEach(e -> allByQuery2.stream()
                 .filter(ee -> ee.getEndpointId().getDomainId().equals(e.name)).findFirst()
                 .ifPresent(ee -> e.name = ee.getName()));
@@ -82,13 +83,11 @@ public class PermissionCardRepresentation {
                 Set<Project> allByQuery2 = QueryUtility.getAllByQuery(
                     e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect2));
-                data.forEach(e -> {
-                    allByQuery2.stream()
-                        .filter(ee -> ee.getProjectId().getDomainId().equals(e.tenantId))
-                        .findFirst().ifPresent(ee -> {
-                            e.tenantName = ee.getName();
-                        });
-                });
+                data.forEach(e -> allByQuery2.stream()
+                    .filter(ee -> ee.getProjectId().getDomainId().equals(e.tenantId))
+                    .findFirst().ifPresent(ee -> {
+                        e.tenantName = ee.getName();
+                    }));
             }
         }
         return response;

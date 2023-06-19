@@ -30,12 +30,16 @@ public class Project extends Auditable {
 
     public Project(ProjectId projectId, String name, UserId userId) {
         super();
-        Validator.notBlank(name);
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
-        this.name = name;
+        setName(name);
         this.setCreatedBy(userId.getDomainId());
         CommonDomainRegistry.getDomainEventRepository().append(new StartNewProjectOnboarding(this));
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(5, 50, name);
+        this.name = name;
     }
 
     public void replace(String name) {

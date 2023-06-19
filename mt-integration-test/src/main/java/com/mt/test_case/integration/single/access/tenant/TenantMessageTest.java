@@ -54,7 +54,7 @@ public class TenantMessageTest {
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
-            MarketUtility.createRandomTenantSubReqObj(tenantContextB, endpoint.getId());
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
         String subReqId = UrlUtility.getId(voidResponseEntity);

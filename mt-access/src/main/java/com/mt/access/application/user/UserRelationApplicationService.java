@@ -135,15 +135,15 @@ public class UserRelationApplicationService {
         return userRelation.get();
     }
 
-    public void tenantUpdate(String projectId, String userId, UpdateUserRelationCommand command,
+    public void tenantUpdate(String rawProjectId, String userId, UpdateUserRelationCommand command,
                              String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_TENANT_USER);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_TENANT_USER);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
-                        .get(new UserId(userId), projectId1);
+                        .get(new UserId(userId), projectId);
                 relation.tenantUpdate(command.getRoles());
                 return null;
             }, USER_RELATION);
