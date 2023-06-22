@@ -2,21 +2,22 @@ package com.mt.access.domain.model.ticket;
 
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.user.UserId;
-import java.util.Objects;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
+@EqualsAndHashCode
 public class TicketInfo {
     /**
      * below is required.
      */
-    public static String USER_ID = "uid";
-    public static String CLIENT_ID = "clientId";
-    public static String AUD = "aud";
-    public static String PERMISSION_IDS = "permissionIds";
-    public static String SCOPES = "scope";
+    public static final String USER_ID = "uid";
+    public static final String CLIENT_ID = "clientId";
+    public static final String AUD = "aud";
+    public static final String PERMISSION_IDS = "permissionIds";
+    public static final String SCOPES = "scope";
     private Long exp;
     private UserId userId;
     private ClientId clientId;
@@ -33,22 +34,4 @@ public class TicketInfo {
         return new TicketInfo(userId, clientId, aud);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TicketInfo that = (TicketInfo) o;
-        return Objects.equals(exp, that.exp) && Objects.equals(userId, that.userId)
-            &&
-            Objects.equals(clientId, that.clientId) && Objects.equals(aud, that.aud);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(exp, userId, clientId, aud);
-    }
 }

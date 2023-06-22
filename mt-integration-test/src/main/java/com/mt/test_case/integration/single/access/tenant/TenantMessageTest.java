@@ -1,5 +1,6 @@
 package com.mt.test_case.integration.single.access.tenant;
 
+import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.Notification;
@@ -9,7 +10,6 @@ import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.MarketUtility;
 import com.mt.test_case.helper.utility.MessageUtility;
-import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;

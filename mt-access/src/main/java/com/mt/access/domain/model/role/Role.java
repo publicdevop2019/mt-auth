@@ -23,6 +23,7 @@ import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -43,6 +44,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -53,6 +55,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Getter
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "roleRegion")
+@EqualsAndHashCode(callSuper = true)
 public class Role extends Auditable {
     public static final String PROJECT_USER = "PROJECT_USER";
     public static final String PROJECT_ADMIN = "PROJECT_ADMIN";
@@ -78,7 +81,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleCommonPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> commonPermissionIds;
+    private Set<PermissionId> commonPermissionIds=new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
@@ -86,7 +89,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleApiPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> apiPermissionIds;
+    private Set<PermissionId> apiPermissionIds=new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
@@ -94,7 +97,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleExternalPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> externalPermissionIds;
+    private Set<PermissionId> externalPermissionIds=new LinkedHashSet<>();
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
@@ -302,7 +305,7 @@ public class Role extends Auditable {
 
     private void setApiPermissionIds(boolean isNewProjectOnboarding,
                                      Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds)) {
+        if (Checker.notNull(permissionIds) && Checker.notEmpty(permissionIds)) {
             Validator.noNullMember(permissionIds);
             if (!isNewProjectOnboarding) {
                 Validator.lessThanOrEqualTo(permissionIds, 10);
@@ -317,10 +320,7 @@ public class Role extends Auditable {
     }
 
     private void setExternalPermissionIds(Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds)) {
-            Validator.noNullMember(permissionIds);
-            Validator.lessThanOrEqualTo(permissionIds, 10);
-        }
+        Validator.validOptionalCollection(10, permissionIds);
         if (CommonUtility.collectionWillChange(this.externalPermissionIds, permissionIds)) {
             CommonUtility.updateCollection(this.externalPermissionIds, permissionIds,
                 () -> this.externalPermissionIds = permissionIds);
@@ -330,7 +330,7 @@ public class Role extends Auditable {
     }
 
     private void setCommonPermissionIds(boolean newProject, Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds)) {
+        if (Checker.notNull(permissionIds) && Checker.notEmpty(permissionIds)) {
             Validator.noNullMember(permissionIds);
             if (!newProject) {
                 Validator.lessThanOrEqualTo(permissionIds, 10);
@@ -390,25 +390,6 @@ public class Role extends Auditable {
         this.systemCreate = systemCreate;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Role that = (Role) o;
-        return Objects.equals(roleId, that.roleId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), roleId);
-    }
 
     public void remove() {
         if (this.systemCreate) {

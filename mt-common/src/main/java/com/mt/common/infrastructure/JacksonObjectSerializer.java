@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +32,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class JacksonObjectSerializer implements CustomObjectSerializer {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+
+    @PostConstruct
+    private void setUp() {
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
+    }
 
     @Override
     public byte[] nativeSerialize(Object object) {
@@ -74,8 +81,6 @@ public class JacksonObjectSerializer implements CustomObjectSerializer {
     @Override
     public <T> T deserialize(String str, Class<T> clazz) {
         try {
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            objectMapper.enable(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS);
             return objectMapper.readValue(str, clazz);
         } catch (IOException ex) {
             throw new DefinedRuntimeException("error during object mapper deserialize", "0053",

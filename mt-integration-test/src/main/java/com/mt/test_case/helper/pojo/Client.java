@@ -1,8 +1,7 @@
 package com.mt.test_case.helper.pojo;
 
-import lombok.Data;
-
 import java.util.Set;
+import lombok.Data;
 
 @Data
 public class Client {

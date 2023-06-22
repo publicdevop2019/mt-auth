@@ -47,7 +47,7 @@ public class Notification extends Auditable {
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
-    private LinkedHashSet<String> descriptions = new LinkedHashSet<>();
+    private final LinkedHashSet<String> descriptions = new LinkedHashSet<>();
     @Enumerated(EnumType.STRING)
     private NotificationType type;
     @Enumerated(EnumType.STRING)

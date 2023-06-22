@@ -1,9 +1,7 @@
 package com.mt.test_case.helper.pojo;
 
-import java.util.Objects;
-import lombok.Data;
-
 import java.util.List;
+import lombok.Data;
 
 @Data
 public class User {

@@ -3,14 +3,15 @@ package com.mt.access.domain.model.client;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import java.util.Objects;
 import javax.persistence.Embeddable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class TokenDetail implements Serializable {
 
     private static final int MAX_REFRESH_TOKEN_SEC = 60 * 60 * 24 * 366;
@@ -40,22 +41,4 @@ public class TokenDetail implements Serializable {
         this.refreshTokenValiditySeconds = token;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        TokenDetail that = (TokenDetail) o;
-        return Objects.equals(accessTokenValiditySeconds, that.accessTokenValiditySeconds)
-            &&
-            Objects.equals(refreshTokenValiditySeconds, that.refreshTokenValiditySeconds);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(accessTokenValiditySeconds, refreshTokenValiditySeconds);
-    }
 }

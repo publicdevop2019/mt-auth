@@ -10,11 +10,10 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
-import java.util.Objects;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.CollectionTable;
@@ -27,23 +26,20 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
-import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+@Slf4j
 @Entity
 @Table(name = "cors_profile")
-@Slf4j
-@NoArgsConstructor
 @Getter
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "corsProfileRegion")
-@Setter(AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = true)
 public class CorsProfile extends Auditable {
-    private static Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-z-]+$");
+    private static final Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-zA-Z-]+$");
     private String name;
     private String description;
     @Embedded
@@ -55,39 +51,40 @@ public class CorsProfile extends Auditable {
     @Column(name = "allowed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "allowedHeadersRegion")
-    private Set<String> allowedHeaders;
+    private Set<String> allowedHeaders = new LinkedHashSet<>();
 
-    @Getter
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_origin")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "corsOriginRegion")
     @Convert(converter = Origin.OriginConverter.class)
-    private Set<Origin> allowOrigin;
+    private Set<Origin> allowOrigin = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "exposed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "exposedHeadersRegion")
-    private Set<String> exposedHeaders;
+    private Set<String> exposedHeaders = new LinkedHashSet<>();
     private Long maxAge;
 
     @Embedded
-    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId",
             column = @Column(name = "projectId", updatable = false, nullable = false))
     })
     private ProjectId projectId;
 
+    private CorsProfile() {
+    }
+
     public CorsProfile(
         String name,
         String description,
         Set<String> allowedHeaders,
         Boolean allowCredentials,
-        Set<String> allowOrigin,
+        Set<Origin> allowOrigin,
         Set<String> exposedHeaders,
         Long maxAge,
         CorsProfileId corsId,
@@ -109,10 +106,13 @@ public class CorsProfile extends Auditable {
     public void update(
         String name,
         String description,
-        Set<String> allowedHeaders, Boolean allowCredentials, Set<String> allowOrigin,
-        Set<String> exposedHeaders, Long maxAge) {
+        Set<String> allowedHeaders,
+        Boolean allowCredentials,
+        Set<Origin> allowOrigin,
+        Set<String> exposedHeaders, Long maxAge
+    ) {
         CorsProfile original =
-            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
         //exclude name and description from comparison and bypass setter check
         original.name = null;
         original.description = null;
@@ -124,7 +124,7 @@ public class CorsProfile extends Auditable {
         setExposedHeaders(exposedHeaders);
         setMaxAge(maxAge);
         CorsProfile afterUpdate =
-            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
         afterUpdate.name = null;
         afterUpdate.description = null;
         if (!original.equals(afterUpdate)) {
@@ -140,17 +140,25 @@ public class CorsProfile extends Auditable {
         setDescription(description);
     }
 
+    private void setCorsId(CorsProfileId corsId) {
+        this.corsId = corsId;
+    }
+
     private void setName(String name) {
         Validator.validRequiredString(1, 50, name);
         this.name = name.trim();
     }
 
-    public void setDescription(String description) {
+    private void setDescription(String description) {
         Validator.validOptionalString(100, description);
         if (Checker.notNull(description)) {
             description = description.trim();
         }
         this.description = description;
+    }
+
+    private void setProjectId(ProjectId projectId) {
+        this.projectId = projectId;
     }
 
     /**
@@ -201,43 +209,22 @@ public class CorsProfile extends Auditable {
         });
     }
 
-    private void setAllowOrigin(Set<String> origins) {
+    private void setAllowOrigin(Set<Origin> origins) {
         Validator.validRequiredCollection(1, 5, origins);
-        Set<Origin> allowOrigin = origins.stream().map(Origin::new).collect(Collectors.toSet());
-        CommonUtility.updateCollection(this.allowOrigin, allowOrigin,
-            () -> this.allowOrigin = allowOrigin);
+        CommonUtility.updateCollection(this.allowOrigin, origins,
+            () -> this.allowOrigin = origins);
     }
 
-    private void setExposedHeaders(Set<String> exposedHeaders) {
-        Validator.validOptionalCollection(10, exposedHeaders);
-        if (Checker.notNull(exposedHeaders)) {
-            validateHeaderName(exposedHeaders);
+    private void setExposedHeaders(Set<String> headers) {
+        Validator.validOptionalCollection(10, headers);
+        if (Checker.notNull(headers)) {
+            validateHeaderName(headers);
         }
-        CommonUtility.updateCollection(this.exposedHeaders, exposedHeaders,
-            () -> this.exposedHeaders = exposedHeaders);
+        CommonUtility.updateCollection(this.exposedHeaders, headers,
+            () -> this.exposedHeaders = headers);
     }
 
     public void removeAllReference() {
         CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileRemoved(this));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        CorsProfile that = (CorsProfile) o;
-        return Objects.equals(corsId, that.corsId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), corsId);
     }
 }

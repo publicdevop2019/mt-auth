@@ -6,12 +6,12 @@ import com.mt.common.domain.CommonDomainRegistry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class RawAccessRecord {
     @Id
     @Setter(AccessLevel.PROTECTED)
@@ -67,22 +68,5 @@ public class RawAccessRecord {
 
     public boolean endpointNotFound() {
         return "not_found".equalsIgnoreCase(this.getRecordAsMap().get(ENDPOINT_ID_KEY));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RawAccessRecord that = (RawAccessRecord) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

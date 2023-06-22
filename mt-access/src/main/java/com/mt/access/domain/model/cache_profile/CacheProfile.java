@@ -11,7 +11,7 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Objects;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
@@ -26,6 +26,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -36,6 +37,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 /**
  * cache configuration for http.
  */
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table
 @Slf4j
@@ -61,7 +63,7 @@ public class CacheProfile extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "cacheControlRegion")
     @Enumerated(EnumType.STRING)
-    private Set<CacheControlValue> cacheControl;
+    private Set<CacheControlValue> cacheControl = new LinkedHashSet<>();
     /**
      * HTTP header contains the date/time after which the response is considered expired.
      * ignored if maxAge or smaxAge
@@ -231,7 +233,7 @@ public class CacheProfile extends Auditable {
                        Boolean etag,
                        Boolean weakValidation) {
         CacheProfile original =
-            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CacheProfile.class);
         //exclude name and description from comparison and bypass setter check
         setName(name);
         setDescription(description);
@@ -244,7 +246,7 @@ public class CacheProfile extends Auditable {
         setWeakValidation(weakValidation);
         setAllowCache(allowCache);
         CacheProfile afterUpdate =
-            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CacheProfile.class);
         original.name = null;
         original.description = null;
         afterUpdate.name = null;
@@ -261,10 +263,7 @@ public class CacheProfile extends Auditable {
     }
 
     private void setCacheControl(Set<CacheControlValue> cacheControl) {
-        if (Checker.notNull(cacheControl)) {
-            Validator.notEmpty(cacheControl);
-            Validator.lessThanOrEqualTo(cacheControl, 9);
-        }
+        Validator.validOptionalCollection(9, cacheControl);
         CommonUtility.updateCollection(this.cacheControl, cacheControl,
             () -> this.cacheControl = cacheControl);
     }
@@ -272,27 +271,6 @@ public class CacheProfile extends Auditable {
     @Override
     public void validate(ValidationNotificationHandler handler) {
         (new CacheProfileValidator(this, handler)).validate();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        CacheProfile that = (CacheProfile) o;
-        return Objects.equals(cacheProfileId, that.cacheProfileId);
-    }
-
-    @Override
-    public int hashCode() {
-        log.debug("super hashcode is {}", super.hashCode());
-        return Objects.hash(cacheProfileId);
     }
 
     public void removeAllReference() {

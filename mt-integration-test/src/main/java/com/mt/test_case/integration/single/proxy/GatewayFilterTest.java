@@ -1,11 +1,11 @@
 package com.mt.test_case.integration.single.proxy;
 
+import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.CommonTest;
 import com.mt.test_case.helper.utility.ConcurrentUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.CommonTest;
-import com.mt.test_case.helper.AppConstant;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;

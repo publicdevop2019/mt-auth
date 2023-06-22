@@ -1,10 +1,10 @@
 package com.mt.test_case.integration.single.access;
 
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.CommonTest;
 import com.mt.test_case.helper.utility.JwtUtility;
 import com.mt.test_case.helper.utility.OAuth2Utility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.AppConstant;
 import java.util.List;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;

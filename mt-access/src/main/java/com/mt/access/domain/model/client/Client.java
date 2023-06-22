@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.client;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
@@ -27,6 +26,7 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -48,12 +48,14 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
 @Cacheable
@@ -86,7 +88,7 @@ public class Client extends Auditable {
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientResourceRegion")
-    private Set<ClientId> resources;
+    private Set<ClientId> resources = new LinkedHashSet<>();
 
     @Getter
     @ElementCollection(fetch = FetchType.LAZY)
@@ -95,7 +97,7 @@ public class Client extends Auditable {
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientExtResourceRegion")
-    private Set<ClientId> externalResources;
+    private Set<ClientId> externalResources = new LinkedHashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
     @Getter
@@ -138,7 +140,7 @@ public class Client extends Auditable {
     @Column(name = "type")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientTypeRegion")
     @Enumerated(EnumType.STRING)
-    private Set<ClientType> types;
+    private Set<ClientType> types = new LinkedHashSet<>();
 
     @Getter
     @Column(name = "accessible_")
@@ -154,7 +156,7 @@ public class Client extends Auditable {
     @Column(name = "grant_type")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientGrantTypeRegion")
     @Enumerated(EnumType.STRING)
-    private Set<GrantType> grantTypes;
+    private Set<GrantType> grantTypes = new LinkedHashSet<>();
 
     @Embedded
     @Getter
@@ -173,7 +175,7 @@ public class Client extends Auditable {
         setAccessible(accessible);
         setName(name);
         setPath(path);
-        setTypes(types);
+        initTypes(types);
         initSecret(secret);
         setGrantTypes(grantTypes, true);
         setTokenDetail(tokenDetail);
@@ -201,7 +203,7 @@ public class Client extends Auditable {
         this.externalUrl = externalUrl;
     }
 
-    public void setRedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
+    private void setRedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
         RedirectDetail redirectDetail;
         if (Checker.isNull(redirectUrls) && Checker.isNull(autoApprove)) {
             redirectDetail = null;
@@ -225,7 +227,7 @@ public class Client extends Auditable {
         }
     }
 
-    public void setRoleId() {
+    private void setRoleId() {
         if (this.roleId != null) {
             throw new DefinedRuntimeException("client role cannot be overwritten", "1034",
                 HttpResponseCode.BAD_REQUEST);
@@ -233,10 +235,10 @@ public class Client extends Auditable {
         this.roleId = new RoleId();
     }
 
-    private void setTypes(Set<ClientType> types) {
+    private void initTypes(Set<ClientType> types) {
         Validator.notNull(types);
         Validator.notEmpty(types);
-        if (this.types != null) {
+        if (Checker.notNullOrEmpty(this.types)) {
             throw new DefinedRuntimeException("client type can not be updated once created", "1035",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -363,7 +365,8 @@ public class Client extends Auditable {
         }
         Validator.notNull(resources);
         if (CommonUtility.collectionWillChange(this.resources, resources)) {
-            CommonUtility.updateCollection(this.resources, resources, () -> this.resources = resources);
+            CommonUtility.updateCollection(this.resources, resources,
+                () -> this.resources = resources);
             DomainRegistry.getClientValidationService()
                 .validate(this, new HttpValidationNotificationHandler());
         }
@@ -458,26 +461,6 @@ public class Client extends Auditable {
 
     private boolean tokenDetailChanged(TokenDetail tokenDetail) {
         return !ObjectUtils.equals(this.tokenDetail, tokenDetail);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Client)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Client client = (Client) o;
-        return Objects.equal(clientId, client.clientId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), clientId);
     }
 
     public void removeAllReferenced() {

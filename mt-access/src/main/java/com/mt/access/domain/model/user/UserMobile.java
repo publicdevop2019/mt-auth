@@ -4,13 +4,14 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
 import javax.validation.constraints.NotNull;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
+@EqualsAndHashCode
 public class UserMobile implements Serializable {
     private static final Pattern COUNTRY_CODE_REGEX = Pattern.compile("^[0-9]{1,3}$");
     private static final Pattern MOBILE_NUMBER_REGEX = Pattern.compile("^[0-9]{10,11}$");
@@ -55,25 +56,6 @@ public class UserMobile implements Serializable {
                 HttpResponseCode.BAD_REQUEST);
         }
         this.mobileNumber = mobileNumber;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        UserMobile that = (UserMobile) o;
-        return Objects.equals(countryCode, that.countryCode)
-            &&
-            Objects.equals(mobileNumber, that.mobileNumber);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(countryCode, mobileNumber);
     }
 
     public String value() {

@@ -2,12 +2,12 @@ package com.mt.proxy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.google.common.base.Objects;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
  */
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Endpoint implements Serializable, Comparable<Endpoint> {
     private String id;
     private String description;
@@ -62,23 +63,6 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
 
     public boolean hasCacheInfo() {
         return getCacheConfig() != null;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Endpoint)) {
-            return false;
-        }
-        Endpoint endpoint = (Endpoint) o;
-        return Objects.equal(id, endpoint.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(id);
     }
 
 

@@ -190,7 +190,7 @@ public class TenantCorsTest extends TenantTest {
         //empty
         cors.setAllowedHeaders(Collections.emptySet());
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
         //blank
         cors.setAllowedHeaders(Collections.singleton(" "));
         ResponseEntity<Void> response5 = CorsUtility.createTenantCors(tenantContext, cors);
@@ -264,7 +264,7 @@ public class TenantCorsTest extends TenantTest {
         //empty
         cors.setExposedHeaders(Collections.emptySet());
         ResponseEntity<Void> response4 = CorsUtility.createTenantCors(tenantContext, cors);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
         //blank
         cors.setExposedHeaders(Collections.singleton(" "));
         ResponseEntity<Void> response5 = CorsUtility.createTenantCors(tenantContext, cors);

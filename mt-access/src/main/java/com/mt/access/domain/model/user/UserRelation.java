@@ -40,6 +40,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -53,6 +54,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "userRelationRegion")
+@EqualsAndHashCode(callSuper = true)
 public class UserRelation extends Auditable {
     @Embedded
     @AttributeOverrides({
@@ -168,26 +170,6 @@ public class UserRelation extends Auditable {
             Validator.noNullMember(tenantIds);
         }
         CommonUtility.updateCollection(this.tenantIds, tenantIds, () -> this.tenantIds = tenantIds);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        UserRelation that = (UserRelation) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(projectId, that.projectId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), userId, projectId);
     }
 
     public void addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {

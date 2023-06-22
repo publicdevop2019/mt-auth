@@ -187,7 +187,7 @@ public class TenantCacheTest extends TenantTest {
         //empty
         cacheObj.setCacheControl(Collections.emptySet());
         ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
+        Assert.assertEquals(HttpStatus.OK, cache2.getStatusCode());
         //max length
         Set<String> collect =
             Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(Collectors.toSet());

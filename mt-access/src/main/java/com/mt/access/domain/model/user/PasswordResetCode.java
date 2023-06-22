@@ -1,12 +1,13 @@
 package com.mt.access.domain.model.user;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
 import javax.persistence.Embeddable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Embeddable
+@EqualsAndHashCode
 public class PasswordResetCode {
     @Getter
     private String value;
@@ -25,20 +26,4 @@ public class PasswordResetCode {
         this.value = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof PasswordResetCode)) {
-            return false;
-        }
-        PasswordResetCode that = (PasswordResetCode) o;
-        return Objects.equal(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

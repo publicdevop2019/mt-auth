@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.endpoint;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.ClientId;
@@ -33,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -40,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.http.HttpMethod;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
@@ -64,20 +65,20 @@ public class Endpoint extends Auditable {
     private Boolean websocket;
 
     @Embedded
-    @Setter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "cors_profile_id"))
     })
     private CorsProfileId corsProfileId;
 
     @Embedded
-    @Setter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "permission_id"))
     })
     private PermissionId permissionId;
     @Embedded
-    @Setter(AccessLevel.PUBLIC)
+    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "cache_profile_id"))
     })
@@ -320,26 +321,6 @@ public class Endpoint extends Auditable {
         (new EndpointValidator(this, handler)).validate();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Endpoint)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Endpoint endpoint = (Endpoint) o;
-        return Objects.equal(endpointId, endpoint.endpointId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), endpointId);
-    }
-
     public void expire(String expireReason) {
         Validator.validRequiredString(1, 50, expireReason);
         if (this.expired) {
@@ -358,5 +339,13 @@ public class Endpoint extends Auditable {
             throw new DefinedRuntimeException("only shared endpoint can be expired", "1044",
                 HttpResponseCode.BAD_REQUEST);
         }
+    }
+
+    public void removeCorsRef() {
+        this.corsProfileId = null;
+    }
+
+    public void removeCacheProfileRef() {
+        this.cacheProfileId = null;
     }
 }

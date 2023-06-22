@@ -22,8 +22,8 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -54,7 +54,7 @@ public class CorsProfileApplicationService {
                 command.getDescription(),
                 command.getAllowedHeaders(),
                 command.getAllowCredentials(),
-                command.getAllowOrigin(),
+                CommonUtility.map(command.getAllowOrigin(), Origin::new),
                 command.getExposedHeaders(),
                 command.getMaxAge(),
                 corsProfileId,
@@ -81,7 +81,7 @@ public class CorsProfileApplicationService {
                 command.getDescription(),
                 command.getAllowedHeaders(),
                 command.getAllowCredentials(),
-                command.getAllowOrigin(),
+                CommonUtility.map(command.getAllowOrigin(), Origin::new),
                 command.getExposedHeaders(),
                 command.getMaxAge()
             ));

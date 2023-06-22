@@ -229,10 +229,11 @@ public class Validator {
 
     public static void validOptionalCollection(Integer maxCount,
                                                Collection<?> collection) {
-        if (collection == null) {
+        if (collection == null || collection.isEmpty()) {
             return;
         }
-        validRequiredCollection(0, maxCount, collection);
+        Validator.noNullMember(collection);
+        Validator.lessThanOrEqualTo(collection, maxCount);
     }
 
     private static void checkMinLength(boolean failed) {

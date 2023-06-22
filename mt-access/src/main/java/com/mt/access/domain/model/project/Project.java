@@ -5,15 +5,15 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.validate.Validator;
-import java.util.Objects;
 import javax.persistence.Cacheable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+@EqualsAndHashCode(callSuper = true)
 @Table
 @Entity
 @NoArgsConstructor
@@ -44,25 +44,5 @@ public class Project extends Auditable {
 
     public void replace(String name) {
         this.name = name;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Project project = (Project) o;
-        return Objects.equals(projectId, project.projectId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), projectId);
     }
 }

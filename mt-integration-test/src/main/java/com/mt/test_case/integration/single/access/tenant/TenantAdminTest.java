@@ -1,5 +1,6 @@
 package com.mt.test_case.integration.single.access.tenant;
 
+import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantTest;
 import com.mt.test_case.helper.pojo.ProjectAdmin;
 import com.mt.test_case.helper.pojo.SumTotal;
@@ -9,7 +10,6 @@ import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.AppConstant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;

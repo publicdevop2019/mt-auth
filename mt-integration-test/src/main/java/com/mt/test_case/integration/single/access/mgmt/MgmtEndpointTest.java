@@ -1,13 +1,13 @@
 package com.mt.test_case.integration.single.access.mgmt;
 
+import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.CommonTest;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.CommonTest;
-import com.mt.test_case.helper.AppConstant;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;

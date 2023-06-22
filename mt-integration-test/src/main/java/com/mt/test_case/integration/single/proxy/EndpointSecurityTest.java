@@ -2,6 +2,7 @@ package com.mt.test_case.integration.single.proxy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.CommonTest;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.PendingUser;
 import com.mt.test_case.helper.pojo.User;
@@ -9,7 +10,6 @@ import com.mt.test_case.helper.utility.ClientUtility;
 import com.mt.test_case.helper.utility.OAuth2Utility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UserUtility;
-import com.mt.test_case.helper.CommonTest;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;

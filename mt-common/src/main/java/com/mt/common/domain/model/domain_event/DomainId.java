@@ -1,12 +1,12 @@
 package com.mt.common.domain.model.domain_event;
 
-import com.google.common.base.Objects;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,6 +16,7 @@ import lombok.Setter;
  * it serve as an identifier in a domain
  */
 @MappedSuperclass
+@EqualsAndHashCode
 public class DomainId implements Serializable {
     @Getter
     @Column(unique = true, updatable = false, nullable = false)
@@ -35,23 +36,6 @@ public class DomainId implements Serializable {
                 HttpResponseCode.BAD_REQUEST);
         }
         this.domainId = domainId;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof DomainId)) {
-            return false;
-        }
-        DomainId domainId1 = (DomainId) o;
-        return Objects.equal(domainId, domainId1.domainId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(domainId);
     }
 
     @Override

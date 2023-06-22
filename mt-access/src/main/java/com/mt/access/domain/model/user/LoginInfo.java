@@ -3,7 +3,6 @@ package com.mt.access.domain.model.user;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.time.Instant;
 import java.util.Date;
-import java.util.Objects;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -11,6 +10,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,6 +21,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NoArgsConstructor
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "loginRegion")
+@EqualsAndHashCode
 public class LoginInfo {
     @Id
     @Setter(AccessLevel.PROTECTED)
@@ -52,28 +53,4 @@ public class LoginInfo {
         agent = command.getAgent();
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        LoginInfo loginInfo = (LoginInfo) o;
-        return Objects.equals(id, loginInfo.id)
-            &&
-            Objects.equals(userId, loginInfo.userId)
-            &&
-            Objects.equals(loginAt, loginInfo.loginAt)
-            &&
-            Objects.equals(ipAddress, loginInfo.ipAddress)
-            &&
-            Objects.equals(agent, loginInfo.agent);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, userId, loginAt, ipAddress, agent);
-    }
 }

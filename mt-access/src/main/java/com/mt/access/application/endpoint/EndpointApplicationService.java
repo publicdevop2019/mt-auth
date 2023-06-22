@@ -303,7 +303,7 @@ public class EndpointApplicationService {
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new CorsProfileId(deserialize.getDomainId().getDomainId())));
                 if (!allByQuery.isEmpty()) {
-                    allByQuery.forEach(e -> e.setCorsProfileId(null));
+                    allByQuery.forEach(Endpoint::removeCorsRef);
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
                 }
@@ -344,7 +344,7 @@ public class EndpointApplicationService {
                 if (!allByQuery.isEmpty()) {
                     CommonDomainRegistry.getDomainEventRepository()
                         .append(new EndpointCollectionModified());
-                    allByQuery.forEach(e -> e.setCacheProfileId(null));
+                    allByQuery.forEach(Endpoint::removeCacheProfileRef);
                 }
                 return null;
             }, ENDPOINT);

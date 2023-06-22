@@ -23,6 +23,14 @@ public class Checker {
         return objects.isEmpty();
     }
 
+    public static boolean isNullOrEmpty(Collection<?> objects) {
+        return Checker.isNull(objects) || Checker.isEmpty(objects);
+    }
+
+    public static boolean notNullOrEmpty(Collection<?> objects) {
+        return Checker.notNull(objects) && Checker.notEmpty(objects);
+    }
+
     public static boolean notEmpty(Collection<?> objects) {
         return !objects.isEmpty();
     }

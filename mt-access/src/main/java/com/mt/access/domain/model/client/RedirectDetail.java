@@ -4,7 +4,6 @@ import com.mt.access.port.adapter.persistence.client.RedirectUrlConverter;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.io.Serializable;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.Column;
@@ -14,12 +13,14 @@ import javax.persistence.Embeddable;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Embeddable
 @NoArgsConstructor
+@EqualsAndHashCode
 public class RedirectDetail implements Serializable {
 
     @Getter
@@ -54,21 +55,4 @@ public class RedirectDetail implements Serializable {
             () -> this.redirectUrls = collect);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RedirectDetail that = (RedirectDetail) o;
-        return autoApprove == that.autoApprove &&
-            Objects.equals(redirectUrls, that.redirectUrls);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(redirectUrls, autoApprove);
-    }
 }

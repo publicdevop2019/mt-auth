@@ -36,6 +36,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -47,6 +48,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "permissionRegion")
+@EqualsAndHashCode(callSuper = true)
 public class Permission extends Auditable {
     public static final String API_ACCESS = "API_ACCESS";
     public static final String VIEW_PROJECT_INFO = "VIEW_PROJECT_INFO";
@@ -588,10 +590,7 @@ public class Permission extends Auditable {
     }
 
     private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
-        if (Checker.notNull(permissionIds)) {
-            Validator.noNullMember(permissionIds);
-            Validator.lessThanOrEqualTo(permissionIds, 20);
-        }
+        Validator.validOptionalCollection(20, permissionIds);
         CommonUtility.updateCollection(this.linkedApiPermissionIds, permissionIds,
             () -> this.linkedApiPermissionIds = permissionIds);
     }
@@ -624,25 +623,6 @@ public class Permission extends Auditable {
         CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Permission that = (Permission) o;
-        return Objects.equals(permissionId, that.permissionId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), permissionId);
-    }
 
     public void secureEndpointRemoveCleanUp() {
         DomainRegistry.getPermissionRepository().remove(this);

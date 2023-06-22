@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.user;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
@@ -22,6 +21,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -33,6 +33,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "user_")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
+@EqualsAndHashCode(callSuper = true)
 public class User extends Auditable {
     private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
     @Setter(AccessLevel.PRIVATE)
@@ -127,26 +128,6 @@ public class User extends Auditable {
         }
         CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof User)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        User user = (User) o;
-        return Objects.equal(userId, user.userId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), userId);
     }
 
     public void update(UserMobile mobile,

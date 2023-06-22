@@ -2,7 +2,6 @@ package com.mt.common.domain.model.distributed_lock;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
-import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;

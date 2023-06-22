@@ -65,7 +65,8 @@ public class ClientUtility {
         Client client = new Client();
         client.setName(RandomUtility.randomStringWithNum());
         client.setClientSecret(RandomUtility.randomStringWithNum());
-        client.setGrantTypeEnums(new HashSet<>(Collections.singletonList(GrantType.PASSWORD.name())));
+        client.setGrantTypeEnums(
+            new HashSet<>(Collections.singletonList(GrantType.PASSWORD.name())));
         client.setAccessTokenValiditySeconds(1800);
         client.setRefreshTokenValiditySeconds(null);
         client.setHasSecret(true);
@@ -100,7 +101,8 @@ public class ClientUtility {
         randomClient.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
         randomClient.setAccessTokenValiditySeconds(180);
         randomClient.setRefreshTokenValiditySeconds(null);
-        randomClient.setPath(RandomUtility.randomStringNoNum());
+        randomClient.setPath(
+            RandomUtility.randomStringNoNum() + "/" + RandomUtility.randomStringNoNum());
         randomClient.setExternalUrl(RandomUtility.randomLocalHostUrl());
         randomClient.setResourceIndicator(RandomUtility.randomBoolean());
         return randomClient;

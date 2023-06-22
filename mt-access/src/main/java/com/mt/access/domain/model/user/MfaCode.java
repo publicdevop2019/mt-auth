@@ -1,15 +1,16 @@
 package com.mt.access.domain.model.user;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 @Data
 @Embeddable
+@EqualsAndHashCode
 public class MfaCode implements Serializable {
     @Getter
     @Column(name = "mfa_code")
@@ -23,20 +24,4 @@ public class MfaCode implements Serializable {
         this.value = value;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof MfaCode)) {
-            return false;
-        }
-        MfaCode that = (MfaCode) o;
-        return Objects.equal(value, that.value);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
 }

@@ -12,7 +12,6 @@ import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;

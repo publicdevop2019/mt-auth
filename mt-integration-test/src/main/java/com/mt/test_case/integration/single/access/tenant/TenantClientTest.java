@@ -131,9 +131,9 @@ public class TenantClientTest extends TenantTest {
     public void client_type_cannot_change() {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
+        client.setId(UrlUtility.getId(client1));
         client.setClientSecret(" ");
         client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
-        client.setId(UrlUtility.getId(client1));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Client> client3 = ClientUtility.readTenantClient(tenantContext, client);
