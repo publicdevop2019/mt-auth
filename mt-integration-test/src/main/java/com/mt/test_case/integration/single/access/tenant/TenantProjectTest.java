@@ -1,6 +1,7 @@
 package com.mt.test_case.integration.single.access.tenant;
 
 import com.mt.test_case.helper.CommonTest;
+import com.mt.test_case.helper.args.ProjectNameArgs;
 import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -63,91 +66,38 @@ public class TenantProjectTest extends CommonTest {
         Assertions.assertEquals(1, projectResponseEntity.getBody().getTotalUserOwned().intValue());
     }
 
-    @Test
-    public void validation_create_name() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectNameArgs.class)
+    public void validation_create_name(String name, HttpStatus httpStatus) {
         User user = UserUtility.createUser();
         Project randomProjectObj = ProjectUtility.createRandomProjectObj();
-        ResponseEntity<Void> tenantProject =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
-        //null
-        randomProjectObj.setName(null);
+        randomProjectObj.setName(name);
         ResponseEntity<Void> response =
             ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //blank
-        randomProjectObj.setName(" ");
-        ResponseEntity<Void> response1 =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //empty
-        randomProjectObj.setName("");
-        ResponseEntity<Void> response2 =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        randomProjectObj.setName("01");
-        ResponseEntity<Void> response3 =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //max length
-        randomProjectObj.setName(
-            "0123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        randomProjectObj.setName("<");
-        ResponseEntity<Void> response5 =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
 
     //endpoint note added
     @Disabled
-    @Test
-    public void validation_update_name() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectNameArgs.class)
+    public void validation_update_name(String name, HttpStatus httpStatus) {
         User user = UserUtility.createUser();
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(project, user);
         project.setId(UrlUtility.getId(tenantProject));
-        //null
-        project.setName(null);
+        project.setName(name);
         ResponseEntity<Void> response =
             ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //blank
-        project.setName(" ");
-        ResponseEntity<Void> response1 =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //empty
-        project.setName("");
-        ResponseEntity<Void> response2 =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        project.setName("01");
-        ResponseEntity<Void> response3 =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //max length
-        project.setName("0123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        project.setName("<");
-        ResponseEntity<Void> response5 =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
 
     //endpoint note added
     @Disabled
-    @Test
-    public void validation_patch_name() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectNameArgs.class)
+    public void validation_patch_name(String name, HttpStatus httpStatus) {
         User user = UserUtility.createUser();
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
@@ -156,36 +106,9 @@ public class TenantProjectTest extends CommonTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
-        //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(name);
         ResponseEntity<Void> response =
             ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> response1 =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> response2 =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        patchCommand.setValue("01");
-        ResponseEntity<Void> response3 =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //max length
-        patchCommand.setValue(
-            "0123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        patchCommand.setValue("<");
-        ResponseEntity<Void> response5 =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(httpStatus, response.getStatusCode());
     }
 }

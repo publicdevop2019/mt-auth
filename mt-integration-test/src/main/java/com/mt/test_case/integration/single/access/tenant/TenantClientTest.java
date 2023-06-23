@@ -2,6 +2,22 @@ package com.mt.test_case.integration.single.access.tenant;
 
 import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantTest;
+import com.mt.test_case.helper.args.ClientAutoApproveArgs;
+import com.mt.test_case.helper.args.ClientExternalUrlArgs;
+import com.mt.test_case.helper.args.ClientGrantTypeArgs;
+import com.mt.test_case.helper.args.ClientNameArgs;
+import com.mt.test_case.helper.args.ClientPathArgs;
+import com.mt.test_case.helper.args.ClientRedirectUriArgs;
+import com.mt.test_case.helper.args.ClientRedirectUriExtArgs;
+import com.mt.test_case.helper.args.ClientRefreshGrantArgs;
+import com.mt.test_case.helper.args.ClientRefreshTokenSecondArgs;
+import com.mt.test_case.helper.args.ClientResourceIdsArgs;
+import com.mt.test_case.helper.args.ClientResourceIndicatorArgs;
+import com.mt.test_case.helper.args.ClientSecretArgs;
+import com.mt.test_case.helper.args.ClientTokenSecondArgs;
+import com.mt.test_case.helper.args.ClientTypeArgs;
+import com.mt.test_case.helper.args.DescriptionArgs;
+import com.mt.test_case.helper.args.ProjectIdArgs;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.ClientType;
 import com.mt.test_case.helper.pojo.Endpoint;
@@ -25,6 +41,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -244,7 +262,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(10000);
+        Thread.sleep(20000);
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
@@ -421,289 +439,63 @@ public class TenantClientTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
     }
 
-    @Test
-    public void validation_create_name_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientNameArgs.class)
+    public void validation_create_name(String name, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-        //null
-        client.setName(null);
+        client.setName(name);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_name_blank() {
-        Client client = ClientUtility.createValidBackendClient();
-        //blank
-        client.setName(" ");
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
 
-    @Test
-    public void validation_create_name_empty() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_create_description(String description, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-        //empty
-        client.setName("");
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_invalid_char() {
-        Client client = ClientUtility.createValidBackendClient();
-        //invalid char
-        client.setName("<");
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        //max length
-        client.setName(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_min_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        //min length
-        client.setName("01");
-        ResponseEntity<Void> response7 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_blank() {
-        Client client = ClientUtility.createValidBackendClient();
-        //blank
-        client.setDescription(" ");
+        client.setDescription(description);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_description_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        //empty
-        client.setDescription("");
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_invalid_char() {
-        Client client = ClientUtility.createValidBackendClient();
-        //invalid char
-        client.setDescription("<");
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        //max length
-        client.setDescription(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789" +
-                "012345678901234567890123456789");
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_secret_type_is_backend_and_secret_missing() {
-        Client client = ClientUtility.createValidBackendClient();
-        //type is backend and secret is missing
+    @ParameterizedTest
+    @ArgumentsSource(ClientSecretArgs.class)
+    public void validation_create_secret(Client client, String secret, HttpStatus status) {
         client.setHasSecret(true);
-        client.setClientSecret(null);
+        client.setClientSecret(secret);
         ResponseEntity<Void> response4 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
-    @Test
-    public void validation_create_secret_type_is_front_but_secret_present() {
-        Client client = ClientUtility.createValidBackendClient();
-        //type is frontend but secret is present
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        client.setClientSecret("test");
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-    }
 
-    @Test
-    public void validation_create_secret_secret_format() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //secret format
-        client.setHasSecret(true);
-        client.setClientSecret("0123456789012345678901234567890123456789");
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_other_tenant_id() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_create_project_id(String projectId, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         Project project = new Project();
-        //other tenant's id
-        project.setId(AppConstant.MT_ACCESS_PROJECT_ID);
+        project.setId(projectId);
         String url = ClientUtility.getUrl(project);
         ResponseEntity<Void> response2 =
             Utility.createResource(tenantContext.getCreator(), url, client);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_project_id_blank() {
-        Client client = ClientUtility.createValidBackendClient();
-        Project project = new Project();
-        //blank
-        project.setId(" ");
-        String url2 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response3 =
-            Utility.createResource(tenantContext.getCreator(), url2, client);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        Project project = new Project();
-        //empty
-        project.setId("");
-        String url3 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response4 =
-            Utility.createResource(tenantContext.getCreator(), url3, client);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_wrong_format() {
-        Client client = ClientUtility.createValidBackendClient();
-        Project project = new Project();
-        //wrong format
-        project.setId("abc");
-        String url4 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response5 =
-            Utility.createResource(tenantContext.getCreator(), url4, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        Project project = new Project();
-        //null
-        project.setId("null");
-        String url5 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response6 =
-            Utility.createResource(tenantContext.getCreator(), url5, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_wrong_format_2() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //wrong path format
-        client.setPath("/test/");
+    @ParameterizedTest
+    @ArgumentsSource(ClientPathArgs.class)
+    public void validation_create_path(Client client, String path, HttpStatus status) {
+        client.setPath(path);
         ResponseEntity<Void> response3 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_wrong_path_format_1() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //wrong path format
-        client.setPath("/test/");
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_wrong_type_format() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //wrong path format
-        client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response9 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_type_is_backend_and_path_missing() {
-        Client client = ClientUtility.createValidBackendClient();
-        //type is backend and path is missing
-        client.setPath(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_type_is_front_but_path_present() {
-        Client client = ClientUtility.createValidBackendClient();
-        Client client1 = ClientUtility.createValidFrontendClient();
-        //type is frontend but path is present
-        client1.setPath(RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        //max length
-        client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_path_min_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        //min length
-        client.setPath(RandomUtility.randomStringNoNum().substring(0, 4));
-        ResponseEntity<Void> response7 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
     @Test
     public void validation_create_path_unique_across_application() {
         Client client = ClientUtility.createValidBackendClient();
         String repeatedPath = client.getPath();
-
         //unique across application
         client.setPath(repeatedPath);
         ResponseEntity<Void> response8 =
@@ -714,512 +506,152 @@ public class TenantClientTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response11.getStatusCode());
     }
 
-    @Test
-    public void validation_create_external_url_wrong_format() {
-        Client client1 = ClientUtility.createValidFrontendClient();
-
-        //externalUrl format is wrong
-        client1.setExternalUrl(RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_external_url_type_is_backend_and_external_url_missing() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //type is backend and externalUrl is missing
-        client.setExternalUrl(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_external_url_type_is_front_but_external_url_is_present() {
-
-        Client client1 = ClientUtility.createValidFrontendClient();
-
-        //type is frontend but externalUrl is present
-        client1.setExternalUrl(RandomUtility.randomLocalHostUrl());
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_external_url_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //max length
-        client.setExternalUrl(RandomUtility.randomLocalHostUrl() +
-            "/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij");
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_grant_type_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //grantType is empty
-        client.setGrantTypeEnums(Collections.emptySet());
+    @ParameterizedTest
+    @ArgumentsSource(ClientExternalUrlArgs.class)
+    public void validation_create_external_url(Client client, String externalUrl,
+                                               HttpStatus status) {
+        client.setExternalUrl(externalUrl);
         ResponseEntity<Void> response3 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_create_grant_type_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientGrantTypeArgs.class)
+    public void validation_create_grant_type(Set<String> grantTypes, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-
-        //grantType is null
-        client.setGrantTypeEnums(null);
-        ResponseEntity<Void> response4 =
+        client.setGrantTypeEnums(grantTypes);
+        ResponseEntity<Void> response3 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_create_grant_type_invalid_value() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //grantType invalid value
-        client.setGrantTypeEnums(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_grant_type_refresh_requires_password_first() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        //refresh requires password first
-        client.setGrantTypeEnums(Collections.singleton(GrantType.REFRESH_TOKEN.name()));
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_grant_type_authorization_grant_but_registered_redirect_url_is_empty() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRedirectUriArgs.class)
+    public void validation_create_grant_type_authorization_grant(
+        Set<String> ids, HttpStatus status) {
         Client client1 = ClientUtility.createAuthorizationClientObj();
-
-        //authorization grant but registered redirect uri is empty
-        client1.setRegisteredRedirectUri(Collections.emptySet());
+        client1.setRegisteredRedirectUri(ids);
         ResponseEntity<Void> response7 =
             ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+        Assertions.assertEquals(status, response7.getStatusCode());
     }
 
-    @Test
-    public void validation_create_grant_type_authorization_grant_but_registered_redirect_url_is_null() {
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-
-        //authorization grant but registered redirect uri is null
-        client1.setRegisteredRedirectUri(null);
-        ResponseEntity<Void> response8 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_grant_type_refresh_grant_but_refresh_token_0() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRefreshGrantArgs.class)
+    public void validation_create_grant_type_refresh_grant(Integer sec,
+                                                           HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         //refresh grant but refresh token is 0
         HashSet<String> strings = new HashSet<>();
         strings.add(GrantType.PASSWORD.name());
         strings.add(GrantType.REFRESH_TOKEN.name());
         client.setGrantTypeEnums(strings);
-        client.setRefreshTokenValiditySeconds(0);
+        client.setRefreshTokenValiditySeconds(sec);
         ResponseEntity<Void> response9 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
+        Assertions.assertEquals(status, response9.getStatusCode());
     }
 
-    @Test
-    public void validation_create_grant_type_refresh_grant_but_refresh_token_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientTypeArgs.class)
+    public void validation_create_type(Set<String> types, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-        //refresh grant but refresh token is null
-        client.setRefreshTokenValiditySeconds(null);
-        ResponseEntity<Void> response10 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response10.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_type_type_is_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        //type is null
-        client.setTypes(null);
+        client.setTypes(types);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_type_type_is_empty() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientTokenSecondArgs.class)
+    public void validation_create_access_token_validity_second(Integer integer, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-        //type is empty
-        client.setTypes(Collections.emptySet());
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_type_type_is_invalid() {
-        Client client = ClientUtility.createValidBackendClient();
-        //type is invalid
-        client.setTypes(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_type_both_type_cannot_present() {
-        Client client = ClientUtility.createValidBackendClient();
-        //both type cannot present
-        HashSet<String> strings = new HashSet<>();
-        strings.add(ClientType.BACKEND_APP.name());
-        strings.add(ClientType.FRONTEND_APP.name());
-        client.setTypes(strings);
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_access_token_validity_second_access_token_validity_seconds_is_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        //accessTokenValiditySeconds is null
-        client.setAccessTokenValiditySeconds(null);
+        client.setAccessTokenValiditySeconds(integer);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_access_token_validity_second_access_token_validity_seconds_is_0() {
-        Client client = ClientUtility.createValidBackendClient();
-        //accessTokenValiditySeconds is 0
-        client.setAccessTokenValiditySeconds(0);
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_access_token_validity_second_value_too_large() {
-        Client client = ClientUtility.createValidBackendClient();
-        //value too large
-        client.setAccessTokenValiditySeconds(Integer.MAX_VALUE);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_access_token_validity_second_value_too_small() {
-        Client client = ClientUtility.createValidBackendClient();
-        //value too small
-        client.setAccessTokenValiditySeconds(30);
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_registered_redirect_url_has_value_but_not_authorization_grant() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRedirectUriExtArgs.class)
+    public void validation_create_registered_redirect_url(
+        Set<String> grantTypes, Set<String> urls, HttpStatus status
+    ) {
 
         Client client = ClientUtility.createAuthorizationClientObj();
-        //has value but not authorization grant
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_registered_redirect_url_wrong_format() {
-
-        Client client = ClientUtility.createAuthorizationClientObj();
-        //wrong format
-        client.setRegisteredRedirectUri(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_registered_redirect_url_too_many_elements() {
-
-        Client client = ClientUtility.createAuthorizationClientObj();
-        //too many elements
-        HashSet<String> urls = new HashSet<>();
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
+        client.setGrantTypeEnums(grantTypes);
         client.setRegisteredRedirectUri(urls);
-        ResponseEntity<Void> response5 =
+        ResponseEntity<Void> response3 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_create_refresh_token_validity_second_has_value_but_not_password_grant() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRefreshTokenSecondArgs.class)
+    public void validation_create_refresh_token_validity_second(Set<String> grantType,
+                                                                Integer integer,
+                                                                HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
-
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
+        client.setGrantTypeEnums(grantType);
+        client.setRefreshTokenValiditySeconds(integer);
+        ResponseEntity<Void> response =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //has value but not password grant
-        client.setRefreshTokenValiditySeconds(120);
-        grantTypes.remove(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
+        Assertions.assertEquals(status, response.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIdsArgs.class)
+    public void validation_create_resource_ids(Set<String> ids,
+                                               HttpStatus status) {
+        Client client = ClientUtility.createValidBackendClient();
+        client.setResourceIds(ids);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
+
     }
 
-    @Test
-    public void validation_create_refresh_token_validity_second_value_too_large() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //value too large
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(Integer.MAX_VALUE);
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_refresh_token_validity_second_value_too_small() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //value too small
-        client.setRefreshTokenValiditySeconds(1);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_resource_ids_too_many_elements() {
-        Client client = ClientUtility.createValidBackendClient();
-        //too many elements
-        HashSet<String> strings = new HashSet<>();
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        client.setResourceIds(strings);
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIndicatorArgs.class)
+    public void validation_create_resource_indicator_null(Client client, Boolean indicator,
+                                                          HttpStatus status) {
+        client.setResourceIndicator(indicator);
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_resource_ids_format() {
-        Client client = ClientUtility.createValidBackendClient();
-        //format
-        HashSet<String> strings2 = new HashSet<>();
-        strings2.add(RandomUtility.randomStringNoNum());
-        client.setResourceIds(strings2);
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
 
-    }
-
-    @Test
-    public void validation_create_resource_ids_resource_id_belong_to_other_project() {
-        Client client = ClientUtility.createValidBackendClient();
-        //resource id that belong to another project
-        HashSet<String> strings3 = new HashSet<>();
-        strings3.add(AppConstant.CLIENT_ID_TEST_ID);
-        client.setResourceIds(strings3);
+    @ParameterizedTest
+    @ArgumentsSource(ClientAutoApproveArgs.class)
+    public void validation_create_auto_approve(Boolean autoApprove,
+                                               Set<String> grantTypes,
+                                               Set<String> redirectUrls,
+                                               HttpStatus status
+    ) {
+        Client client = ClientUtility.createAuthorizationClientObj();
+        client.setAutoApprove(autoApprove);
+        client.setGrantTypeEnums(grantTypes);
+        client.setRegisteredRedirectUri(redirectUrls);
         ResponseEntity<Void> response4 =
             ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-
+        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
-    @Test
-    public void validation_create_resource_indicator_null() {
-        Client client = ClientUtility.createValidBackendClient();
-
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //null
-        client.setResourceIndicator(null);
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_resource_indicator_true_but_is_frontend() {
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //true but is frontend
-        client1.setResourceIndicator(true);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_auto_approve_missing_when_authorization_grant() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        //missing when authorization grant
-        client.setAutoApprove(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_auto_approve_present_when_not_authorization_grant_and_redirect_url_missing() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        //present when not authorization grant and redirect url missing
-        client.setAutoApprove(true);
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_auto_approve_present_when_not_authorization_grant() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        //present when not authorization grant
-        client.setAutoApprove(true);
-        client.setRegisteredRedirectUri(Collections.singleton(RandomUtility.randomLocalHostUrl()));
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_other_tenant_id() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_update_project_id(String projectId, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
         Project project = new Project();
-        //other tenant's id
-        project.setId(AppConstant.MT_ACCESS_PROJECT_ID);
+        project.setId(projectId);
         String url = ClientUtility.getUrl(project);
         ResponseEntity<Void> response2 =
             Utility.updateResource(tenantContext.getCreator(), url, client, client.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_blank() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Project project = new Project();
-        //blank
-        project.setId(" ");
-        String url2 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response3 =
-            Utility.updateResource(tenantContext.getCreator(), url2, client, client.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Project project = new Project();
-        //empty
-        project.setId("");
-        String url3 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response4 =
-            Utility.updateResource(tenantContext.getCreator(), url3, client, client.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_wrong_format() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Project project = new Project();
-        //wrong format
-        project.setId("abc");
-        String url4 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response5 =
-            Utility.updateResource(tenantContext.getCreator(), url4, client, client.getId());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Project project = new Project();
-        //null
-        project.setId("null");
-        String url5 = ClientUtility.getUrl(project);
-        ResponseEntity<Void> response6 =
-            Utility.updateResource(tenantContext.getCreator(), url5, client, client.getId());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
     @Test
@@ -1269,708 +701,187 @@ public class TenantClientTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.OK, response5.getStatusCode());
     }
 
-    @Test
-    public void validation_update_description_blank() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_update_description(String description, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //blank
-        client.setDescription(" ");
+        client.setDescription(description);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_update_description_empty() {
-        Client client = ClientUtility.createValidBackendClient();
+    @ParameterizedTest
+    @ArgumentsSource(ClientPathArgs.class)
+    public void validation_update_path(Client client, String path, HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //empty
-        client.setDescription("");
+        client.setPath(path);
         ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_update_description_invalid_char() {
-        Client client = ClientUtility.createValidBackendClient();
+
+    @ParameterizedTest
+    @ArgumentsSource(ClientExternalUrlArgs.class)
+    public void validation_update_external_url(Client client, String externalUrl,
+                                               HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //invalid char
-        client.setDescription("<");
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_description_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //max length
-        client.setDescription(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response5 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_path_wrong_path_format_1() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-
-        //wrong path format
-        client.setPath("/test/");
+        client.setExternalUrl(externalUrl);
         ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_update_path_wrong_path_format_2() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientGrantTypeArgs.class)
+    public void validation_update_grant_type(Set<String> grantTypes, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        String repeatedPath = client.getPath();
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-        //wrong path format
-        client.setPath("/test-/");
-        ResponseEntity<Void> response10 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response10.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_path_wrong_path_format_3() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-
-        //wrong path format
-        client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response9 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_path_type_is_backend_but_path_missing() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-
-        //type is backend and path is missing
-        client.setPath(null);
+        client.setGrantTypeEnums(grantTypes);
         ResponseEntity<Void> response4 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
-    @Test
-    public void validation_update_path_type_is_front_but_path_present() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
+    @ParameterizedTest
+    @ArgumentsSource(ClientRedirectUriArgs.class)
+    public void validation_update_grant_type_authorization_grant(
+        Set<String> urls, HttpStatus status) {
+        Client client = ClientUtility.createAuthorizationClientObj();
+        ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-
-        //type is frontend but path is present
-        client1.setPath(RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response5 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_path_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-        //max length
-        client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-            RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response6 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_path_min_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
-        //min length
-        client.setPath(RandomUtility.randomStringNoNum().substring(0, 4));
+        client.setId(UrlUtility.getId(response2));
+        client.setRegisteredRedirectUri(urls);
         ResponseEntity<Void> response7 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+            ClientUtility.createTenantClient(tenantContext, client);
+        Assertions.assertEquals(status, response7.getStatusCode());
     }
 
-    @Test
-    public void validation_update_external_url_wrong_format() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRefreshGrantArgs.class)
+    public void validation_update_grant_type_refresh_grant(Integer sec,
+                                                           HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //externalUrl format is wrong
-        client1.setExternalUrl(RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_external_url_type_is_backend_and_external_url_is_missing() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //type is backend and externalUrl is missing
-        client.setExternalUrl(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_external_url_type_is_frontend_but_external_url_present() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //type is frontend but externalUrl is present
-        client1.setExternalUrl(RandomUtility.randomLocalHostUrl());
-        ResponseEntity<Void> response5 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_external_url_max_length() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //max length
-        client1.setExternalUrl(RandomUtility.randomLocalHostUrl() +
-            "/abcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij");
-        ResponseEntity<Void> response6 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //grantType is null
-        client.setGrantTypeEnums(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //grantType is empty
-        client.setGrantTypeEnums(Collections.emptySet());
-        ResponseEntity<Void> response3 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_invalid_value() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //grantType invalid value
-        client.setGrantTypeEnums(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response5 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_refresh_requires_password_first() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //refresh requires password first
-        client.setGrantTypeEnums(Collections.singleton(GrantType.REFRESH_TOKEN.name()));
-        ResponseEntity<Void> response6 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_authorization_grant_but_registered_redirect_uri_is_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //authorization grant but registered redirect uri is empty
-        client1.setRegisteredRedirectUri(Collections.emptySet());
-        ResponseEntity<Void> response7 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_authorization_grant_but_registered_redirect_uri_is_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //authorization grant but registered redirect uri is null
-        client1.setRegisteredRedirectUri(null);
-        ResponseEntity<Void> response8 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_grant_type_refresh_grant_but_refresh_token_is_0() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //refresh grant but refresh token is 0
         HashSet<String> strings = new HashSet<>();
         strings.add(GrantType.PASSWORD.name());
         strings.add(GrantType.REFRESH_TOKEN.name());
         client.setGrantTypeEnums(strings);
-        client.setRefreshTokenValiditySeconds(0);
+        client.setRefreshTokenValiditySeconds(sec);
         ResponseEntity<Void> response9 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
+            ClientUtility.updateTenantClient(tenantContext, client);
+        Assertions.assertEquals(status, response9.getStatusCode());
     }
 
-    @Test
-    public void validation_update_grant_type_refresh_grant_but_refresh_token_is_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientTokenSecondArgs.class)
+    public void validation_update_access_token_validity_second(Integer integer, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-        //refresh grant but refresh token is null
-        client.setRefreshTokenValiditySeconds(null);
-        ResponseEntity<Void> response10 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response10.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_access_token_validity_second_value_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //accessTokenValiditySeconds is null
-        client.setAccessTokenValiditySeconds(null);
+        client.setAccessTokenValiditySeconds(integer);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_update_access_token_validity_second_value_0() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //accessTokenValiditySeconds is 0
-        client.setAccessTokenValiditySeconds(0);
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_access_token_validity_second_value_too_large() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //value too large
-        client.setAccessTokenValiditySeconds(Integer.MAX_VALUE);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_access_token_validity_second_value_too_small() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //value too small
-        client.setAccessTokenValiditySeconds(30);
-        ResponseEntity<Void> response5 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_registered_redirect_url_has_value_but_not_authorization_grant() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRedirectUriExtArgs.class)
+    public void validation_update_registered_redirect_url(
+        Set<String> grantTypes,
+        Set<String> urls,
+        HttpStatus status
+    ) {
         Client client = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //has value but not authorization grant
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_registered_redirect_url_wrong_format() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //wrong format
-        client.setRegisteredRedirectUri(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_registered_redirect_url_too_many_element() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //too many elements
-        HashSet<String> urls = new HashSet<>();
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
-        urls.add(RandomUtility.randomLocalHostUrl());
+        client.setGrantTypeEnums(grantTypes);
         client.setRegisteredRedirectUri(urls);
-        ResponseEntity<Void> response5 =
+        ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_update_refresh_token_validity_second_has_value_but_not_password_grant() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientRefreshTokenSecondArgs.class)
+    public void validation_update_refresh_token_validity_second(Set<String> grantType,
+                                                                Integer integer,
+                                                                HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response0 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response0));
 
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //has value but not password grant
-        client.setRefreshTokenValiditySeconds(120);
-        grantTypes.remove(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
+        client.setGrantTypeEnums(grantType);
+        client.setRefreshTokenValiditySeconds(integer);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_update_refresh_token_validity_second_value_too_large() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response0));
-
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //value too large
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(Integer.MAX_VALUE);
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_refresh_token_validity_second_value_too_small() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response0));
-
-        Set<String> grantTypes = new HashSet<>();
-        grantTypes.add(GrantType.REFRESH_TOKEN.name());
-        grantTypes.add(GrantType.PASSWORD.name());
-        client.setGrantTypeEnums(grantTypes);
-        client.setRefreshTokenValiditySeconds(120);
-        ResponseEntity<Void> response1 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
-        client.setPath(RandomUtility.randomStringNoNum());
-        //value too small
-        client.setRefreshTokenValiditySeconds(1);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_resource_ids_too_many_elements() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIdsArgs.class)
+    public void validation_update_resource_ids(Set<String> ids,
+                                               HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //too many elements
-        HashSet<String> strings = new HashSet<>();
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        client.setResourceIds(strings);
+        client.setResourceIds(ids);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_update_resource_ids_format() {
-        Client client = ClientUtility.createValidBackendClient();
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIndicatorArgs.class)
+    public void validation_update_resource_indicator(Client client, Boolean indicator,
+                                                     HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //format
-        HashSet<String> strings2 = new HashSet<>();
-        strings2.add(RandomUtility.randomStringNoNum());
-        client.setResourceIds(strings2);
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_resource_ids_resource_id_that_belong_to_another_project() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //resource id that belong to another project
-        HashSet<String> strings3 = new HashSet<>();
-        strings3.add(AppConstant.CLIENT_ID_TEST_ID);
-        client.setResourceIds(strings3);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_resource_indicator_null() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //null
-        client.setResourceIndicator(null);
+        client.setResourceIndicator(indicator);
         ResponseEntity<Void> response5 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response5.getStatusCode());
     }
 
-    @Test
-    public void validation_update_resource_indicator_true_but_is_frontend() {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
-
-        ResponseEntity<Void> response3 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //true but is frontend
-        client1.setResourceIndicator(true);
-        ResponseEntity<Void> response4 =
-            ClientUtility.updateTenantClient(tenantContext, client1);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_auto_approve_missing_when_authorization_grant() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientAutoApproveArgs.class)
+    public void validation_update_auto_approve(Boolean autoApprove,
+                                               Set<String> grantTypes,
+                                               Set<String> redirectUrls,
+                                               HttpStatus status
+    ) {
         Client client = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        //missing when authorization grant
-        client.setAutoApprove(null);
+        client.setAutoApprove(autoApprove);
+        client.setGrantTypeEnums(grantTypes);
+        client.setRegisteredRedirectUri(redirectUrls);
         ResponseEntity<Void> response4 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(status, response4.getStatusCode());
     }
 
-    @Test
-    public void validation_update_auto_approve_present_when_not_authorization_grant_and_redirect_url_missing() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //present when not authorization grant and redirect url missing
-        client.setAutoApprove(true);
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response5 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_auto_approve_present_when_not_authorization_grant() {
-        Client client = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
-        //present when not authorization grant
-        client.setAutoApprove(true);
-        client.setRegisteredRedirectUri(Collections.singleton(RandomUtility.randomLocalHostUrl()));
-        client.setGrantTypeEnums(Collections.singleton(GrantType.CLIENT_CREDENTIALS.name()));
-        ResponseEntity<Void> response6 =
-            ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_description() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_patch_description(String description, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -1978,89 +889,30 @@ public class TenantClientTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
-        //blank
-        patchCommand.setValue(" ");
+        patchCommand.setValue(description);
         ResponseEntity<Void> response2 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> response3 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //invalid char
-        patchCommand.setValue("<");
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //max length
-        patchCommand.setValue(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789" +
-                "012345678901234567890123456789");
-        ResponseEntity<Void> response5 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_path() {
-        Client client = ClientUtility.createValidBackendClient();
+    @ParameterizedTest
+    @ArgumentsSource(ClientPathArgs.class)
+    public void validation_patch_path(Client client, String path, HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
-        String repeatedPath = client.getPath();
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response0 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response0));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/path");
-        //wrong path format
-        patchCommand.setValue("/test/");
+        patchCommand.setValue(path);
         ResponseEntity<Void> response3 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong path format
-        patchCommand.setValue("/test-/");
-        ResponseEntity<Void> response10 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response10.getStatusCode());
-        //wrong path format
-        patchCommand.setValue(
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-                RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-                RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-                RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response9 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
-        //type is backend and path is missing
-        patchCommand.setValue(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //type is frontend but path is present
-        patchCommand.setValue(RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response5 =
-            ClientUtility.patchTenantClient(tenantContext, client1, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //max length
-        patchCommand.setValue(
-            RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum() +
-                RandomUtility.randomStringNoNum());
-        ResponseEntity<Void> response6 =
-            ClientUtility.patchTenantClient(tenantContext, client1, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-        //min length
-        patchCommand.setValue(RandomUtility.randomStringNoNum().substring(0, 4));
-        ResponseEntity<Void> response7 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_grant_type() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientGrantTypeArgs.class)
+    public void validation_patch_grant_type(Set<String> grantTypes, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -2072,38 +924,15 @@ public class TenantClientTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/grantTypeEnums");
-        //grantType is empty
-        patchCommand.setValue(Collections.emptySet());
+        patchCommand.setValue(grantTypes);
         ResponseEntity<Void> response3 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //grantType is null
-        patchCommand.setValue(null);
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //grantType invalid value
-        patchCommand.setValue(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> response5 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //refresh requires password first
-        patchCommand.setValue(Collections.singleton(GrantType.REFRESH_TOKEN.name()));
-        ResponseEntity<Void> response6 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-        //cannot set as refresh grant without refresh token sec detail
-        HashSet<String> strings = new HashSet<>();
-        strings.add(GrantType.PASSWORD.name());
-        strings.add(GrantType.REFRESH_TOKEN.name());
-        patchCommand.setValue(strings);
-        ResponseEntity<Void> response9 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
+        Assertions.assertEquals(status, response3.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_access_token_validity_second() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientTokenSecondArgs.class)
+    public void validation_patch_access_token_validity_second(Integer integer, HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -2111,30 +940,16 @@ public class TenantClientTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/accessTokenValiditySeconds");
-        //accessTokenValiditySeconds is null
-        patchCommand.setValue(null);
+        patchCommand.setValue(integer);
         ResponseEntity<Void> response2 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //accessTokenValiditySeconds is 0
-        patchCommand.setValue(0);
-        ResponseEntity<Void> response3 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //value too large
-        patchCommand.setValue(Integer.MAX_VALUE);
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //value too small
-        patchCommand.setValue(30);
-        ResponseEntity<Void> response5 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_resource_ids() {
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIdsArgs.class)
+    public void validation_patch_resource_ids(Set<String> ids,
+                                              HttpStatus status) {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -2142,43 +957,16 @@ public class TenantClientTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/resourceIds");
-        //too many elements
-        HashSet<String> strings = new HashSet<>();
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        strings.add(RandomUtility.randomStringNoNum());
-        patchCommand.setValue(strings);
+        patchCommand.setValue(ids);
         ResponseEntity<Void> response2 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //format
-        HashSet<String> strings2 = new HashSet<>();
-        strings2.add(RandomUtility.randomStringNoNum());
-        patchCommand.setValue(strings2);
-        ResponseEntity<Void> response3 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //resource id that belong to another project
-        HashSet<String> strings3 = new HashSet<>();
-        strings3.add(AppConstant.CLIENT_ID_TEST_ID);
-        patchCommand.setValue(strings3);
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_resource_indicator() {
-        Client client = ClientUtility.createValidBackendClient();
+    @ParameterizedTest
+    @ArgumentsSource(ClientResourceIndicatorArgs.class)
+    public void validation_patch_resource_indicator(Client client, Boolean indicator,
+                                                    HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(response1));
@@ -2189,15 +977,9 @@ public class TenantClientTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/resourceIndicator");
-        //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(indicator);
         ResponseEntity<Void> response5 =
             ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //true but is frontend
-        patchCommand.setValue(true);
-        ResponseEntity<Void> response4 =
-            ClientUtility.patchTenantClient(tenantContext, client1, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(status, response5.getStatusCode());
     }
 }

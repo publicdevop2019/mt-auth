@@ -1,9 +1,15 @@
 package com.mt.test_case.integration.single.access.tenant;
 
-import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantTest;
+import com.mt.test_case.helper.args.CacheControlArgs;
+import com.mt.test_case.helper.args.CacheMaxAge;
+import com.mt.test_case.helper.args.CacheSMaxAge;
+import com.mt.test_case.helper.args.CacheVary;
+import com.mt.test_case.helper.args.DescriptionArgs;
+import com.mt.test_case.helper.args.ExpireArgs;
+import com.mt.test_case.helper.args.NameArgs;
+import com.mt.test_case.helper.args.ProjectIdArgs;
 import com.mt.test_case.helper.pojo.Cache;
-import com.mt.test_case.helper.pojo.CacheControlValue;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.PatchCommand;
@@ -15,16 +21,15 @@ import com.mt.test_case.helper.utility.EndpointUtility;
 import com.mt.test_case.helper.utility.RandomUtility;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.Utility;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -124,173 +129,45 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.OK, cache0.getStatusCode());
     }
 
-    @Test
-    public void validation_create_name_null() {
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_create_name(String name, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setName(null);
+        cacheObj.setName(name);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_create_name_blank() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_create_description(String description, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setName(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setName("");
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setName("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_name_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setName("<>!,");
-        ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_null() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setDescription(null);
+        cacheObj.setDescription(description);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_create_description_blank() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheControlArgs.class)
+    public void validation_create_cache_control(Boolean allow, Set<String> cacheControl,
+                                                HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setDescription(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setDescription("");
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setDescription(
-            "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_description_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setDescription("<>!，");
-        ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_cache_control_null() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setAllowCache(true);
+        cacheObj.setAllowCache(allow);
         cacheObj.setExpires(1L);
-        //null
-        cacheObj.setCacheControl(null);
+        cacheObj.setCacheControl(cacheControl);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_create_cache_control_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        cacheObj.setCacheControl(Collections.emptySet());
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_cache_control_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        Set<String> collect =
-            Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(Collectors.toSet());
-        collect.add(CacheControlValue.NO_CACHE.label);
-        cacheObj.setCacheControl(collect);
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache3.getStatusCode());//200 due to set and enum
-    }
-
-    @Test
-    public void validation_create_cache_control_present_but_allow_cache_false() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        Set<String> collect =
-            Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(Collectors.toSet());
-        collect.add(CacheControlValue.NO_CACHE.label);
-        cacheObj.setCacheControl(collect);
-        ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_cache_control_invalid_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        cacheObj.setCacheControl(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> cache4 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_expires_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ExpireArgs.class)
+    public void validation_create_expires(Long expire, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setMaxAge(1L);
         cacheObj.setAllowCache(true);
-        //null
-        cacheObj.setExpires(null);
+        cacheObj.setExpires(expire);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_expires_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setMaxAge(1L);
-        cacheObj.setAllowCache(true);
-        //min value
-        cacheObj.setExpires(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_expires_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setMaxAge(1L);
-        cacheObj.setAllowCache(true);
-        //max value
-        cacheObj.setExpires((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
@@ -306,37 +183,15 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
     }
 
-    @Test
-    public void validation_create_max_age_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheMaxAge.class)
+    public void validation_create_max_age(Long maxAge, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
-        //null
-        cacheObj.setMaxAge(null);
+        cacheObj.setMaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_max_age_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //min value
-        cacheObj.setMaxAge(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_max_age_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //max value
-        cacheObj.setMaxAge((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
@@ -354,115 +209,48 @@ public class TenantCacheTest extends TenantTest {
     @Test
     public void validation_create_max_age_present_but_allow_cache_false() {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
         //present but allow cache false
-        cacheObj.setAllowCache(false);
         cacheObj.setMaxAge(1L);
-        cacheObj.setExpires(null);
         ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_create_s_max_age_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheSMaxAge.class)
+    public void validation_create_s_max_age(Long maxAge, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
-        //null
-        cacheObj.setSmaxAge(null);
+        cacheObj.setSmaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_s_max_age_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //min value
-        cacheObj.setSmaxAge(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_s_max_age_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //max value
-        cacheObj.setSmaxAge((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
     public void validation_create_s_max_age_present_but_allow_cache_false() {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
         //present but allow cache false
-        cacheObj.setAllowCache(false);
         cacheObj.setSmaxAge(1L);
-        cacheObj.setExpires(null);
         ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_create_vary_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheVary.class)
+    public void validation_create_vary(String vary, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
-        //null
-        cacheObj.setVary(null);
+        cacheObj.setVary(vary);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_vary_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //blank
-        cacheObj.setVary(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_vary_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        //empty
-        cacheObj.setVary("");
-        ResponseEntity<Void> cache3 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_vary_invalid_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        cacheObj.setVary(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
     public void validation_create_vary_present_but_allow_cache_false() {
         Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
         //present but allow cache false
         cacheObj.setVary("123");
-        cacheObj.setAllowCache(false);
-        cacheObj.setExpires(null);
         ResponseEntity<Void> cache5 = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
@@ -536,274 +324,67 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_create_project_id_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_create_project_id(String projectId, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         Project project1 = new Project();
-        //null
-        project1.setId("null");
+        project1.setId(projectId);
         String url = CacheUtility.getUrl(project1);
         ResponseEntity<Void> resource =
             Utility.createResource(tenantContext.getCreator(), url, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
+        Assertions.assertEquals(status, resource.getStatusCode());
     }
 
-    @Test
-    public void validation_create_project_id_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        Project project1 = new Project();
-        //empty
-        project1.setId("");
-        String url3 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource3 =
-            Utility.createResource(tenantContext.getCreator(), url3, cacheObj);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        Project project1 = new Project();
-        //blank
-        project1.setId(" ");
-        String url4 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource4 =
-            Utility.createResource(tenantContext.getCreator(), url4, cacheObj);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id_other_tenant_id() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        Project project1 = new Project();
-        //other tenant's project id
-        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
-        String url2 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource2 =
-            Utility.createResource(tenantContext.getCreator(), url2, cacheObj);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_name_null() {
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_update_name(String name, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
-        //null
-        cacheObj.setName(null);
+        cacheObj.setName(name);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_update_name_blank() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_update_description(String description, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
-        //blank
-        cacheObj.setName(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_name_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //empty
-        cacheObj.setName("");
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_name_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //max length
-        cacheObj.setName("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_name_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //invalid char
-        cacheObj.setName("<>!,");
-        ResponseEntity<Void> cache5 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_description_null() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //null
-        cacheObj.setDescription(null);
+        cacheObj.setDescription(description);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_update_description_blank() {
+
+    @ParameterizedTest
+    @ArgumentsSource(CacheControlArgs.class)
+    public void validation_update_cache_control(Boolean allow, Set<String> cacheControl,
+                                                HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
-        //blank
-        cacheObj.setDescription(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_description_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //empty
-        cacheObj.setDescription("");
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_description_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //max length
-        cacheObj.setDescription(
-            "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_description_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //invalid char
-        cacheObj.setDescription("<>!，");
-        ResponseEntity<Void> cache5 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_cache_control_null() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        cacheObj.setAllowCache(true);
+        cacheObj.setAllowCache(allow);
         cacheObj.setExpires(1L);
-        //null
-        cacheObj.setCacheControl(null);
+        cacheObj.setCacheControl(cacheControl);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_update_cache_control_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        //empty
-        cacheObj.setCacheControl(Collections.emptySet());
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_cache_control_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        //max length
-        Set<String> collect =
-            Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(Collectors.toSet());
-        collect.add(CacheControlValue.NO_CACHE.label);
-        cacheObj.setCacheControl(collect);
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache3.getStatusCode());//200 due to set and enum
-    }
-
-    @Test
-    public void validation_update_cache_control_invalid_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        //invalid value
-        cacheObj.setCacheControl(Collections.singleton(RandomUtility.randomStringNoNum()));
-        ResponseEntity<Void> cache4 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_cache_control_present_but_allow_cache_false() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        cacheObj.setAllowCache(true);
-        cacheObj.setExpires(1L);
-        Set<String> collect =
-            Arrays.stream(CacheControlValue.values()).map(e -> e.label).collect(Collectors.toSet());
-        //present but allow cache false
-        cacheObj.setAllowCache(false);
-        cacheObj.setCacheControl(collect);
-        cacheObj.setExpires(null);
-        ResponseEntity<Void> cache5 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_expires_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ExpireArgs.class)
+    public void validation_update_expires(Long expire, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setMaxAge(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
         //null
-        cacheObj.setExpires(null);
+        cacheObj.setExpires(expire);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_expires_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setMaxAge(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //min value
-        cacheObj.setExpires(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_expires_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setMaxAge(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //max value
-        cacheObj.setExpires((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
@@ -821,43 +402,17 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
     }
 
-    @Test
-    public void validation_update_max_age_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheMaxAge.class)
+    public void validation_update_max_age(Long maxAge, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
-        //null
-        cacheObj.setMaxAge(null);
+        cacheObj.setMaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_max_age_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //min value
-        cacheObj.setMaxAge(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_max_age_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //max value
-        cacheObj.setMaxAge((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
@@ -889,44 +444,20 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_update_s_max_age_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheSMaxAge.class)
+    public void validation_update_s_max_age(Long maxAge, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
         //null
-        cacheObj.setSmaxAge(null);
+        cacheObj.setSmaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_update_s_max_age_min_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //min value
-        cacheObj.setSmaxAge(0L);
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_s_max_age_max_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //max value
-        cacheObj.setSmaxAge((long) Integer.MAX_VALUE);
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
 
     @Test
     public void validation_update_s_max_age_present_but_allow_cache_false() {
@@ -943,57 +474,18 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_update_vary_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheVary.class)
+    public void validation_update_vary(String vary, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
         //null
-        cacheObj.setVary(null);
+        cacheObj.setVary(vary);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_vary_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //blank
-        cacheObj.setVary(" ");
-        ResponseEntity<Void> cache2 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_vary_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //empty
-        cacheObj.setVary("");
-        ResponseEntity<Void> cache3 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_vary_invalid_value() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        cacheObj.setExpires(1L);
-        cacheObj.setAllowCache(true);
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        //invalid value
-        cacheObj.setVary(
-            "01234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 = CacheUtility.updateTenantCache(tenantContext, cacheObj);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
     @Test
@@ -1097,8 +589,9 @@ public class TenantCacheTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_name_null() {
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_patch_name(String name, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
@@ -1106,74 +599,15 @@ public class TenantCacheTest extends TenantTest {
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
         //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(name);
         ResponseEntity<Void> cache =
             CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_name_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> cache2 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_name_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> cache3 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_name_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        //max length
-        patchCommand.setValue("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_name_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        //invalid char
-        patchCommand.setValue("<>!,");
-        ResponseEntity<Void> cache5 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_description_null() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_patch_description(String description, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
@@ -1181,126 +615,23 @@ public class TenantCacheTest extends TenantTest {
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
         //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(description);
         ResponseEntity<Void> cache =
             CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
+        Assertions.assertEquals(status, cache.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_description_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> cache2 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache2.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_description_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> cache3 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache3.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_description_max_length() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        //max length
-        patchCommand.setValue(
-            "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> cache4 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache4.getStatusCode());
-    }
-
-    @Test
-    public void validation_patch_description_invalid_char() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        //invalid char
-        patchCommand.setValue("<>!，");
-        ResponseEntity<Void> cache5 =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, cache5.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_null() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_update_project_id(String projectId, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         cacheObj.setId(UrlUtility.getId(tenantCache));
         Project project1 = new Project();
-        //null
-        project1.setId("null");
+        project1.setId(projectId);
         String url = CacheUtility.getUrl(project1);
         ResponseEntity<Void> resource =
             Utility.updateResource(tenantContext.getCreator(), url, cacheObj, cacheObj.getId());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_empty() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        Project project1 = new Project();
-        //empty
-        project1.setId("");
-        String url3 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource3 =
-            Utility.updateResource(tenantContext.getCreator(), url3, cacheObj, cacheObj.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_blank() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        Project project1 = new Project();
-        //blank
-        project1.setId(" ");
-        String url4 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource4 =
-            Utility.updateResource(tenantContext.getCreator(), url4, cacheObj, cacheObj.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_project_id_other_tenant_project_id() {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
-        Project project1 = new Project();
-        //other tenant's project id
-        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
-        String url2 = CacheUtility.getUrl(project1);
-        ResponseEntity<Void> resource2 =
-            Utility.updateResource(tenantContext.getCreator(), url2, cacheObj, cacheObj.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+        Assertions.assertEquals(status, resource.getStatusCode());
     }
 }

@@ -1,7 +1,17 @@
 package com.mt.test_case.integration.single.access.tenant;
 
-import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantTest;
+import com.mt.test_case.helper.args.CacheIdArgs;
+import com.mt.test_case.helper.args.CorsIdArgs;
+import com.mt.test_case.helper.args.DescriptionArgs;
+import com.mt.test_case.helper.args.EndpointBurstCapacityArgs;
+import com.mt.test_case.helper.args.EndpointExpireReasonArgs;
+import com.mt.test_case.helper.args.EndpointMethodArgs;
+import com.mt.test_case.helper.args.EndpointPathArgs;
+import com.mt.test_case.helper.args.EndpointReplenishRateArgs;
+import com.mt.test_case.helper.args.NameArgs;
+import com.mt.test_case.helper.args.ProjectIdArgs;
+import com.mt.test_case.helper.args.ResourceIdArgs;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Endpoint;
 import com.mt.test_case.helper.pojo.PatchCommand;
@@ -18,10 +28,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -126,72 +137,26 @@ public class TenantEndpointTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
     }
 
-    @Test
-    public void validation_create_name() {
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_create_name(String name, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setName(null);
+        endpoint.setName(name);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        endpoint.setName("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setName(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        endpoint.setName("1");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //max length
-        endpoint.setName("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        endpoint.setName("<");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_description() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_create_description(String description, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setDescription(null);
+        endpoint.setDescription(description);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //empty
-        endpoint.setDescription("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setDescription(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //max length
-        endpoint.setDescription("012345678901234567890123456789012345678901234567890123456789" +
-            "0123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        endpoint.setDescription("<");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
     @Test
@@ -267,369 +232,126 @@ public class TenantEndpointTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tenantEndpoint2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_cors_id() {
+    @ParameterizedTest
+    @ArgumentsSource(CorsIdArgs.class)
+    public void validation_create_cors_id(String corsId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setCorsProfileId(null);
+        endpoint.setCorsProfileId(corsId);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //blank
-        endpoint.setCorsProfileId(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        endpoint.setCorsProfileId("");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong format
-        endpoint.setCorsProfileId("abc");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //other tenant's id
-        endpoint.setCorsProfileId(AppConstant.MT_ACCESS_CORS_ID);
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //not exit tenant's id
-        endpoint.setCorsProfileId("0O8999999999");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_cache_profile_id_null() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheIdArgs.class)
+    public void validation_create_cache_profile_id(String cacheId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null is ok
-        endpoint.setCacheProfileId(null);
+        endpoint.setCacheProfileId(cacheId);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_cache_profile_id() {
+    @ParameterizedTest
+    @ArgumentsSource(ResourceIdArgs.class)
+    public void validation_create_resource_id(String resourceId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-
-        //blank
-        endpoint.setCacheProfileId(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        endpoint.setCacheProfileId("");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong format
-        endpoint.setCacheProfileId("abc");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //other tenant's id
-        endpoint.setCacheProfileId(AppConstant.MT_ACCESS_CACHE_ID);
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //not exit tenant's id
-        endpoint.setCacheProfileId("0X8999999999");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_resource_id() {
-        Endpoint endpoint =
-            EndpointUtility.createValidGetEndpoint(client.getId());
-
-        //null
-        endpoint.setResourceId(null);
+        endpoint.setResourceId(resourceId);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //blank
-        endpoint.setResourceId(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        endpoint.setResourceId("");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong format
-        endpoint.setResourceId("abc");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //other tenant's id
-        endpoint.setResourceId(AppConstant.CLIENT_ID_OAUTH2_ID);
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //not exit tenant's id
-        endpoint.setResourceId("0C8999999999");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_path() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointPathArgs.class)
+    public void validation_create_path(String path, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setPath(null);
+        endpoint.setPath(path);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        endpoint.setPath("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setPath(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //max length
-        endpoint.setPath(RandomUtility.randomHttpPath() +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //wrong format
-        endpoint.setPath(RandomUtility.randomStringNoNum() + "-/-test");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //wrong format
-        endpoint.setPath(RandomUtility.randomStringNoNum() + "//test");
-        ResponseEntity<Void> response7 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
-        //invalid char
-        endpoint.setPath("<");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_external() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointReplenishRateArgs.class)
+    public void validation_create_replenish_rate(Integer replenishRate, Integer burstCapacity,
+                                                 HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setExternal(null);
+        endpoint.setReplenishRate(replenishRate);
+        endpoint.setBurstCapacity(burstCapacity);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_replenish_rate() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointBurstCapacityArgs.class)
+    public void validation_create_burst_capacity(Integer replenishRate, Integer burstCapacity,
+                                                 HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null but burst capacity not null
-        endpoint.setReplenishRate(null);
-        endpoint.setBurstCapacity(10);
+        endpoint.setReplenishRate(replenishRate);
+        endpoint.setBurstCapacity(burstCapacity);
         ResponseEntity<Void> response =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //min value
-        endpoint.setReplenishRate(0);
-        endpoint.setBurstCapacity(10);
-        ResponseEntity<Void> response1 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //max value
-        endpoint.setReplenishRate(1001);
-        endpoint.setBurstCapacity(1500);
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //replenish rate must =< burst capacity
-        endpoint.setReplenishRate(100);
-        endpoint.setBurstCapacity(50);
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_create_burst_capacity() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointMethodArgs.class)
+    public void validation_create_method(String method, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null but burst capacity not null
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(null);
-        ResponseEntity<Void> response =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //min value
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(0);
-        ResponseEntity<Void> response1 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //max value
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(Integer.MAX_VALUE);
+        endpoint.setMethod(method);
         ResponseEntity<Void> response2 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_create_method() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_create_project_id(String projectId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
-        endpoint.setMethod(null);
-        ResponseEntity<Void> response2 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //blank
-        endpoint.setMethod(" ");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //empty
-        endpoint.setMethod("");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid value
-        endpoint.setMethod("abc");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-    }
-
-    @Test
-    public void validation_create_project_id() {
-        Endpoint endpoint =
-            EndpointUtility.createValidGetEndpoint(client.getId());
-        //null
         Project project1 = new Project();
-        project1.setId("null");
+        project1.setId(projectId);
         String url = EndpointUtility.getUrl(project1);
         ResponseEntity<Void> resource =
             Utility.createResource(tenantContext.getCreator(), url, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
-        //empty
-        project1.setId("");
-        String url3 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource3 =
-            Utility.createResource(tenantContext.getCreator(), url3, endpoint);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
-        //blank
-        project1.setId(" ");
-        String url4 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource4 =
-            Utility.createResource(tenantContext.getCreator(), url4, endpoint);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
-        //other tenant's project id
-        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
-        String url2 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource2 =
-            Utility.createResource(tenantContext.getCreator(), url2, endpoint);
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+        Assertions.assertEquals(status, resource.getStatusCode());
     }
 
-    @Test
-    public void validation_update_name() {
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_update_name(String name, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setName(null);
+        endpoint.setName(name);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        endpoint.setName("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setName(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        endpoint.setName("1");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //max length
-        endpoint.setName("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        endpoint.setName("<");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_description() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_update_description(String description, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setDescription(null);
+        endpoint.setDescription(description);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //empty
-        endpoint.setDescription("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setDescription(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //max length
-        endpoint.setDescription("012345678901234567890123456789012345678901234567890123456789" +
-            "0123456789012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        endpoint.setDescription("<");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
     @Test
@@ -666,264 +388,116 @@ public class TenantEndpointTest extends TenantTest {
         Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
     }
 
-    @Test
-    public void validation_update_cors_id() {
+    @ParameterizedTest
+    @ArgumentsSource(CorsIdArgs.class)
+    public void validation_update_cors_id(String corsId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setCorsProfileId(null);
+        endpoint.setCorsProfileId(corsId);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //blank
-        endpoint.setCorsProfileId(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        endpoint.setCorsProfileId("");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong format
-        endpoint.setCorsProfileId("abc");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //other tenant's id
-        endpoint.setCorsProfileId(AppConstant.MT_ACCESS_CORS_ID);
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //not exit tenant's id
-        endpoint.setCorsProfileId("0O8999999999");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_cache_profile_id() {
+    @ParameterizedTest
+    @ArgumentsSource(CacheIdArgs.class)
+    public void validation_update_cache_profile_id(String cacheId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setCacheProfileId(null);
+        endpoint.setCacheProfileId(cacheId);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        //blank
-        endpoint.setCacheProfileId(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //empty
-        endpoint.setCacheProfileId("");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //wrong format
-        endpoint.setCacheProfileId("abc");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //other tenant's id
-        endpoint.setCacheProfileId(AppConstant.MT_ACCESS_CACHE_ID);
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //not exit tenant's id
-        endpoint.setCacheProfileId("0X8999999999");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_project_id() {
+    @ParameterizedTest
+    @ArgumentsSource(ProjectIdArgs.class)
+    public void validation_update_project_id(String projectId, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
         Project project1 = new Project();
-        project1.setId("null");
+        project1.setId(projectId);
         String url = EndpointUtility.getUrl(project1);
         ResponseEntity<Void> resource =
             Utility.updateResource(tenantContext.getCreator(), url, endpoint, endpoint.getId());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
-        //empty
-        project1.setId("");
-        String url3 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource3 =
-            Utility.updateResource(tenantContext.getCreator(), url3, endpoint, endpoint.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
-        //blank
-        project1.setId(" ");
-        String url4 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource4 =
-            Utility.updateResource(tenantContext.getCreator(), url4, endpoint, endpoint.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
-        //other tenant's project id
-        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
-        String url2 = EndpointUtility.getUrl(project1);
-        ResponseEntity<Void> resource2 =
-            Utility.updateResource(tenantContext.getCreator(), url2, endpoint, endpoint.getId());
-        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+        Assertions.assertEquals(status, resource.getStatusCode());
     }
 
-    @Test
-    public void validation_update_path() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointPathArgs.class)
+    public void validation_update_path(String path, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setPath(null);
+        endpoint.setPath(path);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        endpoint.setPath("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        endpoint.setPath(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //max length
-        endpoint.setPath(RandomUtility.randomHttpPath() +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //wrong format
-        endpoint.setPath(RandomUtility.randomStringNoNum() + "-/-test");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //wrong format
-        endpoint.setPath(RandomUtility.randomStringNoNum() + "//test");
-        ResponseEntity<Void> response7 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
-        //invalid char
-        endpoint.setPath("<");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_replenish_rate() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointReplenishRateArgs.class)
+    public void validation_update_replenish_rate(Integer replenishRate, Integer burstCapacity,
+                                                 HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
         //null but burst capacity not null
-        endpoint.setReplenishRate(null);
-        endpoint.setBurstCapacity(10);
+        endpoint.setReplenishRate(replenishRate);
+        endpoint.setBurstCapacity(burstCapacity);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //min value
-        endpoint.setReplenishRate(0);
-        endpoint.setBurstCapacity(10);
-        ResponseEntity<Void> response1 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //max value
-        endpoint.setReplenishRate(1001);
-        endpoint.setBurstCapacity(1500);
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //replenish rate must =< burst capacity
-        endpoint.setReplenishRate(100);
-        endpoint.setBurstCapacity(50);
-        ResponseEntity<Void> response3 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_burst_capacity() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointBurstCapacityArgs.class)
+    public void validation_update_burst_capacity(Integer replenishRate, Integer burstCapacity,
+                                                 HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null but burst capacity not null
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(null);
+        endpoint.setReplenishRate(replenishRate);
+        endpoint.setBurstCapacity(burstCapacity);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //min value
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(0);
-        ResponseEntity<Void> response1 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //max value
-        endpoint.setReplenishRate(10);
-        endpoint.setBurstCapacity(Integer.MAX_VALUE);
-        ResponseEntity<Void> response2 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_update_method() {
+
+    @ParameterizedTest
+    @ArgumentsSource(EndpointMethodArgs.class)
+    public void validation_update_method(String method, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
-        //null
-        endpoint.setMethod(null);
+        endpoint.setMethod(method);
         ResponseEntity<Void> response2 =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //blank
-        endpoint.setMethod(" ");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //empty
-        endpoint.setMethod("");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid value
-        endpoint.setMethod("abc");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_name() {
+
+    @ParameterizedTest
+    @ArgumentsSource(NameArgs.class)
+    public void validation_patch_name(String name, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
@@ -932,49 +506,32 @@ public class TenantEndpointTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
-        //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(name);
         ResponseEntity<Void> response =
             EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        patchCommand.setValue("1");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //max length
-        patchCommand.setValue("012345678901234567890123456789012345678901234567890123456789");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        patchCommand.setValue("<");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_description() {
+    @ParameterizedTest
+    @ArgumentsSource(DescriptionArgs.class)
+    public void validation_patch_description(String description, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(response0));
+        PatchCommand patchCommand = new PatchCommand();
+        patchCommand.setOp("replace");
+        patchCommand.setPath("/description");
+        patchCommand.setValue(description);
+        ResponseEntity<Void> response =
+            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_path() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointPathArgs.class)
+    public void validation_patch_path(String path, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
@@ -983,56 +540,15 @@ public class TenantEndpointTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/path");
-        //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(path);
         ResponseEntity<Void> response =
             EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> response1 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> response2 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //max length
-        patchCommand.setValue(RandomUtility.randomHttpPath() +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij" +
-            "abcdefghij");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //wrong format
-        patchCommand.setValue(RandomUtility.randomStringNoNum() + "-/-test");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //wrong format
-        patchCommand.setValue(RandomUtility.randomStringNoNum() + "//test");
-        ResponseEntity<Void> response7 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
-        //invalid char
-        patchCommand.setValue("<");
-        ResponseEntity<Void> response6 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(status, response.getStatusCode());
     }
 
-    @Test
-    public void validation_patch_method() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointMethodArgs.class)
+    public void validation_patch_method(String method, HttpStatus status) {
         Endpoint endpoint =
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
@@ -1041,31 +557,15 @@ public class TenantEndpointTest extends TenantTest {
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/method");
-        //null
-        patchCommand.setValue(null);
+        patchCommand.setValue(method);
         ResponseEntity<Void> response2 =
             EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //blank
-        patchCommand.setValue(" ");
-        ResponseEntity<Void> response3 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
-        //empty
-        patchCommand.setValue("");
-        ResponseEntity<Void> response4 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid value
-        patchCommand.setValue("abc");
-        ResponseEntity<Void> response5 =
-            EndpointUtility.patchTenantEndpoint(tenantContext, endpoint, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-
+        Assertions.assertEquals(status, response2.getStatusCode());
     }
 
-    @Test
-    public void validation_expire_reason() {
+    @ParameterizedTest
+    @ArgumentsSource(EndpointExpireReasonArgs.class)
+    public void validation_expire_reason(String reason, HttpStatus status) {
         //create endpoint
         Endpoint endpoint =
             EndpointUtility.createValidSharedEndpointObj(client.getId());
@@ -1073,27 +573,8 @@ public class TenantEndpointTest extends TenantTest {
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
-        //blank
         ResponseEntity<Void> response1 =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, " ");
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
-        //empty
-        ResponseEntity<Void> response2 =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, "");
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-        //min length
-        ResponseEntity<Void> response3 =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, "a");
-        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
-        //max length
-        ResponseEntity<Void> response4 =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint,
-                "01234567890123456789012345678901234567890123456789012345678901234567890123456789");
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
-        //invalid char
-        ResponseEntity<Void> response5 =
-            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint,
-                "<");
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+            EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, reason);
+        Assertions.assertEquals(status, response1.getStatusCode());
     }
 }
