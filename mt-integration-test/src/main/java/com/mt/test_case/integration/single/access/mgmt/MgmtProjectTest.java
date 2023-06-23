@@ -9,17 +9,17 @@ import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class MgmtProjectTest extends CommonTest {
     @Test
@@ -33,6 +33,6 @@ public class MgmtProjectTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_PROJECTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
+        Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
     }
 }

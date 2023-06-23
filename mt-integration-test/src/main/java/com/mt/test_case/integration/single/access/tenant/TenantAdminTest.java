@@ -15,17 +15,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantAdminTest extends TenantTest {
 
@@ -33,7 +33,7 @@ public class TenantAdminTest extends TenantTest {
     public void tenant_can_view_admin() {
         ResponseEntity<SumTotal<ProjectAdmin>> exchange =
             AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
-        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
+        Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
 
     }
 
@@ -50,12 +50,12 @@ public class TenantAdminTest extends TenantTest {
         ResponseEntity<Void> exchange2 =
             AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
                 tenantUser);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         //record after add
         ResponseEntity<SumTotal<ProjectAdmin>> exchange4 =
             AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer currentCount = Objects.requireNonNull(exchange4.getBody()).getTotalItemCount();
-        Assert.assertNotEquals(currentCount, previousCount);
+        Assertions.assertNotEquals(currentCount, previousCount);
     }
 
     @Test
@@ -71,17 +71,17 @@ public class TenantAdminTest extends TenantTest {
         ResponseEntity<Void> exchange2 =
             AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
                 tenantUser);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         //remove admin
         ResponseEntity<Void> exchange5 =
             AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
                 tenantUser);
-        Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
         //record after remove
         ResponseEntity<SumTotal<ProjectAdmin>> exchange4 =
             AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
         Integer currentCount = Objects.requireNonNull(exchange4.getBody()).getTotalItemCount();
-        Assert.assertEquals(currentCount, previousCount);
+        Assertions.assertEquals(currentCount, previousCount);
     }
 
     @Test
@@ -91,7 +91,7 @@ public class TenantAdminTest extends TenantTest {
         //add admin
         ResponseEntity<Void> exchange2 =
             AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(), userObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
     }
 
     @Test
@@ -110,7 +110,7 @@ public class TenantAdminTest extends TenantTest {
                         "/admins/" + RandomUtility.randomStringWithNum())),
                 HttpMethod.POST, request,
                 Void.class);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //2. try to remove admin when total admin equal to 2
         //check admin count
         ResponseEntity<SumTotal<ProjectAdmin>> exchange =
@@ -128,7 +128,7 @@ public class TenantAdminTest extends TenantTest {
             ResponseEntity<Void> exchange5 =
                 AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
                     otherAdmins.get(in).toUser());
-            Assert.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
+            Assertions.assertEquals(HttpStatus.OK, exchange5.getStatusCode());
         });
         int index;
         if (numOfAdminToRemove == 0) {
@@ -141,6 +141,6 @@ public class TenantAdminTest extends TenantTest {
         ResponseEntity<Void> exchange5 =
             AdminUtility.removeAdmin(tenantContext.getCreator(), tenantContext.getProject(),
                 otherAdmins.get(index).toUser());
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
     }
 }

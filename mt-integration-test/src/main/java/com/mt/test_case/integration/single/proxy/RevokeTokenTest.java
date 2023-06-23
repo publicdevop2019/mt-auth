@@ -8,9 +8,9 @@ import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -18,14 +18,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * this integration auth requires oauth2service to be running.
  */
 @Slf4j
-@RunWith(SpringRunner.class)
-public class RevokeTokenTest  extends CommonTest {
+@ExtendWith(SpringExtension.class)
+public class RevokeTokenTest extends CommonTest {
     public static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
 
     @Test
@@ -47,7 +47,7 @@ public class RevokeTokenTest  extends CommonTest {
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange1 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
 
 
         /**
@@ -65,14 +65,15 @@ public class RevokeTokenTest  extends CommonTest {
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
          * after client get blacklisted, client with old token will get 401
          */
         ResponseEntity<String> exchange2 =
-            TestContext.getRestTemplate().exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
+            TestContext.getRestTemplate()
+                .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
 
         /**
          * after client obtain new token from auth server, it can access resource again
@@ -87,8 +88,9 @@ public class RevokeTokenTest  extends CommonTest {
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange3 =
-            TestContext.getRestTemplate().exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
+            TestContext.getRestTemplate()
+                .exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
+        Assertions.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
     }
 
     @Test
@@ -105,7 +107,7 @@ public class RevokeTokenTest  extends CommonTest {
         HttpEntity<String> hashMapHttpEntity = new HttpEntity<>(s, headers);
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -115,7 +117,8 @@ public class RevokeTokenTest  extends CommonTest {
         /**
          * user can login & call resourceOwner api & refresh token should work
          */
-        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse = UserUtility.getJwtPasswordAdmin();
+        ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse =
+            UserUtility.getJwtPasswordAdmin();
 
         String bearer0 = pwdTokenResponse.getBody().getValue();
         String refreshToken = pwdTokenResponse.getBody().getRefreshToken().getValue();
@@ -125,12 +128,12 @@ public class RevokeTokenTest  extends CommonTest {
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
             OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.EMPTY_CLIENT_SECRET);
-        Assert.assertEquals(HttpStatus.OK, refreshTokenResponse.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, refreshTokenResponse.getStatusCode());
 
         /**
          * blacklist admin account
@@ -147,19 +150,19 @@ public class RevokeTokenTest  extends CommonTest {
             new HttpEntity<>(TestContext.mapper.writeValueAsString(stringStringHashMap), headers);
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         /**
          * resourceOwner request get blocked, even refresh token should not work
          */
         ResponseEntity<String> exchange1 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse2 =
             OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.EMPTY_CLIENT_SECRET);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse2.getStatusCode());
 
         /**
          * after resourceOwner obtain new token, access is permitted
@@ -170,12 +173,12 @@ public class RevokeTokenTest  extends CommonTest {
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange3 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
 
     }
 
     @Test
-    public void validation_revoke_token_id(){
+    public void validation_revoke_token_id() {
         //null
         //blank
         //empty

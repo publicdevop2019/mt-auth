@@ -1,6 +1,7 @@
 package com.mt.test_case.helper.utility;
 
 import com.mt.test_case.helper.AppConstant;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
@@ -24,6 +25,15 @@ public class ProjectUtility {
 
     public static ResponseEntity<Void> createTenantProject(Project project, User user) {
         return Utility.createResource(user, getUrl(), project);
+    }
+
+    public static ResponseEntity<Void> updateTenantProject(Project project, User user) {
+        return Utility.updateResource(user, getUrl(), project, project.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantProject(Project project, User user,
+                                                          PatchCommand command) {
+        return Utility.patchResource(user, getUrl(), command, project.getId());
     }
 
     public static ResponseEntity<SumTotal<Project>> readTenantProjects(User user) {

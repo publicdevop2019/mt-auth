@@ -30,11 +30,11 @@ import com.mt.test_case.integration.single.proxy.EndpointSecurityTest;
 import com.mt.test_case.integration.single.proxy.GatewayFilterTest;
 import com.mt.test_case.integration.single.proxy.JwtSecurityTest;
 import com.mt.test_case.integration.single.proxy.RevokeTokenTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses(value = {
+@Suite
+@SelectClasses({
     MgmtClientTest.class,
     MgmtEndpointTest.class,
     MgmtProjectTest.class,

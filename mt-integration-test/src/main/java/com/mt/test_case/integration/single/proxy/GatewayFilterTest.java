@@ -11,9 +11,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,12 +21,12 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
-public class GatewayFilterTest  extends CommonTest {
+public class GatewayFilterTest extends CommonTest {
     public static final String X_MT_RATELIMIT_LEFT = "x-mt-ratelimit-left";
 
     @Test
@@ -38,7 +38,7 @@ public class GatewayFilterTest  extends CommonTest {
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         String eTag = exchange2.getHeaders().getETag();
-        Assert.assertNotNull(eTag);
+        Assertions.assertNotNull(eTag);
     }
 
     @Test
@@ -50,11 +50,11 @@ public class GatewayFilterTest  extends CommonTest {
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         String cacheControl = exchange2.getHeaders().getCacheControl();
-        Assert.assertNotNull(cacheControl);
+        Assertions.assertNotNull(cacheControl);
         long expires = exchange2.getHeaders().getExpires();
-        Assert.assertEquals(-1L, expires);
+        Assertions.assertEquals(-1L, expires);
         String pragma = exchange2.getHeaders().getPragma();
-        Assert.assertNull(pragma);
+        Assertions.assertNull(pragma);
     }
 
     @Test
@@ -77,7 +77,7 @@ public class GatewayFilterTest  extends CommonTest {
             throw ex;
         }
         String eTag = exchange2.getHeaders().getFirst("Content-Encoding");
-        Assert.assertEquals("gzip", eTag);
+        Assertions.assertEquals("gzip", eTag);
     }
 
     @Test
@@ -95,7 +95,7 @@ public class GatewayFilterTest  extends CommonTest {
         ResponseEntity<String> exchange3 =
             TestContext.getRestTemplate()
                 .exchange(url2, HttpMethod.GET, hashMapHttpEntity2, String.class);
-        Assert.assertEquals(HttpStatus.NOT_MODIFIED, exchange3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.NOT_MODIFIED, exchange3.getStatusCode());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class GatewayFilterTest  extends CommonTest {
         ResponseEntity<String> exchange =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
 
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Assert.assertEquals("{\"test\":\"test\"}",
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals("{\"test\":\"test\"}",
             exchange.getBody());
     }
 
@@ -125,8 +125,8 @@ public class GatewayFilterTest  extends CommonTest {
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("{\"test\":'test'}", headers1);
         ResponseEntity<String> exchange =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Assert.assertEquals("{\"test\":\"test\"}",
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals("{\"test\":\"test\"}",
             exchange.getBody());
     }
 
@@ -138,7 +138,7 @@ public class GatewayFilterTest  extends CommonTest {
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, String.class);
-        Assert.assertNotEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assertions.assertNotEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
     }
 
     @Test
@@ -149,7 +149,7 @@ public class GatewayFilterTest  extends CommonTest {
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, String.class);
         //will get 500 instead of 504 due to proxy configured only return 500
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exchange.getStatusCode());
     }
 
     @Test
@@ -159,8 +159,8 @@ public class GatewayFilterTest  extends CommonTest {
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, String.class);
-        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exchange.getStatusCode());
-        Assert.assertNull(exchange.getBody());
+        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exchange.getStatusCode());
+        Assertions.assertNull(exchange.getBody());
     }
 
     @Test
@@ -171,13 +171,13 @@ public class GatewayFilterTest  extends CommonTest {
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("Test", headers1);
         ResponseEntity<String> exchange =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
         HttpEntity<String> hashMapHttpEntity2 = new HttpEntity<>("Test", headers1);
         ResponseEntity<String> exchange2 =
             restTemplate.exchange(url, HttpMethod.POST, hashMapHttpEntity2, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -188,10 +188,10 @@ public class GatewayFilterTest  extends CommonTest {
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
         ResponseEntity<String> exchange =
             restTemplate.exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         String first = exchange.getHeaders().getFirst("set-cookie");
         int sameSite = first == null ? -1 : first.indexOf("SameSite");
-        Assert.assertNotEquals(-1, sameSite);
+        Assertions.assertNotEquals(-1, sameSite);
     }
 
     @Test
@@ -215,7 +215,7 @@ public class GatewayFilterTest  extends CommonTest {
         }
         try {
             ConcurrentUtility.assertConcurrent("", runnables, 30000);
-            Assert.assertNotEquals(0, count.get().intValue());
+            Assertions.assertNotEquals(0, count.get().intValue());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

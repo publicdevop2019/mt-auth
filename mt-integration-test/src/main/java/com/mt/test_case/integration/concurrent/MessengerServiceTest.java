@@ -24,12 +24,12 @@
 //import java.util.stream.IntStream;
 //
 //import static com.mt.helper.utility.ConcurrentUtility.assertConcurrent;
-//import static org.junit.Assert.assertTrue;
+//import static org.junit.Assertions.assertTrue;
 //
 ///**
 // * need to verify through log or a real email
 // */
-//@RunWith(SpringRunner.class)
+//@ExtendWith(SpringExtension.class)
 //@Slf4j
 //@SpringBootTest
 //public class MessengerServiceTest {
@@ -84,7 +84,7 @@
 //                HttpEntity<String> request = new HttpEntity<>(s1, headers);
 //                ResponseEntity<Object> exchange = action.restTemplate.exchange(url, HttpMethod.POST, request, Object.class);
 //                log.info("response " + exchange.toString());
-//                Assert.assertTrue("expected status code but is " + exchange.getStatusCodeValue(), integers.contains(exchange.getStatusCodeValue()));
+//                Assertions.assertTrue("expected status code but is " + exchange.getStatusCodeValue(), integers.contains(exchange.getStatusCodeValue()));
 //                if (exchange.getStatusCodeValue() == 200) {
 //                    emailSuccessCount.incrementAndGet();
 //                }

@@ -18,7 +18,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
-import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.Permission;
@@ -33,9 +32,7 @@ import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -52,8 +49,8 @@ public class PermissionApplicationService {
      * get subscribed endpoint permissions
      *
      * @param rawProjectId
-     * @param queryParam query string
-     * @param pageParam  page config
+     * @param queryParam   query string
+     * @param pageParam    page config
      * @return paged permission
      */
     public SumPagedRep<Permission> sharedQuery(String rawProjectId, String queryParam,
@@ -127,7 +124,8 @@ public class PermissionApplicationService {
                         .findFirst();
                 first.ifPresent(ee -> {
                     Set<PermissionId> permissionIds =
-                        findPermissionIdsByEndpointId(command.getLinkedApiIds(),
+                        DomainRegistry.getPermissionService()
+                            .tenantFindPermissionIds(command.getLinkedApiIds(),
                             permissionQuery.getProjectIds());
                     ee.replace(command.getName(), permissionIds);
                     DomainRegistry.getPermissionRepository().add(ee);
@@ -197,17 +195,15 @@ public class PermissionApplicationService {
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Set<PermissionId> linkedPermId =
-                    findPermissionIdsByEndpointId(command.getLinkedApiIds(),
-                        Collections.singleton(projectId));
+                    DomainRegistry.getPermissionService()
+                        .tenantFindPermissionIds(command.getLinkedApiIds(),
+                            Collections.singleton(projectId));
                 Permission permission = Permission
                     .manualCreate(new ProjectId(command.getProjectId()), permissionId,
                         command.getName(), PermissionType.COMMON,
                         command.getParentId() != null ? new PermissionId(command.getParentId()) :
                             null, null, linkedPermId);
                 DomainRegistry.getPermissionRepository().add(permission);
-                DomainRegistry.getPermissionValidationService()
-                    .validate(permission, command,
-                        new HttpValidationNotificationHandler());
                 return permissionId.getDomainId();
             }, PERMISSION);
     }
@@ -252,21 +248,5 @@ public class PermissionApplicationService {
                 permission.secureEndpointRemoveCleanUp();
                 return null;
             }, PERMISSION);
-    }
-
-    private Set<PermissionId> findPermissionIdsByEndpointId(List<String> endpointIds,
-                                                            Set<ProjectId> projectIds) {
-        Set<PermissionId> linkedPermId = null;
-        if (endpointIds != null && !endpointIds.isEmpty()) {
-            Set<EndpointId> collect =
-                endpointIds.stream().map(EndpointId::new)
-                    .collect(Collectors.toSet());
-            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                e -> DomainRegistry.getEndpointRepository().query(e),
-                EndpointQuery.tenantQuery(collect, projectIds));
-            linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
-                .collect(Collectors.toSet());
-        }
-        return linkedPermId;
     }
 }

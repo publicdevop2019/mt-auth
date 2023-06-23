@@ -14,21 +14,21 @@ import com.mt.test_case.helper.utility.TenantUtility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantMessageTest {
     protected static TenantContext tenantContextA;
     protected static TenantContext tenantContextB;
     protected static Client clientA;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTenant() {
         log.info("init tenant in progress");
         TestContext.init();
@@ -61,11 +61,11 @@ public class TenantMessageTest {
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         //wait for cache to expire
-        Thread.sleep(20*1000);
+        Thread.sleep(20 * 1000);
         EndpointUtility.expireTenantEndpoint(tenantContextA, endpoint);
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
         ResponseEntity<SumTotal<Notification>> sumTotalResponseEntity =
             MessageUtility.readMessages(tenantContextB.getCreator());
-        Assert.assertEquals(1, sumTotalResponseEntity.getBody().getData().size());
+        Assertions.assertEquals(1, sumTotalResponseEntity.getBody().getData().size());
     }
 }

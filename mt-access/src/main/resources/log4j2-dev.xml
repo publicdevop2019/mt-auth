@@ -36,6 +36,10 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
+        <Logger name="org.springframework.web" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <Logger name="com.netflix.eureka.registry" level="warn" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

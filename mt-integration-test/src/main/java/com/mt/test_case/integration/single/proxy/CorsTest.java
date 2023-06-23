@@ -4,20 +4,20 @@ import com.mt.test_case.helper.CommonTest;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * this test suits requires cors profile to be added.
  */
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class CorsTest extends CommonTest {
     private final String thirdPartyOrigin = "http://localhost:4300";
@@ -36,7 +36,8 @@ public class CorsTest extends CommonTest {
     public void cors_clients() {
         String url = UrlUtility.getAccessUrl(corsUris[2]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.GET);
-        Assert.assertEquals("[GET]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[GET]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
         corsAssertNonToken(res);
 
     }
@@ -45,7 +46,8 @@ public class CorsTest extends CommonTest {
     public void cors_authorize() {
         String url = UrlUtility.getAccessUrl(corsUris[3]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.POST);
-        Assert.assertEquals("[POST]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[POST]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
         corsAssertNonToken(res);
 
     }
@@ -54,7 +56,8 @@ public class CorsTest extends CommonTest {
     public void cors_resourceOwner() {
         String url = UrlUtility.getAccessUrl(corsUris[4]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.GET);
-        Assert.assertEquals("[GET]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[GET]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
         corsAssertNonToken(res);
 
     }
@@ -63,7 +66,8 @@ public class CorsTest extends CommonTest {
     public void cors_resourceOwner_id_put() {
         String url = UrlUtility.getAccessUrl(corsUris[5]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.PUT);
-        Assert.assertEquals("[PUT]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[PUT]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
         corsAssertNonToken(res);
 
     }
@@ -72,7 +76,8 @@ public class CorsTest extends CommonTest {
     public void cors_resourceOwner_id_delete() {
         String url = UrlUtility.getAccessUrl(corsUris[5]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.DELETE);
-        Assert.assertEquals("[DELETE]", res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[DELETE]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
         corsAssertNonToken(res);
 
     }
@@ -93,13 +98,14 @@ public class CorsTest extends CommonTest {
     }
 
     private void corsAssertToken(ResponseEntity res) {
-        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
-        Assert
+        Assertions.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assertions
             .assertEquals("http://localhost:4300", res.getHeaders().getAccessControlAllowOrigin());
-        Assert.assertEquals("[POST]", res.getHeaders().getAccessControlAllowMethods().toString());
-        Assert.assertEquals("[authorization]",
+        Assertions.assertEquals("[POST]",
+            res.getHeaders().getAccessControlAllowMethods().toString());
+        Assertions.assertEquals("[authorization]",
             res.getHeaders().getAccessControlAllowHeaders().toString());
-        Assert.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
+        Assertions.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
     }
 
     private ResponseEntity<?> sendValidCorsForNonTokenUri(String uri, HttpMethod method) {
@@ -120,12 +126,12 @@ public class CorsTest extends CommonTest {
     }
 
     private void corsAssertNonToken(ResponseEntity res) {
-        Assert.assertEquals(HttpStatus.OK, res.getStatusCode());
-        Assert
+        Assertions.assertEquals(HttpStatus.OK, res.getStatusCode());
+        Assertions
             .assertEquals("http://localhost:4300", res.getHeaders().getAccessControlAllowOrigin());
-        Assert.assertEquals("[authorization]",
+        Assertions.assertEquals("[authorization]",
             res.getHeaders().getAccessControlAllowHeaders().toString());
-        Assert.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
+        Assertions.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
     }
 
 }

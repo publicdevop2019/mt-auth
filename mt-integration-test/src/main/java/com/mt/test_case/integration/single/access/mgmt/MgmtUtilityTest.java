@@ -6,19 +6,19 @@ import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class MgmtUtilityTest extends CommonTest {
     @Test
@@ -27,7 +27,7 @@ public class MgmtUtilityTest extends CommonTest {
         ResponseEntity<Void> exchange =
             restTemplate.exchange(AppConstant.ACCESS_URL + "/cache/clean", HttpMethod.POST, null,
                 Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -41,7 +41,7 @@ public class MgmtUtilityTest extends CommonTest {
             restTemplate.exchange(UrlUtility.getAccessUrl("registry"),
                 HttpMethod.GET, voidRequestEntity, new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -50,7 +50,7 @@ public class MgmtUtilityTest extends CommonTest {
         ResponseEntity<Void> exchange =
             restTemplate.exchange(UrlUtility.getAccessUrl("csrf"),
                 HttpMethod.GET, null, Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -63,7 +63,7 @@ public class MgmtUtilityTest extends CommonTest {
         ResponseEntity<Void> exchange =
             restTemplate.exchange(UrlUtility.getAccessUrl("expire/check"),
                 HttpMethod.GET, voidRequestEntity, Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
 
     @Test
@@ -73,10 +73,10 @@ public class MgmtUtilityTest extends CommonTest {
             restTemplate.exchange(UrlUtility.appendPath(AppConstant.ACCESS_URL, "health"),
                 HttpMethod.GET, null,
                 Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         ResponseEntity<Void> exchange2 =
             restTemplate.exchange(UrlUtility.getAccessUrl("health"),
                 HttpMethod.GET, null, Void.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
     }
 }

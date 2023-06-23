@@ -5,6 +5,7 @@ import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.ClientType;
 import com.mt.test_case.helper.pojo.GrantType;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import java.util.Arrays;
@@ -167,6 +168,12 @@ public class ClientUtility {
                                                           Client client) {
         String url = getUrl(tenantContext.getProject());
         return Utility.updateResource(tenantContext.getCreator(), url, client, client.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantClient(TenantContext tenantContext,
+                                                         Client client, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, client.getId());
     }
 
     public static ResponseEntity<Client> readTenantClient(TenantContext tenantContext,

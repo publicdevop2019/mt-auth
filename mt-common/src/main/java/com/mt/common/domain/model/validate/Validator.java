@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 public class Validator {
     private static final String NOT_NULL_MSG = "condition not match notNull";
     private static final String IS_NULL_MSG = "condition not match isNull";
+    private static final String IS_EMPTY_MSG = "condition not match isEmpty";
     private static final String VALUE_MISMATCH_MSG = "value not match";
     private static final String NOT_EMPTY_MSG = "condition not match notEmpty";
     private static final String NOT_MEMBER = "condition not match member of";
@@ -59,7 +60,7 @@ public class Validator {
 
     public static void isEmpty(Collection<?> obj) {
         if (!Checker.isEmpty(obj)) {
-            throw new DefinedRuntimeException(IS_NULL_MSG, "0062",
+            throw new DefinedRuntimeException(IS_EMPTY_MSG, "0062",
                 HttpResponseCode.BAD_REQUEST);
         }
     }

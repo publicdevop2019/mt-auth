@@ -27,26 +27,26 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * when update resource with same payload multiple times, version should not change
  */
 @Slf4j
-@RunWith(SpringRunner.class)
-public class VersionTest{
+@ExtendWith(SpringExtension.class)
+public class VersionTest {
     private static TenantContext tenantContext;
     private static Client client;
     private static Role rootRole;
     private static Endpoint sharedEndpointObj;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTenant() {
         log.info("init tenant in progress");
         TestContext.init();
@@ -69,6 +69,7 @@ public class VersionTest{
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
     }
+
     @Test
     public void client_version_will_not_increase() {
         Client client = ClientUtility.createValidBackendClient();
@@ -77,13 +78,13 @@ public class VersionTest{
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(tenantClient));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Void> client3 = ClientUtility.updateTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, client3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client3.getStatusCode());
         ResponseEntity<Client> clientResponseEntity =
             ClientUtility.readTenantClient(tenantContext, client);
-        Assert.assertEquals(HttpStatus.OK, clientResponseEntity.getStatusCode());
-        Assert.assertEquals(0, (int) clientResponseEntity.getBody().getVersion());
+        Assertions.assertEquals(HttpStatus.OK, clientResponseEntity.getStatusCode());
+        Assertions.assertEquals(0, (int) clientResponseEntity.getBody().getVersion());
     }
 
     @Test
@@ -100,7 +101,7 @@ public class VersionTest{
             .filter(e -> e.getId().equalsIgnoreCase(cacheId)).collect(
                 Collectors.toList());
         Cache cache1 = collect.get(0);
-        Assert.assertEquals(0, cache1.getVersion().intValue());
+        Assertions.assertEquals(0, cache1.getVersion().intValue());
     }
 
     @Test
@@ -112,15 +113,16 @@ public class VersionTest{
         corsObj.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
 
-        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, cors2.getStatusCode());
         ResponseEntity<SumTotal<Cors>> read =
             CorsUtility.readTenantCors(tenantContext);
         List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
             .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
                 Collectors.toList());
         Cors cors1 = collect.get(0);
-        Assert.assertEquals(0, cors1.getVersion().intValue());
+        Assertions.assertEquals(0, cors1.getVersion().intValue());
     }
+
     //allow headers and exposed headers are empty
     @Test
     public void cors_version_will_not_increase_empty_headers() {
@@ -133,14 +135,14 @@ public class VersionTest{
         corsObj.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
 
-        Assert.assertEquals(HttpStatus.OK, cors2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, cors2.getStatusCode());
         ResponseEntity<SumTotal<Cors>> read =
             CorsUtility.readTenantCors(tenantContext);
         List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
             .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
                 Collectors.toList());
         Cors cors1 = collect.get(0);
-        Assert.assertEquals(0, cors1.getVersion().intValue());
+        Assertions.assertEquals(0, cors1.getVersion().intValue());
     }
 
     @Test
@@ -152,22 +154,23 @@ public class VersionTest{
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         endpoint.setId(UrlUtility.getId(tenantEndpoint));
         endpoint.setName(RandomUtility.randomStringWithNum());
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         //update endpoint
         ResponseEntity<Void> voidResponseEntity =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint
             );
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         //update endpoint
         ResponseEntity<Void> voidResponseEntity2 =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint
             );
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
         //read endpoint
         ResponseEntity<Endpoint> endpointResponseEntity =
             EndpointUtility.readTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(1, endpointResponseEntity.getBody().getVersion().intValue());
+        Assertions.assertEquals(1, endpointResponseEntity.getBody().getVersion().intValue());
     }
+
     @Test
     public void permission_version_will_not_increase() {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
@@ -179,14 +182,14 @@ public class VersionTest{
         //update permission
         ResponseEntity<Void> voidResponseEntity =
             PermissionUtility.updateTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         //do same update
         ResponseEntity<Void> voidResponseEntity2 =
             PermissionUtility.updateTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
         ResponseEntity<Permission> permissionResponseEntity =
             PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
-        Assert.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
+        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
 
     }
 
@@ -206,16 +209,16 @@ public class VersionTest{
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> response2 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
         //do same update
         ResponseEntity<Void> response3 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response3.getStatusCode());
         //read again
         ResponseEntity<Role> roleResponseEntity =
             RoleUtility.readTenantRoleById(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, roleResponseEntity.getStatusCode());
-        Assert.assertEquals(1, roleResponseEntity.getBody().getVersion().intValue());
+        Assertions.assertEquals(HttpStatus.OK, roleResponseEntity.getStatusCode());
+        Assertions.assertEquals(1, roleResponseEntity.getBody().getVersion().intValue());
         //update it's api
         //find root
         ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =
@@ -231,30 +234,30 @@ public class VersionTest{
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
         //do same update
         ResponseEntity<Void> response5 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response5.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response5.getStatusCode());
         //read again
         ResponseEntity<Role> roleResponseEntity2 =
             RoleUtility.readTenantRoleById(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, roleResponseEntity2.getStatusCode());
-        Assert.assertEquals(2, roleResponseEntity2.getBody().getVersion().intValue());
+        Assertions.assertEquals(HttpStatus.OK, roleResponseEntity2.getStatusCode());
+        Assertions.assertEquals(2, roleResponseEntity2.getBody().getVersion().intValue());
         //update basic info
         role.setName(RandomUtility.randomStringWithNum());
         role.setType(UpdateType.BASIC.name());
         ResponseEntity<Void> response6 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response6.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response6.getStatusCode());
         ResponseEntity<Void> response7 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response7.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response7.getStatusCode());
         //read again
         ResponseEntity<Role> response8 =
             RoleUtility.readTenantRoleById(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, response8.getStatusCode());
-        Assert.assertEquals(3, response8.getBody().getVersion().intValue());
+        Assertions.assertEquals(HttpStatus.OK, response8.getStatusCode());
+        Assertions.assertEquals(3, response8.getBody().getVersion().intValue());
     }
 
 
@@ -275,13 +278,14 @@ public class VersionTest{
         body.setRoles(strings);
         //assign role
         ResponseEntity<Void> voidResponseEntity = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         //do same update
-        ResponseEntity<Void> voidResponseEntity2 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
+        ResponseEntity<Void> voidResponseEntity2 =
+            UserUtility.updateTenantUser(tenantContext, body);
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
         //read user
         ResponseEntity<User> response = UserUtility.readTenantUser(tenantContext, user);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertEquals(1, response.getBody().getVersion().intValue());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(1, response.getBody().getVersion().intValue());
     }
 }

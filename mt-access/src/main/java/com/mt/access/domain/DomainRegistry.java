@@ -32,7 +32,7 @@ import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
-import com.mt.access.domain.model.permission.PermissionValidationService;
+import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
@@ -93,8 +93,6 @@ public class DomainRegistry {
     private static EndpointValidationService endpointValidationService;
     @Getter
     private static ClientValidationService clientValidationService;
-    @Getter
-    private static PermissionValidationService permissionValidationService;
     @Getter
     private static PendingUserValidationService pendingUserValidationService;
     @Getter
@@ -173,6 +171,13 @@ public class DomainRegistry {
     private static CacheProfileValidationService cacheProfileValidationService;
     @Getter
     private static RoleValidationService roleValidationService;
+    @Getter
+    private static PermissionService permissionService;
+
+    @Autowired
+    public void setPermissionService(PermissionService permissionService) {
+        DomainRegistry.permissionService = permissionService;
+    }
 
     @Autowired
     public void setRoleValidationService(RoleValidationService roleValidationService) {
@@ -182,11 +187,6 @@ public class DomainRegistry {
     @Autowired
     public void setCacheProfileValidationService(CacheProfileValidationService service) {
         DomainRegistry.cacheProfileValidationService = service;
-    }
-
-    @Autowired
-    public void setPermissionValidationService(PermissionValidationService service) {
-        DomainRegistry.permissionValidationService = service;
     }
 
     @Autowired

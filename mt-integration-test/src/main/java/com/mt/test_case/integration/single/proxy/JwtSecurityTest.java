@@ -7,20 +7,20 @@ import com.mt.test_case.helper.utility.UserUtility;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
-public class JwtSecurityTest  extends CommonTest {
+public class JwtSecurityTest extends CommonTest {
 
 
     @Test
@@ -30,7 +30,7 @@ public class JwtSecurityTest  extends CommonTest {
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, getHttpRequest(defaultUserToken + "valueChange"),
                 String.class);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
     }
 
     @Test
@@ -39,7 +39,7 @@ public class JwtSecurityTest  extends CommonTest {
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate()
                 .exchange(url, HttpMethod.GET, getHttpRequest(null), String.class);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange.getStatusCode());
     }
 
     private HttpEntity<?> getHttpRequest(String authorizeToken) {

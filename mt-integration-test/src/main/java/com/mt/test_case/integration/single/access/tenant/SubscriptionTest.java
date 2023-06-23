@@ -19,18 +19,18 @@ import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 public class SubscriptionTest extends CommonTest {
 
     //public api shared
@@ -55,9 +55,9 @@ public class SubscriptionTest extends CommonTest {
         endpoint.setReplenishRate(10);
         endpoint.setBurstCapacity(20);
         ResponseEntity<String> endpoint1 = EndpointUtility.createEndpoint(endpoint);
-        Assert.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
         String endpointId = UrlUtility.getId(endpoint1);
-        Assert.assertNotNull(endpointId);
+        Assertions.assertNotNull(endpointId);
         Thread.sleep(20000);//wait for proxy update
         //mt-mall can subscribe to it
         SubscriptionReq subscriptionReq = new SubscriptionReq();
@@ -68,13 +68,13 @@ public class SubscriptionTest extends CommonTest {
 
         ResponseEntity<Void> subReq =
             MarketUtility.subToEndpoint(user, subscriptionReq);
-        Assert.assertEquals(HttpStatus.OK, subReq.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, subReq.getStatusCode());
 
         TenantContext tenantContext = new TenantContext();
         tenantContext.setCreator(adminUser);
         ResponseEntity<Void> approveResult =
             MarketUtility.approveSubReq(tenantContext, UrlUtility.getId(subReq));
-        Assert.assertEquals(HttpStatus.OK, approveResult.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, approveResult.getStatusCode());
         //rate limit should work
         String path = endpoint.getPath();
         //call new endpoint
@@ -87,21 +87,21 @@ public class SubscriptionTest extends CommonTest {
             new HttpEntity<>(headers1);
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(accessUrl, HttpMethod.GET, entity, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         String first = exchange.getHeaders().getFirst(X_MT_RATELIMIT_LEFT);
-        Assert.assertEquals("19", first);
+        Assertions.assertEquals("19", first);
         //when api expire, notification is sent to mt-mall owner
         ResponseEntity<String> stringResponseEntity = EndpointUtility.expireEndpoint(endpointId);
-        Assert.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
 
         Thread.sleep(20000);//wait for notification send
         ResponseEntity<SumTotal<Notification>> newNotification =
             MessageUtility.readMessages(user);
-        Assert.assertNotEquals(newNotification.getBody().getTotalItemCount(),
+        Assertions.assertNotEquals(newNotification.getBody().getTotalItemCount(),
             oldNotifications.getBody().getTotalItemCount());
         List<Notification> data = newNotification.getBody().getData();
         Notification notification = data.get(data.size() - 1);
-        Assert.assertEquals(notification.getTitle(), "SUBSCRIBER_ENDPOINT_EXPIRE");
+        Assertions.assertEquals(notification.getTitle(), "SUBSCRIBER_ENDPOINT_EXPIRE");
 
     }
 

@@ -98,7 +98,7 @@ public class RoleApplicationService {
                     RolePatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, RolePatchCommand.class);
-                    e.patch(afterPatch.getName());
+                    e.patch(afterPatch.getName(), afterPatch.getDescription());
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;

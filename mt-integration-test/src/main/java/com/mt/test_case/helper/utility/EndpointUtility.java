@@ -3,6 +3,7 @@ package com.mt.test_case.helper.utility;
 import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Endpoint;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.integration.single.access.tenant.TenantEndpointTest;
@@ -108,6 +109,12 @@ public class EndpointUtility {
                                                             Endpoint endpoint) {
         String url = getUrl(tenantContext.getProject());
         return Utility.updateResource(tenantContext.getCreator(), url, endpoint, endpoint.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantEndpoint(TenantContext tenantContext,
+                                                           Endpoint endpoint, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, endpoint.getId());
     }
 
     public static ResponseEntity<Void> deleteTenantEndpoint(TenantContext tenantContext,

@@ -1,7 +1,10 @@
 package com.mt.test_case.helper.utility;
 
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
+import java.util.List;
+import org.assertj.core.util.Lists;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -76,4 +79,18 @@ public class Utility {
             HttpMethod.DELETE, request,
             Void.class);
     }
+
+    public static ResponseEntity<Void> patchResource(User user, String url,
+                                                     PatchCommand command, String resourceId) {
+        String login = UserUtility.login(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(login);
+        headers.set("Content-Type", "application/json-patch+json");
+        HttpEntity<List<PatchCommand>> request =
+            new HttpEntity<>(Lists.list(command), headers);
+        return TestContext.getRestTemplate().exchange(UrlUtility.appendPath(url, resourceId),
+            HttpMethod.PATCH, request,
+            Void.class);
+    }
+
 }

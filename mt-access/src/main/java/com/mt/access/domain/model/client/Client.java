@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.client;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.client.event.ClientAccessibilityRemoved;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientCreated;
@@ -11,9 +10,6 @@ import com.mt.access.domain.model.client.event.ClientPathChanged;
 import com.mt.access.domain.model.client.event.ClientResourcesChanged;
 import com.mt.access.domain.model.client.event.ClientSecretChanged;
 import com.mt.access.domain.model.client.event.ClientTokenDetailChanged;
-import com.mt.access.domain.model.cors_profile.CorsProfileId;
-import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -406,16 +402,6 @@ public class Client extends Auditable {
     @Override
     public void validate(@NotNull ValidationNotificationHandler handler) {
         (new ClientValidator(this, handler)).validate();
-    }
-
-    public Endpoint addNewEndpoint(CacheProfileId cacheProfileId, String name, String description,
-                                   String path, EndpointId endpointId, String method,
-                                   Boolean secured, Boolean websocket, Boolean csrfEnabled,
-                                   CorsProfileId corsConfig, Boolean shared, Boolean external,
-                                   Integer replenishRate, Integer burstCapacity) {
-        return new Endpoint(getClientId(), getProjectId(), cacheProfileId, name, description, path,
-            endpointId, method, secured, websocket, csrfEnabled, corsConfig, shared, external,
-            replenishRate, burstCapacity);
     }
 
     // for create

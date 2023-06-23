@@ -3,6 +3,7 @@ package com.mt.test_case.helper.utility;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Cache;
 import com.mt.test_case.helper.pojo.CacheControlValue;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import java.util.HashSet;
@@ -24,6 +25,12 @@ public class CacheUtility {
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
+    public static ResponseEntity<SumTotal<Cache>> readTenantCacheById(
+        TenantContext tenantContext, String id) {
+        String url = UrlUtility.appendQuery(getUrl(tenantContext.getProject()), "id:" + id);
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
+    }
+
     public static ResponseEntity<Void> createTenantCache(TenantContext tenantContext, Cache cache) {
         String url = getUrl(tenantContext.getProject());
         return Utility.createResource(tenantContext.getCreator(), url, cache);
@@ -33,6 +40,12 @@ public class CacheUtility {
                                                          Cache cache) {
         String url = getUrl(tenantContext.getProject());
         return Utility.updateResource(tenantContext.getCreator(), url, cache, cache.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantCache(TenantContext tenantContext,
+                                                        Cache cache, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, cache.getId());
     }
 
     public static ResponseEntity<Void> deleteTenantCache(
@@ -57,7 +70,8 @@ public class CacheUtility {
         cache.setExpires(RandomUtility.randomLong());
         return cache;
     }
-    public static Cache getValidNoCache(){
+
+    public static Cache getValidNoCache() {
         Cache randomCache = createRandomCache();
         randomCache.setCacheControl(null);
         randomCache.setEtag(null);

@@ -1,14 +1,17 @@
 package com.mt.test_case.helper.utility;
 
+import static com.mt.test_case.integration.single.access.mgmt.MgmtUserTest.USER_MGMT;
+
 import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.PendingUser;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
 import java.util.Objects;
 import java.util.UUID;
-import org.junit.Assert;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -60,6 +63,11 @@ public class UserUtility {
     public static User createRandomUserObj() {
         return userCreateDraftObj(RandomUtility.randomEmail(),
             RandomUtility.randomStringWithNum());
+    }
+
+    public static User getAdmin() {
+        return userCreateDraftObj(AppConstant.ACCOUNT_USERNAME_ADMIN
+            , AppConstant.ACCOUNT_PASSWORD_ADMIN);
     }
 
     public static User userCreateDraftObj(String username, String password) {
@@ -126,6 +134,12 @@ public class UserUtility {
                 AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
         PendingUser pendingUser = new PendingUser();
         return createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingUser);
+    }
+
+    public static ResponseEntity<Void> lockUser(String userIdToLock, User user,
+                                                PatchCommand command) {
+        String url = UrlUtility.getAccessUrl(USER_MGMT);
+        return Utility.patchResource(user, url, command, userIdToLock);
     }
 
     /**
@@ -202,12 +216,12 @@ public class UserUtility {
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token,
                 AppConstant.TEST_REDIRECT_URL);
-        Assert.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
                 AppConstant.TEST_REDIRECT_URL, clientId, "");
-        Assert.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
         return tenantUser;
     }
 

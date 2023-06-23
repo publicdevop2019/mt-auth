@@ -6,6 +6,7 @@ import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Client;
 import com.mt.test_case.helper.pojo.Endpoint;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Permission;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.Role;
@@ -24,15 +25,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantPermissionTest {
     private static TenantContext tenantContext;
@@ -41,7 +42,7 @@ public class TenantPermissionTest {
     private static Endpoint sharedEndpointObj;
     private static Role role;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTenant() {
         log.info("init tenant in progress");
         TestContext.init();
@@ -77,27 +78,27 @@ public class TenantPermissionTest {
 
     @Test
     public void tenant_can_create_permission() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(UrlUtility.getId(response));
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(UrlUtility.getId(response));
     }
 
     @Test
     public void tenant_can_update_permission() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+            PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
-        randomPermissionObj.setName(RandomUtility.randomStringWithNum());
+        permission.setId(s);
+        permission.setName(RandomUtility.randomStringWithNum());
         ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.updateTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
-        Assert.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
+            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
 
     }
 
@@ -105,71 +106,71 @@ public class TenantPermissionTest {
     public void tenant_can_view_permission_list() {
         ResponseEntity<SumTotal<Permission>> response2 =
             PermissionUtility.readTenantPermission(tenantContext);
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assert.assertNotSame(0, response2.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Assertions.assertNotSame(0, response2.getBody().getData().size());
     }
 
     @Test
     public void tenant_can_delete_permission() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+            PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
+        permission.setId(s);
         ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.deleteTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+            PermissionUtility.deleteTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
     }
 
     @Test
     public void tenant_can_delete_assigned_permission() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+            PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
-        role.setCommonPermissionIds(Collections.singleton(randomPermissionObj.getId()));
+        permission.setId(s);
+        role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> voidResponseEntity2 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
         ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.deleteTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+            PermissionUtility.deleteTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
     }
 
     @Test
     public void tenant_can_delete_assigned_permission_with_linked_endpoint() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        permission.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+            PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
-        role.setCommonPermissionIds(Collections.singleton(randomPermissionObj.getId()));
+        permission.setId(s);
+        role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> voidResponseEntity2 =
             RoleUtility.updateTenantRole(tenantContext, role);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
         ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.deleteTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+            PermissionUtility.deleteTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
     }
 
     @Test
     public void tenant_can_create_permission_with_linked_endpoint() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        permission.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(UrlUtility.getId(response));
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(UrlUtility.getId(response));
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
+        permission.setId(s);
         ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
-        Assert.assertEquals(1,
+            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
+        Assertions.assertEquals(1,
             permissionResponseEntity.getBody().getLinkedApiPermissionIds().size());
 
     }
@@ -180,22 +181,22 @@ public class TenantPermissionTest {
         permission.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotNull(UrlUtility.getId(response));
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotNull(UrlUtility.getId(response));
         String s = UrlUtility.getId(response);
         permission.setId(s);
         permission.setLinkedApiIds(Collections.emptyList());
         //update
         ResponseEntity<Void> voidResponseEntity =
             PermissionUtility.updateTenantPermission(tenantContext, permission);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
 
         ResponseEntity<Permission> permissionResponseEntity =
             PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        Assert.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
-        Assert.assertEquals(0,
+        Assertions.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
+        Assertions.assertEquals(0,
             permissionResponseEntity.getBody().getLinkedApiPermissionIds().size());
-        Assert.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
+        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
     }
 
     @Test
@@ -203,167 +204,152 @@ public class TenantPermissionTest {
         ResponseEntity<SumTotal<Permission>> response2 =
             PermissionUtility.readTenantPermissionWithQuery(tenantContext,
                 "query=types:COMMON,parentId:null");
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assert.assertNotSame(0, response2.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Assertions.assertNotSame(0, response2.getBody().getData().size());
     }
 
     @Test
     public void tenant_can_view_permission_detail() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+            PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = UrlUtility.getId(response);
-        randomPermissionObj.setId(s);
+        permission.setId(s);
         ResponseEntity<Permission> response2 =
-            PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assert.assertEquals(0, response2.getBody().getVersion().intValue());
+            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        Assertions.assertEquals(0, response2.getBody().getVersion().intValue());
 
-    }
-
-    @Test
-    public void permission_validation_should_work() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        randomPermissionObj.setName(null);
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        //cannot add public endpoints
     }
 
     @Test
     public void validation_create_name() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Permission permission = PermissionUtility.createRandomPermissionObj();
 
         //null
-        randomPermissionObj.setName(null);
+        permission.setName(null);
         ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //blank
-        randomPermissionObj.setName(" ");
+        permission.setName(" ");
         ResponseEntity<Void> response2 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty
-        randomPermissionObj.setName("");
+        permission.setName("");
         ResponseEntity<Void> response3 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //max length
-        randomPermissionObj.setName("012345678901234567890123456789012345678901234567890123456789");
+        permission.setName("012345678901234567890123456789012345678901234567890123456789");
         ResponseEntity<Void> response4 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid char
-        randomPermissionObj.setName("<");
+        permission.setName("<");
         ResponseEntity<Void> response5 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
     }
 
     @Test
     public void validation_create_parent_id() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Permission permission = PermissionUtility.createRandomPermissionObj();
 
         //null
-        randomPermissionObj.setParentId(null);
+        permission.setParentId(null);
         ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
         //blank
-        randomPermissionObj.setParentId(" ");
+        permission.setParentId(" ");
         ResponseEntity<Void> response2 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty
-        randomPermissionObj.setParentId("");
+        permission.setParentId("");
         ResponseEntity<Void> response3 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //invalid value
-        randomPermissionObj.setParentId("123");
+        permission.setParentId("123");
         ResponseEntity<Void> response4 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //other tenant's id
-        randomPermissionObj.setParentId(AppConstant.MT_ACCESS_PERMISSION_ID);
+        permission.setParentId(AppConstant.MT_ACCESS_PERMISSION_ID);
         ResponseEntity<Void> response5 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //not exist id
-        randomPermissionObj.setParentId("0Y99999999");
+        permission.setParentId("0Y99999999");
         ResponseEntity<Void> response6 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
     @Test
     public void validation_create_project_id() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         //null
         Project project1 = new Project();
         project1.setId("null");
         String url = PermissionUtility.getUrl(project1);
         ResponseEntity<Void> resource =
-            Utility.createResource(tenantContext.getCreator(), url, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
+            Utility.createResource(tenantContext.getCreator(), url, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
         //empty
         project1.setId("");
         String url3 = PermissionUtility.getUrl(project1);
         ResponseEntity<Void> resource3 =
-            Utility.createResource(tenantContext.getCreator(), url3, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
+            Utility.createResource(tenantContext.getCreator(), url3, permission);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
         //blank
         project1.setId(" ");
         String url4 = PermissionUtility.getUrl(project1);
         ResponseEntity<Void> resource4 =
-            Utility.createResource(tenantContext.getCreator(), url4, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
+            Utility.createResource(tenantContext.getCreator(), url4, permission);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
         //other tenant's project id
         project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
         String url2 = PermissionUtility.getUrl(project1);
         ResponseEntity<Void> resource2 =
-            Utility.createResource(tenantContext.getCreator(), url2, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+            Utility.createResource(tenantContext.getCreator(), url2, permission);
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+    }
+
+    @Test
+    public void validation_create_valid() {
+        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
     public void validation_create_linked_api_ids() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-
+        Permission permission = PermissionUtility.createRandomPermissionObj();
         //null
-        randomPermissionObj.setLinkedApiIds(null);
+        permission.setLinkedApiIds(null);
         ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response1.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
         //empty collection
-        randomPermissionObj.setLinkedApiIds(Collections.emptyList());
+        permission.setLinkedApiIds(Collections.emptyList());
         ResponseEntity<Void> response2 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.OK, response2.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
         //blank
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList(""));
+        permission.setLinkedApiIds(Collections.singletonList(""));
         ResponseEntity<Void> response3 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //empty
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList(" "));
+        permission.setLinkedApiIds(Collections.singletonList(" "));
         ResponseEntity<Void> response4 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
         List<String> strings = new ArrayList<>();
         strings.add(sharedEndpointObj.getId());
@@ -372,90 +358,241 @@ public class TenantPermissionTest {
         strings.add("0E8AZTODP403");
         strings.add("0E8AZTODP404");
         strings.add("0E8AZTODP405");
-        randomPermissionObj.setLinkedApiIds(strings);
+        permission.setLinkedApiIds(strings);
         ResponseEntity<Void> response5 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //invalid value
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList("abc"));
+        permission.setLinkedApiIds(Collections.singletonList("abc"));
         ResponseEntity<Void> response6 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
         //other tenant's id
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList(MT_ACCESS_ENDPOINT_ID));
+        permission.setLinkedApiIds(Collections.singletonList(MT_ACCESS_ENDPOINT_ID));
         ResponseEntity<Void> response7 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
         //not exist id
-        randomPermissionObj.setLinkedApiIds(Collections.singletonList("0E99999999"));
+        permission.setLinkedApiIds(Collections.singletonList("0E99999999"));
         ResponseEntity<Void> response8 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
         //too many elements
         List<String> strings2 = new ArrayList<>();
-        strings.add("0E8AZTODP400");
+        strings2.add("0E8AZTODP400");
+        strings2.add("0E8AZTODP401");
+        strings2.add("0E8AZTODP402");
+        strings2.add("0E8AZTODP403");
+        strings2.add("0E8AZTODP404");
+        strings2.add("0E8AZTODP405");
+        strings2.add("0E8AZTODP406");
+        strings2.add("0E8AZTODP407");
+        strings2.add("0E8AZTODP408");
+        strings2.add("0E8AZTODP409");
+        strings2.add("0E8AZTODP410");
+        strings2.add("0E8AZTODP411");
+        strings2.add("0E8AZTODP412");
+        strings2.add("0E8AZTODP413");
+        strings2.add("0E8AZTODP414");
+        strings2.add("0E8AZTODP415");
+        strings2.add("0E8AZTODP416");
+        strings2.add("0E8AZTODP417");
+        strings2.add("0E8AZTODP418");
+        strings2.add("0E8AZTODP419");
+        strings2.add("0E8AZTODP420");
+        permission.setLinkedApiIds(strings2);
+        ResponseEntity<Void> response9 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
+    }
+
+    @Test
+    public void validation_update_name() {
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        permission.setId(UrlUtility.getId(response));
+
+        //null
+        permission.setName(null);
+        ResponseEntity<Void> response1 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        //blank
+        permission.setName(" ");
+        ResponseEntity<Void> response2 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //empty
+        permission.setName("");
+        ResponseEntity<Void> response3 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //max length
+        permission.setName("012345678901234567890123456789012345678901234567890123456789");
+        ResponseEntity<Void> response4 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid char
+        permission.setName("<");
+        ResponseEntity<Void> response5 =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+    }
+
+    @Test
+    public void validation_update_project_id() {
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        permission.setId(UrlUtility.getId(response));
+
+        //null
+        Project project1 = new Project();
+        project1.setId("null");
+        String url = PermissionUtility.getUrl(project1);
+        ResponseEntity<Void> resource =
+            Utility.updateResource(tenantContext.getCreator(), url, permission, permission.getId());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, resource.getStatusCode());
+        //empty
+        project1.setId("");
+        String url3 = PermissionUtility.getUrl(project1);
+        ResponseEntity<Void> resource3 =
+            Utility.updateResource(tenantContext.getCreator(), url3, permission,
+                permission.getId());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource3.getStatusCode());
+        //blank
+        project1.setId(" ");
+        String url4 = PermissionUtility.getUrl(project1);
+        ResponseEntity<Void> resource4 =
+            Utility.updateResource(tenantContext.getCreator(), url4, permission,
+                permission.getId());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource4.getStatusCode());
+        //other tenant's project id
+        project1.setId(AppConstant.MT_ACCESS_PROJECT_ID);
+        String url2 = PermissionUtility.getUrl(project1);
+        ResponseEntity<Void> resource2 =
+            Utility.updateResource(tenantContext.getCreator(), url2, permission,
+                permission.getId());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, resource2.getStatusCode());
+    }
+
+    @Test
+    public void validation_update_linked_api_ids() {
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        permission.setId(UrlUtility.getId(response));
+        //null
+        permission.setLinkedApiIds(null);
+        ResponseEntity<Void> response1 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response1.getStatusCode());
+        //empty collection
+        permission.setLinkedApiIds(Collections.emptyList());
+        ResponseEntity<Void> response2 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
+        //blank
+        permission.setLinkedApiIds(Collections.singletonList(""));
+        ResponseEntity<Void> response3 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        //empty
+        permission.setLinkedApiIds(Collections.singletonList(" "));
+        ResponseEntity<Void> response4 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        //invalid value
+        List<String> strings = new ArrayList<>();
+        strings.add(sharedEndpointObj.getId());
         strings.add("0E8AZTODP401");
         strings.add("0E8AZTODP402");
         strings.add("0E8AZTODP403");
         strings.add("0E8AZTODP404");
         strings.add("0E8AZTODP405");
-        strings.add("0E8AZTODP406");
-        strings.add("0E8AZTODP407");
-        strings.add("0E8AZTODP408");
-        strings.add("0E8AZTODP409");
-        strings.add("0E8AZTODP410");
-        strings.add("0E8AZTODP411");
-        strings.add("0E8AZTODP412");
-        strings.add("0E8AZTODP413");
-        strings.add("0E8AZTODP414");
-        strings.add("0E8AZTODP415");
-        strings.add("0E8AZTODP416");
-        strings.add("0E8AZTODP417");
-        strings.add("0E8AZTODP418");
-        strings.add("0E8AZTODP419");
-        strings.add("0E8AZTODP420");
-        randomPermissionObj.setLinkedApiIds(strings);
-        ResponseEntity<Void> response9 =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_name() {
-        //null
-        //blank
-        //empty
-        //min length
-        //max length
-        //invalid char
-    }
-
-    @Test
-    public void validation_update_project_id() {
-        //null
-        //blank
-        //empty
+        permission.setLinkedApiIds(strings);
+        ResponseEntity<Void> response5 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //invalid value
+        permission.setLinkedApiIds(Collections.singletonList("abc"));
+        ResponseEntity<Void> response6 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
         //other tenant's id
-    }
-
-    @Test
-    public void validation_update_linked_api_ids() {
-        //null
-        //blank
-        //empty
+        permission.setLinkedApiIds(Collections.singletonList(MT_ACCESS_ENDPOINT_ID));
+        ResponseEntity<Void> response7 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response7.getStatusCode());
+        //not exist id
+        permission.setLinkedApiIds(Collections.singletonList("0E99999999"));
+        ResponseEntity<Void> response8 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
         //too many elements
-        //invalid value
-        //other tenant's id
+        List<String> strings2 = new ArrayList<>();
+        strings2.add("0E8AZTODP400");
+        strings2.add("0E8AZTODP401");
+        strings2.add("0E8AZTODP402");
+        strings2.add("0E8AZTODP403");
+        strings2.add("0E8AZTODP404");
+        strings2.add("0E8AZTODP405");
+        strings2.add("0E8AZTODP406");
+        strings2.add("0E8AZTODP407");
+        strings2.add("0E8AZTODP408");
+        strings2.add("0E8AZTODP409");
+        strings2.add("0E8AZTODP410");
+        strings2.add("0E8AZTODP411");
+        strings2.add("0E8AZTODP412");
+        strings2.add("0E8AZTODP413");
+        strings2.add("0E8AZTODP414");
+        strings2.add("0E8AZTODP415");
+        strings2.add("0E8AZTODP416");
+        strings2.add("0E8AZTODP417");
+        strings2.add("0E8AZTODP418");
+        strings2.add("0E8AZTODP419");
+        strings2.add("0E8AZTODP420");
+        permission.setLinkedApiIds(strings2);
+        ResponseEntity<Void> response9 =
+            PermissionUtility.updateTenantPermission(tenantContext, permission);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
     }
 
     @Test
     public void validation_patch_name() {
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        permission.setId(UrlUtility.getId(response));
+        PatchCommand patchCommand = new PatchCommand();
+        patchCommand.setOp("replace");
+        patchCommand.setPath("/name");
         //null
+        patchCommand.setValue(null);
+        ResponseEntity<Void> response1 =
+            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //blank
+        patchCommand.setValue(" ");
+        ResponseEntity<Void> response2 =
+            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty
-        //min length
+        patchCommand.setValue("");
+        ResponseEntity<Void> response3 =
+            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //max length
+        patchCommand.setValue("012345678901234567890123456789012345678901234567890123456789");
+        ResponseEntity<Void> response4 =
+            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid char
+        patchCommand.setValue("<");
+        ResponseEntity<Void> response5 =
+            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
     }
+
 }

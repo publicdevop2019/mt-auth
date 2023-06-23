@@ -2,6 +2,7 @@ package com.mt.test_case.helper.utility;
 
 import com.mt.test_case.helper.TenantContext;
 import com.mt.test_case.helper.pojo.Cors;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
 import java.util.Collections;
@@ -30,10 +31,12 @@ public class CorsUtility {
         strings.add(s2);
         cors.setAllowOrigin(strings);
         cors.setMaxAge(RandomUtility.randomLong());
-        cors.setAllowedHeaders(Collections.singleton(RandomUtility.randomStringNoNum()+"-"+RandomUtility.randomStringNoNum()));
+        cors.setAllowedHeaders(Collections.singleton(
+            RandomUtility.randomStringNoNum() + "-" + RandomUtility.randomStringNoNum()));
         cors.setExposedHeaders(Collections.singleton(RandomUtility.randomStringNoNum()));
         return cors;
     }
+
     public static Cors createValidCors() {
         Cors cors = createRandomCorsObj();
         cors.setMaxAge(60L);
@@ -56,6 +59,12 @@ public class CorsUtility {
                                                         Cors cors) {
         String url = getUrl(tenantContext.getProject());
         return Utility.deleteResource(tenantContext.getCreator(), url, cors.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantCache(TenantContext tenantContext,
+                                                        Cors cors, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, cors.getId());
     }
 
     public static ResponseEntity<SumTotal<Cors>> readTenantCors(TenantContext tenantContext) {

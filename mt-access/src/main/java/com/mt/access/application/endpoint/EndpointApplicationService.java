@@ -19,7 +19,6 @@ import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
@@ -34,8 +33,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -131,13 +128,9 @@ public class EndpointApplicationService {
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 String clientId = command.getResourceId();
-                Client client =
-                    DomainRegistry.getClientRepository().get(new ClientId(clientId));
-                if (!client.getProjectId().equals(projectId)) {
-                    throw new DefinedRuntimeException("project id mismatch", "1010",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-                Endpoint endpoint = client.addNewEndpoint(
+                Endpoint endpoint = Endpoint.addNewEndpoint(
+                    new ClientId(clientId),
+                    projectId,
                     command.getCacheProfileId() != null
                         ?
                         new CacheProfileId(command.getCacheProfileId()) : null,

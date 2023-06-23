@@ -8,8 +8,10 @@ import lombok.NoArgsConstructor;
 @Data
 public class RolePatchCommand {
     private String name;
+    private String description;
 
-    public RolePatchCommand(Role project) {
-        this.name = project.getName();
+    public RolePatchCommand(Role role) {
+        this.name = role.getName();
+        this.description = role.getDescription();
     }
 }

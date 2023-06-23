@@ -92,4 +92,9 @@ public class MarketUtility {
         String url = UrlUtility.getAccessUrl("subscriptions");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
+
+    public static ResponseEntity<Void> updateSubReq(User user, SubscriptionReq req) {
+        String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
+        return Utility.updateResource(user, url, req, req.getId());
+    }
 }

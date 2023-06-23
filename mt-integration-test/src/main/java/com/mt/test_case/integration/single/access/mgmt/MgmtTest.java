@@ -15,18 +15,18 @@ import com.mt.test_case.helper.utility.UrlUtility;
 import com.mt.test_case.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class MgmtTest extends CommonTest {
 
@@ -38,7 +38,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class MgmtTest extends CommonTest {
         ResponseEntity<Job[]> exchange = TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_JOBS), HttpMethod.GET, request,
                 Job[].class);
-        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).length);
+        Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).length);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class MgmtTest extends CommonTest {
                     AppConstant.MGMT_JOBS, id + "/reset")),
                 HttpMethod.POST, request,
                 Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
 
     }
 
@@ -78,7 +78,7 @@ public class MgmtTest extends CommonTest {
                 UrlUtility.getAccessUrl(UrlUtility.combinePath("mgmt/job", "validation/reset")),
                 HttpMethod.POST, request,
                 Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -89,7 +89,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -99,8 +99,8 @@ public class MgmtTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_PROXY_CHECK),
                 HttpMethod.GET, request,
                 CheckSum.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getHostValue());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getHostValue());
     }
 
 
@@ -111,7 +111,7 @@ public class MgmtTest extends CommonTest {
             .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_PROXY_RELOAD),
                 HttpMethod.POST, request,
                 Void.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -122,7 +122,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -133,7 +133,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -141,11 +141,12 @@ public class MgmtTest extends CommonTest {
         HttpEntity<String> request = getAdminHttpEntity();
         ResponseEntity<SumTotal<StoredEvent>> exchange2 = TestContext.getRestTemplate()
             .exchange(
-                UrlUtility.getAccessUrl(UrlUtility.appendQuery(AppConstant.MGMT_EVENT, "query=rejected:1")),
+                UrlUtility.getAccessUrl(
+                    UrlUtility.appendQuery(AppConstant.MGMT_EVENT, "query=rejected:1")),
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -153,11 +154,12 @@ public class MgmtTest extends CommonTest {
         HttpEntity<String> request = getAdminHttpEntity();
         ResponseEntity<SumTotal<StoredEvent>> exchange2 = TestContext.getRestTemplate()
             .exchange(
-                UrlUtility.getAccessUrl(UrlUtility.appendQuery(AppConstant.MGMT_EVENT, "query=routable:0")),
+                UrlUtility.getAccessUrl(
+                    UrlUtility.appendQuery(AppConstant.MGMT_EVENT, "query=routable:0")),
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -169,7 +171,7 @@ public class MgmtTest extends CommonTest {
                 HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
 

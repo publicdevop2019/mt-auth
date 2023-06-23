@@ -81,7 +81,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleCommonPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> commonPermissionIds=new LinkedHashSet<>();
+    private Set<PermissionId> commonPermissionIds = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
@@ -89,7 +89,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleApiPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> apiPermissionIds=new LinkedHashSet<>();
+    private Set<PermissionId> apiPermissionIds = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
@@ -97,7 +97,7 @@ public class Role extends Auditable {
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "roleExternalPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
-    private Set<PermissionId> externalPermissionIds=new LinkedHashSet<>();
+    private Set<PermissionId> externalPermissionIds = new LinkedHashSet<>();
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
@@ -283,6 +283,7 @@ public class Role extends Auditable {
      * @param command update command
      */
     public void replace(RoleUpdateCommand command) {
+        Validator.notNull(command.getType());
         if (command.getType().equals(UpdateType.BASIC)) {
             updateName(command.getName());
             setDescription(command.getDescription());
@@ -399,8 +400,9 @@ public class Role extends Auditable {
         DomainRegistry.getRoleRepository().remove(this);
     }
 
-    public void patch(String name) {
+    public void patch(String name, String description) {
         updateName(name);
+        setDescription(description);
     }
 
     public void removePermission(PermissionId permissionId) {

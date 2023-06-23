@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -22,11 +22,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
-public class ClientIdempotentTest  extends CommonTest {
+public class ClientIdempotentTest extends CommonTest {
 
 
     @Test
@@ -34,9 +34,9 @@ public class ClientIdempotentTest  extends CommonTest {
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         String s = UUID.randomUUID().toString();
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         ResponseEntity<String> client2 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
     }
 
     @Test
@@ -47,7 +47,7 @@ public class ClientIdempotentTest  extends CommonTest {
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -62,11 +62,11 @@ public class ClientIdempotentTest  extends CommonTest {
         HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         oldClient.setVersion(1);
         ResponseEntity<String> exchange2 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class ClientIdempotentTest  extends CommonTest {
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
             UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
@@ -91,10 +91,10 @@ public class ClientIdempotentTest  extends CommonTest {
         HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         ResponseEntity<String> exchange2 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
     }
 
     @Test
@@ -118,8 +118,8 @@ public class ClientIdempotentTest  extends CommonTest {
         runnables.add(runnable2);
         try {
             ConcurrentUtility.assertConcurrent("", runnables, 30000);
-            Assert.assertEquals(1, (int) success.get());
-            Assert.assertEquals(1, (int) failed.get());
+            Assertions.assertEquals(1, (int) success.get());
+            Assertions.assertEquals(1, (int) failed.get());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -132,7 +132,7 @@ public class ClientIdempotentTest  extends CommonTest {
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         HttpHeaders headers = new HttpHeaders();
         String bearer = tokenResponse.getBody().getValue();
@@ -164,8 +164,8 @@ public class ClientIdempotentTest  extends CommonTest {
         runnables.add(runnable2);
         try {
             ConcurrentUtility.assertConcurrent("", runnables, 30000);
-            Assert.assertEquals(1, (int) success.get());
-            Assert.assertEquals(1, (int) failed.get());
+            Assertions.assertEquals(1, (int) success.get());
+            Assertions.assertEquals(1, (int) failed.get());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -179,7 +179,7 @@ public class ClientIdempotentTest  extends CommonTest {
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
-        Assert.assertEquals(HttpStatus.OK, client1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
             UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
@@ -209,8 +209,8 @@ public class ClientIdempotentTest  extends CommonTest {
         runnables.add(runnable2);
         try {
             ConcurrentUtility.assertConcurrent("", runnables, 30000);
-            Assert.assertEquals(1, (int) success.get());
-            Assert.assertEquals(1, (int) failed.get());
+            Assertions.assertEquals(1, (int) success.get());
+            Assertions.assertEquals(1, (int) failed.get());
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

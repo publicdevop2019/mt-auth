@@ -20,9 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -30,9 +30,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class RefreshTokenTest extends TenantTest {
 
@@ -43,7 +43,7 @@ public class RefreshTokenTest extends TenantTest {
         clientAsResource.setExternalUrl("http://localhost:9999");
         ResponseEntity<Void> client4 =
             ClientUtility.createTenantClient(tenantContext, clientAsResource);
-        Assert.assertEquals(HttpStatus.OK, client4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client4.getStatusCode());
         clientAsResource.setId(UrlUtility.getId(client4));
         //create endpoint
         Endpoint endpoint =
@@ -52,7 +52,7 @@ public class RefreshTokenTest extends TenantTest {
         endpoint.setMethod("GET");
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        Assert.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         Thread.sleep(10 * 1000);
 
         //create client supports refresh token
@@ -69,12 +69,12 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
         clientRaw.setId(UrlUtility.getId(client));
-        Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> token = OAuth2Utility
             .getTenantPasswordToken(clientRaw,
                 tenantContext.getCreator(), tenantContext);
-        Assert.assertEquals(HttpStatus.OK, token.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, token.getStatusCode());
         //access endpoint
         String url = UrlUtility.getTenantUrl(clientAsResource.getPath(),
             "get" + "/" + RandomUtility.randomStringNoNum());
@@ -83,26 +83,26 @@ public class RefreshTokenTest extends TenantTest {
         HttpEntity<Void> request = new HttpEntity<>(headers);
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         Thread.sleep(60000 + 60000 + 2000);//spring cloud gateway add 60S leeway
         //access token should expire
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
-        Assert.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
         //get access token with refresh token
 
         ResponseEntity<DefaultOAuth2AccessToken> exchange1 = OAuth2Utility
             .getTenantRefreshToken(token.getBody().getRefreshToken().getValue(),
                 clientRaw, tenantContext);
 
-        Assert.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
         //use new access token for api call
         HttpHeaders headers3 = new HttpHeaders();
         headers3.setBearerAuth(exchange1.getBody().getValue());
         HttpEntity<String> request3 = new HttpEntity<>(null, headers3);
         ResponseEntity<String> exchange3 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request3, String.class);
-        Assert.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
     }
 
     @Test
@@ -122,12 +122,12 @@ public class RefreshTokenTest extends TenantTest {
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
         clientRaw.setId(UrlUtility.getId(client));
-        Assert.assertEquals(HttpStatus.OK, client.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =
             OAuth2Utility.getTenantPasswordToken(clientRaw, tenantContext.getCreator()
                 , tenantContext);
-        Assert.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, jwtPasswordWithClient.getStatusCode());
         OAuth2RefreshToken refreshToken = jwtPasswordWithClient.getBody().getRefreshToken();
         String jwt = refreshToken.getValue();
         String jwtBody;
@@ -149,7 +149,7 @@ public class RefreshTokenTest extends TenantTest {
             throw new IllegalArgumentException(
                 "unable to find authorities in authorization header");
         }
-        Assert.assertNotNull(exp);
+        Assertions.assertNotNull(exp);
     }
 
 

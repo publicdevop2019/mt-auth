@@ -2,8 +2,10 @@ package com.mt.access.application.endpoint.command;
 
 import com.mt.access.domain.model.endpoint.Endpoint;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class EndpointPatchCommand {
     private String description;
     private String name;

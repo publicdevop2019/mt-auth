@@ -2,6 +2,7 @@ package com.mt.test_case.integration.single.access.mgmt;
 
 import com.mt.test_case.helper.AppConstant;
 import com.mt.test_case.helper.CommonTest;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.SumTotal;
 import com.mt.test_case.helper.pojo.User;
 import com.mt.test_case.helper.pojo.UserMgmt;
@@ -12,9 +13,9 @@ import com.mt.test_case.helper.utility.UserUtility;
 import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,9 +24,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class MgmtUserTest extends CommonTest {
     public static final String USER_MGMT = "/mgmt/users";
@@ -41,8 +42,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, new ParameterizedTypeReference<>() {
             });
-
-        Assert.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
+        Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
     }
 
     @Test
@@ -62,8 +62,8 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<UserMgmt> exchange2 = TestContext.getRestTemplate()
             .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(USER_MGMT, user.getId())),
                 HttpMethod.GET, request, UserMgmt.class);
-        Assert.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
-        Assert.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getLoginHistory());
+        Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
+        Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getLoginHistory());
     }
 
     @Test
@@ -76,7 +76,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
 
-        Assert.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
@@ -86,12 +86,12 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
 
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse123 =
             UserUtility.login(user.getEmail(), user.getPassword());
 
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse123.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse123.getStatusCode());
 
     }
 
@@ -104,7 +104,7 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
 
-        Assert.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
         //try w root
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
@@ -114,8 +114,24 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
 
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
 
+    }
+
+
+    @Test
+    public void admin_can_patch_user() {
+        //null
+        User admin = UserUtility.getAdmin();
+        User user = UserUtility.createRandomUserObj();
+        ResponseEntity<Void> createResp = UserUtility.register(user);
+        PatchCommand patchCommand = new PatchCommand();
+        patchCommand.setPath("/locked");
+        patchCommand.setOp("replace");
+        patchCommand.setValue(true);
+        ResponseEntity<Void> response =
+            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
@@ -136,11 +152,11 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
-        Assert.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //login to verify account has been locked
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
             UserUtility.login(user.getEmail(), user.getPassword());
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse1.getStatusCode());
 
         user.setLocked(false);
         user.setVersion(1);
@@ -148,11 +164,11 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> exchange22 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request22, DefaultOAuth2AccessToken.class);
 
-        Assert.assertEquals(HttpStatus.OK, exchange22.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, exchange22.getStatusCode());
         //login to verify account has been unlocked
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
-        Assert.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
     }
 
 
@@ -171,7 +187,7 @@ public class MgmtUserTest extends CommonTest {
             UrlUtility.getAccessUrl(USER_MGMT + "/" + root_index);
         ResponseEntity<Void> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, Void.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
 
     }
 
@@ -193,13 +209,51 @@ public class MgmtUserTest extends CommonTest {
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
-
 
     @Test
-    public void validation_mgmt_patch_user() {
+    public void validation_mgmt_patch_user_invalid_value_null() {
+        User admin = UserUtility.getAdmin();
+        User user = UserUtility.createRandomUserObj();
+        ResponseEntity<Void> createResp = UserUtility.register(user);
+        PatchCommand patchCommand = new PatchCommand();
         //null
+        patchCommand.setPath("/locked");
+        patchCommand.setOp("replace");
+        patchCommand.setValue(null);
+        ResponseEntity<Void> response =
+            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
+    @Test
+    public void validation_mgmt_patch_user_invalid_path() {
+        User admin = UserUtility.getAdmin();
+        User user = UserUtility.createRandomUserObj();
+        ResponseEntity<Void> createResp = UserUtility.register(user);
+        PatchCommand patchCommand = new PatchCommand();
+        //invalid path
+        patchCommand.setPath(RandomUtility.randomStringNoNum());
+        patchCommand.setOp("replace");
+        patchCommand.setValue(true);
+        ResponseEntity<Void> response2 =
+            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+    }
+
+    @Test
+    public void validation_mgmt_patch_user_invalid_operation() {
+        User admin = UserUtility.getAdmin();
+        User user = UserUtility.createRandomUserObj();
+        ResponseEntity<Void> createResp = UserUtility.register(user);
+        PatchCommand patchCommand = new PatchCommand();
+        //invalid operation
+        patchCommand.setPath("/locked");
+        patchCommand.setOp(RandomUtility.randomStringNoNum());
+        patchCommand.setValue(true);
+        ResponseEntity<Void> response3 =
+            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+    }
 }

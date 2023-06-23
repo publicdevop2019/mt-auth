@@ -23,22 +23,22 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantMarketTest {
     protected static TenantContext tenantContextA;
     protected static TenantContext tenantContextB;
     protected static Client clientA;
 
-    @BeforeClass
+    @BeforeAll
     public static void initTenant() {
         log.info("init tenant in progress");
         TestContext.init();
@@ -59,8 +59,8 @@ public class TenantMarketTest {
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
             MarketUtility.readMarketEndpoint(creator);
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotSame(0, response.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotSame(0, response.getBody().getData().size());
     }
 
     @Test
@@ -70,8 +70,8 @@ public class TenantMarketTest {
             MarketUtility.readMarketEndpoint(creator);
         List<Endpoint> collect = response.getBody().getData().stream().filter(e -> !e.getSecured())
             .collect(Collectors.toList());
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotSame(0, collect.size());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotSame(0, collect.size());
     }
 
     @Test
@@ -81,8 +81,8 @@ public class TenantMarketTest {
             MarketUtility.readMarketEndpoint(creator);
         List<Endpoint> collect = response.getBody().getData().stream().filter(Endpoint::getSecured)
             .collect(Collectors.toList());
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertNotSame(0, collect.size());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertNotSame(0, collect.size());
     }
 
     @Test
@@ -97,8 +97,8 @@ public class TenantMarketTest {
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
             MarketUtility.searchMarketEndpoint(creator, endpoint.getId());
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertSame(1, response.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertSame(1, response.getBody().getData().size());
     }
 
     @Test
@@ -113,9 +113,9 @@ public class TenantMarketTest {
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
             MarketUtility.searchMarketEndpoint(creator, endpoint.getId());
-        Assert.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assert.assertSame(1, response.getBody().getData().size());
-        Assert.assertTrue(response.getBody().getData().stream().findFirst().get().getSecured());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertSame(1, response.getBody().getData().size());
+        Assertions.assertTrue(response.getBody().getData().stream().findFirst().get().getSecured());
     }
 
     @Test
@@ -131,7 +131,7 @@ public class TenantMarketTest {
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class TenantMarketTest {
             MarketUtility.createValidSubReq(tenantContextA, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextA.getCreator(), randomTenantSubReqObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
     }
 
     @Test
@@ -163,7 +163,7 @@ public class TenantMarketTest {
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
     }
 
     @Test
@@ -179,27 +179,27 @@ public class TenantMarketTest {
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         String subReqId = UrlUtility.getId(voidResponseEntity);
         //tenantB can view sub req
         ResponseEntity<SumTotal<SubscriptionReq>> voidResponseEntity12 =
             MarketUtility.viewMySubReq(tenantContextB);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity12.getStatusCode());
-        Assert.assertNotSame(0, voidResponseEntity12.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity12.getStatusCode());
+        Assertions.assertNotSame(0, voidResponseEntity12.getBody().getData().size());
         //tenantA can view request
         ResponseEntity<SumTotal<SubscriptionReq>> voidResponseEntity13 =
             MarketUtility.viewMyPendingApprove(tenantContextA);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity13.getStatusCode());
-        Assert.assertNotSame(0, voidResponseEntity13.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity13.getStatusCode());
+        Assertions.assertNotSame(0, voidResponseEntity13.getBody().getData().size());
         //tenantA approve request
         ResponseEntity<Void> voidResponseEntity1 =
             MarketUtility.approveSubReq(tenantContextA, subReqId);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity1.getStatusCode());
         //tenantB can view approved req
         ResponseEntity<SumTotal<SubscriptionReq>> voidResponseEntity14 =
             MarketUtility.viewMySubs(tenantContextB);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity14.getStatusCode());
-        Assert.assertNotSame(0, voidResponseEntity14.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity14.getStatusCode());
+        Assertions.assertNotSame(0, voidResponseEntity14.getBody().getData().size());
     }
 
     @Test
@@ -234,7 +234,7 @@ public class TenantMarketTest {
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =
             RoleUtility.updateTenantRole(tenantContextB, role);
-        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
     }
 
     @Test
@@ -252,27 +252,27 @@ public class TenantMarketTest {
         req.setEndpointId(null);
         ResponseEntity<Void> response =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         req.setEndpointId(" ");
         ResponseEntity<Void> response1 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         req.setEndpointId("");
         ResponseEntity<Void> response2 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //invalid value
         req.setEndpointId("0E9999999999");
         ResponseEntity<Void> response3 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //other tenant's id
         req.setEndpointId(AppConstant.MT_ACCESS_ENDPOINT_ID);
         ResponseEntity<Void> response4 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
     }
 
     @Test
@@ -290,27 +290,27 @@ public class TenantMarketTest {
         req.setProjectId(null);
         ResponseEntity<Void> response =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         req.setProjectId(" ");
         ResponseEntity<Void> response1 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         req.setProjectId("");
         ResponseEntity<Void> response2 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //invalid value
         req.setProjectId("");
         ResponseEntity<Void> response3 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //other tenant's id
         req.setProjectId(AppConstant.MT_ACCESS_PROJECT_ID);
         ResponseEntity<Void> response4 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, response4.getStatusCode());
     }
 
     @Test
@@ -328,17 +328,17 @@ public class TenantMarketTest {
         req.setBurstCapacity(null);
         ResponseEntity<Void> response =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //min value
         req.setBurstCapacity(0);
         ResponseEntity<Void> response1 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max value
         req.setBurstCapacity(Integer.MAX_VALUE);
         ResponseEntity<Void> response2 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 
     @Test
@@ -356,23 +356,23 @@ public class TenantMarketTest {
         req.setReplenishRate(null);
         ResponseEntity<Void> response =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //min value
         req.setReplenishRate(0);
         ResponseEntity<Void> response1 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max value
         req.setReplenishRate(Integer.MAX_VALUE);
         ResponseEntity<Void> response2 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //invalid value, bust capacity < replenish rate
         req.setReplenishRate(60);
         req.setBurstCapacity(20);
         ResponseEntity<Void> response3 =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 
     @Test
@@ -388,7 +388,7 @@ public class TenantMarketTest {
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
         String subReqId = UrlUtility.getId(voidResponseEntity);
         //tenantA reject request
         RejectSubRequestCommand command = new RejectSubRequestCommand();
@@ -396,52 +396,100 @@ public class TenantMarketTest {
         command.setRejectionReason(null);
         ResponseEntity<Void> response =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         command.setRejectionReason(" ");
         ResponseEntity<Void> response2 =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty
         command.setRejectionReason("");
         ResponseEntity<Void> response3 =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //min length
         command.setRejectionReason("1");
         ResponseEntity<Void> response4 =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
         //max length
         command.setRejectionReason("012345678901234567890123456789012345678901234567890123456789");
         ResponseEntity<Void> response5 =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //invalid char
         command.setRejectionReason("<");
         ResponseEntity<Void> response6 =
             MarketUtility.rejectSubReq(tenantContextA, subReqId, command);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
     @Test
     public void validation_update_burst_capacity() {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        SubscriptionReq req =
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> response4 =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
+        req.setId(UrlUtility.getId(response4));
+        //send sub req tenantB
         //null
-        //blank
-        //empty
+        req.setBurstCapacity(null);
+        ResponseEntity<Void> response =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //min value
+        req.setBurstCapacity(0);
+        ResponseEntity<Void> response1 =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max value
-        //invalid value
+        req.setBurstCapacity(Integer.MAX_VALUE);
+        ResponseEntity<Void> response2 =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 
     @Test
     public void validation_update_replenish_rate() {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        SubscriptionReq req =
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> response4 =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), req);
+        req.setId(UrlUtility.getId(response4));
+        //send sub req tenantB
         //null
-        //blank
-        //empty
+        req.setReplenishRate(null);
+        ResponseEntity<Void> response =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //min value
+        req.setReplenishRate(0);
+        ResponseEntity<Void> response1 =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max value
-        //invalid value
+        req.setReplenishRate(Integer.MAX_VALUE);
+        ResponseEntity<Void> response2 =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        //invalid value, bust capacity < replenish rate
+        req.setReplenishRate(60);
+        req.setBurstCapacity(20);
+        ResponseEntity<Void> response3 =
+            MarketUtility.updateSubReq(tenantContextB.getCreator(), req);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 
 }

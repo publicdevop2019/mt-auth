@@ -11,9 +11,9 @@ import com.mt.test_case.helper.utility.OAuth2Utility;
 import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -21,14 +21,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * this integration auth requires oauth2service to be running.
  */
 @Slf4j
-@RunWith(SpringRunner.class)
-public class EndpointSecurityTest  extends CommonTest {
+@ExtendWith(SpringExtension.class)
+public class EndpointSecurityTest extends CommonTest {
 
     @Test
     public void should_not_able_to_create_client_w_admin_account_when_going_through_proxy()
@@ -42,7 +42,7 @@ public class EndpointSecurityTest  extends CommonTest {
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate()
                 .exchange(AppConstant.CLIENT_MGMT_URL, HttpMethod.POST, request, String.class);
-        Assert.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
     }
 
     @Test
@@ -55,6 +55,6 @@ public class EndpointSecurityTest  extends CommonTest {
         String value = registerTokenResponse.getBody().getValue();
         ResponseEntity<Void> pendingUser =
             UserUtility.createPendingUser(user, value, new PendingUser());
-        Assert.assertEquals(HttpStatus.FORBIDDEN, pendingUser.getStatusCode());
+        Assertions.assertEquals(HttpStatus.FORBIDDEN, pendingUser.getStatusCode());
     }
 }

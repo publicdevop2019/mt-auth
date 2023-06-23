@@ -115,6 +115,7 @@ public class SubRequest extends Auditable {
     public void update(Integer replenishRate, Integer burstCapacity) {
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
+        new SubRequestValidator(this, new HttpValidationNotificationHandler()).validate();
     }
 
     public void approve(UserId userId) {

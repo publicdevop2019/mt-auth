@@ -11,11 +11,11 @@ import com.mt.test_case.integration.single.access.tenant.TenantPermissionTest;
 import com.mt.test_case.integration.single.access.tenant.TenantProjectTest;
 import com.mt.test_case.integration.single.access.tenant.TenantRoleTest;
 import com.mt.test_case.integration.single.access.tenant.TenantUserTest;
-import org.junit.runner.RunWith;
-import org.junit.runners.Suite;
+import org.junit.platform.suite.api.SelectClasses;
+import org.junit.platform.suite.api.Suite;
 
-@RunWith(Suite.class)
-@Suite.SuiteClasses(value = {
+@Suite
+@SelectClasses({
     TenantAdminTest.class,
     TenantCacheTest.class,
     TenantClientTest.class,

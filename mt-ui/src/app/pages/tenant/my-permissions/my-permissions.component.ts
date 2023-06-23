@@ -111,7 +111,6 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       const temp = b.result ? {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         type: 'TYPE',
         edit: 'EDIT',
         clone: 'CLONE',
@@ -119,7 +118,6 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       } : {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         type: 'TYPE',
       }
       if (!this.authSvc.advancedMode) {

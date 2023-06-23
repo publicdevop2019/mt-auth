@@ -82,7 +82,7 @@ public class CacheProfileApplicationService {
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
-                CommonUtility.map(command.getCacheControl(),CacheControlValue::valueOf),
+                CommonUtility.map(command.getCacheControl(),CacheControlValue::valueOfLabel),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),

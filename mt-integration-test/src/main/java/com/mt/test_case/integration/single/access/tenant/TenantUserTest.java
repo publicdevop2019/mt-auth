@@ -13,14 +13,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantUserTest extends TenantTest {
 
@@ -29,8 +29,8 @@ public class TenantUserTest extends TenantTest {
         ResponseEntity<SumTotal<User>> sumTotalResponseEntity =
             UserUtility.readTenantUsersByQuery(tenantContext,
                 "query=emailLike:" + tenantContext.getUsers().get(0).getEmail());
-        Assert.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
-        Assert.assertNotSame(0, sumTotalResponseEntity.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
+        Assertions.assertNotSame(0, sumTotalResponseEntity.getBody().getData().size());
     }
 
     @Test
@@ -38,14 +38,14 @@ public class TenantUserTest extends TenantTest {
         //get user list
         ResponseEntity<SumTotal<User>> sumTotalResponseEntity =
             UserUtility.readTenantUsers(tenantContext);
-        Assert.assertNotSame(0, sumTotalResponseEntity.getBody().getData().size());
+        Assertions.assertNotSame(0, sumTotalResponseEntity.getBody().getData().size());
     }
 
     @Test
     public void tenant_can_view_user_detail() {
         ResponseEntity<User> userResponseEntity =
             UserUtility.readTenantUser(tenantContext, tenantContext.getUsers().get(1));
-        Assert.assertNotSame(0, userResponseEntity.getBody().getRoles().size());
+        Assertions.assertNotSame(0, userResponseEntity.getBody().getRoles().size());
     }
 
     @Test
@@ -53,8 +53,8 @@ public class TenantUserTest extends TenantTest {
         ResponseEntity<SumTotal<User>> sumTotalResponseEntity =
             UserUtility.readTenantUsersByQuery(tenantContext,
                 "query=emailLike:" + AppConstant.ACCOUNT_USERNAME_MALL_ADMIN);
-        Assert.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
-        Assert.assertEquals(0, sumTotalResponseEntity.getBody().getData().size());
+        Assertions.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
+        Assertions.assertEquals(0, sumTotalResponseEntity.getBody().getData().size());
     }
 
     @Test
@@ -74,7 +74,7 @@ public class TenantUserTest extends TenantTest {
         body.setRoles(strings);
         //assign role
         ResponseEntity<Void> voidResponseEntity = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
     }
 
     @Test
@@ -88,13 +88,7 @@ public class TenantUserTest extends TenantTest {
         strings.add(RandomUtility.randomStringNoNum());
         body.setRoles(strings);
         ResponseEntity<Void> voidResponseEntity = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
-    }
-
-    @Test
-    public void validation_update_user_() {
-        //PROJECT_USER cannot remove
-        //cannot add roles from other project
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, voidResponseEntity.getStatusCode());
     }
 
     @Test
@@ -105,37 +99,37 @@ public class TenantUserTest extends TenantTest {
         //null
         body.setRoles(null);
         ResponseEntity<Void> response = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         body.setRoles(List.of(" "));
         ResponseEntity<Void> response1 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         body.setRoles(List.of(""));
         ResponseEntity<Void> response2 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty list
         body.setRoles(Collections.emptyList());
         ResponseEntity<Void> response3 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //too many elements
         body.setRoles(
             List.of(AppConstant.MT_ACCESS_ROLE_ID, "0Z8HHJ489S00", "0Z8HHJ489S01", "0Z8HHJ489S02",
                 "0Z8HHJ489S03", "0Z8HHJ489S04", "0Z8HHJ489S05", "0Z8HHJ489S06", "0Z8HHJ489S07",
                 "0Z8HHJ489S08", "0Z8HHJ489S09", "0Z8HHJ489S10", "0Z8HHJ489S11"));
         ResponseEntity<Void> response4 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
         ArrayList<String> strings = new ArrayList<>();
         strings.add(RandomUtility.randomStringNoNum());
         body.setRoles(strings);
         ResponseEntity<Void> response5 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //other tenant's id
         ArrayList<String> strings1 = new ArrayList<>();
         strings1.add(AppConstant.MT_ACCESS_ROLE_ID);
         body.setRoles(strings1);
         ResponseEntity<Void> response6 = UserUtility.updateTenantUser(tenantContext, body);
-        Assert.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 }

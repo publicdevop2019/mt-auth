@@ -1,6 +1,7 @@
 package com.mt.common.domain.model.validate;
 
 import java.util.Collection;
+import java.util.Objects;
 
 public class Checker {
     public static boolean isNull(Object obj) {
@@ -41,5 +42,9 @@ public class Checker {
 
     public static boolean sizeNotEquals(Collection<?> a, Collection<?> b) {
         return !sizeEquals(a, b);
+    }
+
+    public static boolean equals(Object a, Object b) {
+        return Objects.equals(a, b);
     }
 }

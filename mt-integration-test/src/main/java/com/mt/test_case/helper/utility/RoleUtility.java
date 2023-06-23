@@ -1,6 +1,7 @@
 package com.mt.test_case.helper.utility;
 
 import com.mt.test_case.helper.TenantContext;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
@@ -42,7 +43,7 @@ public class RoleUtility {
     public static ResponseEntity<SumTotal<Role>> readTenantRoleWithQuery(
         TenantContext tenantContext, String query) {
         String accessUrl = getUrl(tenantContext.getProject());
-        String url=UrlUtility.appendQuery(accessUrl, query);
+        String url = UrlUtility.appendQuery(accessUrl, query);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
@@ -56,6 +57,12 @@ public class RoleUtility {
         TenantContext tenantContext, Role role) {
         String url = getUrl(tenantContext.getProject());
         return Utility.updateResource(tenantContext.getCreator(), url, role, role.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantRole(
+        TenantContext tenantContext, Role role, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, role.getId());
     }
 
     public static ResponseEntity<Void> deleteTenantRole(

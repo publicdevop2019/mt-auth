@@ -57,7 +57,6 @@ public class Endpoint extends Auditable {
     @Column(name = "secured")
     private Boolean secured;
 
-    @Setter(AccessLevel.PRIVATE)
     private String description;
     private String name;
 
@@ -148,9 +147,20 @@ public class Endpoint extends Auditable {
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
         CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
-        DomainRegistry.getEndpointValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
         validate(new HttpValidationNotificationHandler());
+    }
+
+    public static Endpoint addNewEndpoint(
+        ClientId clientId, ProjectId projectId,
+        CacheProfileId cacheProfileId, String name, String description, String path,
+        EndpointId endpointId, String method, Boolean secured,
+        Boolean websocket, Boolean csrfEnabled, CorsProfileId corsProfileId, Boolean shared,
+        Boolean external, Integer replenishRate,
+        Integer burstCapacity
+    ) {
+        return new Endpoint(clientId, projectId, cacheProfileId, name, description, path,
+            endpointId, method, secured, websocket, csrfEnabled, corsProfileId, shared, external,
+            replenishRate, burstCapacity);
     }
 
     private void setCsrfEnabled(Boolean csrfEnabled) {
@@ -209,8 +219,11 @@ public class Endpoint extends Auditable {
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
         validate(new HttpValidationNotificationHandler());
-        DomainRegistry.getEndpointValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setDescription(String description) {
+        Validator.validOptionalString(100, description);
+        this.description = description;
     }
 
     private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external) {
@@ -251,7 +264,7 @@ public class Endpoint extends Auditable {
     }
 
     private void setName(String name) {
-        Validator.notBlank(name);
+        Validator.validRequiredString(1, 50, name);
         this.name = name;
     }
 
@@ -318,6 +331,8 @@ public class Endpoint extends Auditable {
 
     @Override
     public void validate(@NotNull ValidationNotificationHandler handler) {
+        DomainRegistry.getEndpointValidationService()
+            .validate(this, new HttpValidationNotificationHandler());
         (new EndpointValidator(this, handler)).validate();
     }
 

@@ -1,6 +1,7 @@
 package com.mt.test_case.helper.utility;
 
 import com.mt.test_case.helper.TenantContext;
+import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Permission;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
@@ -68,6 +69,12 @@ public class PermissionUtility {
         TenantContext tenantContext, Permission permission) {
         String url = getUrl(tenantContext.getProject());
         return Utility.deleteResource(tenantContext.getCreator(), url, permission.getId());
+    }
+
+    public static ResponseEntity<Void> patchTenantPermission(
+        TenantContext tenantContext, Permission permission, PatchCommand command) {
+        String url = getUrl(tenantContext.getProject());
+        return Utility.patchResource(tenantContext.getCreator(), url, command, permission.getId());
     }
 
 }

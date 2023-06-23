@@ -22,17 +22,17 @@ public class ErrorMessage {
             strings = List.of(
                 NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
                     .split("\n"));
-            log.warn("handled custom exception UUID - {} - {} - exception: {} - details: ", errorId,
+            log.warn("defined exception UUID - {} - {} - exception: {} - details: ", errorId,
                 ex.getClass(), strings.get(0), ex);
         } else if (NestedExceptionUtils.getMostSpecificCause(ex).getMessage() != null) {
             strings = List.of(
                 NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
                     .split("\n"));
-            log.error("handled exception UUID - {} - {} - exception: ", errorId,
+            log.error("known cause exception UUID - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         } else {
             strings = List.of("Unable to get most specific cause, see log");
-            log.error("unhandled exception UUID - {} - {} - exception: ", errorId,
+            log.error("unknown cause exception UUID - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         }
         errors = strings;

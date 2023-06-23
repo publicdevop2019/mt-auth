@@ -1,18 +1,41 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.project.ProjectId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EndpointValidationService {
+
+    private static void compareProjectId(ProjectId a, ProjectId b) {
+        if (!Checker.equals(a, b)) {
+            throw new DefinedRuntimeException("project id mismatch", "1010",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
         hasValidClient(endpoint);
         hasValidCacheProfileId(endpoint);
+        hasValidCorsProfileId(endpoint);
         sharedClientMustBeAccessible(endpoint, handler);
+    }
+
+    private void hasValidCorsProfileId(Endpoint endpoint) {
+        if (endpoint.getCorsProfileId() != null) {
+            CorsProfile corsProfile = DomainRegistry.getCorsProfileRepository()
+                .get(endpoint.getCorsProfileId());
+            compareProjectId(endpoint.getProjectId(), corsProfile.getProjectId());
+        }
     }
 
     private void sharedClientMustBeAccessible(Endpoint endpoint,
@@ -31,14 +54,14 @@ public class EndpointValidationService {
 
     private void hasValidCacheProfileId(Endpoint endpoint) {
         if (endpoint.getCacheProfileId() != null) {
-            DomainRegistry.getCacheProfileRepository()
+            CacheProfile cacheProfile = DomainRegistry.getCacheProfileRepository()
                 .get(endpoint.getCacheProfileId());
+            compareProjectId(endpoint.getProjectId(), cacheProfile.getProjectId());
         }
     }
 
-
     private void hasValidClient(Endpoint endpoint) {
-        ClientId clientId = endpoint.getClientId();
-        DomainRegistry.getClientRepository().get(clientId);
+        Client client = DomainRegistry.getClientRepository().get(endpoint.getClientId());
+        compareProjectId(endpoint.getProjectId(), client.getProjectId());
     }
 }
