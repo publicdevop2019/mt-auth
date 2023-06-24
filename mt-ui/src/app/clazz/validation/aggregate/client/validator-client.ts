@@ -9,9 +9,7 @@ export class ClientValidator extends IAggregateValidator {
         super(platform);
         this.rootCreateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootCreateClientCommandValidator.set('description', descriptionValidator);
-        this.rootCreateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
         this.rootCreateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
-        this.rootCreateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
         this.rootCreateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
         this.rootCreateClientCommandValidator.set('accessTokenValiditySeconds', this.clientAccessTokenValiditySecondsValidator);
         this.rootCreateClientCommandValidator.set('refreshTokenValiditySeconds', this.clientRefreshTokenValiditySecondsValidator);
@@ -20,9 +18,7 @@ export class ClientValidator extends IAggregateValidator {
 
         this.rootUpdateClientCommandValidator.set('name', this.clientNameValidator);
         this.rootUpdateClientCommandValidator.set('description', descriptionValidator);
-        this.rootUpdateClientCommandValidator.set('hasSecret', this.clientHasSecretValidator);
         this.rootUpdateClientCommandValidator.set('grantTypeEnums', this.clientGrantTypeValidator);
-        this.rootUpdateClientCommandValidator.set('resourceIndicator', this.clientResourceIndicatorValidator);
         this.rootUpdateClientCommandValidator.set('resourceIds', this.clientResourceIdValidator);
         this.rootUpdateClientCommandValidator.set('accessTokenValiditySeconds', this.clientAccessTokenValiditySecondsValidator);
         this.rootUpdateClientCommandValidator.set('refreshTokenValiditySeconds', this.clientRefreshTokenValiditySecondsValidator);

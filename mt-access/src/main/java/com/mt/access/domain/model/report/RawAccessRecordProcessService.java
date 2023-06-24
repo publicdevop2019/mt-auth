@@ -22,7 +22,8 @@ public class RawAccessRecordProcessService {
         log.debug("last process id is {}", tracker.getLastProcessedId());
         Set<RawAccessRecord> totalRecords =
             DomainRegistry.getRawAccessRecordRepository()
-                .getBucketRequestRecordSinceId(tracker.getLastProcessedId());
+                .getBucketRequestRecordSinceId(
+                    tracker.getLastProcessedId() == null ? 0 : tracker.getLastProcessedId());
         if (totalRecords != null && !totalRecords.isEmpty()) {
             log.debug("total data needs ETL is {}", totalRecords.size());
             Set<RawAccessRecord> foundedRecords =

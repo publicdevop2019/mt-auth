@@ -407,10 +407,10 @@ public class Client extends Auditable {
     // for create
     private void initSecret(String secret) {
         Validator.notNull(types);
-        Validator.notNull(secret);
         if (types.contains(ClientType.FRONTEND_APP)) {
             secret = EMPTY_SECRET;
         }
+        Validator.notNull(secret);
         this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
     }
 
