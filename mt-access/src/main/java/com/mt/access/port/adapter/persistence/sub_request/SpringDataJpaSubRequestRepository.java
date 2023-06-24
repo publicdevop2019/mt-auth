@@ -12,6 +12,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -115,10 +116,10 @@ public interface SpringDataJpaSubRequestRepository extends SubRequestRepository,
                     e,
                     SubRequest_.SUB_REQUEST_STATUS, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
                     .getDomainIdOrder(SubRequest_.SUB_REQUEST_ID, queryContext,
-                        query.getSort().isAsc());
+                        query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

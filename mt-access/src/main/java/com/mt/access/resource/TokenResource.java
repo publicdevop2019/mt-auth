@@ -2,6 +2,7 @@ package com.mt.access.resource;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.common.domain.model.validate.Checker;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class TokenResource {
         LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
-        if (loginResult.getAllowed()) {
+        if (Checker.isTrue(loginResult.getAllowed())) {
             try {
                 return tokenEndpoint.postAccessToken(principal, parameters);
             } catch (InvalidTokenException ex) {
@@ -57,7 +58,7 @@ public class TokenResource {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         } else {
-            if (loginResult.getInvalidMfa()) {
+            if (Checker.isTrue(loginResult.getInvalidMfa())) {
                 return ResponseEntity.badRequest().build();
             } else {
                 HashMap<String, String> stringStringHashMap = new HashMap<>();

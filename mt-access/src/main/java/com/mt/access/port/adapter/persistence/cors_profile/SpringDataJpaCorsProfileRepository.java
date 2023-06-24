@@ -9,6 +9,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -46,9 +47,9 @@ public interface SpringDataJpaCorsProfileRepository
                e.getDomainId(),
                 CorsProfile_.PROJECT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(CorsProfile_.CORS_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(CorsProfile_.CORS_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

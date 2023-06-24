@@ -11,6 +11,7 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,21 +89,21 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     User_.USER_ID, queryContext));
             Order order = null;
-            if (userQuery.getUserSort().isById()) {
+            if (Checker.isTrue(userQuery.getUserSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(User_.USER_ID, queryContext,
-                    userQuery.getUserSort().isAsc());
+                    userQuery.getUserSort().getIsAsc());
             }
-            if (userQuery.getUserSort().isByEmail()) {
+            if (Checker.isTrue(userQuery.getUserSort().getByEmail())) {
                 order = QueryUtility
-                    .getOrder(User_.EMAIL, queryContext, userQuery.getUserSort().isAsc());
+                    .getOrder(User_.EMAIL, queryContext, userQuery.getUserSort().getIsAsc());
             }
-            if (userQuery.getUserSort().isByCreateAt()) {
+            if (Checker.isTrue(userQuery.getUserSort().getByCreateAt())) {
                 order = QueryUtility
-                    .getOrder(User_.CREATED_AT, queryContext, userQuery.getUserSort().isAsc());
+                    .getOrder(User_.CREATED_AT, queryContext, userQuery.getUserSort().getIsAsc());
             }
-            if (userQuery.getUserSort().isByLocked()) {
+            if (Checker.isTrue(userQuery.getUserSort().getByLocked())) {
                 order = QueryUtility
-                    .getOrder(User_.LOCKED, queryContext, userQuery.getUserSort().isAsc());
+                    .getOrder(User_.LOCKED, queryContext, userQuery.getUserSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(userQuery, queryContext);

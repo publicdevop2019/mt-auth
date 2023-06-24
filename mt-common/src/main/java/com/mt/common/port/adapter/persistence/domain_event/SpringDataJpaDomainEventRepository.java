@@ -7,6 +7,7 @@ import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.domain_event.StoredEvent_;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
 import java.util.List;
 import java.util.Optional;
@@ -57,9 +58,9 @@ public interface SpringDataJpaDomainEventRepository
             Optional.ofNullable(query.getRejected()).ifPresent(
                 e -> QueryUtility.addBooleanEqualPredicate(e, StoredEvent_.REJECTED, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order =
-                    QueryUtility.getOrder(StoredEvent_.ID, queryContext, query.getSort().isAsc());
+                    QueryUtility.getOrder(StoredEvent_.ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

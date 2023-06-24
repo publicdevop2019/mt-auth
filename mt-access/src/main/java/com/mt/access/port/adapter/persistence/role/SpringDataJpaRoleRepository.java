@@ -11,6 +11,7 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -82,9 +83,9 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Role_.TENANT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

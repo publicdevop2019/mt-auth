@@ -13,6 +13,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -155,21 +156,21 @@ public interface SpringDataJpaEndpointRepository
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Endpoint_.CORS_PROFILE_ID, queryContext));
             Order order = null;
-            if (endpointQuery.getEndpointSort().isById()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(Endpoint_.ENDPOINT_ID, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByClientId()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByClientId())) {
                 order = QueryUtility.getOrder(Endpoint_.CLIENT_ID, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByPath()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByPath())) {
                 order = QueryUtility.getOrder(Endpoint_.PATH, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByMethod()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByMethod())) {
                 order = QueryUtility.getOrder(Endpoint_.METHOD, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(endpointQuery, queryContext);

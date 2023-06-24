@@ -9,6 +9,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -65,13 +66,13 @@ public interface SpringDataJpaNotificationRepository
                 e.getDomainId(),
                 Notification_.USER_ID, queryContext));
         Order order = null;
-        if (query.getSort().isTimestamp()) {
+        if (Checker.isTrue(query.getSort().getIsTimestamp())) {
             order = QueryUtility.getOrder(Notification_.CREATED_AT, queryContext,
-                query.getSort().isAsc());
+                query.getSort().getIsAsc());
         }
-        if (query.getSort().isId()) {
+        if (Checker.isTrue(query.getSort().getIsId())) {
             order = QueryUtility.getOrder(Notification_.NOTIFICATION_ID, queryContext,
-                query.getSort().isAsc());
+                query.getSort().getIsAsc());
         }
         queryContext.setOrder(order);
         return QueryUtility.nativePagedQuery(query, queryContext);

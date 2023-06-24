@@ -6,6 +6,7 @@ import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
 import com.mt.common.domain.model.idempotent.ChangeRecord_;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
 import java.util.Optional;
 import javax.persistence.criteria.Order;
@@ -50,9 +51,9 @@ public interface SpringDataJpaChangeRecordRepository
             Optional.ofNullable(query.getEntityType()).ifPresent(
                 e -> QueryUtility.addStringEqualPredicate(e, ChangeRecord_.ENTITY_TYPE, context));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getOrder(ChangeRecord_.CHANGE_ID, context, query.getSort().isAsc());
+                    .getOrder(ChangeRecord_.CHANGE_ID, context, query.getSort().getIsAsc());
             }
             context.setOrder(order);
             return QueryUtility.nativePagedQuery(query, context);

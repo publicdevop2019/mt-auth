@@ -31,7 +31,7 @@ public class RawAccessRecord {
     private String name;
     private Boolean isRequest;
     private Boolean isResponse;
-    private Boolean processed;
+    private Boolean processed = Boolean.FALSE;
     private String uuid;
     private String instanceId;
     private String recordId;

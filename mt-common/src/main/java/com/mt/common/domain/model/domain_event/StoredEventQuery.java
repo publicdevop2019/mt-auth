@@ -82,7 +82,7 @@ public class StoredEventQuery extends QueryCriteria {
     @Getter
     public static class DomainEventSort {
         private final Boolean isAsc;
-        private Boolean isById;
+        private Boolean byId;
 
         private DomainEventSort(boolean isAsc) {
             this.isAsc = isAsc;
@@ -90,7 +90,7 @@ public class StoredEventQuery extends QueryCriteria {
 
         public static DomainEventSort byId(boolean isAsc) {
             DomainEventSort skuSort = new DomainEventSort(isAsc);
-            skuSort.isById = true;
+            skuSort.byId = true;
             return skuSort;
         }
     }
