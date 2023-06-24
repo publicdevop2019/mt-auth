@@ -1,7 +1,6 @@
 package com.mt.test_case.integration.single.access.tenant;
 
 import com.mt.test_case.helper.TenantContext;
-import com.mt.test_case.helper.args.ProjectIdArgs;
 import com.mt.test_case.helper.args.SubRequestCapacityArgs;
 import com.mt.test_case.helper.args.SubRequestEndpointIdArgs;
 import com.mt.test_case.helper.args.SubRequestProjectIdArgs;

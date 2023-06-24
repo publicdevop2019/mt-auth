@@ -26,7 +26,8 @@ public class MarketUtility {
 
     public static ResponseEntity<SumTotal<Endpoint>> searchMarketEndpoint(User user,
                                                                           String endpointId) {
-        String url = UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT),
+        String url = UrlUtility.appendQuery(
+            UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT),
             "query=id:" + endpointId);
         return Utility.readResource(user, url, reference);
     }
@@ -74,7 +75,8 @@ public class MarketUtility {
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubReq(
         TenantContext tenantContext) {
         String url =
-            UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+            UrlUtility.appendQuery(
+                UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
                 "query=type:my_request");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
@@ -82,7 +84,8 @@ public class MarketUtility {
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMyPendingApprove(
         TenantContext tenantContext) {
         String url =
-            UrlUtility.appendQuery(UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+            UrlUtility.appendQuery(
+                UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
                 "query=type:PENDING_APPROVAL");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }

@@ -27,7 +27,7 @@ public class CacheUtility {
 
     public static ResponseEntity<SumTotal<Cache>> readTenantCacheById(
         TenantContext tenantContext, String id) {
-        String url = UrlUtility.appendQuery(getUrl(tenantContext.getProject()), "id:" + id);
+        String url = UrlUtility.appendQuery(getUrl(tenantContext.getProject()), "query=id:" + id);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 

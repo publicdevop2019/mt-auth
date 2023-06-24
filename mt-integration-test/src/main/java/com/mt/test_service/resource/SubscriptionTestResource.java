@@ -35,7 +35,7 @@ public class SubscriptionTestResource {
      * used in SubscriptionTest.java
      * @return
      */
-    @GetMapping("test/expire/**/random")
+    @GetMapping("test/expire/*/random")
     public ResponseEntity<?> expireEpTest() {
         return ResponseEntity.ok().build();
     }

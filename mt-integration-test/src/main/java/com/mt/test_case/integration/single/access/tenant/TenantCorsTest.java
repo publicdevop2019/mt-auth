@@ -57,11 +57,8 @@ public class TenantCorsTest extends TenantTest {
 
         Assertions.assertEquals(HttpStatus.OK, cors2.getStatusCode());
         ResponseEntity<SumTotal<Cors>> read =
-            CorsUtility.readTenantCors(tenantContext);
-        List<Cors> collect = Objects.requireNonNull(read.getBody()).getData().stream()
-            .filter(e -> e.getId().equalsIgnoreCase(corsId)).collect(
-                Collectors.toList());
-        Cors cors1 = collect.get(0);
+            CorsUtility.readTenantCorsById(tenantContext,corsId);
+        Cors cors1 = Objects.requireNonNull(read.getBody()).getData().get(0);
         Assertions.assertEquals(1, cors1.getVersion().intValue());
     }
 

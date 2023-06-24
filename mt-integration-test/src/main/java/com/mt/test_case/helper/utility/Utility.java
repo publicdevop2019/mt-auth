@@ -60,7 +60,8 @@ public class Utility {
         headers.setBearerAuth(login);
         HttpEntity<T> request =
             new HttpEntity<>(resource, headers);
-        return TestContext.getRestTemplate().exchange(UrlUtility.appendPath(url, resourceId),
+        return TestContext.getRestTemplate().exchange(
+            UrlUtility.appendPath(url, resourceId),
             HttpMethod.PUT, request,
             Void.class);
     }
@@ -75,7 +76,8 @@ public class Utility {
         headers.setBearerAuth(login);
         HttpEntity<Void> request =
             new HttpEntity<>(headers);
-        return TestContext.getRestTemplate().exchange(UrlUtility.appendPath(url, resourceId),
+        return TestContext.getRestTemplate().exchange(
+            UrlUtility.appendPath(url, resourceId),
             HttpMethod.DELETE, request,
             Void.class);
     }

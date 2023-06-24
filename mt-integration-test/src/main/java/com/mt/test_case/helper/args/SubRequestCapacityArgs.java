@@ -1,6 +1,5 @@
 package com.mt.test_case.helper.args;
 
-import com.mt.test_case.helper.AppConstant;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtensionContext;
 import org.junit.jupiter.params.provider.Arguments;

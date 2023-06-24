@@ -295,7 +295,7 @@ CREATE TABLE `cors_origin_map` (
 
 LOCK TABLES `cors_origin_map` WRITE;
 /*!40000 ALTER TABLE `cors_origin_map` DISABLE KEYS */;
-INSERT INTO `cors_origin_map` VALUES (857844656111616,'http://192.168.2.16'),(857844656111616,'http://192.168.2.16:3000'),(857844656111616,'http://192.168.2.16:4200'),(857844656111616,'http://192.168.2.23:3000'),(857844656111616,'http://192.168.2.23:4200'),(857844656111616,'http://192.168.2.23:4300'),(857844656111616,'http://localhost:3000'),(857844656111616,'http://localhost:4200'),(857844656111616,'http://localhost:4300'),(857844656111616,'http://localhost:4400'),(857844656111616,'http://localhost:8083'),(857844656111616,'https://auth.letsauth.cloud'),(857844656111616,'https://www.letsauth.cloud'),(881933318357304,'http://localhost:3000'),(881941651914966,'http://localhost:4300');
+INSERT INTO `cors_origin_map` VALUES(857844656111616,'http://localhost:3000'),(857844656111616,'http://localhost:4200'),(857844656111616,'http://localhost:4300'),(857844656111616,'http://localhost:4400'),(857844656111616,'http://localhost:8083'),(857844656111616,'https://auth.letsauth.cloud'),(857844656111616,'https://www.letsauth.cloud'),(881933318357304,'http://localhost:3000'),(881941651914966,'http://localhost:4300');
 /*!40000 ALTER TABLE `cors_origin_map` ENABLE KEYS */;
 UNLOCK TABLES;
 

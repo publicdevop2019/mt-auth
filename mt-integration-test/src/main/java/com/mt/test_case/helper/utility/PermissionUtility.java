@@ -15,7 +15,8 @@ public class PermissionUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "permissions");
+        return UrlUtility.appendPath(
+            TenantUtility.getTenantUrl(project), "permissions");
     }
 
     public static Permission createRandomPermissionObj() {

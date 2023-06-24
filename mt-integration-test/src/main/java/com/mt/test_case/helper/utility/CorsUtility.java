@@ -71,4 +71,10 @@ public class CorsUtility {
         String url = getUrl(tenantContext.getProject());
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
+
+    public static ResponseEntity<SumTotal<Cors>> readTenantCorsById(TenantContext tenantContext,
+                                                                    String id) {
+        String url = UrlUtility.appendQuery(getUrl(tenantContext.getProject()), "query=id:" + id);
+        return Utility.readResource(tenantContext.getCreator(), url, reference);
+    }
 }
