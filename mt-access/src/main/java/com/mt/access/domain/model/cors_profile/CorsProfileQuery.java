@@ -71,8 +71,8 @@ public class CorsProfileQuery extends QueryCriteria {
 
     @Getter
     public static class CorsProfileSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public CorsProfileSort(boolean sortOrderAsc) {
             this.isAsc = sortOrderAsc;

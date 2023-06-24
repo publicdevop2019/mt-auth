@@ -13,10 +13,10 @@ import lombok.EqualsAndHashCode;
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class SubscriptionRepresentation extends BasicSubRequest {
-    private final String id;
-    private final int replenishRate;
-    private final int burstCapacity;
-    private boolean expired = false;
+    private String id;
+    private Integer replenishRate;
+    private Integer burstCapacity;
+    private Boolean expired = false;
     private String expireReason;
 
     public SubscriptionRepresentation(SubRequest subRequest) {

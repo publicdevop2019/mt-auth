@@ -81,8 +81,8 @@ public class StoredEventQuery extends QueryCriteria {
 
     @Getter
     public static class DomainEventSort {
-        private final boolean isAsc;
-        private boolean isById;
+        private final Boolean isAsc;
+        private Boolean isById;
 
         private DomainEventSort(boolean isAsc) {
             this.isAsc = isAsc;

@@ -7,15 +7,15 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Job {
     private String name;
-    private int maxLockAcquireFailureAllowed;
+    private Integer maxLockAcquireFailureAllowed;
     private String lastStatus;
     private String id;
     private String type;
-    private int failureCount;
+    private Integer failureCount;
     private String failureReason;
-    private int failureAllowed;
-    private long minimumIdleTimeAllowed;
-    private boolean notifiedAdmin;
-    private long lastExecution;
+    private Integer failureAllowed;
+    private Long minimumIdleTimeAllowed;
+    private Boolean notifiedAdmin;
+    private Long lastExecution;
 
 }

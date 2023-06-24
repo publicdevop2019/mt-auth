@@ -41,7 +41,7 @@ public class UserMgmtRepresentation {
 
     @Data
     private static class UserLoginHistory {
-        private long loginAt;
+        private Long loginAt;
         private String ipAddress;
         private String agent;
 

@@ -187,8 +187,8 @@ public class RoleQuery extends QueryCriteria {
 
     @Getter
     public static class RoleSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public RoleSort(boolean isAsc) {
             this.isAsc = isAsc;

@@ -69,8 +69,8 @@ public class ChangeRecordQuery extends QueryCriteria {
     @Getter
     public static class Sort {
         private static final Sort instance = new Sort();
-        private final boolean byId = true;
-        private final boolean isAsc = true;
+        private final Boolean byId = true;
+        private final Boolean isAsc = true;
 
         private Sort() {
         }

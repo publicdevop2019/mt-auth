@@ -14,6 +14,6 @@ public class DataProcessTracker {
     @Id
     private final Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
     @Version
-    private int version;
-    private long lastProcessedId;
+    private Integer version;
+    private Long lastProcessedId;
 }

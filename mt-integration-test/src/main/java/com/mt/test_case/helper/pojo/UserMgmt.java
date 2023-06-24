@@ -11,7 +11,7 @@ public class UserMgmt {
     private String id;
 
     private String email;
-    private boolean locked;
+    private Boolean locked;
     private Set<String> grantedAuthorities;
     private String createdBy;
 
@@ -20,14 +20,14 @@ public class UserMgmt {
     private String modifiedBy;
 
     private Long modifiedAt;
-    private boolean subscription;
+    private Boolean subscription;
 
     private List<UserLoginHistory> loginHistory;
 
 
     @Data
     private static class UserLoginHistory {
-        private long loginAt;
+        private Long loginAt;
         private String ipAddress;
         private String agent;
 

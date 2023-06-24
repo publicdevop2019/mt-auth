@@ -29,9 +29,9 @@ public class RawAccessRecord {
     @Setter(AccessLevel.PROTECTED)
     protected Long id;
     private String name;
-    private boolean isRequest;
-    private boolean isResponse;
-    private boolean processed;
+    private Boolean isRequest;
+    private Boolean isResponse;
+    private Boolean processed;
     private String uuid;
     private String instanceId;
     private String recordId;

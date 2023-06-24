@@ -60,8 +60,8 @@ public class ProjectQuery extends QueryCriteria {
 
     @Getter
     public static class ProjectSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public ProjectSort(boolean isAsc) {
             this.isAsc = isAsc;

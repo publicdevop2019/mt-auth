@@ -4,9 +4,9 @@ import lombok.Data;
 
 @Data
 public class LoginResult {
-    private boolean allowed;
-    private boolean mfaRequired;
-    private boolean invalidMfa;
+    private Boolean allowed;
+    private Boolean mfaRequired;
+    private Boolean invalidMfa;
     private MfaId mfaId;
 
     public static LoginResult allow() {

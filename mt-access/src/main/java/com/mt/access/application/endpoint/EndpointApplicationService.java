@@ -50,7 +50,7 @@ import org.springframework.stereotype.Service;
 public class EndpointApplicationService {
     private static final String ENDPOINT = "Endpoint";
     @Value("${proxy.reload}")
-    private boolean reloadOnAppStart;
+    private Boolean reloadOnAppStart;
 
     /**
      * send app started event with a delay of 60s to wait for registry complete.

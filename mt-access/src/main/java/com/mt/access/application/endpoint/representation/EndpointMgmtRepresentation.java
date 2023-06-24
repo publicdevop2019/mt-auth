@@ -99,7 +99,7 @@ public class EndpointMgmtRepresentation {
 
     @Data
     private static class CacheConfig {
-        private boolean allowCache;
+        private Boolean allowCache;
         private Set<String> cacheControl;
 
         private Long expires;
@@ -110,9 +110,9 @@ public class EndpointMgmtRepresentation {
 
         private String vary;
 
-        private boolean etag;
+        private Boolean etag;
 
-        private boolean weakValidation;
+        private Boolean weakValidation;
 
         public CacheConfig(CacheProfile cacheProfile) {
             allowCache = cacheProfile.getAllowCache();

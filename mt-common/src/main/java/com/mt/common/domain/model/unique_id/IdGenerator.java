@@ -11,9 +11,9 @@ public class IdGenerator {
     private static final long INSTANCE_ID_LENGTH = 6L;
     private static final long SEQUENCE_ID_LENGTH = 13L;
     @Value("${instanceId}")
-    private long instanceId;
-    private long sequenceId = 0L;
-    private long lastSuccessSecond = -1L;
+    private Long instanceId;
+    private Long sequenceId = 0L;
+    private Long lastSuccessSecond = -1L;
 
     @PostConstruct
     private void validateInstanceId() {

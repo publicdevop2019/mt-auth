@@ -184,8 +184,8 @@ public class PermissionQuery extends QueryCriteria {
 
     @Getter
     public static class PermissionSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public PermissionSort(boolean isAsc) {
             this.isAsc = isAsc;

@@ -11,10 +11,10 @@ public class ProjectTenantView {
     private  Long createdAt;
     private String creatorName;
     private String name;
-    private long totalClient;
-    private long totalEndpoint;
-    private long totalUserOwned;
-    private long totalPermissionCreated;
-    private long totalRoleCreated;
+    private Long totalClient;
+    private Long totalEndpoint;
+    private Long totalUserOwned;
+    private Long totalPermissionCreated;
+    private Long totalRoleCreated;
 
 }

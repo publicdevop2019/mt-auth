@@ -32,20 +32,20 @@ public class StoredEvent implements Serializable {
     private Long id;
     private Long timestamp;
     private String name;
-    private boolean internal;
-    private boolean send = false;
+    private Boolean internal;
+    private Boolean send = false;
     private String topic;
     private String domainId;
 
     private String applicationId;
-    private boolean routable = true;
-    private boolean rejected = false;
+    private Boolean routable = true;
+    private Boolean rejected = false;
 
     public StoredEvent(DomainEvent event) {
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
         this.timestamp = event.getTimestamp();
         this.name = event.getName();
-        this.internal = event.isInternal();
+        this.internal = event.getInternal();
         this.topic = event.getTopic();
         this.applicationId = CommonDomainRegistry.getApplicationInfoService().getApplicationId();
         if (event.getDomainId() != null) {

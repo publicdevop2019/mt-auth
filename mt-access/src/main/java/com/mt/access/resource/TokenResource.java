@@ -49,7 +49,7 @@ public class TokenResource {
         LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
-        if (loginResult.isAllowed()) {
+        if (loginResult.getAllowed()) {
             try {
                 return tokenEndpoint.postAccessToken(principal, parameters);
             } catch (InvalidTokenException ex) {
@@ -57,7 +57,7 @@ public class TokenResource {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
             }
         } else {
-            if (loginResult.isInvalidMfa()) {
+            if (loginResult.getInvalidMfa()) {
                 return ResponseEntity.badRequest().build();
             } else {
                 HashMap<String, String> stringStringHashMap = new HashMap<>();

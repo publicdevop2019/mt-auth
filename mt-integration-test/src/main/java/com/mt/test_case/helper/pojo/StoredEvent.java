@@ -10,7 +10,7 @@ public class StoredEvent {
     private String eventBody;
     private Long timestamp;
     private String name;
-    private boolean internal;
+    private Boolean internal;
     private String domainId;
 
 }

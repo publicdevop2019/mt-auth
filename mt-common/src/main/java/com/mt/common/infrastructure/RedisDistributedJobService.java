@@ -27,7 +27,7 @@ public class RedisDistributedJobService implements DistributedJobService {
     @Autowired
     private RedissonClient redissonClient;
     @Value("${instanceId}")
-    private long instanceId;
+    private Long instanceId;
     private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
         new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Boolean> jobInstanceNotificationMap =
@@ -197,7 +197,7 @@ public class RedisDistributedJobService implements DistributedJobService {
         if (job.notifyJobStarving()) {
             log.warn("job {} exceed max idle time, last execution time {}",
                 jobName, job.getLastExecution().getTime());
-            if (!job.isNotifiedAdmin()) {
+            if (!job.getNotifiedAdmin()) {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()
                     .transactional(() -> {

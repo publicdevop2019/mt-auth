@@ -65,9 +65,9 @@ public class NotificationQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private boolean isAsc;
-        private boolean isTimestamp = false;
-        private boolean isId = false;
+        private Boolean isAsc;
+        private Boolean isTimestamp = false;
+        private Boolean isId = false;
 
         public static Sort byLatestTimestamp() {
             Sort sort = new Sort();

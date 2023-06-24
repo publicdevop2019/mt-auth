@@ -42,7 +42,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
-    private final boolean ack = false;
+    private final Boolean ack = false;
     @Embedded
     private NotificationId notificationId;
     private Long timestamp;

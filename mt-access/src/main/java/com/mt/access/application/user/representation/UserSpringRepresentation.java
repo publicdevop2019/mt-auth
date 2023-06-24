@@ -11,7 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class UserSpringRepresentation implements UserDetails {
     private String id;
     private String password;
-    private boolean locked;
+    private Boolean locked;
 
     public UserSpringRepresentation(User user) {
         id = user.getUserId().getDomainId();

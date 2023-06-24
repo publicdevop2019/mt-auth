@@ -102,8 +102,8 @@ public class SubRequestQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public Sort(boolean isAsc) {
             this.isAsc = isAsc;

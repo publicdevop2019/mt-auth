@@ -13,7 +13,7 @@ public class RejectedMsgReceivedEvent extends DomainEvent {
     public static final String name = "REJECTED_MSG_EVENT";
     private String sourceTopic;
     private String sourceName;
-    private long sourceEventId;
+    private Long sourceEventId;
     {
         setTopic(REJECTED_MSG_EVENT);
         setName(name);

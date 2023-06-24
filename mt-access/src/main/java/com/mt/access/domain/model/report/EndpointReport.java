@@ -12,7 +12,7 @@ import lombok.Getter;
 @Getter
 public class EndpointReport {
     private final EndpointId endpointId;
-    private final int totalInvokeCount;
+    private final Integer totalInvokeCount;
     private final AtomicInteger failureResponseCount = new AtomicInteger(0);
     private final AtomicInteger badRequestCount = new AtomicInteger(0);//400
     private final AtomicInteger unauthorizedRequestCount = new AtomicInteger(0);//401
@@ -20,8 +20,8 @@ public class EndpointReport {
     private final AtomicInteger authenticationRequiredRequestCount = new AtomicInteger(0);//403
     private final AtomicInteger internalServerErrorCount = new AtomicInteger(0);//500
     private final AtomicInteger serviceUnavailableErrorCount = new AtomicInteger(0);//503
-    private long averageSuccessRoundTimeInMili;
-    private int averageResponseSize;
+    private Long averageSuccessRoundTimeInMili;
+    private Integer averageResponseSize;
 
     public EndpointReport(Set<FormattedAccessRecord> records, EndpointId endpointId) {
         this.endpointId = endpointId;

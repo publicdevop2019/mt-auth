@@ -23,9 +23,9 @@ public class EndpointSharedCardRepresentation {
     private String path;
     private String method;
     private Integer version;
-    private boolean websocket;
-    private boolean shared;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean shared;
+    private Boolean secured;
     private String projectId;
     private String projectName;
     private transient ProjectId originalProjectId;

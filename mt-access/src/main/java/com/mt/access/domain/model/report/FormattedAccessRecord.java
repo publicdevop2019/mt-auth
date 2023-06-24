@@ -61,8 +61,8 @@ public class FormattedAccessRecord {
     private String method;
     @Temporal(TemporalType.TIMESTAMP)
     private Date responseAt;
-    private int responseCode;
-    private int responseContentSize;
+    private Integer responseCode;
+    private Integer responseContentSize;
 
 
     public FormattedAccessRecord(RawAccessRecord request, RawAccessRecord response) {

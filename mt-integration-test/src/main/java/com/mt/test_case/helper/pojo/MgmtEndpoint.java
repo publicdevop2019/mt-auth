@@ -12,9 +12,9 @@ public class MgmtEndpoint {
     private String projectId;
     private String path;
     private String method;
-    private boolean websocket;
-    private boolean csrfEnabled;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
 
@@ -30,7 +30,7 @@ public class MgmtEndpoint {
 
     @Data
     private static class CacheConfig {
-        private boolean allowCache;
+        private Boolean allowCache;
         private Set<String> cacheControl;
 
         private Long expires;
@@ -41,9 +41,9 @@ public class MgmtEndpoint {
 
         private String vary;
 
-        private boolean etag;
+        private Boolean etag;
 
-        private boolean weakValidation;
+        private Boolean weakValidation;
 
     }
 }

@@ -24,8 +24,8 @@ public class ImageQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private final boolean isById = true;
-        private final boolean isAsc;
+        private final Boolean isById = true;
+        private final Boolean isAsc;
 
         private Sort(boolean isAsc) {
             this.isAsc = isAsc;

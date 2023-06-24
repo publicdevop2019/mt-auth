@@ -18,9 +18,9 @@ public class ValidationResult {
     private Long id;
 
     @Column(name = "failure_count", columnDefinition = "TINYINT")
-    private int failureCount = 0;
+    private Integer failureCount = 0;
     @Column(name = "notify_admin", columnDefinition = "BIT", length = 1)
-    private boolean notifyAdmin = false;
+    private Boolean notifyAdmin = false;
 
     private ValidationResult() {
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();

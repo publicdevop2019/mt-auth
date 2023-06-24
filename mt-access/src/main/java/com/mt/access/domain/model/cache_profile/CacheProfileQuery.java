@@ -74,8 +74,8 @@ public class CacheProfileQuery extends QueryCriteria {
 
     @Getter
     public static class CacheProfileSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public CacheProfileSort(boolean sortOrderAsc) {
             this.isAsc = sortOrderAsc;

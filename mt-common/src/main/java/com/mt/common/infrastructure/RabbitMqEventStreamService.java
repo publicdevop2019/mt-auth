@@ -49,7 +49,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     private ThreadPoolExecutor subExecutor;
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
-    private final boolean autoAck = false;
+    private final Boolean autoAck = false;
     private final Connection connectionPub;
     private final Connection connectionSub;
     ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms = new ConcurrentSkipListMap<>();
@@ -425,7 +425,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public void next(StoredEvent event) {
-        next(event.getApplicationId(), event.isInternal(), event.getTopic(), event);
+        next(event.getApplicationId(), event.getInternal(), event.getTopic(), event);
     }
 
     private void checkExchange(Channel channel) throws IOException {

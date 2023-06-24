@@ -195,11 +195,11 @@ public class EndpointQuery extends QueryCriteria {
 
     @Getter
     public static class EndpointSort {
-        private final boolean isAsc;
-        private boolean byId;
-        private boolean byClientId;
-        private boolean byMethod;
-        private boolean byPath;
+        private final Boolean isAsc;
+        private Boolean byId;
+        private Boolean byClientId;
+        private Boolean byMethod;
+        private Boolean byPath;
 
         private EndpointSort(boolean isAsc) {
             this.isAsc = isAsc;

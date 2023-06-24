@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class Notification {
-    private long date;
+    private Long date;
     private List<String> descriptions;
     private String id;
     private String title;

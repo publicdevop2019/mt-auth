@@ -15,7 +15,7 @@ public class AuditorAwareImplTest {
     @Test
     public void getCurrentAuditor_noAuth() {
         Optional<String> currentAuditor = auditorAware.getCurrentAuditor();
-        Assertions.assertEquals(false, currentAuditor.isEmpty());
-        Assertions.assertEquals("NOT_HTTP", currentAuditor.get());
+        Assert.assertEquals(false, currentAuditor.isEmpty());
+        Assert.assertEquals("NOT_HTTP", currentAuditor.get());
     }
 }

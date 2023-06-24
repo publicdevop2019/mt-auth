@@ -79,11 +79,11 @@ public class UserQuery extends QueryCriteria {
 
     @Getter
     public static class UserSort {
-        private final boolean isAsc;
-        private boolean byEmail;
-        private boolean byId;
-        private boolean byCreateAt;
-        private boolean byLocked;
+        private final Boolean isAsc;
+        private Boolean byEmail;
+        private Boolean byId;
+        private Boolean byCreateAt;
+        private Boolean byLocked;
 
         public UserSort(boolean isAsc) {
             this.isAsc = isAsc;
