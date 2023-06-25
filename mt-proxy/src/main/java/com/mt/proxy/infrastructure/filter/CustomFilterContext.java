@@ -20,7 +20,8 @@ public class CustomFilterContext {
     }
 
     public boolean hasCheckFailed() {
-        return tokenCheckFailed || endpointCheckFailed || rateLimitCheckFailed;
+        return Boolean.TRUE.equals(tokenCheckFailed) || Boolean.TRUE.equals(endpointCheckFailed) ||
+            Boolean.TRUE.equals(rateLimitCheckFailed);
     }
 
     public void rateLimitReached() {

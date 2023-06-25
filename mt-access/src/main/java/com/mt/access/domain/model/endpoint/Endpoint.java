@@ -30,7 +30,6 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -330,7 +329,7 @@ public class Endpoint extends Auditable {
     }
 
     @Override
-    public void validate(@NotNull ValidationNotificationHandler handler) {
+    public void validate(ValidationNotificationHandler handler) {
         DomainRegistry.getEndpointValidationService()
             .validate(this, new HttpValidationNotificationHandler());
         (new EndpointValidator(this, handler)).validate();

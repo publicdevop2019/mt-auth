@@ -105,7 +105,7 @@ public class CorsTest extends CommonTest {
             res.getHeaders().getAccessControlAllowMethods().toString());
         Assertions.assertEquals("[authorization]",
             res.getHeaders().getAccessControlAllowHeaders().toString());
-        Assertions.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
+        Assertions.assertEquals(7200, res.getHeaders().getAccessControlMaxAge());
     }
 
     private ResponseEntity<?> sendValidCorsForNonTokenUri(String uri, HttpMethod method) {
@@ -131,7 +131,7 @@ public class CorsTest extends CommonTest {
             .assertEquals("http://localhost:4300", res.getHeaders().getAccessControlAllowOrigin());
         Assertions.assertEquals("[authorization]",
             res.getHeaders().getAccessControlAllowHeaders().toString());
-        Assertions.assertEquals(86400, res.getHeaders().getAccessControlMaxAge());
+        Assertions.assertEquals(7200, res.getHeaders().getAccessControlMaxAge());
     }
 
 }

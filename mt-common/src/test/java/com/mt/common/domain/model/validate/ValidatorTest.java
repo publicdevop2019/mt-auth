@@ -1,65 +1,98 @@
 package com.mt.common.domain.model.validate;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ValidatorTest {
-    @Test(expected = DefinedRuntimeException.class)
+    @Test
     public void testWhitelistOnly() {
-        Validator.whitelistOnly("<");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("<");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly1() {
-        Validator.whitelistOnly("a<");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("a<");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly2() {
-        Validator.whitelistOnly("à/è/ì/ò/ù");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("à/è/ì/ò/ù");
+        });
     }
+
     @Test
     public void testWhitelistOnly3() {
         Validator.whitelistOnly("abc");
     }
+
     @Test
     public void testWhitelistOnly4() {
         Validator.whitelistOnly("测试 ");
     }
+
     @Test
     public void testWhitelistOnly5() {
         Validator.whitelistOnly("。");
     }
+
     @Test
     public void testWhitelistOnly6() {
         Validator.whitelistOnly("，");
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly7() {
-        Validator.whitelistOnly("《");
+
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("《");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly8() {
-        Validator.whitelistOnly("》");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("》");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly9() {
-        Validator.whitelistOnly("·");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("·");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly10() {
-        Validator.whitelistOnly("、");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("、");
+        });
     }
-    @Test(expected = DefinedRuntimeException.class)
+
+    @Test
     public void testWhitelistOnly11() {
-        Validator.whitelistOnly("！");
+        assertThrows(DefinedRuntimeException.class, () -> {
+            Validator.whitelistOnly("！");
+        });
     }
+
     @Test
     public void testWhitelistOnly12() {
         Validator.whitelistOnly("!");
     }
+
     @Test
     public void testWhitelistOnly13() {
         Validator.whitelistOnly(",");
     }
+
     @Test
     public void testWhitelistOnly14() {
         Validator.whitelistOnly(".");

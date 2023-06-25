@@ -13,7 +13,7 @@ public class GzipService {
     public static byte[] updateGzip(byte[] responseBody, ServerHttpResponse originalResponse) {
         if (originalResponse.getHeaders().getContentType() != null
             && originalResponse.getHeaders().getContentType()
-            .equals(MediaType.APPLICATION_JSON_UTF8)
+            .equals(MediaType.APPLICATION_JSON)
         ) {
             boolean minLength = responseBody.length > 1024;
             if (minLength) {

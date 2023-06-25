@@ -10,16 +10,17 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.validation.constraints.NotNull;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PermissionCheckService {
-    public void canAccess(@NotNull Set<ProjectId> ids, String permissionName) {
+    public void canAccess(Set<ProjectId> ids, String permissionName) {
+        Validator.notNull(ids);
         if (ids == null) {
             throw new DefinedRuntimeException("no project id found", "1027",
                 HttpResponseCode.FORBIDDEN);
@@ -52,7 +53,8 @@ public class PermissionCheckService {
         }
     }
 
-    public void canAccess(@NotNull ProjectId id, String permissionName) {
+    public void canAccess(ProjectId id, String permissionName) {
+        Validator.notNull(id);
         canAccess(Collections.singleton(id), permissionName);
     }
 

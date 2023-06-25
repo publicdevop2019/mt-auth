@@ -23,14 +23,19 @@ public class CommonUtility {
     }
     //@todo find better fix
     /**
-     * <p>update DB collection without trigger unnecessary sql update</p>
-     * <p>hibernate by default create empty set instead null</p>
-     * <p>when we pass null trying to set value</p>
-     * <p>it will create unnecessary update to DB</p>
-     * <p>below logic is added to avoid this update</p>
+     * update DB collection without trigger unnecessary sql update
+     * <p>
+     * hibernate by default create empty set instead null
+     * <p>
+     * when we pass null trying to set value
+     * <p>
+     * it will create unnecessary update to DB
+     * <p>
+     * below logic is added to avoid this update
      *
-     * @param source source collection
+     * @param source source collection, if null
      * @param updateTo target collection
+     * @param ifSourceNull invoke if source is null
      * @param <T>    type of collection
      */
     public static <T> void updateCollection(@Nullable Collection<T> source,

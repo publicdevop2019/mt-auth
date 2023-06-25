@@ -7,7 +7,6 @@ import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Column;
-import javax.validation.constraints.NotNull;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -16,11 +15,9 @@ public class UserMobile implements Serializable {
     private static final Pattern COUNTRY_CODE_REGEX = Pattern.compile("^[0-9]{1,3}$");
     private static final Pattern MOBILE_NUMBER_REGEX = Pattern.compile("^[0-9]{10,11}$");
     @Column
-    @NotNull
     @Getter
     String countryCode;
     @Column
-    @NotNull
     @Getter
     String mobileNumber;
 

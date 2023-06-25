@@ -110,9 +110,11 @@ public class IdempotentService {
     }
 
     /**
-     * <p>make sure change is idempotent, start transaction if change is allowed</p>
-     * <p>note: this is not safe for cancel changes, like create & delete</p>
-     * <p>for change that is eligible to cancel, use idempotentMsg</p>
+     * make sure change is idempotent, start transaction if change is allowed
+     * <p>
+     * note: this is not safe for cancel changes, like create and delete
+     * <p>
+     * for change that is eligible to cancel, use idempotentMsg
      *
      * @param changeId      change id
      * @param function      additional function to be executed

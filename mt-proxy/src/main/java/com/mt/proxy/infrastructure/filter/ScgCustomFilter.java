@@ -126,7 +126,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         if (context.hasCheckFailed()) {
             return stopResponse(exchange, context);
         }
-        if (context.isWebsocket()) {
+        if (Boolean.TRUE.equals(context.getWebsocket())) {
             //for websocket only endpoint check is performed
             //@todo add token check for websocket
             return chain.filter(exchange);
@@ -144,10 +144,10 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         ServerHttpResponse updatedResp = updateResponse(exchange);
 
         return requestMono.flatMap(req -> {
-            if (context.hasCheckFailed()) {
+            if (Boolean.TRUE.equals(context.hasCheckFailed())) {
                 return stopResponse(exchange, context);
             }
-            if (context.isBodyCopied()) {
+            if (Boolean.TRUE.equals(context.getBodyCopied())) {
                 return chain.filter(exchange.mutate().request(req).response(updatedResp).build());
             } else {
                 return chain.filter(exchange.mutate().response(updatedResp).build());
@@ -334,7 +334,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
             request.getPath().toString(),
             request.getMethod().name(),
-            context.getAuthHeader(), context.isWebsocket());
+            context.getAuthHeader(), context.getWebsocket());
         if (!allow) {
             LogHelper.log(request,
                 (ignored) -> log.debug("access is not allowed"));

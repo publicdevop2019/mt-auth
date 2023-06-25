@@ -50,6 +50,9 @@ public abstract class UpdateQueryBuilder<T extends Auditable> {
      * {op:'diff',path:'/0002/storageOrder',value:'1'}
      * ]
      * .
+     * @param commands patch command
+     * @param clazz class of target
+     * @return row count
      */
     public Integer update(List<PatchCommand> commands, Class<T> clazz) {
         Map<PatchCommand, List<String>> jsonPatchCommandListHashMap =

@@ -19,7 +19,6 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -110,7 +109,7 @@ public class User extends Auditable {
     }
 
     @Override
-    public void validate(@NotNull ValidationNotificationHandler handler) {
+    public void validate(ValidationNotificationHandler handler) {
     }
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {

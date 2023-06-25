@@ -70,8 +70,8 @@ public class EndpointService {
     }
 
     public boolean checkAccess(String requestUri, String method, @Nullable String authHeader,
-                               boolean webSocket) {
-        if (webSocket) {
+                               Boolean webSocket) {
+        if (Boolean.TRUE.equals(webSocket)) {
             if (authHeader == null) {
                 log.debug("check failure due to empty auth info");
                 return false;

@@ -3,6 +3,7 @@ package com.mt.common.domain.model.audit;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.EntityListeners;
@@ -11,7 +12,6 @@ import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -60,7 +60,8 @@ public abstract class Auditable implements Serializable {
         }
     }
 
-    public void validate(@NotNull ValidationNotificationHandler handler) {
+    public void validate(ValidationNotificationHandler handler) {
+        Validator.notNull(handler);
     }
 
 }

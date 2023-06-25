@@ -7,7 +7,5 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public interface EncryptionService {
     String encryptedValue(String secret);
 
-    PasswordEncoder getEncoder();
-
     boolean compare(UserPassword userPassword, CurrentPassword currentPwd);
 }

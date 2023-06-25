@@ -42,6 +42,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
+    //field is used by sql statement
     private final Boolean ack = false;
     @Embedded
     private NotificationId notificationId;

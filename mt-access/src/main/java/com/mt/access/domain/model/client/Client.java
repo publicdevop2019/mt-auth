@@ -42,7 +42,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -400,7 +399,7 @@ public class Client extends Auditable {
     }
 
     @Override
-    public void validate(@NotNull ValidationNotificationHandler handler) {
+    public void validate(ValidationNotificationHandler handler) {
         (new ClientValidator(this, handler)).validate();
     }
 
