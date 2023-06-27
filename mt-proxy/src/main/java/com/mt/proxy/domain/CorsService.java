@@ -43,7 +43,11 @@ public class CorsService implements CorsConfigurationSource {
     private void updateCorsConfig(CorsConfiguration configuration, Endpoint endpoint) {
         Endpoint.CorsConfig corsConfig = endpoint.getCorsConfig();
         if (corsConfig != null) {
-            corsConfig.getOrigin().forEach(configuration::addAllowedOrigin);
+            if (corsConfig.getOrigin().stream().anyMatch("*"::equalsIgnoreCase)) {
+                configuration.addAllowedOriginPattern("*");
+            } else {
+                corsConfig.getOrigin().forEach(configuration::addAllowedOrigin);
+            }
             configuration.setAllowCredentials(corsConfig.getCredentials());
             configuration.setAllowedHeaders(List.copyOf(corsConfig.getAllowedHeaders()));
             configuration.setExposedHeaders(List.copyOf(corsConfig.getExposedHeaders()));
@@ -90,7 +94,8 @@ public class CorsService implements CorsConfigurationSource {
         if ("options".equalsIgnoreCase(exchange.getRequest().getMethodValue())) {
             if (exchange.getRequest().getHeaders().getAccessControlRequestMethod() == null) {
                 LogHelper.log(exchange.getRequest(),
-                    (ignored) -> log.error("unexpected null value for access-control-request-method"));
+                    (ignored) -> log.error(
+                        "unexpected null value for access-control-request-method"));
                 return null;
             }
             targetMethod =
