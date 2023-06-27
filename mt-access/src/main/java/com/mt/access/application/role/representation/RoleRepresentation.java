@@ -1,5 +1,7 @@
 package com.mt.access.application.role.representation;
 
+import static com.mt.access.domain.model.permission.Permission.API_ACCESS;
+
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
@@ -70,7 +72,7 @@ public class RoleRepresentation {
         if (this.roleType.equals(RoleType.PROJECT)) {
             Project byId =
                 DomainRegistry.getProjectRepository().get(new ProjectId(role.getName()));
-                this.name = byId.getName();
+            this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();
         if (role.getCommonPermissionIds() != null && !role.getCommonPermissionIds().isEmpty()) {
@@ -88,8 +90,10 @@ public class RoleRepresentation {
             Set<Permission> allByQuery =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
                     .query(e), new PermissionQuery(role.getApiPermissionIds()));
-            Set<EndpointId> collect1 = allByQuery.stream().map(e -> new EndpointId(e.getName()))
-                .collect(Collectors.toSet());
+            Set<EndpointId> collect1 =
+                allByQuery.stream().filter(e -> !e.getName().equalsIgnoreCase(API_ACCESS))
+                    .map(e -> new EndpointId(e.getName()))
+                    .collect(Collectors.toSet());
             Set<Endpoint> allByQuery1 = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
                     new EndpointQuery(collect1));

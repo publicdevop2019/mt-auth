@@ -118,7 +118,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
     const linked = formGroup.get('linkApi').value;
     return {
       id: formGroup.get('id').value,//value is ignored
-      parentId: formGroup.get('parentId').value,
+      parentId: formGroup.get('parentId').value ? formGroup.get('parentId').value : null,
       name: formGroup.get('name').value,
       projectId: formGroup.get('projectId').value,
       linkedApiIds: linked ? formGroup.get('apiId').value ? formGroup.get('apiId').value : [] : [],

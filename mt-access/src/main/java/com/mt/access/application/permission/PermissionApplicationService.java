@@ -243,9 +243,7 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle secured endpoint remove event");
-                PermissionId permissionId = event.getPermissionId();
-                Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
-                permission.secureEndpointRemoveCleanUp();
+                DomainRegistry.getPermissionService().cleanRelated(event.getPermissionId());
                 return null;
             }, PERMISSION);
     }

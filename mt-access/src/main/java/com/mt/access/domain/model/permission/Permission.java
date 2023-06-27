@@ -16,6 +16,7 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -134,6 +135,7 @@ public class Permission extends Auditable {
 
     @Embedded
     private PermissionId permissionId;
+
     @Getter
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
@@ -146,7 +148,7 @@ public class Permission extends Auditable {
     })
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "linkedPermissionIdsRegion")
-    private Set<PermissionId> linkedApiPermissionIds;
+    private Set<PermissionId> linkedApiPermissionIds = new LinkedHashSet<>();
 
     @Embedded
     @AttributeOverrides({
@@ -376,7 +378,8 @@ public class Permission extends Auditable {
         Permission p21 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_ROLE,
                 roleMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8IZU2J4F0P"),new PermissionId("0Y8HKE2QAIVF"), new PermissionId("0Y8HKE24FWUI"))
+                Stream.of(new PermissionId("0Y8IZU2J4F0P"), new PermissionId("0Y8HKE2QAIVF"),
+                        new PermissionId("0Y8HKE24FWUI"))
                     .collect(Collectors.toSet()));
         Permission p22 = Permission
             .autoCreateForProject(projectId, new PermissionId(), CREATE_ROLE, PermissionType.COMMON,
@@ -627,5 +630,14 @@ public class Permission extends Auditable {
     public void secureEndpointRemoveCleanUp() {
         DomainRegistry.getPermissionRepository().remove(this);
         CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
+    }
+
+    public void removeApiPermission(PermissionId permissionId) {
+        if (!linkedApiPermissionIds.isEmpty()) {
+            Set<PermissionId> collect =
+                linkedApiPermissionIds.stream().filter(e -> !e.equals(permissionId)).collect(
+                    Collectors.toSet());
+            setLinkedApiPermissionIds(collect);
+        }
     }
 }

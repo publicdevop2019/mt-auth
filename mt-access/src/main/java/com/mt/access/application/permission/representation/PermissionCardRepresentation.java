@@ -65,7 +65,8 @@ public class PermissionCardRepresentation {
         //update name for root project only
         if (new ProjectId(projectId).equals(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID))) {
             Set<ProjectId> collect = data.stream()
-                .filter(e -> e.type.equals(PermissionType.COMMON) && e.parentId == null)
+                .filter(e -> e.type.equals(PermissionType.COMMON) && e.parentId == null &&
+                    e.name.contains(ProjectId.getIdPrefix()))
                 .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
             if (collect.size() > 0) {
                 Set<Project> allByQuery = QueryUtility.getAllByQuery(

@@ -33,6 +33,8 @@ public class PermissionQuery extends QueryCriteria {
     private Set<ProjectId> projectIds;
     @Setter
     private Set<ProjectId> tenantIds;
+    @Setter
+    private Set<PermissionId> linkedApiPermissionIds;
     private PermissionId parentId;
     private Boolean parentIdNull;
     @Setter
@@ -99,11 +101,13 @@ public class PermissionQuery extends QueryCriteria {
 
     /**
      * create query to find read project permission for tenant
+     *
      * @param projectId project id
      * @param tenantIds tenant id
      * @return PermissionQuery
      */
-    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> tenantIds) {
+    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId,
+                                                         Set<ProjectId> tenantIds) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.projectIds = Collections.singleton(projectId);
         Validator.notEmpty(tenantIds);
@@ -139,6 +143,15 @@ public class PermissionQuery extends QueryCriteria {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.setTenantIds(Collections.singleton(tenantId));
         permissionQuery.setIds(Collections.singleton(parentId));
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.sort = PermissionSort.byId(true);
+        return permissionQuery;
+    }
+
+    public static PermissionQuery linkedApiPermission(PermissionId permissionId) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setLinkedApiPermissionIds(Collections.singleton(permissionId));
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);
