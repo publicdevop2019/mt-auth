@@ -11,7 +11,7 @@ import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/valid
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 
 @Component({
   selector: 'mgmt-app-client',
@@ -22,7 +22,7 @@ export class MgmtClientComponent extends Aggregate<MgmtClientComponent, IClient>
   bottomSheet: IBottomSheet<IClient>;
   private formCreatedOb: Observable<string>;
   constructor(
-    public clientSvc: ClientService,
+    public clientSvc: MgmtClientService,
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,

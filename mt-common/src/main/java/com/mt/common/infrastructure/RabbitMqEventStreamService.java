@@ -16,7 +16,6 @@ import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
@@ -24,34 +23,43 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
-import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
 public class RabbitMqEventStreamService implements SagaEventStreamService {
-
+    @Autowired
+    @Qualifier("msg")
+    private ThreadPoolExecutor subExecutor;
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
-    private final boolean autoAck = false;
+    private final Boolean autoAck = false;
     private final Connection connectionPub;
     private final Connection connectionSub;
     ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms = new ConcurrentSkipListMap<>();
-    @Resource
-    private Environment env;
+    private static final HashSet<String> reservedQueue = new HashSet<>();
+
+    static {
+        reservedQueue.add(QUEUE_NAME_ALT);
+        reservedQueue.add(QUEUE_NAME_REJECT);
+        reservedQueue.add(QUEUE_NAME_DELAY);
+    }
 
     public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
         log.debug("initializing event stream service with url {}", url);
@@ -62,26 +70,23 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             factory.setPort(Integer.parseInt(split[1]));
         }
         try {
-            connectionSub = factory.newConnection();
+            connectionSub = factory.newConnection("mt-access-sub");
         } catch (IOException | TimeoutException ex) {
             throw new DefinedRuntimeException("unable to create subscribe connection", "0000",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, ex);
+                HttpResponseCode.NOT_HTTP, ex);
         }
         try {
-            connectionPub = factory.newConnection();
+            connectionPub = factory.newConnection("mt-access-pub");
         } catch (IOException | TimeoutException e) {
             log.error("unable to create publish connection", e);
             try {
                 connectionSub.close();
             } catch (IOException ex) {
                 throw new DefinedRuntimeException("error during close subscribe connection", "0001",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, ex);
+                    HttpResponseCode.NOT_HTTP, ex);
             }
             throw new DefinedRuntimeException("unable to create publish connection", "0002",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, e);
+                HttpResponseCode.NOT_HTTP, e);
         }
         log.debug("event stream service initialize success");
     }
@@ -183,94 +188,124 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         Consumer<T> consumer2,
         Class<T> clazz,
         String... topics) {
-
-        Thread thread = Thread.currentThread();
-        Channel channel = subChannel.get(thread);
-        if (channel == null) {
+        //using pool to avoid single thread get all queue bindings
+        subExecutor.execute(() -> {
+            Thread thread = Thread.currentThread();
+            log.debug("{} subscribing to queue {}", thread.getName(), queueName);
+            Channel channel = subChannel.get(thread);
+            if (channel == null) {
+                try {
+                    channel = connectionSub.createChannel();
+                } catch (IOException e) {
+                    throw new DefinedRuntimeException(
+                        "unable create subscribe channel with routing key " + routingKeyPrefix +
+                            " and queue name " + queueName, "0003",
+                        HttpResponseCode.NOT_HTTP, e);
+                }
+                subChannel.put(thread, channel);
+            }
             try {
-                channel = connectionSub.createChannel();
+
+                if (reservedQueue.contains(queueName)) {
+                    channel.queueDeclare(queueName, true, false, autoDelete, null);
+                } else {
+                    Map<String, Object> args = new HashMap<>();
+                    if (strategy.equals(ErrorHandleStrategy.MANUAL)) {
+                        args.put("x-dead-letter-exchange", EXCHANGE_NAME_REJECT);
+                    } else if (strategy.equals(ErrorHandleStrategy.DELAY_1MIN)) {
+                        args.put("x-dead-letter-exchange", EXCHANGE_NAME_DELAY);
+                    }
+                    channel.queueDeclare(queueName, true, false, autoDelete, args);
+                }
+                checkExchange(channel);
+                //@todo find out proper prefetch value, this requires test in prod env
+                channel.basicQos(30);
+                for (String topic : topics) {
+                    channel.queueBind(queueName,
+                        exchangeName == null ? EXCHANGE_NAME : exchangeName,
+                        routingKeyPrefix + topic);
+                }
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
-                    "unable create subscribe channel with routing key " + routingKeyPrefix +
-                        " and queue name " + queueName, "0003",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, e);
+                    "unable create queue with routing key " + routingKeyPrefix +
+                        " and queue name " +
+                        queueName, "0004",
+                    HttpResponseCode.NOT_HTTP, e);
             }
-            subChannel.put(thread, channel);
-        }
-        try {
-            HashSet<String> strings = new HashSet<>();
-            strings.add(QUEUE_NAME_ALT);
-            strings.add(QUEUE_NAME_REJECT);
-            strings.add(QUEUE_NAME_DELAY);
-            if (strings.contains(queueName)) {
-                channel.queueDeclare(queueName, true, false, autoDelete, null);
-            } else {
-                Map<String, Object> args = new HashMap<>();
-                if (strategy.equals(ErrorHandleStrategy.MANUAL)) {
-                    args.put("x-dead-letter-exchange", EXCHANGE_NAME_REJECT);
-                } else if (strategy.equals(ErrorHandleStrategy.DELAY_1MIN)) {
-                    args.put("x-dead-letter-exchange", EXCHANGE_NAME_DELAY);
-                }
-                channel.queueDeclare(queueName, true, false, autoDelete, args);
-            }
-            checkExchange(channel);
-            //@todo find out proper prefetch value, this requires test in prod env
-            channel.basicQos(10);
-            for (String topic : topics) {
-                channel.queueBind(queueName, exchangeName == null ? EXCHANGE_NAME : exchangeName,
-                    routingKeyPrefix + topic);
-            }
-        } catch (IOException e) {
-            throw new DefinedRuntimeException(
-                "unable create queue with routing key " + routingKeyPrefix + " and queue name " +
-                    queueName, "0004",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, e);
-        }
-        Channel finalChannel = channel;
-        try {
-            channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
-                log.trace("mq message received");
-                String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                StoredEvent storedEvent =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .deserialize(s, StoredEvent.class);
-                log.debug("handling {} with id {}",
-                    ClassUtility.getShortName(storedEvent.getName()),
-                    storedEvent.getId());
-                long deliveryTag = delivery.getEnvelope().getDeliveryTag();
-                boolean consumeSuccess = true;
-                try {
-                    if (clazz == null) {
-                        consumer1.accept(storedEvent);
-                    } else {
-                        T event = CommonDomainRegistry.getCustomObjectSerializer()
-                            .deserialize(storedEvent.getEventBody(), clazz);
-                        consumer2.accept(event);
-                    }
-                } catch (Exception ex) {
-                    log.error(
-                        "error during consume, catch error to maintain connection, reject message",
-                        ex);
-                    consumeSuccess = false;
-                }
-                if (consumeSuccess) {
-                    finalChannel.basicAck(deliveryTag, false);
+            Channel finalChannel = channel;
+            try {
+                int channelNumber;
+                if (log.isDebugEnabled()) {
+                    channelNumber = channel.getChannelNumber();
                 } else {
-                    finalChannel.basicNack(deliveryTag, false,
-                        strategy.equals(ErrorHandleStrategy.REQUEUE));
+                    channelNumber = -1;
                 }
-                log.trace("mq message consumed");
-            }, consumerTag -> {
-            });
-        } catch (IOException e) {
-            throw new DefinedRuntimeException(
-                "unable consume message with routing key " + routingKeyPrefix + " and queue name " +
-                    queueName, "0005",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR);
-        }
+                channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
+                    log.trace("mq message received");
+                    String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
+                    StoredEvent storedEvent =
+                        CommonDomainRegistry.getCustomObjectSerializer()
+                            .deserialize(s, StoredEvent.class);
+                    if (log.isDebugEnabled()) {
+                        long l = Instant.now().toEpochMilli();
+                        Long timestamp = storedEvent.getTimestamp();
+                        log.debug(
+                            "channel num {} tag {} handling {} with id {}, total time taken before consume is {} milli",
+                            channelNumber,
+                            consumerTag,
+                            ClassUtility.getShortName(storedEvent.getName()),
+                            storedEvent.getId(), l - timestamp);
+                    }
+                    long deliveryTag = delivery.getEnvelope().getDeliveryTag();
+                    boolean consumeSuccess = true;
+                    try {
+                        if (clazz == null) {
+                            consumer1.accept(storedEvent);
+                        } else {
+                            T event = CommonDomainRegistry.getCustomObjectSerializer()
+                                .deserialize(storedEvent.getEventBody(), clazz);
+                            consumer2.accept(event);
+                        }
+                    } catch (Exception ex) {
+                        log.error(
+                            "error during consume, catch error to maintain connection, reject message",
+                            ex);
+                        consumeSuccess = false;
+                    }
+                    if (consumeSuccess) {
+                        long l1 = Instant.now().toEpochMilli();
+                        Long l2 = storedEvent.getTimestamp();
+                        log.debug(
+                            "channel num {} tag {} complete handling {} with id {}, total time taken is {} milli",
+                            channelNumber,
+                            consumerTag,
+                            ClassUtility.getShortName(storedEvent.getName()),
+                            storedEvent.getId(), l1 - l2);
+                        if (l1 - l2 > 10*1000) {
+                            log.error(
+                                "channel num {} tag {} complete handling {} with id {}, total time taken is {} milli",
+                                channelNumber,
+                                consumerTag,
+                                ClassUtility.getShortName(storedEvent.getName()),
+                                storedEvent.getId(), l1 - l2);
+                        }
+                        finalChannel.basicAck(deliveryTag, false);
+                    } else {
+                        finalChannel.basicNack(deliveryTag, false,
+                            strategy.equals(ErrorHandleStrategy.REQUEUE));
+                    }
+                    log.trace("mq message consumed");
+                }, consumerTag -> {
+                });
+            } catch (IOException e) {
+                throw new DefinedRuntimeException(
+                    "unable consume message with routing key " + routingKeyPrefix +
+                        " and queue name " +
+                        queueName, "0005",
+                    HttpResponseCode.NOT_HTTP);
+            }
+        });
+
     }
 
     @Override
@@ -310,73 +345,73 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
         String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
-        log.debug("publish next event id {} with routing key {}", event.getId(), routingKey);
+        //async publish confirm for best performance
+        ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
+            Consumer<StoredEvent> markAsSent = (storedEvent) -> {
+                CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                    .markAsSent(storedEvent);
+            };
+            if (multiple) {
+                log.debug("ack callback with multiple confirm");
+                ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                    outstandingConfirms.headMap(
+                        sequenceNumber, true
+                    );
+                confirmed.values().forEach(markAsSent);
+                confirmed.clear();
+            } else {
+                log.debug("ack callback with single confirm");
+                StoredEvent storedEvent = outstandingConfirms.get(sequenceNumber);
+                if (storedEvent != null) {
+                    markAsSent.accept(storedEvent);
+                } else {
+                    log.warn(
+                        "unable to find stored event, this may indicate some issue, sequenceNum {}",
+                        sequenceNumber);
+                }
+                outstandingConfirms.remove(sequenceNumber);
+            }
+        };
+        //in case of failure, just clear outstandingConfirms and do nothing
+        ConfirmCallback nAckCallback = (sequenceNumber, multiple) -> {
+            StoredEvent body = outstandingConfirms.get(sequenceNumber);
+            log.error(
+                "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
+                body, sequenceNumber, multiple);
+            if (multiple) {
+                ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                    outstandingConfirms.headMap(
+                        sequenceNumber, true
+                    );
+                confirmed.clear();
+            } else {
+                outstandingConfirms.remove(sequenceNumber);
+            }
+        };
         Thread thread = Thread.currentThread();
-
         Channel channel = pubChannel.get(thread);
         if (channel == null) {
             try {
                 channel = connectionPub.createChannel();
-                //async publish confirm for best performance
                 channel.confirmSelect();
-                ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
-                    Consumer<StoredEvent> markAsSent = (storedEvent) -> {
-                        CommonApplicationServiceRegistry.getStoredEventApplicationService()
-                            .markAsSent(storedEvent);
-                    };
-                    if (multiple) {
-                        log.debug("ack callback with multiple confirm");
-                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                            outstandingConfirms.headMap(
-                                sequenceNumber, true
-                            );
-                        confirmed.values().forEach(markAsSent);
-                        confirmed.clear();
-                    } else {
-                        log.debug("ack callback with single confirm");
-                        StoredEvent storedEvent = outstandingConfirms.get(sequenceNumber);
-                        if (storedEvent != null) {
-                            markAsSent.accept(storedEvent);
-                        } else {
-                            log.warn(
-                                "unable to find stored event, this may indicate some issue, sequenceNum {}",
-                                sequenceNumber);
-                        }
-                        outstandingConfirms.remove(sequenceNumber);
-                    }
-                };
-                //in case of failure, just clear outstandingConfirms and do nothing
-                ConfirmCallback nAckCallback = (sequenceNumber, multiple) -> {
-                    StoredEvent body = outstandingConfirms.get(sequenceNumber);
-                    log.error(
-                        "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
-                        body, sequenceNumber, multiple);
-                    if (multiple) {
-                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                            outstandingConfirms.headMap(
-                                sequenceNumber, true
-                            );
-                        confirmed.clear();
-                    } else {
-                        outstandingConfirms.remove(sequenceNumber);
-                    }
-                };
-                channel.addConfirmListener(
-                    ackCallback,
-                    nAckCallback);
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
                     "unable create channel for " + appId + " with routing key " + routingKey,
                     "0006",
-                    HttpResponseCode.NOT_HTTP,
-                    ExceptionCatalog.OPERATION_ERROR, e);
+                    HttpResponseCode.NOT_HTTP, e);
             }
+            channel.addConfirmListener(
+                ackCallback,
+                nAckCallback);
             pubChannel.put(thread, channel);
         }
+        //publish msg
         try {
             String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
             checkExchange(channel);
             outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
+            log.debug("channel num {} publish next event id {} with routing key {}",
+                channel.getChannelNumber(), event.getId(), routingKey);
             channel.basicPublish(EXCHANGE_NAME, routingKey, true,
                 null, body.getBytes(StandardCharsets.UTF_8)
             );
@@ -384,14 +419,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             //when msg has no matching route and alternate exchange is also down
             throw new DefinedRuntimeException(
                 "unable publish message for " + appId + " with routing key " + routingKey, "0007",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.OPERATION_ERROR, e);
+                HttpResponseCode.NOT_HTTP, e);
         }
     }
 
     @Override
     public void next(StoredEvent event) {
-        next(event.getApplicationId(), event.isInternal(), event.getTopic(), event);
+        next(event.getApplicationId(), event.getInternal(), event.getTopic(), event);
     }
 
     private void checkExchange(Channel channel) throws IOException {
@@ -418,7 +452,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @EventListener(ApplicationReadyEvent.class)
     private void unroutableMsgListener() {
-        log.debug("subscribe for unroutable msg");
         this.subscribe(EXCHANGE_NAME_ALT, "", QUEUE_NAME_ALT, false, (event) -> {
             CommonApplicationServiceRegistry.getStoredEventApplicationService()
                 .markAsUnroutable(event);
@@ -427,7 +460,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @EventListener(ApplicationReadyEvent.class)
     private void rejectedMsgListener() {
-        log.debug("subscribe for rejected msg");
         this.subscribe(EXCHANGE_NAME_REJECT, "", QUEUE_NAME_REJECT, false, (event) -> {
             CommonApplicationServiceRegistry.getStoredEventApplicationService()
                 .recordRejectedEvent(event);

@@ -1,28 +1,26 @@
 package com.mt.access.domain.model.user;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
+import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embeddable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -34,6 +32,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "user_")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
+@EqualsAndHashCode(callSuper = true)
 public class User extends Auditable {
     private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
     @Setter(AccessLevel.PRIVATE)
@@ -66,9 +65,8 @@ public class User extends Auditable {
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
     @Column
-    @Setter(AccessLevel.PRIVATE)
     @Getter
-    private boolean locked = false;
+    private Boolean locked;
 
     @Getter
     @Embedded
@@ -83,11 +81,16 @@ public class User extends Auditable {
         setEmail(userEmail);
         setPassword(password);
         setUserId(userId);
-        setLocked(false);
+        setLocked(Boolean.FALSE);
         setMobile(mobile);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    private void setLocked(Boolean locked) {
+        Validator.notNull(locked);
+        this.locked = locked;
     }
 
     private User() {
@@ -106,8 +109,7 @@ public class User extends Auditable {
     }
 
     @Override
-    public void validate(@NotNull ValidationNotificationHandler handler) {
-        (new UserValidator(this, handler)).validate();
+    public void validate(ValidationNotificationHandler handler) {
     }
 
     public void setPwdResetToken(PasswordResetCode pwdResetToken) {
@@ -117,35 +119,14 @@ public class User extends Auditable {
     }
 
 
-    public void lockUser(boolean locked) {
+    public void lockUser(Boolean locked) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
-            throw new DefinedRuntimeException("root account cannot be locked", "0062",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("root account cannot be locked", "1062",
+                HttpResponseCode.BAD_REQUEST);
         }
         CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
         setLocked(locked);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof User)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        User user = (User) o;
-        return Objects.equal(userId, user.userId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), userId);
     }
 
     public void update(UserMobile mobile,
@@ -154,9 +135,8 @@ public class User extends Auditable {
         if (userName != null) {
             if (this.userName != null && this.userName.getValue() != null
                 && !this.userName.equals(userName)) {
-                throw new DefinedRuntimeException("username can only be set once", "0063",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                throw new DefinedRuntimeException("username can only be set once", "1063",
+                    HttpResponseCode.BAD_REQUEST);
             }
             this.userName = userName;
         }

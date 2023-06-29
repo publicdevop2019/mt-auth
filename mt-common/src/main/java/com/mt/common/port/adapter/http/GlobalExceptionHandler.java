@@ -7,6 +7,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageConversionException;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,7 +26,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ErrorMessage errorMessage = new ErrorMessage(ex);
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_ID, errorMessage.getErrorId());
-        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_CODE, ex.getCombinedErrorCode());
+        httpHeaders.set(CommonConstant.HTTP_HEADER_ERROR_CODE, ex.getErrorCode());
         return handleExceptionInternal(ex, errorMessage, httpHeaders,
             ex.getResponseType().getHttpCode(),
             request);
@@ -34,6 +35,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(value = {
         TransactionSystemException.class,
         IllegalArgumentException.class,
+        HttpMessageConversionException.class,
         ObjectOptimisticLockingFailureException.class,
     })
     protected ResponseEntity<Object> handle400Exception(RuntimeException ex, WebRequest request) {

@@ -1,30 +1,21 @@
 package com.mt.access.application.endpoint.command;
 
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.common.domain.model.restful.TypedClass;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class EndpointPatchCommand extends TypedClass<EndpointPatchCommand> {
+@NoArgsConstructor
+public class EndpointPatchCommand {
     private String description;
     private String name;
-    private String resourceId;
     private String path;
     private String method;
 
-    public EndpointPatchCommand(Endpoint bizEndpoint) {
-        super(EndpointPatchCommand.class);
-        this.description = bizEndpoint.getDescription();
-        this.resourceId = bizEndpoint.getClientId().getDomainId();
-        this.path = bizEndpoint.getPath();
-        this.method = bizEndpoint.getMethod();
-        this.name = bizEndpoint.getName();
+    public EndpointPatchCommand(Endpoint endpoint) {
+        this.description = endpoint.getDescription();
+        this.path = endpoint.getPath();
+        this.method = endpoint.getMethod();
+        this.name = endpoint.getName();
     }
-
-    public EndpointPatchCommand() {
-        super(EndpointPatchCommand.class);
-    }
-
 }

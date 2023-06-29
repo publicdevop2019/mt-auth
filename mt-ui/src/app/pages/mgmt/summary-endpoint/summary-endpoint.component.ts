@@ -11,7 +11,7 @@ import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/b
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
 @Component({
   selector: 'app-summary-endpoint',
@@ -53,12 +53,12 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public entitySvc: EndpointService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public clientSvc: ClientService,
+    public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    this.clientSvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
+    this.clientSvc.getDropdownClients(0, 1000, 'resourceIndicator:1')//@todo use paginated select component
       .subscribe(next => {
         if (next.data)
           this.searchConfigs = [...this.initSearchConfig, {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mt.common.CommonConstant;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.service_discovery.ServiceDiscovery;
 import java.io.IOException;
@@ -93,8 +92,7 @@ public class ResourceServiceTokenHelper {
         }
         if (storedJwtToken == null) {
             throw new DefinedRuntimeException("unable to retrieve jwt token", "0016",
-                HttpResponseCode.INTERNAL_SERVER_ERROR,
-                ExceptionCatalog.OPERATION_ERROR);
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
@@ -106,8 +104,7 @@ public class ResourceServiceTokenHelper {
                 storedJwtToken = getJwtToken();
                 if (storedJwtToken == null) {
                     throw new DefinedRuntimeException("unable to retrieve jwt token", "0017",
-                        HttpResponseCode.INTERNAL_SERVER_ERROR,
-                        ExceptionCatalog.OPERATION_ERROR);
+                        HttpResponseCode.INTERNAL_SERVER_ERROR);
                 }
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);
@@ -125,8 +122,7 @@ public class ResourceServiceTokenHelper {
         }
         if (storedJwtToken == null) {
             throw new DefinedRuntimeException("unable to retrieve jwt token", "0018",
-                HttpResponseCode.INTERNAL_SERVER_ERROR,
-                ExceptionCatalog.OPERATION_ERROR);
+                HttpResponseCode.INTERNAL_SERVER_ERROR);
         }
         HttpHeaders httpHeaders = HttpHeaders.writableHttpHeaders(httpEntity.getHeaders());
         httpHeaders.setBearerAuth(storedJwtToken);
@@ -138,8 +134,7 @@ public class ResourceServiceTokenHelper {
                 storedJwtToken = getJwtToken();
                 if (storedJwtToken == null) {
                     throw new DefinedRuntimeException("unable to retrieve jwt token", "0019",
-                        HttpResponseCode.INTERNAL_SERVER_ERROR,
-                        ExceptionCatalog.OPERATION_ERROR);
+                        HttpResponseCode.INTERNAL_SERVER_ERROR);
                 }
                 httpHeaders.setBearerAuth(storedJwtToken);
                 HttpEntity<?> httpEntity2 = new HttpEntity<>(httpEntity.getBody(), httpHeaders);

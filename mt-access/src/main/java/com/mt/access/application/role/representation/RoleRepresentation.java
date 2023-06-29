@@ -1,6 +1,9 @@
 package com.mt.access.application.role.representation;
 
+import static com.mt.access.domain.model.permission.Permission.API_ACCESS;
+
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
@@ -8,6 +11,7 @@ import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
+import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleType;
@@ -31,17 +35,19 @@ public class RoleRepresentation {
     private Set<PermissionDetail> permissionDetails;
     private Set<String> commonPermissionIds;
     private Set<String> externalPermissionIds;
-    private boolean systemCreate;
+    private Boolean systemCreate;
+    private Integer version;
 
     public RoleRepresentation(Role role) {
         this.id = role.getRoleId().getDomainId();
         this.name = role.getName();
+        this.version = role.getVersion();
         this.description = role.getDescription();
         if (role.getParentId() != null) {
             this.parentId = role.getParentId().getDomainId();
         }
         this.originalName = role.getName();
-        this.systemCreate = role.isSystemCreate();
+        this.systemCreate = role.getSystemCreate();
         this.roleType = role.getType();
         if (role.getApiPermissionIds() != null) {
             this.apiPermissionIds = role.getApiPermissionIds().stream().map(DomainId::getDomainId)
@@ -58,18 +64,21 @@ public class RoleRepresentation {
                     .collect(Collectors.toSet());
         }
         if (this.roleType.equals(RoleType.CLIENT)) {
-            DomainRegistry.getClientRepository().clientOfId(new ClientId(role.getName()))
-                .ifPresent(e -> this.name = e.getName());
+            Client client =
+                DomainRegistry.getClientRepository().get(new ClientId(role.getName()));
+            this.name = client.getName();
+
         }
         if (this.roleType.equals(RoleType.PROJECT)) {
-            DomainRegistry.getProjectRepository().getById(new ProjectId(role.getName()))
-                .ifPresent(e -> this.name = e.getName());
+            Project byId =
+                DomainRegistry.getProjectRepository().get(new ProjectId(role.getName()));
+            this.name = byId.getName();
         }
         permissionDetails = new HashSet<>();
         if (role.getCommonPermissionIds() != null && !role.getCommonPermissionIds().isEmpty()) {
             Set<Permission> allByQuery =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .getByQuery(e), new PermissionQuery(role.getCommonPermissionIds()));
+                    .query(e), new PermissionQuery(role.getCommonPermissionIds()));
 
             Set<PermissionDetail> collect =
                 allByQuery.stream().map(e -> new PermissionDetail(e.getPermissionId(), e.getName()))
@@ -80,11 +89,13 @@ public class RoleRepresentation {
         if (role.getApiPermissionIds() != null && !role.getApiPermissionIds().isEmpty()) {
             Set<Permission> allByQuery =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .getByQuery(e), new PermissionQuery(role.getApiPermissionIds()));
-            Set<EndpointId> collect1 = allByQuery.stream().map(e -> new EndpointId(e.getName()))
-                .collect(Collectors.toSet());
+                    .query(e), new PermissionQuery(role.getApiPermissionIds()));
+            Set<EndpointId> collect1 =
+                allByQuery.stream().filter(e -> !e.getName().equalsIgnoreCase(API_ACCESS))
+                    .map(e -> new EndpointId(e.getName()))
+                    .collect(Collectors.toSet());
             Set<Endpoint> allByQuery1 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
                     new EndpointQuery(collect1));
             Set<PermissionDetail> collect =
                 allByQuery.stream()

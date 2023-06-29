@@ -52,7 +52,7 @@ public class RevokeTokenApplicationService {
     public SumPagedRep<RevokeToken> query(String queryParam, String pageParam,
                                           String config) {
         return DomainRegistry.getRevokeTokenRepository()
-            .revokeTokensOfQuery(new RevokeTokenQuery(queryParam, pageParam, config));
+            .query(new RevokeTokenQuery(queryParam, pageParam, config));
     }
 
     public void handle(ClientResourceCleanUpCompleted deserialize) {
@@ -103,7 +103,7 @@ public class RevokeTokenApplicationService {
                 DomainRegistry.getRevokeTokenService().revokeToken(deserialize.getDomainId());
                 //revoke who is accessing this client's token
                 Set<Client> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    (query) -> DomainRegistry.getClientRepository().query(query),
                     ClientQuery
                         .queryByResource(new ClientId(deserialize.getDomainId().getDomainId()))
                 );

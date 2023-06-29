@@ -7,9 +7,9 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class UserPatchingCommand {
-    private boolean locked;
+    private Boolean locked;
 
     public UserPatchingCommand(User bizUser) {
-        this.locked = bizUser.isLocked();
+        this.locked = bizUser.getLocked();
     }
 }

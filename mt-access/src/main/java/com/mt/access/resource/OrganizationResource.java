@@ -15,7 +15,6 @@ import com.mt.access.application.organization.representation.OrganizationReprese
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.organization.Organization;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -67,10 +66,9 @@ public class OrganizationResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Organization> client =
+        Organization organization =
             ApplicationServiceRegistry.getOrganizationApplicationService().tenantQuery(id);
-        return client.map(value -> ResponseEntity.ok(new OrganizationRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new OrganizationRepresentation(organization));
     }
 
     @PutMapping("{id}")

@@ -13,7 +13,7 @@ import com.mt.access.application.user.command.UpdateUserRelationCommand;
 import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
@@ -82,7 +82,7 @@ public class UserResource {
 
 
     @GetMapping("mgmt/users/{id}")
-    public ResponseEntity<UserMgmtRepresentation> mgmtQuery(
+    public ResponseEntity<UserMgmtRepresentation> mgmtGet(
         @PathVariable String id
     ) {
         UserMgmtRepresentation detail =
@@ -137,7 +137,7 @@ public class UserResource {
 
     @PutMapping(path = "users/pwd")
     public ResponseEntity<Void> updatePassword(
-        @RequestBody UserUpdateBizUserPasswordCommand command,
+        @RequestBody UserUpdatePasswordCommand command,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
     ) {
@@ -172,7 +172,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantUsers(
+    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -187,16 +187,16 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<UserTenantRepresentation> tenantUser(
+    public ResponseEntity<UserTenantRepresentation> tenantGet(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<UserTenantRepresentation> user =
+        UserTenantRepresentation user =
             ApplicationServiceRegistry.getUserRelationApplicationService()
                 .tenantUser(projectId, id);
-        return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(user);
     }
 
     /**
@@ -210,10 +210,9 @@ public class UserResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<UserProfileRepresentation> user =
+        UserProfileRepresentation user =
             ApplicationServiceRegistry.getUserApplicationService().myProfile();
-        return user.map(ResponseEntity::ok)
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(user);
     }
 
     /**
@@ -283,7 +282,7 @@ public class UserResource {
      * @return http response 200
      */
     @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<Void> update(
+    public ResponseEntity<Void> tenantUpdate(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
@@ -292,7 +291,7 @@ public class UserResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .update(projectId, id, command, changeId);
+            .tenantUpdate(projectId, id, command, changeId);
         return ResponseEntity.ok().build();
     }
 

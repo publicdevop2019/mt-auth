@@ -18,27 +18,25 @@ public class EndpointRepresentation {
     private Long modifiedAt;
     private Set<String> clientRoles;
     private Set<String> userRoles;
-    private boolean secured;
-    private boolean shared;
-    private boolean external;
-    private int replenishRate;
-    private int burstCapacity;
-    private boolean userOnly;
-    private boolean clientOnly;
-    private boolean websocket;
-    private boolean csrfEnabled;
+    private Boolean secured;
+    private Boolean shared;
+    private Boolean external;
+    private Integer replenishRate;
+    private Integer burstCapacity;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
     private String corsProfileId;
     private Integer version;
     private String cacheProfileId;
 
     public EndpointRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
-        this.websocket = endpoint.isWebsocket();
-        this.shared = endpoint.isShared();
-        this.external = endpoint.isExternal();
+        this.websocket = endpoint.getWebsocket();
+        this.shared = endpoint.getShared();
+        this.external = endpoint.getExternal();
         this.burstCapacity = endpoint.getBurstCapacity();
         this.replenishRate = endpoint.getReplenishRate();
-        this.secured = endpoint.isAuthRequired();
+        this.secured = endpoint.getSecured();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();
@@ -50,7 +48,7 @@ public class EndpointRepresentation {
         this.modifiedAt =
             endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
         this.version = endpoint.getVersion();
-        this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId =
             endpoint.getCorsProfileId() != null ? endpoint.getCorsProfileId().getDomainId() : null;
         this.cacheProfileId =

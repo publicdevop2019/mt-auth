@@ -17,7 +17,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.infrastructure.Utility;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -63,25 +62,29 @@ public class PermissionResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectIds(queryParam, projectId);
-        SumPagedRep<Permission> clients =
+        SumPagedRep<Permission> rep =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .tenantQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<PermissionCardRepresentation> sumPagedRep =
+            PermissionCardRepresentation
+                .updateEndpointName(new SumPagedRep<>(rep, PermissionCardRepresentation::new));
         return ResponseEntity.ok(PermissionCardRepresentation
-            .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
+            .updateProjectName(projectId, sumPagedRep));
     }
 
-    @GetMapping(path = "permissions/shared")
+    @GetMapping(path = "projects/{projectId}/permissions/shared")
     public ResponseEntity<SumPagedRep<PermissionCardRepresentation>> sharedQuery(
+        @PathVariable String projectId,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<Permission> clients =
+        SumPagedRep<Permission> rep =
             ApplicationServiceRegistry.getPermissionApplicationService()
-                .sharedQuery(queryParam, pageParam);
+                .sharedQuery(projectId, queryParam, pageParam);
         return ResponseEntity.ok(PermissionCardRepresentation
-            .updateName(new SumPagedRep<>(clients, PermissionCardRepresentation::new)));
+            .updateEndpointName(new SumPagedRep<>(rep, PermissionCardRepresentation::new)));
     }
 
     @GetMapping(path = "projects/{projectId}/permissions/{id}")
@@ -91,10 +94,10 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Permission> client =
-            ApplicationServiceRegistry.getPermissionApplicationService().tenantQuery(projectId, id);
-        return client.map(value -> ResponseEntity.ok(new PermissionRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        Permission permission =
+            ApplicationServiceRegistry.getPermissionApplicationService()
+                .tenantQueryById(projectId, id);
+        return ResponseEntity.ok(new PermissionRepresentation(permission));
     }
 
     @PutMapping(path = "projects/{projectId}/permissions/{id}")

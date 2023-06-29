@@ -7,6 +7,7 @@ import com.mt.common.domain.model.job.JobQuery;
 import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
 import java.util.Optional;
 import java.util.Set;
@@ -28,8 +29,8 @@ public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository
     }
 
 
-    default Optional<JobDetail> getById(JobId id) {
-        return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst();
+    default JobDetail getById(JobId id) {
+        return CommonQueryBuilderRegistry.getJobAdaptor().execute(new JobQuery(id)).findFirst().orElse(null);
     }
 
 
@@ -61,9 +62,9 @@ public interface SpringDataJpaJobRepository extends JobRepository, JpaRepository
                         queryContext);
             });
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(JobDetail_.JOB_ID, queryContext,
-                    query.getSort().isAsc());
+                    query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

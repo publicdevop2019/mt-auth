@@ -5,9 +5,9 @@ import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobId;
 import com.mt.common.domain.model.job.JobQuery;
 import com.mt.common.domain.model.job.JobType;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -27,21 +27,23 @@ public class JobApplicationService {
 
     @Transactional
     public void resetJob(String id) {
-        Optional<JobDetail> byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
-        byId.ifPresent(JobDetail::reset);
+        JobDetail byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
+        Validator.notNull(byId);
+        byId.reset();
     }
 
     /**
      * reset job lock in case of deadlock,
      * this should be used with caution.
+     *
      * @param jobId job id
      */
     public void resetJobLock(String jobId) {
-        Optional<JobDetail> byId = CommonDomainRegistry.getJobRepository().getById(new JobId(jobId));
-        byId.ifPresent(e -> {
-            if (e.getType().equals(JobType.CLUSTER)) {
-                CommonDomainRegistry.getJobService().resetLock(e.getName());
-            }
-        });
+        JobDetail jobDetail =
+            CommonDomainRegistry.getJobRepository().getById(new JobId(jobId));
+        Validator.notNull(jobDetail);
+        if (jobDetail.getType().equals(JobType.CLUSTER)) {
+            CommonDomainRegistry.getJobService().resetLock(jobDetail.getName());
+        }
     }
 }

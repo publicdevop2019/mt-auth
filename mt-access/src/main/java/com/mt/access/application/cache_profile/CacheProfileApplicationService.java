@@ -23,8 +23,8 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -44,26 +44,25 @@ public class CacheProfileApplicationService {
     }
 
     @AuditLog(actionName = CREATE_TENANT_CACHE_PROFILE)
-    public String tenantCreate(String projectId, CreateCacheProfileCommand command,
+    public String tenantCreate(String rawProjectId, CreateCacheProfileCommand command,
                                String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_CACHE);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_CACHE);
         CacheProfileId cacheProfileId = new CacheProfileId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             CacheProfile cacheProfile = new CacheProfile(
                 command.getName(),
                 command.getDescription(),
                 cacheProfileId,
-                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                    .collect(Collectors.toSet()),
+                command.getCacheControl(),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
                 command.getVary(),
-                command.isAllowCache(),
-                command.isEtag(),
-                command.isWeakValidation(),
-                projectId1
+                command.getAllowCache(),
+                command.getEtag(),
+                command.getWeakValidation(),
+                projectId
             );
             DomainRegistry.getCacheProfileRepository().add(cacheProfile);
             return null;
@@ -83,15 +82,14 @@ public class CacheProfileApplicationService {
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
-                command.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                    .collect(Collectors.toSet()),
+                CommonUtility.map(command.getCacheControl(),CacheControlValue::valueOfLabel),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
                 command.getVary(),
-                command.isAllowCache(),
-                command.isEtag(),
-                command.isWeakValidation()
+                command.getAllowCache(),
+                command.getEtag(),
+                command.getWeakValidation()
             ));
             return null;
         }, CACHE_PROFILE);
@@ -108,23 +106,14 @@ public class CacheProfileApplicationService {
                 Optional<CacheProfile> cacheProfile =
                     DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
                 if (cacheProfile.isPresent()) {
-                    CacheProfile profile = cacheProfile.get();
-                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(profile);
+                    CacheProfile original = cacheProfile.get();
+                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(original);
                     PatchCacheProfileCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
-                    profile.update(
+                    original.updateNameAndDescription(
                         afterPatch.getName(),
-                        afterPatch.getDescription(),
-                        afterPatch.getCacheControl().stream().map(CacheControlValue::valueOfLabel)
-                            .collect(Collectors.toSet()),
-                        afterPatch.getExpires(),
-                        afterPatch.getMaxAge(),
-                        afterPatch.getSmaxAge(),
-                        afterPatch.getVary(),
-                        profile.isAllowCache(),
-                        afterPatch.isEtag(),
-                        afterPatch.isWeakValidation()
+                        afterPatch.getDescription()
                     );
                 }
                 return null;

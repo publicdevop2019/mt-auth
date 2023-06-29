@@ -64,11 +64,11 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
         this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
         this.fis.formGroupCollection[this.formId].get('allowCache').setValue(this.aggregate.allowCache ? 'yes' : 'no')
         this.fis.formGroupCollection[this.formId].get('cacheControl').setValue(this.aggregate.cacheControl)
-        this.fis.formGroupCollection[this.formId].get('maxAgeValue').setValue(this.aggregate.maxAge)
-        this.fis.formGroupCollection[this.formId].get('smaxAgeValue').setValue(this.aggregate.smaxAge)
+        this.fis.formGroupCollection[this.formId].get('maxAgeValue').setValue(this.aggregate.maxAge || '')
+        this.fis.formGroupCollection[this.formId].get('smaxAgeValue').setValue(this.aggregate.smaxAge || '')
         this.fis.formGroupCollection[this.formId].get('etagValidation').setValue(this.aggregate.etag)
         this.fis.formGroupCollection[this.formId].get('etagType').setValue(this.aggregate.weakValidation)
-        this.fis.formGroupCollection[this.formId].get('expires').setValue(this.aggregate.expires?this.aggregate.expires:'')
+        this.fis.formGroupCollection[this.formId].get('expires').setValue(this.aggregate.expires ? this.aggregate.expires : '')
         this.fis.formGroupCollection[this.formId].get('vary').setValue(this.aggregate.vary ? this.aggregate.vary : '')
         this.cdr.markForCheck()
       }
@@ -81,18 +81,20 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
   }
   convertToPayload(cmpt: CacheComponent): ICacheProfile {
     let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let cacheControls = (formGroup.get('cacheControl').value as string[])
+    let allowCache = formGroup.get('allowCache').value === 'yes';
     return {
       id: formGroup.get('id').value,//value is ignored
       name: formGroup.get('name').value,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
       allowCache: formGroup.get('allowCache').value === 'yes',
-      cacheControl: formGroup.get('cacheControl').value,
+      cacheControl: cacheControls.length > 0 ? cacheControls : null,
       expires: formGroup.get('expires').value ? (+formGroup.get('expires').value) : null,
       maxAge: formGroup.get('maxAgeValue').value ? (+formGroup.get('maxAgeValue').value) : null,
       smaxAge: formGroup.get('smaxAgeValue').value ? (+formGroup.get('smaxAgeValue').value) : null,
       vary: formGroup.get('vary').value ? formGroup.get('vary').value : null,
-      etag: formGroup.get('etagValidation').value,
-      weakValidation: formGroup.get('etagType').value,
+      etag: allowCache ? formGroup.get('etagValidation').value : null,
+      weakValidation: allowCache ? formGroup.get('etagType').value : null,
       version: cmpt.aggregate && cmpt.aggregate.version
     }
   }

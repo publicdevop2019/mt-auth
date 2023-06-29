@@ -63,14 +63,15 @@ public class EndpointService {
 
     public void refreshCache() {
         cached = DomainRegistry.getRetrieveEndpointService().loadAllEndpoints();
+        log.info("total endpoints retrieved {}", cached.size());
         DomainRegistry.getCsrfService().refresh(cached);
         DomainRegistry.getCorsService().refresh(cached);
         DomainRegistry.getCacheService().refresh(cached);
     }
 
     public boolean checkAccess(String requestUri, String method, @Nullable String authHeader,
-                               boolean webSocket) {
-        if (webSocket) {
+                               Boolean webSocket) {
+        if (Boolean.TRUE.equals(webSocket)) {
             if (authHeader == null) {
                 log.debug("check failure due to empty auth info");
                 return false;
@@ -97,7 +98,7 @@ public class EndpointService {
                 log.debug("check failure due to cached endpoints are empty");
                 return false;
             }
-            List<Endpoint> collect1 = cached.stream().filter(e -> !e.isSecured()).filter(
+            List<Endpoint> collect1 = cached.stream().filter(e -> !e.getSecured()).filter(
                 e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
                 .collect(Collectors.toList());
             if (collect1.size() == 0) {
@@ -140,7 +141,7 @@ public class EndpointService {
         Optional<Endpoint> endpoint = findEndpoint(sameResourceId, requestUri, method, websocket);
         boolean passed;
         if (endpoint.isPresent()) {
-            passed = endpoint.get().allowAccess(jwtRaw);
+            passed = endpoint.get().allowAccess(jwtRaw,log);
         } else {
             log.debug("return 403 due to endpoint not found or duplicate endpoints");
             return false;
@@ -175,7 +176,7 @@ public class EndpointService {
         List<Endpoint> next;
         if (websocket) {
             next = from.stream()
-                .filter(e -> antPathMatcher.match(e.getPath(), requestUri) && e.isWebsocket())
+                .filter(e -> antPathMatcher.match(e.getPath(), requestUri) && e.getWebsocket())
                 .collect(Collectors.toList());
         } else {
             next = from.stream().filter(

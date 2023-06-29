@@ -20,9 +20,9 @@ import org.springframework.web.client.RestTemplate;
 public class RestTemplateConfig {
     @Bean
     public RestTemplate getRestTemplate(OutgoingReqInterceptor outgoingReqInterceptor) {
-        RestTemplate restTemplate2 = new RestTemplate();
-        restTemplate2.setInterceptors(Collections.singletonList(outgoingReqInterceptor));
-        return restTemplate2;
+        RestTemplate template = new RestTemplate();
+        template.setInterceptors(Collections.singletonList(outgoingReqInterceptor));
+        return template;
     }
 
     @Slf4j

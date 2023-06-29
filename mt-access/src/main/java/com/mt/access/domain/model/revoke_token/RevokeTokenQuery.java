@@ -10,8 +10,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class RevokeTokenQuery extends QueryCriteria {
     public static final String TARGET_ID = "targetId";
     private Set<RevokeTokenId> revokeTokenId;

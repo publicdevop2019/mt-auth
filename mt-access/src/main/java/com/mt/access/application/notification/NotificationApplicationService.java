@@ -40,7 +40,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class NotificationApplicationService {
     private static final String NOTIFICATION = "Notification";
     @Value("${instanceId}")
-    private long instanceId;
+    private Long instanceId;
 
     public SumPagedRep<Notification> queryBell(String queryParam, String pageParam,
                                                String skipCount) {
@@ -161,10 +161,9 @@ public class NotificationApplicationService {
                         DomainRegistry.getWsPushNotificationService()
                             .notifyMgmt(event.value());
                     }
-                    DomainRegistry.getNotificationRepository()
-                        .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                        .ifPresent(
-                            Notification::markAsDelivered);
+                    Notification notification = DomainRegistry.getNotificationRepository()
+                        .get(new NotificationId(event.getDomainId().getDomainId()));
+                    notification.markAsDelivered();
                     return null;
                 }, NOTIFICATION + "_" + instanceId);
 
@@ -185,10 +184,9 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (ignored) -> {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
-                DomainRegistry.getNotificationRepository()
-                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                    .ifPresent(
-                        Notification::markAsDelivered);
+                Notification notification = DomainRegistry.getNotificationRepository()
+                    .get(new NotificationId(event.getDomainId().getDomainId()));
+                notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);
 
@@ -205,10 +203,9 @@ public class NotificationApplicationService {
                 DomainRegistry.getEmailNotificationService()
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
-                DomainRegistry.getNotificationRepository()
-                    .notificationOfId(new NotificationId(event.getDomainId().getDomainId()))
-                    .ifPresent(
-                        Notification::markAsDelivered);
+                Notification notification = DomainRegistry.getNotificationRepository()
+                    .get(new NotificationId(event.getDomainId().getDomainId()));
+                notification.markAsDelivered();
                 return null;
             }, NOTIFICATION);
     }

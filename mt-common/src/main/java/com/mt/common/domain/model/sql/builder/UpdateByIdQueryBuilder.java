@@ -8,7 +8,6 @@ import static com.mt.common.CommonConstant.PATCH_OP_TYPE_REPLACE;
 
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import java.util.ArrayList;
@@ -37,8 +36,7 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
         Boolean hasFieldChange = booleans.stream().reduce(false, (a, b) -> a || b);
         if (!hasFieldChange) {
             throw new DefinedRuntimeException("no updatable field", "0031",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_STATE);
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 
@@ -60,8 +58,7 @@ public abstract class UpdateByIdQueryBuilder<T extends Auditable> extends Update
                 return true;
             } else {
                 throw new DefinedRuntimeException("unsupported patch operation", "0032",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.OPERATION_ERROR);
+                    HttpResponseCode.BAD_REQUEST);
             }
         } else {
             return false;

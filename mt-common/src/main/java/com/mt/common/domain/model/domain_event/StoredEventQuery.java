@@ -12,9 +12,11 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@ToString
 public class StoredEventQuery extends QueryCriteria {
     public static final String ID = "id";
     public static final String DOMAIN_ID = "domainId";
@@ -79,8 +81,8 @@ public class StoredEventQuery extends QueryCriteria {
 
     @Getter
     public static class DomainEventSort {
-        private final boolean isAsc;
-        private boolean isById;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         private DomainEventSort(boolean isAsc) {
             this.isAsc = isAsc;
@@ -88,7 +90,7 @@ public class StoredEventQuery extends QueryCriteria {
 
         public static DomainEventSort byId(boolean isAsc) {
             DomainEventSort skuSort = new DomainEventSort(isAsc);
-            skuSort.isById = true;
+            skuSort.byId = true;
             return skuSort;
         }
     }

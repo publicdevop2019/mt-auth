@@ -23,10 +23,11 @@ public class Utility {
 
     /**
      * get auth header for both regular http and websocket
+     *
      * @param request ServerHttpRequest
      * @return authorization header
      */
-    public static String getAuthHeader(ServerHttpRequest request){
+    public static String getAuthHeader(ServerHttpRequest request) {
         if (isWebSocket(request.getHeaders())) {
             String temp = request.getQueryParams().getFirst("jwt");
             if (temp != null) {
@@ -37,7 +38,8 @@ public class Utility {
             return request.getHeaders().getFirst("authorization");
         }
     }
-    public static boolean isTokenRequest(ServerHttpRequest request){
+
+    public static boolean isTokenRequest(ServerHttpRequest request) {
         return request.getPath().toString().contains("/oauth/token");
     }
 
@@ -52,12 +54,18 @@ public class Utility {
             String s1 = fields[0];
             String key =
                 s1.replace("Content-Disposition: form-data; name=\"", "").replace("\"", "");
-            String value = fields[fields.length-1];
+            String value = fields[fields.length - 1];
             parameters.put(key, value);
         }
         return parameters;
     }
 
+    /**
+     * get client ip, replace : with _ for report processing purpose
+     *
+     * @param request ServerHttpRequest
+     * @return formatted client ip
+     */
     public static String getClientIp(ServerHttpRequest request) {
         String clientIp = "NOT_FOUND";
         String first = request.getHeaders().getFirst("X-FORWARDED-FOR");
@@ -68,6 +76,6 @@ public class Utility {
                 clientIp = request.getRemoteAddress().toString();
             }
         }
-        return clientIp;
+        return clientIp.replaceAll(":", "_");
     }
 }

@@ -6,12 +6,12 @@ import com.mt.common.domain.CommonDomainRegistry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,14 +23,15 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @NoArgsConstructor
 @Getter
+@EqualsAndHashCode
 public class RawAccessRecord {
     @Id
     @Setter(AccessLevel.PROTECTED)
     protected Long id;
     private String name;
-    private boolean isRequest;
-    private boolean isResponse;
-    private boolean processed;
+    private Boolean isRequest;
+    private Boolean isResponse;
+    private Boolean processed = Boolean.FALSE;
     private String uuid;
     private String instanceId;
     private String recordId;
@@ -52,7 +53,11 @@ public class RawAccessRecord {
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         String[] split = record.split(",");
         Arrays.stream(split).forEach(str -> {
-            stringStringHashMap.put(str.split(":")[0], str.split(":")[1]);
+            if (str.split(":").length != 2) {
+                log.error("invalid record format {}", str);
+            } else {
+                stringStringHashMap.put(str.split(":")[0], str.split(":")[1]);
+            }
         });
         return stringStringHashMap;
     }
@@ -63,22 +68,5 @@ public class RawAccessRecord {
 
     public boolean endpointNotFound() {
         return "not_found".equalsIgnoreCase(this.getRecordAsMap().get(ENDPOINT_ID_KEY));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        RawAccessRecord that = (RawAccessRecord) o;
-        return Objects.equals(id, that.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

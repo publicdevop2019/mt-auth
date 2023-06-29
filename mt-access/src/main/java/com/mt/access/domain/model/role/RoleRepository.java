@@ -2,17 +2,28 @@ package com.mt.access.domain.model.role;
 
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Set;
 
 public interface RoleRepository {
     void add(Role role);
 
-    SumPagedRep<Role> getByQuery(RoleQuery roleQuery);
+    SumPagedRep<Role> query(RoleQuery roleQuery);
 
     void remove(Role e);
 
-    Optional<Role> getById(RoleId id);
+    Role query(RoleId id);
+
+    default Role get(RoleId id){
+        Role byId = query(id);
+        Validator.notNull(byId);
+        return byId;
+    }
+    default Role get(ProjectId projectId, RoleId id){
+        Role role = query(new RoleQuery(id, projectId)).findFirst().orElse(null);
+        Validator.notNull(role);
+        return role;
+    }
 
     Set<ProjectId> getProjectIds();
 

@@ -1,7 +1,6 @@
 package com.mt.common.domain.model.unique_id;
 
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,16 +11,15 @@ public class IdGenerator {
     private static final long INSTANCE_ID_LENGTH = 6L;
     private static final long SEQUENCE_ID_LENGTH = 13L;
     @Value("${instanceId}")
-    private long instanceId;
-    private long sequenceId = 0L;
-    private long lastSuccessSecond = -1L;
+    private Long instanceId;
+    private Long sequenceId = 0L;
+    private Long lastSuccessSecond = -1L;
 
     @PostConstruct
     private void validateInstanceId() {
         if (instanceId > ~(-1L << 4L) || instanceId < 0) {
             throw new DefinedRuntimeException("invalid instance id", "0034",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.NOT_HTTP);
         }
     }
 
@@ -29,8 +27,7 @@ public class IdGenerator {
         long currentSecond = getCurrentSecond();
         if (currentSecond < lastSuccessSecond) {
             throw new DefinedRuntimeException("clock reverted", "0035",
-                HttpResponseCode.NOT_HTTP,
-                ExceptionCatalog.ILLEGAL_STATE);
+                HttpResponseCode.NOT_HTTP);
         }
         if (lastSuccessSecond == currentSecond) {
             long sequenceMaxValue = ~(-1L << SEQUENCE_ID_LENGTH);

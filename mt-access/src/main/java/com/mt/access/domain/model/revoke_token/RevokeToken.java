@@ -1,14 +1,15 @@
 package com.mt.access.domain.model.revoke_token;
 
-import com.google.common.base.Objects;
 import java.time.Instant;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Slf4j
 @NoArgsConstructor
+@EqualsAndHashCode
 public class RevokeToken {
     public static final String ENTITY_TARGET_ID = "targetId";
     public static final String ENTITY_ISSUE_AT = "issuedAt";
@@ -20,22 +21,6 @@ public class RevokeToken {
         this.revokeTokenId = revokeTokenId;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof RevokeToken)) {
-            return false;
-        }
-        RevokeToken token = (RevokeToken) o;
-        return Objects.equal(revokeTokenId, token.revokeTokenId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(revokeTokenId);
-    }
 
     public enum TokenType {
         CLIENT,

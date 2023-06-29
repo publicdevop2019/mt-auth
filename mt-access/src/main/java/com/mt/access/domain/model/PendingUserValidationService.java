@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class PendingUserValidationService {
     public void validate(PendingUser pendingUser, ValidationNotificationHandler handler) {
+        UserEmail userEmail = new UserEmail(pendingUser.getRegistrationEmail().getDomainId());
         Optional<User> user = DomainRegistry.getUserRepository()
-            .searchExistingUserWith(
-                new UserEmail(pendingUser.getRegistrationEmail().getDomainId()));
+            .query(userEmail);
         if (user.isPresent()) {
             handler
                 .handleError("already an user " + pendingUser.getRegistrationEmail().getDomainId());

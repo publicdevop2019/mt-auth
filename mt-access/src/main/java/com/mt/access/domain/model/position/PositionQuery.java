@@ -11,8 +11,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class PositionQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
@@ -41,8 +43,8 @@ public class PositionQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public Sort(boolean isAsc) {
             this.isAsc = isAsc;

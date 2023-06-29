@@ -18,6 +18,6 @@ public class ServerThreadPoolConfig {
 
     @Bean
     public ThreadFactory threadFactory() {
-        return new CustomThreadFactory();
+        return new JobThreadFactory();
     }
 }

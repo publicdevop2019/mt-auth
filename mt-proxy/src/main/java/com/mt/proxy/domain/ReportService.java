@@ -1,9 +1,6 @@
 package com.mt.proxy.domain;
 
-import static com.mt.proxy.infrastructure.AppConstant.REQ_CLIENT_IP;
-import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
-
-import com.netflix.discovery.EurekaClient;
+import com.mt.proxy.port.adapter.http.HttpUtility;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -45,18 +42,13 @@ public class ReportService {
     private static final String SENT_ERROR_SUFFIX = "_error";
     private final List<String> record = new ArrayList<>();
     @Autowired
-    private EurekaClient eurekaClient;
-    @Autowired
     private EndpointService endpointService;
-    @Value("${manytree.mt-access.appId}")
-    private String appName;
     @Value("${manytree.instance-id}")
     private String instanceId;
     @Value("${manytree.url.report}")
     private String endpointUrl;
     @Autowired
-    private RestTemplate restTemplate;
-
+    private HttpUtility httpHelper;
     /**
      * log response access record.
      * response is linked to request via uuid, method & path is not logged because
@@ -145,87 +137,80 @@ public class ReportService {
         log.trace("start of scheduled task 2");
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
-        if (eurekaClient.getApplication(appName) != null) {
-            String homePageUrl =
-                eurekaClient.getApplication(appName).getInstances().get(0).getHomePageUrl();
-            String url = homePageUrl + endpointUrl;
-            //read all unsend files
-            File dir =
-                new File(REPORT_DIR);
-            File[] files = dir.listFiles();
-            if (files != null) {
-                int size =
-                    (int) Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
-                        .count();
-                if (size == 0) {
-                    log.debug("no unsent report found");
-                }
-                Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX) &&
-                    !e.getName().contains(SENT_ERROR_SUFFIX))
-                    .forEach(unsendFile -> {
-                        int andDecrement = maxFileSend.getAndDecrement();
-                        if (andDecrement > 0) {
-                            //send file to api
-                            String originalPath = unsendFile.getPath();
-                            Path path = Paths.get(originalPath);
-                            BufferedReader reader;
-                            List<String> requestBody = new ArrayList<>();
-                            try {
-                                reader = Files.newBufferedReader(path);
-                                String line = reader.readLine();
-                                while (line != null) {
-                                    requestBody.add(line);
-                                    line = reader.readLine();
-                                }
-                            } catch (IOException e) {
-                                log.error("error during file read", e);
-                            }
-                            if (!requestBody.isEmpty()) {
-                                HttpHeaders headers1 = new HttpHeaders();
-                                headers1.set("name", unsendFile.getName());
-                                headers1.set("instanceId", instanceId);
-                                HttpEntity<List<String>> request1 =
-                                    new HttpEntity<>(requestBody, headers1);
-                                try {
-                                    ResponseEntity<Void> exchange = restTemplate
-                                        .exchange(url, HttpMethod.POST, request1, Void.class);
-                                    boolean b = unsendFile
-                                        .renameTo(
-                                            new File(originalPath.replace(".txt", SENT_SUFFIX +
-                                                REPORT_EXTENSION)));
-                                    //rename file
-                                    if (!b) {
-                                        throw new ReportRenameException();
-                                    }
-                                } catch (Exception ex) {
-                                    if (ex instanceof HttpClientErrorException) {
-                                        log.warn(
-                                            "unable to upload report, remote return 4xx, file name is {}",
-                                            originalPath);
-                                    } else {
-                                        log.warn(
-                                            "unable to upload report, file name is {}, ex name {}",
-                                            originalPath, ex.getClass().getName());
-                                    }
-                                    //rename file
-                                    boolean b = unsendFile
-                                        .renameTo(
-                                            new File(
-                                                originalPath.replace(".txt", SENT_ERROR_SUFFIX +
-                                                    REPORT_EXTENSION)));
-                                    if (!b) {
-                                        throw new ReportRenameException();
-                                    }
-                                }
-                            }
 
-                        }
-                    });
+        String url = httpHelper.resolveAccessPath() + endpointUrl;
+        //read all unsend files
+        File dir =
+            new File(REPORT_DIR);
+        File[] files = dir.listFiles();
+        if (files != null) {
+            int size =
+                (int) Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX))
+                    .count();
+            if (size == 0) {
+                log.debug("no unsent report found");
             }
-        } else {
-            log.error("send report request was ignore due to service is not ready");
-            throw new IllegalStateException(
-                "send report request was ignore due to service is not ready");
+            Arrays.stream(files).filter(e -> !e.getName().contains(SENT_SUFFIX) &&
+                    !e.getName().contains(SENT_ERROR_SUFFIX))
+                .forEach(unsendFile -> {
+                    int andDecrement = maxFileSend.getAndDecrement();
+                    if (andDecrement > 0) {
+                        //send file to api
+                        String originalPath = unsendFile.getPath();
+                        Path path = Paths.get(originalPath);
+                        BufferedReader reader;
+                        List<String> requestBody = new ArrayList<>();
+                        try {
+                            reader = Files.newBufferedReader(path);
+                            String line = reader.readLine();
+                            while (line != null) {
+                                requestBody.add(line);
+                                line = reader.readLine();
+                            }
+                        } catch (IOException e) {
+                            log.error("error during file read", e);
+                        }
+                        if (!requestBody.isEmpty()) {
+                            HttpHeaders headers1 = new HttpHeaders();
+                            headers1.set("name", unsendFile.getName());
+                            headers1.set("instanceId", instanceId);
+                            HttpEntity<List<String>> request1 =
+                                new HttpEntity<>(requestBody, headers1);
+                            try {
+                                httpHelper.getRestTemplate()
+                                    .exchange(url, HttpMethod.POST, request1, Void.class);
+                                boolean b = unsendFile
+                                    .renameTo(
+                                        new File(originalPath.replace(".txt", SENT_SUFFIX +
+                                            REPORT_EXTENSION)));
+                                //rename file
+                                if (!b) {
+                                    throw new ReportRenameException();
+                                }
+                            } catch (Exception ex) {
+                                if (ex instanceof HttpClientErrorException) {
+                                    log.warn(
+                                        "unable to upload report, remote return 4xx, file name is {}",
+                                        originalPath);
+                                } else {
+                                    log.warn(
+                                        "unable to upload report, file name is {}, ex name {}",
+                                        originalPath, ex.getClass().getName());
+                                }
+                                //rename file
+                                boolean b = unsendFile
+                                    .renameTo(
+                                        new File(
+                                            originalPath.replace(".txt", SENT_ERROR_SUFFIX +
+                                                REPORT_EXTENSION)));
+                                if (!b) {
+                                    throw new ReportRenameException();
+                                }
+                            }
+                        }
+
+                    }
+                });
         }
         log.debug("end of sending api reports");
         log.trace("end of scheduled task 2");

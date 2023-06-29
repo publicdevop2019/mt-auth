@@ -39,9 +39,9 @@ public class EndpointProxyCacheRepresentation
     private String projectId;
     private String path;
     private String method;
-    private boolean websocket;
-    private boolean csrfEnabled;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean csrfEnabled;
+    private Boolean secured;
     private CorsConfig corsConfig;
     private CacheConfig cacheConfig;
     @JsonIgnore
@@ -56,13 +56,13 @@ public class EndpointProxyCacheRepresentation
     public EndpointProxyCacheRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
-        this.websocket = endpoint.isWebsocket();
+        this.websocket = endpoint.getWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
-        this.secured = endpoint.isAuthRequired();
-        this.csrfEnabled = endpoint.isCsrfEnabled();
+        this.secured = endpoint.getSecured();
+        this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
@@ -103,7 +103,7 @@ public class EndpointProxyCacheRepresentation
             }
             if (clients.size() > 0) {
                 clientFetched = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getClientRepository().clientsOfQuery(query),
+                    (query) -> DomainRegistry.getClientRepository().query(query),
                     new ClientQuery(clients));
             }
             if (epIds.size() > 0) {
@@ -163,7 +163,7 @@ public class EndpointProxyCacheRepresentation
             this.origin =
                 e.getAllowOrigin().stream().map(Origin::getValue).sorted().collect(
                     Collectors.toCollection(LinkedHashSet::new));
-            this.credentials = e.isAllowCredentials();
+            this.credentials = e.getAllowCredentials();
             this.allowedHeaders = e.getAllowedHeaders().stream().sorted().collect(
                 Collectors.toCollection(LinkedHashSet::new));
             this.exposedHeaders = e.getExposedHeaders().stream().sorted().collect(
@@ -174,7 +174,7 @@ public class EndpointProxyCacheRepresentation
 
     @Data
     private static class CacheConfig implements Serializable {
-        private boolean allowCache;
+        private Boolean allowCache;
         private Set<String> cacheControl;
 
         private Long expires;
@@ -185,20 +185,20 @@ public class EndpointProxyCacheRepresentation
 
         private String vary;
 
-        private boolean etag;
+        private Boolean etag;
 
-        private boolean weakValidation;
+        private Boolean weakValidation;
 
         public CacheConfig(CacheProfile cacheProfile) {
-            allowCache = cacheProfile.isAllowCache();
+            allowCache = cacheProfile.getAllowCache();
             cacheControl = cacheProfile.getCacheControl().stream().map(e -> e.label)
                 .sorted().collect(Collectors.toCollection(LinkedHashSet::new));
             expires = cacheProfile.getExpires();
             maxAge = cacheProfile.getMaxAge();
             smaxAge = cacheProfile.getSmaxAge();
             vary = cacheProfile.getVary();
-            etag = cacheProfile.isEtag();
-            weakValidation = cacheProfile.isWeakValidation();
+            etag = cacheProfile.getEtag();
+            weakValidation = cacheProfile.getWeakValidation();
         }
     }
 
@@ -206,8 +206,8 @@ public class EndpointProxyCacheRepresentation
     private static class ProjectSubscription
         implements Serializable, Comparable<ProjectSubscription> {
         private String projectId;
-        private int replenishRate;
-        private int burstCapacity;
+        private Integer replenishRate;
+        private Integer burstCapacity;
 
         public ProjectSubscription(String projectId, int replenishRate, int burstCapacity) {
             this.projectId = projectId;

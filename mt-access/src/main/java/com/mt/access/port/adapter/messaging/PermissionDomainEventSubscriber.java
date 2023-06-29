@@ -30,7 +30,7 @@ public class PermissionDomainEventSubscriber {
      * secured endpoint deleted permission handler.
      */
     @EventListener(ApplicationReadyEvent.class)
-    private void listener3() {
+    private void listener2() {
         ListenerHelper.listen(new SecureEndpointRemoved(),
             (event) -> ApplicationServiceRegistry.getPermissionApplicationService()
                 .handle(event));

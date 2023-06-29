@@ -43,10 +43,17 @@
             <version>5.4.26.Final</version>
             <scope>compile</scope>
         </dependency>
+        <!--start of eureka server-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-server</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.sun.jersey.contribs</groupId>
+            <artifactId>jersey-apache-client4</artifactId>
+            <version>1.19.4</version>
+        </dependency>
+        <!--end of eureka server-->
         <!--spring boot mail and freemarker-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

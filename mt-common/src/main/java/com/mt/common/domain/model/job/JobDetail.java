@@ -20,7 +20,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * distributed job entity, should not be cached to avoid wrong state
@@ -37,17 +36,17 @@ public class JobDetail extends Auditable implements Serializable {
     private JobStatus lastStatus;
     @Enumerated(EnumType.STRING)
     private JobType type;
-    private int failureCount;
-    private int maxLockAcquireFailureAllowed;
+    private Integer failureCount;
+    private Integer maxLockAcquireFailureAllowed;
     /**
      * milliseconds that allowed for job to be not executed,
      * will send notification to admin when this limit reached
      */
-    private long minimumIdleTimeMilli;
+    private Long minimumIdleTimeMilli;
     private String failureReason;
-    private int failureAllowed;
+    private Integer failureAllowed;
     @Setter
-    private boolean notifiedAdmin;
+    private Boolean notifiedAdmin;
     @Temporal(TemporalType.TIMESTAMP)
     private Date lastExecution;
     @Embedded
@@ -90,7 +89,7 @@ public class JobDetail extends Auditable implements Serializable {
 
     public DomainEvent handleJobExecutionException() {
         boolean b = recordJobFailure();
-        if (b && !isNotifiedAdmin()) {
+        if (b && !getNotifiedAdmin()) {
             log.warn("notify admin about job paused");
             return new JobPausedEvent(this);
         }

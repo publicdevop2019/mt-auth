@@ -6,7 +6,9 @@ import com.mt.common.domain.model.restful.query.QueryCriteria;
 import java.util.Collections;
 import java.util.Set;
 import lombok.Getter;
+import lombok.ToString;
 
+@ToString
 public class ImageQuery extends QueryCriteria {
     @Getter
     private final Set<ImageId> ids;
@@ -22,8 +24,8 @@ public class ImageQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private final boolean isById = true;
-        private final boolean isAsc;
+        private final Boolean byId = true;
+        private final Boolean isAsc;
 
         private Sort(boolean isAsc) {
             this.isAsc = isAsc;

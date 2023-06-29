@@ -37,7 +37,7 @@ public class AuditService {
                 Field name = clazz.getField(EVENT_NAME);
                 auditEventNames.add(String.valueOf(name.get(null)));
             } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-                e.printStackTrace();
+                log.error("error during audit event scan", e);
             }
         }
     }
@@ -48,10 +48,24 @@ public class AuditService {
             .query(auditEventNames, queryParam, pageParam, skipCount);
     }
 
+    /**
+     * log action for audit without user login info
+     *
+     * @param logger         logger
+     * @param userIdentifier user identifier
+     * @param action         action detail
+     */
     public void logExternalUserAction(Logger logger, String userIdentifier, String action) {
         logger.info("{} user: {} action : {}", AUDIT_PREFIX, userIdentifier, action);
     }
 
+    /**
+     * log action for audit with user id
+     *
+     * @param logger logger
+     * @param action action name
+     * @param detail action detail
+     */
     public void logUserAction(Logger logger, String action, Object detail) {
         logger.info("{} user: {} action : {} detail: {}", AUDIT_PREFIX,
             DomainRegistry.getCurrentUserService().getUserId()

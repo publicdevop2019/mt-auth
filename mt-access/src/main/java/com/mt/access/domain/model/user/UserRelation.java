@@ -9,12 +9,17 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.access.port.adapter.persistence.ProjectIdConverter;
 import com.mt.access.port.adapter.persistence.RoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.HashSet;
 import java.util.Objects;
@@ -35,6 +40,7 @@ import javax.persistence.JoinTable;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -48,6 +54,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "userRelationRegion")
+@EqualsAndHashCode(callSuper = true)
 public class UserRelation extends Auditable {
     @Embedded
     @AttributeOverrides({
@@ -60,7 +67,7 @@ public class UserRelation extends Auditable {
     })
     private ProjectId projectId;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "role")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -68,7 +75,7 @@ public class UserRelation extends Auditable {
     @Convert(converter = RoleIdConverter.class)
     private Set<RoleId> standaloneRoles;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "tenant")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -111,7 +118,7 @@ public class UserRelation extends Auditable {
                                          ProjectId tenantId, ProjectId authProjectId) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
-            .getByUserIdAndProjectId(creator, authProjectId);
+            .query(new UserRelationQuery(creator, authProjectId)).findFirst();
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
@@ -127,7 +134,7 @@ public class UserRelation extends Auditable {
         //to target project
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
-        Project project = DomainRegistry.getProjectRepository().getById(tenantId).get();
+        Project project = DomainRegistry.getProjectRepository().get(tenantId);
         CommonDomainRegistry.getDomainEventRepository()
             .append(new ProjectOnboardingComplete(project));
     }
@@ -139,40 +146,30 @@ public class UserRelation extends Auditable {
         return userRelation2;
     }
 
-    public void setStandaloneRoles(Set<RoleId> collect) {
-        this.standaloneRoles = collect;
-        Validator.notEmpty(collect);
-        Set<Role> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
-                new RoleQuery(collect));
-        if (collect.size() != allByQuery.size()) {
-            HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
-            handler.handleError("not able to find all roles");
+    private void setStandaloneRoles(Set<RoleId> roleIds) {
+        if (Checker.notNull(roleIds)) {
+            Validator.notEmpty(roleIds);
+        }
+        CommonUtility.updateCollection(this.standaloneRoles, roleIds,
+            () -> this.standaloneRoles = roleIds);
+        //@todo move this logic to custom validator
+        if (Checker.notNull(roleIds)) {
+            Set<Role> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                    new RoleQuery(roleIds));
+            if (roleIds.size() != allByQuery.size()) {
+                HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+                handler.handleError("not able to find all roles");
+            }
         }
     }
 
-    public void setTenantIds(Set<ProjectId> tenantIds) {
-        this.tenantIds = tenantIds.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    private void setTenantIds(Set<ProjectId> tenantIds) {
+        if (Checker.notNull(tenantIds)) {
+            Validator.notEmpty(tenantIds);
+            Validator.noNullMember(tenantIds);
         }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        UserRelation that = (UserRelation) o;
-        return Objects.equals(userId, that.userId) && Objects.equals(projectId, that.projectId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), userId, projectId);
+        CommonUtility.updateCollection(this.tenantIds, tenantIds, () -> this.tenantIds = tenantIds);
     }
 
     public void addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
@@ -194,6 +191,39 @@ public class UserRelation extends Auditable {
         }
         if (getTenantIds() != null) {
             getTenantIds().remove(tenantProjectId);
+        }
+    }
+
+    public void tenantUpdate(Set<String> roles) {
+        //@todo move to validator
+        Validator.notNull(roles);
+        Validator.notEmpty(roles);
+        Set<RoleId> roleIds =
+            roles.stream().map(RoleId::new).collect(Collectors.toSet());
+        Set<Role> roleSet = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                new RoleQuery(roleIds));
+        Set<ProjectId> projectIds =
+            roleSet.stream().map(Role::getProjectId).collect(Collectors.toSet());
+        if (projectIds.size() != 1 ||
+            !projectIds.stream().findFirst().get().equals(this.projectId)) {
+            throw new DefinedRuntimeException("role project id should be same", "1087",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        //remove default user so mt-auth will not be miss added to tenant list
+        Set<Role> removeDefaultUser = roleSet.stream().filter(
+                e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(
+                    e.getRoleId().getDomainId()))
+            .collect(Collectors.toSet());
+        Set<ProjectId> collect1 =
+            removeDefaultUser.stream().map(Role::getTenantId).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        //update tenant list based on role selected
+        setStandaloneRoles(
+            roles.stream().map(RoleId::new)
+                .collect(Collectors.toSet()));
+        if (collect1.isEmpty()) {
+            setTenantIds(null);
         }
     }
 }

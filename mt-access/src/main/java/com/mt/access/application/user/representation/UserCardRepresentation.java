@@ -9,14 +9,14 @@ public class UserCardRepresentation {
 
     private String email;
 
-    private boolean locked;
-    private long createdAt;
+    private Boolean locked;
+    private Long createdAt;
 
     public UserCardRepresentation(Object o) {
         User user = (User) o;
         email = user.getEmail().getEmail();
         id = user.getUserId().getDomainId();
-        locked = user.isLocked();
+        locked = user.getLocked();
         this.createdAt = user.getCreatedAt().getTime();
     }
 

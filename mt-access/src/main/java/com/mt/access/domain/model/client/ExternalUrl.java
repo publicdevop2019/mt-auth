@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.client;
 
 import javax.persistence.Embeddable;
-import javax.persistence.MappedSuperclass;
 import lombok.NoArgsConstructor;
 
 @Embeddable

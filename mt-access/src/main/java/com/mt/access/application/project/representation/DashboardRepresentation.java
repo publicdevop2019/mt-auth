@@ -4,12 +4,12 @@ import lombok.Data;
 
 @Data
 public class DashboardRepresentation {
-    private long totalProjects;
-    private long totalClients;
-    private long totalEndpoint;
-    private long totalSharedEndpoint;
-    private long totalPublicEndpoint;
-    private long totalUser;
+    private Long totalProjects;
+    private Long totalClients;
+    private Long totalEndpoint;
+    private Long totalSharedEndpoint;
+    private Long totalPublicEndpoint;
+    private Long totalUser;
 
     public DashboardRepresentation(long projectCount, long clientCount, long epCount,
                                    long epSharedCount, long epPublicCount, long userCount) {

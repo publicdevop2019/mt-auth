@@ -1,8 +1,8 @@
 package com.mt.access.application.client.representation;
 
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
+import com.mt.access.domain.model.client.LoginOAuthClient;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -16,17 +16,17 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
     private String clientSecret;
-    private Set<GrantType> grantTypeEnums;
-    private int accessTokenValiditySeconds;
+    private Set<GrantType> grantTypes;
+    private Integer accessTokenValiditySeconds;
     private Set<String> registeredRedirectUri;
-    private int refreshTokenValiditySeconds;
+    private Integer refreshTokenValiditySeconds;
     private Set<String> resourceIds;
-    private boolean autoApprove = false;
+    private Boolean autoApprove;
 
-    public ClientSpringOAuth2Representation(Client client) {
+    public ClientSpringOAuth2Representation(LoginOAuthClient client) {
         setClientId(client.getClientId());
         setClientSecret(client.getSecret());
-        setGrantTypeEnums(client.getGrantTypes());
+        setGrantTypes(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());
         setRefreshTokenValiditySeconds(client.getRefreshTokenValiditySeconds());
         Set<String> collect =
@@ -37,7 +37,6 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
         setResourceIds(collect2);
         setAutoApprove(client.getAutoApprove());
         setRegisteredRedirectUri(client.getRegisteredRedirectUri());
-
     }
 
     @Override
@@ -62,7 +61,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public boolean isScoped() {
-        return grantTypeEnums.contains(GrantType.AUTHORIZATION_CODE);
+        return grantTypes.contains(GrantType.AUTHORIZATION_CODE);
     }
 
     @Override
@@ -72,7 +71,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     @Override
     public Set<String> getAuthorizedGrantTypes() {
-        return grantTypeEnums.stream().map(e -> e.name().toLowerCase()).collect(Collectors.toSet());
+        return grantTypes.stream().map(e -> e.name().toLowerCase()).collect(Collectors.toSet());
     }
 
     @Override

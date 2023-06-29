@@ -3,7 +3,6 @@ package com.mt.common.domain.model.restful.query;
 import static com.mt.common.CommonConstant.COMMON_ENTITY_ID;
 
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import javax.annotation.Nullable;
 import lombok.Getter;
@@ -30,16 +29,14 @@ public class PageConfig {
                 String[] split1 = str.split(":");
                 if (split1.length != 2 || split1[0].isBlank() || split1[1].isBlank()) {
                     throw new DefinedRuntimeException("unable to parse page info", "0021",
-                        HttpResponseCode.BAD_REQUEST,
-                        ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        HttpResponseCode.BAD_REQUEST);
                 }
                 if (PAGING_NUM.equalsIgnoreCase(split1[0])) {
                     try {
                         pageNumber = Long.parseLong(split1[1]);
                     } catch (NumberFormatException ex) {
                         throw new DefinedRuntimeException("unable to parse long", "0022",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
+                            HttpResponseCode.BAD_REQUEST, ex);
                     }
                 }
                 if (PAGING_SIZE.equalsIgnoreCase(split1[0])) {
@@ -47,8 +44,7 @@ public class PageConfig {
                         pageSize = Integer.parseInt(split1[1]);
                     } catch (NumberFormatException ex) {
                         throw new DefinedRuntimeException("unable to parse int", "0023",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
+                            HttpResponseCode.BAD_REQUEST, ex);
                     }
                 }
                 if (SORT_BY.equalsIgnoreCase(split1[0])) {
@@ -63,8 +59,7 @@ public class PageConfig {
             }
             if (pageNumber == null || pageSize == null || sortBy == null) {
                 throw new DefinedRuntimeException("unable to find require page/sort info", "0024",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
+                    HttpResponseCode.BAD_REQUEST);
             }
         }
     }
@@ -74,8 +69,7 @@ public class PageConfig {
         this(pagingParamStr);
         if (pageSize > maxPageSize) {
             throw new DefinedRuntimeException("max page size reached", "0025",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 
@@ -93,8 +87,7 @@ public class PageConfig {
         PageConfig pageConfig = new PageConfig(pagingParamStr);
         if (pageConfig.getPageSize() > maxPageSize) {
             throw new DefinedRuntimeException("unable to parse page info", "0026",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                HttpResponseCode.BAD_REQUEST);
         }
         return pageConfig;
     }

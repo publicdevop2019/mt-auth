@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.user;
 
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
@@ -15,14 +16,15 @@ public class UserName {
     }
 
     /**
-     * username, must be less than 25 char, cannot be blank and white listed value only.
+     * create username
      *
      * @param value username
      */
     public UserName(String value) {
-        Validator.notBlank(value);
-        Validator.whitelistOnly(value);
-        Validator.lengthLessThanOrEqualTo(value, 25);
+        if (Checker.notNull(value)) {
+            Validator.validRequiredString(5, 50, value);
+            value = value.trim();
+        }
         this.value = value;
     }
 }

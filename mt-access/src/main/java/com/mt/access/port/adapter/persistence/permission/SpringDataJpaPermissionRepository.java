@@ -11,9 +11,12 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,8 +25,8 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaPermissionRepository
     extends PermissionRepository, JpaRepository<Permission, Long> {
 
-    default Optional<Permission> getById(PermissionId id) {
-        return getByQuery(new PermissionQuery(id)).findFirst();
+    default Permission query(PermissionId id) {
+        return query(new PermissionQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Permission permission) {
@@ -50,13 +53,12 @@ public interface SpringDataJpaPermissionRepository
         return getLinkedApiPermissionFor_(e);
     }
 
-    ;
-
     @Query("select distinct p.name from Permission p where p.type='API' and p.parentId != null")
     Set<EndpointId> allApiPermissionLinkedEpId_();
 
     @Query("select c from Permission p join p.linkedApiPermissionIds c where p.permissionId in ?1")
     Set<PermissionId> getLinkedApiPermissionFor_(Set<PermissionId> e);
+
 
     @Query("select distinct p.permissionId from Permission p")
     Set<PermissionId> allPermissionId_();
@@ -64,9 +66,33 @@ public interface SpringDataJpaPermissionRepository
     @Query("select count(*) from Permission p where p.projectId = ?1 and p.type = 'COMMON' and p.parentId != null")
     long countProjectCreateTotal_(ProjectId projectId);
 
-    default SumPagedRep<Permission> getByQuery(PermissionQuery permissionQuery) {
+    default SumPagedRep<Permission> query(PermissionQuery permissionQuery) {
+        if (Checker.notNullOrEmpty(permissionQuery.getLinkedApiPermissionIds())) {
+            return getPermissionUsingApiPermission(permissionQuery);
+        }
         return QueryBuilderRegistry.getPermissionAdaptor().execute(permissionQuery);
     }
+
+    default SumPagedRep<Permission> getPermissionUsingApiPermission(PermissionQuery query) {
+        Set<String> ids = query.getLinkedApiPermissionIds().stream().map(
+            DomainId::getDomainId).collect(
+            Collectors.toSet());
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        javax.persistence.Query countQuery = entityManager.createNativeQuery(
+            "SELECT COUNT(DISTINCT p.id) FROM permission p LEFT JOIN linked_permission_ids_map m ON p.id = m.id " +
+                "WHERE m.domain_id IN :ids");
+        countQuery.setParameter("ids", ids);
+        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
+            "SELECT p.* FROM permission AS p LEFT JOIN linked_permission_ids_map m ON p.id = m.id " +
+                "WHERE m.domain_id IN :ids LIMIT :limit OFFSET :offset", Permission.class);
+        nativeQuery.setParameter("ids", ids);
+        nativeQuery.setParameter("limit", query.getPageConfig().getPageSize());
+        nativeQuery.setParameter("offset", query.getPageConfig().getOffset());
+        long count = ((Number) countQuery.getSingleResult()).longValue();
+        List<Permission> resultList = nativeQuery.getResultList();
+        return new SumPagedRep<>(resultList, count);
+    }
+
 
     default long countProjectCreateTotal(ProjectId projectId) {
         return countProjectCreateTotal_(projectId);
@@ -103,9 +129,9 @@ public interface SpringDataJpaPermissionRepository
                 QueryUtility.addEnumLiteralEqualPredicate(e, Permission_.TYPE, queryContext);
             });
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(Permission_.PERMISSION_ID, queryContext,
-                    query.getSort().isAsc());
+                    query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

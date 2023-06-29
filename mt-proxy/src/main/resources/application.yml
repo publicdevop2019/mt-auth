@@ -1,9 +1,7 @@
 manytree:
-  mt-access:
-    appId: 0C8AZTODP4HT
   url:
+    jwtKey: .well-known/jwks.json
     endpoint: endpoints/proxy
-    subscription: subscriptions/proxy
     report: reports/proxy
     clients: clients/proxy
   domain-name:
@@ -30,11 +28,6 @@ spring:
   loadbalancer:
     ribbon:
       enabled: false
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: .well-known/jwks.json
   redis:
     port:
     database: 0
@@ -55,14 +48,6 @@ hystrix:
         isolation:
           thread:
             timeoutInMilliseconds: 35000
-logging:
-  level:
-    org:
-      springframework:
-        web: INFO
-        security: INFO
-    com:
-      netflix: INFO
 eureka:
   client:
     serviceUrl:

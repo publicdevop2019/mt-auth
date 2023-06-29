@@ -2,11 +2,11 @@ package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import java.util.Objects;
 import javax.persistence.Cacheable;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -18,6 +18,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "positionRegion")
+@EqualsAndHashCode(callSuper = true)
 public class Position extends Auditable {
 
     private String name;
@@ -36,20 +37,4 @@ public class Position extends Auditable {
         this.name = name;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        Position position = (Position) o;
-        return Objects.equals(positionId, position.positionId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(positionId);
-    }
 }

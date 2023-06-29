@@ -16,7 +16,7 @@ import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdateBizUserPasswordCommand;
+import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
@@ -47,7 +47,6 @@ import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -72,56 +71,48 @@ public class UserApplicationService implements UserDetailsService {
     private static final String DEFAULT_USERID = "0U8AZTODP4H0";
 
 
-    public Optional<UserProfileRepresentation> myProfile() {
+    public UserProfileRepresentation myProfile() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().ofId(userId);
-        return user.flatMap((e) -> {
-            UserProfileRepresentation userProfileRepresentation =
-                new UserProfileRepresentation(e, loginInfo.get());
-            return Optional.of(userProfileRepresentation);
-        });
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().query(userId);
+        return new UserProfileRepresentation(user, loginInfo.orElse(null));
     }
 
 
     public SumPagedRep<User> query(String queryParam, String pageParam, String config) {
         return DomainRegistry.getUserRepository()
-            .usersOfQuery(new UserQuery(queryParam, pageParam, config));
+            .query(new UserQuery(queryParam, pageParam, config));
     }
 
     public Set<User> query(Set<UserId> userIdSet) {
         return QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository()
-            .usersOfQuery(e), new UserQuery(userIdSet));
+            .query(e), new UserQuery(userIdSet));
     }
 
     public Optional<User> query(String userId) {
-        return DomainRegistry.getUserRepository().userOfId(new UserId(userId));
+        return DomainRegistry.getUserRepository().query(new UserQuery(new UserId(userId)))
+            .findFirst();
     }
 
     public UserMgmtRepresentation mgmtQuery(String userId) {
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(new UserId(userId));
-        if (user.isEmpty()) {
-            throw new DefinedRuntimeException("unable to find user", "0075",
-                HttpResponseCode.BAD_REQUEST, ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
-        User user1 = user.get();
+        User user = DomainRegistry.getUserRepository().get(new UserId(userId));
         Set<LoginHistory> allForUser =
-            DomainRegistry.getLoginHistoryRepository().getLast100Login(user1.getUserId());
-        return new UserMgmtRepresentation(user1, allForUser);
+            DomainRegistry.getLoginHistoryRepository().getLast100Login(user.getUserId());
+        return new UserMgmtRepresentation(user, allForUser);
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<User> client;
+        User user;
         if (Validator.isValidEmail(username)) {
             //for login
-            client =
-                DomainRegistry.getUserRepository().searchExistingUserWith(new UserEmail(username));
+            user =
+                DomainRegistry.getUserRepository().get(new UserEmail(username));
         } else {
             //for refresh token
-            client = DomainRegistry.getUserRepository().userOfId(new UserId(username));
+            user = DomainRegistry.getUserRepository().get(new UserId(username));
         }
-        return client.map(UserSpringRepresentation::new).orElse(null);
+        return new UserSpringRepresentation(user);
     }
 
     @AuditLog(actionName = MGMT_LOCK_USER)
@@ -130,18 +121,15 @@ public class UserApplicationService implements UserDetailsService {
             .logUserAction(log, "lock user",
                 "with user id :" + id);
         UserId userId = new UserId(id);
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        if (user.isPresent()) {
-            User user1 = user.get();
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    user1.lockUser(
-                        command.isLocked()
-                    );
-                    return null;
-                }, USER);
-            DomainRegistry.getUserRepository().add(user1);
-        }
+        User user = DomainRegistry.getUserRepository().get(userId);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                user.lockUser(
+                    command.getLocked()
+                );
+                return null;
+            }, USER);
+        DomainRegistry.getUserRepository().add(user);
     }
 
     public String create(UserCreateCommand command, String operationId) {
@@ -165,27 +153,23 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = MGMT_DELETE_USER)
     public void remove(String id, String changeId) {
         UserId userId = new UserId(id);
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        if (user.isPresent()) {
-            User user1 = user.get();
-            if (!DEFAULT_USERID.equals(user1.getUserId().getDomainId())) {
-                CommonApplicationServiceRegistry.getIdempotentService()
-                    .idempotent(changeId, (ignored) -> {
-                        DomainRegistry.getUserRepository().remove(user1);
-                        DomainRegistry.getAuditService()
-                            .storeAuditAction(MGMT_DELETE_USER,
-                                user1);
-                        DomainRegistry.getAuditService()
-                            .logUserAction(log, MGMT_DELETE_USER,
-                                user1);
-                        return null;
-                    }, USER);
-                CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
-            } else {
-                throw new DefinedRuntimeException("default user cannot be deleted", "0021",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
-            }
+        User user = DomainRegistry.getUserRepository().get(userId);
+        if (!DEFAULT_USERID.equals(user.getUserId().getDomainId())) {
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (ignored) -> {
+                    DomainRegistry.getUserRepository().remove(user);
+                    DomainRegistry.getAuditService()
+                        .storeAuditAction(MGMT_DELETE_USER,
+                            user);
+                    DomainRegistry.getAuditService()
+                        .logUserAction(log, MGMT_DELETE_USER,
+                            user);
+                    return null;
+                }, USER);
+            CommonDomainRegistry.getDomainEventRepository().append(new UserDeleted(userId));
+        } else {
+            throw new DefinedRuntimeException("default user cannot be deleted", "1021",
+                HttpResponseCode.BAD_REQUEST);
         }
     }
 
@@ -198,17 +182,14 @@ public class UserApplicationService implements UserDetailsService {
         UserId userId = new UserId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-                if (user.isPresent()) {
-                    User original = user.get();
-                    UserPatchingCommand beforePatch = new UserPatchingCommand(original);
-                    UserPatchingCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
-                    original.lockUser(
-                        afterPatch.isLocked()
-                    );
-                }
+                User user = DomainRegistry.getUserRepository().get(userId);
+                UserPatchingCommand beforePatch = new UserPatchingCommand(user);
+                UserPatchingCommand afterPatch =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
+                user.lockUser(
+                    afterPatch.getLocked()
+                );
                 return null;
             }, USER);
     }
@@ -228,20 +209,17 @@ public class UserApplicationService implements UserDetailsService {
 
 
     @AuditLog(actionName = USER_UPDATE_PWD)
-    public void updatePassword(UserUpdateBizUserPasswordCommand command, String changeId) {
+    public void updatePassword(UserUpdatePasswordCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        if (user.isPresent()) {
-            User user1 = user.get();
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (ignored) -> {
-                    DomainRegistry.getUserService()
-                        .updatePassword(user1, new CurrentPassword(command.getCurrentPwd()),
-                            new UserPassword(command.getPassword()));
-                    return null;
-                }, USER);
-            DomainRegistry.getUserRepository().add(user1);
-        }
+        User user = DomainRegistry.getUserRepository().get(userId);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId, (ignored) -> {
+                DomainRegistry.getUserService()
+                    .updatePassword(user, new CurrentPassword(command.getCurrentPwd()),
+                        new UserPassword(command.getPassword()));
+                return null;
+            }, USER);
+        DomainRegistry.getUserRepository().add(user);
     }
 
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
@@ -271,29 +249,22 @@ public class UserApplicationService implements UserDetailsService {
 
     public Optional<Image> profileAvatar() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        return user.flatMap((e) -> {
-            if (e.getUserAvatar() != null) {
-                String value = e.getUserAvatar().getValue();
-                return ApplicationServiceRegistry.getImageApplicationService().queryById(value);
-            } else {
-                return Optional.empty();
-            }
-        });
+        User user = DomainRegistry.getUserRepository().get(userId);
+        if (user.getUserAvatar() != null) {
+            String value = user.getUserAvatar().getValue();
+            return ApplicationServiceRegistry.getImageApplicationService().queryById(value);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        if (user.isEmpty()) {
-            throw new DefinedRuntimeException("cannot find user " + userId, "0022",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
+        User user = DomainRegistry.getUserRepository().get(userId);
         ImageId imageId =
             ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
         CommonDomainRegistry.getTransactionService()
-            .transactional(() -> user.get().setUserAvatar(new UserAvatar(imageId)));
+            .transactional(() -> user.setUserAvatar(new UserAvatar(imageId)));
         return imageId;
     }
 
@@ -301,14 +272,9 @@ public class UserApplicationService implements UserDetailsService {
                                  String username, @Nullable String mfa, @Nullable String mfaId) {
         if ("password".equalsIgnoreCase(grantType) && username != null) {
             UserEmail userEmail = new UserEmail(username);
-            Optional<User> user =
-                DomainRegistry.getUserRepository().searchExistingUserWith(userEmail);
-            if (user.isEmpty()) {
-                throw new DefinedRuntimeException("user not found", "0023",
-                    HttpResponseCode.UNAUTHORIZED,
-                    ExceptionCatalog.ILLEGAL_ARGUMENT);
-            }
-            UserId userId = user.get().getUserId();
+            User user =
+                DomainRegistry.getUserRepository().get(userEmail);
+            UserId userId = user.getUserId();
             boolean mfaRequired =
                 DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
             if (!mfaRequired) {
@@ -339,12 +305,14 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = USER_UPDATE_PROFILE)
     public void updateProfile(UserUpdateProfileCommand command) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        user.ifPresent(
-            e -> CommonDomainRegistry.getTransactionService().transactional(() -> e.update(
-                new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                command.getUsername() != null ? new UserName(command.getUsername()) : null,
-                command.getLanguage())));
+        User user = DomainRegistry.getUserRepository().get(userId);
+        CommonDomainRegistry.getTransactionService().transactional(() ->
+            user.update(
+            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+            command.getUsername() != null ? new UserName(command.getUsername()) : null,
+            command.getLanguage()
+            )
+        );
     }
 
     private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {

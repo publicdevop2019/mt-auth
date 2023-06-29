@@ -33,7 +33,7 @@ public class ImageApplicationService {
     }
 
     public Optional<Image> queryById(String id) {
-        return DomainRegistry.getImageRepository().imageOfQuery(new ImageQuery(new ImageId(id)))
+        return DomainRegistry.getImageRepository().query(new ImageQuery(new ImageId(id)))
             .findFirst();
     }
 }

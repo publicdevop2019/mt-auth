@@ -1,14 +1,19 @@
 package com.mt.access.domain.model.position;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import com.mt.common.domain.model.validate.Validator;
 
 public interface PositionRepository {
     void add(Position role);
 
-    SumPagedRep<Position> getByQuery(PositionQuery roleQuery);
+    SumPagedRep<Position> query(PositionQuery roleQuery);
 
     void remove(Position e);
 
-    Optional<Position> getById(PositionId id);
+    default Position get(PositionId id){
+        Position position = query(id);
+        Validator.notNull(position);
+        return position;
+    }
+    Position query(PositionId id);
 }

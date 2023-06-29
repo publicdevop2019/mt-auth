@@ -15,7 +15,6 @@ import com.mt.access.application.position.representation.PositionRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.position.Position;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -66,10 +65,9 @@ public class PositionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Position> client =
+        Position position =
             ApplicationServiceRegistry.getPositionApplicationService().tenantQuery(id);
-        return client.map(value -> ResponseEntity.ok(new PositionRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new PositionRepresentation(position));
     }
 
     @PutMapping("{id}")

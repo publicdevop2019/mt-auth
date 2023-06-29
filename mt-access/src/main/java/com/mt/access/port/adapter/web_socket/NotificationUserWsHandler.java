@@ -34,11 +34,15 @@ public class NotificationUserWsHandler extends AbstractNotificationWsHandler {
 
     public void notifyUser(UserId userId, String message) {
         log.trace("send notification to user {}", userId);
-        WebSocketSession webSocketSession1 = userSessionMap.get(userId);
+        WebSocketSession socketSession = userSessionMap.get(userId);
+        if(socketSession==null){
+            log.trace("user session not found, ignore operation");
+            return;
+        }
         try {
-            webSocketSession1.sendMessage(new TextMessage(message));
+            socketSession.sendMessage(new TextMessage(message));
         } catch (IOException e) {
-            log.error("Error occurred.", e);
+            log.error("error occurred", e);
         }
     }
 

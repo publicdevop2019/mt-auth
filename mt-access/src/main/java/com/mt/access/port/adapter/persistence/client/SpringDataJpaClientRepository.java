@@ -5,13 +5,13 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
 import com.mt.access.domain.model.client.Client_;
+import com.mt.access.domain.model.client.LoginOAuthClient;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.DomainId_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
@@ -40,6 +40,23 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SpringDataJpaClientRepository
     extends JpaRepository<Client, Long>, ClientRepository {
+
+    default LoginOAuthClient getForLogin(ClientId clientId){
+        EntityManager entityManager = QueryUtility.getEntityManager();
+        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
+            "SELECT * FROM client c " +
+                "LEFT JOIN client_grant_type_map cgtm ON c.id = cgtm.id " +
+                "LEFT JOIN client_type_map ctm ON c.id = ctm.id " +
+                "LEFT JOIN client_redirect_url_map crum ON c.id = crum .id " +
+                "LEFT JOIN resources_map rm ON c.id = rm.id " +
+                "LEFT JOIN external_resources_map erm ON c.id = erm .id " +
+                "WHERE c.domain_id = :clientId"
+        , LoginOAuthClient.class);
+        nativeQuery.setParameter("clientId",clientId.getDomainId());
+        Object singleResult = nativeQuery.getSingleResult();
+        return (LoginOAuthClient) singleResult;
+    }
+
     default Set<ProjectId> getProjectIds() {
         return getProjectIds_();
     }
@@ -60,9 +77,9 @@ public interface SpringDataJpaClientRepository
     @Query("select count(*) from Client c where c.projectId = ?1")
     Long countProjectTotal_(ProjectId projectId);
 
-    default Optional<Client> clientOfId(ClientId clientId) {
+    default Client query(ClientId clientId) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(new ClientQuery(clientId))
-            .findFirst();
+            .findFirst().orElse(null);
     }
 
     default void add(Client client) {
@@ -77,7 +94,7 @@ public interface SpringDataJpaClientRepository
         deleteAll(clients);
     }
 
-    default SumPagedRep<Client> clientsOfQuery(ClientQuery clientQuery) {
+    default SumPagedRep<Client> query(ClientQuery clientQuery) {
         return QueryBuilderRegistry.getClientSelectQueryBuilder().execute(clientQuery);
     }
 
@@ -263,9 +280,8 @@ public interface SpringDataJpaClientRepository
                         results.add(cb.greaterThan(root.get(Client_.TOKEN_DETAIL)
                             .get(TokenDetail_.ACCESS_TOKEN_VALIDITY_SECONDS), i));
                     } else {
-                        throw new DefinedRuntimeException("unsupported query value", "0072",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        throw new DefinedRuntimeException("unsupported query value", "1072",
+                            HttpResponseCode.BAD_REQUEST);
                     }
                 }
                 return cb.and(results.toArray(new Predicate[0]));
@@ -344,9 +360,8 @@ public interface SpringDataJpaClientRepository
                         Order asc = cb.asc(root.get(Client_.NAME));
                         return Collections.singletonList(asc);
                     } else {
-                        throw new DefinedRuntimeException("unsupported order by value", "0073",
-                            HttpResponseCode.BAD_REQUEST,
-                            ExceptionCatalog.ILLEGAL_ARGUMENT);
+                        throw new DefinedRuntimeException("unsupported order by value", "1073",
+                            HttpResponseCode.BAD_REQUEST);
                     }
                 }
             }

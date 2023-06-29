@@ -1,0 +1,95 @@
+# Use cases
+- common
+    - string input
+        - too short
+        - too long
+        - invalid char
+        - empty
+        - blank
+        - null
+- endpoint type
+    - GET
+    - POST
+    - PATCH
+    - PUT
+    - DELETE
+    - websocket
+- tenant
+    - project
+        - create project
+            - create project with invalid project name
+                - too short
+                - too long
+                - invalid char
+                - empty
+                - blank
+                - null
+            - view project information
+    - client
+        - create fronend client
+            - client credential grant
+            - password grant
+            - authorization code grant
+        - create backend client
+            - client credential grant
+            - password grant
+        - create resource client then referred by another client
+        - update client
+        - patch client
+            - patch name
+            - patch description
+            - patch grant type
+            - patch token validity seconds
+            - patch resources
+        - delete client
+            - delete resource client
+        - delete client which has shared endpoints that are subscribed by others
+    - endpoint
+        - create endpoint
+            - create internal endpoints
+            - create external endpoints
+                - create public endpoint
+                    - create public shared endpoint
+                    - create public not shared endpoint
+                - create protected endpoint
+                    - create protected shared endpoint
+                    - create protected not shared endpoint
+        - update endpoint
+        - delete endpoint
+        - expire shared endpoint
+        - view endpoint
+    - cors
+        - create cors
+        - update cors
+        - delete cors
+        - view cors
+    - cache
+        - create cache
+        - update cache
+        - delete cache
+        - view cache
+    - permission
+        - create
+        - update
+        - view
+        - delete
+    - role
+        - create
+        - update
+        - view
+        - delete
+    - user
+        - assign role
+        - remove role
+    - admin
+        - add admin
+        - remove admin
+    - shared endpoint (sub request)
+        - create
+        - update
+        - view
+        - approve
+        - cancel
+        - reject
+        - view created shared endpoint
+        - view my subscriptions

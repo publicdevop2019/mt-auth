@@ -20,8 +20,8 @@ public interface SpringDataJpaOperationCoolDownRepository
     Optional<OperationCoolDown> findByExecutorAndOperationType(String executor,
                                                                OperationType operationType);
 
-    default Optional<OperationCoolDown> getCoolDownInfo(String executor,
-                                                        OperationType operationType) {
+    default Optional<OperationCoolDown> query(String executor,
+                                              OperationType operationType) {
         return findByExecutorAndOperationType(executor, operationType);
     }
 

@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CorsProfileQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String PROJECT_ID = "projectIds";
@@ -69,8 +71,8 @@ public class CorsProfileQuery extends QueryCriteria {
 
     @Getter
     public static class CorsProfileSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public CorsProfileSort(boolean sortOrderAsc) {
             this.isAsc = sortOrderAsc;

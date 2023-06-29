@@ -8,6 +8,7 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class ComputePermissionService {
      * @return permission id collection
      */
     public Set<PermissionId> compute(UserRelation userRelation) {
+        if (userRelation == null) {
+            return Collections.emptySet();
+        }
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
         Set<Role> allByQuery = QueryUtility.getAllByQuery(
             q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),

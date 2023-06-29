@@ -6,7 +6,7 @@ import lombok.Data;
 @Data
 public class ClientAutoApproveRepresentation {
     private String id;
-    private boolean autoApprove;
+    private Boolean autoApprove;
 
     public ClientAutoApproveRepresentation(Client client) {
         id = client.getClientId().getDomainId();

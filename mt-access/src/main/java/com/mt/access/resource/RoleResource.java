@@ -16,7 +16,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.infrastructure.Utility;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -73,10 +72,9 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Role> client =
+        Role role =
             ApplicationServiceRegistry.getRoleApplicationService().query(projectId, id);
-        return client.map(value -> ResponseEntity.ok(new RoleRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        return ResponseEntity.ok(new RoleRepresentation(role));
     }
 
     @PutMapping("projects/{projectId}/roles/{id}")

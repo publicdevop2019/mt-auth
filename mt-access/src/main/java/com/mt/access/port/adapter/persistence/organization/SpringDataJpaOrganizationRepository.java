@@ -9,6 +9,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaOrganizationRepository
     extends OrganizationRepository, JpaRepository<Organization, Long> {
-    default Optional<Organization> getById(OrganizationId id) {
-        return getByQuery(new OrganizationQuery(id)).findFirst();
+    default Organization query(OrganizationId id) {
+        return query(new OrganizationQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Organization organization) {
@@ -29,7 +30,7 @@ public interface SpringDataJpaOrganizationRepository
         delete(organization);
     }
 
-    default SumPagedRep<Organization> getByQuery(OrganizationQuery organizationQuery) {
+    default SumPagedRep<Organization> query(OrganizationQuery organizationQuery) {
         return QueryBuilderRegistry.getOrganizationAdaptor().execute(organizationQuery);
     }
 
@@ -43,9 +44,9 @@ public interface SpringDataJpaOrganizationRepository
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Organization_.ORGANIZATION_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(Organization_.ORGANIZATION_ID, queryContext,
-                    query.getSort().isAsc());
+                    query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

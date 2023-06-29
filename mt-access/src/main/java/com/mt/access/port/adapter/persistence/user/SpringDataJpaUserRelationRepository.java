@@ -13,6 +13,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -28,8 +29,12 @@ import org.springframework.stereotype.Component;
 public interface SpringDataJpaUserRelationRepository
     extends UserRelationRepository, JpaRepository<UserRelation, Long> {
 
-    default SumPagedRep<UserRelation> getByUserId(UserId id) {
-        return getByQuery(new UserRelationQuery(id));
+    default SumPagedRep<UserRelation> get(UserId id) {
+        return query(new UserRelationQuery(id));
+    }
+
+    default Optional<UserRelation> query(UserId id, ProjectId projectId) {
+        return getByUserIdAndProjectId(id, projectId);
     }
 
     default void add(UserRelation role) {
@@ -52,7 +57,7 @@ public interface SpringDataJpaUserRelationRepository
         return getUserIds_();
     }
 
-    default SumPagedRep<UserRelation> getByQuery(UserRelationQuery query) {
+    default SumPagedRep<UserRelation> query(UserRelationQuery query) {
         if (query.getEmailLike() != null) {
             return searchUserByEmailLike(query);
         }
@@ -62,6 +67,8 @@ public interface SpringDataJpaUserRelationRepository
     default long countProjectOwnedTotal(ProjectId projectId) {
         return countProjectOwnedTotal_(projectId);
     }
+
+    Optional<UserRelation> getByUserIdAndProjectId(UserId id, ProjectId projectId);
 
     /**
      * count project admin
@@ -103,13 +110,12 @@ public interface SpringDataJpaUserRelationRepository
         return new SumPagedRep<>(data, count);
     }
 
-//      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
+    //      countQuery.setHint("org.hibernate.cacheable", true);//@note will cause error
 //      ref: https://stackoverflow.com/questions/25789176/aliases-expected-length-is-0-actual-length-is-1-on-hibernate-query-cache
     default Long countProjectAdmin_(RoleId roleId) {
         EntityManager entityManager = QueryUtility.getEntityManager();
         javax.persistence.Query countQuery = entityManager.createNativeQuery(
-            "SELECT COUNT(*) FROM user_relation_role_map mt WHERE mt.role = :roleId",
-            Long.class);
+            "SELECT COUNT(*) FROM user_relation_role_map mt WHERE mt.role = :roleId");
         countQuery.setParameter("roleId", roleId.getDomainId());
         return ((Number) countQuery.getSingleResult()).longValue();
     }
@@ -131,9 +137,9 @@ public interface SpringDataJpaUserRelationRepository
                     e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
                         .collect(Collectors.toSet()), UserRelation_.PROJECT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(UserRelation_.USER_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

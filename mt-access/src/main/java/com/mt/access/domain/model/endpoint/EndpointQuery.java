@@ -21,8 +21,10 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class EndpointQuery extends QueryCriteria {
     public static final String ID = "id";
     public static final String RESOURCE_ID = "resourceId";
@@ -125,6 +127,16 @@ public class EndpointQuery extends QueryCriteria {
         return endpointQuery;
     }
 
+    public static EndpointQuery tenantQuery(Set<EndpointId> endpointIds, Set<ProjectId> tenantIds) {
+        EndpointQuery endpointQuery = new EndpointQuery();
+        endpointQuery.endpointIds = endpointIds;
+        endpointQuery.projectIds = tenantIds;
+        endpointQuery.setPageConfig(PageConfig.defaultConfig());
+        endpointQuery.setQueryConfig(QueryConfig.countRequired());
+        endpointQuery.setEndpointSort(endpointQuery.pageConfig);
+        return endpointQuery;
+    }
+
     public static EndpointQuery websocketQuery() {
         EndpointQuery endpointQuery = new EndpointQuery();
         endpointQuery.setIsWebsocket(true);
@@ -183,11 +195,11 @@ public class EndpointQuery extends QueryCriteria {
 
     @Getter
     public static class EndpointSort {
-        private final boolean isAsc;
-        private boolean byId;
-        private boolean byClientId;
-        private boolean byMethod;
-        private boolean byPath;
+        private final Boolean isAsc;
+        private Boolean byId;
+        private Boolean byClientId;
+        private Boolean byMethod;
+        private Boolean byPath;
 
         private EndpointSort(boolean isAsc) {
             this.isAsc = isAsc;

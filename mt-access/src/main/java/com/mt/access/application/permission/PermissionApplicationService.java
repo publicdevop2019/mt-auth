@@ -18,7 +18,6 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
-import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.Permission;
@@ -29,6 +28,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
@@ -48,24 +48,30 @@ public class PermissionApplicationService {
     /**
      * get subscribed endpoint permissions
      *
-     * @param queryParam query string
-     * @param pageParam  page config
+     * @param rawProjectId
+     * @param queryParam   query string
+     * @param pageParam    page config
      * @return paged permission
      */
-    public SumPagedRep<Permission> sharedQuery(String queryParam, String pageParam) {
+    public SumPagedRep<Permission> sharedQuery(String rawProjectId, String queryParam,
+                                               String pageParam) {
+        //get subscribed endpoints
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_PERMISSION);
         Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
-            .internalSubscribedEndpointIds();
+            .internalSubscribedEndpointIds(projectId);
         if (!endpointIds.isEmpty()) {
             Set<Endpoint> endpoints =
                 ApplicationServiceRegistry.getEndpointApplicationService()
                     .internalQuery(endpointIds);
+            //get endpoint's permission
             Set<PermissionId> subPermissionIds =
                 endpoints.stream().map(Endpoint::getPermissionId)
                     .filter(Objects::nonNull)//filter shared endpoint that has no permission check
                     .collect(Collectors.toSet());
             PermissionQuery permissionQuery =
                 PermissionQuery.subscribeSharedQuery(subPermissionIds, queryParam, pageParam);
-            return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+            return DomainRegistry.getPermissionRepository().query(permissionQuery);
         } else {
             return SumPagedRep.empty();
         }
@@ -82,24 +88,25 @@ public class PermissionApplicationService {
             return Collections.emptySet();
         }
         return QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
     }
 
     public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam,
                                                String skipCount) {
         PermissionQuery permissionQuery = new PermissionQuery(queryParam, pageParam, skipCount);
+        Validator.notNull(permissionQuery.getProjectIds());
+        Validator.notEmpty(permissionQuery.getProjectIds());
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
-        return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery);
+        return DomainRegistry.getPermissionRepository().query(permissionQuery);
     }
 
-    public Optional<Permission> tenantQuery(String projectId, String id) {
-        PermissionQuery permissionQuery =
-            new PermissionQuery(new PermissionId(id), new ProjectId(projectId));
+    public Permission tenantQueryById(String projectId, String id) {
+        ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
-        return DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
+            .canAccess(projectId1, VIEW_PERMISSION);
+        return DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
     }
 
 
@@ -113,23 +120,14 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Permission> first =
-                    DomainRegistry.getPermissionRepository().getByQuery(permissionQuery)
+                    DomainRegistry.getPermissionRepository().query(permissionQuery)
                         .findFirst();
                 first.ifPresent(ee -> {
-                    Set<PermissionId> linkedPermId = null;
-                    if (command.getLinkedApiIds() != null && !command.getLinkedApiIds().isEmpty()) {
-                        Set<EndpointId> collect =
-                            command.getLinkedApiIds().stream().map(EndpointId::new)
-                                .collect(Collectors.toSet());
-                        Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                            e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
-                            new EndpointQuery(collect));
-                        Validator.equalTo(allByQuery.size(), collect.size(),
-                            "unable to find all endpoint");
-                        linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
-                            .collect(Collectors.toSet());
-                    }
-                    ee.replace(command.getName(), linkedPermId);
+                    Set<PermissionId> permissionIds =
+                        DomainRegistry.getPermissionService()
+                            .tenantFindPermissionIds(command.getLinkedApiIds(),
+                            permissionQuery.getProjectIds());
+                    ee.replace(command.getName(), permissionIds);
                     DomainRegistry.getPermissionRepository().add(ee);
                 });
                 return null;
@@ -146,7 +144,7 @@ public class PermissionApplicationService {
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
             Optional<Permission> permission =
-                DomainRegistry.getPermissionRepository().getByQuery(permissionQuery).findFirst();
+                DomainRegistry.getPermissionRepository().query(permissionQuery).findFirst();
             permission.ifPresent(e -> {
                 e.remove();
                 DomainRegistry.getAuditService()
@@ -171,7 +169,7 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
                 Optional<Permission> permission =
-                    DomainRegistry.getPermissionRepository().getByQuery(permissionQuery)
+                    DomainRegistry.getPermissionRepository().query(permissionQuery)
                         .findFirst();
                 if (permission.isPresent()) {
                     Permission permission1 = permission.get();
@@ -191,34 +189,20 @@ public class PermissionApplicationService {
     @AuditLog(actionName = CREATE_TENANT_PERMISSION)
     public String tenantCreate(PermissionCreateCommand command, String changeId) {
         PermissionId permissionId = new PermissionId();
+        ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(command.getProjectId()), CREATE_PERMISSION);
+            .canAccess(projectId, CREATE_PERMISSION);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
-                Set<PermissionId> linkedPermId = null;
-                if (command.getLinkedApiIds() != null && !command.getLinkedApiIds().isEmpty()) {
-                    Set<EndpointId> collect =
-                        command.getLinkedApiIds().stream().map(EndpointId::new)
-                            .collect(Collectors.toSet());
-                    Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
-                        e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
-                        new EndpointQuery(collect));
-                    Validator
-                        .equalTo(allByQuery.size(), collect.size(), "unable to find all endpoint");
-                    linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
-                        .collect(Collectors.toSet());
-                }
-                Permission permission;
-                if (command.getParentId() != null && !command.getParentId().isBlank()) {
-                    permission = Permission
-                        .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                            command.getName(), PermissionType.COMMON,
-                            new PermissionId(command.getParentId()), null, linkedPermId);
-                } else {
-                    permission = Permission
-                        .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                            command.getName(), PermissionType.COMMON, null, null, linkedPermId);
-                }
+                Set<PermissionId> linkedPermId =
+                    DomainRegistry.getPermissionService()
+                        .tenantFindPermissionIds(command.getLinkedApiIds(),
+                            Collections.singleton(projectId));
+                Permission permission = Permission
+                    .manualCreate(new ProjectId(command.getProjectId()), permissionId,
+                        command.getName(), PermissionType.COMMON,
+                        command.getParentId() != null ? new PermissionId(command.getParentId()) :
+                            null, null, linkedPermId);
                 DomainRegistry.getPermissionRepository().add(permission);
                 return permissionId.getDomainId();
             }, PERMISSION);
@@ -235,16 +219,16 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-
-    public void handle(SecureEndpointCreated deserialize) {
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
+    public void handle(SecureEndpointCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle endpoint created event");
-                EndpointId endpointId = new EndpointId(deserialize.getDomainId().getDomainId());
-                PermissionId permissionId = deserialize.getPermissionId();
-                ProjectId projectId = deserialize.getProjectId();
+                EndpointId endpointId = new EndpointId(event.getDomainId().getDomainId());
+                PermissionId permissionId = event.getPermissionId();
+                ProjectId projectId = event.getProjectId();
                 Permission
-                    .addNewEndpoint(projectId, endpointId, permissionId, deserialize.isShared());
+                    .addNewEndpoint(projectId, endpointId, permissionId, event.getShared());
                 return null;
             }, PERMISSION);
     }
@@ -254,21 +238,13 @@ public class PermissionApplicationService {
      *
      * @param event SecureEndpointRemoved event
      */
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
     public void handle(SecureEndpointRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (ignored) -> {
                 log.debug("handle secured endpoint remove event");
-                Set<PermissionId> permissionIds = event.getPermissionIds();
-                PermissionQuery permissionQuery = new PermissionQuery(permissionIds);
-                Set<Permission> allByQuery = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
-                        permissionQuery);
-                Validator.sizeEqualTo(permissionIds, allByQuery,
-                    "unable to find all permission for deleted endpoints");
-                DomainRegistry.getPermissionRepository().removeAll(allByQuery);
+                DomainRegistry.getPermissionService().cleanRelated(event.getPermissionId());
                 return null;
             }, PERMISSION);
     }
-
-
 }

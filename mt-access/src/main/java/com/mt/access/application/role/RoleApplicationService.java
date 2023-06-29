@@ -1,8 +1,8 @@
 package com.mt.access.application.role;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ROLE;
+import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
@@ -18,6 +18,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.permission.PermissionId;
+import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
@@ -28,12 +29,12 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.distributed_lock.SagaDistLock;
+import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,23 +47,23 @@ public class RoleApplicationService {
     private static final String ROLE = "Role";
 
     public SumPagedRep<Role> query(RoleQuery roleQuery) {
-        return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
+        return DomainRegistry.getRoleRepository().query(roleQuery);
     }
 
     public SumPagedRep<Role> query(String queryParam, String pageParam, String skipCount) {
         RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().getByQuery(roleQuery);
+        return DomainRegistry.getRoleRepository().query(roleQuery);
     }
 
-    public Optional<Role> query(String projectId, String id) {
-        RoleQuery roleQuery = new RoleQuery(new RoleId(id), new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
+    public Role query(String projectId, String id) {
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
+        return DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
     }
 
-    public Optional<Role> internalQuery(RoleId id) {
-        return DomainRegistry.getRoleRepository().getById(id);
+    public Role internalQueryById(RoleId id) {
+        return DomainRegistry.getRoleRepository().get(id);
     }
 
 
@@ -74,9 +75,9 @@ public class RoleApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Role> first =
-                    DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
+                    DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.update(command);
+                    e.replace(command);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -91,13 +92,13 @@ public class RoleApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Role> first =
-                    DomainRegistry.getRoleRepository().getByQuery(roleQuery).findFirst();
+                    DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
                     RolePatchCommand beforePatch = new RolePatchCommand(e);
                     RolePatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, RolePatchCommand.class);
-                    e.patch(afterPatch.getName());
+                    e.patch(afterPatch.getName(), afterPatch.getDescription());
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -111,16 +112,14 @@ public class RoleApplicationService {
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Role> role = DomainRegistry.getRoleRepository().getById(roleId);
-            role.ifPresent(e->{
-                e.remove();
-                DomainRegistry.getAuditService()
-                    .storeAuditAction(DELETE_TENANT_ROLE,
-                        e);
-                DomainRegistry.getAuditService()
-                    .logUserAction(log, DELETE_TENANT_ROLE,
-                        e);
-            });
+            Role role = DomainRegistry.getRoleRepository().get(roleId);
+            role.remove();
+            DomainRegistry.getAuditService()
+                .storeAuditAction(DELETE_TENANT_ROLE,
+                    role);
+            DomainRegistry.getAuditService()
+                .logUserAction(log, DELETE_TENANT_ROLE,
+                    role);
             return null;
         }, ROLE);
     }
@@ -145,16 +144,10 @@ public class RoleApplicationService {
                     roleId,
                     command.getName(),
                     command.getDescription(),
-                    command.getCommonPermissionIds().stream().map(PermissionId::new)
-                        .collect(Collectors.toSet()),
-                    command.getApiPermissionIds().stream().map(PermissionId::new)
-                        .collect(Collectors.toSet()),
-                    RoleType.USER,
-                    command.getParentId() != null ? new RoleId(command.getParentId()) : null,
-                    command.getExternalPermissionIds() != null
-                        ?
-                        command.getExternalPermissionIds().stream().map(PermissionId::new)
-                            .collect(Collectors.toSet()) : null
+                    CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new),
+                    CommonUtility.map(command.getApiPermissionIds(), PermissionId::new),
+                    command.getParentId() == null ? null : new RoleId(command.getParentId()),
+                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new)
                 );
                 DomainRegistry.getRoleRepository().add(role);
                 return roleId.getDomainId();
@@ -182,34 +175,54 @@ public class RoleApplicationService {
     }
 
     /**
+     * remove roles refer to deleted permissions
+     *
+     * @param event permission remove event
+     */
+    public void handle(PermissionRemoved event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotentMsg(event.getId().toString(), (ignored) -> {
+                log.debug("handle permission removed event");
+                PermissionId permissionId = new PermissionId(event.getDomainId().getDomainId());
+                Set<Role> allByQuery = QueryUtility.getAllByQuery(
+                    (query) -> DomainRegistry.getRoleRepository().query(query),
+                    RoleQuery.referredPermissions(permissionId));
+                allByQuery.forEach(e -> e.removePermission(permissionId));
+                return null;
+            }, (cmd) -> null, ROLE);
+    }
+
+    /**
      * create placeholder role when new client created,
      * use saga lock to make sure event get consumed correctly.
      * e.g client deleted consumed first then client created consumed next
      *
      * @param event client created event
      */
-    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
-                log.debug("handle client created event");
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleId roleId = event.getRoleId();
+                log.trace("before get project root role");
                 Set<Role> allByQuery = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
-                        RoleQuery.getRootRole(projectId));
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                        RoleQuery.getRootRole());
+                log.trace("get project root role");
                 Optional<Role> first =
-                    allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()))
+                    allByQuery.stream().filter(e -> RoleType.CLIENT_ROOT.equals(e.getType()) &&
+                            e.getProjectId().equals(projectId))
                         .findFirst();
                 if (first.isEmpty()) {
-                    throw new DefinedRuntimeException("unable to find root client role", "0019",
-                        HttpResponseCode.NOT_HTTP,
-                        ExceptionCatalog.OPERATION_ERROR);
+                    throw new DefinedRuntimeException("unable to find root client role", "1019",
+                        HttpResponseCode.NOT_HTTP);
                 }
-                Role userRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
+                Role clientRole = Role.newClient(projectId, roleId, clientId.getDomainId(),
                     first.get().getRoleId());
-                DomainRegistry.getRoleRepository().add(userRole);
+                log.trace("create client role");
+                DomainRegistry.getRoleRepository().add(clientRole);
                 return null;
             }, (cmd) -> null, ROLE);
     }
@@ -222,7 +235,7 @@ public class RoleApplicationService {
      *
      * @param event clientDeleted event
      */
-    @SagaDistLock(keyExpression = "#p0.changeId", aggregateName = ROLE, unlockAfter = 2)
+    @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (ignored) -> {
@@ -230,7 +243,7 @@ public class RoleApplicationService {
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleQuery roleQuery = RoleQuery.forClientId(clientId);
                 Set<Role> allByQuery = QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+                    .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                         roleQuery);
                 log.debug("role to be removed {}", allByQuery.size());
                 allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));

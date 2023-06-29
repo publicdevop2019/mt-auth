@@ -7,6 +7,7 @@ import com.mt.access.domain.model.image.Image_;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -20,15 +21,15 @@ public interface SpringDataJpaImageRepository extends JpaRepository<Image, Long>
         save(address);
     }
 
-    default SumPagedRep<Image> imageOfQuery(ImageQuery query) {
+    default SumPagedRep<Image> query(ImageQuery query) {
         QueryUtility.QueryContext<Image> context = QueryUtility.prepareContext(Image.class, query);
         Optional.ofNullable(query.getIds()).ifPresent(
             e -> QueryUtility.addDomainIdInPredicate(e.stream().map(DomainId::getDomainId)
                 .collect(Collectors.toSet()), Image_.IMAGE_ID, context));
         Order order = null;
-        if (query.getSort().isById()) {
+        if (Checker.isTrue(query.getSort().getById())) {
             order =
-                QueryUtility.getDomainIdOrder(Image_.IMAGE_ID, context, query.getSort().isAsc());
+                QueryUtility.getDomainIdOrder(Image_.IMAGE_ID, context, query.getSort().getIsAsc());
         }
         context.setOrder(order);
         return QueryUtility.nativePagedQuery(query, context);

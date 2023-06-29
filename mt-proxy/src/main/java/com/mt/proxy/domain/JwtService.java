@@ -1,6 +1,6 @@
 package com.mt.proxy.domain;
 
-import com.mt.proxy.port.adapter.http.HttpHelper;
+import com.mt.proxy.port.adapter.http.HttpUtility;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
 import com.nimbusds.jose.jwk.JWK;
@@ -29,12 +29,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class JwtService {
-    @Value("${spring.security.oauth2.resourceserver.jwt.jwk-set-uri}")
-    private String jwtKeyUrl;
+
     private RSAPublicKey publicKey;
     @Autowired
-    private HttpHelper httpHelper;
-
+    private HttpUtility httpHelper;
+    @Value("${manytree.url.jwtKey}")
+    private String jwtKeyUrl;
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
         return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
@@ -50,11 +50,9 @@ public class JwtService {
             e.printStackTrace();
         }
     }
-
     public String getJwtKeyUrl() {
         return httpHelper.resolveAccessPath() + jwtKeyUrl;
     }
-
     public boolean verify(String jwt) {
         SignedJWT parse;
         try {

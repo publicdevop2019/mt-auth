@@ -16,9 +16,11 @@ import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @NoArgsConstructor
 @Getter
+@ToString
 public class PermissionQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
@@ -31,6 +33,8 @@ public class PermissionQuery extends QueryCriteria {
     private Set<ProjectId> projectIds;
     @Setter
     private Set<ProjectId> tenantIds;
+    @Setter
+    private Set<PermissionId> linkedApiPermissionIds;
     private PermissionId parentId;
     private Boolean parentIdNull;
     @Setter
@@ -95,8 +99,15 @@ public class PermissionQuery extends QueryCriteria {
         return permissionQuery;
     }
 
-    //create query to find read project permission for tenant
-    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId, Set<ProjectId> tenantIds) {
+    /**
+     * create query to find read project permission for tenant
+     *
+     * @param projectId project id
+     * @param tenantIds tenant id
+     * @return PermissionQuery
+     */
+    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId,
+                                                         Set<ProjectId> tenantIds) {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.projectIds = Collections.singleton(projectId);
         Validator.notEmpty(tenantIds);
@@ -125,6 +136,25 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
         permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.shared = true;
+        return permissionQuery;
+    }
+
+    public static PermissionQuery tenantQuery(ProjectId tenantId, PermissionId parentId) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setTenantIds(Collections.singleton(tenantId));
+        permissionQuery.setIds(Collections.singleton(parentId));
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.sort = PermissionSort.byId(true);
+        return permissionQuery;
+    }
+
+    public static PermissionQuery linkedApiPermission(PermissionId permissionId) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setLinkedApiPermissionIds(Collections.singleton(permissionId));
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.sort = PermissionSort.byId(true);
         return permissionQuery;
     }
 
@@ -167,8 +197,8 @@ public class PermissionQuery extends QueryCriteria {
 
     @Getter
     public static class PermissionSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public PermissionSort(boolean isAsc) {
             this.isAsc = isAsc;

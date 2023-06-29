@@ -8,8 +8,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ProxyCacheService {
+
     @EventListener(ApplicationReadyEvent.class)
-    public void reloadProxyCache() {
+    public synchronized void reloadProxyCache() {
         DomainRegistry.getEndpointService().refreshCache();
         DomainRegistry.getRegisteredApplicationService().refreshCache();
     }

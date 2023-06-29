@@ -4,56 +4,64 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.cache_profile.CacheProfile;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.cors_profile.CorsProfile;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import com.mt.access.domain.model.project.ProjectId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
-import java.util.Optional;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EndpointValidationService {
+
+    private static void compareProjectId(ProjectId a, ProjectId b) {
+        if (!Checker.equals(a, b)) {
+            throw new DefinedRuntimeException("project id mismatch", "1010",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
     public void validate(Endpoint endpoint, ValidationNotificationHandler handler) {
-        hasValidClient(endpoint, handler);
-        hasValidCacheProfileId(endpoint, handler);
+        hasValidClient(endpoint);
+        hasValidCacheProfileId(endpoint);
+        hasValidCorsProfileId(endpoint);
         sharedClientMustBeAccessible(endpoint, handler);
+    }
+
+    private void hasValidCorsProfileId(Endpoint endpoint) {
+        if (endpoint.getCorsProfileId() != null) {
+            CorsProfile corsProfile = DomainRegistry.getCorsProfileRepository()
+                .get(endpoint.getCorsProfileId());
+            compareProjectId(endpoint.getProjectId(), corsProfile.getProjectId());
+        }
     }
 
     private void sharedClientMustBeAccessible(Endpoint endpoint,
                                               ValidationNotificationHandler handler) {
-        if (endpoint.isShared()) {
+        if (endpoint.getShared()) {
             ClientId clientId = endpoint.getClientId();
-            Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
-            if (client.isEmpty()) {
-                handler.handleError(
-                    "endpoint client not found: " + endpoint.getClientId().getDomainId());
-            } else {
-                if (!client.get().isAccessible()) {
-                    handler.handleError("shared endpoint client must be accessible: "
-                        +
-                        endpoint.getClientId().getDomainId());
-                }
-            }
-        }
-
-    }
-
-    private void hasValidCacheProfileId(Endpoint endpoint, ValidationNotificationHandler handler) {
-        if (endpoint.getCacheProfileId() != null) {
-            Optional<CacheProfile> cacheProfile = DomainRegistry.getCacheProfileRepository()
-                .id(endpoint.getCacheProfileId());
-            if (cacheProfile.isEmpty()) {
-                handler.handleError("unable to find cache profile with id: "
+            Client client = DomainRegistry.getClientRepository().get(clientId);
+            if (!client.getAccessible()) {
+                handler.handleError("shared endpoint client must be accessible: "
                     +
-                    endpoint.getCacheProfileId().getDomainId());
+                    endpoint.getClientId().getDomainId());
             }
+        }
+
+    }
+
+    private void hasValidCacheProfileId(Endpoint endpoint) {
+        if (endpoint.getCacheProfileId() != null) {
+            CacheProfile cacheProfile = DomainRegistry.getCacheProfileRepository()
+                .get(endpoint.getCacheProfileId());
+            compareProjectId(endpoint.getProjectId(), cacheProfile.getProjectId());
         }
     }
 
-
-    private void hasValidClient(Endpoint endpoint, ValidationNotificationHandler handler) {
-        ClientId clientId = endpoint.getClientId();
-        Optional<Client> client = DomainRegistry.getClientRepository().clientOfId(clientId);
-        if (client.isEmpty()) {
-            handler.handleError("can not update endpoint it which clientId is deleted or unknown");
-        }
+    private void hasValidClient(Endpoint endpoint) {
+        Client client = DomainRegistry.getClientRepository().get(endpoint.getClientId());
+        compareProjectId(endpoint.getProjectId(), client.getProjectId());
     }
 }

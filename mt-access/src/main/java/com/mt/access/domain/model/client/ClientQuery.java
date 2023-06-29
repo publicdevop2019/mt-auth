@@ -1,5 +1,7 @@
 package com.mt.access.domain.model.client;
 
+import static com.mt.access.infrastructure.AppConstant.QUERY_PROJECT_IDS;
+
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
@@ -16,19 +18,20 @@ import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class ClientQuery extends QueryCriteria {
-    public static final String ID = "id";
-    public static final String CLIENT_ID = "clientId";
-    public static final String RESOURCE_INDICATOR = "resourceIndicator";
-    public static final String NAME = "name";
-    public static final String GRANT_TYPE_ENUMS = "grantTypeEnums";
-    public static final String GRANTED_AUTHORITIES = "grantedAuthorities";
-    public static final String SCOPE_ENUMS = "scopeEnums";
-    public static final String RESOURCE_IDS = "resourceIds";
-    public static final String ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
-    public static final String PROJECT_ID = "projectIds";
+    private static final String ID = "id";
+    private static final String CLIENT_ID = "clientId";
+    private static final String RESOURCE_INDICATOR = "resourceIndicator";
+    private static final String NAME = "name";
+    private static final String GRANT_TYPE_ENUMS = "grantTypeEnums";
+    private static final String GRANTED_AUTHORITIES = "grantedAuthorities";
+    private static final String SCOPE_ENUMS = "scopeEnums";
+    private static final String RESOURCE_IDS = "resourceIds";
+    private static final String ACCESS_TOKEN_VALIDITY_SECONDS = "accessTokenValiditySeconds";
     private Set<ClientId> clientIds;
     @Setter(AccessLevel.PRIVATE)
     private Set<ClientId> resources;
@@ -52,7 +55,7 @@ public class ClientQuery extends QueryCriteria {
     }
 
     public ClientQuery(String queryParam, String pageConfig, String queryConfig) {
-        setPageConfig(PageConfig.limited(pageConfig, 2000));
+        setPageConfig(PageConfig.limited(pageConfig, 50));
         setQueryConfig(new QueryConfig(queryConfig));
         updateQueryParam(queryParam);
     }
@@ -90,8 +93,17 @@ public class ClientQuery extends QueryCriteria {
 
     public static ClientQuery internalQuery(String pagingParam, String configParam) {
         ClientQuery clientQuery = new ClientQuery();
-        clientQuery.setPageConfig(PageConfig.limited(pagingParam, 2000));
+        clientQuery.setPageConfig(PageConfig.limited(pagingParam, 50));
         clientQuery.setQueryConfig(new QueryConfig(configParam));
+        return clientQuery;
+    }
+
+    public static ClientQuery dropdownQuery(String queryParam, String pageConfig,
+                                            String queryConfig, int i) {
+        ClientQuery clientQuery = new ClientQuery();
+        clientQuery.setPageConfig(PageConfig.limited(pageConfig, i));
+        clientQuery.setQueryConfig(new QueryConfig(queryConfig));
+        clientQuery.updateQueryParam(queryParam);
         return clientQuery;
     }
 
@@ -99,12 +111,12 @@ public class ClientQuery extends QueryCriteria {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
             ID, CLIENT_ID, RESOURCE_INDICATOR, NAME,
             GRANT_TYPE_ENUMS, GRANTED_AUTHORITIES, SCOPE_ENUMS, RESOURCE_IDS,
-            ACCESS_TOKEN_VALIDITY_SECONDS, PROJECT_ID);
+            ACCESS_TOKEN_VALIDITY_SECONDS, QUERY_PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             clientIds =
                 Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
-        Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> {
+        Optional.ofNullable(stringStringMap.get(QUERY_PROJECT_IDS)).ifPresent(e -> {
             projectIds =
                 Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });

@@ -18,11 +18,12 @@ public class RawAccessRecordProcessService {
 
     public void process() {
         log.debug("start of access record ETL job");
-        DataProcessTracker tracker = DomainRegistry.getDataProcessTrackerRepository().getTracker();
+        DataProcessTracker tracker = DomainRegistry.getDataProcessTrackerRepository().get();
         log.debug("last process id is {}", tracker.getLastProcessedId());
         Set<RawAccessRecord> totalRecords =
             DomainRegistry.getRawAccessRecordRepository()
-                .getBucketRequestRecordSinceId(tracker.getLastProcessedId());
+                .getBucketRequestRecordSinceId(
+                    tracker.getLastProcessedId() == null ? 0 : tracker.getLastProcessedId());
         if (totalRecords != null && !totalRecords.isEmpty()) {
             log.debug("total data needs ETL is {}", totalRecords.size());
             Set<RawAccessRecord> foundedRecords =
@@ -58,7 +59,7 @@ public class RawAccessRecordProcessService {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new RawAccessRecordProcessingWarning(issueIds));
             }
-            DomainRegistry.getDataProcessTrackerRepository().updateTracker(tracker, foundedRecords);
+            DomainRegistry.getDataProcessTrackerRepository().update(tracker, foundedRecords);
             DomainRegistry.getFormattedAccessRecordRepository().saveBatch(records);
             log.debug("etl job summary, new records to insert count {}", records.size());
         } else {

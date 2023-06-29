@@ -49,7 +49,6 @@
 - 多因素认证(MFA)
 
 # 项目示意图
-
 ![arthitecture](./doc/arthitecture/architecture.jpg)
 # 基于角色的权限控制(RBAC)示意图
 ![rbac](./doc/arthitecture/rbac.jpg)

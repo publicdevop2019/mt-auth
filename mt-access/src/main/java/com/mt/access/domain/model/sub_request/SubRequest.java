@@ -6,12 +6,12 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
-import javax.persistence.Convert;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -54,8 +54,8 @@ public class SubRequest extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "endpointProjectId"))
     })
     private ProjectId endpointProjectId;
-    private int replenishRate;
-    private int burstCapacity;
+    private Integer replenishRate;
+    private Integer burstCapacity;
     @Embedded
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(name = "approvedBy"))
@@ -71,43 +71,51 @@ public class SubRequest extends Auditable {
 
     public SubRequest(ProjectId projectId,
                       EndpointId endpointId,
-                      int replenishRate,
-                      int burstCapacity,
+                      Integer replenishRate,
+                      Integer burstCapacity,
                       ProjectId endpointProjectId,
-                      boolean expired, boolean secured, boolean shared) {
+                      Boolean expired, Boolean secured, Boolean shared) {
         if (projectId.equals(endpointProjectId)) {
-            throw new DefinedRuntimeException("cannot subscribe to itself", "0057",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("cannot subscribe to itself", "1057",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (expired) {
-            throw new DefinedRuntimeException("cannot subscribe to expired endpoint", "0058",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("cannot subscribe to expired endpoint", "1058",
+                HttpResponseCode.BAD_REQUEST);
         }
         if (!shared) {
             throw new DefinedRuntimeException("cannot subscribe to endpoint that is not shared",
-                "0059",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1059",
+                HttpResponseCode.BAD_REQUEST);
         }
         this.subRequestId = new SubRequestId();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
         this.endpointId = endpointId;
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
         this.endpointProjectId = endpointProjectId;
         if (!secured) {
             //public endpoints use default based rate from endpoint owner
-            this.burstCapacity = 0;
-            this.replenishRate = 0;
+            setPublicEndpointReplenishRate();
+            setPublicEndpointBurstCapacity();
         }
+        new SubRequestValidator(this, new HttpValidationNotificationHandler()).validate();
     }
 
-    public void update(int replenishRate, int burstCapacity) {
-        this.replenishRate = replenishRate;
-        this.burstCapacity = burstCapacity;
+    private void setPublicEndpointBurstCapacity() {
+        this.burstCapacity = 0;
+    }
+
+    private void setPublicEndpointReplenishRate() {
+        replenishRate = 0;
+    }
+
+
+    public void update(Integer replenishRate, Integer burstCapacity) {
+        setReplenishRate(replenishRate);
+        setBurstCapacity(burstCapacity);
+        new SubRequestValidator(this, new HttpValidationNotificationHandler()).validate();
     }
 
     public void approve(UserId userId) {
@@ -117,7 +125,26 @@ public class SubRequest extends Auditable {
 
     public void reject(String rejectionReason, UserId userId) {
         this.rejectionBy = userId;
-        this.rejectionReason = rejectionReason;
+        setRejectionReason(rejectionReason);
         this.subRequestStatus = SubRequestStatus.REJECTED;
+    }
+
+    private void setRejectionReason(String rejectionReason) {
+        Validator.validRequiredString(1, 50, rejectionReason);
+        this.rejectionReason = rejectionReason;
+    }
+
+    private void setReplenishRate(Integer replenishRate) {
+        Validator.notNull(replenishRate);
+        Validator.greaterThanOrEqualTo(replenishRate, 1);
+        Validator.lessThanOrEqualTo(replenishRate, 1000);
+        this.replenishRate = replenishRate;
+    }
+
+    private void setBurstCapacity(Integer burstCapacity) {
+        Validator.notNull(burstCapacity);
+        Validator.greaterThanOrEqualTo(burstCapacity, 1);
+        Validator.lessThanOrEqualTo(burstCapacity, 1500);
+        this.burstCapacity = burstCapacity;
     }
 }

@@ -20,13 +20,13 @@ export interface IClient extends IIdName {
   description?: string;
   grantTypeEnums: grantTypeEnums[];
   types: CLIENT_TYPE[];
-  accessTokenValiditySeconds: number;
-  refreshTokenValiditySeconds: number;
-  resourceIds: string[]
+  accessTokenValiditySeconds?: number;
+  refreshTokenValiditySeconds?: number;
+  resourceIds?: string[]
   resources?: { name: string, id: string }[]
-  hasSecret: boolean;
-  resourceIndicator: boolean;
-  registeredRedirectUri: string[];
+  hasSecret?: boolean;
+  resourceIndicator?: boolean;
+  registeredRedirectUri?: string[];
   autoApprove?: boolean;
   version: number;
 }

@@ -39,7 +39,7 @@ public class RateLimitService {
 
         Endpoint.Subscription subscription;
         String tokenKey;
-        if (endpoint.isSecured()) {
+        if (endpoint.getSecured()) {
             //for protected
             String authorization = headers.getFirst("authorization");
             if (authorization != null) {

@@ -9,6 +9,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,8 +20,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaProjectRepository
     extends ProjectRepository, JpaRepository<Project, Long> {
-    default Optional<Project> getById(ProjectId id) {
-        return getByQuery(new ProjectQuery(id)).findFirst();
+    default Project query(ProjectId id) {
+        return query(new ProjectQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Project project) {
@@ -31,7 +32,7 @@ public interface SpringDataJpaProjectRepository
         delete(project);
     }
 
-    default SumPagedRep<Project> getByQuery(ProjectQuery query) {
+    default SumPagedRep<Project> query(ProjectQuery query) {
         return QueryBuilderRegistry.getProjectAdaptor().execute(query);
     }
 
@@ -59,9 +60,9 @@ public interface SpringDataJpaProjectRepository
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Project_.PROJECT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(Project_.PROJECT_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(Project_.PROJECT_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

@@ -41,11 +41,11 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
         this.fis.formGroupCollection[this.formId].get('grantType').reset(undefined, { emitEvent: false })
         this.fis.formGroupCollection[this.formId].get('resourceId').reset(undefined, { emitEvent: false })
         if (next === 'BACKEND_APP') {
-          this.fis.showIfMatch(this.formId, ['grantType','resourceId'])
+          this.fis.showIfMatch(this.formId, ['grantType', 'resourceId'])
           this.fis.showIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
           this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
         } else {
-          this.fis.showIfMatch(this.formId, ['grantType','resourceId'])
+          this.fis.showIfMatch(this.formId, ['grantType', 'resourceId'])
           this.fis.hideAndResetIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
           this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
         }
@@ -147,7 +147,22 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     if (formGroup.get('refreshToken').value)
       grants.push(grantTypeEnums.refresh_token);
     types.push(formGroup.get('frontOrBackApp').value);
-
+    if (types.includes(CLIENT_TYPE.frontend_app)) {
+      return {
+        id: formGroup.get('id').value,
+        name: formGroup.get('name').value,
+        description: formGroup.get('description').value ? formGroup.get('description').value : null,
+        grantTypeEnums: grants,
+        types: types,
+        accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
+        refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
+        resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
+        registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
+        autoApprove: formGroup.get('grantType').value === grantTypeEnums.authorization_code ? !!formGroup.get('autoApprove').value : null,
+        version: cmpt.aggregate && cmpt.aggregate.version,
+        projectId: formGroup.get('projectId').value
+      }
+    }
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,

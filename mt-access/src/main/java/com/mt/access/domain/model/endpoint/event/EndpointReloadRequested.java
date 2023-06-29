@@ -15,8 +15,7 @@ public class EndpointReloadRequested extends DomainEvent {
     }
 
     public EndpointReloadRequested() {
-        super();
+        super(new AnyDomainId());
         setInternal(false);
-        setDomainId(new AnyDomainId());
     }
 }

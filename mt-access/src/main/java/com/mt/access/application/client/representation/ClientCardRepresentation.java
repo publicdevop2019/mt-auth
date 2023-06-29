@@ -28,21 +28,21 @@ public class ClientCardRepresentation {
 
     private Set<ClientType> types;
 
-    private int accessTokenValiditySeconds;
+    private Integer accessTokenValiditySeconds;
 
     private Set<String> registeredRedirectUri;
 
-    private int refreshTokenValiditySeconds;
+    private Integer refreshTokenValiditySeconds;
 
     private Set<ResourceClientInfo> resources;
 
     private Set<String> resourceIds;
 
-    private boolean resourceIndicator;
+    private Boolean resourceIndicator;
 
-    private boolean autoApprove;
+    private Boolean autoApprove;
 
-    private int version;
+    private Integer version;
 
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
@@ -50,16 +50,18 @@ public class ClientCardRepresentation {
         grantTypeEnums = client1.getGrantTypes();
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
-        if (client1.getAuthorizationCodeGrant() != null) {
-            registeredRedirectUri = client1.getAuthorizationCodeGrant().getRedirectUrls().stream()
+        if (client1.getRedirectDetail() != null) {
+            registeredRedirectUri = client1.getRedirectDetail().getRedirectUrls().stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
-        refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
+        if (client1.getTokenDetail() != null) {
+            refreshTokenValiditySeconds = client1.getTokenDetail().getRefreshTokenValiditySeconds();
+        }
         if (!ObjectUtils.isEmpty(client1.getResources())) {
             resourceIds = client1.getResources().stream().map(ClientId::getDomainId)
                 .collect(Collectors.toSet());
         }
-        resourceIndicator = client1.isAccessible();
+        resourceIndicator = client1.getAccessible();
         types = client1.getTypes();
     }
 
@@ -69,7 +71,7 @@ public class ClientCardRepresentation {
             .collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             Set<Client> allByIds =
-                ApplicationServiceRegistry.getClientApplicationService().findAllByIds(collect);
+                ApplicationServiceRegistry.getClientApplicationService().internalQuery(collect);
             data.forEach(e -> {
                 if (e.getResourceIds() != null) {
                     e.resources = e.getResourceIds().stream().map(ee -> {

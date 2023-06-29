@@ -13,13 +13,13 @@ import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,10 +44,11 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
+        command.setProjectId(projectId);
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
             ApplicationServiceRegistry.getEndpointApplicationService()
-                .tenantCreate(projectId, command, changeId)).build();
+                .tenantCreate(command, changeId)).build();
     }
 
     @GetMapping(path = "projects/{projectId}/endpoints")
@@ -69,7 +70,7 @@ public class EndpointResource {
     }
 
     @GetMapping(path = "mgmt/endpoints")
-    public ResponseEntity<SumPagedRep<?>> mgmtQuery(
+    public ResponseEntity<SumPagedRep<EndpointCardRepresentation>> mgmtQuery(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
@@ -85,15 +86,14 @@ public class EndpointResource {
     }
 
     @GetMapping(path = "mgmt/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> mgmtQuery(
+    public ResponseEntity<EndpointMgmtRepresentation> mgmtGet(
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Endpoint> endpoint =
-            ApplicationServiceRegistry.getEndpointApplicationService().mgmtQuery(id);
-        return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        Endpoint endpoint =
+            ApplicationServiceRegistry.getEndpointApplicationService().mgmtQueryById(id);
+        return ResponseEntity.ok(new EndpointMgmtRepresentation(endpoint));
     }
 
     /**
@@ -113,16 +113,15 @@ public class EndpointResource {
     }
 
     @GetMapping("projects/{projectId}/endpoints/{id}")
-    public ResponseEntity<EndpointRepresentation> tenantQuery(
+    public ResponseEntity<EndpointRepresentation> tenantGet(
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @PathVariable String projectId,
         @PathVariable String id
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Optional<Endpoint> endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantQuery(projectId, id);
-        return endpoint.map(value -> ResponseEntity.ok(new EndpointRepresentation(value)))
-            .orElseGet(() -> ResponseEntity.ok().build());
+        Endpoint endpoint = ApplicationServiceRegistry.getEndpointApplicationService()
+            .tenantQueryById(projectId, id);
+        return ResponseEntity.ok(new EndpointRepresentation(endpoint));
     }
 
     @PutMapping("projects/{projectId}/endpoints/{id}")

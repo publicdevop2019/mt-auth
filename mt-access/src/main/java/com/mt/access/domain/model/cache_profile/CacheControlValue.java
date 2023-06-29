@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.cache_profile;
 
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 
 /**
@@ -36,8 +35,7 @@ public enum CacheControlValue {
                 return e;
             }
         }
-        throw new DefinedRuntimeException("unknown cache control value", "0033",
-            HttpResponseCode.BAD_REQUEST,
-            ExceptionCatalog.ILLEGAL_ARGUMENT);
+        throw new DefinedRuntimeException("unknown cache control value", "1033",
+            HttpResponseCode.BAD_REQUEST);
     }
 }

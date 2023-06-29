@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.pending_user;
 
-import com.google.common.base.Objects;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
@@ -12,6 +11,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,6 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "pendingUserRegion")
 @Table
+@EqualsAndHashCode(callSuper = true)
 public class PendingUser extends Auditable {
     @Column(unique = true)
     @Setter(AccessLevel.PRIVATE)
@@ -55,23 +56,4 @@ public class PendingUser extends Auditable {
         setActivationCode(activationCode);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof PendingUser)) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        PendingUser that = (PendingUser) o;
-        return Objects.equal(registrationEmail, that.registrationEmail);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(super.hashCode(), registrationEmail);
-    }
 }

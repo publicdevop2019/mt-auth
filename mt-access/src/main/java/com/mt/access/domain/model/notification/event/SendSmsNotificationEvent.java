@@ -22,9 +22,8 @@ public class SendSmsNotificationEvent extends DomainEvent {
     }
 
     public SendSmsNotificationEvent(UserMfaNotificationEvent event, Notification notification) {
-        super();
+        super(notification.getNotificationId());
         mobile = event.getMobile();
         code = event.getCode().toString();
-        setDomainId(notification.getNotificationId());
     }
 }

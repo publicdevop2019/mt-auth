@@ -2,7 +2,6 @@ package com.mt.access.port.adapter.email;
 
 import com.mt.access.domain.model.notification.EmailNotificationService;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -45,9 +44,8 @@ public class GmailNotificationService implements EmailNotificationService {
             mimeMessageHelper.setSubject(subject);
             sender.send(mimeMessage);
         } catch (IOException | TemplateException | MessagingException e) {
-            throw new DefinedRuntimeException("unable to send email", "0071",
-                HttpResponseCode.INTERNAL_SERVER_ERROR,
-                ExceptionCatalog.OPERATION_ERROR, e);
+            throw new DefinedRuntimeException("unable to send email", "1071",
+                HttpResponseCode.INTERNAL_SERVER_ERROR, e);
         }
         log.info("end of deliver email");
     }

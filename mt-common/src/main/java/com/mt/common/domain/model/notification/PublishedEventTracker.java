@@ -14,8 +14,8 @@ public class PublishedEventTracker {
     @Id
     private final Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
     @Version
-    private int version;
+    private Integer version;
     @Setter
     @Getter
-    private long lastPublishedId;
+    private Long lastPublishedId;
 }

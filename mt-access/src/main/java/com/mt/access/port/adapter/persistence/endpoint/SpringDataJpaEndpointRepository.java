@@ -13,6 +13,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -30,8 +31,8 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaEndpointRepository
     extends JpaRepository<Endpoint, Long>, EndpointRepository {
 
-    default Optional<Endpoint> endpointOfId(EndpointId endpointId) {
-        return endpointsOfQuery(new EndpointQuery(endpointId)).findFirst();
+    default Endpoint query(EndpointId endpointId) {
+        return query(new EndpointQuery(endpointId)).findFirst().orElse(null);
     }
 
     default Set<CacheProfileId> getCacheProfileIds() {
@@ -61,7 +62,7 @@ public interface SpringDataJpaEndpointRepository
     @Query("select count(*) from Endpoint ep where ep.shared = true")
     Long countSharedTotal_();
 
-    @Query("select count(*) from Endpoint ep where ep.authRequired = false and ep.external = true")
+    @Query("select count(*) from Endpoint ep where ep.secured = false and ep.external = true")
     Long countPublicTotal_();
 
     @Query("select count(*) from Endpoint ep where ep.projectId = ?1")
@@ -79,7 +80,7 @@ public interface SpringDataJpaEndpointRepository
         deleteAll(endpoints);
     }
 
-    default SumPagedRep<Endpoint> endpointsOfQuery(EndpointQuery query) {
+    default SumPagedRep<Endpoint> query(EndpointQuery query) {
         return QueryBuilderRegistry.getEndpointQueryBuilder().execute(query);
     }
 
@@ -130,7 +131,7 @@ public interface SpringDataJpaEndpointRepository
             Optional.ofNullable(endpointQuery.getMethod()).ifPresent(
                 e -> QueryUtility.addStringEqualPredicate(e, Endpoint_.METHOD, queryContext));
             Optional.ofNullable(endpointQuery.getIsWebsocket()).ifPresent(e -> QueryUtility
-                .addBooleanEqualPredicate(e, Endpoint_.IS_WEBSOCKET, queryContext));
+                .addBooleanEqualPredicate(e, Endpoint_.WEBSOCKET, queryContext));
             Optional.ofNullable(endpointQuery.getIsShared()).ifPresent(
                 e -> {
                     if (e) {
@@ -149,27 +150,27 @@ public interface SpringDataJpaEndpointRepository
 
             Optional.ofNullable(endpointQuery.getIsSecured()).ifPresent(
                 e -> QueryUtility
-                    .addBooleanEqualPredicate(e, Endpoint_.AUTH_REQUIRED, queryContext));
+                    .addBooleanEqualPredicate(e, Endpoint_.SECURED, queryContext));
             Optional.ofNullable(endpointQuery.getCorsProfileIds()).ifPresent(e -> QueryUtility
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Endpoint_.CORS_PROFILE_ID, queryContext));
             Order order = null;
-            if (endpointQuery.getEndpointSort().isById()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getById())) {
                 order = QueryUtility.getDomainIdOrder(Endpoint_.ENDPOINT_ID, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByClientId()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByClientId())) {
                 order = QueryUtility.getOrder(Endpoint_.CLIENT_ID, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByPath()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByPath())) {
                 order = QueryUtility.getOrder(Endpoint_.PATH, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
-            if (endpointQuery.getEndpointSort().isByMethod()) {
+            if (Checker.isTrue(endpointQuery.getEndpointSort().getByMethod())) {
                 order = QueryUtility.getOrder(Endpoint_.METHOD, queryContext,
-                    endpointQuery.getEndpointSort().isAsc());
+                    endpointQuery.getEndpointSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(endpointQuery, queryContext);
@@ -179,7 +180,7 @@ public interface SpringDataJpaEndpointRepository
             public static Predicate getPredicate(CriteriaBuilder cb,
                                                  Root<Endpoint> root) {
                 Predicate isShared = cb.isTrue(root.get(Endpoint_.SHARED));
-                Predicate noAuth = cb.isFalse(root.get(Endpoint_.AUTH_REQUIRED));
+                Predicate noAuth = cb.isFalse(root.get(Endpoint_.SECURED));
                 Predicate isExternal = cb.isTrue(root.get(Endpoint_.EXTERNAL));
                 Predicate and = cb.and(isExternal, noAuth);
                 return cb.or(isShared, and);

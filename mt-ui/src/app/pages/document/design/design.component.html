@@ -43,10 +43,36 @@
     <div style="padding-left: 8px;">3. 监控任务多次执行报错</div>
     <div style="padding-left: 8px;">已知问题：项目启动时会报任务饥饿，因为初始化时任务一定会被判定饥饿（长时间未执行）</div>
     <div style="padding-left: 8px;">已知问题：若任务执行花费过久，会导致其余线程一直无法获得锁而不停报任务线程饥饿</div>
+    <div style="padding-left: 8px;">已知问题：高频率任务，会激烈的竞争锁，例如事件扫描</div>
     <h1>事件驱动架构</h1>
-    <div style="padding-left: 8px;"></div>
-    <div style="padding-left: 8px;">已知问题：事件有时会被重复投递，重复投递的事件有概率会消费失败（并发插入），会收到消息拒绝的站内信</div>
+    <div style="padding-left: 8px;">一次事务中新增的事件通过异步线程来投递到消息队列中</div>
+    <div style="padding-left: 8px;">为什么抛弃分布式任务？1.事件扫描频率过高，激烈的锁竞争。2.当无新事件写入时，数据库也在被不停的读取。3.无论数据库扫描如何短，一方面增加数据库压力，另一方面无法做到及时投递</div>
+    <div style="padding-left: 8px;">已知问题：事件有时会被重复投递（二次扫描和一次扫描同时发生），重复投递的事件有概率会消费失败（并发插入），会收到消息拒绝的站内信</div>
+    <div style="padding-left: 8px;">已知问题：事件数量过多后，事件处理时间变长，事件被投递到消息队列的时间间隔变长</div>
     <h1>开发规范</h1>
     <div style="padding-left: 8px;">git branch名称：feature/**,bugfix/**,release/2023-03-31</div>
     <div style="padding-left: 8px;">git commit规范：小的，有意义的，能读懂的commit message 例如：update property to fix foo</div>
+    <h1>RESTful-获取数据的两种方式</h1>
+    <div style="padding-left: 8px;">GET /resource/$id 返回400错误码，找不到资源,等价于get by id</div>
+    <div style="padding-left: 8px;">GET /resource?query=id:$id 找不到资源返回200空body，等价于query by id</div>
+    <h1>RESTful</h1>
+    <div style="padding-left: 8px;">数据必须分页 GET /resource?query=page:0,size:50</div>
+    <h1>校验策略</h1>
+    <div style="padding-left: 8px;">Resource层，Application层：无自定义校验逻辑</div>
+    <div style="padding-left: 8px;">Domain层：三层校验</div>
+    <div style="padding-left: 8px;">核心思路：通过创建Domain 对象来进行3层校验逻辑</div>
+    <h1>项目架构（六边形）</h1>
+    <div style="padding-left: 8px;">Resource层：Restful接口层</div>
+    <div style="padding-left: 8px;">Application层：事务，锁，幂等层</div>
+    <div style="padding-left: 8px;">Domain层：业务逻辑</div>
+    <div style="padding-left: 8px;">Infrastructure层：底层依赖实现层</div>
+    <div style="padding-left: 8px;">Port.adapter层：外部依赖管理层</div>
+    <div style="padding-left: 8px;">核心思路：清晰的外部依赖，内部依赖，资源暴露与只注重业务逻辑的业务层</div>
+    <h1>懒加载</h1>
+    <div style="padding-left: 8px;">对象一律默认懒加载，如果需要一次性获取值则单独写query，例如loadClientByClientId</div>
+    <h1>命名规范</h1>
+    <div style="padding-left: 8px;">get vs query，get表示拿取，query则表示查询</div>
+    <h1>hibernate设计</h1>
+    <div style="padding-left: 8px;">hibernate适用于简单的应用场景</div>
+    <div style="padding-left: 8px;">当需要高度定制化读取数据库时，hibernate不是很好用</div>
 </div>

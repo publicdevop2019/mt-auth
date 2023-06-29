@@ -5,12 +5,17 @@ import com.mt.access.domain.model.cors_profile.event.CorsProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
-import java.util.Objects;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
@@ -20,67 +25,65 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AccessLevel;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
+@Slf4j
 @Entity
 @Table(name = "cors_profile")
-@Slf4j
-@NoArgsConstructor
 @Getter
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "corsProfileRegion")
-@Setter(AccessLevel.PRIVATE)
+@EqualsAndHashCode(callSuper = true)
 public class CorsProfile extends Auditable {
+    private static final Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-zA-Z-]+$");
     private String name;
     private String description;
     @Embedded
     private CorsProfileId corsId;
-    private boolean allowCredentials;
+    private Boolean allowCredentials;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "allowedHeadersRegion")
-    private Set<String> allowedHeaders;
+    private Set<String> allowedHeaders = new LinkedHashSet<>();
 
-    @Getter
-    @ElementCollection(fetch = FetchType.EAGER, targetClass = Origin.class)
+    @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_origin")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "corsOriginRegion")
     @Convert(converter = Origin.OriginConverter.class)
-    private Set<Origin> allowOrigin;
+    private Set<Origin> allowOrigin = new LinkedHashSet<>();
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "exposed_header")
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "exposedHeadersRegion")
-    private Set<String> exposedHeaders;
+    private Set<String> exposedHeaders = new LinkedHashSet<>();
     private Long maxAge;
 
     @Embedded
-    @Setter(AccessLevel.PRIVATE)
     @AttributeOverrides({
         @AttributeOverride(name = "domainId",
             column = @Column(name = "projectId", updatable = false, nullable = false))
     })
     private ProjectId projectId;
 
+    private CorsProfile() {
+    }
+
     public CorsProfile(
         String name,
         String description,
         Set<String> allowedHeaders,
-        boolean allowCredentials,
+        Boolean allowCredentials,
         Set<Origin> allowOrigin,
         Set<String> exposedHeaders,
         Long maxAge,
@@ -103,8 +106,16 @@ public class CorsProfile extends Auditable {
     public void update(
         String name,
         String description,
-        Set<String> allowedHeaders, Boolean allowCredentials, Set<Origin> allowOrigin,
-        Set<String> exposedHeaders, Long maxAge) {
+        Set<String> allowedHeaders,
+        Boolean allowCredentials,
+        Set<Origin> allowOrigin,
+        Set<String> exposedHeaders, Long maxAge
+    ) {
+        CorsProfile original =
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
+        //exclude name and description from comparison and bypass setter check
+        original.name = null;
+        original.description = null;
         setName(name);
         setDescription(description);
         setAllowedHeaders(allowedHeaders);
@@ -112,38 +123,108 @@ public class CorsProfile extends Auditable {
         setAllowOrigin(allowOrigin);
         setExposedHeaders(exposedHeaders);
         setMaxAge(maxAge);
-        CorsProfile copy = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        CorsProfile copy2 = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        copy.setName(null);
-        copy2.setName(null);
-        copy.setDescription(null);
-        copy2.setDescription(null);
-        if (!copy.equals(copy2)) {
+        CorsProfile afterUpdate =
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
+        afterUpdate.name = null;
+        afterUpdate.description = null;
+        if (!original.equals(afterUpdate)) {
             CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileUpdated(this));
         }
     }
 
+    public void update(
+        String name,
+        String description
+    ) {
+        setName(name);
+        setDescription(description);
+    }
+
+    private void setCorsId(CorsProfileId corsId) {
+        this.corsId = corsId;
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name.trim();
+    }
+
+    private void setDescription(String description) {
+        Validator.validOptionalString(100, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
+        }
+        this.description = description;
+    }
+
+    private void setProjectId(ProjectId projectId) {
+        this.projectId = projectId;
+    }
+
+    /**
+     * set Access-Control-Max-Age for preflight request
+     * note: Firefox caps this at 24 hours (86400 seconds)
+     * Chromium (prior to v76) caps at 10 minutes (600 seconds)
+     * Chromium (starting in v76) caps at 2 hours (7200 seconds)
+     * The default value is 5 seconds
+     *
+     * @param maxAge max age
+     */
+    private void setMaxAge(Long maxAge) {
+        if (Checker.notNull(maxAge)) {
+            Validator.lessThanOrEqualTo(maxAge, 60 * 60 * 2);
+            Validator.greaterThanOrEqualTo(maxAge, 5);
+        }
+        this.maxAge = maxAge;
+    }
+
+    private void setAllowCredentials(Boolean allowCredentials) {
+        Validator.notNull(allowCredentials);
+        this.allowCredentials = allowCredentials;
+    }
+
+    private void setAllowedHeaders(Set<String> allowedHeaders) {
+        Validator.validOptionalCollection(10, allowedHeaders);
+        if (Checker.notNull(allowedHeaders)) {
+            validateHeaderName(allowedHeaders);
+        }
+        CommonUtility.updateCollection(this.allowedHeaders, allowedHeaders,
+            () -> this.allowedHeaders = allowedHeaders);
+    }
+
+    private static void validateHeaderName(Set<String> headerNames) {
+        headerNames.forEach(header -> {
+            boolean pass = false;
+            Matcher matcher = HEADER_NAME_REGEX.matcher(header);
+            if (matcher.find()) {
+                if (!header.startsWith("-") && !header.endsWith("-") &&
+                    !header.equalsIgnoreCase("-")) {
+                    pass = true;
+                }
+            }
+            if (!pass) {
+                throw new DefinedRuntimeException("invalid header format", "1085",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+        });
+    }
+
+    private void setAllowOrigin(Set<Origin> origins) {
+        Validator.validRequiredCollection(1, 5, origins);
+        CommonUtility.updateCollection(this.allowOrigin, origins,
+            () -> this.allowOrigin = origins);
+    }
+
+    private void setExposedHeaders(Set<String> headers) {
+        Validator.validOptionalCollection(10, headers);
+        if (Checker.notNull(headers)) {
+            validateHeaderName(headers);
+        }
+        CommonUtility.updateCollection(this.exposedHeaders, headers,
+            () -> this.exposedHeaders = headers);
+    }
+
     public void removeAllReference() {
         CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileRemoved(this));
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        CorsProfile that = (CorsProfile) o;
-        return Objects.equals(corsId, that.corsId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), corsId);
     }
 }

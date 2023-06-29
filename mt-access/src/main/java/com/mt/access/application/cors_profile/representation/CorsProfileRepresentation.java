@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 public class CorsProfileRepresentation {
-    private boolean allowCredentials;
+    private Boolean allowCredentials;
     private Set<String> allowedHeaders;
     private Set<String> allowOrigin;
     private Set<String> exposedHeaders;
@@ -16,9 +16,10 @@ public class CorsProfileRepresentation {
     private String name;
     private String id;
     private String description;
+    private Integer version;
 
     public CorsProfileRepresentation(CorsProfile corsProfile) {
-        this.allowCredentials = corsProfile.isAllowCredentials();
+        this.allowCredentials = corsProfile.getAllowCredentials();
         this.allowedHeaders = corsProfile.getAllowedHeaders();
         this.allowOrigin =
             corsProfile.getAllowOrigin().stream().map(Origin::getValue).collect(Collectors.toSet());
@@ -27,5 +28,6 @@ public class CorsProfileRepresentation {
         this.name = corsProfile.getName();
         this.id = corsProfile.getCorsId().getDomainId();
         this.description = corsProfile.getDescription();
+        this.version = corsProfile.getVersion();
     }
 }

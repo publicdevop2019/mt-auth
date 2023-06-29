@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class UserQuery extends QueryCriteria {
     public static final String EMAIL = "email";
     public static final String ID = "id";
@@ -77,11 +79,11 @@ public class UserQuery extends QueryCriteria {
 
     @Getter
     public static class UserSort {
-        private final boolean isAsc;
-        private boolean byEmail;
-        private boolean byId;
-        private boolean byCreateAt;
-        private boolean byLocked;
+        private final Boolean isAsc;
+        private Boolean byEmail;
+        private Boolean byId;
+        private Boolean byCreateAt;
+        private Boolean byLocked;
 
         public UserSort(boolean isAsc) {
             this.isAsc = isAsc;

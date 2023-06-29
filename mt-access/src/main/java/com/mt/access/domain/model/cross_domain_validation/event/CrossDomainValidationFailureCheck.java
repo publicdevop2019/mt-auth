@@ -17,13 +17,12 @@ public class CrossDomainValidationFailureCheck extends DomainEvent {
     private String email;
 
     {
-        setDomainId(new AnyDomainId());
         setTopic(CROSS_DOMAIN_VALIDATION_FAILURE_CHECK);
         setName(name);
     }
 
     public CrossDomainValidationFailureCheck(String email) {
-        super();
+        super(new AnyDomainId());
         Validator.isEmail(email);
         this.email = email;
     }

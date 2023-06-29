@@ -2,16 +2,12 @@ package com.mt.common.application.domain_event;
 
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import java.time.Instant;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,14 +20,8 @@ public class StoredEventApplicationService {
     private static final String AGGREGATE_NAME = "STORED_EVENT";
 
     public void retry(long id) {
-        Optional<StoredEvent> byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
-        if (byId.isPresent()) {
-            CommonDomainRegistry.getEventStreamService().next(byId.get());
-        } else {
-            throw new DefinedRuntimeException("unable to find stored event with id " + id, "0008",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
-        }
+        StoredEvent byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
+        CommonDomainRegistry.getEventStreamService().next(byId);
     }
 
     public SumPagedRep<StoredEvent> query(String queryParam, String pageParam, String skipCount) {
@@ -55,14 +45,14 @@ public class StoredEventApplicationService {
     @Transactional
     public void markAsUnroutable(StoredEvent event) {
         Long id = event.getId();
-        if (id != null && id != -1) {
+        if (id != null) {
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(String.valueOf(id), (ignored) -> {
                         CommonDomainRegistry.getDomainEventRepository()
                             .append(new UnrountableMsgReceivedEvent(event));
-                        CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
-                            .ifPresent(
-                                StoredEvent::markAsUnroutable);
+                        StoredEvent byId =
+                            CommonDomainRegistry.getDomainEventRepository().getById(event.getId());
+                        byId.markAsUnroutable();
                         return null;
                     },
                     AGGREGATE_NAME);
@@ -81,12 +71,19 @@ public class StoredEventApplicationService {
      */
     @Transactional
     public void recordRejectedEvent(StoredEvent event) {
-        CommonDomainRegistry.getDomainEventRepository()
-            .append(new RejectedMsgReceivedEvent(event));
-        CommonDomainRegistry.getDomainEventRepository().getById(event.getId())
-            .ifPresentOrElse(StoredEvent::markAsRejected,
-                () -> log.warn("none-stored event are being rejected, event name is {}",
-                    event.getName()));
+        Long id = event.getId();
+        if (id != null) {
+            CommonDomainRegistry.getDomainEventRepository()
+                .append(new RejectedMsgReceivedEvent(event));
+            StoredEvent first = CommonDomainRegistry.getDomainEventRepository()
+                .getById(event.getId());
+            first.markAsRejected();
+        } else {
+            log.warn(
+                "none-stored event are being rejected, event name is {}",
+                event.getName());
+        }
+
     }
 
     /**
@@ -98,18 +95,17 @@ public class StoredEventApplicationService {
     public void markAsSent(StoredEvent storedEvent) {
         Long id = storedEvent.getId();
         if (id != null) {
-            log.debug("marking event with id={} as sent", id);
-            CommonDomainRegistry.getDomainEventRepository().getById(id)
-                .ifPresentOrElse(
-                    StoredEvent::sendToMQ,
-                    () -> {
-                        if (!AnyDomainId.isSystemId(storedEvent.getDomainId())) {
-                            log.error(
-                                "event with id {} not found, which should not happen",
-                                id);
-                        }
-                    }
-                );
+            if (log.isDebugEnabled()) {
+                long epochSecond = Instant.now().toEpochMilli();
+                Long timestamp = storedEvent.getTimestamp();
+                log.debug("marking event with id = {} as sent, time taken to emit is {} milli", id,
+                    epochSecond - timestamp);
+            }
+            StoredEvent byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
+            byId.sendToMQ();
+        } else {
+            log.info(
+                "none-stored event are being marked as sent, which is ok");
         }
     }
 }

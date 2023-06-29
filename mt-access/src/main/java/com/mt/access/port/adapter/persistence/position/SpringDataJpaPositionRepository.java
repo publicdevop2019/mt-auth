@@ -9,6 +9,7 @@ import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.persistence.criteria.Order;
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaPositionRepository
     extends PositionRepository, JpaRepository<Position, Long> {
-    default Optional<Position> getById(PositionId id) {
-        return getByQuery(new PositionQuery(id)).findFirst();
+    default Position query(PositionId id) {
+        return query(new PositionQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Position position) {
@@ -29,7 +30,7 @@ public interface SpringDataJpaPositionRepository
         delete(position);
     }
 
-    default SumPagedRep<Position> getByQuery(PositionQuery positionquery) {
+    default SumPagedRep<Position> query(PositionQuery positionquery) {
         return QueryBuilderRegistry.getPositionAdaptor().execute(positionquery);
     }
 
@@ -43,9 +44,9 @@ public interface SpringDataJpaPositionRepository
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Position_.POSITION_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(Position_.POSITION_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(Position_.POSITION_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);

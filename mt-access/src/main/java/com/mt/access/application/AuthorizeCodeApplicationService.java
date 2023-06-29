@@ -2,7 +2,6 @@ package com.mt.access.application;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,9 +44,8 @@ public class AuthorizeCodeApplicationService {
         if (ApplicationServiceRegistry.getClientApplicationService()
             .loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
             throw new DefinedRuntimeException(
-                "unable to find authorize client " + parameters.get(OAuth2Utils.CLIENT_ID), "0005",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "unable to find authorize client " + parameters.get(OAuth2Utils.CLIENT_ID), "1005",
+                HttpResponseCode.BAD_REQUEST);
         }
 
         log.debug("before create authorization request");
@@ -59,15 +57,13 @@ public class AuthorizeCodeApplicationService {
 
         if (!responseTypes.contains("token") && !responseTypes.contains("code")) {
             throw new DefinedRuntimeException("unsupported response types: " + responseTypes,
-                "0006",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1006",
+                HttpResponseCode.BAD_REQUEST);
         }
 
         if (authorizationRequest.getClientId() == null) {
-            throw new DefinedRuntimeException("a client id must be provided", "0007",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("a client id must be provided", "1007",
+                HttpResponseCode.BAD_REQUEST);
         }
 
 
@@ -80,9 +76,8 @@ public class AuthorizeCodeApplicationService {
         if (!StringUtils.hasText(redirectUriParameter)) {
             throw new DefinedRuntimeException(
                 "a redirect uri must be either supplied or preconfigured in the client details",
-                "0008",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1008",
+                HttpResponseCode.BAD_REQUEST);
         }
         authorizationRequest.setRedirectUri(resolvedRedirect);
 

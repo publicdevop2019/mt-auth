@@ -16,6 +16,19 @@ import org.springframework.stereotype.Service;
 public class IdempotentService {
     private static final String CANCEL = "_cancel";
 
+    /**
+     * <p>used in message processing context when messages are possible conflict with each other</p>
+     * <p>identical to idempotent except:</p>
+     * <p>1. does not allow return value</p>
+     * <p>2. has reply call back</p>
+     * <p>start transaction if change is allowed</p>
+     * <p>reply is not executed in transactions</p>
+     *
+     * @param changeId      change id
+     * @param function      additional function to be executed
+     * @param reply         reply if execute success or already executed
+     * @param aggregateName (aggregate name + change id) = change identifier
+     */
     public void idempotentMsg(String changeId, Function<CreateChangeRecordCommand, String> function,
                               Function<CreateChangeRecordCommand, String> reply,
                               String aggregateName) {
@@ -38,17 +51,24 @@ public class IdempotentService {
                 Optional<ChangeRecord> forwardChange = forwardChanges.findFirst();
                 if (forwardChange.isPresent()) {
                     log.debug("cancelling change...");
-                    function.apply(command);
+                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                        function.apply(command);
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createReverse(command);
+                    });
                     reply.apply(command);
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createReverse(command);
                 } else {
                     log.debug("change not found, do empty cancel");
                     command.setEmptyOpt(true);
+                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                        //change not found
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createEmptyReverse(command);
+                        //create empty forward change for concurrent safe and hanging transaction safe
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createEmptyForward(command);
+                    });
                     reply.apply(command);
-                    //change not found
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createEmptyReverse(command);
                 }
             }
         } else {
@@ -68,18 +88,22 @@ public class IdempotentService {
                     //change has been cancelled, perform null operation
                     log.debug("change already cancelled, do empty change");
                     command.setEmptyOpt(true);
+                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                        CommonDomainRegistry.getDomainEventRepository()
+                            .append(new HangingTxDetected(changeId));
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createEmptyForward(command);
+                    });
                     reply.apply(command);
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new HangingTxDetected(changeId));
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createEmptyForward(command);
                 } else {
                     log.debug("making change with {} aggregate {}", command.getChangeId(),
                         aggregateName);
-                    function.apply(command);
+                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                        function.apply(command);
+                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
+                            .createForward(command);
+                    });
                     reply.apply(command);
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createForward(command);
                 }
             }
         }
@@ -87,6 +111,10 @@ public class IdempotentService {
 
     /**
      * make sure change is idempotent, start transaction if change is allowed
+     * <p>
+     * note: this is not safe for cancel changes, like create and delete
+     * <p>
+     * for change that is eligible to cancel, use idempotentMsg
      *
      * @param changeId      change id
      * @param function      additional function to be executed
@@ -96,78 +124,23 @@ public class IdempotentService {
     public String idempotent(String changeId,
                              Function<CreateChangeRecordCommand, String> function,
                              String aggregateName) {
-        if (isCancelChange(changeId)) {
-            //reverse action
-            SumPagedRep<ChangeRecord> reverseChanges =
-                CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
-                    ChangeRecordQuery.idempotentQuery(changeId, aggregateName));
-            Optional<ChangeRecord> reverseChange = reverseChanges.findFirst();
-            if (reverseChange.isPresent()) {
-                log.debug("change already exist, return saved results");
-                return reverseChange.get().getReturnValue();
-            } else {
-                SumPagedRep<ChangeRecord> forwardChanges =
-                    CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
-                        ChangeRecordQuery
-                            .idempotentQuery(changeId.replace(CANCEL, ""), aggregateName));
-
-                Optional<ChangeRecord> forwardChange = forwardChanges.findFirst();
-                if (forwardChange.isPresent()) {
+        Optional<ChangeRecord> changeRecord =
+            CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
+                ChangeRecordQuery.idempotentQuery(changeId, aggregateName)).findFirst();
+        if (changeRecord.isPresent()) {
+            log.debug("change already exist, return saved result");
+            return changeRecord.get().getReturnValue();
+        } else {
+            log.debug("making change...");
+            return CommonDomainRegistry.getTransactionService()
+                .returnedTransactional(() -> {
                     CreateChangeRecordCommand command =
                         createChangeRecordCommand(changeId, aggregateName, null);
-                    log.debug("cancelling change...");
                     String apply = function.apply(command);
                     CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createReverse(command);
+                        .createForward(command);
                     return apply;
-                } else {
-                    //change not found
-                    CreateChangeRecordCommand command =
-                        createChangeRecordCommand(changeId, aggregateName, null);
-                    CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                        .createEmptyReverse(command);
-                    return null;
-                }
-            }
-        } else {
-            //forward action
-            SumPagedRep<ChangeRecord> forwardChanges =
-                CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
-                    ChangeRecordQuery.idempotentQuery(changeId, aggregateName));
-            Optional<ChangeRecord> forwardChange = forwardChanges.findFirst();
-            if (forwardChange.isPresent()) {
-                log.debug("change already exist, return saved results");
-                return forwardChange.get().getReturnValue();
-            } else {
-                SumPagedRep<ChangeRecord> reverseChanges =
-                    CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
-                        ChangeRecordQuery.idempotentQuery(changeId + CANCEL, aggregateName));
-                Optional<ChangeRecord> reverseChange = reverseChanges.findFirst();
-                if (reverseChange.isPresent()) {
-                    //change has been cancelled, perform null operation
-                    log.debug("change already cancelled, do empty change");
-                    CommonDomainRegistry.getTransactionService().transactional(() -> {
-                        CommonDomainRegistry.getDomainEventRepository()
-                            .append(new HangingTxDetected(changeId));
-                        CreateChangeRecordCommand command =
-                            createChangeRecordCommand(changeId, aggregateName, null);
-                        CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                            .createEmptyForward(command);
-                    });
-                    return null;
-                } else {
-                    log.debug("making change...");
-                    return CommonDomainRegistry.getTransactionService()
-                        .returnedTransactional(() -> {
-                            CreateChangeRecordCommand command =
-                                createChangeRecordCommand(changeId, aggregateName, null);
-                            String apply = function.apply(command);
-                            CommonApplicationServiceRegistry.getChangeRecordApplicationService()
-                                .createForward(command);
-                            return apply;
-                        });
-                }
-            }
+                });
         }
     }
 

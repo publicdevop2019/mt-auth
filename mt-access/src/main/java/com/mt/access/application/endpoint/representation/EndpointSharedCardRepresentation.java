@@ -23,9 +23,9 @@ public class EndpointSharedCardRepresentation {
     private String path;
     private String method;
     private Integer version;
-    private boolean websocket;
-    private boolean shared;
-    private boolean secured;
+    private Boolean websocket;
+    private Boolean shared;
+    private Boolean secured;
     private String projectId;
     private String projectName;
     private transient ProjectId originalProjectId;
@@ -38,12 +38,12 @@ public class EndpointSharedCardRepresentation {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
         this.name = endpoint.getName();
-        this.websocket = endpoint.isWebsocket();
+        this.websocket = endpoint.getWebsocket();
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.version = endpoint.getVersion();
-        this.shared = endpoint.isShared();
-        this.secured = endpoint.isAuthRequired();
+        this.shared = endpoint.getShared();
+        this.secured = endpoint.getSecured();
     }
 
     public static void updateDetail(List<EndpointSharedCardRepresentation> original) {
@@ -53,10 +53,10 @@ public class EndpointSharedCardRepresentation {
             Set<ProjectId> collect2 =
                 original.stream().map(e -> e.originalProjectId).collect(Collectors.toSet());
             Set<Client> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                     new ClientQuery(collect));
             Set<Project> allByQuery2 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                     new ProjectQuery(collect2));
             original.forEach(e -> {
                 Optional<Client> first =

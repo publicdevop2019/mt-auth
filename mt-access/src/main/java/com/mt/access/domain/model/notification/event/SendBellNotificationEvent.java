@@ -28,8 +28,7 @@ public class SendBellNotificationEvent extends DomainEvent {
     }
 
     public SendBellNotificationEvent(Notification notification) {
-        super();
-        setDomainId(notification.getNotificationId());
+        super(notification.getNotificationId());
         date = notification.getTimestamp();
         this.descriptions = notification.getDescriptions();
         title = notification.getTitle();

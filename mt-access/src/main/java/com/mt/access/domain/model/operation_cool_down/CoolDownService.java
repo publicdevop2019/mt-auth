@@ -2,7 +2,6 @@ package com.mt.access.domain.model.operation_cool_down;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
@@ -23,14 +22,13 @@ public class CoolDownService {
         Validator.notNull(executor);
         Optional<OperationCoolDown> coolDownInfo =
             DomainRegistry.getOperationCoolDownRepository()
-                .getCoolDownInfo(executor, operationType);
+                .query(executor, operationType);
         if (coolDownInfo.isPresent()) {
             OperationCoolDown operationCoolDown = coolDownInfo.get();
             boolean cool = operationCoolDown.hasCoolDown();
             if (!cool) {
-                throw new DefinedRuntimeException("operation not cool down", "0048",
-                    HttpResponseCode.BAD_REQUEST,
-                    ExceptionCatalog.OPERATION_ERROR);
+                throw new DefinedRuntimeException("operation not cool down", "1048",
+                    HttpResponseCode.BAD_REQUEST);
             }
             log.info("operation has cool down");
             operationCoolDown.updateLastOperateAt();

@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 public class CacheConfiguration {
-    private final boolean allowCache;
+    private final Boolean allowCache;
     private final Set<String> cacheControl;
 
     private final Long expires;
@@ -20,19 +20,19 @@ public class CacheConfiguration {
 
     private final String vary;
 
-    private final boolean etag;
+    private final Boolean etag;
 
-    private final boolean weakValidation;
+    private final Boolean weakValidation;
 
     public CacheConfiguration(Endpoint endpoint) {
-        this.allowCache = endpoint.getCacheConfig().isAllowCache();
+        this.allowCache = endpoint.getCacheConfig().getAllowCache();
         this.cacheControl = endpoint.getCacheConfig().getCacheControl();
         this.expires = endpoint.getCacheConfig().getExpires();
         this.maxAge = endpoint.getCacheConfig().getMaxAge();
         this.smaxAge = endpoint.getCacheConfig().getSmaxAge();
         this.vary = endpoint.getCacheConfig().getVary();
-        this.etag = endpoint.getCacheConfig().isEtag();
-        this.weakValidation = endpoint.getCacheConfig().isWeakValidation();
+        this.etag = endpoint.getCacheConfig().getEtag();
+        this.weakValidation = endpoint.getCacheConfig().getWeakValidation();
     }
 
     public String getCacheControlValue() {

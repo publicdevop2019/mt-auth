@@ -9,7 +9,7 @@ import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
-import com.mt.common.infrastructure.thread_pool.CustomThreadPoolExecutor;
+import com.mt.common.infrastructure.thread_pool.JobThreadPoolExecutor;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import lombok.extern.slf4j.Slf4j;
@@ -23,11 +23,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RedisDistributedJobService implements DistributedJobService {
     @Autowired
-    private CustomThreadPoolExecutor taskExecutor;
+    private JobThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
     @Value("${instanceId}")
-    private long instanceId;
+    private Long instanceId;
     private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
         new ConcurrentHashMap<>();
     private final ConcurrentHashMap<String, Boolean> jobInstanceNotificationMap =
@@ -49,6 +49,7 @@ public class RedisDistributedJobService implements DistributedJobService {
             return;
         }
         taskExecutor.execute(() -> {
+            log.debug("running job {}", jobName);
             //check if job exist
             Optional<JobDetail> byName =
                 CommonDomainRegistry.getJobRepository().getByName(jobName);
@@ -148,7 +149,7 @@ public class RedisDistributedJobService implements DistributedJobService {
             // 2. job status committed
             try {
                 JobDetail jobDetail =
-                    CommonDomainRegistry.getJobRepository().getById(jobId).get();
+                    CommonDomainRegistry.getJobRepository().getById(jobId);
                 jobWrapper(function, transactional, jobDetail);
             } finally {
                 lock.unlock();
@@ -196,7 +197,7 @@ public class RedisDistributedJobService implements DistributedJobService {
         if (job.notifyJobStarving()) {
             log.warn("job {} exceed max idle time, last execution time {}",
                 jobName, job.getLastExecution().getTime());
-            if (!job.isNotifiedAdmin()) {
+            if (!job.getNotifiedAdmin()) {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()
                     .transactional(() -> {

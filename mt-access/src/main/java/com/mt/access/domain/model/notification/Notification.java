@@ -42,12 +42,13 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification extends Auditable {
-    private final boolean ack = false;
+    //field is used by sql statement
+    private final Boolean ack = false;
     @Embedded
     private NotificationId notificationId;
     private Long timestamp;
     @Convert(converter = StringSetConverter.class)
-    private LinkedHashSet<String> descriptions = new LinkedHashSet<>();
+    private final LinkedHashSet<String> descriptions = new LinkedHashSet<>();
     @Enumerated(EnumType.STRING)
     private NotificationType type;
     @Enumerated(EnumType.STRING)

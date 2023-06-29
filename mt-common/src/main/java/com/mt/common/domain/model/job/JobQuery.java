@@ -4,8 +4,10 @@ import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class JobQuery extends QueryCriteria {
     private final JobSort sort = JobSort.byId(true);
     private String name;
@@ -34,8 +36,8 @@ public class JobQuery extends QueryCriteria {
 
     @Getter
     public static class JobSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public JobSort(boolean isAsc) {
             this.isAsc = isAsc;

@@ -5,14 +5,14 @@ import org.springframework.http.HttpStatus;
 
 @Data
 public class CustomFilterContext {
-    private boolean endpointCheckFailed = false;
-    private boolean rateLimitCheckFailed = false;
+    private Boolean endpointCheckFailed = false;
+    private Boolean rateLimitCheckFailed = false;
     private HttpStatus httpErrorStatus;
-    private int newContentLength;
-    private boolean tokenCheckFailed;
-    private boolean websocket;
+    private Integer newContentLength;
+    private Boolean tokenCheckFailed;
+    private Boolean websocket;
     private String authHeader;
-    private boolean bodyCopied = false;
+    private Boolean bodyCopied = false;
 
     public void endpointCheckFailed() {
         this.endpointCheckFailed = true;
@@ -20,7 +20,8 @@ public class CustomFilterContext {
     }
 
     public boolean hasCheckFailed() {
-        return tokenCheckFailed || endpointCheckFailed || rateLimitCheckFailed;
+        return Boolean.TRUE.equals(tokenCheckFailed) || Boolean.TRUE.equals(endpointCheckFailed) ||
+            Boolean.TRUE.equals(rateLimitCheckFailed);
     }
 
     public void rateLimitReached() {

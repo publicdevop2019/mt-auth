@@ -57,7 +57,7 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     super('role-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new RoleValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     this.permissoinSvc.setProjectId(this.bottomSheet.params['projectId'])
-
+    this.sharedPermSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.entitySvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
     this.fis.queryProvider[this.formIdShared + '_' + 'sharedApi'] = this.getShared();

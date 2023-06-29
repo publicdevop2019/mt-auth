@@ -11,15 +11,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class SpringEncryptionService implements EncryptionService {
-    private static final Integer STRENGTH = 12;
+
     @Autowired
     private PasswordEncoder encoder;
-
-    @Bean//required
-    @Override
-    public PasswordEncoder getEncoder() {
-        return new BCryptPasswordEncoder(STRENGTH);
-    }
 
     @Override
     public boolean compare(UserPassword userPassword, CurrentPassword currentPwd) {

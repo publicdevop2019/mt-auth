@@ -11,8 +11,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class NotificationQuery extends QueryCriteria {
     private static final String UN_ACK = "unAck";
     private final Sort sort;
@@ -63,9 +65,9 @@ public class NotificationQuery extends QueryCriteria {
 
     @Getter
     public static class Sort {
-        private boolean isAsc;
-        private boolean isTimestamp = false;
-        private boolean isId = false;
+        private Boolean isAsc;
+        private Boolean isTimestamp = false;
+        private Boolean isId = false;
 
         public static Sort byLatestTimestamp() {
             Sort sort = new Sort();

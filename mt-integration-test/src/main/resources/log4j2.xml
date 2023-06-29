@@ -23,11 +23,11 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="com.hw" level="info" additivity="false">
+        <Logger name="com.mt" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <Root level="error" additivity="false" includeLocation="false">
+        <Root level="info" additivity="false" includeLocation="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Root>

@@ -13,8 +13,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@ToString
 public class CacheProfileQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String PROJECT_ID = "projectIds";
@@ -31,6 +33,7 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(CacheProfileId id) {
+        Validator.notNull(id);
         this.ids = Collections.singleton(id);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
@@ -38,6 +41,8 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(Set<CacheProfileId> collect) {
+        Validator.notNull(collect);
+        Validator.noNullMember(collect);
         this.ids = collect;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
@@ -45,6 +50,8 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     public CacheProfileQuery(ProjectId projectId, CacheProfileId cacheProfileId) {
+        Validator.notNull(cacheProfileId);
+        Validator.notNull(projectId);
         this.ids = Collections.singleton(cacheProfileId);
         this.projectId = projectId;
         setPageConfig(PageConfig.defaultConfig());
@@ -67,8 +74,8 @@ public class CacheProfileQuery extends QueryCriteria {
 
     @Getter
     public static class CacheProfileSort {
-        private final boolean isAsc;
-        private boolean byId;
+        private final Boolean isAsc;
+        private Boolean byId;
 
         public CacheProfileSort(boolean sortOrderAsc) {
             this.isAsc = sortOrderAsc;

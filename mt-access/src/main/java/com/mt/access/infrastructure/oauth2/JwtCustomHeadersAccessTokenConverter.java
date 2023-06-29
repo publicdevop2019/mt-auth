@@ -1,7 +1,6 @@
 package com.mt.access.infrastructure.oauth2;
 
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.security.KeyPair;
 import java.security.interfaces.RSAPrivateKey;
@@ -39,9 +38,8 @@ public class JwtCustomHeadersAccessTokenConverter extends JwtAccessTokenConverte
             stringMap.remove("authorities");
             content = this.objectMapper.formatMap(stringMap);
         } catch (Exception ex) {
-            throw new DefinedRuntimeException("cannot convert access token to json", "0070",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT, ex);
+            throw new DefinedRuntimeException("cannot convert access token to json", "1070",
+                HttpResponseCode.BAD_REQUEST, ex);
         }
         return JwtHelper.encode(content, this.signer, this.customHeaders)
             .getEncoded();

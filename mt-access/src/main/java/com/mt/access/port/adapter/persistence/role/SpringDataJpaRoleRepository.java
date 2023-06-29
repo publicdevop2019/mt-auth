@@ -9,10 +9,14 @@ import com.mt.access.domain.model.role.Role_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import javax.persistence.EntityManager;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,8 +24,8 @@ import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaRoleRepository extends RoleRepository, JpaRepository<Role, Long> {
 
-    default Optional<Role> getById(RoleId id) {
-        return getByQuery(new RoleQuery(id)).findFirst();
+    default Role query(RoleId id) {
+        return query(new RoleQuery(id)).findFirst().orElse(null);
     }
 
     default void add(Role role) {
@@ -32,7 +36,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         delete(role);
     }
 
-    default SumPagedRep<Role> getByQuery(RoleQuery roleQuery) {
+    default SumPagedRep<Role> query(RoleQuery roleQuery) {
         return QueryBuilderRegistry.getRoleAdaptor().execute(roleQuery);
     }
 
@@ -53,6 +57,9 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     @Component
     class JpaCriteriaApiRoleAdaptor {
         public SumPagedRep<Role> execute(RoleQuery query) {
+            if (query.getReferredPermissionId() != null) {
+                return permissionSearch(query);
+            }
             QueryUtility.QueryContext<Role> queryContext =
                 QueryUtility.prepareContext(Role.class, query);
             Optional.ofNullable(query.getIds()).ifPresent(e -> QueryUtility
@@ -67,9 +74,6 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                 .addDomainIdInPredicate(
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Role_.PROJECT_ID, queryContext));
-            Optional.ofNullable(query.getExternalPermissionIds()).ifPresent(e -> QueryUtility
-                .addStringLikePredicate(e.getDomainId(), Role_.EXTERNAL_PERMISSION_IDS,
-                    queryContext));
             Optional.ofNullable(query.getNames())
                 .ifPresent(e -> QueryUtility.addStringInPredicate(e, Role_.NAME, queryContext));
             Optional.ofNullable(query.getTypes()).ifPresent(
@@ -79,13 +83,40 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     e.stream().map(DomainId::getDomainId).collect(Collectors.toSet()),
                     Role_.TENANT_ID, queryContext));
             Order order = null;
-            if (query.getSort().isById()) {
+            if (Checker.isTrue(query.getSort().getById())) {
                 order = QueryUtility
-                    .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().isAsc());
+                    .getDomainIdOrder(Role_.ROLE_ID, queryContext, query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);
         }
+
+        private SumPagedRep<Role> permissionSearch(RoleQuery query) {
+            String domainId = query.getReferredPermissionId().getDomainId();
+            PageConfig pageConfig = query.getPageConfig();
+            EntityManager entityManager = QueryUtility.getEntityManager();
+            String countSql =
+                "SELECT COUNT(r.id) from `role` r WHERE r.id IN (SELECT rapm.id FROM role_api_permission_map rapm WHERE rapm.permission = :domainId)" +
+                    " OR r.id IN (SELECT rcpm.id FROM role_common_permission_map rcpm WHERE rcpm.permission = :domainId)" +
+                    " OR r.id IN (SELECT repm.id FROM role_external_permission_map repm WHERE repm.permission = :domainId)";
+            javax.persistence.Query countQuery = entityManager.createNativeQuery(
+                countSql);
+            countQuery.setParameter("domainId", domainId);
+            String sql =
+                "SELECT r.* from `role` r WHERE r.id IN (SELECT rapm.id FROM role_api_permission_map rapm WHERE rapm.permission = :domainId)" +
+                    " OR r.id IN (SELECT rcpm.id FROM role_common_permission_map rcpm WHERE rcpm.permission = :domainId)" +
+                    " OR r.id IN (SELECT repm.id FROM role_external_permission_map repm WHERE repm.permission = :domainId) LIMIT :limit OFFSET :offset";
+            javax.persistence.Query findQuery = entityManager.createNativeQuery(
+                sql,
+                Role.class);
+            findQuery.setParameter("domainId", domainId);
+            findQuery.setParameter("limit", pageConfig.getPageSize());
+            findQuery.setParameter("offset", pageConfig.getOffset());
+            long count = ((Number) countQuery.getSingleResult()).longValue();
+            List<Role> resultList = findQuery.getResultList();
+            return new SumPagedRep<>(resultList, count);
+        }
+
     }
 
 

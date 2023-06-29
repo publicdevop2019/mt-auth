@@ -2,6 +2,7 @@ package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.EndpointId;
+import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
@@ -9,12 +10,13 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.ExceptionCatalog;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -35,9 +37,9 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Table
@@ -47,6 +49,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "permissionRegion")
+@EqualsAndHashCode(callSuper = true)
 public class Permission extends Auditable {
     public static final String API_ACCESS = "API_ACCESS";
     public static final String VIEW_PROJECT_INFO = "VIEW_PROJECT_INFO";
@@ -132,8 +135,9 @@ public class Permission extends Auditable {
 
     @Embedded
     private PermissionId permissionId;
+
     @Getter
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
         name = "linked_permission_ids_map",
         joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
@@ -144,7 +148,7 @@ public class Permission extends Auditable {
     })
     @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
         region = "linkedPermissionIdsRegion")
-    private Set<PermissionId> linkedApiPermissionIds;
+    private Set<PermissionId> linkedApiPermissionIds = new LinkedHashSet<>();
 
     @Embedded
     @AttributeOverrides({
@@ -156,26 +160,59 @@ public class Permission extends Auditable {
         @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
     })
     private ProjectId tenantId;
-    @Setter
-    private boolean shared = false;
+    private Boolean shared;
     @Enumerated(EnumType.STRING)
     private PermissionType type;
-    private boolean systemCreate = false;
+    private Boolean systemCreate;
 
     private Permission(ProjectId projectId, PermissionId permissionId, String name,
                        PermissionType type, @Nullable PermissionId parentId,
                        @Nullable ProjectId tenantId,
-                       @Nullable Set<PermissionId> linkedApiPermissionIds, boolean shared) {
+                       @Nullable Set<PermissionId> linkedApiPermissionIds, Boolean shared) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.permissionId = permissionId;
-        this.linkedApiPermissionIds = linkedApiPermissionIds;
+        setPermissionId(permissionId);
+        setLinkedApiPermissionIds(linkedApiPermissionIds);
+        setParentId(parentId);
+        setProjectId(projectId);
+        setTenantId(tenantId);
+        setName(name);
+        setType(type);
+        setShared(shared);
+        setSystemCreate(false);
+    }
+
+    private void setParentId(PermissionId parentId) {
         this.parentId = parentId;
+    }
+
+    private void setPermissionId(PermissionId permissionId) {
+        Validator.notNull(permissionId);
+        this.permissionId = permissionId;
+    }
+
+    private void setProjectId(ProjectId projectId) {
+        Validator.notNull(projectId);
         this.projectId = projectId;
+    }
+
+    private void setTenantId(ProjectId tenantId) {
         this.tenantId = tenantId;
-        this.name = name;
-        this.type = type;
+    }
+
+    private void setShared(Boolean shared) {
+        Validator.notNull(shared);
         this.shared = shared;
+    }
+
+    private void setType(PermissionType type) {
+        Validator.notNull(type);
+        this.type = type;
+    }
+
+    private void setSystemCreate(Boolean systemCreate) {
+        Validator.notNull(systemCreate);
+        this.systemCreate = systemCreate;
     }
 
     /**
@@ -197,8 +234,9 @@ public class Permission extends Auditable {
                                                    @Nullable PermissionId linkedApiPermissionId) {
         Permission permission =
             new Permission(projectId, permissionId, name, type, parentId, tenantId,
-                Stream.of(linkedApiPermissionId).collect(Collectors.toSet()), false);
-        permission.systemCreate = true;
+                linkedApiPermissionId == null ? null :
+                    Stream.of(linkedApiPermissionId).collect(Collectors.toSet()), false);
+        permission.setSystemCreate(true);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -245,7 +283,7 @@ public class Permission extends Auditable {
                                                     boolean shared) {
         Permission permission =
             new Permission(projectId, permissionId, apiDomainId, PermissionType.API, parentId, null,
-                Collections.singleton(null), shared);
+                null, shared);
         permission.systemCreate = true;
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
@@ -261,6 +299,11 @@ public class Permission extends Auditable {
                 linkedApiPermissionId, false);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
+    }
+
+    private void setName(String name) {
+        Validator.validRequiredString(1, 50, name);
+        this.name = name;
     }
 
     /**
@@ -297,7 +340,8 @@ public class Permission extends Auditable {
         Permission p6 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CLIENT,
                 clientMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"))
+                Stream.of(new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),
+                        new PermissionId("0Y8OYY45NEVK"))
                     .collect(Collectors.toSet()));
         Permission p7 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CLIENT,
@@ -334,7 +378,8 @@ public class Permission extends Auditable {
         Permission p21 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_ROLE,
                 roleMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8HKE2QAIVF"), new PermissionId("0Y8HKE24FWUI"))
+                Stream.of(new PermissionId("0Y8IZU2J4F0P"), new PermissionId("0Y8HKE2QAIVF"),
+                        new PermissionId("0Y8HKE24FWUI"))
                     .collect(Collectors.toSet()));
         Permission p22 = Permission
             .autoCreateForProject(projectId, new PermissionId(), CREATE_ROLE, PermissionType.COMMON,
@@ -434,7 +479,8 @@ public class Permission extends Auditable {
                         new PermissionId("0Y8OKQGD5JPW"))
                     .collect(Collectors.toSet()));
         Permission p44 = Permission
-            .autoCreateForProject(projectId, new PermissionId(), CREATE_CACHE, PermissionType.COMMON,
+            .autoCreateForProject(projectId, new PermissionId(), CREATE_CACHE,
+                PermissionType.COMMON,
                 cacheMgmtId, tenantId, new PermissionId("0Y8OKQG3SFF7"));
         Permission p45 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_CACHE,
@@ -531,7 +577,7 @@ public class Permission extends Auditable {
     public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId,
                                       PermissionId permissionId, boolean shared) {
         Optional<Permission> apiRoot = DomainRegistry.getPermissionRepository()
-            .getByQuery(new PermissionQuery(projectId, API_ACCESS)).findFirst();
+            .query(new PermissionQuery(projectId, API_ACCESS)).findFirst();
         apiRoot.ifPresent(e -> {
             Permission apiPermission = Permission
                 .autoCreateForEndpoint(projectId, permissionId, endpointId.getDomainId(),
@@ -542,23 +588,27 @@ public class Permission extends Auditable {
 
     public void replace(String name, Set<PermissionId> permissionIds) {
         updateName(name);
-        this.linkedApiPermissionIds = permissionIds;
+        setLinkedApiPermissionIds(permissionIds);
         new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
+    }
+
+    private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
+        Validator.validOptionalCollection(20, permissionIds);
+        CommonUtility.updateCollection(this.linkedApiPermissionIds, permissionIds,
+            () -> this.linkedApiPermissionIds = permissionIds);
     }
 
     private void updateName(String name) {
         if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
-                "0049",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+                "1049",
+                HttpResponseCode.BAD_REQUEST);
         }
-        if (isSystemCreate()) {
-            throw new DefinedRuntimeException("system created permission cannot be changed", "0050",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+        if (Checker.isTrue(getSystemCreate())) {
+            throw new DefinedRuntimeException("system created permission cannot be changed", "1050",
+                HttpResponseCode.BAD_REQUEST);
         }
-        this.name = name;
+        setName(name);
     }
 
     public void patch(String name) {
@@ -568,31 +618,26 @@ public class Permission extends Auditable {
 
     public void remove() {
         if (Objects.equals(PermissionType.API, this.type)) {
-            throw new DefinedRuntimeException("api, api root and project type's cannot be changed",
-                "0051",
-                HttpResponseCode.BAD_REQUEST,
-                ExceptionCatalog.ILLEGAL_ARGUMENT);
+            throw new DefinedRuntimeException("api type cannot be changed",
+                "1051",
+                HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getPermissionRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        Permission that = (Permission) o;
-        return Objects.equals(permissionId, that.permissionId);
+
+    public void secureEndpointRemoveCleanUp() {
+        DomainRegistry.getPermissionRepository().remove(this);
+        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), permissionId);
+    public void removeApiPermission(PermissionId permissionId) {
+        if (!linkedApiPermissionIds.isEmpty()) {
+            Set<PermissionId> collect =
+                linkedApiPermissionIds.stream().filter(e -> !e.equals(permissionId)).collect(
+                    Collectors.toSet());
+            setLinkedApiPermissionIds(collect);
+        }
     }
 }

@@ -1,10 +1,16 @@
 package com.mt.access.domain.model.cache_profile;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Optional;
+import com.mt.common.domain.model.validate.Validator;
 
 public interface CacheProfileRepository {
-    Optional<CacheProfile> id(CacheProfileId id);
+    default CacheProfile get(CacheProfileId id) {
+        CacheProfile cacheProfile = query(id);
+        Validator.notNull(cacheProfile);
+        return cacheProfile;
+    }
+
+    CacheProfile query(CacheProfileId id);
 
     void add(CacheProfile cacheProfile);
 

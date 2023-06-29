@@ -36,8 +36,7 @@ public class MfaService {
 
     public boolean validateMfa(UserId userId, String mfaCode,
                                String mfaId) {
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        User user1 = user.get();
+        User user1 = DomainRegistry.getUserRepository().get(userId);
         MfaInfo mfaInfo = user1.getMfaInfo();
         if (mfaInfo == null) {
             return false;
@@ -46,8 +45,7 @@ public class MfaService {
     }
 
     public MfaId triggerMfa(UserId userId) {
-        Optional<User> user = DomainRegistry.getUserRepository().userOfId(userId);
-        User user1 = user.get();
+        User user1 = DomainRegistry.getUserRepository().get(userId);
         MfaInfo mfaInfo = MfaInfo.create();
         user1.setMfaInfo(mfaInfo);
         CommonDomainRegistry.getDomainEventRepository()

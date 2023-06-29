@@ -49,7 +49,7 @@ public class CrossDomainValidationService {
     public void validate() {
         log.trace("start of validate job");
         Optional<ValidationResult> validationResult1 =
-            DomainRegistry.getValidationResultRepository().get();
+            DomainRegistry.getValidationResultRepository().query();
         ValidationResult validationResult;
         validationResult = validationResult1.orElseGet(ValidationResult::create);
         if (validationResult.shouldPause()) {
@@ -58,7 +58,7 @@ public class CrossDomainValidationService {
                 CommonDomainRegistry.getDomainEventRepository()
                     .append(new CrossDomainValidationFailureCheck(adminEmail));
             }
-            log.debug("end of validate job, job is paused due to continuous failure");
+            log.warn("end of validate job, job is paused due to continuous failure");
             return;
         }
         boolean b = validateCacheProfileAndEndpoint();
@@ -115,7 +115,7 @@ public class CrossDomainValidationService {
      */
     private boolean validateUserAndUserRelation() {
         Set<UserId> userIds = DomainRegistry.getUserRelationRepository().getUserIds();
-        Set<UserId> userIds2 = DomainRegistry.getUserRepository().getUserIds();
+        Set<UserId> userIds2 = DomainRegistry.getUserRepository().getIds();
         boolean b = userIds.size() == userIds2.size();
         if (!b) {
             Set<UserId> collect = userIds.stream().filter(userId -> !userIds2.contains(userId))
@@ -132,7 +132,7 @@ public class CrossDomainValidationService {
      */
     private boolean validateRoleAndPermission() {
         Set<Role> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e), RoleQuery.all());
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e), RoleQuery.all());
         Set<PermissionId> collect =
             allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream())
                 .collect(Collectors.toSet());
@@ -152,12 +152,12 @@ public class CrossDomainValidationService {
     private boolean validateEndpointAndPermission() {
         //each endpoint if secured then mapped to one permission
         Set<Endpoint> securedEp = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
                 EndpointQuery.securedQuery());
         Set<PermissionId> mappedPId =
             securedEp.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
         Set<Permission> storedP = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 new PermissionQuery(mappedPId));
         if (storedP.size() != mappedPId.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -168,7 +168,7 @@ public class CrossDomainValidationService {
         Set<EndpointId> endpointIds =
             DomainRegistry.getPermissionRepository().allApiPermissionLinkedEpId();
         Set<Endpoint> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().endpointsOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
                 new EndpointQuery(endpointIds));
         if (endpointIds.size() != allByQuery.size()) {
             Set<EndpointId> foundEpIds =
@@ -180,9 +180,9 @@ public class CrossDomainValidationService {
                 new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT"));
             return false;
         }
-        if (allByQuery.stream().anyMatch(e -> !e.isAuthRequired())) {
+        if (allByQuery.stream().anyMatch(e -> !e.getSecured())) {
             Set<EndpointId> publicEpIds =
-                allByQuery.stream().filter(e -> !e.isAuthRequired()).map(Endpoint::getEndpointId)
+                allByQuery.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
                     .collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", publicEpIds);
             CommonDomainRegistry.getDomainEventRepository()
@@ -196,7 +196,7 @@ public class CrossDomainValidationService {
         //mapped user relation has valid projectId
         Set<ProjectId> projectIds = DomainRegistry.getUserRelationRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -210,7 +210,7 @@ public class CrossDomainValidationService {
         //projectId in role table must be valid
         Set<ProjectId> projectIds = DomainRegistry.getRoleRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -220,7 +220,7 @@ public class CrossDomainValidationService {
         //project must have project role and client_root role
         Set<ProjectId> projectIds1 = DomainRegistry.getProjectRepository().allProjectIds();
         Set<Role> roles = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                 RoleQuery.projectDefaultRoleQuery());
         Set<ProjectId> collect = projectIds1.stream().filter(e -> {
             Optional<Role> first = roles.stream()
@@ -258,9 +258,9 @@ public class CrossDomainValidationService {
     private boolean validateClientAndRole() {
         //client must have related role, role must have related client
         Set<ClientId> clients = DomainRegistry.getClientRepository().allClientIds();
-        DomainRegistry.getRoleRepository().getByQuery(new RoleQuery(RoleType.CLIENT));
+        DomainRegistry.getRoleRepository().query(new RoleQuery(RoleType.CLIENT));
         Set<Role> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
                 new RoleQuery(RoleType.CLIENT));
         Set<String> roleNames = allByQuery.stream().map(Role::getName).collect(Collectors.toSet());
 
@@ -289,7 +289,7 @@ public class CrossDomainValidationService {
         //all clients must have valid projectId
         Set<ProjectId> projectIds = DomainRegistry.getClientRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getProjectRepository().getByQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -303,7 +303,7 @@ public class CrossDomainValidationService {
         //all endpoints must have valid clientId
         Set<ClientId> clientIds = DomainRegistry.getEndpointRepository().getClientIds();
         Set<Client> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getClientRepository().clientsOfQuery(e),
+            .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                 new ClientQuery(clientIds));
         if (allByQuery.size() != clientIds.size()) {
             CommonDomainRegistry.getDomainEventRepository()
@@ -336,12 +336,12 @@ public class CrossDomainValidationService {
         private String message;
 
         {
-            setDomainId(new AnyDomainId());
             setName(name);
             setTopic(SYSTEM_VALIDATION_FAILED);
         }
 
         public ValidationFailedEvent(String message) {
+            super(new AnyDomainId());
             log.debug("creating event for {}", message);
             this.message = message;
         }

@@ -10,7 +10,7 @@ import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { ClientService } from 'src/app/services/mgmt-client.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtClientComponent } from '../client/client.component';
 @Component({
   selector: 'app-summary-client',
@@ -72,13 +72,13 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     },
   ]
   constructor(
-    public entitySvc: ClientService,
+    public entitySvc: MgmtClientService,
     public fis: FormInfoService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    combineLatest([this.entitySvc.readEntityByQuery(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
+    combineLatest([this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
       .subscribe(next => {
         if (next) {
           this.searchConfigs = [...this.initSearchConfigs, {

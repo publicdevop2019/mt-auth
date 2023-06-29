@@ -23,11 +23,11 @@ public class PositionApplicationService {
 
     public SumPagedRep<Position> tenantQuery(String queryParam, String pageParam, String skipCount) {
         return DomainRegistry.getPositionRepository()
-            .getByQuery(new PositionQuery(queryParam, pageParam, skipCount));
+            .query(new PositionQuery(queryParam, pageParam, skipCount));
     }
 
-    public Optional<Position> tenantQuery(String id) {
-        return DomainRegistry.getPositionRepository().getById(new PositionId(id));
+    public Position tenantQuery(String id) {
+        return DomainRegistry.getPositionRepository().get(new PositionId(id));
     }
 
 
@@ -36,7 +36,7 @@ public class PositionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Optional<Position> first =
-                    DomainRegistry.getPositionRepository().getByQuery(new PositionQuery(positionId))
+                    DomainRegistry.getPositionRepository().query(new PositionQuery(positionId))
                         .findFirst();
                 first.ifPresent(e -> {
                     e.replace(command.getName());
@@ -50,11 +50,9 @@ public class PositionApplicationService {
     public void tenantRemove(String id, String changeId) {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
-            Optional<Position> corsProfile =
-                DomainRegistry.getPositionRepository().getById(positionId);
-            corsProfile.ifPresent(e -> {
-                DomainRegistry.getPositionRepository().remove(e);
-            });
+            Position position =
+                DomainRegistry.getPositionRepository().get(positionId);
+                DomainRegistry.getPositionRepository().remove(position);
             return null;
         }, PERMISSION);
     }
@@ -64,18 +62,15 @@ public class PositionApplicationService {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (ignored) -> {
-                Optional<Position> corsProfile =
-                    DomainRegistry.getPositionRepository().getById(positionId);
-                if (corsProfile.isPresent()) {
-                    Position corsProfile1 = corsProfile.get();
-                    PositionPatchCommand beforePatch = new PositionPatchCommand(corsProfile1);
+                Position position =
+                    DomainRegistry.getPositionRepository().get(positionId);
+                    PositionPatchCommand beforePatch = new PositionPatchCommand(position);
                     PositionPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, PositionPatchCommand.class);
-                    corsProfile1.replace(
+                    position.replace(
                         afterPatch.getName()
                     );
-                }
                 return null;
             }, PERMISSION);
     }

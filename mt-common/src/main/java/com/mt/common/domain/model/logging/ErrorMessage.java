@@ -1,5 +1,6 @@
 package com.mt.common.domain.model.logging;
 
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
@@ -17,15 +18,21 @@ public class ErrorMessage {
     public ErrorMessage(RuntimeException ex) {
         errorId = UUID.randomUUID().toString();
         List<String> strings;
-        if (NestedExceptionUtils.getMostSpecificCause(ex).getMessage() != null) {
+        if (ex instanceof DefinedRuntimeException) {
             strings = List.of(
                 NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
                     .split("\n"));
-            log.error("Handled exception UUID - {} - class - [{}] - Exception :", errorId,
+            log.warn("defined exception UUID - {} - {} - exception: {} - details: ", errorId,
+                ex.getClass(), strings.get(0), ex);
+        } else if (NestedExceptionUtils.getMostSpecificCause(ex).getMessage() != null) {
+            strings = List.of(
+                NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
+                    .split("\n"));
+            log.error("known cause exception UUID - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         } else {
             strings = List.of("Unable to get most specific cause, see log");
-            log.error("Unhandled exception UUID - {} - class - [{}] - Exception :", errorId,
+            log.error("unknown cause exception UUID - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         }
         errors = strings;
