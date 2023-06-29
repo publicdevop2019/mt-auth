@@ -1,0 +1,8 @@
+- common
+    - string input
+        - too short
+        - too long
+        - invalid char
+        - empty
+        - blank
+        - null

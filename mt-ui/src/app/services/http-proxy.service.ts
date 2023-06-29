@@ -424,6 +424,9 @@ export class HttpProxyService {
         return new Observable<string>(e => {
             this._httpClient.post(entityRepo, entity, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));
+            }, error => {
+                //return error so it can be caught by upstream
+                e.error(error);
             });
         });
     };

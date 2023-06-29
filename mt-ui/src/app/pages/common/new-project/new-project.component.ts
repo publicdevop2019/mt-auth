@@ -1,6 +1,8 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
+import { ICommonServerError } from 'src/app/clazz/common.interface';
 import { IProjectSimple } from 'src/app/clazz/validation/aggregate/project/interface-project';
 import { ProjectValidator } from 'src/app/clazz/validation/aggregate/project/validator-project';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
@@ -37,34 +39,45 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   }
   private count: number = 1;
   create(): void {
-    if(!this.fis.formGroupCollection[this.formId].get('projectName')){
+    if (!this.fis.formGroupCollection[this.formId].get('projectName')) {
       return;
     }
-    this.createLoading=true;
     this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next => {
+      this.createLoading = true;
       let pull = setInterval(() => {
         this.projectSvc.ready(next).subscribe(next => {
           this.count++;
           if (next && next.status) {
             clearInterval(pull)
             this.showNotes = true;
-            this.createLoading=false;
+            this.createLoading = false;
           }
           if (this.count === 6) {
             clearInterval(pull);
             this.systemError = true
-            this.createLoading=false;
+            this.createLoading = false;
           }
-        },()=>{
+        }, () => {
           this.count++;
           if (this.count === 6) {
             clearInterval(pull);
             this.systemError = true
-            this.createLoading=false;
+            this.createLoading = false;
           }
         })
 
       }, 5000)
+    }, error => {
+      //TODO below will not work until dirty check issue is fixed
+      // console.dir("error")
+      const errorMsg = ((error as HttpErrorResponse).error as ICommonServerError).errors[0]
+      // console.dir(errorMsg)
+      this.fis.formGroupCollection_formInfo[this.formId].inputs.filter(e => e.key === 'projectName')[0].errorMsg = errorMsg;
+      // console.dir(this.fis.formGroupCollection_formInfo[this.formId])
+      this.fis.update(this.formId)
+      this.fis.$refresh.next()
+      this.cdr.markForCheck()
+      this.createLoading = false;
     })
   }
   update(): void {
