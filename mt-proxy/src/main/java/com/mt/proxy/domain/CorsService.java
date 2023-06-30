@@ -79,6 +79,8 @@ public class CorsService implements CorsConfigurationSource {
                 (ignored) -> log.trace("found {} for path {} with method {}", corsConfiguration,
                     exchange.getRequest().getPath().value(),
                     exchange.getRequest().getMethodValue()));
+            LogHelper.log(exchange.getRequest(),
+                (ignored) -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
         }
         return corsConfiguration;
     }
