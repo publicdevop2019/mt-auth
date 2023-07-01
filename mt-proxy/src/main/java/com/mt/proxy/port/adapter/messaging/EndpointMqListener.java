@@ -21,7 +21,7 @@ public class EndpointMqListener {
 
     public static final String MT_GLOBAL_EXCHANGE = "mt_global_exchange";
 
-    private EndpointMqListener(@Value("${mt.url.support.mq}") String url) {
+    private EndpointMqListener(@Value("${mt.common.url.message-queue}") String url) {
         ConnectionFactory factory = new ConnectionFactory();
         String[] split = url.split(":");
         factory.setHost(split[0]);

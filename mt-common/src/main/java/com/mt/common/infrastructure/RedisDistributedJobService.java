@@ -26,7 +26,7 @@ public class RedisDistributedJobService implements DistributedJobService {
     private JobThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
-    @Value("${instanceId}")
+    @Value("${mt.common.instance-id}")
     private Long instanceId;
     private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
         new ConcurrentHashMap<>();

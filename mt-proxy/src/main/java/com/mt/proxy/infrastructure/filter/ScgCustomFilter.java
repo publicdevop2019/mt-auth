@@ -52,7 +52,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     public static final String X_RATE_LIMIT = "x-mt-ratelimit-left";
     @Autowired
     JsonSanitizeService jsonSanitizeService;
-    @Value("${manytree.domain-name}")
+    @Value("${mt.common.domain-name}")
     String domain;
     @Autowired
     CacheService cacheService;

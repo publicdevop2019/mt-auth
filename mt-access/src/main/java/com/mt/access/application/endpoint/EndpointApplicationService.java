@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class EndpointApplicationService {
     private static final String ENDPOINT = "Endpoint";
-    @Value("${proxy.reload}")
+    @Value("${mt.feature.proxy-reload}")
     private Boolean reloadOnAppStart;
 
     /**

@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
@@ -29,12 +28,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class JwtService {
+    private static final String JWT_KEY_URL =".well-known/jwks.json";
 
     private RSAPublicKey publicKey;
     @Autowired
     private HttpUtility httpHelper;
-    @Value("${manytree.url.jwtKey}")
-    private String jwtKeyUrl;
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
         return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
@@ -51,7 +49,7 @@ public class JwtService {
         }
     }
     public String getJwtKeyUrl() {
-        return httpHelper.resolveAccessPath() + jwtKeyUrl;
+        return httpHelper.resolveAccessPath() + JWT_KEY_URL;
     }
     public boolean verify(String jwt) {
         SignedJWT parse;

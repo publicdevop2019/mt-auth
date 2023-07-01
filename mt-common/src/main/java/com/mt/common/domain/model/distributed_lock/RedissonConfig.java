@@ -16,7 +16,7 @@ import org.springframework.context.annotation.Configuration;
     havingValue = "true",
     matchIfMissing = true)
 public class RedissonConfig {
-    @Value("${mt.url.support.dis_lock}")
+    @Value("${mt.common.url.lock}")
     private String url;
 
     @Bean

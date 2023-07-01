@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 public class IdGenerator {
     private static final long INSTANCE_ID_LENGTH = 6L;
     private static final long SEQUENCE_ID_LENGTH = 13L;
-    @Value("${instanceId}")
+    @Value("${mt.common.instance-id}")
     private Long instanceId;
     private Long sequenceId = 0L;
     private Long lastSuccessSecond = -1L;

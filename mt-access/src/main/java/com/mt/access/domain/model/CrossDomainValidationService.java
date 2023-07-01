@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CrossDomainValidationService {
 
-    @Value("${mt.email.admin}")
+    @Value("${mt.mgmt.email}")
     private String adminEmail;
 
     public void validate() {

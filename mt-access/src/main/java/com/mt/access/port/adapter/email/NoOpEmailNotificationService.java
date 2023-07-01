@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @ConditionalOnProperty(
-    value="mt.email.service.type",
+    value="mt.feature.email.type",
     havingValue = "noop",
     matchIfMissing = true)
 public class NoOpEmailNotificationService implements EmailNotificationService {
