@@ -18,11 +18,11 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 @Component({
-  selector: 'app-endpoint-new',
-  templateUrl: './endpoint-new.component.html',
-  styleUrls: ['./endpoint-new.component.css']
+  selector: 'app-endpoint',
+  templateUrl: './endpoint.component.html',
+  styleUrls: ['./endpoint.component.css']
 })
-export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpoint> implements OnInit, OnDestroy {
+export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<IEndpoint>;
   isExternal: boolean = undefined;
   isShared: boolean = undefined;
@@ -42,7 +42,7 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     public httpProxySvc: HttpProxyService,
     fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<EndpointNewComponent>,
+    bottomSheetRef: MatBottomSheetRef<EndpointComponent>,
     cdr: ChangeDetectorRef
   ) {
     super('endpointNew', JSON.parse(JSON.stringify(CATALOG_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
@@ -56,6 +56,7 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     combineLatest([this.fis.formCreated(this.formId), this.fis.formCreated(this.basicFormId), this.fis.formCreated(this.secureFormId),this.fis.formCreated(this.performanceFormId)])
       .subscribe(() => {
         this.fis.formGroupCollection[this.formId].get('isExternal').valueChanges.subscribe((next) => {
+          console.dir('value is ' +next)
           const isExternal: boolean = next === 'yes' ? true : next === 'no' ? false : undefined
           this.isExternal = isExternal;
           if (isExternal === false) {
@@ -166,7 +167,7 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
   }
   ngOnInit() {
   }
-  convertToPayload(cmpt: EndpointNewComponent): IEndpoint {
+  convertToPayload(cmpt: EndpointComponent): IEndpoint {
     let basicFormGroup = cmpt.fis.formGroupCollection[cmpt.basicFormId];
     let secureFormGroup = cmpt.fis.formGroupCollection[cmpt.secureFormId];
     let perFormGroup = cmpt.fis.formGroupCollection[cmpt.performanceFormId];
@@ -200,7 +201,7 @@ export class EndpointNewComponent extends Aggregate<EndpointNewComponent, IEndpo
     if (this.validateHelper.validate(this.validator, this.convertToPayload, 'rootCreateEndpointCommandValidator', this.fis, this, this.errorMapper))
       this.endpointSvc.create(this.convertToPayload(this), this.changeId)
   }
-  errorMapper(original: ErrorMessage[], cmpt: EndpointNewComponent) {
+  errorMapper(original: ErrorMessage[], cmpt: EndpointComponent) {
     return original.map(e => {
       return {
         ...e,

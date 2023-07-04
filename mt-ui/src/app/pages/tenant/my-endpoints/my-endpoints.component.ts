@@ -19,7 +19,7 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import * as UUID from 'uuid/v1';
-import { EndpointNewComponent } from '../endpoint-new/endpoint-new.component';
+import { EndpointComponent } from '../endpoint/endpoint.component';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -28,7 +28,7 @@ import { EndpointNewComponent } from '../endpoint-new/endpoint-new.component';
 export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
   columnList: any = {};
-  sheetComponent = EndpointNewComponent;
+  sheetComponent = EndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
