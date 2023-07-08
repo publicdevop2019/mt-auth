@@ -25,7 +25,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
     fis: FormInfoService,
     cdr: ChangeDetectorRef
   ) {
-    super('newProjectForm', JSON.parse(JSON.stringify(FORM_CONFIG)), new ProjectValidator('CLIENT'), undefined, { from: undefined, context: 'new', params: {} }, fis, cdr);
+    super('newProjectForm', FORM_CONFIG, new ProjectValidator('CLIENT'), undefined, { from: undefined, context: 'new', params: {} }, fis, cdr);
   }
   ngOnInit(): void {
   }
@@ -68,15 +68,8 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
 
       }, 5000)
     }, error => {
-      //TODO below will not work until dirty check issue is fixed
-      // console.dir("error")
       const errorMsg = ((error as HttpErrorResponse).error as ICommonServerError).errors[0]
-      // console.dir(errorMsg)
-      this.fis.formGroups_formInfo[this.formId].inputs.filter(e => e.key === 'projectName')[0].errorMsg = errorMsg;
-      // console.dir(this.fis.formGroups_formInfo[this.formId])
-      this.fis.update(this.formId)
-      this.fis.$refresh.next()
-      this.cdr.markForCheck()
+      this.fis.updateError(this.formId, FORM_CONFIG.inputs[0].key, errorMsg);
       this.createLoading = false;
     })
   }

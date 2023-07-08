@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { IForm, IOption, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
@@ -74,7 +74,7 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgm
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
-          this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+          (this.formInfo.inputs.find(e => e.key === 'resourceId') as ISelectControl).options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
           this.fis.restore(this.formId, this.aggregate, true);
 
           // for cache
