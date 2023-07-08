@@ -21,6 +21,6 @@
       "es2019",
       "dom"
     ],
-    "skipLibCheck": true
+    "skipLibCheck": true//TODO try to remove after upgrade to latest angular version
   }
 }
