@@ -15,7 +15,7 @@
             <div>{{currentUser?.createdAt|date:'M/d/yy, h:mm:ss a'}}</div>
         </div>
         <div style="max-width: 375px;">
-            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            <lib-factory [formId]="formId"></lib-factory>
         </div>
         <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
         (click)="update()">{{'UPDATE'|translate}}</button>

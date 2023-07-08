@@ -5,7 +5,7 @@
     <mat-tab-group *ngIf="authSvc.advancedMode">
         <mat-tab label="{{'COMMON_PERMISSION'|translate}}">
             <div style="width: 230px; margin-top: 16px;">
-                <lib-factory [formId]="formId2" [formInfo]="formInfo"></lib-factory>
+                <lib-factory [formId]="viewFormId"></lib-factory>
             </div>
             <ng-container *ngIf="viewType==='LIST_VIEW'">
                 <app-tenant-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs">
@@ -23,7 +23,7 @@
                             </ng-container> -->
                     </section>
                     <app-table-column-config [formId]="formId"
-                        [columns]="getColumnLabelValue()"></app-table-column-config>
+                        ></app-table-column-config>
                 </div>
                 <div class="mat-elevation-z8">
                     <div class="table-container">

@@ -40,8 +40,8 @@ export interface INewRole extends IIdBasedEntity {
 })
 export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INewRole> implements OnDestroy {
   public formId = "roleTableColumnConfig";
-  formId2 = 'summaryRoleCustomerView';
-  formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
+  viewFormId = 'summaryRoleCustomerView';
+  viewFormInfo: IForm = FORM_CONFIG;
   viewType: "LIST_VIEW" | "DYNAMIC_TREE_VIEW" = "LIST_VIEW";
   columnList: any = {};
   sheetComponent = RoleComponent;
@@ -73,15 +73,12 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
     public route: ActivatedRoute,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
-    this.fis.formCreated(this.formId2).subscribe(() => {
-      const sub = this.fis.formGroupCollection[this.formId2].valueChanges.subscribe(e => {
-        this.viewType = e.view;
-      });
-      if (!this.fis.formGroupCollection[this.formId2].get('view').value) {
-        this.fis.formGroupCollection[this.formId2].get('view').setValue(this.viewType);
-      }
-      this.subs.add(sub)
+    this.fis.init(this.viewFormInfo, this.viewFormId)
+    this.fis.formGroups[this.viewFormId].get('view').setValue(this.viewType);
+    const sub1 = this.fis.formGroups[this.viewFormId].valueChanges.subscribe(e => {
+      this.viewType = e.view;
     });
+    this.subs.add(sub1)
     const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: 'types:USER', resetPage: true })
@@ -133,16 +130,14 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
         delete temp.tenantId
       }
       this.columnList = temp;
+      this.initTableSetting();
     })
     this.subs.add(sub2)
     this.subs.add(sub)
   }
-  getOption(value: string, options: IOption[]) {
-    return options.find(e => e.value == value)
-  }
   ngOnDestroy(): void {
     this.fis.reset(this.formId)
-    this.fis.reset(this.formId2)
+    this.fis.reset(this.viewFormId)
     super.ngOnDestroy()
   }
   editable(row: INewRole) {

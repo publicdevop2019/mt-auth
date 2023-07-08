@@ -277,10 +277,12 @@ import { LanguageService } from './services/language.service';
   ],
   entryComponents: [
     MsgBoxComponent,
+    UserComponent,
     ClientComponent,
     MgmtEndpointComponent,
     MgmtClientComponent,
     EndpointComponent,
+    PermissionComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

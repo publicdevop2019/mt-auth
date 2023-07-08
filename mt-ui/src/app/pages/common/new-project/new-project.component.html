@@ -1,7 +1,7 @@
 <div class="example-container">
     <h2>{{'REGISTER_MY_PROJECT'|translate}}</h2>
     <div class="form-wrapper">
-        <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        <lib-factory [formId]="formId"></lib-factory>
         <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;" [disabled]="createLoading"
             (click)="create()">{{'CREATE'|translate}}</button>
     </div>

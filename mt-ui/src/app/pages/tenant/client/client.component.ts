@@ -1,11 +1,13 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption, IQueryProvider, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
+import { utils } from 'protractor';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { Utility } from 'src/app/clazz/utility';
 import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { GRANT_TYPE_LIST } from 'src/app/clazz/validation/constant';
@@ -29,85 +31,87 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     bottomSheetRef: MatBottomSheetRef<ClientComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('client', JSON.parse(JSON.stringify(FORM_CONFIG)), new ClientValidator(), bottomSheetRef, data, fis, cdr);
+    super('client', FORM_CONFIG, new ClientValidator(), bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     clientSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
-    this.fis.formCreated(this.formId).subscribe(() => {
-      if (this.bottomSheet.context === 'new') {
-        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
+    this.fis.init(this.formInfo, this.formId)
+    if (this.bottomSheet.context === 'new') {
+      this.fis.formGroups[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
+    }
+    this.fis.formGroups[this.formId].get('frontOrBackApp').valueChanges.subscribe((next) => {
+      this.fis.resetValue(this.formId, 'grantType', false)
+      this.fis.resetValue(this.formId, 'resourceId', false)
+      const var0 = ['clientSecret', 'path', 'externalUrl', 'resourceIndicator']
+      const var1 = ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove']
+      if (next === 'BACKEND_APP') {
+        this.fis.showIfMatch(this.formId, var0)
+      } else {
+        this.fis.hideIfMatch(this.formId, var0)
       }
-      this.fis.formGroupCollection[this.formId].get('frontOrBackApp').valueChanges.subscribe((next) => {
-        this.fis.formGroupCollection[this.formId].get('grantType').reset(undefined, { emitEvent: false })
-        this.fis.formGroupCollection[this.formId].get('resourceId').reset(undefined, { emitEvent: false })
-        if (next === 'BACKEND_APP') {
-          this.fis.showIfMatch(this.formId, ['grantType', 'resourceId'])
-          this.fis.showIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
-          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
-        } else {
-          this.fis.showIfMatch(this.formId, ['grantType', 'resourceId'])
-          this.fis.hideAndResetIfMatch(this.formId, ['clientSecret', 'path', 'externalUrl', 'resourceIndicator'])
-          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'accessTokenValiditySeconds', 'refreshToken', 'refreshTokenValiditySeconds', 'autoApprove'])
-        }
-        if (next === 'FRONTEND_APP') {
-          this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
-        } else {
-          this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'))
-        }
-      })
-      this.fis.formGroupCollection[this.formId].get('grantType').valueChanges.subscribe((next) => {
-        if (next) {
-          this.fis.showIfMatch(this.formId, ['accessTokenValiditySeconds'])
-        } else {
-          this.fis.hideAndResetIfMatch(this.formId, ['accessTokenValiditySeconds'])
-        }
-        if ((next as string[]).includes('PASSWORD')) {
-          this.fis.showIfMatch(this.formId, ['refreshToken'])
-        } else {
-          this.fis.hideAndResetIfMatch(this.formId, ['refreshToken', 'refreshTokenValiditySeconds'])
-        }
-        if ((next as string[]).includes('AUTHORIZATION_CODE')) {
-          this.fis.showIfMatch(this.formId, ['registeredRedirectUri', 'autoApprove'])
-        } else {
-          this.fis.hideAndResetIfMatch(this.formId, ['registeredRedirectUri', 'autoApprove'])
-        }
-      })
-      this.fis.formGroupCollection[this.formId].get('refreshToken').valueChanges.subscribe((next) => {
-        if (next) {
-          this.fis.showIfMatch(this.formId, ['refreshTokenValiditySeconds'])
-        } else {
-          this.fis.hideAndResetIfMatch(this.formId, ['refreshTokenValiditySeconds'])
-        }
-      })
-      if (this.bottomSheet.context === 'edit') {
-
-        const var0: Observable<any>[] = [];
-        if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-          var0.push(this.clientSvc.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
-        }
-        if (var0.length === 0) {
-          this.resume()
-        } else {
-          combineLatest(var0).pipe(take(1))
-            .subscribe(next => {
-              let count = -1;
-              if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-                count++;
-                this.formInfo.inputs.find(e => e.key === 'resourceId').options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-              }
-              this.resume()
-              this.cdr.markForCheck()
-            })
-
-        }
-      };
+      this.fis.hideIfMatch(this.formId, var1)
+      this.fis.showIfMatch(this.formId, ['grantType', 'resourceId'])
+      if (next === 'FRONTEND_APP') {
+        this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST)
+      } else {
+        this.fis.updateOption(this.formId, 'grantType', GRANT_TYPE_LIST.filter(e => e.value !== 'AUTHORIZATION_CODE'))
+      }
     })
+    this.fis.formGroups[this.formId].get('grantType').valueChanges.subscribe((next) => {
+      const var0 = ['accessTokenValiditySeconds']
+      if (next) {
+        this.fis.showIfMatch(this.formId, var0)
+      } else {
+        this.fis.hideIfMatch(this.formId, var0)
+      }
+      if ((next as string[]).includes('PASSWORD')) {
+        this.fis.showIfMatch(this.formId, ['refreshToken'])
+      } else {
+        const var1 = ['refreshToken', 'refreshTokenValiditySeconds']
+        this.fis.hideIfMatch(this.formId, var1)
+      }
+      const var2 = ['registeredRedirectUri', 'autoApprove']
+      if ((next as string[]).includes('AUTHORIZATION_CODE')) {
+        this.fis.showIfMatch(this.formId, var2)
+      } else {
+        this.fis.hideIfMatch(this.formId, var2)
+      }
+    })
+    this.fis.formGroups[this.formId].get('refreshToken').valueChanges.subscribe((next) => {
+      const var3 = ['refreshTokenValiditySeconds']
+      if (next) {
+        this.fis.showIfMatch(this.formId, var3)
+      } else {
+        this.fis.hideIfMatch(this.formId, var3)
+      }
+    })
+    if (this.bottomSheet.context === 'edit') {
+      const var0: Observable<any>[] = [];
+      if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
+        var0.push(this.clientSvc.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
+      }
+      if (var0.length === 0) {
+        this.resume()
+      } else {
+        combineLatest(var0).pipe(take(1))
+          .subscribe(next => {
+            let count = -1;
+            if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
+              count++;
+              const nextOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+              this.fis.updateOption(this.formId, 'resourceId', nextOptions)
+            }
+            this.resume()
+          })
+
+      }
+    };
   }
   ngOnInit(): void {
   }
   resume(): void {
     const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
-    this.fis.formGroupCollection[this.formId].patchValue({
+    this.fis.formGroups[this.formId].patchValue({
       id: this.aggregate.id,
       projectId: this.aggregate.projectId,
       path: this.aggregate.path ? this.aggregate.path : '',
@@ -138,7 +142,7 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
     this.fis.reset('client');
   }
   convertToPayload(cmpt: ClientComponent): IClient {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     let grants: grantTypeEnums[] = [];
     const types: CLIENT_TYPE[] = [];
     if (formGroup.get('grantType').value as grantTypeEnums) {
@@ -188,8 +192,9 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
       this.clientSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
   }
   create() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'rootCreateClientCommandValidator', this.fis, this, this.errorMapper))
+    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'rootCreateClientCommandValidator', this.fis, this, this.errorMapper)){
       this.clientSvc.create(this.convertToPayload(this), this.changeId)
+    }
   }
   errorMapper(original: ErrorMessage[], cmpt: ClientComponent) {
     return original.map(e => {

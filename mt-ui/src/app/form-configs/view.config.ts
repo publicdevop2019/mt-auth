@@ -8,10 +8,6 @@ export const FORM_CONFIG: IForm = {
             "label": "PLEASE_SELECT_VIEW",
             "key": "view",
             direction:'column',
-            "position": {
-                "row": "0",
-                "column": "0"
-            },
             "options": [
                 { label: 'TREE_VIEW', value: "TREE_VIEW" },
                 { label: 'LIST_VIEW', value: "LIST_VIEW" },

@@ -40,28 +40,26 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgm
     bottomSheetRef: MatBottomSheetRef<MgmtEndpointComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('mgmtApi', JSON.parse(JSON.stringify(MGMT_EP_FORM_CONFIG)), new EndpointValidator(), bottomSheetRef, data, fis, cdr)
+    super('mgmtApi', MGMT_EP_FORM_CONFIG, new EndpointValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
-    this.fis.formCreated(this.formId)
-      .subscribe(next => {
-        this.resume()
-        if (this.aggregate.method?.toLowerCase() === 'get') {
-          this.fis.showIfMatch(this.formId, ['cacheProfile'])
-        } else {
-          this.fis.hideIfMatch(this.formId, ['cacheProfile'])
-        }
-        if (this.aggregate.websocket) {
-          this.fis.hideIfMatch(this.formId, ['csrf', 'cors', 'method'])
-        } else {
-          this.fis.showIfMatch(this.formId, ['csrf', 'cors', 'method'])
-        }
-        if (this.aggregate.corsConfig) {
-          this.fis.showIfMatch(this.formId, ['corsProfile'])
-        } else {
-          this.fis.hideIfMatch(this.formId, ['corsProfile'])
-        }
-        this.fis.disableIfNotMatch(this.formId, [])
-      })
+    this.fis.init(this.formInfo, this.formId)
+    this.resume()
+    if (this.aggregate.method?.toLowerCase() === 'get') {
+      this.fis.showIfMatch(this.formId, ['cacheProfile'])
+    } else {
+      this.fis.hideIfMatch(this.formId, ['cacheProfile'])
+    }
+    if (this.aggregate.websocket) {
+      this.fis.hideIfMatch(this.formId, ['csrf', 'cors', 'method'])
+    } else {
+      this.fis.showIfMatch(this.formId, ['csrf', 'cors', 'method'])
+    }
+    if (this.aggregate.corsConfig) {
+      this.fis.showIfMatch(this.formId, ['corsProfile'])
+    } else {
+      this.fis.hideIfMatch(this.formId, ['corsProfile'])
+    }
+    this.fis.disableIfNotMatch(this.formId, [])
   }
   ngOnDestroy(): void {
     this.cleanUp()
@@ -81,21 +79,21 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgm
 
           // for cache
           if (this.aggregate.cacheConfig) {
-            this.fis.formGroupCollection[this.formId].get('allowCache').setValue(this.aggregate.cacheConfig.allowCache ? 'yes' : 'no')
-            this.fis.formGroupCollection[this.formId].get('cacheControl').setValue(this.aggregate.cacheConfig.cacheControl)
-            this.fis.formGroupCollection[this.formId].get('maxAgeValue').setValue(this.aggregate.cacheConfig.maxAge || '')
-            this.fis.formGroupCollection[this.formId].get('smaxAgeValue').setValue(this.aggregate.cacheConfig.smaxAge || '')
-            this.fis.formGroupCollection[this.formId].get('etagValidation').setValue(this.aggregate.cacheConfig.etag)
-            this.fis.formGroupCollection[this.formId].get('etagType').setValue(this.aggregate.cacheConfig.weakValidation)
-            this.fis.formGroupCollection[this.formId].get('expires').setValue(this.aggregate.cacheConfig.expires ? this.aggregate.cacheConfig.expires : '')
-            this.fis.formGroupCollection[this.formId].get('vary').setValue(this.aggregate.cacheConfig.vary ? this.aggregate.cacheConfig.vary : '')
+            this.fis.formGroups[this.formId].get('allowCache').setValue(this.aggregate.cacheConfig.allowCache ? 'yes' : 'no')
+            this.fis.formGroups[this.formId].get('cacheControl').setValue(this.aggregate.cacheConfig.cacheControl)
+            this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.aggregate.cacheConfig.maxAge || '')
+            this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.aggregate.cacheConfig.smaxAge || '')
+            this.fis.formGroups[this.formId].get('etagValidation').setValue(this.aggregate.cacheConfig.etag)
+            this.fis.formGroups[this.formId].get('etagType').setValue(this.aggregate.cacheConfig.weakValidation)
+            this.fis.formGroups[this.formId].get('expires').setValue(this.aggregate.cacheConfig.expires ? this.aggregate.cacheConfig.expires : '')
+            this.fis.formGroups[this.formId].get('vary').setValue(this.aggregate.cacheConfig.vary ? this.aggregate.cacheConfig.vary : '')
             if (this.aggregate.cacheConfig.allowCache) {
               this.fis.showIfMatch(this.formId, ['cacheControl', 'maxAgeValue', 'smaxAgeValue', 'etagValidation', 'etagType', 'expires', 'vary'])
             }
           }
           if (this.aggregate.corsConfig) {
-            this.fis.formGroupCollection[this.formId].get('allowCredentials').setValue(this.aggregate.corsConfig.credentials)
-            this.fis.formGroupCollection[this.formId].get('corsMaxAge').setValue(this.aggregate.corsConfig.maxAge)
+            this.fis.formGroups[this.formId].get('allowCredentials').setValue(this.aggregate.corsConfig.credentials)
+            this.fis.formGroups[this.formId].get('corsMaxAge').setValue(this.aggregate.corsConfig.maxAge)
             this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.allowedHeaders, 'allowedHeaders'), this.aggregate.corsConfig.allowedHeaders.length)
             this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.origin, 'allowOrigin'), this.aggregate.corsConfig.origin.length)
             this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.exposedHeaders, 'exposedHeaders'), this.aggregate.corsConfig.exposedHeaders.length)
@@ -104,9 +102,9 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgm
             this.fis.disableIfNotMatch(this.exposedHeaderFormId, [])
           }
 
-          this.fis.formGroupCollection[this.formId].get("secured").setValue(this.aggregate.secured);
-          this.fis.formGroupCollection[this.formId].get("csrf").setValue(this.aggregate.csrfEnabled);
-          this.fis.formGroupCollection[this.formId].get("isWebsocket").setValue(this.aggregate.websocket ? 'yes' : 'no');
+          this.fis.formGroups[this.formId].get("secured").setValue(this.aggregate.secured);
+          this.fis.formGroups[this.formId].get("csrf").setValue(this.aggregate.csrfEnabled);
+          this.fis.formGroups[this.formId].get("isWebsocket").setValue(this.aggregate.websocket ? 'yes' : 'no');
           this.cdr.markForCheck()
         })
 

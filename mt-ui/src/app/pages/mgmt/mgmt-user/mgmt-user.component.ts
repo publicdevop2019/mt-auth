@@ -37,10 +37,10 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IA
   }
   ngAfterViewInit(): void {
     if (this.aggregate) {
-      this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroupCollection[this.formId].get('email').setValue(this.aggregate.email)
-      this.fis.formGroupCollection[this.formId].get('locked').setValue(this.aggregate.locked)
-      this.fis.formGroupCollection[this.formId].get('createdAt').setValue(new Date(this.aggregate.createdAt))
+      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
+      this.fis.formGroups[this.formId].get('email').setValue(this.aggregate.email)
+      this.fis.formGroups[this.formId].get('locked').setValue(this.aggregate.locked)
+      this.fis.formGroups[this.formId].get('createdAt').setValue(new Date(this.aggregate.createdAt))
       this.dataSource = new MatTableDataSource(this.aggregate.loginHistory);
       this.cdr.markForCheck()
     }
@@ -51,7 +51,7 @@ export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IA
   ngOnInit() {
   }
   convertToPayload(cmpt: ResourceOwnerComponent): IAuthUser {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     return {
       id: formGroup.get('id').value,//value is ignored
       locked: formGroup.get('locked').value,

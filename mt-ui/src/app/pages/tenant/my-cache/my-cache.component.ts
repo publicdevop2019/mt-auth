@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { ICheckboxControl, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaze-cache';
 import { ISearchConfig } from 'src/app/components/search/search.component';
@@ -15,6 +15,8 @@ import { ProjectService } from 'src/app/services/project.service';
 import { of } from 'rxjs';
 import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-cors';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
+import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
+import { copyOf } from 'src/app/clazz/utility';
 @Component({
   selector: 'app-my-cache',
   templateUrl: './my-cache.component.html',
@@ -51,12 +53,13 @@ export class MyCacheComponent extends TenantSummaryEntityComponent<ICacheProfile
     public httpSvc: HttpProxyService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub2 = this.canDo('VIEW_CACHE').subscribe(b => {
+    const sub = this.canDo('VIEW_CACHE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
       }
     })
-    this.subs.add(sub2);
+    this.subs.add(sub);
+    this.initTableSetting();
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

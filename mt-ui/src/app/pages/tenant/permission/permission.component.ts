@@ -38,52 +38,51 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
     this.epSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParentPerm();
     this.fis.queryProvider[this.formId + '_' + 'apiId'] = this.getEndpoints();
-    this.fis.formCreated(this.formId).subscribe(() => {
-      if (this.bottomSheet.context === 'new') {
-        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
-      }
-      this.fis.formGroupCollection[this.formId].get('linkApi').valueChanges.subscribe(next => {
-        if (next) {
-          this.fis.showIfMatch(this.formId, ['apiId'])
-        } else {
-          this.fis.hideIfMatch(this.formId, ['apiId'])
-        }
-      })
-
-      if (this.bottomSheet.context === 'edit') {
-        if (this.hasLinked) {
-          this.fis.showIfMatch(this.formId, ['apiId'])
-        }
-        const var0: Observable<any>[] = [];
-        if (this.aggregate.parentId || this.hasLinked) {
-          if (this.aggregate.parentId) {
-            var0.push(this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
-          }
-          if (this.hasLinked) {
-            var0.push(this.epSvc.readEntityByQuery(0, this.aggregate.linkedApiPermissionIds.length, 'permissionId:' + this.aggregate.linkedApiPermissionIds.join('.')))
-          }
-          combineLatest(var0).subscribe(next => {
-            if (this.aggregate.parentId) {
-              this.fis.updateOption(this.formId, 'parentId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
-            }
-            if (this.hasLinked && !this.aggregate.parentId) {
-              this.fis.updateOption(this.formId, 'apiId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[0].data.map(e => e.id))
-            }
-            if (this.hasLinked && this.aggregate.parentId) {
-              this.fis.updateOption(this.formId, 'apiId', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
-              this.fis.formGroupCollection[this.formId].get('apiId').setValue(next[1].data.map(e => e.id))
-            }
-            this.resumeForm()
-            this.cdr.markForCheck()
-          })
-        } else {
-          this.resumeForm()
-          this.cdr.markForCheck()
-        }
-
+    this.fis.init(this.formInfo, this.formId)
+    if (this.bottomSheet.context === 'new') {
+      this.fis.formGroups[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
+    }
+    this.fis.formGroups[this.formId].get('linkApi').valueChanges.subscribe(next => {
+      if (next) {
+        this.fis.showIfMatch(this.formId, ['apiId'])
+      } else {
+        this.fis.hideIfMatch(this.formId, ['apiId'])
       }
     })
+
+    if (this.bottomSheet.context === 'edit') {
+      if (this.hasLinked) {
+        this.fis.showIfMatch(this.formId, ['apiId'])
+      }
+      const var0: Observable<any>[] = [];
+      if (this.aggregate.parentId || this.hasLinked) {
+        if (this.aggregate.parentId) {
+          var0.push(this.entitySvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
+        }
+        if (this.hasLinked) {
+          var0.push(this.epSvc.readEntityByQuery(0, this.aggregate.linkedApiPermissionIds.length, 'permissionId:' + this.aggregate.linkedApiPermissionIds.join('.')))
+        }
+        combineLatest(var0).subscribe(next => {
+          if (this.aggregate.parentId) {
+            this.fis.updateOption(this.formId, 'parentId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
+          }
+          if (this.hasLinked && !this.aggregate.parentId) {
+            this.fis.updateOption(this.formId, 'apiId', next[0].data.map(e => <IOption>{ label: e.name, value: e.id }))
+            this.fis.formGroups[this.formId].get('apiId').setValue(next[0].data.map(e => e.id))
+          }
+          if (this.hasLinked && this.aggregate.parentId) {
+            this.fis.updateOption(this.formId, 'apiId', next[1].data.map(e => <IOption>{ label: e.name, value: e.id }))
+            this.fis.formGroups[this.formId].get('apiId').setValue(next[1].data.map(e => e.id))
+          }
+          this.resumeForm()
+          this.cdr.markForCheck()
+        })
+      } else {
+        this.resumeForm()
+        this.cdr.markForCheck()
+      }
+
+    }
   }
   resumeForm() {
     this.fis.restore(this.formId, {
@@ -113,7 +112,7 @@ export class PermissionComponent extends Aggregate<PermissionComponent, IPermiss
   ngOnInit() {
   }
   convertToPayload(cmpt: PermissionComponent): IPermission {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
 
     const linked = formGroup.get('linkApi').value;
     return {

@@ -8,10 +8,6 @@ export const FORM_CONFIG: IForm = {
             "display": false,
             "label": "ID",
             "key": "id",
-            "position": {
-                "row": "0",
-                "column": "0"
-            },
             required:true,
         },
         {
@@ -19,10 +15,6 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "NAME",
             "key": "name",
-            "position": {
-                "row": "0",
-                "column": "0"
-            },
             required:true,
         },
         {
@@ -30,10 +22,6 @@ export const FORM_CONFIG: IForm = {
             "display": false,
             "label": "PROJECT_ID",
             "key": "projectId",
-            "position": {
-                "row": "0",
-                "column": "0"
-            },
             required:true,
         },
         {
@@ -41,10 +29,6 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "ENTER_PARENT_ID",
             "key": "parentId",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
             "options":[]
         },
         {
@@ -52,10 +36,6 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "",
             "key": "linkApi",
-            "position": {
-                "row": "4",
-                "column": "0"
-            },
             "options":[{
                 label:'LINK_TO_API',value:'linkToApi'
             }]
@@ -66,10 +46,6 @@ export const FORM_CONFIG: IForm = {
             "multiple": true,
             "label": "SELECT_API",
             "key": "apiId",
-            "position": {
-                "row": "5",
-                "column": "0"
-            },
             "options":[]
         },
     ],

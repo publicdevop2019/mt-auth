@@ -1,6 +1,4 @@
-<!-- <h2 class="flex-row-space-between">{{projectSvc.resolveNameById(projectId)}} / {{'MY_ORG_DASHBOARD' |translate}}<button
-    mat-fab color="primary" (click)="openBottomSheet()">{{'ADD'|translate}}</button></h2> -->
-<lib-factory [formId]="formId2" [formInfo]="formInfo"></lib-factory>
+<lib-factory [formId]="formId2"></lib-factory>
 <ng-container *ngIf="viewType==='LIST_VIEW'">
 
     <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
@@ -15,7 +13,7 @@
                 <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
             </ng-container>
         </section>
-        <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
+        <app-table-column-config [formId]="formId"  ></app-table-column-config>
     </div>
     <div class="mat-elevation-z8">
     <div class="table-container">

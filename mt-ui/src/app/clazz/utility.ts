@@ -42,3 +42,20 @@ export function createImageFromBlob(image: Blob, callback: (reader: FileReader) 
         reader.readAsDataURL(image);
     }
 }
+export function copyOf<T>(input: T) {
+    return JSON.parse(JSON.stringify(input)) as T
+}
+export function getUrl(input: string[]) {
+    return input.join('/')
+}
+export class Utility {
+    public static notEmpty(input?: any[]): boolean {
+        return input && input.length > 0
+    }
+    public static print(input: any) {
+        console.dir(input)
+    }
+    public static copyOf<T>(source: T): T {
+        return JSON.parse(JSON.stringify(source))
+    }
+}

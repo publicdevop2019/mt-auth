@@ -7,7 +7,7 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
-import { copyOf } from './utility';
+import { copyOf } from '../clazz/utility';
 export interface IBellNotification extends IIdBasedEntity {
     title: string,
     descriptions: string[],

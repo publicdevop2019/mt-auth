@@ -9,20 +9,12 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": false,
             "label": "ID",
             "key": "id",
-            "position": {
-                "row": "0",
-                "column": "0"
-            }
         },
         {
             "type": "paginated-select",
             "display": true,
             "label": "ENTER_RESOURCE_ID",
             "key": "resourceId",
-            "position": {
-                "row": "1",
-                "column": "0"
-            },
             options:[],
             required: true,
         },
@@ -31,10 +23,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "NAME",
             "key": "name",
-            "position": {
-                "row": "2",
-                "column": "0"
-            },
             required: true,
         },
         {
@@ -42,20 +30,12 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "ENTER_DESCRIPTION",
             "key": "description",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
         },
         {
             "type": "text",
             "display": true,
             "label": "ENTER_ENDPOINT",
             "key": "path",
-            "position": {
-                "row": "4",
-                "column": "0"
-            },
             required: true,
         },
         {
@@ -63,10 +43,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "IS_WEBSOCKET",
             "key": "isWebsocket",
-            "position": {
-                "row": "5",
-                "column": "0"
-            },
             "options": [
                 { label: 'NO', value: "no" },
                 { label: 'YES', value: "yes" },
@@ -77,10 +53,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": false,
             "label": "SELECT_METHOD",
             "key": "method",
-            "position": {
-                "row": "6",
-                "column": "0"
-            },
             "options": HTTP_METHODS,
             required: true,
         },
@@ -89,10 +61,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "",
             "key": "csrf",
-            "position": {
-                "row": "7",
-                "column": "0"
-            },
             "options": [
                 { label: 'CSRF_ENABLED', value: "true" },
             ],
@@ -102,10 +70,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "",
             "key": "cors",
-            "position": {
-                "row": "8",
-                "column": "0"
-            },
             "options": [
                 { label: 'CORS_ENABLED', value: "true" },
             ],
@@ -115,10 +79,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "",
             "key": "secured",
-            "position": {
-                "row": "10",
-                "column": "0"
-            },
             "options": [
                 { label: 'PROTECTED_ENDPOINT', value: "true" },
             ],
@@ -128,10 +88,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "",
             "key": "shared",
-            "position": {
-                "row": "11",
-                "column": "0"
-            },
             "options": [
                 { label: 'SHARED_API', value: "true" },
             ],
@@ -141,10 +97,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "ENABLE_CACHE",
             "key": "allowCache",
-            "position": {
-                "row": "12",
-                "column": "0"
-            },
             "options": [
                 { label: 'YES', value: "yes" },
                 { label: 'NO', value: "no" },
@@ -155,10 +107,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": false,
             "label": "CACHE_CONTROL_SERVER_HEADER",
             "key": "cacheControl",
-            "position": {
-                "row": "13",
-                "column": "0"
-            },
             "options": [
                 { label: 'MUST_REVALIDATE', value: "must-revalidate" },
                 { label: 'NO_CACHE', value: "no-cache" },
@@ -176,50 +124,30 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": false,
             "label": "MAX_AGE_HEADER",
             "key": "maxAgeValue",
-            "position": {
-                "row": "14",
-                "column": "0"
-            },
         },
         {
             "type": "text",
             "display": false,
             "label": "SMAX_AGE_HEADER",
             "key": "smaxAgeValue",
-            "position": {
-                "row": "15",
-                "column": "0"
-            },
         },
         {
             "type": "text",
             "display": false,
             "label": "VARY_HEADER",
             "key": "vary",
-            "position": {
-                "row": "16",
-                "column": "0"
-            },
         },
         {
             "type": "text",
             "display": false,
             "label": "EXPIRE_HEADER",
             "key": "expires",
-            "position": {
-                "row": "17",
-                "column": "0"
-            },
         },
         {
             "type": "checkbox",
             "display": false,
             "label": "",
             "key": "etagValidation",
-            "position": {
-                "row": "18",
-                "column": "0"
-            },
             "options": [
                 { label: 'ENABLE_ETAG', value: "true" },
             ],
@@ -229,10 +157,6 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": false,
             "label": "",
             "key": "etagType",
-            "position": {
-                "row": "19",
-                "column": "0"
-            },
             "options": [
                 { label: 'WEAK_VALIDATION', value: "true" },
             ],
@@ -242,20 +166,12 @@ export const MGMT_EP_FORM_CONFIG: IForm = {
             "display": true,
             "label": "MAX_AGE",
             "key": "corsMaxAge",
-            "position": {
-                "row": "20",
-                "column": "0"
-            },
         },
         {
             "type": "checkbox",
             "display": true,
             "label": "",
             "key": "allowCredentials",
-            "position": {
-                "row": "21",
-                "column": "0"
-            },
             "options": [
                 { label: 'ALLOW_CREDENTIAL', value: "true" },
             ],

@@ -281,6 +281,7 @@ export const zhHans = {
     "PROJECT_NAME": "名称",
     "PROJECT_CREATED_AT": "创建于",
     "PROJECT_CREATED_BY": "创建者",
+    "CREATED_BY": "创建者",
     "TYPES": "类型",
     "BACKEND_APP": "后端应用",
     "FRONTEND_APP": "前端应用",

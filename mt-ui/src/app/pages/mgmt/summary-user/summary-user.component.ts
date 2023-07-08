@@ -55,6 +55,7 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthU
     public dialog: MatDialog,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 2);
+    this.initTableSetting();
   }
   revokeResourceOwnerToken(id: string) {
     this.entitySvc.revokeResourceOwnerToken(id);

@@ -32,6 +32,7 @@ export class SummaryRevokeTokenComponent extends SummaryEntityComponent<IRevokeT
     protected bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis,2);
+    this.initTableSetting();
   }
   getOption(value:string,options:IOption[]){
     return options.find(e=>e.value==value)

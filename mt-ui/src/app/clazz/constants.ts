@@ -13,3 +13,4 @@ export const CONST_HTTP_METHOD: IOption[] = [
     { label: 'HTTP_DELETE', value: "DELETE" },
     { label: 'HTTP_PATCH', value: "PATCH" },
 ]
+export const TABLE_SETTING_KEY='displayColumns'

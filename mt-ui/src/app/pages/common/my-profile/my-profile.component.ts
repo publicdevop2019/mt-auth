@@ -1,13 +1,11 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { Subscription } from 'rxjs';
 import { createImageFromBlob } from 'src/app/clazz/utility';
 import { FORM_CONFIG } from 'src/app/form-configs/my-profile.config';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService, IUpdateUser, IUser } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
-import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-my-profile',
@@ -16,7 +14,6 @@ import { environment } from 'src/environments/environment';
 })
 export class MyProfileComponent implements OnInit, OnDestroy {
   formId: string = "myProfile";
-  formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG));
   currentUser: IUser;
   subs: Subscription;
   constructor(
@@ -28,32 +25,31 @@ export class MyProfileComponent implements OnInit, OnDestroy {
   ) { }
   ngOnDestroy(): void {
     this.subs.unsubscribe();
+    this.fis.init(FORM_CONFIG, this.formId)
   }
   ngOnInit(): void {
     this.subs = this.fis.$uploadFile.subscribe(next => {
       this._uploadFile(next.files);
     })
-    this.fis.formCreated(this.formId).subscribe(() => {
-      this.authSvc.currentUser.subscribe(next => {
-        this.currentUser = next;
-        if (this.currentUser.username) {
-          this.fis.disableIfMatch(this.formId, ['username'])
-        }
-        this.httpSvc.getAvatar().subscribe(blob => {
-          createImageFromBlob(blob, (reader) => {
-            this.fis.restore(this.formId, {
-              avatar: reader.result,
-            })
+    this.authSvc.currentUser.subscribe(next => {
+      this.currentUser = next;
+      if (this.currentUser.username) {
+        this.fis.disableIfMatch(this.formId, ['username'])
+      }
+      this.httpSvc.getAvatar().subscribe(blob => {
+        createImageFromBlob(blob, (reader) => {
+          this.fis.restore(this.formId, {
+            avatar: reader.result,
           })
         })
-        this.fis.restore(this.formId, {
-          language: next.language,
-          mobileNumber: next.mobileNumber,
-          mobileCountryCode: next.countryCode,
-          username: next.username || '',
-        })
-      });
-    })
+      })
+      this.fis.restore(this.formId, {
+        language: next.language,
+        mobileNumber: next.mobileNumber,
+        mobileCountryCode: next.countryCode,
+        username: next.username || '',
+      })
+    });
   }
 
   private _uploadFile(files: FileList) {
@@ -70,7 +66,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     })
   }
   update() {
-    const form = this.fis.formGroupCollection[this.formId];
+    const form = this.fis.formGroups[this.formId];
     const next: IUpdateUser = {
       countryCode: form.get('mobileCountryCode').value ? form.get('mobileCountryCode').value : null,
       mobileNumber: form.get('mobileNumber').value ? form.get('mobileNumber').value : null,

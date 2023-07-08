@@ -30,7 +30,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   ngOnInit(): void {
   }
   convertToPayload(cmpt: NewProjectComponent): IProjectSimple {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     return {
       name: formGroup.get('projectName').value,
       id: '',
@@ -39,7 +39,7 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
   }
   private count: number = 1;
   create(): void {
-    if (!this.fis.formGroupCollection[this.formId].get('projectName')) {
+    if (!this.fis.formGroups[this.formId].get('projectName')) {
       return;
     }
     this.projectSvc.create(this.convertToPayload(this), this.changeId).subscribe(next => {
@@ -72,8 +72,8 @@ export class NewProjectComponent extends Aggregate<NewProjectComponent, IProject
       // console.dir("error")
       const errorMsg = ((error as HttpErrorResponse).error as ICommonServerError).errors[0]
       // console.dir(errorMsg)
-      this.fis.formGroupCollection_formInfo[this.formId].inputs.filter(e => e.key === 'projectName')[0].errorMsg = errorMsg;
-      // console.dir(this.fis.formGroupCollection_formInfo[this.formId])
+      this.fis.formGroups_formInfo[this.formId].inputs.filter(e => e.key === 'projectName')[0].errorMsg = errorMsg;
+      // console.dir(this.fis.formGroups_formInfo[this.formId])
       this.fis.update(this.formId)
       this.fis.$refresh.next()
       this.cdr.markForCheck()

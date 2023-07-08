@@ -22,57 +22,56 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
     bottomSheetRef: MatBottomSheetRef<CacheComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('cache-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new CacheValidator(), bottomSheetRef, data, fis, cdr)
+    super('cache-form', FORM_CONFIG, new CacheValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
-    this.fis.formCreated(this.formId).subscribe(() => {
-      this.fis.formGroupCollection[this.formId].get('allowCache').valueChanges.subscribe(next => {
-        if (next === 'yes') {
-          this.fis.showIfMatch(this.formId, ['cacheControl', 'vary', 'expires', 'etagValidation']);
-        } else {
-          this.fis.hideIfNotMatch(this.formId, ['name', 'description', 'allowCache']);
-          this.fis.formGroupCollection[this.formId].get('cacheControl').reset([])
-          this.fis.formGroupCollection[this.formId].get('etagValidation').reset(false)
-          this.fis.formGroupCollection[this.formId].get('etagType').reset(false)
-          this.fis.formGroupCollection[this.formId].get('maxAgeValue').reset()
-          this.fis.formGroupCollection[this.formId].get('smaxAgeValue').reset()
-          this.fis.formGroupCollection[this.formId].get('vary').reset()
-          this.fis.formGroupCollection[this.formId].get('expires').reset()
-        }
-      })
-      this.fis.formGroupCollection[this.formId].get('cacheControl').valueChanges.subscribe(next => {
-        if (next.includes('max-age')) {
-          this.fis.showIfMatch(this.formId, ['maxAgeValue']);
-        } else {
-          this.fis.hideIfMatch(this.formId, ['maxAgeValue']);
-        }
-        if (next.includes('s-maxage')) {
-          this.fis.showIfMatch(this.formId, ['smaxAgeValue']);
-        } else {
-          this.fis.hideIfMatch(this.formId, ['smaxAgeValue']);
-        }
-      })
-      this.fis.formGroupCollection[this.formId].get('etagValidation').valueChanges.subscribe(next => {
-        if (next) {
-          this.fis.showIfMatch(this.formId, ['etagType']);
-        } else {
-          this.fis.hideIfMatch(this.formId, ['etagType']);
-        }
-      })
-      if (this.aggregate) {
-        this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-        this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
-        this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
-        this.fis.formGroupCollection[this.formId].get('allowCache').setValue(this.aggregate.allowCache ? 'yes' : 'no')
-        this.fis.formGroupCollection[this.formId].get('cacheControl').setValue(this.aggregate.cacheControl)
-        this.fis.formGroupCollection[this.formId].get('maxAgeValue').setValue(this.aggregate.maxAge || '')
-        this.fis.formGroupCollection[this.formId].get('smaxAgeValue').setValue(this.aggregate.smaxAge || '')
-        this.fis.formGroupCollection[this.formId].get('etagValidation').setValue(this.aggregate.etag)
-        this.fis.formGroupCollection[this.formId].get('etagType').setValue(this.aggregate.weakValidation)
-        this.fis.formGroupCollection[this.formId].get('expires').setValue(this.aggregate.expires ? this.aggregate.expires : '')
-        this.fis.formGroupCollection[this.formId].get('vary').setValue(this.aggregate.vary ? this.aggregate.vary : '')
-        this.cdr.markForCheck()
+    this.fis.init(this.formInfo, this.formId)
+    this.fis.formGroups[this.formId].get('allowCache').valueChanges.subscribe(next => {
+      if (next === 'yes') {
+        this.fis.showIfMatch(this.formId, ['cacheControl', 'vary', 'expires', 'etagValidation']);
+      } else {
+        this.fis.hideIfNotMatch(this.formId, ['name', 'description', 'allowCache']);
+        this.fis.formGroups[this.formId].get('cacheControl').reset([])
+        this.fis.formGroups[this.formId].get('etagValidation').reset(false)
+        this.fis.formGroups[this.formId].get('etagType').reset(false)
+        this.fis.formGroups[this.formId].get('maxAgeValue').reset()
+        this.fis.formGroups[this.formId].get('smaxAgeValue').reset()
+        this.fis.formGroups[this.formId].get('vary').reset()
+        this.fis.formGroups[this.formId].get('expires').reset()
       }
     })
+    this.fis.formGroups[this.formId].get('cacheControl').valueChanges.subscribe(next => {
+      if (next.includes('max-age')) {
+        this.fis.showIfMatch(this.formId, ['maxAgeValue']);
+      } else {
+        this.fis.hideIfMatch(this.formId, ['maxAgeValue']);
+      }
+      if (next.includes('s-maxage')) {
+        this.fis.showIfMatch(this.formId, ['smaxAgeValue']);
+      } else {
+        this.fis.hideIfMatch(this.formId, ['smaxAgeValue']);
+      }
+    })
+    this.fis.formGroups[this.formId].get('etagValidation').valueChanges.subscribe(next => {
+      if (next) {
+        this.fis.showIfMatch(this.formId, ['etagType']);
+      } else {
+        this.fis.hideIfMatch(this.formId, ['etagType']);
+      }
+    })
+    if (this.aggregate) {
+      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
+      this.fis.formGroups[this.formId].get('name').setValue(this.aggregate.name)
+      this.fis.formGroups[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
+      this.fis.formGroups[this.formId].get('allowCache').setValue(this.aggregate.allowCache ? 'yes' : 'no')
+      this.fis.formGroups[this.formId].get('cacheControl').setValue(this.aggregate.cacheControl)
+      this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.aggregate.maxAge || '')
+      this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.aggregate.smaxAge || '')
+      this.fis.formGroups[this.formId].get('etagValidation').setValue(this.aggregate.etag)
+      this.fis.formGroups[this.formId].get('etagType').setValue(this.aggregate.weakValidation)
+      this.fis.formGroups[this.formId].get('expires').setValue(this.aggregate.expires ? this.aggregate.expires : '')
+      this.fis.formGroups[this.formId].get('vary').setValue(this.aggregate.vary ? this.aggregate.vary : '')
+      this.cdr.markForCheck()
+    }
   }
   ngOnDestroy(): void {
     this.cleanUp()
@@ -80,7 +79,7 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
   ngOnInit() {
   }
   convertToPayload(cmpt: CacheComponent): ICacheProfile {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     let cacheControls = (formGroup.get('cacheControl').value as string[])
     let allowCache = formGroup.get('allowCache').value === 'yes';
     return {

@@ -7,7 +7,7 @@
         <mat-tab-group>
             <mat-tab label="{{'COMMON_ROLE'|translate}}">
                 <div style="width: 230px; margin-top: 16px;">
-                    <lib-factory [formId]="formId2" [formInfo]="formInfo"></lib-factory>
+                    <lib-factory [formId]="viewFormId"></lib-factory>
                 </div>
                 <ng-container *ngIf="viewType==='LIST_VIEW'">
 
@@ -26,7 +26,7 @@
                             </ng-container> -->
                         </section>
                         <app-table-column-config [formId]="formId"
-                            [columns]="getColumnLabelValue()"></app-table-column-config>
+                            ></app-table-column-config>
                     </div>
                     <div class="mat-elevation-z8">
                         <div class="table-container">
@@ -150,7 +150,7 @@
             <mat-tab label="{{'SYSTEM_ROLE'|translate}}">
                 <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
                     <app-table-column-config [formId]="formId"
-                        [columns]="getColumnLabelValue()"></app-table-column-config>
+                        ></app-table-column-config>
                 </div>
                 <div class="mat-elevation-z8">
                     <div class="table-container">

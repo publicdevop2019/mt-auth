@@ -7,6 +7,7 @@ import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
+import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
@@ -17,10 +18,13 @@ import { IEditInputListEvent } from '../components/editable-input-multi/editable
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
 import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
+import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
 import { HttpProxyService } from '../services/http-proxy.service';
 import { IProjectPermission, ProjectService } from '../services/project.service';
+import { TABLE_SETTING_KEY } from './constants';
 import { IIdBasedEntity, IEntityService, IBottomSheet, ISumRep } from './summary.component';
 import { TenantEntityService } from './tenant-entity.service';
+import { copyOf } from './utility';
 import { hasValue } from './validation/validator-common';
 @Directive()
 export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T> implements OnDestroy {
@@ -42,7 +46,6 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   @ViewChild(SearchComponent, { static: true }) searcher: SearchComponent;
   selection = new SelectionModel<T>(true, []);
   projectId = this.route.paramMap.pipe(map(e => e.get('id')))
-  private formCreatedOb: Observable<string>;
   constructor(
     protected route: ActivatedRoute,
     protected projectSvc: ProjectService,
@@ -56,10 +59,6 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   ) {
     this.pageSizeOffset = _pageSizeOffset;
     this.initUrlRelatedValues();
-    this.formCreatedOb = this.fis.formCreated(this.formId);
-    this.formCreatedOb.subscribe(() => {
-      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(Object.keys(this.columnList))
-    })
     const sub = this.projectId.subscribe(id => {
       this.entitySvc.setProjectId(id)
       this.bottomSheetParams['projectId'] = id;
@@ -68,6 +67,10 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     });
     this.subs.add(sub);
   }
+  updateSetting(){
+    this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).setValue(Object.keys(this.columnList))
+  }
+
   canDo(...name: string[]) {
     return combineLatest([this.projectId, this.projectSvc.permissionDetail]).pipe(map(e => {
       this.entitySvc.setProjectId(e[0])
@@ -116,9 +119,9 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     this.subs.unsubscribe();
   }
   displayedColumns() {
-    if (this.fis.formGroupCollection[this.formId]) {
+    if (this.fis.formGroups[this.formId]) {
       const orderKeys = ['select', ...Object.keys(this.columnList)];
-      const value = this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).value as string[]
+      const value = this.fis.formGroups[this.formId].get('displayColumns').value as string[]
       return orderKeys.filter(e => value.includes(e))
     } else {
       return Object.keys(this.columnList)
@@ -174,6 +177,15 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     }
     this.selection.clear();
   }
+  
+  protected initTableSetting(){
+    const deepCopy = copyOf(FORM_TABLE_COLUMN_CONFIG)
+    const settingKey = deepCopy.inputs[0].key;
+    const options = this.getColumnLabelValue();
+    (deepCopy.inputs[0] as ICheckboxControl).options = options;
+    this.fis.init(deepCopy, this.formId)
+    this.fis.formGroups[this.formId].get(settingKey).setValue(options.map(e => e.value))
+  }
   updateTable(sort: Sort) {
     this.sortBy = sort.active;
     this.sortOrder = sort.direction;
@@ -183,9 +195,9 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   }
   showOptions() {
     if (!this.displayedColumns().includes('select')) {
-      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(['select', ...this.displayedColumns()])
+      this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).setValue(['select', ...this.displayedColumns()])
     } else {
-      this.fis.formGroupCollection[this.formId].get(TableColumnConfigComponent.keyName).setValue(this.displayedColumns().filter(e => e !== 'select'))
+      this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).setValue(this.displayedColumns().filter(e => e !== 'select'))
     }
   }
   getColumnLabelValue() {

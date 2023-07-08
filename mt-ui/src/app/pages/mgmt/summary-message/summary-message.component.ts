@@ -25,7 +25,7 @@ export class MessageCenterComponent extends SummaryEntityComponent<IBellNotifica
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis,-2);
     this.doRefresh();
-
+    this.initTableSetting();
   }
   doRefresh(){
     super.doSearch({value:'',resetPage:false})

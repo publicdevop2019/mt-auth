@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
+import { Utility } from 'src/app/clazz/utility';
 import { ValidatorHelper } from 'src/app/clazz/validateHelper';
 import { IResourceOwnerUpdatePwd } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
 import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
@@ -23,6 +24,7 @@ export class UpdatePwdComponent implements OnInit, AfterViewInit, OnDestroy {
     public resourceOwnerService: UserService,
     private fis: FormInfoService,
   ) {
+    this.fis.init(this.formInfo, this.formId)
   }
   ngAfterViewInit(): void {
   }
@@ -31,7 +33,7 @@ export class UpdatePwdComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnInit() {
   }
   convertToPayload(cmpt: UpdatePwdComponent): IResourceOwnerUpdatePwd {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     return {
       password: formGroup.get('pwd').value,
       currentPwd: formGroup.get('currentPwd').value
@@ -40,12 +42,12 @@ export class UpdatePwdComponent implements OnInit, AfterViewInit, OnDestroy {
   updatePwd() {
     if (this.checkConfirmPwd()) {
     } else {
-      this.fis.formGroupCollection_formInfo[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = "PWD_NOT_SAME"
-      this.fis.formGroupCollection[this.formId].valueChanges.subscribe(e => {
+      this.fis.forms[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = "PWD_NOT_SAME"
+      this.fis.formGroups[this.formId].valueChanges.subscribe(e => {
         if (this.checkConfirmPwd()) {
-          this.fis.formGroupCollection_formInfo[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = undefined
+          this.fis.forms[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = undefined
         } else {
-          this.fis.formGroupCollection_formInfo[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = "PWD_NOT_SAME"
+          this.fis.forms[this.formId].inputs.find(e => e.key === 'confirmPwd').errorMsg = "PWD_NOT_SAME"
         }
       })
     }
@@ -54,7 +56,7 @@ export class UpdatePwdComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
   checkConfirmPwd(): boolean {
-    return this.fis.formGroupCollection[this.formId].get('confirmPwd').value === this.fis.formGroupCollection[this.formId].get('pwd').value
+    return this.fis.formGroups[this.formId].get('confirmPwd').value === this.fis.formGroups[this.formId].get('pwd').value
   }
 
   errorMapper(original: ErrorMessage[], cmpt: UpdatePwdComponent) {

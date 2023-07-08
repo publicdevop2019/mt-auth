@@ -1,7 +1,7 @@
-import { Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { ICheckboxControl, IOption, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
@@ -14,6 +14,8 @@ import { CorsComponent } from '../cors/cors.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
+import { copyOf } from 'src/app/clazz/utility';
 @Component({
   selector: 'app-my-cors',
   templateUrl: './my-cors.component.html',
@@ -51,15 +53,13 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     public httpSvc: HttpProxyService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub2 = this.canDo('VIEW_CORS').subscribe(b => {
+    const sub = this.canDo('VIEW_CORS').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
       }
     })
-    this.subs.add(sub2);
-  }
-  getOption(value: string, options: IOption[]) {
-    return options.find(e => e.value == value)
+    this.subs.add(sub);
+    this.initTableSetting();
   }
   openBottomSheet(id?: string, clone?: boolean): void {
     let config = new MatBottomSheetConfig();

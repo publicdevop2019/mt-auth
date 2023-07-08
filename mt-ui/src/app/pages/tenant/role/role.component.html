@@ -1,21 +1,21 @@
 <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
 </mat-icon>
 <ng-container *ngIf="bottomSheet.context === 'clone' || bottomSheet.context === 'new'">
-    <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+    <lib-factory [formId]="formId"></lib-factory>
     <h4>{{'SELECT_PERMISIONS'|translate}}</h4>
     <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="commonPermissionFg">
     </app-dynamic-tree>
     <h4>{{'SELECT_API_PERMISIONS'|translate}}</h4>
     <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg">
     </app-dynamic-tree>
-    <lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
+    <lib-factory [formId]="formIdShared"></lib-factory>
     <button mat-raised-button color="primary" class="app-btn" (click)="create()">{{'CREATE'|translate}}</button>
 </ng-container>
 <ng-container *ngIf="bottomSheet.context === 'edit'">
     <mat-tab-group mat-align-tabs="start" dynamicHeight>
         <mat-tab label="{{'BASIC_INFO'|translate}}"  #basicTab>
             <div style="margin-top: 16px;">
-                <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+                <lib-factory [formId]="formId"></lib-factory>
             </div>
         </mat-tab>
         <mat-tab label="{{'COMMON_PERMISSIONS'|translate}}" #commonTab>
@@ -40,7 +40,7 @@
                 </mat-chip-list>
                 <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg"
                    ></app-dynamic-tree>
-                <lib-factory [formId]="formIdShared" [formInfo]="formInfoShared"></lib-factory>
+                <lib-factory [formId]="formIdShared"></lib-factory>
             </div>
         </mat-tab>
     </mat-tab-group>

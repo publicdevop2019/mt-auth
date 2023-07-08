@@ -27,7 +27,7 @@ export class SummaryNotificationComponent extends SummaryEntityComponent<INotifi
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, -2);
     this.doRefresh();
-
+    this.initTableSetting();
   }
   doRefresh() {
     super.doSearch({ value: '', resetPage: false })

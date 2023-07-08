@@ -78,7 +78,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     public bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    combineLatest([this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//@todo use paginated select component
+    combineLatest([this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//TODO use paginated select component
       .subscribe(next => {
         if (next) {
           this.searchConfigs = [...this.initSearchConfigs, {
@@ -98,6 +98,7 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
           ];
         }
       });
+      this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IClient>) {
     super.updateSummaryData(next);

@@ -25,18 +25,19 @@ export class ValidatorHelper {
       let uniqueFormIds = new Array(...new Set([...mapped.map(e => e.formId), ...this.previousErrors.map(e => e.formId)])).filter(e => e);
       let var1 = this.previousErrors.map(e => e.formId + "_" + e.key);
       uniqueFormIds.forEach(id => {
-        fis.formGroupCollection_formInfo[id].inputs.forEach(input => {
+        fis.forms[id].inputs.forEach(input => {
           if (keys.includes(id + "_" + input.key)) {
-            input.errorMsg = mapped.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
+            const msg = mapped.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
+            fis.updateError(id, input.key, msg)
           } else {
             if (var1.includes(id + "_" + input.key)) {
-              input.errorMsg = undefined;
+              fis.updateError(id, input.key, undefined)
             }
           }
         });
       })
       this.previousErrors = mapped;
-      merge(...uniqueFormIds.map(e => fis.formGroupCollection[e].valueChanges))
+      merge(...uniqueFormIds.map(e => fis.formGroups[e].valueChanges))
         .subscribe(next => {
           let newErrors = validator.validate(getPayload(cmpt), context)
           //sub for same key valueChange
@@ -53,7 +54,7 @@ export class ValidatorHelper {
             let keys2 = mapped2.map(e => e.formId + "_" + e.key);
             let var0 = this.previousErrors.map(e => e.formId + "_" + e.key);
             uniqueFormIds.forEach(id => {
-              fis.formGroupCollection_formInfo[id].inputs.forEach(input => {
+              fis.forms[id].inputs.forEach(input => {
                 if (keys2.includes(id + "_" + input.key)) {
                   input.errorMsg = mapped2.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
                 } else {
@@ -66,7 +67,7 @@ export class ValidatorHelper {
           } else {
             if (this.previousErrors.length > 0) {
               this.previousErrors.forEach(e => {
-                let var0 = fis.formGroupCollection_formInfo[e.formId].inputs.find(ee => ee.key === e.key);
+                let var0 = fis.forms[e.formId].inputs.find(ee => ee.key === e.key);
                 if (var0) {
                   var0.errorMsg = undefined;
                 }
