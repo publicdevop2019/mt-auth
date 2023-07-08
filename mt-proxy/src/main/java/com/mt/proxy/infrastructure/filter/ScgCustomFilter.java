@@ -128,7 +128,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         }
         if (Boolean.TRUE.equals(context.getWebsocket())) {
             //for websocket only endpoint check is performed
-            //@todo add token check for websocket
+            //TODO add token check for websocket
             return chain.filter(exchange);
         }
         checkRateLimit(exchange, context);

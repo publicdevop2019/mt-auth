@@ -218,7 +218,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     channel.queueDeclare(queueName, true, false, autoDelete, args);
                 }
                 checkExchange(channel);
-                //@todo find out proper prefetch value, this requires test in prod env
+                //TODO find out proper prefetch value, this requires test in prod env
                 channel.basicQos(30);
                 for (String topic : topics) {
                     channel.queueBind(queueName,

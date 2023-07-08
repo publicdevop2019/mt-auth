@@ -32,7 +32,7 @@ public class ClientValidator {
         }
         if ((!client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
             client.getRedirectDetail() != null)) {
-            //@todo find better fix
+            //TODO find better fix
             //hibernate will create redirectDetail with empty values after read from DB even no such information
             //below logic is added to avoid this failure
             if (Checker.notNull(client.getRedirectDetail().getAutoApprove()) ||

@@ -152,7 +152,7 @@ public class UserRelation extends Auditable {
         }
         CommonUtility.updateCollection(this.standaloneRoles, roleIds,
             () -> this.standaloneRoles = roleIds);
-        //@todo move this logic to custom validator
+        //TODO move this logic to custom validator
         if (Checker.notNull(roleIds)) {
             Set<Role> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
@@ -195,7 +195,7 @@ public class UserRelation extends Auditable {
     }
 
     public void tenantUpdate(Set<String> roles) {
-        //@todo move to validator
+        //TODO move to validator
         Validator.notNull(roles);
         Validator.notEmpty(roles);
         Set<RoleId> roleIds =

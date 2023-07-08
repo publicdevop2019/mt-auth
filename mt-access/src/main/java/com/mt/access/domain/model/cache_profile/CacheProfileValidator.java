@@ -37,7 +37,7 @@ public class CacheProfileValidator {
     private void validateCacheableFlag() {
         if (Checker.isFalse(cacheProfile.getAllowCache())) {
             if (Checker.notNull(cacheProfile.getCacheControl())) {
-                //@todo find better fix
+                //TODO find better fix
                 //hibernate will create empty set instead of null
                 //check null will fail
                 Validator.isEmpty(cacheProfile.getCacheControl());
