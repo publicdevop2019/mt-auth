@@ -54,11 +54,10 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
       })
       return e
     })).pipe(tap(() => this.cdr.markForCheck()));;
-    this.fis.formCreated(this.formId).pipe(take(1)).subscribe(() => {
-      if (this.bottomSheet.context === 'new') {
-        this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)
-      }
-    })
+    this.fis.init(this.formInfo,this.formId)
+    if (this.bottomSheet.context === 'new') {
+      this.fis.formGroups[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)
+    }
   }
   ngAfterViewInit(): void {
     if (this.bottomSheet.context === 'edit') {
@@ -69,8 +68,8 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
           this.formGroup.get(p).setValue('checked', { emitEvent: false })
         }
       })
-      this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroupCollection[this.formId].get('email').setValue(this.aggregate.email)
+      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
+      this.fis.formGroups[this.formId].get('email').setValue(this.aggregate.email)
       this.cdr.markForCheck()
     }
   }
@@ -80,7 +79,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
   ngOnInit() {
   }
   convertToPayload(cmpt: UserComponent): IProjectUser {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
     const value = cmpt.formGroup.value
     return {
       id: formGroup.get('id').value,//value is ignored

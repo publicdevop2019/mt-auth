@@ -7,8 +7,8 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 import { AuthService } from './auth.service';
 import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
-import { copyOf } from './utility';
 import { IBellNotification } from './message.service';
+import { copyOf } from '../clazz/utility';
 @Injectable({
     providedIn: 'root'
 })

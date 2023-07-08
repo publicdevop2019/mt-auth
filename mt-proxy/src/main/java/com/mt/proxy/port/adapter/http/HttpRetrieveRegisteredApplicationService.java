@@ -5,7 +5,6 @@ import com.mt.proxy.domain.RetrieveRegisterApplicationService;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 
@@ -14,14 +13,13 @@ import org.springframework.stereotype.Component;
 public class HttpRetrieveRegisteredApplicationService
     implements RetrieveRegisterApplicationService {
 
-    @Value("${manytree.url.clients}")
-    private String url;
+    private static final String CLIENT_URL = "clients/proxy";
     @Autowired
     private HttpUtility httpHelper;
 
     @Override
     public Set<RegisteredApplication> fetchAll() {
-        return httpHelper.loadAllData(httpHelper.resolveAccessPath() +url, 40, false,
+        return httpHelper.loadAllData(httpHelper.resolveAccessPath() + CLIENT_URL, 40, false,
             new ParameterizedTypeReference<>() {
             });
     }

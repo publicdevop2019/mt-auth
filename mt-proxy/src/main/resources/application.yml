@@ -1,15 +1,9 @@
-manytree:
-  url:
-    jwtKey: .well-known/jwks.json
-    endpoint: endpoints/proxy
-    report: reports/proxy
-    clients: clients/proxy
-  domain-name:
-  instance-id: 0
 mt:
-  url:
-    support:
-      mq:
+  common:
+    domain-name:
+    instance-id:
+    url:
+      message-queue:
 server:
   port: 8111
 spring:

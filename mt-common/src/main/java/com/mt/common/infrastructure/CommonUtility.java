@@ -21,7 +21,7 @@ public class CommonUtility {
             rawIds.stream().map(fn).collect(
                 Collectors.toSet());
     }
-    //@todo find better fix
+    //TODO find better fix
     /**
      * update DB collection without trigger unnecessary sql update
      * <p>

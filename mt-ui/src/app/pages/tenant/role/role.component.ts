@@ -1,12 +1,12 @@
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { MatTab, MatTabGroup } from '@angular/material/tabs';
+import { MatTab } from '@angular/material/tabs';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm, IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable, Subscription } from 'rxjs';
-import { map, take, tap } from 'rxjs/operators';
+import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { combineLatest, Observable } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator-role';
@@ -41,7 +41,6 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   @ViewChild("treeCommon") set tree(v: DynamicTreeComponent) {
     this._tree = v;
   }
-  public formInfoShared: IForm = JSON.parse(JSON.stringify(FORM_CONFIG_SHARED));
   constructor(
     public entitySvc: MyRoleService,
     public epSvc: EndpointService,
@@ -54,14 +53,15 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     cdr: ChangeDetectorRef,
     private translate: TranslateService
   ) {
-    super('role-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new RoleValidator(), bottomSheetRef, data, fis, cdr)
+    super('role-form', FORM_CONFIG, new RoleValidator(), bottomSheetRef, data, fis, cdr)
     this.bottomSheet = data;
     this.permissoinSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.sharedPermSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.entitySvc.setProjectId(this.bottomSheet.params['projectId'])
     this.fis.queryProvider[this.formId + '_' + 'parentId'] = this.getParents();
     this.fis.queryProvider[this.formIdShared + '_' + 'sharedApi'] = this.getShared();
-
+    this.fis.init(this.formInfo, this.formId)
+    this.fis.init(FORM_CONFIG_SHARED, this.formIdShared)
     this.loadRoot = this.permissoinSvc.readEntityByQuery(0, 1000, "parentId:null,types:COMMON").pipe(map(e => {
       e.data.forEach(ee => {
         if (ee.type === 'PROJECT') {
@@ -92,13 +92,10 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
         return e
       }))
     }
-    combineLatest([this.fis.formCreated(this.formIdShared), this.fis.formCreated(this.formId)])
-      .pipe(take(1)).subscribe(() => {
-        if (this.bottomSheet.context === 'new') {
-          this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
-        }
-        this.reusme()
-      })
+    if (this.bottomSheet.context === 'new') {
+      this.fis.formGroups[this.formId].get('projectId').setValue(this.bottomSheet.params['projectId'])
+    }
+    this.reusme()
   }
   getParents(): IQueryProvider {
     return {
@@ -141,15 +138,15 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     }
   }
   resumeForm() {
-    this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-    this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
-    this.fis.formGroupCollection[this.formId].get('parentId').setValue(this.aggregate.parentId)
+    this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
+    this.fis.formGroups[this.formId].get('name').setValue(this.aggregate.name)
+    this.fis.formGroups[this.formId].get('parentId').setValue(this.aggregate.parentId)
     if (this.aggregate.systemCreate) {
       this.fis.disableIfMatch(this.formId, ['name', 'parentId'])
     }
-    this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
-    this.fis.formGroupCollection[this.formId].get('projectId').setValue(this.aggregate.projectId);
-    this.fis.formGroupCollection[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
+    this.fis.formGroups[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
+    this.fis.formGroups[this.formId].get('projectId').setValue(this.aggregate.projectId);
+    this.fis.formGroups[this.formIdShared].get('sharedApi').setValue(this.aggregate.externalPermissionIds);
     (this.aggregate.apiPermissionIds || []).forEach(p => {
       if (!this.apiPermissionFg.get(p)) {
         this.apiPermissionFg.addControl(p, new FormControl('checked'))
@@ -174,8 +171,8 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
   ngOnInit() {
   }
   convertToPayload(cmpt: RoleComponent): INewRole {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    let formGroup2 = cmpt.fis.formGroupCollection[cmpt.formIdShared];
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
+    let formGroup2 = cmpt.fis.formGroups[cmpt.formIdShared];
     const common = cmpt.commonPermissionFg.value
     const api = cmpt.apiPermissionFg.value
     return {
@@ -191,8 +188,8 @@ export class RoleComponent extends Aggregate<RoleComponent, INewRole> implements
     }
   }
   convertToUpdatePayload(cmpt: RoleComponent): any {
-    const formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    const formGroup2 = cmpt.fis.formGroupCollection[cmpt.formIdShared];
+    const formGroup = cmpt.fis.formGroups[cmpt.formId];
+    const formGroup2 = cmpt.fis.formGroups[cmpt.formIdShared];
     const common = cmpt.commonPermissionFg.value
     const api = cmpt.apiPermissionFg.value
     let type = ''

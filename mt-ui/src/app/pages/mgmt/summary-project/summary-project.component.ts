@@ -36,5 +36,6 @@ export class SummaryProjectComponent extends SummaryEntityComponent<IProjectSimp
     public fis: FormInfoService,
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
+    this.initTableSetting();
   }
 }

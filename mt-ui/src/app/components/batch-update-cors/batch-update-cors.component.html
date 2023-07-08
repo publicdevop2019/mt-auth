@@ -3,7 +3,7 @@
   <ng-container *ngIf="!batchJobConfirmed">
     <div style="margin-bottom: 16px;">{{"CHANGE_MSG"|translate}}</div>
     <div style="margin-bottom: 8px;">{{getIds()}}</div>
-    <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+    <lib-factory [formId]="formId"></lib-factory>
   </ng-container>
   <ng-container *ngIf="batchJobConfirmed">
     <div class="table-container">

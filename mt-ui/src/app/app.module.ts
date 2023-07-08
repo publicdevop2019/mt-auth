@@ -134,7 +134,7 @@ import { PendingSubReqComponent } from './pages/common/pending-sub-req/pending-s
 import { MySubsComponent } from './pages/common/my-subs/my-subs.component';
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { EndpointNewComponent } from './pages/tenant/endpoint-new/endpoint-new.component';
+import { EndpointComponent } from './pages/tenant/endpoint/endpoint.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
@@ -221,7 +221,7 @@ import { LanguageService } from './services/language.service';
     PendingSubReqComponent,
     MySubsComponent,
     EnterReasonDialogComponent,
-    EndpointNewComponent,
+    EndpointComponent,
     EndpointAnalysisComponent,
     UserNotificationComponent,
     ErrorLookupComponent,
@@ -277,10 +277,12 @@ import { LanguageService } from './services/language.service';
   ],
   entryComponents: [
     MsgBoxComponent,
+    UserComponent,
     ClientComponent,
     MgmtEndpointComponent,
     MgmtClientComponent,
-    EndpointNewComponent,
+    EndpointComponent,
+    PermissionComponent,
     ResourceOwnerComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

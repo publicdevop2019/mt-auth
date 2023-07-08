@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class NotificationApplicationService {
     private static final String NOTIFICATION = "Notification";
-    @Value("${instanceId}")
+    @Value("${mt.common.instance-id}")
     private Long instanceId;
 
     public SumPagedRep<Notification> queryBell(String queryParam, String pageParam,

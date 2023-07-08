@@ -88,7 +88,7 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
         //prepare search
-        this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1').pipe(take(1))//@todo use paginated select component
+        this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1').pipe(take(1))//TODO use paginated select component
           .subscribe(next => {
             if (next) {
               this.searchConfigs = [...this.initSearchConfigs, {
@@ -133,6 +133,7 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
         accessTokenValiditySeconds: 'ACCESS_TOKEN_VALIDITY_SECONDS',
         resourceIds: 'RESOURCEIDS',
       }
+      this.initTableSetting();
     })
     this.subs.add(sub3)
   }

@@ -208,7 +208,7 @@ public class Client extends Auditable {
         if (this.redirectDetail == null) {
             this.redirectDetail = redirectDetail;
         } else if (!this.redirectDetail.equals(redirectDetail)) {
-            //@todo find better fix
+            //TODO find better fix
             //hibernate will create redirectDetail with empty values after read from DB even no such information
             //since we are passing null when redirect urls and auto approve are null
             //this will create unnecessary update to DB

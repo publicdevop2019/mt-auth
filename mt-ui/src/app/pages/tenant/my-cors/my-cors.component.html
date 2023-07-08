@@ -5,7 +5,7 @@
     <app-tenant-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
     </app-tenant-search>
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:end;">
-        <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()"></app-table-column-config>
+        <app-table-column-config [formId]="formId"></app-table-column-config>
     </div>
     <div class="mat-elevation-z8">
         <div class="table-container">
@@ -89,7 +89,6 @@
                 <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
             </table>
         </div>
-
         <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
             [pageSize]="pageSize" (page)="pageHandler($event)">
         </mat-paginator>

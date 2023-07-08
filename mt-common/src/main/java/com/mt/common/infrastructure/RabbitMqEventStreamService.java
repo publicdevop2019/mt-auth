@@ -61,7 +61,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         reservedQueue.add(QUEUE_NAME_DELAY);
     }
 
-    public RabbitMqEventStreamService(@Value("${mt.url.support.mq}") final String url) {
+    public RabbitMqEventStreamService(@Value("${mt.common.url.message-queue}") final String url) {
         log.debug("initializing event stream service with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
         String[] split = url.split(":");
@@ -218,7 +218,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     channel.queueDeclare(queueName, true, false, autoDelete, args);
                 }
                 checkExchange(channel);
-                //@todo find out proper prefetch value, this requires test in prod env
+                //TODO find out proper prefetch value, this requires test in prod env
                 channel.basicQos(30);
                 for (String topic : topics) {
                     channel.queueBind(queueName,

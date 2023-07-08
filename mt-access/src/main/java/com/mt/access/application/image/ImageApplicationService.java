@@ -8,24 +8,20 @@ import com.mt.access.domain.model.image.ImageQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ImageApplicationService {
-    public static final String IMAGE = "IMAGE";
-    @Value("${allowed.types}")
-    private List<String> allowedTypes;
-
-    @Value("${allowed.size}")
-    private Integer allowedSize;
+    private static final List<String> ALLOWED_TYPE = List.of("image/jpeg,image/png");
+    private static final Integer ALLOWED_SIZE = 1024000;
+    private static final String IMAGE = "IMAGE";
 
 
     public ImageId create(String changeId, MultipartFile file) {
         ImageId imageId = new ImageId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (change) -> {
-            Image image = new Image(imageId, file, allowedSize, allowedTypes);
+            Image image = new Image(imageId, file, ALLOWED_SIZE, ALLOWED_TYPE);
             DomainRegistry.getImageRepository().add(image);
             return null;
         }, IMAGE);

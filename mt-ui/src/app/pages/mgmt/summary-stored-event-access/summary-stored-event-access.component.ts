@@ -30,7 +30,6 @@ export interface IStoredEvent {
 })
 export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IStoredEvent, IStoredEvent> implements OnDestroy {
   filterFormId = "authEventFilter";
-  formInfo = JSON.parse(JSON.stringify(FORM_CONFIG));
   formId = "authEventTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -69,25 +68,25 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     fis: FormInfoService,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 1);
-    this.fis.formCreated(this.filterFormId).subscribe(() => {
-      this.fis.formGroupCollection[this.filterFormId].get('filterBy').setValue('all')
-      this.fis.formGroupCollection[this.filterFormId].valueChanges.subscribe(next => {
-        if (next.filterBy === 'audit') {
-          this.entitySvc.entityRepo = this.entitySvc.auditRepo;
-          this.entitySvc.queryPrefix = undefined;
-        } else if (next.filterBy === 'rejected') {
-          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-          this.entitySvc.queryPrefix = 'rejected:1';
-        } else if (next.filterBy === 'unroutable') {
-          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-          this.entitySvc.queryPrefix = 'routable:0';
-        } else {
-          this.entitySvc.queryPrefix = undefined;
-          this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-        }
-        this.entitySvc.pageNumber = 0;
-        this.deviceSvc.refreshSummary.next();
-      })
+    this.fis.init(FORM_CONFIG, this.filterFormId)
+    this.initTableSetting();
+    this.fis.formGroups[this.filterFormId].get('filterBy').setValue('all')
+    this.fis.formGroups[this.filterFormId].valueChanges.subscribe(next => {
+      if (next.filterBy === 'audit') {
+        this.entitySvc.entityRepo = this.entitySvc.auditRepo;
+        this.entitySvc.queryPrefix = undefined;
+      } else if (next.filterBy === 'rejected') {
+        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+        this.entitySvc.queryPrefix = 'rejected:1';
+      } else if (next.filterBy === 'unroutable') {
+        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+        this.entitySvc.queryPrefix = 'routable:0';
+      } else {
+        this.entitySvc.queryPrefix = undefined;
+        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+      }
+      this.entitySvc.pageNumber = 0;
+      this.deviceSvc.refreshSummary.next();
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {

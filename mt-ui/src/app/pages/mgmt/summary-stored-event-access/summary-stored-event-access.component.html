@@ -3,9 +3,9 @@
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
     <div style="width: 450px;">
-        <lib-factory [formId]="filterFormId" [formInfo]="formInfo"></lib-factory>
+        <lib-factory [formId]="filterFormId"></lib-factory>
     </div>
-    <app-table-column-config [formId]="formId" [columns]="getColumnLabelValue()" ></app-table-column-config>
+    <app-table-column-config [formId]="formId"  ></app-table-column-config>
 </div>
 <div class="mat-elevation-z8" style="margin-bottom: 20px;">
     <div class="table-container">

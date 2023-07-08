@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -25,8 +24,7 @@ public class HttpRemoteProxyService implements RemoteProxyService {
     private EurekaClient discoveryClient;
     @Autowired
     private RestTemplate restTemplate;
-    @Value("${mt.url.proxy.check}")
-    private String proxyUrl;
+    private static final String PROXY_CHECKSUM_URL ="info/checkSum";
 
     @Override
     public Map<ProxyInfo, CheckSumValue> getCacheEndpointSum() {
@@ -41,7 +39,7 @@ public class HttpRemoteProxyService implements RemoteProxyService {
                 ResponseEntity<String> exchange = null;
                 try {
                     exchange = restTemplate
-                        .exchange(e.getHomePageUrl() + proxyUrl, HttpMethod.GET, null,
+                        .exchange(e.getHomePageUrl() + PROXY_CHECKSUM_URL, HttpMethod.GET, null,
                             String.class);
                 } catch (Exception ex) {
                     log.error("error during get sum value from proxy", ex);

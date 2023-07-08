@@ -1,12 +1,12 @@
 <mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
 </mat-icon>
-<lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+<lib-factory [formId]="formId"></lib-factory>
 <div class="form-header">{{'ALLOWED_ORIGIN'|translate}}</div>
-<lib-factory [formId]="originFormId" [formInfo]="originFormInfo"></lib-factory>
+<lib-factory [formId]="originFormId"></lib-factory>
 <div class="form-header">{{'ALLOWED_HEADERS'|translate}}</div>
-<lib-factory [formId]="allowedHeaderFormId" [formInfo]="allowedHeaderFormInfo"></lib-factory>
+<lib-factory [formId]="allowedHeaderFormId"></lib-factory>
 <div class="form-header">{{'EXPOSED_HEADERS'|translate}}</div>
-<lib-factory [formId]="exposedHeaderFormId" [formInfo]="exposedHeaderFormInfo"></lib-factory>
+<lib-factory [formId]="exposedHeaderFormId"></lib-factory>
 <button mat-raised-button color="primary" *ngIf="bottomSheet.context === 'edit'" class="app-btn"
     (click)="update()">{{'UPDATE'|translate}}</button>
 <button mat-raised-button color="primary" class="app-btn"

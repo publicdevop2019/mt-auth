@@ -1,4 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
+import { TABLE_SETTING_KEY } from '../clazz/constants';
 
 export const FORM_TABLE_COLUMN_CONFIG: IForm = {
     "repeatable": false,
@@ -7,11 +8,7 @@ export const FORM_TABLE_COLUMN_CONFIG: IForm = {
             "type": "checkbox",
             "display": true,
             "label": "SELECT_TO_CHANGE_TABLE_COLUMN",//required, or value will be boolean
-            "key": "displayColumns",
-            "position": {
-                "row": "0",
-                "column": "0"
-            },
+            "key": TABLE_SETTING_KEY,
             "options":[]
         },
     ],

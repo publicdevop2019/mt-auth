@@ -3,7 +3,7 @@
 <mat-tab-group mat-align-tabs="start" dynamicHeight>
     <mat-tab label="{{'BASIC_INFO'|translate}}"  #basicTab>
         <div style="margin-top: 16px;">
-            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            <lib-factory [formId]="formId"></lib-factory>
             <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
                 (click)="update()">{{'UPDATE'|translate}}</button>
         </div>

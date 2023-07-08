@@ -21,13 +21,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ServerWebExchange;
 
 /**
@@ -40,13 +38,12 @@ public class ReportService {
     public static final String REPORT_DIR = "./reports";
     private static final String SENT_SUFFIX = "_send";
     private static final String SENT_ERROR_SUFFIX = "_error";
+    private static final String REPORT_URL ="reports/proxy";
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EndpointService endpointService;
-    @Value("${manytree.instance-id}")
+    @Value("${mt.common.instance-id}")
     private String instanceId;
-    @Value("${manytree.url.report}")
-    private String endpointUrl;
     @Autowired
     private HttpUtility httpHelper;
     /**
@@ -138,7 +135,7 @@ public class ReportService {
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
 
-        String url = httpHelper.resolveAccessPath() + endpointUrl;
+        String url = httpHelper.resolveAccessPath() + REPORT_URL;
         //read all unsend files
         File dir =
             new File(REPORT_DIR);

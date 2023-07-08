@@ -15,10 +15,6 @@ export const FORM_CONFIG: IForm = {
                 { label: 'REJECTED_TYPE', value: 'rejected' },
                 { label: 'ROUTE_TYPE', value: 'unroutable' }
             ],
-            "position": {
-                "row": "0",
-                "column": "0"
-            }
         },
     ],
 }

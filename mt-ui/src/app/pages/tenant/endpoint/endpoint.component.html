@@ -3,7 +3,7 @@
 <mat-horizontal-stepper >
     <mat-step label="{{'CATALOG_EP_INFO'|translate}}"> 
         <div style="width: 200px;">
-            <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+            <lib-factory [formId]="formId"></lib-factory>
         </div>
         <mat-card *ngIf="isExternal===false" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
@@ -23,13 +23,13 @@
         </mat-card>
     </mat-step>
     <mat-step label="{{'BASIC_EP_INFO'|translate}}">
-            <lib-factory [formId]="basicFormId" [formInfo]="basicFormInfo"></lib-factory>
+            <lib-factory [formId]="basicFormId"></lib-factory>
     </mat-step>
     <mat-step label="{{'SECURITY_EP_INFO'|translate}}">
-        <lib-factory [formId]="secureFormId" [formInfo]="secureFormInfo"></lib-factory>
+        <lib-factory [formId]="secureFormId"></lib-factory>
     </mat-step>
     <mat-step label="{{'PERFORMANCE_EP_INFO'|translate}}">
-        <lib-factory [formId]="performanceFormId" [formInfo]="performanceFormInfo"></lib-factory>
+        <lib-factory [formId]="performanceFormId"></lib-factory>
         <mat-card *ngIf="performanceWarnning" style="display: flex; align-items: center; margin-bottom: 8px;">
             <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
             <div>{{'SHARED_RATE_LIMIT_MSG'|translate}}</div>

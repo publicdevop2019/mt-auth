@@ -53,7 +53,7 @@ export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser,
     public route: ActivatedRoute,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub3 = this.canDo('EDIT_TENANT_USER').subscribe(b => {
+    const sub1 = this.canDo('EDIT_TENANT_USER').subscribe(b => {
       this.columnList = b.result? {
         id: 'ID',
         email: 'EMAIL',
@@ -62,16 +62,18 @@ export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser,
         id: 'ID',
         email: 'EMAIL',
       }
+      this.initTableSetting();
     })
-    this.subs.add(sub3)
     const sub2 = this.canDo('VIEW_TENANT_USER').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
       }
     })
+    this.subs.add(sub1)
     this.subs.add(sub2)
   }
   ngOnDestroy(): void {
     this.fis.reset(this.formId)
+    super.ngOnDestroy();
   }
 }

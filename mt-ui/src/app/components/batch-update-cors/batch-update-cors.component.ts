@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy } from "@angular/core";
 import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
 import { FormInfoService } from "mt-form-builder";
-import { IForm, IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
+import { IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
 import { IEndpoint } from "src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
 import { MyCacheService } from "src/app/services/my-cache.service";
@@ -21,7 +21,6 @@ type ISTATUS = 'PENDING' | 'SUCCESS' | 'WIP' | 'FAILED';
 })
 export class BatchUpdateCorsComponent implements OnDestroy {
     formId: string = 'batch-operation-form';
-    formInfo: IForm = JSON.parse(JSON.stringify(FORM_CONFIG))
     displayedColumns: string[] = ['id', 'status'];
     dataSource: MatTableDataSource<{ id: string; status: ISTATUS }>;
     batchJobConfirmed: boolean;
@@ -37,17 +36,16 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     ) {
         this.fis.queryProvider[this.formId + '_' + 'corsId'] = this.getCorsProfiles();
         this.fis.queryProvider[this.formId + '_' + 'cacheId'] = this.getCacehProfiles();
-        this.fis.formCreated(this.formId).subscribe(() => {
-            this.fis.formGroupCollection[this.formId].get('type').valueChanges.subscribe(next => {
-                if (next === 'cors') {
-                    this.fis.showIfMatch(this.formId, ['corsId'])
-                    this.fis.hideIfNotMatch(this.formId, ['corsId', 'type'])
-                }
-                if (next === 'cache') {
-                    this.fis.showIfMatch(this.formId, ['cacheId'])
-                    this.fis.hideIfNotMatch(this.formId, ['cacheId', 'type'])
-                }
-            })
+        this.fis.init(FORM_CONFIG,this.formId);
+        this.fis.formGroups[this.formId].get('type').valueChanges.subscribe(next => {
+            if (next === 'cors') {
+                this.fis.showIfMatch(this.formId, ['corsId'])
+                this.fis.hideIfNotMatch(this.formId, ['corsId', 'type'])
+            }
+            if (next === 'cache') {
+                this.fis.showIfMatch(this.formId, ['cacheId'])
+                this.fis.hideIfNotMatch(this.formId, ['cacheId', 'type'])
+            }
         })
     }
     ngOnDestroy(): void {
@@ -80,11 +78,11 @@ export class BatchUpdateCorsComponent implements OnDestroy {
         var0.forEach(endpoint => {
             this.dataSource.data.find(e => e.id === endpoint.id).status = 'WIP'
             this.httpProxySvc.readEntityById<IEndpoint>(this.endpointSvc.entityRepo,endpoint.id,{ 'loading': false }).subscribe(next => {
-                const var0=this.fis.formGroupCollection[this.formId].get('type').value
+                const var0=this.fis.formGroups[this.formId].get('type').value
                 if( var0==='cors'){
-                    next.corsProfileId=this.fis.formGroupCollection[this.formId].get('corsId').value
+                    next.corsProfileId=this.fis.formGroups[this.formId].get('corsId').value
                 }else if(var0==='cache'){
-                    next.cacheProfileId=this.fis.formGroupCollection[this.formId].get('cacheId').value
+                    next.cacheProfileId=this.fis.formGroups[this.formId].get('cacheId').value
                 }else{
                     // will not reach
                 }

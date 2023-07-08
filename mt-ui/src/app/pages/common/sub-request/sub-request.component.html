@@ -5,7 +5,7 @@
         <div>{{'PUBLIC_SUB_NOTES'|translate}}</div>
     </mat-card>
     <div class="form-wrapper">
-        <lib-factory [formId]="formId" [formInfo]="formInfo"></lib-factory>
+        <lib-factory [formId]="formId"></lib-factory>
         <button *ngIf="isCreate()" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
             (click)="create()">{{'SUBSCRIBE'|translate}}</button>
         <button *ngIf="!isCreate()" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"

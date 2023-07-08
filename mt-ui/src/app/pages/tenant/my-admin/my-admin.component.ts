@@ -54,7 +54,7 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
       this.doRefresh();
     });
     this.subs.add(sub);
-
+    this.initTableSetting()
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []
       this.searchPageNumber = 0;

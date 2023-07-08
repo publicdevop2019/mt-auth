@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
@@ -14,14 +14,14 @@ import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
   templateUrl: './cors.component.html',
   styleUrls: ['./cors.component.css']
 })
-export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implements OnInit, AfterViewInit, OnDestroy {
+export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implements OnInit, OnDestroy {
   bottomSheet: IBottomSheet<ICorsProfile>;
   originFormId: string = 'originFormId'
-  originFormInfo: IForm = JSON.parse(JSON.stringify(ORIGIN_FORM_CONFIG));
+  originFormInfo: IForm = ORIGIN_FORM_CONFIG;
   allowedHeaderFormId: string = 'allowedHeaderFormId'
-  allowedHeaderFormInfo: IForm = JSON.parse(JSON.stringify(ALLOWED_HEADERS_FORM_CONFIG));
+  allowedHeaderFormInfo: IForm = ALLOWED_HEADERS_FORM_CONFIG;
   exposedHeaderFormId: string = 'exposedHeaderFormId'
-  exposedHeaderFormInfo: IForm = JSON.parse(JSON.stringify(EXPOSED_HEADERS_FORM_CONFIG));
+  exposedHeaderFormInfo: IForm = EXPOSED_HEADERS_FORM_CONFIG;
   constructor(
     public entityService: MyCorsProfileService,
     fis: FormInfoService,
@@ -29,23 +29,26 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
     bottomSheetRef: MatBottomSheetRef<CorsComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('cors-form', JSON.parse(JSON.stringify(FORM_CONFIG)), new CORSProfileValidator(), bottomSheetRef, data, fis, cdr)
+    super('cors-form', FORM_CONFIG, new CORSProfileValidator(), bottomSheetRef, data, fis, cdr)
 
     this.bottomSheet = data;
-  }
-  ngAfterViewInit(): void {
+    this.fis.init(this.formInfo, this.formId);
+    this.fis.init(ORIGIN_FORM_CONFIG, this.originFormId);
+    this.fis.init(ALLOWED_HEADERS_FORM_CONFIG, this.allowedHeaderFormId);
+    this.fis.init(EXPOSED_HEADERS_FORM_CONFIG, this.exposedHeaderFormId);
     if (this.aggregate) {
-      this.fis.formGroupCollection[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroupCollection[this.formId].get('name').setValue(this.aggregate.name)
-      this.fis.formGroupCollection[this.formId].get('description').setValue(this.aggregate.description||'')
-      this.fis.formGroupCollection[this.formId].get('allowCredentials').setValue(this.aggregate.allowCredentials)
+      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
+      this.fis.formGroups[this.formId].get('name').setValue(this.aggregate.name)
+      this.fis.formGroups[this.formId].get('description').setValue(this.aggregate.description||'')
+      this.fis.formGroups[this.formId].get('allowCredentials').setValue(this.aggregate.allowCredentials)
       this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.allowedHeaders, 'allowedHeaders'), this.aggregate.allowedHeaders.length)
       this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.aggregate.allowOrigin, 'allowOrigin'), this.aggregate.allowOrigin.length)
       this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.exposedHeaders, 'exposedHeaders'), this.aggregate.exposedHeaders.length)
-
-      this.fis.formGroupCollection[this.formId].get('maxAge').setValue(this.aggregate.maxAge)
+  
+      this.fis.formGroups[this.formId].get('maxAge').setValue(this.aggregate.maxAge)
       this.cdr.markForCheck()
     }
+
   }
   ngOnDestroy(): void {
     this.cleanUp()
@@ -56,10 +59,10 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
   ngOnInit() {
   }
   convertToPayload(cmpt: CorsComponent): ICorsProfile {
-    let formGroup = cmpt.fis.formGroupCollection[cmpt.formId];
-    const fg0 = cmpt.fis.formGroupCollection[cmpt.originFormId]
-    const fg1 = cmpt.fis.formGroupCollection[cmpt.allowedHeaderFormId]
-    const fg2 = cmpt.fis.formGroupCollection[cmpt.exposedHeaderFormId]
+    let formGroup = cmpt.fis.formGroups[cmpt.formId];
+    const fg0 = cmpt.fis.formGroups[cmpt.originFormId]
+    const fg1 = cmpt.fis.formGroups[cmpt.allowedHeaderFormId]
+    const fg2 = cmpt.fis.formGroups[cmpt.exposedHeaderFormId]
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
