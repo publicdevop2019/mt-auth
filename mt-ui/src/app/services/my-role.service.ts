@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { INewRole } from '../pages/tenant/my-roles/my-roles.component';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { INewRole } from '../pages/tenant/project/my-roles/my-roles.component';
 @Injectable({
   providedIn: 'root'
 })

@@ -1,16 +1,12 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable } from 'rxjs';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
-import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
-import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 
 @Component({
@@ -18,88 +14,87 @@ import { MgmtClientService } from 'src/app/services/mgmt-client.service';
   templateUrl: './client.component.html',
   styleUrls: ['./client.component.css']
 })
-export class MgmtClientComponent extends Aggregate<MgmtClientComponent, IClient> implements OnDestroy, OnInit {
-  bottomSheet: IBottomSheet<IClient>;
+export class MgmtClientComponent implements OnDestroy {
+  public formId = 'mgmtClient';
   constructor(
     public clientSvc: MgmtClientService,
-    public httpProxySvc: HttpProxyService,
-    fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<MgmtClientComponent>,
-    cdr: ChangeDetectorRef
+    public fis: FormInfoService,
+    public bottomSheetRef: MatBottomSheetRef<MgmtClientComponent>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IClient>
   ) {
-    super('mgmtClient', FORM_CONFIG, new ClientValidator(), bottomSheetRef, data, fis, cdr);
-    this.bottomSheet = data;
-    this.fis.init(this.formInfo, this.formId)
-    if (this.bottomSheet.context === 'edit') {
-      this.formInfo.inputs.find(e => e.key === 'clientSecret').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);
-      this.formInfo.inputs.find(e => e.key === 'path').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
-      this.formInfo.inputs.find(e => e.key === 'resourceIndicator').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
-      this.formInfo.inputs.find(e => e.key === 'resourceId').display = (this.aggregate.types).includes(CLIENT_TYPE.backend_app);;
-      this.formInfo.inputs.find(e => e.key === 'registeredRedirectUri').display = (this.aggregate.grantTypeEnums as string[] || []).includes('AUTHORIZATION_CODE');
-      this.formInfo.inputs.find(e => e.key === 'refreshToken').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('PASSWORD') > -1;
-      this.formInfo.inputs.find(e => e.key === 'autoApprove').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('AUTHORIZATION_CODE') > -1;
-      this.formInfo.inputs.find(e => e.key === 'refreshTokenValiditySeconds').display = (this.aggregate.grantTypeEnums as string[] || []).indexOf('PASSWORD') > -1 && this.aggregate.refreshTokenValiditySeconds >= 0;
-      const var0: Observable<any>[] = [];
-      if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-        var0.push(this.clientSvc.readEntityByQuery(0, this.aggregate.resourceIds.length, 'id:' + this.aggregate.resourceIds.join('.')))
-      }
-      if (var0.length === 0) {
-        this.resume()
-        this.fis.disableIfNotMatch(this.formId, [])
+    const client = data.from
+    this.fis.init(FORM_CONFIG, this.formId)
+    if (this.data.context === 'edit') {
+      const showArray: string[] = [];
+      const hideArray: string[] = [];
+      if ((client.types).includes(CLIENT_TYPE.backend_app)) {
+        showArray.push('clientSecret')
+        showArray.push('path')
+        showArray.push('resourceIndicator')
+        showArray.push('resourceId')
       } else {
-        combineLatest(var0).pipe(take(1))
+        hideArray.push('clientSecret')
+        hideArray.push('path')
+        hideArray.push('resourceIndicator')
+        hideArray.push('resourceId')
+      }
+      if ((client.grantTypeEnums as string[] || []).includes('AUTHORIZATION_CODE')) {
+        showArray.push('registeredRedirectUri')
+        showArray.push('autoApprove')
+      } else {
+        hideArray.push('registeredRedirectUri')
+        hideArray.push('autoApprove')
+      }
+      if ((client.grantTypeEnums as string[] || []).includes('PASSWORD')) {
+        showArray.push('refreshToken')
+        showArray.push('refreshTokenValiditySeconds')
+      } else {
+        hideArray.push('refreshToken')
+        hideArray.push('refreshTokenValiditySeconds')
+      }
+      this.fis.showIfMatch(this.formId, showArray)
+      this.fis.hideIfMatch(this.formId, hideArray)
+      this.fis.disableForm(this.formId)
+      const var0: Observable<any>[] = [];
+      if (client.resourceIds && client.resourceIds.length > 0) {
+        this.clientSvc.readEntityByQuery(0, client.resourceIds.length, 'id:' + client.resourceIds.join('.'))
+          .pipe(take(1))
           .subscribe(next => {
-            let count = -1;
-            if (this.aggregate.resourceIds && this.aggregate.resourceIds.length > 0) {
-              count++;
-              (this.formInfo.inputs.find(e => e.key === 'resourceId') as ISelectControl).options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-            }
+            this.fis.updateOption(this.formId, 'resourceId', next.data.map(e => <IOption>{ label: e.name, value: e.id }))
             this.resume()
-            this.fis.disableIfNotMatch(this.formId, [])
-            this.cdr.markForCheck()
           })
-
+      }else{
+        this.resume()
       }
     };
   }
-  ngOnInit(): void {
-  }
   resume(): void {
-    const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
+    const client = this.data.from
+    const grantType: string = client.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];
     this.fis.formGroups[this.formId].patchValue({
-      id: this.aggregate.id,
-      hasSecret: this.aggregate.hasSecret,
-      projectId: this.aggregate.projectId,
-      path: this.aggregate.path ? this.aggregate.path : '',
-      clientSecret: this.aggregate.hasSecret ? '*****' : '',
-      name: this.aggregate.name,
-      description: this.aggregate.description || '',
-      frontOrBackApp: this.aggregate.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
+      id: client.id,
+      hasSecret: client.hasSecret,
+      projectId: client.projectId,
+      path: client.path ? client.path : '',
+      clientSecret: client.hasSecret ? '*****' : '',
+      name: client.name,
+      description: client.description || '',
+      frontOrBackApp: client.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
       grantType: grantType,
-      registeredRedirectUri: this.aggregate.registeredRedirectUri ? this.aggregate.registeredRedirectUri.join(',') : '',
-      refreshToken: grantType === 'PASSWORD' ? this.aggregate.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
-      resourceIndicator: this.aggregate.resourceIndicator,
-      autoApprove: this.aggregate.autoApprove,
-      accessTokenValiditySeconds: this.aggregate.accessTokenValiditySeconds,
-      refreshTokenValiditySeconds: this.aggregate.refreshTokenValiditySeconds,
-      resourceId: this.aggregate.resourceIds,
+      registeredRedirectUri: client.registeredRedirectUri ? client.registeredRedirectUri.join(',') : '',
+      refreshToken: grantType === 'PASSWORD' ? client.grantTypeEnums.some(e => e === grantTypeEnums.refresh_token) : false,
+      resourceIndicator: client.resourceIndicator,
+      autoApprove: client.autoApprove,
+      accessTokenValiditySeconds: client.accessTokenValiditySeconds,
+      refreshTokenValiditySeconds: client.refreshTokenValiditySeconds,
+      resourceId: client.resourceIds,
     });
   }
   ngOnDestroy(): void {
-    Object.keys(this.subs).forEach(k => { this.subs[k].unsubscribe() })
-    this.fis.reset('mgmtClient');
+    this.fis.reset(this.formId);
   }
-  convertToPayload(cmpt: MgmtClientComponent): IClient {
-    throw new Error('Method not implemented.');
-  }
-  update() {
-    throw new Error('Method not implemented.');
-  }
-  create() {
-    throw new Error('Method not implemented.');
-  }
-  errorMapper(original: ErrorMessage[], cmpt: MgmtClientComponent): ErrorMessage[] {
-    throw new Error('Method not implemented.');
+  dismiss(event: MouseEvent) {
+    this.bottomSheetRef.dismiss();
+    event.preventDefault();
   }
 }

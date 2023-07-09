@@ -1,13 +1,11 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption, IQueryProvider, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
-import { utils } from 'protractor';
+import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
 import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { GRANT_TYPE_LIST } from 'src/app/clazz/validation/constant';
@@ -21,7 +19,7 @@ import { MyClientService } from 'src/app/services/my-client.service';
   templateUrl: './client.component.html',
   styleUrls: ['./client.component.css']
 })
-export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy, OnInit {
+export class ClientComponent extends Aggregate<ClientComponent, IClient> implements OnDestroy{
   bottomSheet: IBottomSheet<IClient>;
   constructor(
     public clientSvc: MyClientService,
@@ -106,8 +104,6 @@ export class ClientComponent extends Aggregate<ClientComponent, IClient> impleme
 
       }
     };
-  }
-  ngOnInit(): void {
   }
   resume(): void {
     const grantType: string = this.aggregate.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token)[0];

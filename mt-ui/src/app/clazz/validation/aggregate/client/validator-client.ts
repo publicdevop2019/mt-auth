@@ -67,7 +67,7 @@ export class ClientValidator extends IAggregateValidator {
         let results: ErrorMessage[] = [];
         StringValidator.hasValidWhiteListValue(payload[key], results, key)
         StringValidator.lessThanOrEqualTo(payload[key], 50, results, key);
-        StringValidator.greaterThanOrEqualTo(payload[key], 1, results, key);
+        StringValidator.greaterThanOrEqualTo(payload[key], 5, results, key);
         return results
     }
     clientAccessTokenValiditySecondsValidator = (key: string, payload: IClient) => {

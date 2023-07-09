@@ -9,7 +9,7 @@ import { IPermission } from 'src/app/clazz/validation/aggregate/permission/inter
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view.config';
-import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
+import { RoleComponent } from 'src/app/pages/tenant/project/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { OrgService } from 'src/app/services/org.service';
 import { ProjectService } from 'src/app/services/project.service';

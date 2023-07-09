@@ -6,7 +6,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { RoleComponent } from 'src/app/pages/tenant/role/role.component';
+import { RoleComponent } from 'src/app/pages/tenant/project/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';

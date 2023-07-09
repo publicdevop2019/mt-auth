@@ -44,9 +44,7 @@ export class CorsComponent extends Aggregate<CorsComponent, ICorsProfile> implem
       this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.allowedHeaders, 'allowedHeaders'), this.aggregate.allowedHeaders.length)
       this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.aggregate.allowOrigin, 'allowOrigin'), this.aggregate.allowOrigin.length)
       this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.exposedHeaders, 'exposedHeaders'), this.aggregate.exposedHeaders.length)
-  
       this.fis.formGroups[this.formId].get('maxAge').setValue(this.aggregate.maxAge)
-      this.cdr.markForCheck()
     }
 
   }

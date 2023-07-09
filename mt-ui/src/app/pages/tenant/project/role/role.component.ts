@@ -13,12 +13,12 @@ import { RoleValidator } from 'src/app/clazz/validation/aggregate/role/validator
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { DynamicTreeComponent, INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG, FORM_CONFIG_SHARED } from 'src/app/form-configs/role.config';
-import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { SharedPermissionService } from 'src/app/services/shared-permission.service';
+import { INewRole } from '../my-roles/my-roles.component';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',

@@ -9,12 +9,12 @@ import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.compo
 import { uniqueObject } from 'src/app/clazz/utility';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { ClientComponent } from 'src/app/pages/tenant/client/client.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { ClientComponent } from '../client/client.component';
 
 @Component({
   selector: 'app-my-clients',

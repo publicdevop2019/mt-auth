@@ -7,7 +7,6 @@ import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaz
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { DeviceService } from 'src/app/services/device.service';
-import { CacheComponent } from '../cache/cache.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { ActivatedRoute } from '@angular/router';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -17,6 +16,7 @@ import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
 import { copyOf } from 'src/app/clazz/utility';
+import { CacheComponent } from '../cache/cache.component';
 @Component({
   selector: 'app-my-cache',
   templateUrl: './my-cache.component.html',

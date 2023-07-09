@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
-import { IOrg } from '../pages/tenant/my-orgs/my-orgs.component';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { IOrg } from '../pages/tenant/project/my-orgs/my-orgs.component';
 @Injectable({
   providedIn: 'root'
 })

@@ -1,7 +1,6 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { ICheckboxControl, IOption, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
@@ -14,8 +13,6 @@ import { CorsComponent } from '../cors/cors.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
-import { copyOf } from 'src/app/clazz/utility';
 @Component({
   selector: 'app-my-cors',
   templateUrl: './my-cors.component.html',

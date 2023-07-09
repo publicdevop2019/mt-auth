@@ -4,10 +4,10 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { INewRole } from 'src/app/pages/tenant/my-roles/my-roles.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
-import { RoleComponent } from '../../tenant/role/role.component';
+import { RoleComponent } from '../../tenant/project/role/role.component';
+import { INewRole } from '../../tenant/project/my-roles/my-roles.component';
 @Component({
   selector: 'app-summary-role',
   templateUrl: './summary-role.component.html',

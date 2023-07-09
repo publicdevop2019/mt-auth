@@ -22,10 +22,11 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     private httpSvc: HttpProxyService,
     private interceptor: CustomHttpInterceptor,
     private cdr: ChangeDetectorRef,
-  ) { }
+  ) { 
+    this.fis.init(FORM_CONFIG, this.formId)
+  }
   ngOnDestroy(): void {
     this.subs.unsubscribe();
-    this.fis.init(FORM_CONFIG, this.formId)
   }
   ngOnInit(): void {
     this.subs = this.fis.$uploadFile.subscribe(next => {
