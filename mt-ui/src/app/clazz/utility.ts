@@ -10,7 +10,7 @@ export function logout(router?: Router, httpProxy?: HttpProxyService) {
     if (httpProxy) {
         httpProxy.clearLogoutCheck()
     }
-    if(httpProxy){
+    if (httpProxy) {
         httpProxy.currentUserAuthInfo = undefined;
     }
     sessionStorage.clear();
@@ -49,13 +49,63 @@ export function getUrl(input: string[]) {
     return input.join('/')
 }
 export class Utility {
+
     public static notEmpty(input?: any[]): boolean {
         return input && input.length > 0
     }
-    public static print(input: any) {
-        console.dir(input)
-    }
     public static copyOf<T>(source: T): T {
         return JSON.parse(JSON.stringify(source))
+    }
+    public static noEmptyString(input: string) {
+        return input ? input : null
+    }
+}
+export class Logger {
+    private static LOG_LEVEL: 'DEBUG' | 'TRACE' | 'ERROR' = 'DEBUG'
+    public static debug(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'DEBUG') {
+            this.log(message, args)
+        }
+    }
+    public static trace(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'TRACE') {
+            this.log(message, args)
+        }
+    }
+    public static error(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'ERROR') {
+            this.log(message, args)
+        }
+    }
+    public static log(message: string, args: any[]) {
+        args.forEach(e => {
+            if (typeof e !== 'string' || typeof e !== 'boolean') {
+                message = message.replace('{}', JSON.stringify(e))
+            } else {
+                message = message.replace('{}', e)
+            }
+        })
+        console.log(message)
+    }
+    public static debugObj(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'DEBUG') {
+            this.logObj(message, args)
+        }
+    }
+    public static traceObj(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'TRACE') {
+            this.logObj(message, args)
+        }
+    }
+    public static errorObj(message: any, ...args: any[]) {
+        if (Logger.LOG_LEVEL === 'ERROR') {
+            this.logObj(message, args)
+        }
+    }
+    public static logObj(message: string, args: any[]) {
+        console.log(message)
+        args.forEach(arg => {
+            console.dir(arg)
+        })
     }
 }

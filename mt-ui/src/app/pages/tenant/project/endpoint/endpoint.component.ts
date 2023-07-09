@@ -5,7 +5,6 @@ import { IForm, IOption, IQueryProvider, ISelectControl } from 'mt-form-builder/
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { noEmptyString } from 'src/app/clazz/common.utility';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
 import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
@@ -17,6 +16,7 @@ import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
+import { Utility } from 'src/app/clazz/utility';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -187,8 +187,8 @@ export class EndpointComponent extends Aggregate<EndpointComponent, IEndpoint> i
       websocket: basicFormGroup.get('isWebsocket').value === 'yes',
       shared: catalogFormGroup.get('isShared').value === 'yes',
       csrfEnabled: !!secureFormGroup.get('csrf').value,
-      corsProfileId: noEmptyString(secureFormGroup.get("corsProfile").value),
-      cacheProfileId: basicFormGroup.get('method').value === 'GET' ? noEmptyString(perFormGroup.get("cacheProfile").value) : null,
+      corsProfileId: Utility.noEmptyString(secureFormGroup.get("corsProfile").value),
+      cacheProfileId: basicFormGroup.get('method').value === 'GET' ? Utility.noEmptyString(perFormGroup.get("cacheProfile").value) : null,
       replenishRate: +perFormGroup.get("replenishRate").value,
       burstCapacity: +perFormGroup.get("burstCapacity").value,
       version: cmpt.aggregate && cmpt.aggregate.version

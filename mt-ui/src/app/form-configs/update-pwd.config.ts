@@ -10,6 +10,10 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "ENTER_YOUR_CURRENT_PASSWORD",
             "key": "currentPwd",
+            "position": {
+                "row": "2",
+                "column": "0"
+            },
             required:true,
         },
         {
@@ -19,6 +23,10 @@ export const FORM_CONFIG: IForm = {
             "autocomplete":'new-password',
             "label": "ENTER_YOUR_NEW_PASSWORD",
             "key": "pwd",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
             required:true,
         },
         {
@@ -28,6 +36,10 @@ export const FORM_CONFIG: IForm = {
             "autocomplete":'new-password',
             "label": "REENTER_YOUR_NEW_PASSWORD",
             "key": "confirmPwd",
+            "position": {
+                "row": "4",
+                "column": "0"
+            },
             required:true,
         },
     ],

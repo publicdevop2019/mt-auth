@@ -8,6 +8,10 @@ export const FORM_CONFIG: IForm = {
             "display": true,
             "label": "PLS_ENTER_PROJECT_NAME",
             "key": "projectName",
+            "position": {
+                "row": "0",
+                "column": "0"
+            },
             required:true,
         },
     ],
