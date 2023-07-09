@@ -1,25 +1,24 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { take } from 'rxjs/operators';
-import { IForgetPasswordRequest, IPendingResourceOwner } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
-import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
+import { Logger, Utility } from 'src/app/clazz/utility';
+import { IForgetPasswordRequest, IPendingUser } from 'src/app/clazz/validation/interfaze-user';
 import { IMfaResponse, ITokenResponse } from 'src/app/clazz/validation/interfaze-common';
-import { ErrorMessage, StringValidator } from 'src/app/clazz/validation/validator-common';
+import { Validator } from 'src/app/clazz/validation/validator-next-common';
 import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
-import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
+  context: 'REGISTER' | 'LOGIN' | 'FORGET' = this.hasLoginSuccessfully ? 'LOGIN' : 'REGISTER'
   isBeta: boolean = true;
   public get hasLoginSuccessfully() {
     return localStorage.getItem('successLogin') === 'true'
@@ -28,32 +27,50 @@ export class LoginComponent implements OnInit {
     localStorage.setItem('successLogin', next + '')
   }
   nextUrl: string = '/home';
-  forgetPwd: boolean = false;
-  isRegister: boolean = this.hasLoginSuccessfully ? false : true;
-  emailErrorMsg: string = undefined;
-  activationCodeErrorMsg: string = undefined;
-  tokenErrorMsg: string = undefined;
-  mobileNumberError: string = undefined;
-  countryCodeError: string = undefined;
-  passwordErrorMsg: string = undefined;
-  confirmgPasswordErrorMsg: string = undefined;
-  activationCodeChangeId = UUID();
-  registerChangeId = UUID();
-  tokenChangeId = UUID();
-  resetChangeId = UUID();
-  loginOrRegForm = new FormGroup({
-    isRegister: new FormControl('', []),
+
+  loginEmailErrorMsg: string = undefined;
+  loginPwdErrorMsg: string = undefined;
+
+  forgetEmailErrorMsg: string = undefined;
+  forgetTokenErrorMsg: string = undefined;
+  forgetPwdErrorMsg: string = undefined;
+  forgetConfirmPwdErrorMsg: string = undefined;
+
+  registerEmailErrorMsg: string = undefined;
+  registerCodeErrorMsg: string = undefined;
+  registerMobileCountryCodeErrorMsg: string = undefined;
+  registerMobilePhoneNumErrorMsg: string = undefined;
+  registerPwdErrorMsg: string = undefined;
+  registerConfirmPwdErrorMsg: string = undefined;
+
+  enableResigerEmailError: boolean = false;
+  enableResigerOtherError: boolean = false;
+  enableForgetEmailError: boolean = false;
+  enableForgetOtherError: boolean = false;
+  enableLoginError: boolean = false;
+
+  activationCodeChangeId = Utility.getChangeId();
+  registerChangeId = Utility.getChangeId();
+  tokenChangeId = Utility.getChangeId();
+  resetChangeId = Utility.getChangeId();
+  loginForm = new FormGroup({
     email: new FormControl('', []),
-    registerEmail: new FormControl('', []),
     pwd: new FormControl('', []),
-    registerPwd: new FormControl('', []),
-    confirmPwd: new FormControl('', []),
+  });
+  registerForm = new FormGroup({
+    email: new FormControl('', []),
     activationCode: new FormControl('', []),
-    token: new FormControl('', []),
     countryCode: new FormControl('', []),
     mobileNumber: new FormControl('', []),
+    pwd: new FormControl('', []),
+    confirmPwd: new FormControl('', []),
   });
-  private validator = new UserValidator()
+  forgetForm = new FormGroup({
+    email: new FormControl('', []),
+    token: new FormControl('', []),
+    pwd: new FormControl('', []),
+    confirmPwd: new FormControl('', []),
+  });
   constructor(
     public langSvc: LanguageService,
     public httpProxy: HttpProxyService,
@@ -69,6 +86,32 @@ export class LoginComponent implements OnInit {
         /** get  authorize party info */
         this.nextUrl = '/authorize';
       }
+    });
+    this.loginForm.valueChanges.subscribe(() => {
+      if (this.enableLoginError) {
+        Logger.debug('checking login')
+        this.validateLogin();
+      }
+    })
+    this.registerForm.valueChanges.subscribe(() => {
+      if (this.enableResigerEmailError) {
+        Logger.debug('checking register email')
+        this.validateRegsiterEmail();
+      }
+      if (this.enableResigerOtherError) {
+        Logger.debug('checking register others')
+        this.validateRegsiterOthers();
+      }
+    })
+    this.forgetForm.valueChanges.subscribe(() => {
+      if (this.enableForgetEmailError) {
+        Logger.debug('checking forget email')
+        this.validateForgetEmail();
+      }
+      if (this.enableForgetOtherError) {
+        Logger.debug('checking forget email')
+        this.validateForgetOthers();
+      }
     })
   }
   mobileNums: IOption[] = [
@@ -79,49 +122,13 @@ export class LoginComponent implements OnInit {
       label: '+86', value: '86'
     },
   ]
-  ngOnInit() {
-    this.loginOrRegForm.get('registerPwd').valueChanges.subscribe((next) => {
-      this.loginOrRegForm.get('pwd').setValue(next)
-    })
-    this.loginOrRegForm.get('registerEmail').valueChanges.subscribe((next) => {
-      this.loginOrRegForm.get('email').setValue(next)
-    })
-  }
   login() {
-    let error: ErrorMessage[] = [];
-    StringValidator.isEmail(this.loginOrRegForm.get('email').value, error, 'email')
-    if (error.length > 0) {
-      if (error.some(e => e.key === 'email')) {
-        this.emailErrorMsg = error.find(e => e.key === 'email').message;
-        this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'pwd')) {
-        this.passwordErrorMsg = error.find(e => e.key === 'pwd').message;
-        this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-      }
-
-      this.loginOrRegForm.valueChanges.subscribe(() => {
-        let error: ErrorMessage[] = [];
-        StringValidator.isEmail(this.loginOrRegForm.get('email').value, error, 'email')
-        StringValidator.hasValidWhiteListValue(this.loginOrRegForm.get('pwd').value, error, 'pwd')
-        if (error.some(e => e.key === 'email')) {
-          this.emailErrorMsg = error.find(e => e.key === 'email').message;
-          this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-        } else {
-          this.emailErrorMsg = undefined;
-        }
-        if (error.some(e => e.key === 'pwd')) {
-          this.passwordErrorMsg = error.find(e => e.key === 'pwd').message;
-          this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-        } else {
-          this.passwordErrorMsg = undefined;
-        }
-      })
-    } else {
-      this.httpProxy.login(this.loginOrRegForm).subscribe(next => {
+    this.enableLoginError = true;
+    if (this.validateLogin()) {
+      this.httpProxy.login(this.loginForm.get('email').value, this.loginForm.get('pwd').value).subscribe(next => {
         this.hasLoginSuccessfully = true;
         if ((next as IMfaResponse).mfaId) {
-          this.authSvc.loginFormValue = this.loginOrRegForm;
+          this.authSvc.loginFormValue = this.loginForm;
           this.authSvc.loginNextUrl = this.nextUrl;
           this.authSvc.mfaId = (next as IMfaResponse).mfaId;
           this.route.navigate(['/mfa'], { queryParams: this.router.snapshot.queryParams });
@@ -132,168 +139,68 @@ export class LoginComponent implements OnInit {
       })
     }
   }
+
   register() {
-    let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
-    if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
-      this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
-      this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
-    }
-    if (error.length > 0) {
-      if (error.some(e => e.key === 'email')) {
-        this.emailErrorMsg = error.find(e => e.key === 'email').message;
-        this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'countryCode')) {
-        this.countryCodeError = 'INVALID_COUNTRY_CODE';
-        this.loginOrRegForm.get('countryCode').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'mobileNumber')) {
-        this.mobileNumberError = 'INVALID_MOBILE';
-        this.loginOrRegForm.get('mobileNumber').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'activationCode')) {
-        this.activationCodeErrorMsg = error.find(e => e.key === 'activationCode').message;
-        this.loginOrRegForm.get('activationCode').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'password')) {
-        this.passwordErrorMsg = error.find(e => e.key === 'password').message;
-        this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-      }
-
-      this.loginOrRegForm.valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getRegPayload(this.loginOrRegForm), 'appCreateUserCommandValidator');
-        if (error.some(e => e.key === 'email')) {
-          this.emailErrorMsg = error.find(e => e.key === 'email').message;
-          this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-        } else {
-          this.emailErrorMsg = undefined;
-        }
-        if (error.some(e => e.key === 'activationCode')) {
-          this.activationCodeErrorMsg = error.find(e => e.key === 'activationCode').message;
-          this.loginOrRegForm.get('activationCode').setErrors({ wrongValue: true });
-        } else {
-          this.activationCodeErrorMsg = undefined;
-        }
-        if (error.some(e => e.key === 'password')) {
-          this.passwordErrorMsg = error.find(e => e.key === 'password').message;
-          this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-        } else {
-          this.passwordErrorMsg = undefined;
-        }
-        if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
-          this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
-          this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
-        } else {
-          this.confirmgPasswordErrorMsg = undefined;
-        }
+    this.enableResigerEmailError = true;
+    this.enableResigerOtherError = true;
+    const var0 = this.validateRegsiterEmail()
+    const var1 = this.validateRegsiterOthers()
+    if (var0 && var1) {
+      const payload: IPendingUser = {
+        email: this.registerForm.get('email').value,
+        password: this.registerForm.get('pwd').value,
+        activationCode: this.registerForm.get('activationCode').value,
+        mobileNumber: this.registerForm.get('mobileNumber').value,
+        countryCode: this.registerForm.get('countryCode').value,
+      };
+      this.httpProxy.register(payload, this.registerChangeId).subscribe(next => {
+        this.context = 'LOGIN'
+        this.loginForm.get('email').setValue(this.registerForm.get('email').value)
+        this.loginForm.get('pwd').setValue(this.registerForm.get('pwd').value)
+        this.openDialog('REGISTER_SUCCESS_MSG');
       })
-    } else {
-      if (this.loginOrRegForm.get('confirmPwd').value === this.loginOrRegForm.get('pwd').value) {
-        this.httpProxy.register(this.getRegPayload(this.loginOrRegForm), this.registerChangeId).subscribe(next => {
-          this.loginOrRegForm.get('isRegister').setValue(false);
-          this.openDialog('REGISTER_SUCCESS_MSG');
-        })
-      }
     }
-
   }
+
+
+
   getCode() {
-    let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm), 'appCreatePendingUserCommandValidator');
-    if (error.length > 0) {
-      this.emailErrorMsg = error[0].message;
-      this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-      this.loginOrRegForm.get('email').valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getActivatePayload(this.loginOrRegForm), 'appCreatePendingUserCommandValidator');
-        if (error.length > 0) {
-          this.emailErrorMsg = error[0].message;
-          this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-        } else {
-          this.emailErrorMsg = undefined;
-        }
-      })
-    } else {
+    this.enableResigerEmailError = true;
+    if (this.validateRegsiterEmail()) {
       this.httpProxy.currentUserAuthInfo = undefined;
-      this.httpProxy.activate(this.getActivatePayload(this.loginOrRegForm), this.activationCodeChangeId).subscribe(next => {
+      const payload: IPendingUser = { email: this.registerForm.get('email').value }
+      this.httpProxy.activate(payload, this.activationCodeChangeId).subscribe(next => {
         this.openDialog('CODE_SEND_MSG');
       })
     }
   }
   getToken() {
-    let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm), 'appForgetUserPasswordCommandValidator');
-    if (error.length > 0) {
-      this.emailErrorMsg = error[0].message;
-      this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-      this.loginOrRegForm.get('email').valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getForgetPayload(this.loginOrRegForm), 'appForgetUserPasswordCommandValidator');
-        if (error.length > 0) {
-          this.emailErrorMsg = error[0].message;
-          this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-        } else {
-          this.emailErrorMsg = undefined;
-        }
-      })
-    } else {
+    this.enableForgetEmailError = true;
+    if (this.validateForgetEmail()) {
       this.httpProxy.currentUserAuthInfo = undefined;
-      this.httpProxy.forgetPwd(this.getForgetPayload(this.loginOrRegForm), this.tokenChangeId).subscribe(next => {
+      const payload: IPendingUser = { email: this.forgetForm.get('email').value }
+      this.httpProxy.forgetPwd(payload, this.tokenChangeId).subscribe(next => {
         this.openDialog('TOKEN_SEND_MSG');
       })
     }
   }
   changePassword() {
-    let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm), 'appResetUserPasswordCommandValidator');
-    if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
-      this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
-      this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
-    }
-    if (error.length > 0) {
-      if (error.some(e => e.key === 'email')) {
-        this.emailErrorMsg = error.find(e => e.key === 'email').message;
-        this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'token')) {
-        this.tokenErrorMsg = error.find(e => e.key === 'token').message;
-        this.loginOrRegForm.get('token').setErrors({ wrongValue: true });
-      }
-      if (error.some(e => e.key === 'newPassword')) {
-        this.passwordErrorMsg = error.find(e => e.key === 'newPassword').message;
-        this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-      }
-
-      this.loginOrRegForm.valueChanges.subscribe(() => {
-        let error = this.validator.validate(this.getResetPayload(this.loginOrRegForm), 'appResetUserPasswordCommandValidator');
-        if (error.some(e => e.key === 'email')) {
-          this.emailErrorMsg = error.find(e => e.key === 'email').message;
-          this.loginOrRegForm.get('email').setErrors({ wrongValue: true });
-        } else {
-          this.emailErrorMsg = undefined;
-        }
-        if (error.some(e => e.key === 'token')) {
-          this.tokenErrorMsg = error.find(e => e.key === 'token').message;
-          this.loginOrRegForm.get('token').setErrors({ wrongValue: true });
-        } else {
-          this.tokenErrorMsg = undefined;
-        }
-        if (error.some(e => e.key === 'newPassword')) {
-          this.passwordErrorMsg = error.find(e => e.key === 'newPassword').message;
-          this.loginOrRegForm.get('pwd').setErrors({ wrongValue: true });
-        } else {
-          this.passwordErrorMsg = undefined;
-        }
-        if (this.loginOrRegForm.get('confirmPwd').value !== this.loginOrRegForm.get('pwd').value) {
-          this.confirmgPasswordErrorMsg = 'PWD_NOT_SAME';
-          this.loginOrRegForm.get('confirmPwd').setErrors({ wrongValue: true });
-        } else {
-          this.confirmgPasswordErrorMsg = undefined;
-        }
+    this.enableForgetEmailError = true;
+    this.enableForgetOtherError = true;
+    const var0 = this.validateForgetEmail()
+    const var1 = this.validateForgetOthers()
+    if (var0 && var1) {
+      const payload: IForgetPasswordRequest = {
+        email: this.forgetForm.get('email').value,
+        token: this.forgetForm.get('token').value,
+        newPassword: this.forgetForm.get('pwd').value,
+      };
+      this.httpProxy.resetPwd(payload, this.resetChangeId).subscribe(next => {
+        this.context = 'LOGIN'
+        this.loginForm.get('email').setValue(this.forgetForm.get('email').value)
+        this.loginForm.get('pwd').setValue(this.forgetForm.get('pwd').value);
+        this.openDialog('PASSWORD_UPDATE_SUCCESS_MSG');
       })
-    } else {
-      if (this.loginOrRegForm.get('confirmPwd').value === this.loginOrRegForm.get('pwd').value) {
-        this.httpProxy.resetPwd(this.getResetPayload(this.loginOrRegForm), this.resetChangeId).subscribe(next => {
-          this.loginOrRegForm.get('isRegister').setValue(false);
-          this.forgetPwd = false;
-          this.openDialog('PASSWORD_UPDATE_SUCCESS_MSG');
-        })
-      }
     }
   }
   openDialog(msg: string): void {
@@ -302,43 +209,88 @@ export class LoginComponent implements OnInit {
       data: msg
     });
   }
-  private getActivatePayload(fg: FormGroup): IPendingResourceOwner {
-    return {
-      email: fg.get('email').value,
-    };
-  }
-  private getRegPayload(fg: FormGroup): IPendingResourceOwner {
-    return {
-      email: fg.get('email').value,
-      password: fg.get('pwd').value,
-      activationCode: fg.get('activationCode').value,
-      mobileNumber: fg.get('mobileNumber').value,
-      countryCode: fg.get('countryCode').value,
-    };
-  }
-  private getResetPayload(fg: FormGroup): IForgetPasswordRequest {
-    return {
-      email: fg.get('email').value,
-      token: fg.get('token').value,
-      newPassword: fg.get('pwd').value,
-    };
-  }
-  private getForgetPayload(fg: FormGroup): IForgetPasswordRequest {
-    return {
-      email: fg.get('email').value,
-    };
-  }
   openDoc() {
     window.open('./docs', '_blank').focus();
   }
   openSource() {
-    if(this.langSvc.currentLanguage()==='zhHans'){
+    if (this.langSvc.currentLanguage() === 'zhHans') {
       window.open('https://gitee.com/mirrors/MT-AUTH', '_blank').focus();
-    }else{
+    } else {
       window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
     }
   }
   showPasswordHint() {
-    return (this.isRegister || this.forgetPwd) && this.loginOrRegForm.get('registerPwd').value
+    if (this.context === 'REGISTER') {
+      return !!this.registerForm.get('pwd').value
+    }
+    if (this.context === 'FORGET') {
+      return !!this.forgetForm.get('pwd').value
+    }
+    return false
+  }
+  private validateRegsiterOthers(): boolean {
+    const var0 = Validator.same(this.registerForm.get('confirmPwd').value, this.registerForm.get('pwd').value)
+    this.registerConfirmPwdErrorMsg = var0.errorMsg;
+    this.registerForm.get('confirmPwd').setErrors(var0.errorMsg ? { wrongValue: true } : null);
+
+    const var1 = Validator.exist(this.registerForm.get('countryCode').value)
+    this.registerMobileCountryCodeErrorMsg = var1.errorMsg;
+    this.registerForm.get('countryCode').setErrors(var1.errorMsg ? { wrongValue: true } : null);
+
+    const var2 = Validator.exist(this.registerForm.get('mobileNumber').value)
+    this.registerMobilePhoneNumErrorMsg = var2.errorMsg;
+    this.registerForm.get('mobileNumber').setErrors(var2.errorMsg ? { wrongValue: true } : null);
+
+    const var3 = Validator.exist(this.registerForm.get('activationCode').value)
+    this.registerCodeErrorMsg = var3.errorMsg;
+    this.registerForm.get('activationCode').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+
+    const var4 = Validator.exist(this.registerForm.get('pwd').value)
+    this.registerPwdErrorMsg = var4.errorMsg;
+    this.registerForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+    return !this.registerPwdErrorMsg && !this.registerCodeErrorMsg
+      && !this.registerMobilePhoneNumErrorMsg && !this.registerMobileCountryCodeErrorMsg
+      && !this.registerConfirmPwdErrorMsg
+  }
+  private validateForgetOthers(): boolean {
+    const var0 = Validator.same(this.forgetForm.get('confirmPwd').value, this.forgetForm.get('pwd').value)
+    this.forgetConfirmPwdErrorMsg = var0.errorMsg;
+    this.forgetForm.get('confirmPwd').setErrors(var0.errorMsg ? { wrongValue: true } : null);
+
+    const var3 = Validator.exist(this.forgetForm.get('token').value)
+    this.forgetTokenErrorMsg = var3.errorMsg;
+    this.forgetForm.get('token').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+
+    const var4 = Validator.exist(this.forgetForm.get('pwd').value)
+    this.forgetPwdErrorMsg = var4.errorMsg;
+    this.forgetForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+    return !this.forgetPwdErrorMsg && !this.forgetTokenErrorMsg && !this.forgetConfirmPwdErrorMsg
+  }
+  private validateLogin(): boolean {
+    const var3 = Validator.exist(this.loginForm.get('email').value)
+    this.loginEmailErrorMsg = var3.errorMsg;
+    this.loginForm.get('email').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+
+    const var4 = Validator.exist(this.loginForm.get('pwd').value)
+    this.loginPwdErrorMsg = var4.errorMsg;
+    this.loginForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+    return !this.loginPwdErrorMsg && !this.loginEmailErrorMsg
+  }
+  private validateRegsiterEmail(): boolean {
+    const result = Validator.exist(this.registerForm.get('email').value)
+    this.registerEmailErrorMsg = result.errorMsg;
+    result.errorMsg ? this.registerForm.get('email').setErrors({ wrongValue: true })
+      : this.registerForm.get('email').setErrors(null)
+    Logger.trace('errors {}', this.registerForm.get('email').errors)
+    return !result.errorMsg
+  }
+
+  private validateForgetEmail(): boolean {
+    const result = Validator.exist(this.forgetForm.get('email').value)
+    this.forgetEmailErrorMsg = result.errorMsg;
+    result.errorMsg ? this.forgetForm.get('email').setErrors({ wrongValue: true })
+      : this.forgetForm.get('email').setErrors(null)
+    Logger.trace('errors {}', this.forgetForm.get('email').errors)
+    return !result.errorMsg
   }
 }

@@ -1,6 +1,7 @@
 <div class="body-container">
     <div class="app-header">
-        <div class="app-name">{{'APP_NAME'|translate}}<span *ngIf="isBeta" style="margin-left: 4px; font-size: 12px; font-weight: 400; color: #673ab7;">beta</span></div>
+        <div class="app-name">{{'APP_NAME'|translate}}<span *ngIf="isBeta"
+                style="margin-left: 4px; font-size: 12px; font-weight: 400; color: #673ab7;">beta</span></div>
         <div style="display: flex; justify-content: center; align-items: center;">
             <div style="font-weight: 600; margin-right: 16px; margin-top: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
                 (click)="openDoc()">
@@ -12,64 +13,76 @@
                 <div>{{'SOURCE_CODE_REPO'|translate}}</div><mat-icon
                     style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
             </div>
-            <div (click)="langSvc.toggleLang()" style="cursor: pointer; text-align: right;margin-top: 8px;margin-right: 8px;">
+            <div (click)="langSvc.toggleLang()"
+                style="cursor: pointer; text-align: right;margin-top: 8px;margin-right: 8px;">
                 {{'CURRENT_LANG' | translate}}</div>
         </div>
     </div>
     <div class="app-body">
         <div class="app-msg-body">
-            <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}<span *ngIf="isBeta" style="margin-left: 4px; font-size: 16px; font-weight: 400; color: #673ab7;">beta</span></div>
+            <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}<span *ngIf="isBeta"
+                    style="margin-left: 4px; font-size: 16px; font-weight: 400; color: #673ab7;">beta</span></div>
             <div class="app-msg">{{'APP_DESCRIPTION_2'|translate}}</div>
-            <div *ngIf="isBeta" style="margin-top: 12px;font-size: 12px; font-weight: 400; color: #673ab7;">{{'APP_DESCRIPTION_3'|translate}}</div>
+            <div *ngIf="isBeta" style="margin-top: 12px;font-size: 12px; font-weight: 400; color: #673ab7;">
+                {{'APP_DESCRIPTION_3'|translate}}</div>
         </div>
-        <form [formGroup]="loginOrRegForm" class="page-form">
-            <div class="form-body mobile-view">
-                <div *ngIf="isRegister" class="register-msg">
-                    {{'NEW_USER_MSG'|translate}}
+        <ng-container *ngIf="context === 'LOGIN'">
+            <form [formGroup]="loginForm" class="page-form">
+                <div class="form-body mobile-view">
+                    <div class="login-msg">
+                        <div>{{'USER_LOGIN'|translate}}</div>
+                    </div>
+                    <div class="register-login-msg">
+                        <div>{{'NEW_USER_MSG_2'|translate}}</div>
+                        <a class="register-login-msg-link" (click)="context='REGISTER'">{{'REGISTER'| translate}}</a>
+                    </div>
+                    <div class="register-email">
+                        <mat-form-field *ngIf="!isRegister" style="flex: 1;">
+                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
+                            <input matInput formControlName="email" autocomplete="username" name="username">
+                            <mat-error>{{loginEmailErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                    </div>
+                    <div class="register-email">
+                        <mat-form-field style="flex: 1;">
+                            <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}" [type]="'password'"
+                                formControlName="pwd" autocomplete="current-password">
+                            <mat-error>{{loginPwdErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                        <button mat-raised-button (click)="login()" style="margin-left: 8px;" color="primary">{{'LOGIN'|
+                            translate}}</button>
+                    </div>
+                    <div class="forget-pwd-msg">
+                        <a (click)="context='FORGET'" class="forget-pwd">{{'FORGET_PASSWORD'| translate}}</a>
+                    </div>
                 </div>
-                <div *ngIf="forgetPwd" class="register-msg">
-                    {{'RESET_PWD'|translate}}
-                </div>
-                <div *ngIf="!forgetPwd && !isRegister" class="login-msg">
-                    <div>{{'USER_LOGIN'|translate}}</div>
-                </div>
-                <div *ngIf="isRegister" class="register-login-msg">
-                    <div>{{'NEW_USER_MSG_1'|translate}}</div>
-                    <a class="register-login-msg-link" (click)="isRegister=false">{{'LOGIN'| translate}}</a>
-                </div>
-                <div *ngIf="!isRegister && !forgetPwd" class="register-login-msg">
-                    <div>{{'NEW_USER_MSG_2'|translate}}</div>
-                    <a class="register-login-msg-link" (click)="isRegister=true">{{'REGISTER'| translate}}</a>
-                </div>
-                <div class="register-email">
-                    <mat-form-field *ngIf="isRegister" style="flex: 1;">
-                        <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                        <input matInput formControlName="registerEmail" name="email">
-                        <mat-error>{{emailErrorMsg | translate}}</mat-error>
+            </form>
+        </ng-container>
+        <ng-container *ngIf="context === 'REGISTER'">
+            <form [formGroup]="registerForm" class="page-form">
+                <div class="form-body mobile-view">
+                    <div class="register-msg">
+                        {{'NEW_USER_MSG'|translate}}
+                    </div>
+                    <div class="register-login-msg">
+                        <div>{{'NEW_USER_MSG_1'|translate}}</div>
+                        <a class="register-login-msg-link" (click)="context='LOGIN'">{{'LOGIN'| translate}}</a>
+                    </div>
+                    <div class="register-email">
+                        <mat-form-field style="flex: 1;">
+                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
+                            <input matInput formControlName="email" name="email">
+                            <mat-error>{{registerEmailErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                        <button class="register-email-btn" mat-raised-button (click)="getCode()"
+                            color="primary">{{'GET_ACTIVATION_CODE'| translate}}</button>
+                    </div>
+                    <mat-form-field>
+                        <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
+                        <input matInput formControlName="activationCode">
+                        <mat-hint>{{'ACTIVATION_CODE_HINT'|translate}}</mat-hint>
+                        <mat-error>{{registerCodeErrorMsg | translate}}</mat-error>
                     </mat-form-field>
-                    <mat-form-field *ngIf="!isRegister" style="flex: 1;">
-                        <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                        <input matInput formControlName="email" autocomplete="username" name="username">
-                        <mat-error>{{emailErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
-                    <button class="register-email-btn" *ngIf="isRegister" mat-raised-button (click)="getCode()"
-                        color="primary">{{'GET_ACTIVATION_CODE'| translate}}</button>
-                    <button class="register-email-btn" *ngIf="!isRegister && forgetPwd" mat-raised-button
-                        (click)="getToken()" color="primary">{{'GET_PASSWORD_RESET_TOKEN' | translate}}</button>
-                </div>
-                <mat-form-field *ngIf="isRegister">
-                    <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
-                    <input matInput formControlName="activationCode">
-                    <mat-hint>{{'ACTIVATION_CODE_HINT'|translate}}</mat-hint>
-                    <mat-error>{{activationCodeErrorMsg | translate}}</mat-error>
-                </mat-form-field>
-                <mat-form-field *ngIf="!isRegister && forgetPwd">
-                    <mat-label>{{'ENTER_PASSWORD_RESET_TOKEN'| translate}}</mat-label>
-                    <input matInput [type]="'text'" formControlName="token">
-                    <mat-hint>{{'ENTER_PASSWORD_RESET_TOKEN_HINT'|translate}}</mat-hint>
-                    <mat-error>{{tokenErrorMsg | translate}}</mat-error>
-                </mat-form-field>
-                <ng-container *ngIf="isRegister">
                     <div style="display: flex; flex-direction: row;">
                         <mat-form-field style="margin-right: 8px; width: 100px;">
                             <mat-label>{{'COUNTRY_CODE'|translate}}</mat-label>
@@ -78,58 +91,90 @@
                                     {{e.label}}
                                 </mat-option>
                             </mat-select>
-                            <mat-error>{{countryCodeError | translate}}</mat-error>
+                            <mat-error>{{registerMobileCountryCodeErrorMsg | translate}}</mat-error>
                         </mat-form-field>
                         <mat-form-field>
                             <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
                             <input matInput [type]="'text'" formControlName="mobileNumber">
-                            <mat-error>{{mobileNumberError | translate}}</mat-error>
+                            <mat-error>{{registerMobilePhoneNumErrorMsg | translate}}</mat-error>
                         </mat-form-field>
                     </div>
-                </ng-container>
-                <div *ngIf="!isRegister && !forgetPwd" class="register-email">
-                    <mat-form-field style="flex: 1;">
+                    <mat-form-field>
+                        <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
+                        <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;"
+                            autocomplete="username">
                         <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="pwd" autocomplete="current-password">
-                        <mat-error>{{passwordErrorMsg | translate}}</mat-error>
+                            formControlName="pwd" autocomplete="new-password">
+                        <mat-error>{{pwdErrorMsg | translate}}</mat-error>
                     </mat-form-field>
-                    <button mat-raised-button (click)="login()" style="margin-left: 8px;" color="primary">{{'LOGIN'|
+                    <mat-form-field>
+                        <input matInput placeholder="{{'CONFIRM_YOUR_PASSWORD'| translate}}" [type]="'password'"
+                            formControlName="confirmPwd" autocomplete="new-password">
+                        <mat-error>{{registerConfirmPwdErrorMsg | translate}}</mat-error>
+                    </mat-form-field>
+
+                    <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
+                        <li>{{"PASSWORD_RULE_1"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_2"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_5"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_3"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_4"|translate}}</li>
+                    </ul>
+                    <button mat-raised-button (click)="register()" color="primary">{{'REGISTER'|
                         translate}}</button>
                 </div>
+            </form>
+        </ng-container>
+        <ng-container *ngIf="context === 'FORGET'">
+            <form [formGroup]="forgetForm" class="page-form">
+                <div class="form-body mobile-view">
+                    <div class="register-msg">
+                        {{'RESET_PWD'|translate}}
+                    </div>
+                    <div class="register-email">
+                        <mat-form-field style="flex: 1;">
+                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
+                            <input matInput formControlName="email" autocomplete="username" name="username">
+                            <mat-error>{{forgetEmailErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                        <button class="register-email-btn" mat-raised-button (click)="getToken()"
+                            color="primary">{{'GET_PASSWORD_RESET_TOKEN' | translate}}</button>
+                    </div>
+                    <mat-form-field>
+                        <mat-label>{{'ENTER_PASSWORD_RESET_TOKEN'| translate}}</mat-label>
+                        <input matInput [type]="'text'" formControlName="token">
+                        <mat-hint>{{'ENTER_PASSWORD_RESET_TOKEN_HINT'|translate}}</mat-hint>
+                        <mat-error>{{forgetTokenErrorMsg | translate}}</mat-error>
+                    </mat-form-field>
 
-                <mat-form-field *ngIf="isRegister || forgetPwd">
-                    <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
-                    <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;" autocomplete="username">
-                    <input matInput
-                        placeholder="{{ (forgetPwd?'ENTER_YOUR_NEW_PASSWORD':'ENTER_YOUR_PASSWORD')| translate}}"
-                        [type]="'password'" formControlName="registerPwd" autocomplete="new-password">
-                    <mat-error>{{passwordErrorMsg | translate}}</mat-error>
-                </mat-form-field>
-                <mat-form-field *ngIf="isRegister || forgetPwd">
-                    <input matInput
-                        placeholder="{{(forgetPwd?'REENTER_YOUR_NEW_PASSWORD':'CONFIRM_YOUR_PASSWORD')| translate}}"
-                        [type]="'password'" formControlName="confirmPwd"  autocomplete="new-password">
-                    <mat-error>{{confirmgPasswordErrorMsg | translate}}</mat-error>
-                </mat-form-field>
-                <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
-                    <li>{{"PASSWORD_RULE_1"|translate}}</li>
-                    <li>{{"PASSWORD_RULE_2"|translate}}</li>
-                    <li>{{"PASSWORD_RULE_5"|translate}}</li>
-                    <li>{{"PASSWORD_RULE_3"|translate}}</li>
-                    <li>{{"PASSWORD_RULE_4"|translate}}</li>
-                </ul>
-                <div *ngIf="!isRegister && !forgetPwd" class="forget-pwd-msg">
-                    <a (click)="forgetPwd=true" class="forget-pwd">{{'FORGET_PASSWORD'| translate}}</a>
+                    <mat-form-field>
+                        <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
+                        <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;"
+                            autocomplete="username">
+                        <input matInput placeholder="{{ 'ENTER_YOUR_NEW_PASSWORD'| translate}}" [type]="'password'"
+                            formControlName="pwd" autocomplete="new-password">
+                        <mat-error>{{forgetPwdErrorMsg | translate}}</mat-error>
+                    </mat-form-field>
+                    <mat-form-field>
+                        <input matInput placeholder="{{'REENTER_YOUR_NEW_PASSWORD'| translate}}" [type]="'password'"
+                            formControlName="confirmPwd" autocomplete="new-password">
+                        <mat-error>{{forgetConfirmPwdErrorMsg | translate}}</mat-error>
+                    </mat-form-field>
+                    <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
+                        <li>{{"PASSWORD_RULE_1"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_2"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_5"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_3"|translate}}</li>
+                        <li>{{"PASSWORD_RULE_4"|translate}}</li>
+                    </ul>
+                    <button mat-raised-button (click)="changePassword()" color="primary">{{'CHANGE_PASSWORD'|
+                        translate}}</button>
+                    <div style="display: flex;justify-content: space-between;">
+                        <a (click)="context='LOGIN'" class="forget-pwd">{{'GO_BACK_TO_LOGIN'| translate}}</a>
+                    </div>
                 </div>
-                <button mat-raised-button *ngIf="isRegister" (click)="register()" color="primary">{{'REGISTER'|
-                    translate}}</button>
-                <button mat-raised-button *ngIf="!isRegister && forgetPwd" (click)="changePassword()"
-                    color="primary">{{'CHANGE_PASSWORD'| translate}}</button>
-                <div style="display: flex;justify-content: space-between;">
-                    <a *ngIf="!isRegister && forgetPwd" (click)="forgetPwd=false"
-                        class="forget-pwd">{{'GO_BACK_TO_LOGIN'| translate}}</a>
-                </div>
-            </div>
-        </form>
+            </form>
+        </ng-container>
+
     </div>
 </div>

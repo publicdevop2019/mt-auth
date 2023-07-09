@@ -7,7 +7,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
+import { IProjectUser } from 'src/app/clazz/validation/interfaze-user';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';

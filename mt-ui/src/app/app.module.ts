@@ -116,7 +116,7 @@ import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/s
 import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
-import { ResourceOwnerComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
+import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';
@@ -146,7 +146,7 @@ import { LanguageService } from './services/language.service';
     TenantSearchComponent,
     LoginComponent,
     ClientComponent,
-    ResourceOwnerComponent,
+    MgmtUserComponent,
     SummaryClientComponent,
     SummaryResourceOwnerComponent,
     NavBarComponent,
@@ -283,7 +283,7 @@ import { LanguageService } from './services/language.service';
     MgmtClientComponent,
     EndpointComponent,
     PermissionComponent,
-    ResourceOwnerComponent,
+    MgmtUserComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,
     RoleComponent,

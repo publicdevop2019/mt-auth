@@ -41,7 +41,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "checkbox",
             "display": true,
-            "label": "LOCK_OR_UNLOCK_USER",
+            "label": "",
             "key": "locked",
             "position": {
                 "row": "6",

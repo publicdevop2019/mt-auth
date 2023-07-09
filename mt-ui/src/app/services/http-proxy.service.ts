@@ -9,7 +9,7 @@ import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
 import { logout } from '../clazz/utility';
-import { IForgetPasswordRequest, IPendingResourceOwner, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
+import { IForgetPasswordRequest, IPendingUser, IUpdatePwdCommand } from '../clazz/validation/interfaze-user';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/validation/interfaze-common';
 import { hasValue } from '../clazz/validation/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
@@ -197,7 +197,7 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._resetPwd(this._getToken(token), fg, changeId)))
     };
-    activate(payload: IPendingResourceOwner, changeId: string): Observable<any> {
+    activate(payload: IPendingUser, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
@@ -238,11 +238,11 @@ export class HttpProxyService {
         formData.append('redirect_uri', authorizeParty.redirect_uri);
         return this._httpClient.post<IAuthorizeCode>(environment.serverUri + this.AUTH_SVC_NAME + '/authorize', formData);
     };
-    updateResourceOwnerPwd(resourceOwner: IResourceOwnerUpdatePwd, changeId: string): Observable<boolean> {
+    updateResourceOwnerPwd(resourceOwner: IUpdatePwdCommand, changeId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.put<IResourceOwnerUpdatePwd>(environment.serverUri + this.AUTH_SVC_NAME + '/users/pwd', resourceOwner, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.put<IUpdatePwdCommand>(environment.serverUri + this.AUTH_SVC_NAME + '/users/pwd', resourceOwner, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });
@@ -254,11 +254,11 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    login(loginFG: FormGroup): Observable<ITokenResponse | IMfaResponse> {
+    login(email: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
-        formData.append('username', loginFG.get('email').value);
-        formData.append('password', loginFG.get('pwd').value);
+        formData.append('username', email);
+        formData.append('password', pwd);
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
     }
@@ -272,7 +272,7 @@ export class HttpProxyService {
         formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
     }
-    register(registerFG: IPendingResourceOwner, changeId: string): Observable<any> {
+    register(registerFG: IPendingUser, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
@@ -295,12 +295,12 @@ export class HttpProxyService {
     private _getToken(res: ITokenResponse): string {
         return res.access_token;
     }
-    private _createUser(token: string, registerFG: IPendingResourceOwner, changeId: string): Observable<any> {
+    private _createUser(token: string, registerFG: IPendingUser, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
         return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users', registerFG, { headers: headers })
     }
-    private _getActivationCode(token: string, payload: IPendingResourceOwner, changeId: string): Observable<any> {
+    private _getActivationCode(token: string, payload: IPendingUser, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
         return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/pending-users', payload, { headers: headers })

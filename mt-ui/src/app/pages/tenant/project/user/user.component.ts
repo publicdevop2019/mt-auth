@@ -1,13 +1,11 @@
-import { I } from '@angular/cdk/keycodes';
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { map, take, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IProjectUser } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
-import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
+import { IProjectUser } from 'src/app/clazz/validation/interfaze-user';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
@@ -39,7 +37,7 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     bottomSheetRef: MatBottomSheetRef<UserComponent>,
     cdr: ChangeDetectorRef
   ) {
-    super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
+    super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), undefined, bottomSheetRef, data, fis, cdr);
     this.bottomSheet = data;
     this.roleSvc.setProjectId(this.bottomSheet.params['projectId'])
     this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER").pipe(map(e => {

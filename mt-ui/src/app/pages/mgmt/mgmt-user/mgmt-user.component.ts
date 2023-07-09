@@ -1,12 +1,10 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormInfoService } from 'mt-form-builder';
-import { Observable } from 'rxjs';
-import { Aggregate } from 'src/app/clazz/abstract-aggregate';
-import { IAuthUser, ILoginHistory } from 'src/app/clazz/validation/aggregate/user/interfaze-user';
-import { UserValidator } from 'src/app/clazz/validation/aggregate/user/validator-user';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { Utility } from 'src/app/clazz/utility';
+import { IAuthUser, ILoginHistory } from 'src/app/clazz/validation/interfaze-user';
 import { FORM_CONFIG } from 'src/app/form-configs/mgmt-user.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
@@ -15,60 +13,51 @@ import { UserService } from 'src/app/services/user.service';
   templateUrl: './mgmt-user.component.html',
   styleUrls: ['./mgmt-user.component.css']
 })
-export class ResourceOwnerComponent extends Aggregate<ResourceOwnerComponent, IAuthUser> implements OnInit, AfterViewInit, OnDestroy {
+export class MgmtUserComponent implements OnDestroy {
+  public formId = 'authUser';
+  changeId = Utility.getChangeId()
   columnList = {
     loginAt: 'LOGIN_AT',
     ipAddress: 'IP_ADDRESS',
     agent: 'AGENT',
   }
   dataSource: MatTableDataSource<ILoginHistory>;
-  create(): void {
-    throw new Error('Method not implemented.');
-  }
   constructor(
-    public resourceOwnerService: UserService,
-    fis: FormInfoService,
+    public userSvc: UserService,
+    public fis: FormInfoService,
     public roleSvc: MyRoleService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<ResourceOwnerComponent>,
-    cdr: ChangeDetectorRef
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IAuthUser>,
+    public bottomSheetRef: MatBottomSheetRef<MgmtUserComponent>,
   ) {
-    super('authUser', JSON.parse(JSON.stringify(FORM_CONFIG)), new UserValidator(), bottomSheetRef, data, fis, cdr);
-  }
-  ngAfterViewInit(): void {
-    if (this.aggregate) {
-      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroups[this.formId].get('email').setValue(this.aggregate.email)
-      this.fis.formGroups[this.formId].get('locked').setValue(this.aggregate.locked)
-      this.fis.formGroups[this.formId].get('createdAt').setValue(new Date(this.aggregate.createdAt))
-      this.dataSource = new MatTableDataSource(this.aggregate.loginHistory);
-      this.cdr.markForCheck()
+    this.fis.init(FORM_CONFIG, this.formId)
+    const aggregate = this.data.from
+    if (this.data.from) {
+      this.fis.formGroups[this.formId].get('id').setValue(aggregate.id)
+      this.fis.formGroups[this.formId].get('email').setValue(aggregate.email)
+      this.fis.formGroups[this.formId].get('locked').setValue(aggregate.locked)
+      this.fis.formGroups[this.formId].get('createdAt').setValue(new Date(aggregate.createdAt))
+      this.dataSource = new MatTableDataSource(aggregate.loginHistory);
     }
   }
   ngOnDestroy(): void {
-    this.cleanUp()
+    this.fis.reset(this.formId);
   }
-  ngOnInit() {
+  dismiss(event: MouseEvent) {
+    this.bottomSheetRef.dismiss();
+    event.preventDefault();
   }
-  convertToPayload(cmpt: ResourceOwnerComponent): IAuthUser {
+  convertToPayload(cmpt: MgmtUserComponent): IAuthUser {
     let formGroup = cmpt.fis.formGroups[cmpt.formId];
-    return {
-      id: formGroup.get('id').value,//value is ignored
-      locked: formGroup.get('locked').value,
-      version: cmpt.aggregate && cmpt.aggregate.version
-    }
+    return
   }
   update() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'adminUpdateUserCommandValidator', this.fis, this, this.errorMapper))
-      this.resourceOwnerService.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
-  }
-  errorMapper(original: ErrorMessage[], cmpt: ResourceOwnerComponent) {
-    return original.map(e => {
-      return {
-        ...e,
-        formId: cmpt.formId
-      }
-    })
+    const fg = this.fis.formGroups[this.formId];
+    const payload: IAuthUser = {
+      id: fg.get('id').value,//value is ignored
+      locked: fg.get('locked').value,
+      version: this.data.from.version
+    }
+    this.userSvc.update(this.data.from.id, payload, this.changeId)
   }
   displayedColumns(): string[] {
     return Object.keys(this.columnList)

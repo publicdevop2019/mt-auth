@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { logout } from '../clazz/utility';
-import { IAuthUser, IResourceOwnerUpdatePwd } from '../clazz/validation/aggregate/user/interfaze-user';
+import { IAuthUser, IUpdatePwdCommand } from '../clazz/validation/interfaze-user';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
@@ -19,7 +19,7 @@ export class UserService extends EntityCommonService<IAuthUser, IAuthUser>{
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_TOKEN') : this.interceptor.openSnackbar('OPERATION_FAILED');
     })
   }
-  updateMyPwd(resourceOwner: IResourceOwnerUpdatePwd, changeId: string): void {
+  updateMyPwd(resourceOwner: IUpdatePwdCommand, changeId: string): void {
     this.httpProxy.updateResourceOwnerPwd(resourceOwner, changeId).subscribe(result => {
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_LOGIN') : this.interceptor.openSnackbar('OPERATION_FAILED');
       logout(undefined,this.httpProxy)

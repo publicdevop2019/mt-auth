@@ -24,18 +24,18 @@ export class ValidatorHelper {
       let keys = mapped.map(e => e.formId + "_" + e.key);
       let uniqueFormIds = new Array(...new Set([...mapped.map(e => e.formId), ...this.previousErrors.map(e => e.formId)])).filter(e => e);
       let var1 = this.previousErrors.map(e => e.formId + "_" + e.key);
-      uniqueFormIds.forEach(id => {
-        fis.forms[id].inputs.forEach(input => {
-          if (keys.includes(id + "_" + input.key)) {
-            const msg = mapped.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
-            fis.updateError(id, input.key, msg)
-          } else {
-            if (var1.includes(id + "_" + input.key)) {
-              fis.updateError(id, input.key, undefined)
-            }
-          }
-        });
-      })
+      // uniqueFormIds.forEach(id => {
+      //   fis.forms[id].inputs.forEach(input => {
+      //     if (keys.includes(id + "_" + input.key)) {
+      //       const msg = mapped.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
+      //       fis.updateError(id, input.key, msg)
+      //     } else {
+      //       if (var1.includes(id + "_" + input.key)) {
+      //         fis.updateError(id, input.key, undefined)
+      //       }
+      //     }
+      //   });
+      // })
       this.previousErrors = mapped;
       merge(...uniqueFormIds.map(e => fis.formGroups[e].valueChanges))
         .subscribe(next => {
@@ -53,26 +53,26 @@ export class ValidatorHelper {
             let mapped2 = errorMapper(uniqueError2, cmpt);
             let keys2 = mapped2.map(e => e.formId + "_" + e.key);
             let var0 = this.previousErrors.map(e => e.formId + "_" + e.key);
-            uniqueFormIds.forEach(id => {
-              fis.forms[id].inputs.forEach(input => {
-                if (keys2.includes(id + "_" + input.key)) {
-                  input.errorMsg = mapped2.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
-                } else {
-                  if (var0.includes(id + "_" + input.key))
-                    input.errorMsg = undefined;
-                }
-              })
-            })
+            // uniqueFormIds.forEach(id => {
+            //   fis.forms[id].inputs.forEach(input => {
+            //     if (keys2.includes(id + "_" + input.key)) {
+            //       input.errorMsg = mapped2.find(e => e.formId + "_" + e.key === id + "_" + input.key).message;
+            //     } else {
+            //       if (var0.includes(id + "_" + input.key))
+            //         input.errorMsg = undefined;
+            //     }
+            //   })
+            // })
             this.previousErrors = mapped2;
           } else {
-            if (this.previousErrors.length > 0) {
-              this.previousErrors.forEach(e => {
-                let var0 = fis.forms[e.formId].inputs.find(ee => ee.key === e.key);
-                if (var0) {
-                  var0.errorMsg = undefined;
-                }
-              })
-            }
+            // if (this.previousErrors.length > 0) {
+            //   this.previousErrors.forEach(e => {
+            //     let var0 = fis.forms[e.formId].inputs.find(ee => ee.key === e.key);
+            //     if (var0) {
+            //       var0.errorMsg = undefined;
+            //     }
+            //   })
+            // }
           }
         })
       console.debug('[DEV ONLY] parsed errors')

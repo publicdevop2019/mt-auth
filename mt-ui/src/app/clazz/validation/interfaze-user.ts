@@ -26,7 +26,7 @@ export interface IProjectAdmin extends IIdBasedEntity{
     email: string;
     name: string;
 }
-export interface IPendingResourceOwner {
+export interface IPendingUser {
     email: string;
     password?: string;
     activationCode?: string;
@@ -38,7 +38,7 @@ export interface IForgetPasswordRequest {
     token?: string;
     newPassword?: string;
 }
-export interface IResourceOwnerUpdatePwd {
+export interface IUpdatePwdCommand {
     password: string;
     currentPwd: string;
 }
