@@ -1,5 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { CLIENT_TYPE } from '../clazz/validation/aggregate/client/interfaze-client';
+import { CLIENT_TYPE } from '../clazz/validation/client.interface';
 import { GRANT_TYPE_LIST } from '../clazz/validation/constant';
 
 export const FORM_CONFIG: IForm = {

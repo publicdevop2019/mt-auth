@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { Logger, Utility } from 'src/app/clazz/utility';
-import { IUpdatePwdCommand } from 'src/app/clazz/validation/interfaze-user';
+import { IUpdatePwdCommand } from 'src/app/clazz/validation/user.interface';
 import { Validator } from 'src/app/clazz/validation/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/update-pwd.config';
 import { UserService } from 'src/app/services/user.service';

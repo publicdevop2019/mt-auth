@@ -3,7 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from "@angular/material/dialog";
 import { MatTableDataSource } from "@angular/material/table";
 import { FormInfoService } from "mt-form-builder";
 import { IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
-import { IEndpoint } from "src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint";
+import { IEndpoint } from "src/app/clazz/validation/endpoint.interface";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
 import { MyCacheService } from "src/app/services/my-cache.service";
 import { MyCorsProfileService } from "src/app/services/my-cors-profile.service";

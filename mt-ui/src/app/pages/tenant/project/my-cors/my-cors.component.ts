@@ -4,7 +4,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { of } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-cors';
+import { ICorsProfile } from 'src/app/clazz/validation/cors.interface';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';

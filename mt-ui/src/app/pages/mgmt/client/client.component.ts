@@ -5,7 +5,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
+import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/client.interface';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 

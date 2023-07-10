@@ -6,7 +6,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
+import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/validation/client.interface';
 import { ClientValidator } from 'src/app/clazz/validation/aggregate/client/validator-client';
 import { GRANT_TYPE_LIST } from 'src/app/clazz/validation/constant';
 import { ErrorMessage, hasValue } from 'src/app/clazz/validation/validator-common';

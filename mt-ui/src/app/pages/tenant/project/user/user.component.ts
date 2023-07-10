@@ -5,7 +5,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { map, tap } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IProjectUser } from 'src/app/clazz/validation/interfaze-user';
+import { IProjectUser } from 'src/app/clazz/validation/user.interface';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';

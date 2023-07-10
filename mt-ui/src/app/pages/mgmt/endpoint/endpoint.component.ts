@@ -6,7 +6,7 @@ import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IEndpoint, IMgmtEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
+import { IEndpoint, IMgmtEndpoint } from 'src/app/clazz/validation/endpoint.interface';
 import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
 import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';

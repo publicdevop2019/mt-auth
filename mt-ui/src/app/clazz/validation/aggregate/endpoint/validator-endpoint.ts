@@ -1,5 +1,5 @@
 import { descriptionValidator, ErrorMessage, IAggregateValidator, StringValidator, TPlatform, TValidator } from '../../validator-common';
-import { HTTP_METHODS, IEndpoint } from './interfaze-endpoint';
+import { HTTP_METHODS, IEndpoint } from '../../endpoint.interface';
 
 
 export class EndpointValidator extends IAggregateValidator {

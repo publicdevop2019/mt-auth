@@ -1,5 +1,5 @@
 import { GRANT_TYPE_LIST_EXT } from '../../constant';
-import { CLIENT_TYPE, grantTypeEnums, IClient } from './interfaze-client';
+import { CLIENT_TYPE, grantTypeEnums, IClient } from '../../client.interface';
 import { BooleanValidator, descriptionValidator, ErrorMessage, IAggregateValidator, ListValidator, NumberValidator, StringValidator, TPlatform, TValidator } from '../../validator-common';
 
 export class ClientValidator extends IAggregateValidator {

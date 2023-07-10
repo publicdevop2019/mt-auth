@@ -5,7 +5,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
+import { IEndpoint } from 'src/app/clazz/validation/endpoint.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';

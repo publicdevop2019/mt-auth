@@ -4,7 +4,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { IBottomSheet, IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { Logger, Utility } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/validation/aggregate/endpoint/interfaze-endpoint';
+import { IEndpoint } from 'src/app/clazz/validation/endpoint.interface';
 import { Validator } from 'src/app/clazz/validation/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/sub-request.config';
 import { CreateSubRequestService } from 'src/app/services/create-sub-request.service';

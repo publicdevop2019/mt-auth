@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { ICacheProfile } from '../clazz/validation/aggregate/cache/interfaze-cache';
+import { ICacheProfile } from '../clazz/validation/cache.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';

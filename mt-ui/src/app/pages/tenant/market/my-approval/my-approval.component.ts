@@ -8,7 +8,6 @@ import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dial
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
 import { IMySubReq } from '../my-requests/my-requests.component';
-import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 
 @Component({
   selector: 'app-my-approval',
@@ -26,7 +25,6 @@ export class MyApprovalComponent extends SummaryEntityComponent<IMySubReq, IMySu
     approve: 'APPROVE',
     reject: 'REJECT',
   }
-  sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubRequestService,
     public deviceSvc: DeviceService,

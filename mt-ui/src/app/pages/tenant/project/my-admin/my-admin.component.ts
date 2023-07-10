@@ -8,7 +8,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { debounceTime } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { IProjectAdmin } from 'src/app/clazz/validation/interfaze-user';
+import { IProjectAdmin } from 'src/app/clazz/validation/user.interface';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyAdminService } from 'src/app/services/my-admin.service';

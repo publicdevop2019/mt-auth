@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaze-cache';
-import { CacheValidator } from 'src/app/clazz/validation/aggregate/cache/validator-cache';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { Utility } from 'src/app/clazz/utility';
+import { ICacheProfile } from 'src/app/clazz/validation/cache.interface';
+import { Validator } from 'src/app/clazz/validation/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 @Component({
@@ -13,18 +12,23 @@ import { MyCacheService } from 'src/app/services/my-cache.service';
   templateUrl: './cache.component.html',
   styleUrls: ['./cache.component.css']
 })
-export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> implements OnInit, OnDestroy {
-  bottomSheet: IBottomSheet<ICacheProfile>;
+export class CacheComponent implements OnDestroy {
+  formId: string;
+  allowError: boolean = false;
+  changeId: string = Utility.getChangeId();
+
   constructor(
     public entityService: MyCacheService,
-    fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<CacheComponent>,
-    cdr: ChangeDetectorRef
+    public fis: FormInfoService,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<ICacheProfile>,
+    public bottomSheetRef: MatBottomSheetRef<CacheComponent>,
   ) {
-    super('cache-form', FORM_CONFIG, new CacheValidator(), bottomSheetRef, data, fis, cdr)
-    this.bottomSheet = data;
-    this.fis.init(this.formInfo, this.formId)
+    this.fis.init(FORM_CONFIG, this.formId);
+    this.fis.formGroups[this.formId].valueChanges.subscribe(() => {
+      if (this.allowError) {
+        this.validateForm()
+      }
+    })
     this.fis.formGroups[this.formId].get('allowCache').valueChanges.subscribe(next => {
       if (next === 'yes') {
         this.fis.showIfMatch(this.formId, ['cacheControl', 'vary', 'expires', 'etagValidation']);
@@ -58,28 +62,25 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
         this.fis.hideIfMatch(this.formId, ['etagType']);
       }
     })
-    if (this.aggregate) {
-      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroups[this.formId].get('name').setValue(this.aggregate.name)
-      this.fis.formGroups[this.formId].get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
-      this.fis.formGroups[this.formId].get('allowCache').setValue(this.aggregate.allowCache ? 'yes' : 'no')
-      this.fis.formGroups[this.formId].get('cacheControl').setValue(this.aggregate.cacheControl)
-      this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.aggregate.maxAge || '')
-      this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.aggregate.smaxAge || '')
-      this.fis.formGroups[this.formId].get('etagValidation').setValue(this.aggregate.etag)
-      this.fis.formGroups[this.formId].get('etagType').setValue(this.aggregate.weakValidation)
-      this.fis.formGroups[this.formId].get('expires').setValue(this.aggregate.expires ? this.aggregate.expires : '')
-      this.fis.formGroups[this.formId].get('vary').setValue(this.aggregate.vary ? this.aggregate.vary : '')
-      this.cdr.markForCheck()
+    if (this.data.from) {
+      this.fis.formGroups[this.formId].get('id').setValue(this.data.from.id)
+      this.fis.formGroups[this.formId].get('name').setValue(this.data.from.name)
+      this.fis.formGroups[this.formId].get('description').setValue(this.data.from.description ? this.data.from.description : '')
+      this.fis.formGroups[this.formId].get('allowCache').setValue(this.data.from.allowCache ? 'yes' : 'no')
+      this.fis.formGroups[this.formId].get('cacheControl').setValue(this.data.from.cacheControl)
+      this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.data.from.maxAge || '')
+      this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.data.from.smaxAge || '')
+      this.fis.formGroups[this.formId].get('etagValidation').setValue(this.data.from.etag)
+      this.fis.formGroups[this.formId].get('etagType').setValue(this.data.from.weakValidation)
+      this.fis.formGroups[this.formId].get('expires').setValue(this.data.from.expires ? this.data.from.expires : '')
+      this.fis.formGroups[this.formId].get('vary').setValue(this.data.from.vary ? this.data.from.vary : '')
     }
   }
   ngOnDestroy(): void {
-    this.cleanUp()
+    this.fis.reset(this.formId)
   }
-  ngOnInit() {
-  }
-  convertToPayload(cmpt: CacheComponent): ICacheProfile {
-    let formGroup = cmpt.fis.formGroups[cmpt.formId];
+  convertToPayload(): ICacheProfile {
+    let formGroup = this.fis.formGroups[this.formId];
     let cacheControls = (formGroup.get('cacheControl').value as string[])
     let allowCache = formGroup.get('allowCache').value === 'yes';
     return {
@@ -94,24 +95,33 @@ export class CacheComponent extends Aggregate<CacheComponent, ICacheProfile> imp
       vary: formGroup.get('vary').value ? formGroup.get('vary').value : null,
       etag: allowCache ? formGroup.get('etagValidation').value : null,
       weakValidation: allowCache ? formGroup.get('etagType').value : null,
-      version: cmpt.aggregate && cmpt.aggregate.version
+      version: this.data.from && this.data.from.version
     }
   }
+  private validateForm() {
+    const fg = this.fis.formGroups[this.formId];
+    const var0 = Validator.exist(fg.get('name').value)
+    this.fis.updateError(this.formId, 'name', var0.errorMsg)
+
+    const var1 = Validator.exist(fg.get('allowCache').value)
+    this.fis.updateError(this.formId, 'allowCache', var1.errorMsg)
+    return !var0.errorMsg && !var1.errorMsg
+  }
+
   update() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'update', this.fis, this, this.errorMapper))
-      this.entityService.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
+    this.allowError = true
+    if (this.validateForm()) {
+      this.entityService.update(this.data.from.id, this.convertToPayload(), this.changeId)
+    }
   }
   create() {
-    if (this.validateHelper.validate(this.validator, this.convertToPayload, 'create', this.fis, this, this.errorMapper)) {
-      this.entityService.create(this.convertToPayload(this), this.changeId)
+    this.allowError = true
+    if (this.validateForm()) {
+      this.entityService.create(this.convertToPayload(), this.changeId)
     }
   }
-  errorMapper(original: ErrorMessage[], cmpt: CacheComponent) {
-    return original.map(e => {
-      return {
-        ...e,
-        formId: cmpt.formId
-      }
-    })
+  dismiss(event: MouseEvent) {
+    this.bottomSheetRef.dismiss();
+    event.preventDefault();
   }
 }

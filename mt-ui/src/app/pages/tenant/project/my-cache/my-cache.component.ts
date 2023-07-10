@@ -3,7 +3,7 @@ import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-s
 import { FormInfoService } from 'mt-form-builder';
 import { ICheckboxControl, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { ICacheProfile } from 'src/app/clazz/validation/aggregate/cache/interfaze-cache';
+import { ICacheProfile } from 'src/app/clazz/validation/cache.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -12,7 +12,7 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { of } from 'rxjs';
-import { ICorsProfile } from 'src/app/clazz/validation/aggregate/cors/interface-cors';
+import { ICorsProfile } from 'src/app/clazz/validation/cors.interface';
 import { hasValue } from 'src/app/clazz/validation/validator-common';
 import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
 import { copyOf } from 'src/app/clazz/utility';

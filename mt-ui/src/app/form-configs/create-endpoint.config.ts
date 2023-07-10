@@ -1,5 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { HTTP_METHODS } from '../clazz/validation/aggregate/endpoint/interfaze-endpoint';
+import { HTTP_METHODS } from '../clazz/validation/endpoint.interface';
 
 export const CATALOG_FORM_CONFIG: IForm = {
     "repeatable": false,

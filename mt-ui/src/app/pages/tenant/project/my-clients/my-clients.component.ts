@@ -7,7 +7,7 @@ import { take } from 'rxjs/operators';
 import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { uniqueObject } from 'src/app/clazz/utility';
-import { IClient } from 'src/app/clazz/validation/aggregate/client/interfaze-client';
+import { IClient } from 'src/app/clazz/validation/client.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';

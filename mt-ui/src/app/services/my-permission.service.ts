@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { IPermission } from '../clazz/validation/aggregate/permission/interface-permission';
+import { IPermission } from '../clazz/validation/permission.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';

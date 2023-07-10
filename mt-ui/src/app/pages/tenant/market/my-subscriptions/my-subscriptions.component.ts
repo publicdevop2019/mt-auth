@@ -2,11 +2,10 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { map, switchMap } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { IMySubscription, MySubscriptionsService } from 'src/app/services/my-subscriptions.service';
-import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 
 @Component({
   selector: 'app-my-subscriptions',
@@ -23,7 +22,6 @@ export class MySubscriptionsComponent extends SummaryEntityComponent<IMySubscrip
     burstCapacity: 'BURST_CAPACITY',
     endpointStatus: 'ENDPOINT_STATUS',
   }
-  sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubscriptionsService,
     public deviceSvc: DeviceService,
