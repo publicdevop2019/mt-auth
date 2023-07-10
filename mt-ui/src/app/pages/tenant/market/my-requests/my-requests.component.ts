@@ -4,7 +4,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
-import { ISubRequest, SubRequestComponent } from '../sub-request/sub-request.component';
+import { ISubRequest, SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 export interface IMySubReq extends ISubRequest {
   endpointName: string,
   projectName: string,
@@ -17,11 +17,11 @@ export interface IMySubReq extends ISubRequest {
   endpointProjectId: string,
 }
 @Component({
-  selector: 'app-my-sub-req',
-  templateUrl: './my-sub-req.component.html',
-  styleUrls: ['./my-sub-req.component.css']
+  selector: 'app-my-requests',
+  templateUrl: './my-requests.component.html',
+  styleUrls: ['./my-requests.component.css']
 })
-export class MySubReqComponent extends SummaryEntityComponent<IMySubReq, IMySubReq> implements OnDestroy {
+export class MyRequestsComponent extends SummaryEntityComponent<IMySubReq, IMySubReq> implements OnDestroy {
   public formId = "mySubReqTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -32,7 +32,7 @@ export class MySubReqComponent extends SummaryEntityComponent<IMySubReq, IMySubR
     update: 'UPDATE',
     cancel: 'CANCEL',
   }
-  sheetComponent = SubRequestComponent;
+  sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubRequestService,
     public deviceSvc: DeviceService,

@@ -1,0 +1,15 @@
+<h2 style="display: flex; align-items: center; justify-content: space-between;">
+    <div>{{'SUB_API'|translate}}</div>
+    <button mat-button color="primary" (click)="dismiss($event)">
+        <mat-icon style="cursor: pointer;">close </mat-icon>
+    </button>
+</h2>
+<mat-card *ngIf="publicSubNotes" style="display: flex; align-items: center; margin-bottom: 8px;">
+    <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+    <div>{{'PUBLIC_SUB_NOTES'|translate}}</div>
+</mat-card>
+<lib-factory [formId]="formId"></lib-factory>
+<button *ngIf="data.context==='new'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+    (click)="create()">{{'SUBSCRIBE'|translate}}</button>
+<button *ngIf="data.context==='edit'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+    (click)="update()">{{'UPDATE'|translate}}</button>

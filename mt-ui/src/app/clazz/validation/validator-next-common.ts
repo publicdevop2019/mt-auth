@@ -33,7 +33,7 @@ export class Validator {
         }
     }
     public static exist(var0: any) {
-        if (var0 === null || var0 === undefined || var0 === '') {
+        if (var0 === null || var0 === undefined || var0 === '' || var0 === 0) {
             return Result.failed('DEFAULT_NOT_NULL')
         } else {
             return Result.success()

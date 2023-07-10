@@ -128,10 +128,10 @@ import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
-import { SubRequestComponent } from './pages/tenant/market/sub-request/sub-request.component';
-import { MySubReqComponent } from './pages/tenant/market/my-sub-req/my-sub-req.component';
-import { PendingSubReqComponent } from './pages/tenant/market/pending-sub-req/pending-sub-req.component';
-import { MySubsComponent } from './pages/tenant/market/my-subs/my-subs.component';
+import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-request/subscribe-request.component';
+import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
+import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
+import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
@@ -216,10 +216,10 @@ import { LanguageService } from './services/language.service';
     LunchComponent,
     BuildComponent,
     SummaryNotificationComponent,
-    SubRequestComponent,
-    MySubReqComponent,
-    PendingSubReqComponent,
-    MySubsComponent,
+    SubscribeRequestComponent,
+    MyRequestsComponent,
+    MyApprovalComponent,
+    MySubscriptionsComponent,
     EnterReasonDialogComponent,
     EndpointComponent,
     EndpointAnalysisComponent,
@@ -289,7 +289,7 @@ import { LanguageService } from './services/language.service';
     RoleComponent,
     CorsComponent,
     BatchUpdateCorsComponent,
-    SubRequestComponent,
+    SubscribeRequestComponent,
     CacheComponent],
   providers: [
     {

@@ -6,14 +6,14 @@ import { map, switchMap } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { IMySubscription, MySubscriptionsService } from 'src/app/services/my-subscriptions.service';
-import { SubRequestComponent } from '../sub-request/sub-request.component';
+import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 
 @Component({
-  selector: 'app-my-subs',
-  templateUrl: './my-subs.component.html',
-  styleUrls: ['./my-subs.component.css']
+  selector: 'app-my-subscriptions',
+  templateUrl: './my-subscriptions.component.html',
+  styleUrls: ['./my-subscriptions.component.css']
 })
-export class MySubsComponent extends SummaryEntityComponent<IMySubscription, IMySubscription> implements OnDestroy {
+export class MySubscriptionsComponent extends SummaryEntityComponent<IMySubscription, IMySubscription> implements OnDestroy {
   public formId = "mySubscriptionTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -23,7 +23,7 @@ export class MySubsComponent extends SummaryEntityComponent<IMySubscription, IMy
     burstCapacity: 'BURST_CAPACITY',
     endpointStatus: 'ENDPOINT_STATUS',
   }
-  sheetComponent = SubRequestComponent;
+  sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubscriptionsService,
     public deviceSvc: DeviceService,

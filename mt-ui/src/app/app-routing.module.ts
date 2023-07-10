@@ -42,9 +42,9 @@ import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
-import { MySubsComponent } from './pages/tenant/market/my-subs/my-subs.component';
-import { MySubReqComponent } from './pages/tenant/market/my-sub-req/my-sub-req.component';
-import { PendingSubReqComponent } from './pages/tenant/market/pending-sub-req/pending-sub-req.component';
+import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
+import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
+import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
@@ -86,9 +86,9 @@ const routes: Routes = [
       { path: 'my-profile', component: MyProfileComponent },
       { path: 'new-project', component: NewProjectComponent },
       { path: 'api-center', component: ApiCenterComponent },
-      { path: 'my-sub-request', component: MySubReqComponent },
-      { path: 'pending-sub-request', component: PendingSubReqComponent },
-      { path: 'my-subs', component: MySubsComponent },
+      { path: 'my-sub-request', component: MyRequestsComponent },
+      { path: 'pending-sub-request', component: MyApprovalComponent },
+      { path: 'my-subs', component: MySubscriptionsComponent },
       { path: 'org-profiles', component: SummaryOrgComponent },
       { path: 'permission-profiles', component: SummaryPermissionComponent },
       { path: 'position-profiles', component: SummaryPositionComponent },

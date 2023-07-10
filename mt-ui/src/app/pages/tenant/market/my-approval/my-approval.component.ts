@@ -1,21 +1,21 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
-import { filter, switchMap, switchMapTo } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
-import { IMySubReq } from '../my-sub-req/my-sub-req.component';
-import { SubRequestComponent } from '../sub-request/sub-request.component';
+import { IMySubReq } from '../my-requests/my-requests.component';
+import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 
 @Component({
-  selector: 'app-pending-sub-req',
-  templateUrl: './pending-sub-req.component.html',
-  styleUrls: ['./pending-sub-req.component.css']
+  selector: 'app-my-approval',
+  templateUrl: './my-approval.component.html',
+  styleUrls: ['./my-approval.component.css']
 })
-export class PendingSubReqComponent extends SummaryEntityComponent<IMySubReq, IMySubReq> implements OnDestroy {
+export class MyApprovalComponent extends SummaryEntityComponent<IMySubReq, IMySubReq> implements OnDestroy {
   public formId = "pendingSubReqTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -26,7 +26,7 @@ export class PendingSubReqComponent extends SummaryEntityComponent<IMySubReq, IM
     approve: 'APPROVE',
     reject: 'REJECT',
   }
-  sheetComponent = SubRequestComponent;
+  sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubRequestService,
     public deviceSvc: DeviceService,

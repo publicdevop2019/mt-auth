@@ -30,14 +30,14 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   constructor(public httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }
-  findTenantProjects(num: number, size: number) {
-    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(environment.serverUri + '/auth-svc/projects/tenant', num, size)
+  findTenantProjects(num: number, size: number, headers?: {}) {
+    return this.httpProxySvc.readEntityByQuery<IProjectSimple>(environment.serverUri + '/auth-svc/projects/tenant', num, size, undefined, undefined, undefined, headers)
   };
   findUIPermission() {
     return this.httpProxySvc.getUIPermission()
   };
   create(s: IProjectSimple, changeId: string) {
-    return this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId,{ 'loading': 'false' })
+    return this.httpProxySvc.createEntity(environment.serverUri + '/auth-svc/projects', s, changeId, { 'loading': 'false' })
   };
   ready(projectId: string) {
     return this.httpProxySvc.checkPorjectReady(projectId)
@@ -56,10 +56,10 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
       return false
     }
   }
-  showMgmtPanel(){
+  showMgmtPanel() {
     return !!this.totalProjects.find(e => e.id === '0P8HE307W6IO')
   }
-  hasTenantProjects(){
-    return this.httpProxy.currentUserAuthInfo.tenantIds.length>0;
+  hasTenantProjects() {
+    return this.httpProxy.currentUserAuthInfo.tenantIds.length > 0;
   }
 }
