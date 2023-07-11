@@ -1,5 +1,8 @@
-<mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
-</mat-icon>
+<div style="display: flex; justify-content: end;">
+    <button mat-button color="primary" (click)="dismiss($event)">
+        <mat-icon>close </mat-icon>
+    </button>
+</div>
 <lib-factory [formId]="formId"></lib-factory>
 <h4 style="margin-bottom: 4px;">{{'SELECT_ROLES'|translate}}</h4>
 <mat-chip-list >

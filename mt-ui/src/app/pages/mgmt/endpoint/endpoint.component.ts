@@ -1,60 +1,58 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm, IOption, ISelectControl } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IEndpoint, IMgmtEndpoint } from 'src/app/clazz/validation/endpoint.interface';
-import { EndpointValidator } from 'src/app/clazz/validation/aggregate/endpoint/validator-endpoint';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { IMgmtEndpoint } from 'src/app/clazz/endpoint.interface';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
-import { ORIGIN_FORM_CONFIG, ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG } from 'src/app/form-configs/cors.config';
+import { ORIGIN_FORM_CONFIG, ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG } from 'src/app/form-configs/cors.config';
 @Component({
   selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',
   styleUrls: ['./endpoint.component.css']
 })
-export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgmtEndpoint> implements OnInit, OnDestroy {
-  bottomSheet: IBottomSheet<IMgmtEndpoint>;
+export class MgmtEndpointComponent implements OnDestroy {
+  formId: string = 'mgmtApi';
   originFormId: string = 'originFormId'
-  originFormInfo: IForm = this.disableForm(JSON.parse(JSON.stringify(ORIGIN_FORM_CONFIG)));
   allowedHeaderFormId: string = 'allowedHeaderFormId'
-  allowedHeaderFormInfo: IForm = this.disableForm(JSON.parse(JSON.stringify(ALLOWED_HEADERS_FORM_CONFIG)));
   exposedHeaderFormId: string = 'exposedHeaderFormId'
-  exposedHeaderFormInfo: IForm = this.disableForm(JSON.parse(JSON.stringify(EXPOSED_HEADERS_FORM_CONFIG)));
   constructor(
     public endpointSvc: EndpointService,
     public clientSvc: MgmtClientService,
     public corsSvc: MyCorsProfileService,
     public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
-    fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<MgmtEndpointComponent>,
-    cdr: ChangeDetectorRef
+    public fis: FormInfoService,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IMgmtEndpoint>,
+    public bottomSheetRef: MatBottomSheetRef<MgmtEndpointComponent>,
   ) {
-    super('mgmtApi', MGMT_EP_FORM_CONFIG, new EndpointValidator(), bottomSheetRef, data, fis, cdr)
-    this.bottomSheet = data;
-    this.fis.init(this.formInfo, this.formId)
+    this.fis.init(MGMT_EP_FORM_CONFIG, this.formId)
+    this.fis.init(ORIGIN_FORM_CONFIG, this.originFormId)
+    this.fis.init(ALLOWED_HEADERS_FORM_CONFIG, this.allowedHeaderFormId)
+    this.fis.init(EXPOSED_HEADERS_FORM_CONFIG, this.exposedHeaderFormId)
+    this.fis.disableForm(this.formId)
+    this.fis.disableForm(this.originFormId)
+    this.fis.disableForm(this.allowedHeaderFormId)
+    this.fis.disableForm(this.exposedHeaderFormId)
     this.resume()
-    if (this.aggregate.method?.toLowerCase() === 'get') {
+    if (this.data.from.method?.toLowerCase() === 'get') {
       this.fis.showIfMatch(this.formId, ['cacheProfile'])
     } else {
       this.fis.hideIfMatch(this.formId, ['cacheProfile'])
     }
-    if (this.aggregate.websocket) {
+    if (this.data.from.websocket) {
       this.fis.hideIfMatch(this.formId, ['csrf', 'cors', 'method'])
     } else {
       this.fis.showIfMatch(this.formId, ['csrf', 'cors', 'method'])
     }
-    if (this.aggregate.corsConfig) {
+    if (this.data.from.corsConfig) {
       this.fis.showIfMatch(this.formId, ['corsProfile'])
     } else {
       this.fis.hideIfMatch(this.formId, ['corsProfile'])
@@ -62,71 +60,56 @@ export class MgmtEndpointComponent extends Aggregate<MgmtEndpointComponent, IMgm
     this.fis.disableIfNotMatch(this.formId, [])
   }
   ngOnDestroy(): void {
-    this.cleanUp()
     this.fis.reset(this.originFormId)
     this.fis.reset(this.allowedHeaderFormId)
     this.fis.reset(this.exposedHeaderFormId)
   }
   resume(): void {
-    if (this.aggregate) {
+    if (this.data.from) {
       const var0: Observable<any>[] = [];
-      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.resourceId))
+      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.resourceId))
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
-          (this.formInfo.inputs.find(e => e.key === 'resourceId') as ISelectControl).options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-          this.fis.restore(this.formId, this.aggregate, true);
+          const options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+          this.fis.updateOption(this.formId, 'resourceId', options)
+          this.fis.restore(this.formId, this.data.from, true);
 
           // for cache
-          if (this.aggregate.cacheConfig) {
-            this.fis.formGroups[this.formId].get('allowCache').setValue(this.aggregate.cacheConfig.allowCache ? 'yes' : 'no')
-            this.fis.formGroups[this.formId].get('cacheControl').setValue(this.aggregate.cacheConfig.cacheControl)
-            this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.aggregate.cacheConfig.maxAge || '')
-            this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.aggregate.cacheConfig.smaxAge || '')
-            this.fis.formGroups[this.formId].get('etagValidation').setValue(this.aggregate.cacheConfig.etag)
-            this.fis.formGroups[this.formId].get('etagType').setValue(this.aggregate.cacheConfig.weakValidation)
-            this.fis.formGroups[this.formId].get('expires').setValue(this.aggregate.cacheConfig.expires ? this.aggregate.cacheConfig.expires : '')
-            this.fis.formGroups[this.formId].get('vary').setValue(this.aggregate.cacheConfig.vary ? this.aggregate.cacheConfig.vary : '')
-            if (this.aggregate.cacheConfig.allowCache) {
+          if (this.data.from.cacheConfig) {
+            this.fis.formGroups[this.formId].get('allowCache').setValue(this.data.from.cacheConfig.allowCache ? 'yes' : 'no')
+            this.fis.formGroups[this.formId].get('cacheControl').setValue(this.data.from.cacheConfig.cacheControl)
+            this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.data.from.cacheConfig.maxAge || '')
+            this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.data.from.cacheConfig.smaxAge || '')
+            this.fis.formGroups[this.formId].get('etagValidation').setValue(this.data.from.cacheConfig.etag)
+            this.fis.formGroups[this.formId].get('etagType').setValue(this.data.from.cacheConfig.weakValidation)
+            this.fis.formGroups[this.formId].get('expires').setValue(this.data.from.cacheConfig.expires ? this.data.from.cacheConfig.expires : '')
+            this.fis.formGroups[this.formId].get('vary').setValue(this.data.from.cacheConfig.vary ? this.data.from.cacheConfig.vary : '')
+            if (this.data.from.cacheConfig.allowCache) {
               this.fis.showIfMatch(this.formId, ['cacheControl', 'maxAgeValue', 'smaxAgeValue', 'etagValidation', 'etagType', 'expires', 'vary'])
             }
           }
-          if (this.aggregate.corsConfig) {
-            this.fis.formGroups[this.formId].get('allowCredentials').setValue(this.aggregate.corsConfig.credentials)
-            this.fis.formGroups[this.formId].get('corsMaxAge').setValue(this.aggregate.corsConfig.maxAge)
-            this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.allowedHeaders, 'allowedHeaders'), this.aggregate.corsConfig.allowedHeaders.length)
-            this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.origin, 'allowOrigin'), this.aggregate.corsConfig.origin.length)
-            this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.aggregate.corsConfig.exposedHeaders, 'exposedHeaders'), this.aggregate.corsConfig.exposedHeaders.length)
+          if (this.data.from.corsConfig) {
+            this.fis.formGroups[this.formId].get('allowCredentials').setValue(this.data.from.corsConfig.credentials)
+            this.fis.formGroups[this.formId].get('corsMaxAge').setValue(this.data.from.corsConfig.maxAge)
+            this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.allowedHeaders, 'allowedHeaders'), this.data.from.corsConfig.allowedHeaders.length)
+            this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.origin, 'allowOrigin'), this.data.from.corsConfig.origin.length)
+            this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.exposedHeaders, 'exposedHeaders'), this.data.from.corsConfig.exposedHeaders.length)
             this.fis.disableIfNotMatch(this.allowedHeaderFormId, [])
             this.fis.disableIfNotMatch(this.originFormId, [])
             this.fis.disableIfNotMatch(this.exposedHeaderFormId, [])
           }
 
-          this.fis.formGroups[this.formId].get("secured").setValue(this.aggregate.secured);
-          this.fis.formGroups[this.formId].get("csrf").setValue(this.aggregate.csrfEnabled);
-          this.fis.formGroups[this.formId].get("isWebsocket").setValue(this.aggregate.websocket ? 'yes' : 'no');
-          this.cdr.markForCheck()
+          this.fis.formGroups[this.formId].get("secured").setValue(this.data.from.secured);
+          this.fis.formGroups[this.formId].get("csrf").setValue(this.data.from.csrfEnabled);
+          this.fis.formGroups[this.formId].get("isWebsocket").setValue(this.data.from.websocket ? 'yes' : 'no');
         })
 
     }
   }
-  ngOnInit() {
-  }
-  convertToPayload(cmpt: MgmtEndpointComponent): IEndpoint {
-    throw new Error('Method not implemented.');
-  }
-  update() {
-    throw new Error('Method not implemented.');
-  }
-  create() {
-    throw new Error('Method not implemented.');
-  }
-  errorMapper(original: ErrorMessage[], cmpt: MgmtEndpointComponent): ErrorMessage[] {
-    throw new Error('Method not implemented.');
-  }
-  disableForm(arg0: IForm): IForm {
-    arg0.disabled = true;
-    return arg0;
+  dismiss(event: MouseEvent) {
+    this.bottomSheetRef.dismiss();
+    event.preventDefault();
   }
 }
 

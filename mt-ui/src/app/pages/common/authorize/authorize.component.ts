@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
-import { IAuthorizeParty } from 'src/app/clazz/validation/common.interface';
+import { IAuthorizeParty } from 'src/app/clazz/common.interface';
 
 @Component({
   selector: 'app-authorize',

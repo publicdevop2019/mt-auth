@@ -4,7 +4,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { FormInfoService } from 'mt-form-builder';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/clazz/utility';
-import { IAuthUser, ILoginHistory } from 'src/app/clazz/validation/user.interface';
+import { IAuthUser, ILoginHistory } from 'src/app/clazz/user.interface';
 import { FORM_CONFIG } from 'src/app/form-configs/mgmt-user.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';

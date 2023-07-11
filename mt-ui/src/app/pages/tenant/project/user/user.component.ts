@@ -1,12 +1,11 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { map, tap } from 'rxjs/operators';
-import { Aggregate } from 'src/app/clazz/abstract-aggregate';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IProjectUser } from 'src/app/clazz/validation/user.interface';
-import { ErrorMessage } from 'src/app/clazz/validation/validator-common';
+import { Utility } from 'src/app/clazz/utility';
+import { IProjectUser } from 'src/app/clazz/user.interface';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
 import { MyRoleService } from 'src/app/services/my-role.service';
@@ -16,11 +15,9 @@ import { MyUserService } from 'src/app/services/my-user.service';
   templateUrl: './user.component.html',
   styleUrls: ['./user.component.css']
 })
-export class UserComponent extends Aggregate<UserComponent, IProjectUser> implements OnInit, AfterViewInit, OnDestroy {
-  create(): void {
-    throw new Error('Method not implemented.');
-  }
+export class UserComponent implements OnDestroy {
   public loadRoot;
+  public changeId = Utility.getChangeId();
   public loadChildren = (id: string) => this.roleSvc.readEntityByQuery(0, 1000, "parentId:" + id).pipe(map(e => {
     e.data.forEach(ee => {
       (ee as INode).editable = true;
@@ -28,18 +25,16 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     return e
   }))
   public formGroup: FormGroup = new FormGroup({})
-  bottomSheet: IBottomSheet<IProjectUser>;
+  public formId: string = 'userTenant';
   constructor(
     public userSvc: MyUserService,
-    fis: FormInfoService,
+    public fis: FormInfoService,
     public roleSvc: MyRoleService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
-    bottomSheetRef: MatBottomSheetRef<UserComponent>,
-    cdr: ChangeDetectorRef
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IProjectUser>,
+    public bottomSheetRef: MatBottomSheetRef<UserComponent>,
+    public cdr: ChangeDetectorRef
   ) {
-    super('resourceOwner', JSON.parse(JSON.stringify(FORM_CONFIG)), undefined, bottomSheetRef, data, fis, cdr);
-    this.bottomSheet = data;
-    this.roleSvc.setProjectId(this.bottomSheet.params['projectId'])
+    this.roleSvc.setProjectId(this.data.params['projectId'])
     this.loadRoot = this.roleSvc.readEntityByQuery(0, 1000, "parentId:null,types:PROJECT.USER").pipe(map(e => {
       e.data.forEach(ee => {
         if (ee.roleType === 'PROJECT') {
@@ -51,51 +46,34 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
         }
       })
       return e
-    })).pipe(tap(() => this.cdr.markForCheck()));;
-    this.fis.init(this.formInfo,this.formId)
-    if (this.bottomSheet.context === 'new') {
-      this.fis.formGroups[this.formId].get('projectId').setValue(this.bottomSheet.from.projectId)
-    }
-  }
-  ngAfterViewInit(): void {
-    if (this.bottomSheet.context === 'edit') {
-      (this.aggregate.roles || []).forEach(p => {
-        if (!this.formGroup.get(p)) {
-          this.formGroup.addControl(p, new FormControl('checked'))
-        } else {
-          this.formGroup.get(p).setValue('checked', { emitEvent: false })
-        }
-      })
-      this.fis.formGroups[this.formId].get('id').setValue(this.aggregate.id)
-      this.fis.formGroups[this.formId].get('email').setValue(this.aggregate.email)
-      this.cdr.markForCheck()
-    }
+    })).pipe(tap(() => this.cdr.markForCheck()));
+    this.fis.init(FORM_CONFIG, this.formId)
+    this.fis.formGroups[this.formId].get('projectId').setValue(this.data.from.projectId)
+    this.fis.formGroups[this.formId].get('id').setValue(this.data.from.id)
+    this.fis.formGroups[this.formId].get('email').setValue(this.data.from.email);
+    (this.data.from.roles || []).forEach(p => {
+      if (!this.formGroup.get(p)) {
+        this.formGroup.addControl(p, new FormControl('checked'))
+      } else {
+        this.formGroup.get(p).setValue('checked', { emitEvent: false })
+      }
+    })
   }
   ngOnDestroy(): void {
-    this.cleanUp()
+    this.fis.reset(this.formId)
   }
-  ngOnInit() {
-  }
-  convertToPayload(cmpt: UserComponent): IProjectUser {
-    let formGroup = cmpt.fis.formGroups[cmpt.formId];
-    const value = cmpt.formGroup.value
+  convertToPayload(): IProjectUser {
+    const formGroup = this.fis.formGroups[this.formId];
+    const value = this.formGroup.value
     return {
       id: formGroup.get('id').value,//value is ignored
       roles: Object.keys(value).filter(e => value[e] === 'checked'),
       projectId: formGroup.get('projectId').value,
-      version: cmpt.aggregate && cmpt.aggregate.version
+      version: this.data.from && this.data.from.version
     }
   }
   update() {
-    this.userSvc.update(this.aggregate.id, this.convertToPayload(this), this.changeId)
-  }
-  errorMapper(original: ErrorMessage[], cmpt: UserComponent) {
-    return original.map(e => {
-      return {
-        ...e,
-        formId: cmpt.formId
-      }
-    })
+    this.userSvc.update(this.data.from.id, this.convertToPayload(), this.changeId)
   }
   removeRole(key: string) {
     this.formGroup.get(key).setValue('unchecked')
@@ -105,6 +83,10 @@ export class UserComponent extends Aggregate<UserComponent, IProjectUser> implem
     return Object.keys(api).filter(e => api[e] === 'checked').filter(e => e)
   }
   parseId(id: string) {
-    return this.aggregate.roleDetails.find(e => e.id === id)?.name || id
+    return this.data.from.roleDetails.find(e => e.id === id)?.name || id
+  }
+  dismiss(event: MouseEvent) {
+    this.bottomSheetRef.dismiss();
+    event.preventDefault();
   }
 }

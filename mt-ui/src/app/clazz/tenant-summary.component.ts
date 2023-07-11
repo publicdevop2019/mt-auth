@@ -25,7 +25,7 @@ import { TABLE_SETTING_KEY } from './constants';
 import { IIdBasedEntity, IEntityService, IBottomSheet, ISumRep } from './summary.component';
 import { TenantEntityService } from './tenant-entity.service';
 import { copyOf } from './utility';
-import { hasValue } from './validation/validator-common';
+import { hasValue } from './validator-common';
 @Directive()
 export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T> implements OnDestroy {
   sheetComponent: ComponentType<any>;

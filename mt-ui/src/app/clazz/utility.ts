@@ -1,6 +1,7 @@
 import { Router } from '@angular/router';
 import { HttpProxyService } from '../services/http-proxy.service';
 import * as UUID from 'uuid/v1';
+import { environment } from 'src/environments/environment';
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");
@@ -64,7 +65,7 @@ export class Utility {
     }
 }
 export class Logger {
-    private static LOG_LEVEL: 'DEBUG' | 'TRACE' | 'ERROR' = 'DEBUG'
+    private static LOG_LEVEL: 'DEBUG' | 'TRACE' | 'ERROR' = environment.production ? 'ERROR' : 'DEBUG'
     public static debug(message: any, ...args: any[]) {
         if (Logger.LOG_LEVEL === 'DEBUG') {
             this.log(message, args)

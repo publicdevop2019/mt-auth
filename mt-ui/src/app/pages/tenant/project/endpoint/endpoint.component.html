@@ -1,5 +1,8 @@
-<mat-icon style="text-align: right;padding-top: 8px;cursor: pointer;width:100%" (click)="dismiss($event)">close
-</mat-icon>
+<div style="display: flex; justify-content: end;">
+    <button mat-button color="primary" (click)="dismiss($event)">
+        <mat-icon>close </mat-icon>
+    </button>
+</div>
 <mat-horizontal-stepper >
     <mat-step label="{{'CATALOG_EP_INFO'|translate}}"> 
         <div style="width: 200px;">
@@ -37,7 +40,7 @@
     </mat-step>
 </mat-horizontal-stepper>
 
-<button mat-raised-button color="primary" *ngIf="bottomSheet.context === 'edit'" class="app-btn"
+<button mat-raised-button color="primary" *ngIf="data.context === 'edit'" class="app-btn"
     (click)="update()">{{'UPDATE'|translate}}</button>
 <button mat-raised-button color="primary" class="app-btn" (click)="create()"
-    *ngIf="bottomSheet.context === 'clone' || bottomSheet.context === 'new'">{{'CREATE'|translate}}</button>
+    *ngIf="data.context === 'clone' || data.context === 'new'">{{'CREATE'|translate}}</button>

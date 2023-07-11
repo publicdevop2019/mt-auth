@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { IEndpoint } from '../clazz/validation/endpoint.interface';
+import { IEndpoint } from '../clazz/endpoint.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';

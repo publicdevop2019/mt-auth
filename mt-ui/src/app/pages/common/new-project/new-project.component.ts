@@ -3,8 +3,8 @@ import { Component, OnDestroy } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { ICommonServerError } from 'src/app/clazz/common.interface';
 import { Logger, Utility } from 'src/app/clazz/utility';
-import { IProjectSimple } from 'src/app/clazz/validation/project.interface';
-import { Validator } from 'src/app/clazz/validation/validator-next-common';
+import { IProjectSimple } from 'src/app/clazz/project.interface';
+import { Validator } from 'src/app/clazz/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/new-project.config';
 import { ProjectService } from 'src/app/services/project.service';
 

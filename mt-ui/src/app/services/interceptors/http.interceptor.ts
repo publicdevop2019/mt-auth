@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, mergeMap, retry, filter, take, finalize, tap } from 'rxjs/operators';
 import { HttpProxyService } from '../http-proxy.service';
-import { ITokenResponse } from '../../clazz/validation/common.interface';
+import { ITokenResponse } from '../../clazz/common.interface';
 import { TranslateService } from '@ngx-translate/core';
 import { getCookie, logout } from '../../clazz/utility';
 /**

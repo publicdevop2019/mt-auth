@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IProjectSimple } from 'src/app/clazz/validation/project.interface';
+import { IProjectSimple } from 'src/app/clazz/project.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { ProjectService } from 'src/app/services/project.service';

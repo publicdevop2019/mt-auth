@@ -1,4 +1,3 @@
-import { P } from '@angular/cdk/keycodes';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
@@ -9,9 +8,9 @@ import * as UUID from 'uuid/v1';
 import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
 import { logout } from '../clazz/utility';
-import { IForgetPasswordRequest, IPendingUser, IUpdatePwdCommand } from '../clazz/validation/user.interface';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/validation/common.interface';
-import { hasValue } from '../clazz/validation/validator-common';
+import { IForgetPasswordRequest, IPendingUser, IUpdatePwdCommand } from '../clazz/user.interface';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/common.interface';
+import { hasValue } from '../clazz/validator-common';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';

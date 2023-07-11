@@ -19,7 +19,7 @@ import { TableColumnConfigComponent } from '../components/table-column-config/ta
 import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
 import { TABLE_SETTING_KEY } from './constants';
 import { copyOf } from './utility';
-import { hasValue } from './validation/validator-common';
+import { hasValue } from './validator-common';
 export interface IIdBasedEntity {
   id: string;
   version: number

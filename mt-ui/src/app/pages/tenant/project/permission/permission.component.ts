@@ -5,9 +5,9 @@ import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.in
 import { combineLatest, Observable } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/validation/endpoint.interface';
-import { IPermission } from 'src/app/clazz/validation/permission.interface';
-import { Validator } from 'src/app/clazz/validation/validator-next-common';
+import { IEndpoint } from 'src/app/clazz/endpoint.interface';
+import { IPermission } from 'src/app/clazz/permission.interface';
+import { Validator } from 'src/app/clazz/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/permission.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';

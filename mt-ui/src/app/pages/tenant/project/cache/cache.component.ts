@@ -3,8 +3,8 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { FormInfoService } from 'mt-form-builder';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/clazz/utility';
-import { ICacheProfile } from 'src/app/clazz/validation/cache.interface';
-import { Validator } from 'src/app/clazz/validation/validator-next-common';
+import { ICacheProfile } from 'src/app/clazz/cache.interface';
+import { Validator } from 'src/app/clazz/validator-next-common';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 @Component({
@@ -13,7 +13,7 @@ import { MyCacheService } from 'src/app/services/my-cache.service';
   styleUrls: ['./cache.component.css']
 })
 export class CacheComponent implements OnDestroy {
-  formId: string;
+  formId: string='cacheForm';
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
 

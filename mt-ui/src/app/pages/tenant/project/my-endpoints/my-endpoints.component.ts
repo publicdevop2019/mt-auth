@@ -8,7 +8,7 @@ import { filter, map, switchMap, take } from 'rxjs/operators';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { uniqueObject } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/validation/endpoint.interface';
+import { IEndpoint } from 'src/app/clazz/endpoint.interface';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';

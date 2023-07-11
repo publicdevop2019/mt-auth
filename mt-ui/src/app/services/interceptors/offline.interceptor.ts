@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { IAuthorizeCode } from '../../clazz/validation/common.interface';
+import { IAuthorizeCode } from '../../clazz/common.interface';
 /**
  * use refresh token if call failed
  */

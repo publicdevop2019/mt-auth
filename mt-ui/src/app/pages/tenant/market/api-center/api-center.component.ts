@@ -5,13 +5,13 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IEndpoint } from 'src/app/clazz/validation/endpoint.interface';
+import { IEndpoint } from 'src/app/clazz/endpoint.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { SharedEndpointService } from 'src/app/services/shared-endpoint.service';
 import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
+import { hasValue } from 'src/app/clazz/validator-common';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',

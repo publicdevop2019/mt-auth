@@ -4,9 +4,9 @@ import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/clazz/utility';
-import { ICorsProfile } from 'src/app/clazz/validation/cors.interface';
-import { hasValue } from 'src/app/clazz/validation/validator-common';
-import { Validator } from 'src/app/clazz/validation/validator-next-common';
+import { ICorsProfile } from 'src/app/clazz/cors.interface';
+import { hasValue } from 'src/app/clazz/validator-common';
+import { Validator } from 'src/app/clazz/validator-next-common';
 import { ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG, ORIGIN_FORM_CONFIG } from 'src/app/form-configs/cors.config';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 @Component({
@@ -15,7 +15,7 @@ import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
   styleUrls: ['./cors.component.css']
 })
 export class CorsComponent implements OnDestroy {
-  formId: string;
+  formId: string='corsForm';
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
 

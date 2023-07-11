@@ -1,5 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { HTTP_METHODS } from '../clazz/validation/endpoint.interface';
+import { HTTP_METHODS } from '../clazz/endpoint.interface';
 
 export const CATALOG_FORM_CONFIG: IForm = {
     "repeatable": false,
@@ -25,13 +25,14 @@ export const CATALOG_FORM_CONFIG: IForm = {
             },
             direction:'row',
             "options": [
-                { label: 'NO', value: "no" },
                 { label: 'YES', value: "yes" },
+                { label: 'NO', value: "no" },
             ],
         },
         {
             "type": "radio",
             "display": true,
+            disabled:true,
             "label": "IS_SHARED",
             "key": "isShared",
             "position": {
@@ -40,14 +41,14 @@ export const CATALOG_FORM_CONFIG: IForm = {
             },
             direction:'row',
             "options": [
-                { label: 'NO', value: "no" },
                 { label: 'YES', value: "yes" },
+                { label: 'NO', value: "no" },
             ],
         },
         {
             "type": "radio",
             "display": true,
-            // disabled:true,//this has a bug
+            disabled:true,
             "label": "IS_SECURED",
             "key": "isSecured",
             "position": {
@@ -56,8 +57,8 @@ export const CATALOG_FORM_CONFIG: IForm = {
             },
             direction:'row',
             "options": [
-                { label: 'NO', value: "no" },
                 { label: 'YES', value: "yes" },
+                { label: 'NO', value: "no" },
             ],
         },
     ],
@@ -93,6 +94,7 @@ export const BASIC_FORM_CONFIG: IForm = {
             "display": true,
             "label": "IS_WEBSOCKET",
             "key": "isWebsocket",
+            required: true,
             "position": {
                 "row": "2",
                 "column": "0"
@@ -199,6 +201,7 @@ export const PERFORMANCE_FORM_CONFIG: IForm = {
             "display": false,
             "label": "REPLENISH_RATE",
             "key": "replenishRate",
+            required: true,
             "position": {
                 "row": "1",
                 "column": "0"
@@ -209,6 +212,7 @@ export const PERFORMANCE_FORM_CONFIG: IForm = {
             "display": false,
             "label": "BURST_CAPACITY",
             "key": "burstCapacity",
+            required: true,
             "position": {
                 "row": "2",
                 "column": "0"

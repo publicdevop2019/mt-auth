@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
 import { logout } from '../clazz/utility';
-import { IAuthUser, IUpdatePwdCommand } from '../clazz/validation/user.interface';
+import { IAuthUser, IUpdatePwdCommand } from '../clazz/user.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
