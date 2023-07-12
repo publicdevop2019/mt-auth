@@ -5,12 +5,8 @@ import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import * as UUID from 'uuid/v1';
-import { ICheckSumResponse } from '../clazz/common.interface';
 import { ISumRep } from '../clazz/summary.component';
-import { logout } from '../clazz/utility';
-import { IForgetPasswordRequest, IPendingUser, IUpdatePwdCommand } from '../clazz/user.interface';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, IMfaResponse, ITokenResponse } from '../clazz/common.interface';
-import { hasValue } from '../clazz/validator-common';
+import { Utility, logout } from '../misc/utility';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
@@ -20,6 +16,7 @@ import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component'
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
 export interface IPatch {
     op: string,
     path: string,
@@ -318,7 +315,7 @@ export class HttpProxyService {
 
     private getPageParam(pageNumer?: number, pageSize?: number, sortBy?: string, sortOrder?: string): string {
         let var1: string[] = [];
-        if (hasValue(pageNumer) && hasValue(pageSize)) {
+        if (Utility.hasValue(pageNumer) && Utility.hasValue(pageSize)) {
             if (sortBy && sortOrder) {
                 var1.push('num:' + pageNumer)
                 var1.push('size:' + pageSize)

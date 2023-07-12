@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { Subscription } from 'rxjs';
-import { createImageFromBlob } from 'src/app/clazz/utility';
+import { createImageFromBlob } from 'src/app/misc/utility';
 import { FORM_CONFIG } from 'src/app/form-configs/my-profile.config';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService, IUpdateUser, IUser } from 'src/app/services/http-proxy.service';

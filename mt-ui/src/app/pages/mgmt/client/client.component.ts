@@ -4,9 +4,10 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
+import { CLIENT_TYPE, grantTypeEnums } from 'src/app/misc/constant';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/client.interface';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
+import { IClient } from 'src/app/misc/interface';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 
 @Component({

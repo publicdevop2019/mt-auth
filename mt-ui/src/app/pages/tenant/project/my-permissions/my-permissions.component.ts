@@ -1,17 +1,14 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { FormInfoService } from 'mt-form-builder';
-import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable, of } from 'rxjs';
-import { map, switchMap, take, tap } from 'rxjs/operators';
-import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { IForm } from 'mt-form-builder/lib/classes/template.interface';
+import { of } from 'rxjs';
+import { map, switchMap } from 'rxjs/operators';
+import { ISumRep } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { IPermission } from 'src/app/clazz/permission.interface';
-import { IProjectSimple } from 'src/app/clazz/project.interface';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { ISearchEvent } from 'src/app/components/tenant-search/tenant-search.component';
@@ -23,6 +20,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { PermissionComponent } from '../permission/permission.component';
+import { IPermission } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-my-permissions',

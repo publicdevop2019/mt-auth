@@ -1,8 +1,8 @@
 import { environment } from "src/environments/environment";
-import { APP_CONSTANT } from "../misc/constant";
 import { EntityCommonService } from "./entity.common-service";
 import { IIdBasedEntity } from "./summary.component";
-import { getUrl } from "./utility";
+import { getUrl } from "../misc/utility";
+import { APP_CONSTANT } from "../misc/constant";
 
 export class TenantEntityService<S extends IIdBasedEntity, D> extends EntityCommonService<S, D>{
     protected entityName: string = '';

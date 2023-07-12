@@ -4,16 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { take } from 'rxjs/operators';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { IProjectUser } from 'src/app/clazz/user.interface';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { UserComponent } from '../user/user.component';
+import { IProjectUser } from 'src/app/misc/interface';
 @Component({
   selector: 'app-my-users',
   templateUrl: './my-users.component.html',

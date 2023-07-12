@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { IPermission } from '../clazz/permission.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { IPermission } from '../misc/interface';
 @Injectable({
   providedIn: 'root'
 })

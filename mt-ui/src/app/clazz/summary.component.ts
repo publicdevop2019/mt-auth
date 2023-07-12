@@ -15,11 +15,9 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
-import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
 import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
-import { TABLE_SETTING_KEY } from './constants';
-import { copyOf } from './utility';
-import { hasValue } from './validator-common';
+import { Utility } from '../misc/utility';
+import { TABLE_SETTING_KEY } from '../misc/constant';
 export interface IIdBasedEntity {
   id: string;
   version: number
@@ -141,7 +139,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
         this.bottomSheet.open(this.sheetComponent, config);
       }
     }
-    if (hasValue(id)) {
+    if (Utility.hasValue(id)) {
       if (bypassQuery) {
         const data = this.dataSource.data.find(e => e.id === id)!
         doNext(data)
@@ -265,7 +263,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     return 'id:' + ids.join(".")
   }
   protected initTableSetting(){
-    const deepCopy = copyOf(FORM_TABLE_COLUMN_CONFIG)
+    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
     const settingKey = deepCopy.inputs[0].key;
     const options = this.getColumnLabelValue();
     (deepCopy.inputs[0] as ICheckboxControl).options = options;

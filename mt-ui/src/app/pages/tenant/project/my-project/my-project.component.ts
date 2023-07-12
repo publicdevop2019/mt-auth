@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { IProjectDashboard, IProjectSimple } from 'src/app/clazz/project.interface';
+import { IProjectDashboard } from 'src/app/misc/interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 export interface IMyDashboardInfo {

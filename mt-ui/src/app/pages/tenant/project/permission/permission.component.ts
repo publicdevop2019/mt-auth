@@ -4,14 +4,13 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/endpoint.interface';
-import { IPermission } from 'src/app/clazz/permission.interface';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/permission.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { MyPermissionService } from 'src/app/services/my-permission.service';
+import { IEndpoint, IPermission } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-permission',

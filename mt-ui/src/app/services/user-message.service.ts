@@ -5,10 +5,9 @@ import { IIdBasedEntity } from '../clazz/summary.component';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 import { AuthService } from './auth.service';
-import * as UUID from 'uuid/v1';
 import { DeviceService } from './device.service';
 import { IBellNotification } from './message.service';
-import { copyOf } from '../clazz/utility';
+import { Utility } from '../misc/utility';
 @Injectable({
     providedIn: 'root'
 })
@@ -38,7 +37,7 @@ export class UserMessageService extends EntityCommonService<IBellNotification, I
     private socket: WebSocket;
     connectToMonitor() {
         if (environment.mode !== 'offline') {
-            this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, UUID()).subscribe(next => {
+            this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, Utility.getChangeId()).subscribe(next => {
                 this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor/user?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {
                     if (event.data !== '_renew')
@@ -65,6 +64,6 @@ export class UserMessageService extends EntityCommonService<IBellNotification, I
     }
     //clone so view will render as new with new timestamp
     clone() {
-        this.latestMessage = copyOf(this.latestMessage)
+        this.latestMessage = Utility.copyOf(this.latestMessage)
     }
 }

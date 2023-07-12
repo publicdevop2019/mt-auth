@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { ICorsProfile } from '../clazz/cors.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { ICorsProfile } from '../misc/interface';
 @Injectable({
   providedIn: 'root'
 })

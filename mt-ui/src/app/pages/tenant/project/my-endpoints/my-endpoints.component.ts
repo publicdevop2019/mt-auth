@@ -5,10 +5,8 @@ import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { filter, map, switchMap, take } from 'rxjs/operators';
-import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { uniqueObject } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/endpoint.interface';
+import { uniqueObject } from 'src/app/misc/utility';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
@@ -20,6 +18,8 @@ import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import * as UUID from 'uuid/v1';
 import { EndpointComponent } from '../endpoint/endpoint.component';
+import { IEndpoint } from 'src/app/misc/interface';
+import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',

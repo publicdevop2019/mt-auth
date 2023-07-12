@@ -3,16 +3,16 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { CONST_HTTP_METHOD } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { uniqueObject } from 'src/app/clazz/utility';
-import { IEndpoint } from 'src/app/clazz/endpoint.interface';
+import { uniqueObject } from 'src/app/misc/utility';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
+import { IEndpoint } from 'src/app/misc/interface';
+import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',

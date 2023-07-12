@@ -15,8 +15,8 @@ import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { SharedPermissionService } from 'src/app/services/shared-permission.service';
 import { INewRole } from '../my-roles/my-roles.component';
-import { Validator } from 'src/app/clazz/validator-next-common';
-import { Utility } from 'src/app/clazz/utility';
+import { Validator } from 'src/app/misc/validator';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-role',
   templateUrl: './role.component.html',

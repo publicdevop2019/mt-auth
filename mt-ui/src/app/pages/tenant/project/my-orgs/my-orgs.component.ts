@@ -5,10 +5,10 @@ import { FormInfoService } from 'mt-form-builder';
 import { IForm, IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { of } from 'rxjs';
 import { SummaryEntityComponent, IBottomSheet, IIdBasedEntity } from 'src/app/clazz/summary.component';
-import { IPermission } from 'src/app/clazz/permission.interface';
-import { hasValue } from 'src/app/clazz/validator-common';
+import { Utility } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/view.config';
+import { IPermission } from 'src/app/misc/interface';
 import { RoleComponent } from 'src/app/pages/tenant/project/role/role.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { OrgService } from 'src/app/services/org.service';
@@ -84,7 +84,7 @@ export class MyOrgsComponent extends SummaryEntityComponent<IOrg, IOrg> implemen
     let config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
-    if (hasValue(id)) {
+    if (Utility.hasValue(id)) {
       of(this.dataSource.data.find(e => e.id === id))
         .subscribe(next => {
           if (clone) {

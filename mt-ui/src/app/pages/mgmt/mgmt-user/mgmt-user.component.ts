@@ -3,9 +3,9 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { MatTableDataSource } from '@angular/material/table';
 import { FormInfoService } from 'mt-form-builder';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
-import { IAuthUser, ILoginHistory } from 'src/app/clazz/user.interface';
+import { Utility } from 'src/app/misc/utility';
 import { FORM_CONFIG } from 'src/app/form-configs/mgmt-user.config';
+import { ILoginHistory, IAuthUser } from 'src/app/misc/interface';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({

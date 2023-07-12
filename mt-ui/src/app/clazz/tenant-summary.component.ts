@@ -8,7 +8,7 @@ import { MatTableDataSource } from '@angular/material/table';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable, ReplaySubject, Subject, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
 import { DeviceService } from 'src/app/services/device.service';
@@ -17,15 +17,13 @@ import { IEditBooleanEvent } from '../components/editable-boolean/editable-boole
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
-import { TableColumnConfigComponent } from '../components/table-column-config/table-column-config.component';
 import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
 import { HttpProxyService } from '../services/http-proxy.service';
 import { IProjectPermission, ProjectService } from '../services/project.service';
-import { TABLE_SETTING_KEY } from './constants';
-import { IIdBasedEntity, IEntityService, IBottomSheet, ISumRep } from './summary.component';
+import { IIdBasedEntity, IBottomSheet, ISumRep } from './summary.component';
 import { TenantEntityService } from './tenant-entity.service';
-import { copyOf } from './utility';
-import { hasValue } from './validator-common';
+import { Utility } from '../misc/utility';
+import { TABLE_SETTING_KEY } from '../misc/constant';
 @Directive()
 export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T> implements OnDestroy {
   sheetComponent: ComponentType<any>;
@@ -140,7 +138,7 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
         this.bottomSheet.open(this.sheetComponent, config);
       }
     }
-    if (hasValue(id)) {
+    if (Utility.hasValue(id)) {
       if (bypassQuery) {
         const data = this.dataSource.data.find(e => e.id === id)!
         doNext(data)
@@ -179,7 +177,7 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   }
   
   protected initTableSetting(){
-    const deepCopy = copyOf(FORM_TABLE_COLUMN_CONFIG)
+    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
     const settingKey = deepCopy.inputs[0].key;
     const options = this.getColumnLabelValue();
     (deepCopy.inputs[0] as ICheckboxControl).options = options;

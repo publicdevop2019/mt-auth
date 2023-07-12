@@ -4,10 +4,8 @@ import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
-import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { uniqueObject } from 'src/app/clazz/utility';
-import { IClient } from 'src/app/clazz/client.interface';
+import { uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -15,6 +13,8 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ClientComponent } from '../client/client.component';
+import { CONST_GRANT_TYPE } from 'src/app/misc/constant';
+import { IClient } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-my-clients',

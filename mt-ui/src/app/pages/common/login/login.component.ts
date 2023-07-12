@@ -4,14 +4,14 @@ import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { Logger, Utility } from 'src/app/clazz/utility';
-import { IForgetPasswordRequest, IPendingUser } from 'src/app/clazz/user.interface';
-import { IMfaResponse, ITokenResponse } from 'src/app/clazz/common.interface';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
 import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
+import { IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse } from 'src/app/misc/interface';
+import { Logger } from 'src/app/misc/logger';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',

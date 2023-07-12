@@ -3,11 +3,10 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
-import { ICorsProfile } from 'src/app/clazz/cors.interface';
-import { hasValue } from 'src/app/clazz/validator-common';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
 import { ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG, ORIGIN_FORM_CONFIG } from 'src/app/form-configs/cors.config';
+import { ICorsProfile } from 'src/app/misc/interface';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 @Component({
   selector: 'app-cors',
@@ -80,7 +79,7 @@ export class CorsComponent implements OnDestroy {
     return {
       id: formGroup.get('id').value,
       name: formGroup.get('name').value,
-      description: hasValue(formGroup.get('description').value) ? formGroup.get('description').value : undefined,
+      description: Utility.hasValue(formGroup.get('description').value) ? formGroup.get('description').value : undefined,
       allowCredentials: !!formGroup.get('allowCredentials').value,
       allowOrigin: (Object.values(fg0.value) as string[]).filter(e => e),
       allowedHeaders: (Object.values(fg1.value) as string[]).filter(e => e),

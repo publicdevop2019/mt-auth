@@ -1,6 +1,5 @@
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { CLIENT_TYPE } from '../clazz/client.interface';
-import { GRANT_TYPE_LIST } from '../clazz/constant';
+import { GRANT_TYPE_LIST } from '../misc/constant';
 
 export const FORM_CONFIG: IForm = {
     "repeatable": false,

@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { TenantEntityService } from '../clazz/tenant-entity.service';
-import { IProjectUser } from '../clazz/user.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
 import * as UUID from 'uuid/v1';
+import { IProjectUser } from '../misc/interface';
 @Injectable({
   providedIn: 'root'
 })

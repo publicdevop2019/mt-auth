@@ -3,10 +3,10 @@ import { Observable, ReplaySubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
-import { IProjectDashboard, IProjectSimple } from '../clazz/project.interface';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
+import { IProjectSimple, IProjectDashboard } from '../misc/interface';
 export interface IProjectPermissionInfo {
   projectPermissionInfo: IProjectPermission[]
 }

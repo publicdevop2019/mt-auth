@@ -1,9 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { ICheckboxControl, IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { ICacheProfile } from 'src/app/clazz/cache.interface';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -12,11 +11,9 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { of } from 'rxjs';
-import { ICorsProfile } from 'src/app/clazz/cors.interface';
-import { hasValue } from 'src/app/clazz/validator-common';
-import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
-import { copyOf } from 'src/app/clazz/utility';
 import { CacheComponent } from '../cache/cache.component';
+import { ICacheProfile, ICorsProfile } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-my-cache',
   templateUrl: './my-cache.component.html',
@@ -71,7 +68,7 @@ export class MyCacheComponent extends TenantSummaryEntityComponent<ICacheProfile
     let config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
-    if (hasValue(id)) {
+    if (Utility.hasValue(id)) {
       of(this.dataSource.data.find(e => e.id === id))
         .subscribe(next => {
           if (clone) {

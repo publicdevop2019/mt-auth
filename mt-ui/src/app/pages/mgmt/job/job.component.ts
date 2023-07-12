@@ -1,14 +1,11 @@
-import { V } from '@angular/cdk/keycodes';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
-import { DateTime } from 'luxon';
 import { FormInfoService } from 'mt-form-builder';
 import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
-import { map, switchMapTo } from 'rxjs/operators';
-import { TABLE_SETTING_KEY } from 'src/app/clazz/constants';
-import { copyOf } from 'src/app/clazz/utility';
-import { TableColumnConfigComponent } from 'src/app/components/table-column-config/table-column-config.component';
+import { map } from 'rxjs/operators';
+import { TABLE_SETTING_KEY } from 'src/app/misc/constant';
+import { Utility } from 'src/app/misc/utility';
 import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
@@ -125,7 +122,7 @@ export class JobComponent implements OnInit, OnDestroy {
     }
   };
   private initTableSetting() {
-    const deepCopy = copyOf(FORM_TABLE_COLUMN_CONFIG)
+    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
     const settingKey = deepCopy.inputs[0].key;
     const options = this.getColumnLabelValue();
     (deepCopy.inputs[0] as ICheckboxControl).options = options;

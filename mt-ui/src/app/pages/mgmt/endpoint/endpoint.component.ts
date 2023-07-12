@@ -1,11 +1,10 @@
-import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
+import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IMgmtEndpoint } from 'src/app/clazz/endpoint.interface';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
@@ -13,6 +12,7 @@ import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { ORIGIN_FORM_CONFIG, ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG } from 'src/app/form-configs/cors.config';
+import { IMgmtEndpoint } from 'src/app/misc/interface';
 @Component({
   selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',

@@ -5,16 +5,16 @@ import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.in
 import { combineLatest, merge, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { IClient } from 'src/app/clazz/client.interface';
-import { IEndpoint } from 'src/app/clazz/endpoint.interface';
 import { BASIC_FORM_CONFIG, CATALOG_FORM_CONFIG, PERFORMANCE_FORM_CONFIG, SECURE_FORM_CONFIG } from 'src/app/form-configs/create-endpoint.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
-import { Logger, Utility } from 'src/app/clazz/utility';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
+import { IClient, IEndpoint } from 'src/app/misc/interface';
+import { Logger } from 'src/app/misc/logger';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',

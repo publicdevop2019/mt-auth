@@ -1,9 +1,10 @@
 import { Component, OnDestroy } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
-import { Logger, Utility } from 'src/app/clazz/utility';
-import { IUpdatePwdCommand } from 'src/app/clazz/user.interface';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Logger } from 'src/app/misc/logger';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/update-pwd.config';
+import { IUpdatePwdCommand } from 'src/app/misc/interface';
 import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-update-pwd',

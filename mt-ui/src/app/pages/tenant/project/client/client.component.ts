@@ -5,14 +5,13 @@ import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.in
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { CLIENT_TYPE, grantTypeEnums, IClient } from 'src/app/clazz/client.interface';
-import { GRANT_TYPE_LIST } from 'src/app/clazz/constant';
-import { hasValue } from 'src/app/clazz/validator-common';
+import { CLIENT_TYPE, GRANT_TYPE_LIST, grantTypeEnums } from 'src/app/misc/constant';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
-import { Logger, Utility } from 'src/app/clazz/utility';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
+import { IClient } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-client',
@@ -168,7 +167,7 @@ export class ClientComponent implements OnDestroy {
         grantTypeEnums: grants,
         types: types,
         accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
-        refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
+        refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
         resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
         registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
         autoApprove: formGroup.get('grantType').value === grantTypeEnums.authorization_code ? !!formGroup.get('autoApprove').value : null,
@@ -187,7 +186,7 @@ export class ClientComponent implements OnDestroy {
       grantTypeEnums: grants,
       types: types,
       accessTokenValiditySeconds: +formGroup.get('accessTokenValiditySeconds').value,
-      refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
+      refreshTokenValiditySeconds: formGroup.get('refreshToken').value ? (Utility.hasValue(formGroup.get('refreshTokenValiditySeconds').value) ? +formGroup.get('refreshTokenValiditySeconds').value : null) : null,
       resourceIndicator: !!formGroup.get('resourceIndicator').value,
       resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
       registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,

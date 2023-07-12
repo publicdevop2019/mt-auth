@@ -1,13 +1,13 @@
-import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, Inject, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { map, tap } from 'rxjs/operators';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
-import { IProjectUser } from 'src/app/clazz/user.interface';
+import { Utility } from 'src/app/misc/utility';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
+import { IProjectUser } from 'src/app/misc/interface';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { MyUserService } from 'src/app/services/my-user.service';
 @Component({

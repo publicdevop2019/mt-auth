@@ -4,14 +4,14 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { CONST_GRANT_TYPE } from 'src/app/clazz/constants';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { uniqueObject } from 'src/app/clazz/utility';
-import { IClient } from 'src/app/clazz/client.interface';
+import { uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtClientComponent } from '../client/client.component';
+import { CONST_GRANT_TYPE } from 'src/app/misc/constant';
+import { IClient } from 'src/app/misc/interface';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',

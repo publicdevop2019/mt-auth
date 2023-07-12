@@ -4,8 +4,6 @@ import { FormInfoService } from 'mt-form-builder';
 import { of } from 'rxjs';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ICorsProfile } from 'src/app/clazz/cors.interface';
-import { hasValue } from 'src/app/clazz/validator-common';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -13,6 +11,8 @@ import { CorsComponent } from '../cors/cors.component';
 import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { ICorsProfile } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-my-cors',
   templateUrl: './my-cors.component.html',
@@ -62,7 +62,7 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     let config = new MatBottomSheetConfig();
     config.autoFocus = true;
     config.panelClass = 'fix-height'
-    if (hasValue(id)) {
+    if (Utility.hasValue(id)) {
       of(this.dataSource.data.find(e => e.id === id))
         .subscribe(next => {
           if (clone) {

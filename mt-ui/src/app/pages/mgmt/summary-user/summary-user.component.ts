@@ -5,13 +5,13 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { filter } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { IAuthUser } from 'src/app/clazz/user.interface';
 import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { UserService } from 'src/app/services/user.service';
 import * as UUID from 'uuid/v1';
 import { MgmtUserComponent } from '../mgmt-user/mgmt-user.component';
+import { IAuthUser } from 'src/app/misc/interface';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',

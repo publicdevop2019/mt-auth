@@ -2,8 +2,8 @@ import { HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest, Http
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { delay } from 'rxjs/operators';
+import { IAuthorizeCode } from 'src/app/misc/interface';
 import { environment } from 'src/environments/environment';
-import { IAuthorizeCode } from '../../clazz/common.interface';
 /**
  * use refresh token if call failed
  */

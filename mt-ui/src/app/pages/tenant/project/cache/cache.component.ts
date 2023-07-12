@@ -2,10 +2,10 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IBottomSheet } from 'src/app/clazz/summary.component';
-import { Utility } from 'src/app/clazz/utility';
-import { ICacheProfile } from 'src/app/clazz/cache.interface';
-import { Validator } from 'src/app/clazz/validator-next-common';
+import { Utility } from 'src/app/misc/utility';
+import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
+import { ICacheProfile } from 'src/app/misc/interface';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 @Component({
   selector: 'app-cache',
