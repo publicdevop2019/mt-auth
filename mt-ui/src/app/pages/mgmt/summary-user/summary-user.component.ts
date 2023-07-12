@@ -9,9 +9,9 @@ import { OperationConfirmDialogComponent } from 'src/app/components/operation-co
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { UserService } from 'src/app/services/user.service';
-import * as UUID from 'uuid/v1';
 import { MgmtUserComponent } from '../mgmt-user/mgmt-user.component';
 import { IAuthUser } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
@@ -67,11 +67,11 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthU
   doBatchLock(){
     const dialogRef = this.dialog.open(OperationConfirmDialogComponent);
     let ids = this.selection.selected.map(e => e.id)
-    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'LOCK', UUID()));
+    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'LOCK', Utility.getChangeId()));
   }
   doBatchUnlock(){
     const dialogRef = this.dialog.open(OperationConfirmDialogComponent);
     let ids = this.selection.selected.map(e => e.id)
-    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'UNLOCK', UUID()));
+    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'UNLOCK', Utility.getChangeId()));
   }
 }

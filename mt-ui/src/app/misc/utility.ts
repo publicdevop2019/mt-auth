@@ -1,7 +1,6 @@
 import { Router } from '@angular/router';
 import { HttpProxyService } from '../services/http-proxy.service';
 import * as UUID from 'uuid/v1';
-import { environment } from 'src/environments/environment';
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");

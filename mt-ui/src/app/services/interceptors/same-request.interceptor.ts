@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Observable } from 'rxjs';
 import { filter, switchMap } from 'rxjs/operators';
 import { OperationConfirmDialogComponent } from '../../components/operation-confirm-dialog/operation-confirm-dialog.component';
-import * as UUID from 'uuid/v1';
+import { Utility } from 'src/app/misc/utility';
 @Injectable()
 export class SameRequestHttpInterceptor implements HttpInterceptor {
     constructor(public dialog: MatDialog) { }
@@ -15,7 +15,7 @@ export class SameRequestHttpInterceptor implements HttpInterceptor {
             if (req.headers.get('changeId') === storedChangeId) {
                 const dialogRef = this.dialog.open(OperationConfirmDialogComponent);
                 return dialogRef.afterClosed().pipe(filter(result => result), switchMap(() => {
-                    req = req.clone({ setHeaders: { changeId: UUID() } });
+                    req = req.clone({ setHeaders: { changeId: Utility.getChangeId() } });
                     return next.handle(req)
                 }));
             } else {

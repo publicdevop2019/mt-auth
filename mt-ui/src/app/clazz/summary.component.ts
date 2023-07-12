@@ -10,7 +10,6 @@ import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface
 import { Observable, Subscription } from 'rxjs';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
 import { DeviceService } from 'src/app/services/device.service';
-import * as UUID from 'uuid/v1';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
@@ -216,31 +215,31 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   }
   doBatchDelete() {
     let ids = this.selection.selected.map(e => e.id)
-    this.entitySvc.deleteByQuery(this.getIdQuery(ids), UUID())
+    this.entitySvc.deleteByQuery(this.getIdQuery(ids), Utility.getChangeId())
   }
   doPatch(id: string, event: IEditEvent, fieldName: string) {
-    this.entitySvc.patch(id, event, UUID(), fieldName)
+    this.entitySvc.patch(id, event, Utility.getChangeId(), fieldName)
   }
   doMultiInputPatch(id: string, event: IEditInputListEvent, fieldName: string) {
-    this.entitySvc.patchMultiInput(id, event, UUID(), fieldName)
+    this.entitySvc.patchMultiInput(id, event, Utility.getChangeId(), fieldName)
   }
   doPatchBoolean(id: string, event: IEditBooleanEvent, fieldName: string) {
-    this.entitySvc.patchBoolean(id, event, UUID(), fieldName)
+    this.entitySvc.patchBoolean(id, event, Utility.getChangeId(), fieldName)
   }
   doPatchAtomicNum(id: string, event: IEditEvent, fieldName: string) {
-    this.entitySvc.patchAtomicNum(id, event, UUID(), fieldName)
+    this.entitySvc.patchAtomicNum(id, event, Utility.getChangeId(), fieldName)
   }
   doPatchList(id: string, event: IEditListEvent, fieldName: string) {
-    this.entitySvc.patchList(id, event, UUID(), fieldName)
+    this.entitySvc.patchList(id, event, Utility.getChangeId(), fieldName)
   }
   doClone(id: string) {
     this.openBottomSheet(id, true)
   }
   doDeleteById(id: string) {
-    this.entitySvc.deleteById(id, UUID())
+    this.entitySvc.deleteById(id, Utility.getChangeId())
   }
   doDeleteByQuery(query: string) {
-    this.entitySvc.deleteByQuery(query, UUID())
+    this.entitySvc.deleteByQuery(query, Utility.getChangeId())
   }
   doSearch(config: ISearchEvent) {
     this.queryString = config.value;

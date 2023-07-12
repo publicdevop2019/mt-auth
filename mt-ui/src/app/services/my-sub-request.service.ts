@@ -5,7 +5,7 @@ import { IMySubReq } from '../pages/tenant/market/my-requests/my-requests.compon
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
-import * as UUID from 'uuid/v1';
+import { Utility } from '../misc/utility';
 @Injectable({
   providedIn: 'root'
 })
@@ -17,15 +17,15 @@ export class MySubRequestService extends EntityCommonService<IMySubReq, IMySubRe
     super(httpProxy, interceptor, deviceSvc);
   }
   cancelSubRequest(id: string) {
-    const changeId = UUID();
+    const changeId = Utility.getChangeId();
     return this.httpProxy.cancelSubRequest(id, changeId)
   }
   approveSubRequest(id: string) {
-    const changeId = UUID();
+    const changeId = Utility.getChangeId();
     return this.httpProxy.approveSubRequest(id, changeId)
   }
   rejectSubRequest(id: string, rejectReason: string) {
-    const changeId = UUID();
+    const changeId = Utility.getChangeId();
     return this.httpProxy.rejectSubRequest(id, changeId, rejectReason)
   }
 }

@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
+import { Utility } from 'src/app/misc/utility';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import * as UUID from 'uuid/v1';
 @Component({
   selector: 'app-proxy-check',
   templateUrl: './proxy-check.component.html',
@@ -11,7 +11,7 @@ import * as UUID from 'uuid/v1';
 })
 export class CacheControlComponent implements OnInit {
   displayedColumns: string[] = ['instance', 'value', 'result'];
-  private cacheChangeId = UUID();
+  private cacheChangeId = Utility.getChangeId();
   dataSource: MatTableDataSource<{ name: string; value: string }>;
   constructor(protected httpProxySvc: HttpProxyService, private _snackBar: MatSnackBar, private translate: TranslateService) { }
   ngOnInit(): void {

@@ -3,8 +3,8 @@ import { TenantEntityService } from '../clazz/tenant-entity.service';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
-import * as UUID from 'uuid/v1';
 import { IProjectUser } from '../misc/interface';
+import { Utility } from '../misc/utility';
 @Injectable({
   providedIn: 'root'
 })
@@ -14,7 +14,7 @@ export class MyUserService extends TenantEntityService<IProjectUser, IProjectUse
     super(httpProxy, interceptor, deviceSvc);
   }
   public addAdmin(userId: string) {
-    const changeId = UUID();
+    const changeId = Utility.getChangeId();
     return this.httpProxySvc.addAdmin(this.projectId, userId, changeId)
   }
 }

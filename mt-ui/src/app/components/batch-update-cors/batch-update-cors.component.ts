@@ -9,8 +9,8 @@ import { MyCorsProfileService } from "src/app/services/my-cors-profile.service";
 import { DeviceService } from "src/app/services/device.service";
 import { EndpointService } from "src/app/services/endpoint.service";
 import { HttpProxyService } from "src/app/services/http-proxy.service";
-import * as UUID from 'uuid/v1';
 import { IEndpoint } from "src/app/misc/interface";
+import { Utility } from "src/app/misc/utility";
 export interface DialogData {
     data: { id: string, description: string }[]
 }
@@ -86,7 +86,7 @@ export class BatchUpdateCorsComponent implements OnDestroy {
                 }else{
                     // will not reach
                 }
-                this.httpProxySvc.updateEntityExt(this.endpointSvc.entityRepo, endpoint.id, next, UUID()).subscribe(next => {
+                this.httpProxySvc.updateEntityExt(this.endpointSvc.entityRepo, endpoint.id, next, Utility.getChangeId()).subscribe(next => {
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'SUCCESS'
                 },()=>{
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'FAILED'

@@ -4,7 +4,6 @@ import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import * as UUID from 'uuid/v1';
 import { ISumRep } from '../clazz/summary.component';
 import { Utility, logout } from '../misc/utility';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
@@ -157,7 +156,7 @@ export class HttpProxyService {
             const formData: FormData = new FormData();
             formData.append('file', file, file.name);
             let headerConfig = new HttpHeaders();
-            headerConfig = headerConfig.set('changeId', UUID())
+            headerConfig = headerConfig.set('changeId', Utility.getChangeId())
             this._httpClient.post<void>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/avatar', formData, { observe: 'response', headers: headerConfig }).subscribe(next => {
                 e.next(next.headers.get('location'));
             });
@@ -209,7 +208,7 @@ export class HttpProxyService {
     };
     revokeResourceOwnerToken(id: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', UUID())
+        headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {
             this._httpClient.post<any>(environment.serverUri + '/auth-svc/mgmt/revoke-tokens', { "id": id, "type": "USER" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
@@ -218,7 +217,7 @@ export class HttpProxyService {
     }
     revokeClientToken(clientId: number): Observable<boolean> {
         let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', UUID())
+        headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {
             this._httpClient.post<any>(environment.serverUri + '/auth-svc/mgmt/revoke-tokens', { "id": clientId, "type": "CLIENT" }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
