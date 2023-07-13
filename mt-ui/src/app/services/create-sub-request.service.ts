@@ -9,9 +9,8 @@ import { CustomHttpInterceptor } from './interceptors/http.interceptor';
   providedIn: 'root'
 })
 export class CreateSubRequestService extends EntityCommonService<ISubRequest, ISubRequest>{
-  private PRODUCT_SVC_NAME = '/auth-svc';
-  private ENTITY_NAME = '/subscriptions/requests';
-  entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
+  private ENTITY_NAME = '/auth-svc/subscriptions/requests';
+  entityRepo: string = environment.serverUri + this.ENTITY_NAME;
   constructor(public httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }

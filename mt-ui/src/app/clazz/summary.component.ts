@@ -220,14 +220,8 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   doPatch(id: string, event: IEditEvent, fieldName: string) {
     this.entitySvc.patch(id, event, Utility.getChangeId(), fieldName)
   }
-  doMultiInputPatch(id: string, event: IEditInputListEvent, fieldName: string) {
-    this.entitySvc.patchMultiInput(id, event, Utility.getChangeId(), fieldName)
-  }
   doPatchBoolean(id: string, event: IEditBooleanEvent, fieldName: string) {
     this.entitySvc.patchBoolean(id, event, Utility.getChangeId(), fieldName)
-  }
-  doPatchAtomicNum(id: string, event: IEditEvent, fieldName: string) {
-    this.entitySvc.patchAtomicNum(id, event, Utility.getChangeId(), fieldName)
   }
   doPatchList(id: string, event: IEditListEvent, fieldName: string) {
     this.entitySvc.patchList(id, event, Utility.getChangeId(), fieldName)
@@ -237,9 +231,6 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   }
   doDeleteById(id: string) {
     this.entitySvc.deleteById(id, Utility.getChangeId())
-  }
-  doDeleteByQuery(query: string) {
-    this.entitySvc.deleteByQuery(query, Utility.getChangeId())
   }
   doSearch(config: ISearchEvent) {
     this.queryString = config.value;
@@ -254,7 +245,6 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     }
     this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
-
       this.updateSummaryData(next);
     })
   }

@@ -206,7 +206,7 @@ export class HttpProxyService {
             });
         });
     };
-    revokeResourceOwnerToken(id: string): Observable<boolean> {
+    revokeUserToken(id: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {
@@ -233,11 +233,11 @@ export class HttpProxyService {
         formData.append('redirect_uri', authorizeParty.redirect_uri);
         return this._httpClient.post<IAuthorizeCode>(environment.serverUri + this.AUTH_SVC_NAME + '/authorize', formData);
     };
-    updateResourceOwnerPwd(resourceOwner: IUpdatePwdCommand, changeId: string): Observable<boolean> {
+    updateUserPwd(command: IUpdatePwdCommand, changeId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.put<IUpdatePwdCommand>(environment.serverUri + this.AUTH_SVC_NAME + '/users/pwd', resourceOwner, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.put<IUpdatePwdCommand>(environment.serverUri + this.AUTH_SVC_NAME + '/users/pwd', command, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

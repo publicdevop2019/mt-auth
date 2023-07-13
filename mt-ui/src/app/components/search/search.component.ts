@@ -5,11 +5,9 @@ import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { interval, Observable, Subscription } from 'rxjs';
 import { debounce, filter } from 'rxjs/operators';
-import { APP_CONSTANT } from 'src/app/misc/constant';
 import { IClient } from 'src/app/misc/interface';
 import { DeviceService } from 'src/app/services/device.service';
-import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MgmtClientService } from 'src/app/services/mgmt-client.service';
+import { ResourceService } from 'src/app/services/resource.service';
 export interface ISearchEvent {
   value: string,
   key?: string,//see below
@@ -70,7 +68,7 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
       if (entry.isIntersecting) {
         this.loading = true;
         const config = this.searchLevel1.value as ISearchConfig;
-        this.httpProxy.getResourceByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
+        this.resourceSvc.getByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
           next => {
             this.loading = false;
             if (next.data.length === 0) {
@@ -127,7 +125,7 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
     fb: FormBuilder,
     public translateSvc: TranslateService,
     private deviceSvc: DeviceService,
-    public httpProxy: HttpProxyService,
+    public resourceSvc: ResourceService,
     private componentFactoryResolver: ComponentFactoryResolver,
   ) {
     this.searchLevel1.valueChanges.subscribe(() => {

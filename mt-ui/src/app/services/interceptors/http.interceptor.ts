@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
+import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
@@ -8,6 +8,7 @@ import { HttpProxyService } from '../http-proxy.service';
 import { TranslateService } from '@ngx-translate/core';
 import { getCookie, logout } from '../../misc/utility';
 import { ITokenResponse } from 'src/app/misc/interface';
+import { Logger } from 'src/app/misc/logger';
 /**
  * use refresh token if call failed
  */
@@ -32,6 +33,28 @@ export class CustomHttpInterceptor implements HttpInterceptor {
         }
       }
     return next.handle(req)
+      // .pipe(tap({
+      //   next: (event) => {
+      //     if(event instanceof HttpResponse){
+      //       if (req.method != 'GET') {
+      //         let bypass = false;
+      //         [
+      //           '/auth-svc/tickets/',
+      //           '/auth-svc/oauth/token',
+      //         ]
+      //         .forEach(e => {
+      //           if (req.url.includes(e)) {
+      //             bypass = true
+      //           }
+      //         })
+      //         if (!bypass) {
+      //           Logger.debug(req.url)
+      //           this.openSnackbar('OPERATION_SUCCESS');
+      //         }
+      //       }
+      //     }
+      //   }
+      // }))
       .pipe(catchError((error: HttpErrorResponse) => {
         if (error && error.status === 401) {
           if (this._httpProxy.currentUserAuthInfo === undefined || this._httpProxy.currentUserAuthInfo === null) {
@@ -99,9 +122,9 @@ export class CustomHttpInterceptor implements HttpInterceptor {
           return throwError(error);
         }
 
-      })
-
-      );
+      })).pipe(tap(next => {
+        Logger.traceObj('tap response', next)
+      }));
   }
   updateReqAuthToken(req: HttpRequest<any>): HttpRequest<any> {
     return req = req.clone({ setHeaders: { Authorization: `Bearer ${this._httpProxy.currentUserAuthInfo.access_token}` } })

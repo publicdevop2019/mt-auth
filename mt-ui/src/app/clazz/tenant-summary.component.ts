@@ -64,9 +64,6 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     });
     this.subs.add(sub);
   }
-  updateSetting(){
-    this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).setValue(Object.keys(this.columnList))
-  }
 
   canDo(...name: string[]) {
     return combineLatest([this.projectId, this.projectSvc.permissionDetail]).pipe(map(e => {
@@ -118,7 +115,7 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   displayedColumns() {
     if (this.fis.formGroups[this.formId]) {
       const orderKeys = ['select', ...Object.keys(this.columnList)];
-      const value = this.fis.formGroups[this.formId].get('displayColumns').value as string[]
+      const value = this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).value as string[]
       return orderKeys.filter(e => value.includes(e))
     } else {
       return Object.keys(this.columnList)
@@ -174,15 +171,6 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     }
     this.selection.clear();
   }
-  
-  protected initTableSetting(){
-    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
-    const settingKey = deepCopy.inputs[0].key;
-    const options = this.getColumnLabelValue();
-    (deepCopy.inputs[0] as ICheckboxControl).options = options;
-    this.fis.init(deepCopy, this.formId)
-    this.fis.formGroups[this.formId].get(settingKey).setValue(options.map(e => e.value))
-  }
   updateTable(sort: Sort) {
     this.sortBy = sort.active;
     this.sortOrder = sort.direction;
@@ -221,21 +209,11 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     }
     return `${this.selection.isSelected(row) ? 'deselect' : 'select'} row ${row.id + 1}`;
   }
-  doBatchDelete() {
-    let ids = this.selection.selected.map(e => e.id)
-    this.entitySvc.deleteByQuery(this.getIdQuery(ids), Utility.getChangeId())
-  }
   doPatch(id: string, event: IEditEvent, fieldName: string) {
     this.entitySvc.patch(id, event, Utility.getChangeId(), fieldName)
   }
-  doMultiInputPatch(id: string, event: IEditInputListEvent, fieldName: string) {
-    this.entitySvc.patchMultiInput(id, event, Utility.getChangeId(), fieldName)
-  }
   doPatchBoolean(id: string, event: IEditBooleanEvent, fieldName: string) {
     this.entitySvc.patchBoolean(id, event, Utility.getChangeId(), fieldName)
-  }
-  doPatchAtomicNum(id: string, event: IEditEvent, fieldName: string) {
-    this.entitySvc.patchAtomicNum(id, event, Utility.getChangeId(), fieldName)
   }
   doPatchList(id: string, event: IEditListEvent, fieldName: string) {
     this.entitySvc.patchList(id, event, Utility.getChangeId(), fieldName)
@@ -246,15 +224,16 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   doDeleteById(id: string) {
     this.entitySvc.deleteById(id, Utility.getChangeId())
   }
-  doDeleteByQuery(query: string) {
-    this.entitySvc.deleteByQuery(query, Utility.getChangeId())
-  }
   doSearch(config: ISearchEvent) {
     this.queryString = config.value;
     this.queryKey = config.key;
 
     if (config.resetPage) {
       this.entitySvc.pageNumber = 0;
+      if (!config.value) {//reset sort as well
+        this.sortBy = undefined;
+        this.sortOrder = undefined;
+      }
     }
     this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
@@ -280,5 +259,14 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   }
   extractResult(result:Observable<{result:boolean,projectId:string}>){
     return result.pipe(map(e=>e.result))
+  }
+    
+  protected initTableSetting(){
+    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
+    const settingKey = deepCopy.inputs[0].key;
+    const options = this.getColumnLabelValue();
+    (deepCopy.inputs[0] as ICheckboxControl).options = options;
+    this.fis.init(deepCopy, this.formId)
+    this.fis.formGroups[this.formId].get(settingKey).setValue(options.map(e => e.value))
   }
 }

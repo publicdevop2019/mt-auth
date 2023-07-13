@@ -15,12 +15,12 @@ export class UserService extends EntityCommonService<IAuthUser, IAuthUser>{
     super(httpProxy, interceptor,deviceSvc);
   }
   revokeResourceOwnerToken(id: string): void {
-    this.httpProxy.revokeResourceOwnerToken(id).subscribe(result => {
+    this.httpProxy.revokeUserToken(id).subscribe(result => {
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_TOKEN') : this.interceptor.openSnackbar('OPERATION_FAILED');
     })
   }
-  updateMyPwd(resourceOwner: IUpdatePwdCommand, changeId: string): void {
-    this.httpProxy.updateResourceOwnerPwd(resourceOwner, changeId).subscribe(result => {
+  updateMyPwd(command: IUpdatePwdCommand, changeId: string): void {
+    this.httpProxy.updateUserPwd(command, changeId).subscribe(result => {
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_LOGIN') : this.interceptor.openSnackbar('OPERATION_FAILED');
       logout(undefined,this.httpProxy)
     });
