@@ -25,9 +25,7 @@ import { SettingComponent } from './pages/common/setting/setting.component';
 import { MyAdminComponent } from './pages/tenant/project/my-admin/my-admin.component';
 import { MyApisComponent } from './pages/tenant/project/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/project/my-clients/my-clients.component';
-import { MyOrgsComponent } from './pages/tenant/project/my-orgs/my-orgs.component';
 import { MyPermissionsComponent } from './pages/tenant/project/my-permissions/my-permissions.component';
-import { MyPositionsComponent } from './pages/tenant/project/my-positions/my-positions.component';
 import { MyProjectComponent } from './pages/tenant/project/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/project/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.component';
@@ -100,8 +98,6 @@ const routes: Routes = [
       { path: ':id/my-api', component: MyApisComponent },
       { path: ':id/my-permission', component: MyPermissionsComponent },
       { path: ':id/my-role', component: MyRolesComponent },
-      { path: ':id/my-org', component: MyOrgsComponent },
-      { path: ':id/my-position', component: MyPositionsComponent },
       { path: ':id/my-project', component: MyProjectComponent },
       { path: ':id/my-user', component: MyUsersComponent },
       { path: ':id/my-admin', component: MyAdminComponent },

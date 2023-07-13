@@ -76,9 +76,7 @@ import { MyAdminComponent } from './pages/tenant/project/my-admin/my-admin.compo
 import { ClientComponent } from './pages/tenant/project/client/client.component';
 import { MyApisComponent } from './pages/tenant/project/my-endpoints/my-endpoints.component';
 import { MyClientsComponent } from './pages/tenant/project/my-clients/my-clients.component';
-import { MyOrgsComponent } from './pages/tenant/project/my-orgs/my-orgs.component';
 import { MyPermissionsComponent } from './pages/tenant/project/my-permissions/my-permissions.component';
-import { MyPositionsComponent } from './pages/tenant/project/my-positions/my-positions.component';
 import { MyProjectComponent } from './pages/tenant/project/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/project/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.component';
@@ -193,8 +191,6 @@ import { LanguageService } from './services/language.service';
     MyClientsComponent,
     MyApisComponent,
     MyRolesComponent,
-    MyOrgsComponent,
-    MyPositionsComponent,
     MyPermissionsComponent,
     MyProjectComponent,
     SummaryProjectComponent,
