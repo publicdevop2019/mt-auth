@@ -8,7 +8,7 @@
         </mat-chip-list>
     </ng-container>
     <div *ngIf="editView">
-        <mat-form-field class="example-chip-list">
+        <mat-form-field>
             <mat-chip-list #chipList aria-label="chip list selection">
                 <mat-chip *ngFor="let e of inputOptionsNext" [selectable]="true" [removable]="true">
                     {{e}}

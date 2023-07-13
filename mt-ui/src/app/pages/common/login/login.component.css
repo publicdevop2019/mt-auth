@@ -6,46 +6,50 @@
   margin-left: auto;
   margin-right: auto;
 }
-.app-header{
+
+.app-header {
   display: flex;
   justify-content: space-between;
   margin: 16px 32px 0px 32px;
   align-items: baseline;
   flex-wrap: wrap;
 }
-.app-body{
+
+.app-body {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
   margin: 200px 32px 48px 32px;
 }
+
 .form-body {
   display: flex;
   flex-direction: column;
-  }
+}
+
 @media only screen and (max-width: 1067px) {
   .app-body {
     margin-top: 48px !important;
     justify-content: center;
   }
+
   .app-msg {
     margin-bottom: 48px !important;
   }
-  .app-msg-body{
+
+  .app-msg-body {
     margin: 0px 24px 0px 24px !important;
   }
-  .app-header{
+
+  .app-header {
     margin: 12px 24px 0px 24px !important;
   }
-}
-.example-container > * {
-  width: 100%;
 }
 
 .example-right-align {
   text-align: right;
 }
-  
+
 input.example-right-align::-webkit-outer-spin-button,
 input.example-right-align::-webkit-inner-spin-button {
   display: none;
@@ -54,63 +58,75 @@ input.example-right-align::-webkit-inner-spin-button {
 input.example-right-align {
   -moz-appearance: textfield;
 }
-.forget-pwd{
+
+.forget-pwd {
   margin-top: 16px;
   font: 16px;
   color: #007EFF;
   cursor: pointer;
 }
-.forget-pwd:hover{
+
+.forget-pwd:hover {
   cursor: pointer;
 }
-.page-form{
+
+.page-form {
   width: 320px;
   margin-left: 24px;
   margin-right: 24px;
 }
-.app-msg{
+
+.app-msg {
   max-width: 700px;
   font-size: 14px;
 }
 
-.app-name{
+.app-name {
   font-weight: 600;
 }
-.app-msg-body{
+
+.app-msg-body {
   margin: 0px 24px;
 }
-.register-email{
+
+.register-email {
   display: flex;
   align-items: center;
   margin-top: 8px;
 }
-.register-email-btn{
+
+.register-email-btn {
   margin-left: 12px;
   height: 36px;
 }
-.register-msg{
+
+.register-msg {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 4px;
 }
-.register-login-msg{
+
+.register-login-msg {
   display: flex;
   font-size: 14px;
   font-weight: 300;
   align-items: center;
 }
-.register-login-msg-link{
+
+.register-login-msg-link {
   color: #007EFF;
   font-weight: 600;
   margin-left: 4px;
   cursor: pointer;
 }
-.forget-pwd-msg{
+
+.forget-pwd-msg {
   font-size: 14px;
   font-weight: 400;
   margin-bottom: 12px;
 }
-.login-msg{
+
+.login-msg {
   font-size: 20px;
   font-weight: 600;
   margin-bottom: 4px;

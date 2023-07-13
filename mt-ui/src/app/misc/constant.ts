@@ -31,7 +31,9 @@ export const CONST_HTTP_METHOD: IOption[] = [
 ]
 export const TABLE_SETTING_KEY = 'displayColumns'
 export const APP_CONSTANT = {
-    MT_AUTH_ACCESS_PATH: 'auth-svc'
+    MT_AUTH_ACCESS_PATH: 'auth-svc',
+    MGMT_CLIENT: '/auth-svc/mgmt/clients',
+    MGMT_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown',
 }
 export enum grantTypeEnums {
     refresh_token = 'REFRESH_TOKEN',

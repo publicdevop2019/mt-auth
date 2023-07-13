@@ -99,9 +99,9 @@ public class ClientQuery extends QueryCriteria {
     }
 
     public static ClientQuery dropdownQuery(String queryParam, String pageConfig,
-                                            String queryConfig, int i) {
+                                            String queryConfig, int maxAllowed) {
         ClientQuery clientQuery = new ClientQuery();
-        clientQuery.setPageConfig(PageConfig.limited(pageConfig, i));
+        clientQuery.setPageConfig(PageConfig.limited(pageConfig, maxAllowed));
         clientQuery.setQueryConfig(new QueryConfig(queryConfig));
         clientQuery.updateQueryParam(queryParam);
         return clientQuery;

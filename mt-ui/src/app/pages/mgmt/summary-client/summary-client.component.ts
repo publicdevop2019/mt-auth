@@ -78,27 +78,30 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     public bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
+    this.deviceSvc.searchMap['test'] = this.entitySvc
     combineLatest([this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//TODO use paginated select component
       .subscribe(next => {
         if (next) {
           this.searchConfigs = [...this.initSearchConfigs, {
             searchLabel: 'RESOURCEIDS',
             searchValue: 'resourceIds',
-            type: 'dropdown',
+            type: 'dynamic',
+            searchKey: 'test',
+            prefix: 'resourceIndicator:1',
             multiple: {
               delimiter: '.'
             },
-            source: next[0].data.map(e => {
-              return {
-                label: e.name,
-                value: e.id
-              }
-            })
-          },
-          ];
+            source: []
+            // source: next[0].data.map(e => {
+            //   return {
+            //     label: e.name,
+            //     value: e.id
+            //   }
+            // })
+          }];
         }
       });
-      this.initTableSetting();
+    this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IClient>) {
     super.updateSummaryData(next);
