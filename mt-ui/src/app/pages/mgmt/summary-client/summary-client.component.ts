@@ -2,15 +2,13 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest } from 'rxjs';
-import { take } from 'rxjs/operators';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtClientComponent } from '../client/client.component';
-import { CONST_GRANT_TYPE } from 'src/app/misc/constant';
+import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
 import { IClient } from 'src/app/misc/interface';
 @Component({
   selector: 'app-summary-client',
@@ -33,8 +31,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
   resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
-  ]
-  private initSearchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
       searchValue: 'id',
@@ -70,6 +66,16 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
       searchValue: 'accessTokenValiditySeconds',
       type: 'range',
     },
+    {
+      searchLabel: 'RESOURCEIDS',
+      searchValue: 'resourceIds',
+      type: 'dynamic',
+      resourceUrl: APP_CONSTANT.MGMT_RESOURCE_CLIENT_DROPDOWN,
+      multiple: {
+        delimiter: '.'
+      },
+      source: []
+    }
   ]
   constructor(
     public entitySvc: MgmtClientService,
@@ -78,29 +84,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
     public bottomSheet: MatBottomSheet,
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    this.deviceSvc.searchMap['test'] = this.entitySvc
-    combineLatest([this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1')]).pipe(take(1))//TODO use paginated select component
-      .subscribe(next => {
-        if (next) {
-          this.searchConfigs = [...this.initSearchConfigs, {
-            searchLabel: 'RESOURCEIDS',
-            searchValue: 'resourceIds',
-            type: 'dynamic',
-            searchKey: 'test',
-            prefix: 'resourceIndicator:1',
-            multiple: {
-              delimiter: '.'
-            },
-            source: []
-            // source: next[0].data.map(e => {
-            //   return {
-            //     label: e.name,
-            //     value: e.id
-            //   }
-            // })
-          }];
-        }
-      });
     this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IClient>) {

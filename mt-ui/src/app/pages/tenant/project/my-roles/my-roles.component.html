@@ -11,8 +11,8 @@
                 </div>
                 <ng-container *ngIf="viewType==='LIST_VIEW'">
 
-                    <app-tenant-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs">
-                    </app-tenant-search>
+                    <app-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
+                    </app-search>
                     <div
                         style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
                         <section>

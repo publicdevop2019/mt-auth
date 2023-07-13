@@ -5,7 +5,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { take } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { uniqueObject } from 'src/app/misc/utility';
+import { Utility, uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -13,7 +13,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ClientComponent } from '../client/client.component';
-import { CONST_GRANT_TYPE } from 'src/app/misc/constant';
+import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
 import { IClient } from 'src/app/misc/interface';
 
 @Component({
@@ -88,26 +88,17 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
         //prepare search
-        this.entitySvc.getDropdownClients(0, 1000, 'resourceIndicator:1').pipe(take(1))//TODO use paginated select component
-          .subscribe(next => {
-            if (next) {
-              this.searchConfigs = [...this.initSearchConfigs, {
-                searchLabel: 'RESOURCEIDS',
-                searchValue: 'resourceIds',
-                type: 'dropdown',
-                multiple: {
-                  delimiter: '.'
-                },
-                source: next.data.map(e => {
-                  return {
-                    label: e.name,
-                    value: e.id
-                  }
-                })
-              },
-              ];
-            }
-          });
+        this.searchConfigs = [...this.initSearchConfigs, {
+          searchLabel: 'RESOURCEIDS',
+          searchValue: 'resourceIds',
+          type: 'dynamic',
+          multiple: {
+            delimiter: '.'
+          },
+          resourceUrl: Utility.getTenantUrl(b.projectId, APP_CONSTANT.TENANT_RESOURCE_CLIENT_DROPDOWN),
+          source: []
+        },
+        ];
       }
     })
     this.subs.add(sub2)

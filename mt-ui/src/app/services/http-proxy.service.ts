@@ -439,10 +439,20 @@ export class HttpProxyService {
         })
         return this._httpClient.get<ISumRep<T>>(entityRepo + this.getQueryParam([this.addPrefix(query), this.getPageParam(num, size, by, order)]), { headers: headerConfig })
     }
+    getResourceByQuery<T>(resourceUrl: string, num: number, size: number, by?: string, order?: string, headers?: {}) {
+        let headerConfig = new HttpHeaders();
+        headers && Object.keys(headers).forEach(e => {
+            headerConfig = headerConfig.set(e, headers[e] + '')
+        })
+        return this._httpClient.get<ISumRep<T>>(this.getResourceUrl(resourceUrl, this.getPageParam(num, size, by, order)), { headers: headerConfig })
+    }
+    private getResourceUrl(resourceUrl: string, pageConfig: string) {
+        return environment.serverUri + resourceUrl + (resourceUrl.includes('?') ? '&' + pageConfig : '?' + pageConfig)
+    }
     getUIPermission() {
         return this._httpClient.get<IProjectPermissionInfo>(environment.serverUri + '/auth-svc/permissions/ui')
     }
-    addPrefix(query: string): string {
+    private addPrefix(query: string): string {
         let var0: string = query;
         if (!query) {
             var0 = undefined

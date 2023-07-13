@@ -120,7 +120,6 @@ import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { RequirePermissionDirective } from './directive/require-permission.directive';
-import { TenantSearchComponent } from './components/tenant-search/tenant-search.component';
 import { JobComponent } from './pages/mgmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
 import { DocumentComponent } from './pages/document/document.component';
@@ -143,7 +142,6 @@ import { LanguageService } from './services/language.service';
 @NgModule({
   declarations: [
     AppComponent,
-    TenantSearchComponent,
     LoginComponent,
     ClientComponent,
     MgmtUserComponent,

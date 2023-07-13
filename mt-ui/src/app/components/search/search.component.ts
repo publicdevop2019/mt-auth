@@ -5,7 +5,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { interval, Observable, Subscription } from 'rxjs';
 import { debounce, filter } from 'rxjs/operators';
+import { APP_CONSTANT } from 'src/app/misc/constant';
+import { IClient } from 'src/app/misc/interface';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 export interface ISearchEvent {
   value: string,
   key?: string,//see below
@@ -15,7 +19,8 @@ export interface ISearchConfig {
   searchValue: string,
   searchLabel: string,
   key?: string,//to resolve catalog and attributes when resume unable to know which one to resume
-  type: 'text' | 'dropdown' | 'boolean' | 'range' | 'custom'
+  resourceUrl?: string,
+  type: 'text' | 'dropdown' | 'boolean' | 'range' | 'custom' | 'dynamic'
   multiple?: {
     delimiter: '$' | '.'
   }
@@ -31,7 +36,22 @@ export interface ISearchConfig {
   styleUrls: ['./search.component.css']
 })
 export class SearchComponent implements OnDestroy, OnInit, OnChanges {
+  private _visibilityConfig = {
+    threshold: 0
+  };
+  loading: boolean = false;
+  allLoaded: boolean = false;
+  ref: ElementRef;
+  private pageNumber = 0;
+  private pageSize = 10;
+  @ViewChild('ghostRef') set ghostRef(ghostRef: ElementRef) {
+    if (ghostRef) { // initially setter gets called with undefined
+      this.ref = ghostRef;
+      this.observer.observe(this.ref.nativeElement);
+    }
+  }
   @Input() searchConfigs: ISearchConfig[] = [];
+  @Input() emitEvent: boolean = true;
   @Output() search: EventEmitter<ISearchEvent> = new EventEmitter()
   filteredList: Observable<IOption[]>;
   searchItems: IOption[] = [];
@@ -45,7 +65,33 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
   searchBySelect = new FormControl();
   searchByBoolean = new FormControl();
   public customView: ViewContainerRef;
+  private observer = new IntersectionObserver((entries, self) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        this.loading = true;
+        const config = this.searchLevel1.value as ISearchConfig;
+        this.httpProxy.getResourceByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
+          next => {
+            this.loading = false;
+            if (next.data.length === 0) {
+              this.allLoaded = true;
+            } else {
+              const nextOptions = [...config.source, ...next.data.map(e => <IOption>{ label: e.name, value: e.id })];
+              config.source = nextOptions
+              if (next.data.length < this.pageSize) {
+                this.allLoaded = true;
+              } else {
+                this.pageNumber++;
+              }
+            }
+          }
+        );
+      }
+    });
+  }, this._visibilityConfig);
+
   configChangeHandler = () => {
+    this.pageNumber = 0
     const var0 = this.searchLevel1.value as ISearchConfig;
     if (var0 && var0.type === 'custom' && this.customView) {
       const factory = this.componentFactoryResolver.resolveComponentFactory(var0.component);
@@ -64,6 +110,7 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
       });
     }
   }
+
   @ViewChild('custom', { static: false, read: ViewContainerRef }) set spinner(view: ViewContainerRef) {
     if (!view) {
       this.customView = undefined;
@@ -80,6 +127,7 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
     fb: FormBuilder,
     public translateSvc: TranslateService,
     private deviceSvc: DeviceService,
+    public httpProxy: HttpProxyService,
     private componentFactoryResolver: ComponentFactoryResolver,
   ) {
     this.searchLevel1.valueChanges.subscribe(() => {
@@ -221,7 +269,9 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
         }
       }
     }
-    this.search.emit({ value: '', resetPage: false });
+    if (this.emitEvent) {
+      this.search.emit({ value: '', resetPage: false });
+    }
   }
   ngOnInit(): void {
     const sub = this.deviceSvc.refreshSummary.subscribe(() => {

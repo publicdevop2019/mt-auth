@@ -1,9 +1,9 @@
-<form class="example-container" [formGroup]="options">
+<form [formGroup]="options">
     <mat-form-field>
         <mat-label>{{'SELECT_A_SEARCH_TYPE'|translate}}</mat-label>
         <mat-select [formControl]="searchLevel1">
             <ng-container *ngFor="let e of searchConfigs">
-                <mat-option  [value]="e">{{e.searchLabel|translate}}</mat-option>
+                <mat-option [value]="e">{{e.searchLabel|translate}}</mat-option>
             </ng-container>
         </mat-select>
     </mat-form-field>
@@ -12,13 +12,13 @@
             <mat-label>{{'ENTER_VALUE'|translate}}</mat-label>
             <input matInput type="text" [formControl]="searchByString">
         </mat-form-field>
-        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;" [disabled]="shouldDisableAddBtn()"
-            (click)="add(searchByString.value)">{{'ADD'|translate}}</button>
+        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
+            [disabled]="shouldDisableAddBtn()" (click)="add(searchByString.value)">{{'ADD'|translate}}</button>
     </div>
-        <ng-container *ngIf="searchLevel1.value?.type==='custom'" #custom></ng-container>
-    <div 
-        style="display: flex;flex-direction: row;align-items: center;">
-        <mat-form-field *ngIf="searchLevel1.value === null || ['dropdown','text','custom'].includes(searchLevel1.value?.type)" class="example-chip-list">
+    <ng-container *ngIf="searchLevel1.value?.type==='custom'" #custom></ng-container>
+    <div style="display: flex;flex-direction: row;align-items: center;">
+        <mat-form-field
+            *ngIf="searchLevel1.value === null || ['dropdown','text','custom'].includes(searchLevel1.value?.type)">
             <mat-chip-list #chipList aria-label="chip list selection">
                 <mat-chip *ngFor="let e of searchItems" [selectable]="true" [removable]="true" (removed)="remove(e)">
                     <ng-container>
@@ -30,9 +30,35 @@
                     style="margin-bottom: 10px;" [matChipInputFor]="chipList"
                     [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
             </mat-chip-list>
-            <mat-autocomplete #auto="matAutocomplete" >
-                <mat-option *ngFor="let e of getAutoCompleteList()" [value]="e.value" (click)="onAutoCompleteClickHandler(e)">
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let e of getAutoCompleteList()" [value]="e.value"
+                    (click)="onAutoCompleteClickHandler(e)">
                     {{e.label|translate}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field *ngIf="searchLevel1.value?.type === 'dynamic'">
+            <mat-chip-list #chipList aria-label="chip list selection">
+                <mat-chip *ngFor="let e of searchItems" [selectable]="true" [removable]="true" (removed)="remove(e)">
+                    <ng-container>
+                        {{e.label|translate}}
+                    </ng-container>
+                    <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+                </mat-chip>
+                <input [placeholder]="translateSvc.get('SEARCH') | async" [matAutocomplete]="auto"
+                    style="margin-bottom: 10px;" [matChipInputFor]="chipList"
+                    [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+            </mat-chip-list>
+            <mat-autocomplete #auto="matAutocomplete">
+                <mat-option *ngFor="let e of getAutoCompleteList()" [value]="e.value"
+                    (click)="onAutoCompleteClickHandler(e)">
+                    {{e.label|translate}}
+                </mat-option>
+                <mat-option *ngIf="!allLoaded && !loading ">
+                    <div #ghostRef>
+                        <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="40">
+                        </mat-progress-spinner>
+                    </div>
                 </mat-option>
             </mat-autocomplete>
         </mat-form-field>

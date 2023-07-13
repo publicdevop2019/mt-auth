@@ -3,8 +3,8 @@
         >{{'ADD'|translate}}</button></h2>
 <ng-container *ngIf="extractResult(canDo('VIEW_API'))|async">
 
-    <app-tenant-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
-    </app-tenant-search>
+    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
+    </app-search>
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: space-between;">
         <section>
             <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"

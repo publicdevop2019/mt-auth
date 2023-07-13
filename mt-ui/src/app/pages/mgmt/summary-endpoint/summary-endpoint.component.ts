@@ -12,7 +12,7 @@ import { EndpointService } from 'src/app/services/endpoint.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
 import { IEndpoint } from 'src/app/misc/interface';
-import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
@@ -32,7 +32,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
   sheetComponent = MgmtEndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
-  private initSearchConfig: ISearchConfig[] = [
+  searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
       searchValue: 'id',
@@ -47,8 +47,17 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
       type: 'dropdown',
       source: CONST_HTTP_METHOD
     },
+    {
+      searchLabel: 'PARENT_CLIENT',
+      searchValue: 'resourceId',
+      resourceUrl: APP_CONSTANT.MGMT_RESOURCE_CLIENT_DROPDOWN,
+      type: 'dynamic',
+      multiple: {
+        delimiter: '.'
+      },
+      source:[]
+    }
   ]
-  searchConfigs: ISearchConfig[] = []
   constructor(
     public entitySvc: EndpointService,
     public deviceSvc: DeviceService,
@@ -58,24 +67,6 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     public dialog: MatDialog
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    this.clientSvc.getDropdownClients(0, 1000, 'resourceIndicator:1')//TODO use paginated select component
-      .subscribe(next => {
-        if (next.data)
-          this.searchConfigs = [...this.initSearchConfig, {
-            searchLabel: 'PARENT_CLIENT',
-            searchValue: 'resourceId',
-            type: 'dropdown',
-            multiple: {
-              delimiter: '.'
-            },
-            source: next.data.map(e => {
-              return {
-                label: e.name,
-                value: e.id
-              }
-            })
-          },];
-      });
       this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {

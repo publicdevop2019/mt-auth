@@ -34,6 +34,8 @@ export const APP_CONSTANT = {
     MT_AUTH_ACCESS_PATH: 'auth-svc',
     MGMT_CLIENT: '/auth-svc/mgmt/clients',
     MGMT_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown',
+    MGMT_RESOURCE_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown?query=resourceIndicator:1',
+    TENANT_RESOURCE_CLIENT_DROPDOWN: '/clients/dropdown?query=resourceIndicator:1',
 }
 export enum grantTypeEnums {
     refresh_token = 'REFRESH_TOKEN',

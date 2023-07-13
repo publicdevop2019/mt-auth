@@ -1,6 +1,7 @@
 import { Router } from '@angular/router';
 import { HttpProxyService } from '../services/http-proxy.service';
 import * as UUID from 'uuid/v1';
+import { APP_CONSTANT } from './constant';
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");
@@ -46,6 +47,9 @@ export function getUrl(input: string[]) {
     return input.join('/')
 }
 export class Utility {
+    static getTenantUrl(projectId: string, resourceUrl: string): string {
+        return "/" + APP_CONSTANT.MT_AUTH_ACCESS_PATH + '/projects/' + projectId + resourceUrl
+    }
     public static hasValue(input: any): boolean {
         return input !== null && input !== undefined && input !== '';
     }

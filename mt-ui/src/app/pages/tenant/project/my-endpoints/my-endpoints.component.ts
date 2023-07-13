@@ -18,7 +18,7 @@ import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { EndpointComponent } from '../endpoint/endpoint.component';
 import { IEndpoint } from 'src/app/misc/interface';
-import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -69,24 +69,16 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       if (b.result) {
         //prepare search
         this.clientSvc.setProjectId(b.projectId)
-        this.clientSvc.getDropdownClients(0, 1000, 'resourceIndicator:1').pipe(take(1))//TODO use paginated select component
-          .subscribe(next => {
-            if (next.data)
-              this.searchConfigs = [...this.initSearchConfig, {
-                searchLabel: 'PARENT_CLIENT',
-                searchValue: 'resourceId',
-                type: 'dropdown',
-                multiple: {
-                  delimiter: '.'
-                },
-                source: next.data.map(e => {
-                  return {
-                    label: e.name,
-                    value: e.id
-                  }
-                })
-              },];
-          });
+        this.searchConfigs = [...this.initSearchConfig, {
+          searchLabel: 'PARENT_CLIENT',
+          searchValue: 'resourceId',
+          type: 'dynamic',
+          resourceUrl: Utility.getTenantUrl(b.projectId, APP_CONSTANT.TENANT_RESOURCE_CLIENT_DROPDOWN),
+          multiple: {
+            delimiter: '.'
+          },
+          source: []
+        },];
       } else {
         this.searchConfigs = [...this.initSearchConfig]
       }
@@ -147,6 +139,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     })
   }
   viewReport(id: string) {
-    this.dialog.open(EndpointAnalysisComponent, { data: {endpointId:id,projectId:this.projectId} });
+    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.projectId } });
   }
 }

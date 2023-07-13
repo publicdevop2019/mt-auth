@@ -3,7 +3,7 @@
         *ngIf="extractResult(canDo('CREATE_CLIENT')) |async ">{{'ADD'|translate}}</button></h2>
 <ng-container *ngIf="extractResult(canDo('VIEW_CLIENT')) |async ">
     <ng-container *ngIf="authSvc.advancedMode">
-        <app-tenant-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"> </app-tenant-search>
+        <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false"> </app-search>
         <div
             style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
             <section>
