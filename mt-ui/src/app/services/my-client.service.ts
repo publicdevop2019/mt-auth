@@ -12,7 +12,4 @@ export class MyClientService extends TenantEntityService<IClient, IClient> {
   constructor(httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }
-  getDropdownClients(num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) {
-    return this.httpProxySvc.readEntityByQuery<IClient>(this.entityRepo+'/dropdown', num, size, query, by, order, headers)
-  };
 }
