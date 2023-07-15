@@ -58,7 +58,8 @@ public class Image extends Auditable {
     private void validateUploadCriteria(MultipartFile file, Integer allowedSize,
                                         List<String> allowedTypes) {
         if (allowedTypes.stream().noneMatch(e -> e.equals(file.getContentType()))) {
-            throw new DefinedRuntimeException("file type not allowed", "1046",
+            throw new DefinedRuntimeException("file type not allowed, got " + file.getContentType(),
+                "1046",
                 HttpResponseCode.BAD_REQUEST);
         }
         try {

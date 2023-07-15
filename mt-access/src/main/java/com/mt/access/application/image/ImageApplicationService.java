@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Service
 public class ImageApplicationService {
-    private static final List<String> ALLOWED_TYPE = List.of("image/jpeg,image/png");
+    private static final List<String> ALLOWED_TYPE = List.of("image/jpeg","image/png");
     private static final Integer ALLOWED_SIZE = 1024000;
     private static final String IMAGE = "IMAGE";
 
