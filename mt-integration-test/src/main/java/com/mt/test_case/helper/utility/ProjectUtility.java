@@ -51,7 +51,7 @@ public class ProjectUtility {
         Project randomProjectObj = createRandomProjectObj();
         createTenantProject(randomProjectObj, tenantUser);
         try {
-            Thread.sleep(20000);
+            Thread.sleep(10 * 1000);
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

@@ -31,7 +31,7 @@ public class RevokeTokenTest extends CommonTest {
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()
         throws JsonProcessingException, InterruptedException {
-        Thread.sleep(10000);
+        Thread.sleep(10*1000);
         String url = AppConstant.PROXY_URL + PROXY_BLACKLIST;
         String url2 = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
         /**

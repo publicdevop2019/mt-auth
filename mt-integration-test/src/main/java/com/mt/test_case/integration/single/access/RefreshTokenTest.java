@@ -84,7 +84,7 @@ public class RefreshTokenTest extends TenantTest {
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Thread.sleep(60000 + 60000 + 2000);//spring cloud gateway add 60S leeway
+        Thread.sleep(60*1000 + 60*1000 + 2*1000);//spring cloud gateway add 60S leeway
         //access token should expire
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);

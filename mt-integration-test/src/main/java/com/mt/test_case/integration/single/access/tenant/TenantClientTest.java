@@ -231,7 +231,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(20 * 1000);
+        Thread.sleep(10 * 1000);
         Client clientAsNonResource =
             ClientUtility.getClientAsNonResource(clientAsResource.getId(),
                 clientAsResource2.getId());
@@ -262,7 +262,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(20000);
+        Thread.sleep(10*1000);
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
@@ -308,7 +308,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(20 * 1000);
+        Thread.sleep(10 * 1000);
         Client clientAsNonResource =
             ClientUtility.getClientAsNonResource(clientAsResource.getId(),
                 clientAsResource2.getId());
@@ -340,7 +340,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> exchange1 =
             ClientUtility.updateTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
-        Thread.sleep(10000);
+        Thread.sleep(10*1000);
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
@@ -383,7 +383,7 @@ public class TenantClientTest extends TenantTest {
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, randomClient);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(10000);
+        Thread.sleep(10*1000);
         //wait sometime and read endpoint again
         randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =

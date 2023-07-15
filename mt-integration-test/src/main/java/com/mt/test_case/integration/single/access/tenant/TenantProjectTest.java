@@ -35,7 +35,7 @@ public class TenantProjectTest extends CommonTest {
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
-        Thread.sleep(20000);
+        Thread.sleep(10*1000);
         //get updated project list
         ResponseEntity<SumTotal<Project>> exchange2 = ProjectUtility.readTenantProjects(user);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
@@ -52,7 +52,7 @@ public class TenantProjectTest extends CommonTest {
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
-        Thread.sleep(20000);
+        Thread.sleep(10*1000);
         String id = UrlUtility.getId(tenantProject);
         randomProjectObj.setId(id);
         //get updated project list
