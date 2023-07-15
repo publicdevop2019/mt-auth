@@ -33,7 +33,7 @@ public class WebSocketNotificationService implements WsPushNotificationService {
     protected void autoRenew() {
         log.trace("triggered scheduled task 4");
         CommonDomainRegistry.getJobService()
-            .execute(KEEP_WS_CONNECTION_JOB_NAME, () -> {
+            .execute(KEEP_WS_CONNECTION_JOB_NAME, (ignored) -> {
                 log.trace("start of renewing all ws connects");
                 mgmtWsHandler.broadcastToAll("_renew");
                 userWsHandler.broadcastToAll("_renew");

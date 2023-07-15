@@ -18,7 +18,7 @@ public class ProxyApplicationService {
         log.trace("triggered scheduled task 2");
             CommonDomainRegistry.getJobService()
                 .execute(PROXY_VALIDATION_JOB_NAME,
-                    () -> DomainRegistry.getProxyService().checkSum(), true,3);
+                    (context) -> DomainRegistry.getProxyService().checkSum(context), true,3);
     }
 
     public CheckSumRepresentation checkSumValue() {

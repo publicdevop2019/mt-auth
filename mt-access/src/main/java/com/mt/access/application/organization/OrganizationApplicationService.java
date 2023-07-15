@@ -48,7 +48,7 @@ public class OrganizationApplicationService {
 
     public void tenantRemove(String id, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Organization corsProfile =
                 DomainRegistry.getOrganizationRepository().get(organizationId);
                 DomainRegistry.getOrganizationRepository().remove(corsProfile);
@@ -60,7 +60,7 @@ public class OrganizationApplicationService {
     public void tenantPatch(String id, JsonPatch command, String changeId) {
         OrganizationId organizationId = new OrganizationId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Organization organization =
                     DomainRegistry.getOrganizationRepository().get(organizationId);
                     OrganizationPatchCommand beforePatch =

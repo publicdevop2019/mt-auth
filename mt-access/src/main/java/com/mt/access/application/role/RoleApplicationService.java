@@ -73,11 +73,11 @@ public class RoleApplicationService {
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
+            .idempotent(changeId, (context) -> {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.replace(command);
+                    e.replace(command,context);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -111,7 +111,7 @@ public class RoleApplicationService {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Role role = DomainRegistry.getRoleRepository().get(roleId);
             role.remove();
             DomainRegistry.getAuditService()
@@ -138,7 +138,7 @@ public class RoleApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
         return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
+            .idempotent(changeId, (context) -> {
                 Role role = Role.createRoleForTenant(
                     new ProjectId(command.getProjectId()),
                     roleId,
@@ -147,7 +147,8 @@ public class RoleApplicationService {
                     CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new),
                     CommonUtility.map(command.getApiPermissionIds(), PermissionId::new),
                     command.getParentId() == null ? null : new RoleId(command.getParentId()),
-                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new)
+                    CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new),
+                    context
                 );
                 DomainRegistry.getRoleRepository().add(role);
                 return roleId.getDomainId();
@@ -161,7 +162,7 @@ public class RoleApplicationService {
      */
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle project permission created event");
                 ProjectId tenantProjectId = event.getProjectId();
                 ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
@@ -169,7 +170,7 @@ public class RoleApplicationService {
                 Set<PermissionId> permissionIdSet =
                     event.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId()))
                         .collect(Collectors.toSet());
-                Role.onboardNewProject(authPId, tenantProjectId, permissionIdSet, creator);
+                Role.onboardNewProject(authPId, tenantProjectId, permissionIdSet, creator,context);
                 return null;
             }, ROLE);
     }
@@ -181,7 +182,7 @@ public class RoleApplicationService {
      */
     public void handle(PermissionRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotentMsg(event.getId().toString(), (ignored) -> {
+            .idempotentMsg(event.getId().toString(), (context) -> {
                 log.debug("handle permission removed event");
                 PermissionId permissionId = new PermissionId(event.getDomainId().getDomainId());
                 Set<Role> allByQuery = QueryUtility.getAllByQuery(
@@ -202,7 +203,7 @@ public class RoleApplicationService {
     @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotentMsg(event.getChangeId(), (ignored) -> {
+            .idempotentMsg(event.getChangeId(), (context) -> {
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleId roleId = event.getRoleId();
@@ -238,7 +239,7 @@ public class RoleApplicationService {
     @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = ROLE)
     public void handle(ClientDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotentMsg(event.getChangeId(), (ignored) -> {
+            .idempotentMsg(event.getChangeId(), (context) -> {
                 log.debug("handle client removed event {}", event.getDomainId().getDomainId());
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleQuery roleQuery = RoleQuery.forClientId(clientId);

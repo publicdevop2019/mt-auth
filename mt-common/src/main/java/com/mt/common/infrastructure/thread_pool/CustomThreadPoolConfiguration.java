@@ -32,6 +32,10 @@ public class CustomThreadPoolConfiguration {
         );
     }
 
+    /**
+     * create custom thread pool for rabbitmq, to avoid single thread get all queue bindings
+     * @return thread pool executor
+     */
     @Bean(name = "msg")
     public ThreadPoolExecutor pool2() {
         //for msg queue we give it max value to avoid rejection
@@ -43,6 +47,26 @@ public class CustomThreadPoolConfiguration {
             TimeUnit.SECONDS,
             queue,
             new MsgThreadFactory(),
+            new RejectedExecutionHandler() {
+                @Override
+                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                    log.debug("reject " + r.toString() + ", queue.size: " + queue.size());
+                }
+            }
+        );
+    }
+
+    @Bean(name = "event-submit")
+    public ThreadPoolExecutor pool3() {
+        //we give it max value to avoid rejection
+        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+        return new ThreadPoolExecutor(
+            5,
+            5,
+            1000,
+            TimeUnit.SECONDS,
+            queue,
+            new EventSubmitThreadFactory(),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {

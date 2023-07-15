@@ -3,6 +3,7 @@ package com.mt.access.domain.model.report;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class RawAccessRecordProcessService {
 
 
-    public void process() {
+    public void process(TransactionContext context) {
         log.debug("start of access record ETL job");
         DataProcessTracker tracker = DomainRegistry.getDataProcessTrackerRepository().get();
         log.debug("last process id is {}", tracker.getLastProcessedId());
@@ -56,7 +57,7 @@ public class RawAccessRecordProcessService {
                         log.error("unable to find response for uuid {}", request.getUuid());
                     }));
             if (!issueIds.isEmpty()) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new RawAccessRecordProcessingWarning(issueIds));
             }
             DomainRegistry.getDataProcessTrackerRepository().update(tracker, foundedRecords);

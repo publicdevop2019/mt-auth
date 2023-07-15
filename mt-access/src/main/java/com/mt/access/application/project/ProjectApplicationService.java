@@ -83,7 +83,7 @@ public class ProjectApplicationService {
     @AuditLog(actionName = DELETE_TENANT_PROJECT)
     public void remove(String id, String changeId) {
         ProjectId projectId = new ProjectId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Project project =
                 DomainRegistry.getProjectRepository().get(projectId);
                 DomainRegistry.getProjectRepository().remove(project);
@@ -102,7 +102,7 @@ public class ProjectApplicationService {
     public void patch(String id, JsonPatch command, String changeId) {
         ProjectId projectId = new ProjectId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Project project =
                     DomainRegistry.getProjectRepository().get(projectId);
                     ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
@@ -121,9 +121,9 @@ public class ProjectApplicationService {
     public String tenantCreate(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
         return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
+            .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                Project project = new Project(projectId, command.getName(), userId);
+                Project project = new Project(projectId, command.getName(), userId,context);
                 DomainRegistry.getProjectRepository().add(project);
                 return projectId.getDomainId();
             }, PROJECT);

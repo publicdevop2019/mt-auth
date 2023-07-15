@@ -16,11 +16,11 @@ public class PendingUserApplicationService {
         RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId,
-                (change) -> {
+                (context) -> {
                     DomainRegistry.getCoolDownService().hasCoolDown(registrationEmail.getDomainId(),
                         OperationType.PENDING_USER_CODE);
                     RegistrationEmail orUpdatePendingUser = DomainRegistry.getPendingUserService()
-                        .createOrUpdatePendingUser(registrationEmail, new ActivationCode());
+                        .createOrUpdatePendingUser(registrationEmail, new ActivationCode(),context);
                     return orUpdatePendingUser.getDomainId();
                 }, PENDING_USER
             );

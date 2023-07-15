@@ -6,6 +6,7 @@ import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
@@ -222,16 +223,19 @@ public class CacheProfile extends Auditable {
      * @param etag           value of etag
      * @param weakValidation whether weak validation
      */
-    public void update(String name,
-                       String description,
-                       Set<CacheControlValue> cacheControl,
-                       Long expires,
-                       Long maxAge,
-                       Long smaxAge,
-                       String vary,
-                       Boolean allowCache,
-                       Boolean etag,
-                       Boolean weakValidation) {
+    public void update(
+        String name,
+        String description,
+        Set<CacheControlValue> cacheControl,
+        Long expires,
+        Long maxAge,
+        Long smaxAge,
+        String vary,
+        Boolean allowCache,
+        Boolean etag,
+        Boolean weakValidation,
+        TransactionContext context
+    ) {
         CacheProfile original =
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CacheProfile.class);
         //exclude name and description from comparison and bypass setter check
@@ -255,7 +259,7 @@ public class CacheProfile extends Auditable {
             afterUpdate.hashCode());
         if (!afterUpdate.equals(original)) {
             log.debug("domain object updated");
-            CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileUpdated(this));
+            context.append(new CacheProfileUpdated(this));
         }
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getCacheProfileValidationService()
@@ -273,8 +277,8 @@ public class CacheProfile extends Auditable {
         (new CacheProfileValidator(this, handler)).validate();
     }
 
-    public void removeAllReference() {
-        CommonDomainRegistry.getDomainEventRepository().append(new CacheProfileRemoved(this));
+    public void removeAllReference(TransactionContext context) {
+        context.append(new CacheProfileRemoved(this));
     }
 
     public void updateNameAndDescription(String name, String description) {

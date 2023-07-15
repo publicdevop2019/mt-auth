@@ -16,6 +16,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
@@ -174,7 +175,7 @@ public class Role extends Auditable {
                                            Set<PermissionId> commonPermissionIds,
                                            Set<PermissionId> apiPermissionIds,
                                            RoleId parentId,
-                                           Set<PermissionId> externalPermissionIds) {
+                                           Set<PermissionId> externalPermissionIds, TransactionContext context) {
         Role role = new Role();
         role.setSystemCreate(false);
         role.setProjectId(projectId);
@@ -183,7 +184,7 @@ public class Role extends Auditable {
         role.setDescription(description);
         role.setType(RoleType.USER);
         role.setParentId(parentId);
-        role.setExternalPermissionIds(externalPermissionIds);
+        role.setExternalPermissionIds(externalPermissionIds,context);
         Set<PermissionId> linkedApiPermission = null;
         if (commonPermissionIds != null && commonPermissionIds.size() > 0) {
             Set<Permission> permissions = QueryUtility
@@ -226,7 +227,7 @@ public class Role extends Auditable {
     }
 
     public static void onboardNewProject(ProjectId authPId, ProjectId tenantProjectId,
-                                         Set<PermissionId> permissionIdSet, UserId creator) {
+                                         Set<PermissionId> permissionIdSet, UserId creator, TransactionContext context) {
         RoleId roleId = new RoleId();
         RoleId roleId1 = new RoleId();
         Role rootRole =
@@ -250,7 +251,7 @@ public class Role extends Auditable {
         DomainRegistry.getRoleRepository().add(rootRole);
         DomainRegistry.getRoleRepository().add(tenantClientRoot);
         DomainRegistry.getRoleRepository().add(tenantUserRoot);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new NewProjectRoleCreated(adminRole.getRoleId(),
                 userRole.getRoleId(), tenantProjectId, permissionIdSet, creator));
     }
@@ -282,7 +283,7 @@ public class Role extends Auditable {
      *
      * @param command update command
      */
-    public void replace(RoleUpdateCommand command) {
+    public void replace(RoleUpdateCommand command, TransactionContext context) {
         Validator.notNull(command.getType());
         if (command.getType().equals(UpdateType.BASIC)) {
             updateName(command.getName());
@@ -294,7 +295,7 @@ public class Role extends Auditable {
             setApiPermissionIds(true,
                 CommonUtility.map(command.getApiPermissionIds(), PermissionId::new));
             setExternalPermissionIds(
-                CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new));
+                CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new),context);
         } else if (command.getType().equals(UpdateType.COMMON_PERMISSION)) {
             setCommonPermissionIds(false,
                 CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new));
@@ -320,12 +321,12 @@ public class Role extends Auditable {
         this.tenantId = tenantId;
     }
 
-    private void setExternalPermissionIds(Set<PermissionId> permissionIds) {
+    private void setExternalPermissionIds(Set<PermissionId> permissionIds, TransactionContext context) {
         Validator.validOptionalCollection(10, permissionIds);
         if (CommonUtility.collectionWillChange(this.externalPermissionIds, permissionIds)) {
             CommonUtility.updateCollection(this.externalPermissionIds, permissionIds,
                 () -> this.externalPermissionIds = permissionIds);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ExternalPermissionUpdated(projectId));
         }
     }

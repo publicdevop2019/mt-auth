@@ -3,8 +3,6 @@ package com.mt.common.domain.model.domain_event;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
 import javax.persistence.Table;
@@ -26,9 +24,6 @@ public class StoredEvent implements Serializable {
     @Lob
     private String eventBody;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    //auto_increment id will not be continuous e.g. 1,2,3,5
-    //due to transaction rollback in concurrent scenario.
     private Long id;
     private Long timestamp;
     private String name;
@@ -42,6 +37,7 @@ public class StoredEvent implements Serializable {
     private Boolean rejected = false;
 
     public StoredEvent(DomainEvent event) {
+        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
         this.timestamp = event.getTimestamp();
         this.name = event.getName();
@@ -53,8 +49,30 @@ public class StoredEvent implements Serializable {
         }
     }
 
-    public void setIdExplicitly(long id) {
-        this.id = id;
+    /**
+     * create stored event with no id, so it will skip mark as sent step.
+     * <p>
+     * event are deserialized and serialized as StoredEvent
+     * <p>
+     * event like app start must be converted to stored event first
+     *
+     * @param event domain event
+     * @return skip stored event
+     */
+    public static StoredEvent skipStoredEvent(DomainEvent event) {
+        StoredEvent storedEvent = new StoredEvent(event);
+        storedEvent.id = null;//set id to null
+        storedEvent.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
+        storedEvent.timestamp = event.getTimestamp();
+        storedEvent.name = event.getName();
+        storedEvent.internal = event.getInternal();
+        storedEvent.topic = event.getTopic();
+        storedEvent.applicationId =
+            CommonDomainRegistry.getApplicationInfoService().getApplicationId();
+        if (event.getDomainId() != null) {
+            storedEvent.domainId = event.getDomainId().getDomainId();
+        }
+        return storedEvent;
     }
 
     public void sendToMQ() {

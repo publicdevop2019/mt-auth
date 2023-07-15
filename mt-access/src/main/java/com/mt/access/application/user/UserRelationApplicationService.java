@@ -28,6 +28,7 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
@@ -112,22 +113,25 @@ public class UserRelationApplicationService {
         AtomicReference<UserRelation> userRelation = new AtomicReference<>();
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(projectId.getDomainId() + "_onboard_user" + userId.getDomainId(),
-                (ignored) -> {
-                    userRelation.set(
-                        CommonDomainRegistry.getTransactionService().returnedTransactional(() -> {
-                            Optional<Role> first =
-                                DomainRegistry.getRoleRepository()
-                                    .query(new RoleQuery(projectId, PROJECT_USER))
-                                    .findFirst();
-                            if (first.isEmpty()) {
-                                throw new DefinedRuntimeException(
-                                    "unable to find default user role for project",
-                                    "1024",
-                                    HttpResponseCode.BAD_REQUEST);
-                            }
-                            return UserRelation.initNewUser(first.get().getRoleId(), userId,
-                                projectId);
-                        }));
+                (context) -> {
+                //TODO check why nested transactions
+                    UserRelation userRelation1 =
+                        CommonDomainRegistry.getTransactionService()
+                            .returnedTransactionalEvent((innerContext) -> {
+                                Optional<Role> first =
+                                    DomainRegistry.getRoleRepository()
+                                        .query(new RoleQuery(projectId, PROJECT_USER))
+                                        .findFirst();
+                                if (first.isEmpty()) {
+                                    throw new DefinedRuntimeException(
+                                        "unable to find default user role for project",
+                                        "1024",
+                                        HttpResponseCode.BAD_REQUEST);
+                                }
+                                return UserRelation.initNewUser(first.get().getRoleId(), userId,
+                                    projectId);
+                            });
+                    userRelation.set(userRelation1);
                     return null;
                 }, USER_RELATION);
         return userRelation.get();
@@ -138,7 +142,7 @@ public class UserRelationApplicationService {
         ProjectId projectId = new ProjectId(rawProjectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_TENANT_USER);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
                         .get(new UserId(userId), projectId);
@@ -152,7 +156,7 @@ public class UserRelationApplicationService {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
@@ -169,7 +173,7 @@ public class UserRelationApplicationService {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 UserRelation userRelation =
@@ -188,7 +192,7 @@ public class UserRelationApplicationService {
      */
     public void handle(UserDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle user deleted event");
                 UserId userId = new UserId(event.getDomainId().getDomainId());
                 Set<UserRelation> allByQuery = QueryUtility.getAllByQuery(
@@ -207,14 +211,14 @@ public class UserRelationApplicationService {
 
     public void handle(NewProjectRoleCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle new project role created event");
                 RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
                 RoleId userRoleId = event.getUserRoleId();
                 UserId creator = event.getCreator();
                 ProjectId tenantId = event.getProjectId();
                 UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
-                    new ProjectId(MT_AUTH_PROJECT_ID));
+                    new ProjectId(MT_AUTH_PROJECT_ID),context);
                 return null;
             }, USER_RELATION);
     }

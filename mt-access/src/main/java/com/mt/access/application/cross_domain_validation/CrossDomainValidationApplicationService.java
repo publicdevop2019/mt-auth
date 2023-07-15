@@ -19,13 +19,14 @@ public class CrossDomainValidationApplicationService {
         log.trace("triggered scheduled task 1");
         CommonDomainRegistry.getJobService()
             .execute(DATA_VALIDATION_JOB_NAME,
-                () -> DomainRegistry.getCrossDomainValidationService().validate(),
+                (context) -> DomainRegistry.getCrossDomainValidationService().validate(context),
                 true, 1);
     }
 
-    @Transactional
     public void reset() {
-        DomainRegistry.getValidationResultRepository().query().ifPresent(
-            ValidationResult::resetFailureCount);
+        CommonDomainRegistry.getTransactionService().transactionalEvent(context -> {
+            DomainRegistry.getValidationResultRepository().query().ifPresent(
+                ValidationResult::resetFailureCount);
+        });
     }
 }

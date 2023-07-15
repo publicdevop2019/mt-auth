@@ -18,45 +18,12 @@ import org.springframework.stereotype.Component;
 @EnableScheduling
 public class EventApplicationServiceScheduler {
 
-    /**
-     * if unlock failed then event tracker will not update,
-     * same event will get emit multiple times due to this unlock issue
-     * add initial delay due to some mq binding is dynamically created, immediate run will cause unroutable error
-     */
-    @Scheduled(cron = "0/2 * * ? * *")
-    public void streaming() {
-        log.trace("start of scheduled task 5");
-        CommonDomainRegistry.getJobService()
-            .execute(EVENT_SCAN_JOB_NAME,
-                () -> {
-                    PublishedEventTracker eventTracker =
-                        CommonDomainRegistry.getPublishedEventTrackerRepository()
-                            .publishedNotificationTracker();
-                    List<StoredEvent> storedEvents =
-                        CommonDomainRegistry.getDomainEventRepository()
-                            .top50StoredEventsSince(eventTracker.getLastPublishedId());
-                    if (!storedEvents.isEmpty()) {
-                        log.trace("publish event since id {}",
-                            eventTracker.getLastPublishedId());
-                        log.trace("total domain event found {}", storedEvents.size());
-                        for (StoredEvent event : storedEvents) {
-                            log.trace("publishing event {} with id {}", event.getName(),
-                                event.getId());
-                            CommonDomainRegistry.getEventStreamService()
-                                .next(event);
-                        }
-                        CommonDomainRegistry.getPublishedEventTrackerRepository()
-                            .trackMostRecentPublishedNotification(eventTracker, storedEvents);
-                    }
-                }, true, 30);
-    }
-
     @Scheduled(cron = "0 */5 * ? * *")
     public void checkNotSend() {
         log.trace("start of scheduled task 6");
         CommonDomainRegistry.getJobService()
             .execute(MISSED_EVENT_SCAN_JOB_NAME,
-                () -> {
+                (ignored) -> {
                     log.debug("running task for not send event");
                     Set<StoredEvent> allByQuery = QueryUtility
                         .getAllByQuery(

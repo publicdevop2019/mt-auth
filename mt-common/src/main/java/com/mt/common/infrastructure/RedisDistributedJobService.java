@@ -9,9 +9,11 @@ import com.mt.common.domain.model.job.JobType;
 import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.infrastructure.thread_pool.JobThreadPoolExecutor;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -42,7 +44,8 @@ public class RedisDistributedJobService implements DistributedJobService {
      * @param jobFn   job function
      */
     @Override
-    public void execute(String jobName, Runnable jobFn, boolean transactional, int ignoreCount) {
+    public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional,
+                        int ignoreCount) {
         Integer orDefault = jobIgnoreCount.getOrDefault(jobName, ignoreCount);
         if (orDefault != 0) {
             jobIgnoreCount.put(jobName, --orDefault);
@@ -55,8 +58,8 @@ public class RedisDistributedJobService implements DistributedJobService {
                 CommonDomainRegistry.getJobRepository().getByName(jobName);
             if (byName.isEmpty()) {
                 log.error("job {} not found", jobName);
-                CommonDomainRegistry.getTransactionService().transactional(() -> {
-                    CommonDomainRegistry.getDomainEventRepository()
+                CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                    context
                         .append(new JobNotFoundEvent(jobName));
                 });
                 return;
@@ -108,24 +111,42 @@ public class RedisDistributedJobService implements DistributedJobService {
         }
     }
 
-    private static void jobWrapper(Runnable jobFn, boolean transactional,
+    private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,
                                    JobDetail job) {
         if (transactional) {
-            CommonDomainRegistry.getTransactionService()
-                .transactional(() -> {
-                    boolean b = doJob(job.getName(), jobFn);
-                    updateJobStatus(b, job);
-                    CommonDomainRegistry.getJobRepository().store(job);
-                });
+            transactionalJobWrapper(jobFn, job);
         } else {
-            boolean b = doJob(job.getName(), jobFn);
+            boolean jobSuccess = false;
+            try {
+                jobFn.accept(null);
+                jobSuccess = true;
+            } catch (Exception ex) {
+                log.error("job {} execute fail, updating status", job.getName(), ex);
+            }
             //update instance job status
+            boolean finalJobSuccess = jobSuccess;
             CommonDomainRegistry.getTransactionService()
-                .transactional(() -> {
-                    updateJobStatus(b, job);
+                .transactionalEvent((context) -> {
+                    updateJobStatus(finalJobSuccess, job, context);
                     CommonDomainRegistry.getJobRepository().store(job);
                 });
         }
+    }
+
+    private static void transactionalJobWrapper(Consumer<TransactionContext> jobFn,
+                                                JobDetail job) {
+        CommonDomainRegistry.getTransactionService()
+            .transactionalEvent((context) -> {
+                boolean jobSuccess = false;
+                try {
+                    jobFn.accept(context);
+                    jobSuccess = true;
+                } catch (Exception ex) {
+                    log.error("job {} execute fail, updating status", job.getName(), ex);
+                }
+                updateJobStatus(jobSuccess, job, context);
+                CommonDomainRegistry.getJobRepository().store(job);
+            });
     }
 
     /**
@@ -137,7 +158,8 @@ public class RedisDistributedJobService implements DistributedJobService {
      * @param transactional if job need write to database
      */
     private boolean tryDistributedJob(String jobName, JobId jobId,
-                                      Runnable function, boolean transactional) {
+                                      Consumer<TransactionContext> function,
+                                      boolean transactional) {
         log.trace("before starting scheduler {} job", jobName);
         String key = getJobLockKey(jobName);
         RLock lock = redissonClient.getLock(key);
@@ -162,7 +184,8 @@ public class RedisDistributedJobService implements DistributedJobService {
         return false;
     }
 
-    private static void updateJobStatus(boolean finalJobSuccess, JobDetail jobDetail) {
+    private static void updateJobStatus(boolean finalJobSuccess, JobDetail jobDetail,
+                                        TransactionContext context) {
         if (finalJobSuccess) {
             jobDetail.executeSuccess();
         } else {
@@ -171,21 +194,10 @@ public class RedisDistributedJobService implements DistributedJobService {
                 return;
             }
             jobDetail.setNotifiedAdmin(true);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(domainEvent);
         }
 
-    }
-
-    private static boolean doJob(String jobName, Runnable function) {
-        boolean jobSuccess = false;
-        try {
-            function.run();
-            jobSuccess = true;
-        } catch (Exception ex) {
-            log.error("job {} execute fail, updating status", jobName, ex);
-        }
-        return jobSuccess;
     }
 
     private static String getJobLockKey(String jobName) {
@@ -200,10 +212,10 @@ public class RedisDistributedJobService implements DistributedJobService {
             if (!job.getNotifiedAdmin()) {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()
-                    .transactional(() -> {
+                    .transactionalEvent((context) -> {
                         JobStarvingEvent starvingEvent =
                             new JobStarvingEvent(job);
-                        CommonDomainRegistry.getDomainEventRepository()
+                        context
                             .append(starvingEvent);
                         CommonDomainRegistry.getJobRepository()
                             .notifyAdmin(job.getJobId());
@@ -215,14 +227,14 @@ public class RedisDistributedJobService implements DistributedJobService {
     private void checkThreadStarving(String jobName, JobDetail job, Integer failureCountOrDefault) {
         if (failureCountOrDefault > job.getMaxLockAcquireFailureAllowed() &&
             !jobInstanceNotificationMap.getOrDefault(jobName, false)) {
-            CommonDomainRegistry.getTransactionService().transactional(
-                () -> {
+            CommonDomainRegistry.getTransactionService().transactionalEvent(
+                (context) -> {
                     log.warn(
                         "job {} thread unable to acquire lock multiple times",
                         jobName);
                     JobThreadStarvingEvent starvingEvent =
                         new JobThreadStarvingEvent(job, instanceId);
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(starvingEvent);
                 });
             jobInstanceNotificationMap.put(jobName, true);

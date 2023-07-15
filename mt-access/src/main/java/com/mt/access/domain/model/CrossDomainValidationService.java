@@ -29,6 +29,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
 import java.util.Set;
@@ -46,7 +47,7 @@ public class CrossDomainValidationService {
     @Value("${mt.mgmt.email}")
     private String adminEmail;
 
-    public void validate() {
+    public void validate(TransactionContext context) {
         log.trace("start of validate job");
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().query();
@@ -55,13 +56,13 @@ public class CrossDomainValidationService {
         if (validationResult.shouldPause()) {
             if (!validationResult.hasNotified()) {
                 validationResult.markAsNotified();
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new CrossDomainValidationFailureCheck(adminEmail));
             }
             log.warn("end of validate job, job is paused due to continuous failure");
             return;
         }
-        boolean b = validateCacheProfileAndEndpoint();
+        boolean b = validateCacheProfileAndEndpoint(context);
         boolean b1 = false;
         boolean b2 = false;
         boolean b3 = false;
@@ -72,23 +73,23 @@ public class CrossDomainValidationService {
         boolean b8 = false;
         boolean b9 = false;
         if (b) {
-            b1 = validateClientAndEndpoint();
+            b1 = validateClientAndEndpoint(context);
             if (b1) {
-                b2 = validateClientAndProject();
+                b2 = validateClientAndProject(context);
                 if (b2) {
-                    b3 = validateClientAndRole();
+                    b3 = validateClientAndRole(context);
                     if (b3) {
-                        b4 = validateCorsProfileAndEndpoint();
+                        b4 = validateCorsProfileAndEndpoint(context);
                         if (b4) {
-                            b5 = validateProjectAndRole();
+                            b5 = validateProjectAndRole(context);
                             if (b5) {
-                                b6 = validateProjectAndUser();
+                                b6 = validateProjectAndUser(context);
                                 if (b6) {
-                                    b7 = validateEndpointAndPermission();
+                                    b7 = validateEndpointAndPermission(context);
                                     if (b7) {
-                                        b8 = validateRoleAndPermission();
+                                        b8 = validateRoleAndPermission(context);
                                         if (b8) {
-                                            b9 = validateUserAndUserRelation();
+                                            b9 = validateUserAndUserRelation(context);
                                         }
                                     }
                                 }
@@ -113,7 +114,7 @@ public class CrossDomainValidationService {
      *
      * @return if all user id can be found
      */
-    private boolean validateUserAndUserRelation() {
+    private boolean validateUserAndUserRelation(TransactionContext context) {
         Set<UserId> userIds = DomainRegistry.getUserRelationRepository().getUserIds();
         Set<UserId> userIds2 = DomainRegistry.getUserRepository().getIds();
         boolean b = userIds.size() == userIds2.size();
@@ -121,7 +122,7 @@ public class CrossDomainValidationService {
             Set<UserId> collect = userIds.stream().filter(userId -> !userIds2.contains(userId))
                 .collect(Collectors.toSet());
             log.debug("unable to find user {} for user relation", collect);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION"));
         }
         return b;
@@ -130,7 +131,7 @@ public class CrossDomainValidationService {
     /**
      * make sure role's permission id exit.
      */
-    private boolean validateRoleAndPermission() {
+    private boolean validateRoleAndPermission(TransactionContext context) {
         Set<Role> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e), RoleQuery.all());
         Set<PermissionId> collect =
@@ -142,14 +143,14 @@ public class CrossDomainValidationService {
             Set<PermissionId> collect1 = collect.stream().filter(e -> !permissionIds.contains(e))
                 .collect(Collectors.toSet());
             log.debug("unable to find permission ids {} for role", collect1);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("UNABLE_TO_FIND_ALL_PERMISSION_FOR_ROLE"));
             return false;
         }
         return true;
     }
 
-    private boolean validateEndpointAndPermission() {
+    private boolean validateEndpointAndPermission(TransactionContext context) {
         //each endpoint if secured then mapped to one permission
         Set<Endpoint> securedEp = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
@@ -160,7 +161,7 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 new PermissionQuery(mappedPId));
         if (storedP.size() != mappedPId.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(
                     new ValidationFailedEvent("ENDPOINT_PERMISSION_CAN_BE_FOUND_IN_PERMISSION"));
             return false;
@@ -176,7 +177,7 @@ public class CrossDomainValidationService {
             Set<EndpointId> missingEpIds = endpointIds.stream().filter(e -> !foundEpIds.contains(e))
                 .collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", missingEpIds);
-            CommonDomainRegistry.getDomainEventRepository().append(
+            context.append(
                 new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT"));
             return false;
         }
@@ -185,35 +186,35 @@ public class CrossDomainValidationService {
                 allByQuery.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
                     .collect(Collectors.toSet());
             log.debug("unable to find endpoint of ids {}", publicEpIds);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ENDPOINT_HAS_PERMISSION_MUST_BE_SECURED"));
             return false;
         }
         return true;
     }
 
-    private boolean validateProjectAndUser() {
+    private boolean validateProjectAndUser(TransactionContext context) {
         //mapped user relation has valid projectId
         Set<ProjectId> projectIds = DomainRegistry.getUserRelationRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("MAPPED_USER_RELATION_HAS_VALID_PROJECT_ID"));
             return false;
         }
         return true;
     }
 
-    private boolean validateProjectAndRole() {
+    private boolean validateProjectAndRole(TransactionContext context) {
         //projectId in role table must be valid
         Set<ProjectId> projectIds = DomainRegistry.getRoleRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("PROJECT_ID_IN_ROLE_MUST_BE_VALID"));
             return false;
         }
@@ -233,14 +234,14 @@ public class CrossDomainValidationService {
         }).collect(Collectors.toSet());
         if (!collect.isEmpty()) {
             log.debug("project must have related role created {}", collect);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("PROJECT_MUST_HAVE_RELATED_ROLE_CREATED"));
             return false;
         }
         return true;
     }
 
-    private boolean validateCorsProfileAndEndpoint() {
+    private boolean validateCorsProfileAndEndpoint(TransactionContext context) {
         //endpoints must have valid cors profile
         Set<CorsProfileId> corsProfileIds =
             DomainRegistry.getEndpointRepository().getCorsProfileIds();
@@ -248,14 +249,14 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().query(e),
                 new CorsProfileQuery(corsProfileIds));
         if (allByQuery.size() != corsProfileIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CORS_PROFILE"));
             return false;
         }
         return true;
     }
 
-    private boolean validateClientAndRole() {
+    private boolean validateClientAndRole(TransactionContext context) {
         //client must have related role, role must have related client
         Set<ClientId> clients = DomainRegistry.getClientRepository().allClientIds();
         DomainRegistry.getRoleRepository().query(new RoleQuery(RoleType.CLIENT));
@@ -268,7 +269,7 @@ public class CrossDomainValidationService {
             Set<ClientId> collect = clients.stream().filter(e -> !roleNames.contains(e.getDomainId()))
                 .collect(Collectors.toSet());
             log.debug("unable to find roles for clients {}", collect);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("CLIENT_MUST_HAVE_RELATED_ROLE"));
             return false;
         }
@@ -278,42 +279,42 @@ public class CrossDomainValidationService {
             Set<String> collect =
                 roleNames.stream().filter(e -> !clientIds.contains(e)).collect(Collectors.toSet());
             log.debug("unable to find client for role {}", collect);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ROLE_MUST_HAVE_RELATED_CLIENT"));
             return false;
         }
         return true;
     }
 
-    private boolean validateClientAndProject() {
+    private boolean validateClientAndProject(TransactionContext context) {
         //all clients must have valid projectId
         Set<ProjectId> projectIds = DomainRegistry.getClientRepository().getProjectIds();
         Set<Project> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(projectIds));
         if (allByQuery.size() != projectIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ALL_CLIENTS_MUST_HAVE_VALID_PROJECT_ID"));
             return false;
         }
         return true;
     }
 
-    private boolean validateClientAndEndpoint() {
+    private boolean validateClientAndEndpoint(TransactionContext context) {
         //all endpoints must have valid clientId
         Set<ClientId> clientIds = DomainRegistry.getEndpointRepository().getClientIds();
         Set<Client> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
                 new ClientQuery(clientIds));
         if (allByQuery.size() != clientIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ALL_ENDPOINTS_MUST_HAVE_VALID_CLIENT_ID"));
             return false;
         }
         return true;
     }
 
-    private boolean validateCacheProfileAndEndpoint() {
+    private boolean validateCacheProfileAndEndpoint(TransactionContext context) {
         //endpoints must have valid cache profile
         Set<CacheProfileId> cacheProfileIds =
             DomainRegistry.getEndpointRepository().getCacheProfileIds();
@@ -321,7 +322,7 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().query(e),
                 new CacheProfileQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CACHE_PROFILE"));
             return false;
         }

@@ -7,6 +7,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
@@ -109,7 +110,9 @@ public class CorsProfile extends Auditable {
         Set<String> allowedHeaders,
         Boolean allowCredentials,
         Set<Origin> allowOrigin,
-        Set<String> exposedHeaders, Long maxAge
+        Set<String> exposedHeaders,
+        Long maxAge,
+        TransactionContext context
     ) {
         CorsProfile original =
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
@@ -128,7 +131,7 @@ public class CorsProfile extends Auditable {
         afterUpdate.name = null;
         afterUpdate.description = null;
         if (!original.equals(afterUpdate)) {
-            CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileUpdated(this));
+            context.append(new CorsProfileUpdated(this));
         }
     }
 
@@ -224,7 +227,7 @@ public class CorsProfile extends Auditable {
             () -> this.exposedHeaders = headers);
     }
 
-    public void removeAllReference() {
-        CommonDomainRegistry.getDomainEventRepository().append(new CorsProfileRemoved(this));
+    public void removeAllReference(TransactionContext context) {
+        context.append(new CorsProfileRemoved(this));
     }
 }

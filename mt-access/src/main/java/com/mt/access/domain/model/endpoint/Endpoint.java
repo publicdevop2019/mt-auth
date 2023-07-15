@@ -14,6 +14,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
@@ -126,7 +127,7 @@ public class Endpoint extends Auditable {
                     String path, EndpointId endpointId, String method,
                     Boolean secured, Boolean websocket, Boolean csrfEnabled,
                     CorsProfileId corsProfileId, Boolean shared,
-                    Boolean external, Integer replenishRate, Integer burstCapacity
+                    Boolean external, Integer replenishRate, Integer burstCapacity, TransactionContext context
     ) {
         super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
@@ -141,11 +142,11 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        setEndpointCatalogOnCreation(shared, secured, external);
+        setEndpointCatalogOnCreation(shared, secured, external,context);
         initExpired();
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
-        CommonDomainRegistry.getDomainEventRepository().append(new EndpointCollectionModified());
+        context.append(new EndpointCollectionModified());
         validate(new HttpValidationNotificationHandler());
     }
 
@@ -155,11 +156,11 @@ public class Endpoint extends Auditable {
         EndpointId endpointId, String method, Boolean secured,
         Boolean websocket, Boolean csrfEnabled, CorsProfileId corsProfileId, Boolean shared,
         Boolean external, Integer replenishRate,
-        Integer burstCapacity
+        Integer burstCapacity, TransactionContext context
     ) {
         return new Endpoint(clientId, projectId, cacheProfileId, name, description, path,
             endpointId, method, secured, websocket, csrfEnabled, corsProfileId, shared, external,
-            replenishRate, burstCapacity);
+            replenishRate, burstCapacity,context);
     }
 
     private void setCsrfEnabled(Boolean csrfEnabled) {
@@ -178,13 +179,13 @@ public class Endpoint extends Auditable {
         this.expired = Boolean.FALSE;
     }
 
-    public void remove() {
+    public void remove(TransactionContext context) {
         canBeRemoved();
         DomainRegistry.getEndpointRepository().remove(this);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new EndpointCollectionModified());
         if (secured) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new SecureEndpointRemoved(this));
         }
     }
@@ -225,7 +226,7 @@ public class Endpoint extends Auditable {
         this.description = description;
     }
 
-    private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external) {
+    private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external, TransactionContext context) {
         if (Boolean.TRUE.equals(secured)) {
             permissionId = new PermissionId();
         }
@@ -233,7 +234,7 @@ public class Endpoint extends Auditable {
         setSecured(secured);
         setExternal(external);
         if (secured) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new SecureEndpointCreated(getProjectId(), this));
         }
     }
@@ -335,7 +336,7 @@ public class Endpoint extends Auditable {
         (new EndpointValidator(this, handler)).validate();
     }
 
-    public void expire(String expireReason) {
+    public void expire(String expireReason, TransactionContext context) {
         Validator.validRequiredString(1, 50, expireReason);
         if (this.expired) {
             throw new DefinedRuntimeException("endpoint can only expire once", "1042",
@@ -348,7 +349,7 @@ public class Endpoint extends Auditable {
         if (this.shared) {
             this.expired = true;
             this.expireReason = expireReason;
-            CommonDomainRegistry.getDomainEventRepository().append(new EndpointExpired(this));
+            context.append(new EndpointExpired(this));
         } else {
             throw new DefinedRuntimeException("only shared endpoint can be expired", "1044",
                 HttpResponseCode.BAD_REQUEST);

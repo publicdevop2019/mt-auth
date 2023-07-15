@@ -3,6 +3,7 @@ package com.mt.access.domain.model.user;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -44,11 +45,11 @@ public class MfaService {
         return mfaInfo.validate(mfaCode, mfaId);
     }
 
-    public MfaId triggerMfa(UserId userId) {
+    public MfaId triggerMfa(UserId userId, TransactionContext context) {
         User user1 = DomainRegistry.getUserRepository().get(userId);
         MfaInfo mfaInfo = MfaInfo.create();
         user1.setMfaInfo(mfaInfo);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new UserMfaNotificationEvent(user1, mfaInfo));
         return mfaInfo.getId();
     }

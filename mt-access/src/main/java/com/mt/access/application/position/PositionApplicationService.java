@@ -49,7 +49,7 @@ public class PositionApplicationService {
 
     public void tenantRemove(String id, String changeId) {
         PositionId positionId = new PositionId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Position position =
                 DomainRegistry.getPositionRepository().get(positionId);
                 DomainRegistry.getPositionRepository().remove(position);
@@ -61,7 +61,7 @@ public class PositionApplicationService {
     public void tenantPatch(String id, JsonPatch command, String changeId) {
         PositionId positionId = new PositionId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Position position =
                     DomainRegistry.getPositionRepository().get(positionId);
                     PositionPatchCommand beforePatch = new PositionPatchCommand(position);

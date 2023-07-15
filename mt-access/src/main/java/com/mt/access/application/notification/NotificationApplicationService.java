@@ -33,7 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -67,11 +66,13 @@ public class NotificationApplicationService {
             .notificationsOfQuery(notificationQuery);
     }
 
-    @Transactional
     public void userAckBell(String id) {
-        DomainRegistry.getNotificationRepository()
-            .acknowledgeForUser(new NotificationId(id),
-                DomainRegistry.getCurrentUserService().getUserId());
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+            DomainRegistry.getNotificationRepository()
+                .acknowledgeForUser(new NotificationId(id),
+                    DomainRegistry.getCurrentUserService().getUserId());
+
+        });
     }
 
     /**
@@ -80,10 +81,11 @@ public class NotificationApplicationService {
      *
      * @param id notification id
      */
-    @Transactional
     public void ackBell(String id) {
-        DomainRegistry.getNotificationRepository()
-            .acknowledge(new NotificationId(id));
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+            DomainRegistry.getNotificationRepository()
+                .acknowledge(new NotificationId(id));
+        });
     }
 
     public void handle(HangingTxDetected event) {
@@ -113,10 +115,10 @@ public class NotificationApplicationService {
 
     public void handle(UserMfaNotificationEvent event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (command) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new SendSmsNotificationEvent(event, notification));
                 return null;
             }, NOTIFICATION);
@@ -152,7 +154,7 @@ public class NotificationApplicationService {
     public void handle(SendBellNotificationEvent event) {
         try {
             CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(event.getId().toString(), (ignored) -> {
+                .idempotent(event.getId().toString(), (context) -> {
                     log.debug("sending bell notifications with {}", event.getTitle());
                     if (event.getUserId() != null) {
                         DomainRegistry.getWsPushNotificationService()
@@ -181,7 +183,7 @@ public class NotificationApplicationService {
      */
     public void handle(SendSmsNotificationEvent event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
                 Notification notification = DomainRegistry.getNotificationRepository()
@@ -199,7 +201,7 @@ public class NotificationApplicationService {
      */
     public void handle(SendEmailNotificationEvent event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getEmailNotificationService()
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
@@ -267,9 +269,9 @@ public class NotificationApplicationService {
 
     private void sendBellNotification(Long eventId, Notification notification1) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(eventId.toString(), (command) -> {
+            .idempotent(eventId.toString(), (context) -> {
                 DomainRegistry.getNotificationRepository().add(notification1);
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new SendBellNotificationEvent(notification1));
                 return null;
             }, NOTIFICATION);
@@ -278,9 +280,9 @@ public class NotificationApplicationService {
     private void sendEmailNotification(Long id, Notification notification,
                                        SendEmailNotificationEvent sendEmailNotificationEvent) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(id.toString(), (command) -> {
+            .idempotent(id.toString(), (context) -> {
                 DomainRegistry.getNotificationRepository().add(notification);
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(sendEmailNotificationEvent);
                 return null;
             }, NOTIFICATION);

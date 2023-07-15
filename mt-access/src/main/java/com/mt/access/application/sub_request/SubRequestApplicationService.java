@@ -86,7 +86,7 @@ public class SubRequestApplicationService {
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, SUB_REQ_MGMT);
         return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 EndpointId endpointId = new EndpointId(command.getEndpointId());
                 Endpoint endpoint =
                     DomainRegistry.getEndpointRepository().get(endpointId);
@@ -119,7 +119,7 @@ public class SubRequestApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(byId.getProjectId(), SUB_REQ_MGMT);
         DomainRegistry.getPermissionCheckService().sameCreatedBy(byId);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 byId.update(command.getReplenishRate(), command.getBurstCapacity());
                 return null;
             }, SUB_REQUEST);
@@ -135,7 +135,7 @@ public class SubRequestApplicationService {
     public void cancel(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 SubRequest subRequest =
                     DomainRegistry.getSubRequestRepository().get(subRequestId);
                 DomainRegistry.getPermissionCheckService().sameCreatedBy(subRequest);
@@ -164,10 +164,10 @@ public class SubRequestApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointProjectId, SUB_REQ_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 subRequest.approve(userId);
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new SubRequestApprovedEvent(subRequest.getSubRequestId()));
                 return null;
             }, SUB_REQUEST);
@@ -188,7 +188,7 @@ public class SubRequestApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointProjectId, SUB_REQ_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 subRequest.reject(command.getRejectionReason(), userId);
                 return null;
@@ -202,13 +202,13 @@ public class SubRequestApplicationService {
      */
     public void handle(EndpointExpired event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 DomainId domainId = event.getDomainId();
                 EndpointId endpointId = new EndpointId(domainId.getDomainId());
                 Set<UserId> subscribers =
                     DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
                 if (!subscribers.isEmpty()) {
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
                 } else {
                     log.debug("skip sending SubscriberEndpointExpireEvent due to not subscribed");

@@ -49,7 +49,7 @@ public class CacheProfileApplicationService {
         ProjectId projectId = new ProjectId(rawProjectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_CACHE);
         CacheProfileId cacheProfileId = new CacheProfileId();
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfile cacheProfile = new CacheProfile(
                 command.getName(),
                 command.getDescription(),
@@ -75,7 +75,7 @@ public class CacheProfileApplicationService {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_CACHE);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId, cacheProfileId);
             Optional<CacheProfile> cacheProfile1 =
                 DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
@@ -89,7 +89,7 @@ public class CacheProfileApplicationService {
                 command.getVary(),
                 command.getAllowCache(),
                 command.getEtag(),
-                command.getWeakValidation()
+                command.getWeakValidation(),context
             ));
             return null;
         }, CACHE_PROFILE);
@@ -101,7 +101,7 @@ public class CacheProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CORS);
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId1, cacheProfileId);
                 Optional<CacheProfile> cacheProfile =
                     DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
@@ -125,12 +125,12 @@ public class CacheProfileApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CACHE);
         CacheProfileId cacheProfileId = new CacheProfileId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId1, cacheProfileId);
             Optional<CacheProfile> cacheProfile =
                 DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
             cacheProfile.ifPresent(e -> {
-                e.removeAllReference();
+                e.removeAllReference(context);
                 DomainRegistry.getCacheProfileRepository().remove(e);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_CACHE_PROFILE,

@@ -154,7 +154,7 @@ public class ClientApplicationService implements ClientDetailsService {
             .canAccess(new ProjectId(command.getProjectId()), CREATE_CLIENT);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId,
-                (change) -> {
+                (context) -> {
                     Client client = new Client(
                         clientId,
                         new ProjectId(command.getProjectId()),
@@ -173,7 +173,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getAutoApprove(),
                         command.getTypes(),
                         command.getExternalUrl() != null ?
-                            new ExternalUrl(command.getExternalUrl()) : null
+                            new ExternalUrl(command.getExternalUrl()) : null,
+                        context
                     );
                     return client.getClientId().getDomainId();
                 }, CLIENT
@@ -187,7 +188,7 @@ public class ClientApplicationService implements ClientDetailsService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(new ProjectId(command.getProjectId()), EDIT_CLIENT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery =
                     new ClientQuery(clientId, new ProjectId(command.getProjectId()));
                 Optional<Client> optionalClient =
@@ -211,7 +212,8 @@ public class ClientApplicationService implements ClientDetailsService {
                         command.getRegisteredRedirectUri(),
                         command.getAutoApprove(),
                         command.getExternalUrl() != null ?
-                            new ExternalUrl(command.getExternalUrl()) : null
+                            new ExternalUrl(command.getExternalUrl()) : null,
+                        context
                     );
                     DomainRegistry.getClientRepository().add(client);
                 }
@@ -224,7 +226,7 @@ public class ClientApplicationService implements ClientDetailsService {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), EDIT_CLIENT);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
+            .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));
                 Optional<Client> client =
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
@@ -232,7 +234,7 @@ public class ClientApplicationService implements ClientDetailsService {
                     Client client1 = client.get();
                     if (client1.removable()) {
                         DomainRegistry.getClientRepository().remove(client1);
-                        client1.removeAllReferenced();
+                        client1.removeAllReferenced(context);
                         DomainRegistry.getAuditService()
                             .storeAuditAction(DELETE_TENANT_CLIENT,
                                 client1);
@@ -254,7 +256,7 @@ public class ClientApplicationService implements ClientDetailsService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CLIENT);
         ClientId clientId = new ClientId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, projectId1);
                 Optional<Client> client =
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
@@ -275,7 +277,8 @@ public class ClientApplicationService implements ClientDetailsService {
                                 .collect(Collectors.toSet()) : Collections.emptySet(),
                         afterPatch.getGrantTypeEnums(),
                         new TokenDetail(afterPatch.getAccessTokenValiditySeconds(),
-                            original.getTokenDetail().getRefreshTokenValiditySeconds())
+                            original.getTokenDetail().getRefreshTokenValiditySeconds()),
+                        context
                     );
                 }
                 return null;
@@ -291,7 +294,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     public void handle(ClientAsResourceDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 //remove deleted client from resource_map
                 DomainId domainId = event.getDomainId();
                 ClientId removedClientId = new ClientId(domainId.getDomainId());
@@ -302,8 +305,7 @@ public class ClientApplicationService implements ClientDetailsService {
                 Set<ClientId> collect =
                     allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
                 collect.add(removedClientId);
-                CommonDomainRegistry.getDomainEventRepository()
-                    .append(new ClientResourceCleanUpCompleted(collect));
+                context.append(new ClientResourceCleanUpCompleted(collect));
                 return null;
             }, CLIENT);
     }
@@ -315,7 +317,7 @@ public class ClientApplicationService implements ClientDetailsService {
      */
     public void handle(ExternalPermissionUpdated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 ProjectId projectId = new ProjectId(event.getDomainId().getDomainId());
                 Set<Client> projectClients = QueryUtility
                     .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),

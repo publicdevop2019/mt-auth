@@ -16,6 +16,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
@@ -161,37 +162,37 @@ public class Client extends Auditable {
                   @Nullable String secret, String description, Boolean accessible,
                   Set<ClientId> resources, Set<GrantType> grantTypes, TokenDetail tokenDetail,
                   Set<String> redirectUrls, Boolean autoApprove, Set<ClientType> types,
-                  ExternalUrl externalUrl) {
+                  ExternalUrl externalUrl, TransactionContext context) {
         super();
         setClientId(clientId);
         setProjectId(projectId);
-        setResources(resources);
+        setResources(resources, context);
         setDescription(description);
-        setAccessible(accessible);
+        setAccessible(accessible, context);
         setName(name);
-        setPath(path);
+        setPath(path, context);
         initTypes(types);
         initSecret(secret);
-        setGrantTypes(grantTypes, true);
-        setTokenDetail(tokenDetail);
+        setGrantTypes(grantTypes, true, context);
+        setTokenDetail(tokenDetail, context);
         setRedirectDetail(redirectUrls, autoApprove);
         setRoleId();
-        setExternalUrl(externalUrl);
+        setExternalUrl(externalUrl, context);
         //set id last so we know it's new object
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        CommonDomainRegistry.getDomainEventRepository().append(new ClientCreated(this));
+        context.append(new ClientCreated(this));
         DomainRegistry.getClientRepository().add(this);
         validate(new HttpValidationNotificationHandler());
     }
 
-    private void setExternalUrl(ExternalUrl externalUrl) {
+    private void setExternalUrl(ExternalUrl externalUrl, TransactionContext context) {
         if (this.externalUrl == null && externalUrl == null) {
             return;
         } else if (this.externalUrl == null || externalUrl == null) {
-            CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
+            context.append(new ClientPathChanged(clientId));
         } else {
             if (!externalUrl.equals(this.externalUrl)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientPathChanged(clientId));
             }
         }
@@ -245,14 +246,14 @@ public class Client extends Auditable {
         this.types = types;
     }
 
-    private void setPath(String path) {
+    private void setPath(String path, TransactionContext context) {
         if (this.path == null && path == null) {
             return;
         } else if (this.path == null || path == null) {
-            CommonDomainRegistry.getDomainEventRepository().append(new ClientPathChanged(clientId));
+            context.append(new ClientPathChanged(clientId));
         } else {
             if (!path.equals(this.path)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientPathChanged(clientId));
             }
         }
@@ -293,12 +294,12 @@ public class Client extends Auditable {
         this.path = path;
     }
 
-    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate) {
+    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate, TransactionContext context) {
         Validator.notNull(grantTypes);
         Validator.notEmpty(grantTypes);
         if (!isCreate) {
             if (!ObjectUtils.equals(grantTypes, this.grantTypes)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientGrantTypeChanged(clientId));
             }
         }
@@ -324,20 +325,20 @@ public class Client extends Auditable {
         this.description = description;
     }
 
-    private void setTokenDetail(TokenDetail tokenDetail) {
+    private void setTokenDetail(TokenDetail tokenDetail, TransactionContext context) {
         if (id != null) {
             if (tokenDetailChanged(tokenDetail)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientTokenDetailChanged(clientId));
             }
         }
         this.tokenDetail = tokenDetail;
     }
 
-    private void setAccessible(Boolean accessible) {
+    private void setAccessible(Boolean accessible, TransactionContext context) {
         if (Checker.notNull(id)) {
             if (Checker.isTrue(getAccessible()) && Checker.isFalse(accessible)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientAccessibilityRemoved(clientId));
             }
         }
@@ -348,13 +349,13 @@ public class Client extends Auditable {
         this.resources.remove(clientId);
     }
 
-    private void setResources(Set<ClientId> resources) {
+    private void setResources(Set<ClientId> resources, TransactionContext context) {
         if (Checker.notNull(resources)) {
             Validator.lessThanOrEqualTo(resources, 10);
         }
         if (Checker.notNull(id)) {
             if (resourcesChanged(resources)) {
-                CommonDomainRegistry.getDomainEventRepository()
+                context
                     .append(new ClientResourcesChanged(clientId));
             }
         }
@@ -370,31 +371,31 @@ public class Client extends Auditable {
     public void replace(String name, String secret, String path, String description,
                         Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
                         TokenDetail tokenDetail, Set<String> redirectUrl, Boolean autoApprove,
-                        ExternalUrl externalUrl) {
-        setPath(path);
-        setResources(resources);
-        setAccessible(accessible);
-        updateSecret(secret);
-        setGrantTypes(grantTypes, false);
-        setTokenDetail(tokenDetail);
+                        ExternalUrl externalUrl, TransactionContext context) {
+        setPath(path, context);
+        setResources(resources, context);
+        setAccessible(accessible, context);
+        updateSecret(secret,context);
+        setGrantTypes(grantTypes, false, context);
+        setTokenDetail(tokenDetail, context);
         setName(name);
         setDescription(description);
         setRedirectDetail(redirectUrl, autoApprove);
-        setExternalUrl(externalUrl);
+        setExternalUrl(externalUrl, context);
         validate(new HttpValidationNotificationHandler());
     }
 
     public void replace(String name, String secret, String path, String description,
                         Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
-                        TokenDetail tokenDetail) {
+                        TokenDetail tokenDetail, TransactionContext context) {
         setName(name);
         setDescription(description);
-        setPath(path);
-        setResources(resources);
-        setAccessible(accessible);
-        updateSecret(secret);
-        setGrantTypes(grantTypes, false);
-        setTokenDetail(tokenDetail);
+        setPath(path, context);
+        setResources(resources, context);
+        setAccessible(accessible, context);
+        updateSecret(secret,context);
+        setGrantTypes(grantTypes, false, context);
+        setTokenDetail(tokenDetail, context);
         validate(new HttpValidationNotificationHandler());
     }
 
@@ -414,10 +415,10 @@ public class Client extends Auditable {
     }
 
     //for update
-    private void updateSecret(String secret) {
+    private void updateSecret(String secret, TransactionContext context) {
         if (secret != null && !secret.isBlank()) {
             Validator.notNull(types);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ClientSecretChanged(clientId));
             if (types.contains(ClientType.FRONTEND_APP)) {
                 secret = EMPTY_SECRET;
@@ -448,10 +449,10 @@ public class Client extends Auditable {
         return !ObjectUtils.equals(this.tokenDetail, tokenDetail);
     }
 
-    public void removeAllReferenced() {
-        CommonDomainRegistry.getDomainEventRepository().append(new ClientDeleted(clientId));
+    public void removeAllReferenced(TransactionContext context) {
+        context.append(new ClientDeleted(clientId));
         if (Checker.isTrue(getAccessible())) {
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ClientAsResourceDeleted(clientId));
         }
     }

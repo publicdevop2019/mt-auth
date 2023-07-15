@@ -11,6 +11,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
@@ -313,7 +314,7 @@ public class Permission extends Auditable {
      * @param creatorId user id who create project
      */
     public static void onboardNewProject(ProjectId tenantId,
-                                         UserId creatorId) {
+                                         UserId creatorId, TransactionContext context) {
         ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
         PermissionId rootId = new PermissionId();
         Permission p0 = Permission
@@ -570,7 +571,7 @@ public class Permission extends Auditable {
                 return Stream.of(e.getPermissionId());
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new ProjectPermissionCreated(collect, tenantId, creatorId));
     }
 
@@ -616,20 +617,20 @@ public class Permission extends Auditable {
         new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
     }
 
-    public void remove() {
+    public void remove(TransactionContext context) {
         if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api type cannot be changed",
                 "1051",
                 HttpResponseCode.BAD_REQUEST);
         }
         DomainRegistry.getPermissionRepository().remove(this);
-        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
+        context.append(new PermissionRemoved(this));
     }
 
 
-    public void secureEndpointRemoveCleanUp() {
+    public void secureEndpointRemoveCleanUp(TransactionContext context) {
         DomainRegistry.getPermissionRepository().remove(this);
-        CommonDomainRegistry.getDomainEventRepository().append(new PermissionRemoved(this));
+        context.append(new PermissionRemoved(this));
     }
 
     public void removeApiPermission(PermissionId permissionId) {

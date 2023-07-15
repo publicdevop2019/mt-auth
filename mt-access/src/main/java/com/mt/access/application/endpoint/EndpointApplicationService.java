@@ -31,7 +31,7 @@ import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.constant.AppInfo;
+import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -65,8 +65,7 @@ public class EndpointApplicationService {
             }
             log.debug("sending reload proxy endpoint message");
             CommonDomainRegistry.getEventStreamService()
-                .next(AppInfo.MT_ACCESS_APP_ID, false, "started_access",
-                    ApplicationStartedEvent.create());
+                .next(StoredEvent.skipStoredEvent(new ApplicationStartedEvent()));
         }
     }
 
@@ -126,7 +125,7 @@ public class EndpointApplicationService {
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
         return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
+            .idempotent(changeId, (context) -> {
                 String clientId = command.getResourceId();
                 Endpoint endpoint = Endpoint.addNewEndpoint(
                     new ClientId(clientId),
@@ -148,7 +147,8 @@ public class EndpointApplicationService {
                     command.getShared(),
                     command.getExternal(),
                     command.getReplenishRate(),
-                    command.getBurstCapacity()
+                    command.getBurstCapacity(),
+                    context
                 );
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 return endpointId.getDomainId();
@@ -164,7 +164,7 @@ public class EndpointApplicationService {
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
         EndpointId endpointId = new EndpointId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Endpoint endpoint =
                     DomainRegistry.getEndpointRepository().get(endpointId);
                 endpoint.update(
@@ -182,8 +182,7 @@ public class EndpointApplicationService {
                     command.getReplenishRate(),
                     command.getBurstCapacity()
                 );
-                CommonDomainRegistry.getDomainEventRepository()
-                    .append(new EndpointCollectionModified());
+                context.append(new EndpointCollectionModified());
                 DomainRegistry.getEndpointRepository().add(endpoint);
                 return null;
             }, ENDPOINT);
@@ -197,13 +196,13 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Optional<Endpoint> endpoint =
                     DomainRegistry.getEndpointRepository().query(endpointQuery)
                         .findFirst();
                 if (endpoint.isPresent()) {
                     Endpoint endpoint1 = endpoint.get();
-                    endpoint1.remove();
+                    endpoint1.remove(context);
                     DomainRegistry.getAuditService()
                         .storeAuditAction(DELETE_TENANT_ENDPOINT,
                             endpoint1);
@@ -221,7 +220,7 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
         EndpointId endpointId = new EndpointId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository()
                     .query(new EndpointQuery(endpointId, projectId1)).findFirst();
                 if (endpoint.isPresent()) {
@@ -241,8 +240,7 @@ public class EndpointApplicationService {
                         original.getReplenishRate(),
                         original.getBurstCapacity()
                     );
-                    CommonDomainRegistry.getDomainEventRepository()
-                        .append(new EndpointCollectionModified());
+                    context.append(new EndpointCollectionModified());
                 }
                 return null;
             }, ENDPOINT);
@@ -250,8 +248,8 @@ public class EndpointApplicationService {
 
     public void reloadCache(String changeId) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
-                DomainRegistry.getEndpointService().reloadEndpointCache();
+            .idempotent(changeId, (context) -> {
+                DomainRegistry.getEndpointService().reloadEndpointCache(context);
                 return null;
             }, ENDPOINT);
     }
@@ -265,23 +263,23 @@ public class EndpointApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), EDIT_API);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Endpoint endpoint =
                     DomainRegistry.getEndpointRepository().get(endpointId);
-                endpoint.expire(command.getExpireReason());
+                endpoint.expire(command.getExpireReason(), context);
                 return null;
             }, ENDPOINT);
     }
 
     public void handle(ClientDeleted deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(deserialize.getId().toString(), (context) -> {
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new ClientId(deserialize.getDomainId().getDomainId())));
                 if (!allByQuery.isEmpty()) {
                     DomainRegistry.getEndpointRepository().remove(allByQuery);
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new EndpointCollectionModified());
                 }
                 return null;
@@ -290,14 +288,14 @@ public class EndpointApplicationService {
 
     public void handle(CorsProfileRemoved deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(deserialize.getId().toString(), (context) -> {
                 log.debug("handle cors profile removed");
                 Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new CorsProfileId(deserialize.getDomainId().getDomainId())));
                 if (!allByQuery.isEmpty()) {
                     allByQuery.forEach(Endpoint::removeCorsRef);
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new EndpointCollectionModified());
                 }
                 return null;
@@ -311,14 +309,14 @@ public class EndpointApplicationService {
      */
     public void handle(CorsProfileUpdated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle cors profile updated");
                 CorsProfileId corsProfileId =
                     new CorsProfileId(event.getDomainId().getDomainId());
                 SumPagedRep<Endpoint> endpointSumPagedRep = DomainRegistry.getEndpointRepository()
                     .query(new EndpointQuery(corsProfileId));
                 if (endpointSumPagedRep.findFirst().isPresent()) {
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new EndpointCollectionModified());
                 }
                 return null;
@@ -327,7 +325,7 @@ public class EndpointApplicationService {
 
     public void handle(CacheProfileRemoved deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(deserialize.getId().toString(), (context) -> {
                 log.debug("handle cache profile removed");
                 CacheProfileId profileId =
                     new CacheProfileId(deserialize.getDomainId().getDomainId());
@@ -335,7 +333,7 @@ public class EndpointApplicationService {
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(profileId));
                 if (!allByQuery.isEmpty()) {
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new EndpointCollectionModified());
                     allByQuery.forEach(Endpoint::removeCacheProfileRef);
                 }
@@ -345,14 +343,14 @@ public class EndpointApplicationService {
 
     public void handle(CacheProfileUpdated deserialize) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(deserialize.getId().toString(), (ignored) -> {
+            .idempotent(deserialize.getId().toString(), (context) -> {
                 log.debug("handle cache profile updated");
                 CacheProfileId profileId =
                     new CacheProfileId(deserialize.getDomainId().getDomainId());
                 SumPagedRep<Endpoint> firstPage = DomainRegistry.getEndpointRepository()
                     .query(new EndpointQuery(profileId));
                 if (firstPage.findFirst().isPresent()) {
-                    CommonDomainRegistry.getDomainEventRepository()
+                    context
                         .append(new EndpointCollectionModified());
                 } else {
                     log.debug("cache profile is not used");

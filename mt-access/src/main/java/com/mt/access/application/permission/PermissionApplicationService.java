@@ -142,11 +142,11 @@ public class PermissionApplicationService {
             new PermissionQuery(permissionId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Optional<Permission> permission =
                 DomainRegistry.getPermissionRepository().query(permissionQuery).findFirst();
             permission.ifPresent(e -> {
-                e.remove();
+                e.remove(context);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_PERMISSION,
                         e);
@@ -167,7 +167,7 @@ public class PermissionApplicationService {
         DomainRegistry.getPermissionCheckService()
             .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 Optional<Permission> permission =
                     DomainRegistry.getPermissionRepository().query(permissionQuery)
                         .findFirst();
@@ -211,10 +211,10 @@ public class PermissionApplicationService {
 
     public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle project created event");
                 ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
-                Permission.onboardNewProject(tenantProjectId, event.getCreator());
+                Permission.onboardNewProject(tenantProjectId, event.getCreator(),context);
                 return null;
             }, PERMISSION);
     }
@@ -222,7 +222,7 @@ public class PermissionApplicationService {
     @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
     public void handle(SecureEndpointCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle endpoint created event");
                 EndpointId endpointId = new EndpointId(event.getDomainId().getDomainId());
                 PermissionId permissionId = event.getPermissionId();
@@ -241,9 +241,9 @@ public class PermissionApplicationService {
     @SagaDistLockV2(keyExpression = "#p0.changeId", aggregateName = PERMISSION)
     public void handle(SecureEndpointRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (ignored) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle secured endpoint remove event");
-                DomainRegistry.getPermissionService().cleanRelated(event.getPermissionId());
+                DomainRegistry.getPermissionService().cleanRelated(event.getPermissionId(),context);
                 return null;
             }, PERMISSION);
     }

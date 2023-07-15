@@ -27,11 +27,12 @@ public class ReportApplicationService {
 
     private static final String REPORT_TYPE = "type";
 
-    @Transactional
     public void uploadReport(List<String> records, String instanceId, String name) {
-        records.forEach(e -> {
-            RawAccessRecord rawAccessRecord = new RawAccessRecord(name, instanceId, e);
-            DomainRegistry.getRawAccessRecordRepository().add(rawAccessRecord);
+        CommonDomainRegistry.getTransactionService().transactionalEvent(context -> {
+            records.forEach(e -> {
+                RawAccessRecord rawAccessRecord = new RawAccessRecord(name, instanceId, e);
+                DomainRegistry.getRawAccessRecordRepository().add(rawAccessRecord);
+            });
         });
     }
 
@@ -63,8 +64,8 @@ public class ReportApplicationService {
 
     @Scheduled(cron = "0 * * ? * *")
     public void rawDataEtl() {
-            log.trace("triggered scheduled task 3");
-            CommonDomainRegistry.getJobService().execute(ACCESS_DATA_PROCESSING_JOB_NAME,
-                () -> DomainRegistry.getRawAccessRecordProcessService().process(), true,1);
+        log.trace("triggered scheduled task 3");
+        CommonDomainRegistry.getJobService().execute(ACCESS_DATA_PROCESSING_JOB_NAME,
+            (context) -> DomainRegistry.getRawAccessRecordProcessService().process(context), true, 1);
     }
 }

@@ -5,6 +5,7 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.List;
@@ -32,10 +33,10 @@ public class PermissionService {
         return linkedPermId;
     }
 
-    public void cleanRelated(PermissionId permissionId) {
+    public void cleanRelated(PermissionId permissionId, TransactionContext context) {
         //clean endpoint's permission entity
         Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
-        permission.secureEndpointRemoveCleanUp();
+        permission.secureEndpointRemoveCleanUp(context);
         //clean linked api permission
         //TODO this is more effective with direct SQL query
         Set<Permission> allByQuery =

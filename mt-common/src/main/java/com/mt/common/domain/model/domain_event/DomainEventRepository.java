@@ -5,9 +5,7 @@ import java.util.List;
 
 public interface DomainEventRepository {
 
-    List<StoredEvent> top50StoredEventsSince(long lastId);
-
-    void append(DomainEvent event);
+    void append(StoredEvent event);
 
     StoredEvent getById(long id);
 

@@ -4,6 +4,7 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.application.idempotent.CreateChangeRecordCommand;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.util.Optional;
 import java.util.function.Function;
@@ -29,7 +30,7 @@ public class IdempotentService {
      * @param reply         reply if execute success or already executed
      * @param aggregateName (aggregate name + change id) = change identifier
      */
-    public void idempotentMsg(String changeId, Function<CreateChangeRecordCommand, String> function,
+    public void idempotentMsg(String changeId, Function<TransactionContext, String> function,
                               Function<CreateChangeRecordCommand, String> reply,
                               String aggregateName) {
         CreateChangeRecordCommand command =
@@ -51,8 +52,9 @@ public class IdempotentService {
                 Optional<ChangeRecord> forwardChange = forwardChanges.findFirst();
                 if (forwardChange.isPresent()) {
                     log.debug("cancelling change...");
-                    CommonDomainRegistry.getTransactionService().transactional(() -> {
-                        function.apply(command);
+                    CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                        context.setChangeRecord(command);
+                        function.apply(context);
                         CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                             .createReverse(command);
                     });
@@ -60,7 +62,7 @@ public class IdempotentService {
                 } else {
                     log.debug("change not found, do empty cancel");
                     command.setEmptyOpt(true);
-                    CommonDomainRegistry.getTransactionService().transactional(() -> {
+                    CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                         //change not found
                         CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                             .createEmptyReverse(command);
@@ -88,9 +90,8 @@ public class IdempotentService {
                     //change has been cancelled, perform null operation
                     log.debug("change already cancelled, do empty change");
                     command.setEmptyOpt(true);
-                    CommonDomainRegistry.getTransactionService().transactional(() -> {
-                        CommonDomainRegistry.getDomainEventRepository()
-                            .append(new HangingTxDetected(changeId));
+                    CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                        context.append(new HangingTxDetected(changeId));
                         CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                             .createEmptyForward(command);
                     });
@@ -98,8 +99,8 @@ public class IdempotentService {
                 } else {
                     log.debug("making change with {} aggregate {}", command.getChangeId(),
                         aggregateName);
-                    CommonDomainRegistry.getTransactionService().transactional(() -> {
-                        function.apply(command);
+                    CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                        function.apply(context);
                         CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                             .createForward(command);
                     });
@@ -122,7 +123,7 @@ public class IdempotentService {
      * @return new aggregate id if needed
      */
     public String idempotent(String changeId,
-                             Function<CreateChangeRecordCommand, String> function,
+                             Function<TransactionContext, String> function,
                              String aggregateName) {
         Optional<ChangeRecord> changeRecord =
             CommonDomainRegistry.getChangeRecordRepository().changeRecordsOfQuery(
@@ -133,10 +134,11 @@ public class IdempotentService {
         } else {
             log.debug("making change...");
             return CommonDomainRegistry.getTransactionService()
-                .returnedTransactional(() -> {
+                .returnedTransactionalEvent((context) -> {
                     CreateChangeRecordCommand command =
                         createChangeRecordCommand(changeId, aggregateName, null);
-                    String apply = function.apply(command);
+                    String apply = function.apply(context);
+                    context.setChangeRecord(command);
                     CommonApplicationServiceRegistry.getChangeRecordApplicationService()
                         .createForward(command);
                     return apply;

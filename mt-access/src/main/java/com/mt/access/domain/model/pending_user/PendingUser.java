@@ -5,6 +5,7 @@ import com.mt.access.domain.model.activation_code.ActivationCode;
 import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -35,25 +36,25 @@ public class PendingUser extends Auditable {
     @Embedded
     private ActivationCode activationCode;
 
-    public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode) {
+    public PendingUser(RegistrationEmail registrationEmail, ActivationCode activationCode, TransactionContext context) {
         super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setRegistrationEmail(registrationEmail);
-        setActivationCode(activationCode);
+        setActivationCode(activationCode,context);
         DomainRegistry.getPendingUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
     }
 
-    private void setActivationCode(ActivationCode activationCode) {
+    private void setActivationCode(ActivationCode activationCode, TransactionContext context) {
         this.activationCode = activationCode;
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new PendingUserActivationCodeUpdated(registrationEmail, activationCode));
     }
 
-    public void newActivationCode(ActivationCode activationCode) {
+    public void newActivationCode(ActivationCode activationCode, TransactionContext context) {
         DomainRegistry.getPendingUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
-        setActivationCode(activationCode);
+        setActivationCode(activationCode,context);
     }
 
 }

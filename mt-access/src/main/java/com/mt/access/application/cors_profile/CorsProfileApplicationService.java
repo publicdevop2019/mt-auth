@@ -48,7 +48,7 @@ public class CorsProfileApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, CREATE_CORS);
         CorsProfileId corsProfileId = new CorsProfileId();
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CorsProfile corsProfile = new CorsProfile(
                 command.getName(),
                 command.getDescription(),
@@ -71,7 +71,7 @@ public class CorsProfileApplicationService {
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_CORS);
         CorsProfileId corsProfileId = new CorsProfileId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CorsProfileQuery corsProfileQuery =
                 new CorsProfileQuery(projectId, corsProfileId);
             Optional<CorsProfile> corsProfile =
@@ -83,7 +83,8 @@ public class CorsProfileApplicationService {
                 command.getAllowCredentials(),
                 CommonUtility.map(command.getAllowOrigin(), Origin::new),
                 command.getExposedHeaders(),
-                command.getMaxAge()
+                command.getMaxAge(),
+                context
             ));
             return null;
         }, CORS_PROFILE);
@@ -94,14 +95,14 @@ public class CorsProfileApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CORS);
         CorsProfileId corsProfileId = new CorsProfileId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (ignored) -> {
+        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CorsProfileQuery corsProfileQuery =
                 new CorsProfileQuery(projectId1, corsProfileId);
             Optional<CorsProfile> corsProfile =
                 DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
                     .findFirst();
             corsProfile.ifPresent(e -> {
-                e.removeAllReference();
+                e.removeAllReference(context);
                 DomainRegistry.getCorsProfileRepository().remove(e);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_CORS_PROFILE,
@@ -120,7 +121,7 @@ public class CorsProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CORS);
         CorsProfileId corsProfileId = new CorsProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (ignored) -> {
+            .idempotent(changeId, (context) -> {
                 CorsProfileQuery corsProfileQuery = new CorsProfileQuery(projectId1, corsProfileId);
                 Optional<CorsProfile> corsProfile =
                     DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)

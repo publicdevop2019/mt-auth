@@ -7,6 +7,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
@@ -112,20 +113,20 @@ public class User extends Auditable {
     public void validate(ValidationNotificationHandler handler) {
     }
 
-    public void setPwdResetToken(PasswordResetCode pwdResetToken) {
+    public void setPwdResetToken(PasswordResetCode pwdResetToken, TransactionContext context) {
         this.pwdResetToken = pwdResetToken;
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new UserPwdResetCodeUpdated(getUserId(), getEmail(), getPwdResetToken()));
     }
 
 
-    public void lockUser(Boolean locked) {
+    public void lockUser(Boolean locked, TransactionContext context) {
         if (Arrays.stream(ROOT_ACCOUNTS)
             .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
             throw new DefinedRuntimeException("root account cannot be locked", "1062",
                 HttpResponseCode.BAD_REQUEST);
         }
-        CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(userId));
+        context.append(new UserGetLocked(userId));
         setLocked(locked);
     }
 

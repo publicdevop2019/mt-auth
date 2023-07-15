@@ -4,6 +4,7 @@ import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Validator;
 import javax.persistence.Cacheable;
 import javax.persistence.Embedded;
@@ -28,13 +29,13 @@ public class Project extends Auditable {
     @Embedded
     private ProjectId projectId;
 
-    public Project(ProjectId projectId, String name, UserId userId) {
+    public Project(ProjectId projectId, String name, UserId userId, TransactionContext context) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
         setName(name);
         this.setCreatedBy(userId.getDomainId());
-        CommonDomainRegistry.getDomainEventRepository().append(new StartNewProjectOnboarding(this));
+        context.append(new StartNewProjectOnboarding(this));
     }
 
     private void setName(String name) {

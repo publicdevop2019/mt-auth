@@ -6,6 +6,7 @@ import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.PatchCommand;
 import java.util.List;
 import java.util.Optional;
@@ -14,26 +15,26 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password) {
+    public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password, TransactionContext context) {
         if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
             throw new DefinedRuntimeException("wrong password", "1000",
                 HttpResponseCode.BAD_REQUEST);
         }
         user.setPassword(password);
         DomainRegistry.getUserRepository().add(user);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new UserPasswordChanged(user.getUserId()));
     }
 
-    public void forgetPassword(UserEmail email) {
+    public void forgetPassword(UserEmail email, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
-        user.setPwdResetToken(passwordResetToken);
+        user.setPwdResetToken(passwordResetToken,context);
         DomainRegistry.getUserRepository().add(user);
 
     }
 
-    public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token) {
+    public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         if (user.getPwdResetToken() == null) {
             throw new DefinedRuntimeException("token not exist", "1003",
@@ -45,14 +46,14 @@ public class UserService {
         }
         user.setPassword(newPassword);
         DomainRegistry.getUserRepository().add(user);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new UserPasswordChanged(user.getUserId()));
     }
 
-    public void batchLock(List<PatchCommand> commands) {
+    public void batchLock(List<PatchCommand> commands, TransactionContext context) {
         if (Boolean.TRUE.equals(commands.get(0).getValue())) {
             commands.stream().map(e -> new UserId(e.getPath().split("/")[1])).forEach(e -> {
-                CommonDomainRegistry.getDomainEventRepository().append(new UserGetLocked(e));
+                context.append(new UserGetLocked(e));
             });
         }
         DomainRegistry.getUserRepository().batchLock(commands);

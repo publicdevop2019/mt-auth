@@ -17,6 +17,7 @@ import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class NewUserService {
                          UserPassword password,
                          ActivationCode activationCode,
                          UserMobile mobile,
-                         UserId userId) {
+                         UserId userId, TransactionContext context) {
         Optional<PendingUser> pendingUser = DomainRegistry.getPendingUserRepository()
             .query(new RegistrationEmail(email.getEmail()));
         UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
@@ -41,7 +42,7 @@ public class NewUserService {
             }
             User user = User.newUser(email, password, userId, mobile);
             DomainRegistry.getUserRepository().add(user);
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new NewUserRegistered(user.getUserId(), email));
             return user.getUserId();
         } else {

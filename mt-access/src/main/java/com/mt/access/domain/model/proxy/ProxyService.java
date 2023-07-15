@@ -7,6 +7,7 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -34,7 +35,7 @@ public class ProxyService {
         return new CheckSumRepresentation(checkSumValue, cacheEndpointSum);
     }
 
-    public void checkSum() {
+    public void checkSum(TransactionContext context) {
         log.debug("[checking proxy cache value] started");
         CheckSumRepresentation checkSumRepresentation = checkSumValue();
         String hostValue = checkSumRepresentation.getHostValue();
@@ -45,13 +46,13 @@ public class ProxyService {
         }
         if (values.size() != 1) {
             log.debug("failed check due to different proxy value found");
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ProxyCacheCheckFailedEvent());
             return;
         }
         if (!values.stream().findFirst().get().equals(hostValue)) {
             log.debug("failed check due to proxy value not matching host value");
-            CommonDomainRegistry.getDomainEventRepository()
+            context
                 .append(new ProxyCacheCheckFailedEvent());
         }
         log.debug("[checking proxy cache value] completed");

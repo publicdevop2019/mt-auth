@@ -16,6 +16,7 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
@@ -115,7 +116,7 @@ public class UserRelation extends Auditable {
     }
 
     public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator,
-                                         ProjectId tenantId, ProjectId authProjectId) {
+                                         ProjectId tenantId, ProjectId authProjectId, TransactionContext context) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
             .query(new UserRelationQuery(creator, authProjectId)).findFirst();
@@ -135,7 +136,7 @@ public class UserRelation extends Auditable {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
         Project project = DomainRegistry.getProjectRepository().get(tenantId);
-        CommonDomainRegistry.getDomainEventRepository()
+        context
             .append(new ProjectOnboardingComplete(project));
     }
 

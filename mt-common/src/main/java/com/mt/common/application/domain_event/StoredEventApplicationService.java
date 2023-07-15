@@ -47,8 +47,8 @@ public class StoredEventApplicationService {
         Long id = event.getId();
         if (id != null) {
             CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(String.valueOf(id), (ignored) -> {
-                        CommonDomainRegistry.getDomainEventRepository()
+                .idempotent(String.valueOf(id), (context) -> {
+                        context
                             .append(new UnrountableMsgReceivedEvent(event));
                         StoredEvent byId =
                             CommonDomainRegistry.getDomainEventRepository().getById(event.getId());
@@ -69,15 +69,16 @@ public class StoredEventApplicationService {
      *
      * @param event rejected event
      */
-    @Transactional
     public void recordRejectedEvent(StoredEvent event) {
         Long id = event.getId();
         if (id != null) {
-            CommonDomainRegistry.getDomainEventRepository()
-                .append(new RejectedMsgReceivedEvent(event));
-            StoredEvent first = CommonDomainRegistry.getDomainEventRepository()
-                .getById(event.getId());
-            first.markAsRejected();
+            CommonDomainRegistry.getTransactionService().transactionalEvent((context)->{
+                context
+                    .append(new RejectedMsgReceivedEvent(event));
+                StoredEvent first = CommonDomainRegistry.getDomainEventRepository()
+                    .getById(event.getId());
+                first.markAsRejected();
+            });
         } else {
             log.warn(
                 "none-stored event are being rejected, event name is {}",

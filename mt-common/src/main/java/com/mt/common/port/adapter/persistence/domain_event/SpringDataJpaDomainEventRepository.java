@@ -1,6 +1,5 @@
 package com.mt.common.port.adapter.persistence.domain_event;
 
-import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
@@ -20,14 +19,8 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaDomainEventRepository
     extends CrudRepository<StoredEvent, Long>, DomainEventRepository {
 
-    List<StoredEvent> findTop50ByIdGreaterThanOrderById(long id);
-
-    default List<StoredEvent> top50StoredEventsSince(long lastId) {
-        return findTop50ByIdGreaterThanOrderById(lastId);
-    }
-
-    default void append(DomainEvent event) {
-        save(new StoredEvent(event));
+    default void append(StoredEvent event) {
+        save(event);
     }
 
     default StoredEvent getById(long id) {
@@ -60,7 +53,8 @@ public interface SpringDataJpaDomainEventRepository
             Order order = null;
             if (Checker.isTrue(query.getSort().getById())) {
                 order =
-                    QueryUtility.getOrder(StoredEvent_.ID, queryContext, query.getSort().getIsAsc());
+                    QueryUtility.getOrder(StoredEvent_.ID, queryContext,
+                        query.getSort().getIsAsc());
             }
             queryContext.setOrder(order);
             return QueryUtility.nativePagedQuery(query, queryContext);
