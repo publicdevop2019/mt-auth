@@ -281,7 +281,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             consumerTag,
                             ClassUtility.getShortName(storedEvent.getName()),
                             storedEvent.getId(), l1 - l2);
-                        if (l1 - l2 > 10*1000) {
+                        if (l1 - l2 > 10 * 1000) {
                             log.error(
                                 "channel num {} tag {} complete handling {} with id {}, total time taken is {} milli",
                                 channelNumber,

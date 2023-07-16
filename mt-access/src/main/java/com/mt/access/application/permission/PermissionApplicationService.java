@@ -212,7 +212,7 @@ public class PermissionApplicationService {
     public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle project created event");
+                log.info("handle new project created event");
                 ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
                 Permission.onboardNewProject(tenantProjectId, event.getCreator(),context);
                 return null;

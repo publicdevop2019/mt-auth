@@ -230,21 +230,26 @@ public class Role extends Auditable {
                                          Set<PermissionId> permissionIdSet, UserId creator, TransactionContext context) {
         RoleId roleId = new RoleId();
         RoleId roleId1 = new RoleId();
+        log.debug("creating new project roles");
         Role rootRole =
             Role.newProjectRole(authPId, roleId, tenantProjectId.getDomainId(),
                 Collections.emptySet(),
                 RoleType.PROJECT, null, tenantProjectId);
+        log.debug("root role created");
         Role adminRole =
             Role.newProjectRole(authPId, new RoleId(), PROJECT_ADMIN, permissionIdSet,
                 RoleType.USER, roleId, tenantProjectId);
-
+        log.debug("admin role created");
         Role userRole = Role.newProjectRole(tenantProjectId, new RoleId(), PROJECT_USER,
             Collections.emptySet(), RoleType.USER, roleId1, null);
+        log.debug("user role created");
         Role tenantClientRoot = Role.newProjectRole(tenantProjectId, new RoleId(), CLIENT_ROOT,
             Collections.emptySet(), RoleType.CLIENT_ROOT, null, null);
+        log.debug("tenant client role created");
         Role tenantUserRoot =
             Role.newProjectRole(tenantProjectId, roleId1, tenantProjectId.getDomainId(),
                 Collections.emptySet(), RoleType.PROJECT, null, null);
+        log.debug("tenant user role created");
         Set<Role> tobeStored = new HashSet<>();
         tobeStored.add(adminRole);
         tobeStored.add(userRole);

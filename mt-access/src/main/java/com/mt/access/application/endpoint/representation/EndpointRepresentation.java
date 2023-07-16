@@ -43,10 +43,10 @@ public class EndpointRepresentation {
         this.path = endpoint.getPath();
         this.method = endpoint.getMethod();
         this.createdBy = endpoint.getCreatedBy();
-        this.createdAt = endpoint.getCreatedAt() != null ? endpoint.getCreatedAt().getTime() : null;
+        this.createdAt = endpoint.getCreatedAt() != null ? endpoint.getCreatedAt() : null;
         this.modifiedBy = endpoint.getModifiedBy();
         this.modifiedAt =
-            endpoint.getModifiedAt() != null ? endpoint.getModifiedAt().getTime() : null;
+            endpoint.getModifiedAt() != null ? endpoint.getModifiedAt() : null;
         this.version = endpoint.getVersion();
         this.csrfEnabled = endpoint.getCsrfEnabled();
         this.corsProfileId =

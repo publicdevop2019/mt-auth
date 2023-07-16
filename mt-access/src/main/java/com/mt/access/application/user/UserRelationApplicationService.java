@@ -28,7 +28,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Optional;
@@ -212,7 +211,7 @@ public class UserRelationApplicationService {
     public void handle(NewProjectRoleCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle new project role created event");
+                log.info("handle new project role created event");
                 RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
                 RoleId userRoleId = event.getUserRoleId();
                 UserId creator = event.getCreator();

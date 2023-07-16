@@ -2,7 +2,6 @@ package com.mt.access.domain.model.report;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.ArrayList;
 import java.util.HashSet;

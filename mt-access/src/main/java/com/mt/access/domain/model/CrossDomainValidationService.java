@@ -25,7 +25,6 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;

@@ -2,13 +2,10 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.time.Instant;
-import java.util.Date;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -31,9 +28,8 @@ public class LoginHistory {
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
-    @Temporal(TemporalType.TIMESTAMP)
     @Getter
-    private Date loginAt;
+    private Long loginAt;
     @Getter
     private String ipAddress;
     @Getter
@@ -42,7 +38,7 @@ public class LoginHistory {
     public LoginHistory(UserLoginRequest command) {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.userId = command.getUserId();
-        loginAt = Date.from(Instant.now());
+        loginAt = Instant.now().toEpochMilli();
         ipAddress = command.getIpAddress();
         agent = command.getAgent();
     }

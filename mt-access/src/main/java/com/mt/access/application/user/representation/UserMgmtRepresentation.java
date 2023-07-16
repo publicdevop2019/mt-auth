@@ -30,9 +30,9 @@ public class UserMgmtRepresentation {
         this.email = user.getEmail().getEmail();
         this.locked = user.getLocked();
         this.createdBy = user.getCreatedBy();
-        this.createdAt = user.getCreatedAt().getTime();
+        this.createdAt = user.getCreatedAt();
         this.modifiedBy = user.getModifiedBy();
-        this.modifiedAt = user.getModifiedAt().getTime();
+        this.modifiedAt = user.getModifiedAt();
         this.loginHistory =
             loginInfoList.stream().map(UserLoginHistory::new)
                 .sorted((a, b) -> (int) (a.loginAt - b.loginAt)).collect(
@@ -46,7 +46,7 @@ public class UserMgmtRepresentation {
         private String agent;
 
         public UserLoginHistory(LoginHistory info) {
-            this.loginAt = info.getLoginAt().getTime();
+            this.loginAt = info.getLoginAt();
             this.ipAddress = info.getIpAddress();
             this.agent = info.getAgent();
         }

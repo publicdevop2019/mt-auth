@@ -51,7 +51,7 @@ CREATE TABLE `audit_record` (
   `id` bigint NOT NULL,
   `action_name` varchar(255) NOT NULL,
   `detail` text NOT NULL,
-  `action_at` datetime NOT NULL,
+  `action_at` bigint NOT NULL,
   `action_by` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -100,9 +100,9 @@ DROP TABLE IF EXISTS `cache_profile`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cache_profile` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `allow_cache` bit(1) NOT NULL,
@@ -166,9 +166,9 @@ DROP TABLE IF EXISTS `client`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `client` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `accessible_` bit(1) DEFAULT NULL,
@@ -308,9 +308,9 @@ DROP TABLE IF EXISTS `cors_profile`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `cors_profile` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `allow_credentials` bit(1) DEFAULT NULL,
@@ -367,9 +367,9 @@ DROP TABLE IF EXISTS `endpoint`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `endpoint` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `cache_profile_id` varchar(255) DEFAULT NULL,
@@ -467,13 +467,13 @@ DROP TABLE IF EXISTS `formatted_access_record`;
 CREATE TABLE `formatted_access_record` (
   `id` bigint NOT NULL,
   `endpoint_id` varchar(255) NOT NULL,
-  `request_at` datetime(3) NOT NULL,
+  `request_at` bigint NOT NULL,
   `path` varchar(255) NOT NULL,
   `client_ip` varchar(255) NOT NULL,
   `user_id` varchar(255) DEFAULT NULL,
   `project_id` varchar(255) DEFAULT NULL,
   `method` varchar(255) NOT NULL,
-  `response_at` datetime(3) NOT NULL,
+  `response_at` bigint NOT NULL,
   `response_code` int NOT NULL,
   `response_content_size` int NOT NULL,
   PRIMARY KEY (`id`)
@@ -498,9 +498,9 @@ DROP TABLE IF EXISTS `image`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `image` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `content_type` varchar(255) NOT NULL,
@@ -530,9 +530,9 @@ DROP TABLE IF EXISTS `job_detail`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `job_detail` (
   `id` bigint NOT NULL,
-  `created_at` datetime DEFAULT NULL,
+  `created_at` bigint DEFAULT NULL,
   `created_by` varchar(255) DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL,
+  `modified_at` bigint DEFAULT NULL,
   `modified_by` varchar(255) DEFAULT NULL,
   `version` int NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -543,7 +543,7 @@ CREATE TABLE `job_detail` (
   `failure_allowed` int NOT NULL,
   `max_lock_acquire_failure_allowed` int DEFAULT NULL,
   `notified_admin` bit(1) NOT NULL,
-  `last_execution` datetime DEFAULT NULL,
+  `last_execution` bigint DEFAULT NULL,
   `domain_id` varchar(255) NOT NULL,
   `minimum_idle_time_milli` bigint NOT NULL,
   PRIMARY KEY (`id`),
@@ -596,7 +596,7 @@ DROP TABLE IF EXISTS `login_history`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `login_history` (
   `id` bigint NOT NULL,
-  `login_at` datetime NOT NULL,
+  `login_at` bigint NOT NULL,
   `domain_id` varchar(255) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
   `agent` varchar(255) NOT NULL,
@@ -622,7 +622,7 @@ DROP TABLE IF EXISTS `login_info`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `login_info` (
   `id` bigint NOT NULL,
-  `login_at` datetime NOT NULL,
+  `login_at` bigint NOT NULL,
   `domain_id` varchar(255) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
   `agent` varchar(255) NOT NULL,
@@ -649,9 +649,9 @@ DROP TABLE IF EXISTS `notification`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notification` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `descriptions` varchar(255) DEFAULT NULL,
@@ -685,14 +685,14 @@ DROP TABLE IF EXISTS `opt_cool_down`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `opt_cool_down` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `opt_type` varchar(255) NOT NULL,
   `executor` varchar(255) NOT NULL,
-  `last_opt_at` datetime NOT NULL,
+  `last_opt_at` bigint NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK7t5atr8fdeocq2166eativjub` (`executor`,`opt_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -716,9 +716,9 @@ DROP TABLE IF EXISTS `pending_user`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pending_user` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `activation_code` varchar(255) NOT NULL,
@@ -746,9 +746,9 @@ DROP TABLE IF EXISTS `permission`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `permission` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -783,9 +783,9 @@ DROP TABLE IF EXISTS `project`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `project` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -870,9 +870,9 @@ DROP TABLE IF EXISTS `role`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `role` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `description` varchar(255) DEFAULT NULL,
@@ -1014,9 +1014,9 @@ DROP TABLE IF EXISTS `sub_request`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `sub_request` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `project_id` varchar(255) NOT NULL,
@@ -1052,9 +1052,9 @@ DROP TABLE IF EXISTS `user_`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `email` varchar(255) NOT NULL,
@@ -1093,9 +1093,9 @@ DROP TABLE IF EXISTS `user_relation`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `user_relation` (
   `id` bigint NOT NULL,
-  `created_at` datetime NOT NULL,
+  `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` datetime NOT NULL,
+  `modified_at` bigint NOT NULL,
   `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `project_id` varchar(255) NOT NULL,

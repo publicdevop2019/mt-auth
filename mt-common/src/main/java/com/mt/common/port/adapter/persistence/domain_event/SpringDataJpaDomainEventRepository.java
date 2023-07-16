@@ -8,7 +8,6 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
-import java.util.List;
 import java.util.Optional;
 import javax.persistence.criteria.Order;
 import org.springframework.data.repository.CrudRepository;

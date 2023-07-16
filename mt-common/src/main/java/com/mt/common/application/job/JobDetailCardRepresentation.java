@@ -21,7 +21,7 @@ public class JobDetailCardRepresentation {
         this.id = j.getJobId().getDomainId();
         this.name = j.getName();
         if (j.getLastExecution() != null) {
-            this.lastExecution = j.getLastExecution().getTime();
+            this.lastExecution = j.getLastExecution();
         }
         if (j.getLastStatus() != null) {
             this.lastStatus = j.getLastStatus().name();

@@ -28,6 +28,10 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
+        <Logger name="com.mt.common.infrastructure.RabbitMqEventStreamService" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <Logger name="com.mt.access" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

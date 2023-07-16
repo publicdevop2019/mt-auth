@@ -33,8 +33,8 @@ public class SubRequestRepresentation extends BasicSubRequest {
             rejectedBy = subRequest.getRejectionBy().getDomainId();
         }
         createdBy = subRequest.getCreatedBy();
-        updateAt = subRequest.getModifiedAt().getTime();
-        createAt = subRequest.getCreatedAt().getTime();
+        updateAt = subRequest.getModifiedAt();
+        createAt = subRequest.getCreatedAt();
         endpointProjectId = subRequest.getEndpointProjectId().getDomainId();
     }
 

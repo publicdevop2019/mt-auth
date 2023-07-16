@@ -27,7 +27,7 @@ public class ProjectRepresentation {
         Optional<User> user =
             ApplicationServiceRegistry.getUserApplicationService().query(this.createdBy);
         user.ifPresent(e -> this.creatorName = e.getDisplayName());
-        this.createdAt = project.getCreatedAt().getTime();
+        this.createdAt = project.getCreatedAt();
         this.totalClient = clientCount;
         this.totalEndpoint = epCount;
         this.totalUserOwned = userCount;

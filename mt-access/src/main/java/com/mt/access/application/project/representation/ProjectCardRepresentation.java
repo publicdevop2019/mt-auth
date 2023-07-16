@@ -21,7 +21,7 @@ public class ProjectCardRepresentation {
         this.name = project.getName();
         this.id = project.getProjectId().getDomainId();
         this.createdBy = project.getCreatedBy();
-        this.createdAt = project.getCreatedAt().getTime();
+        this.createdAt = project.getCreatedAt();
     }
 
     public static void updateCreatorName(SumPagedRep<ProjectCardRepresentation> sumPagedRep) {

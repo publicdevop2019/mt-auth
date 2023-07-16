@@ -208,7 +208,7 @@ public class RedisDistributedJobService implements DistributedJobService {
         //check if job was executed in time, otherwise send notification
         if (job.notifyJobStarving()) {
             log.warn("job {} exceed max idle time, last execution time {}",
-                jobName, job.getLastExecution().getTime());
+                jobName, job.getLastExecution());
             if (!job.getNotifiedAdmin()) {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()

@@ -1,13 +1,7 @@
 package com.mt.access.domain.model.cors_profile;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import java.io.IOException;
 import java.io.Serializable;
 import javax.persistence.AttributeConverter;
 import lombok.AccessLevel;

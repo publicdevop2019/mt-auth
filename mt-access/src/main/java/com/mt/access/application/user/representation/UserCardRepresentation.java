@@ -17,7 +17,7 @@ public class UserCardRepresentation {
         email = user.getEmail().getEmail();
         id = user.getUserId().getDomainId();
         locked = user.getLocked();
-        this.createdAt = user.getCreatedAt().getTime();
+        this.createdAt = user.getCreatedAt();
     }
 
 }

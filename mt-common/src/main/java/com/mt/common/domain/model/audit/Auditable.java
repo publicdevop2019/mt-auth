@@ -5,12 +5,9 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import java.util.Date;
 import javax.persistence.EntityListeners;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -38,16 +35,14 @@ public abstract class Auditable implements Serializable {
     @Getter
     private String createdBy;
     @CreatedDate
-    @Temporal(TemporalType.TIMESTAMP)
     @Getter
-    private Date createdAt;
+    private Long createdAt;
     @LastModifiedBy
     @Getter
     private String modifiedBy;
     @LastModifiedDate
-    @Temporal(TemporalType.TIMESTAMP)
     @Getter
-    private Date modifiedAt;
+    private Long modifiedAt;
     @Version
     @Setter(AccessLevel.PRIVATE)
     @Getter

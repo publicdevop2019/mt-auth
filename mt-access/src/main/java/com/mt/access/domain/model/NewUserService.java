@@ -14,7 +14,6 @@ import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;

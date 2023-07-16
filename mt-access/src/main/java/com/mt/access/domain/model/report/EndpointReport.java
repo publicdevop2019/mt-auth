@@ -28,8 +28,8 @@ public class EndpointReport {
         Set<FormattedAccessRecord> successRecords =
             records.stream().filter(e -> e.getResponseCode() == 200).collect(Collectors.toSet());
         Optional<Long> reduce = successRecords.stream().map(e ->
-            e.getResponseAt().toInstant().toEpochMilli() -
-                e.getRequestAt().toInstant().toEpochMilli()).reduce((a, b) -> (a + b) >> 1);
+            e.getResponseAt() -
+                e.getRequestAt()).reduce((a, b) -> (a + b) >> 1);
         reduce.ifPresent(e -> averageSuccessRoundTimeInMili = e);
         Optional<Integer> reduce1 = successRecords.stream().map(
             FormattedAccessRecord::getResponseContentSize).reduce((a, b) -> (a + b) >> 1);

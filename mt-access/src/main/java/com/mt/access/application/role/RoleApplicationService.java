@@ -163,7 +163,7 @@ public class RoleApplicationService {
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle project permission created event");
+                log.info("handle new project permission created event");
                 ProjectId tenantProjectId = event.getProjectId();
                 ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
                 UserId creator = event.getCreator();

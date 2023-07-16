@@ -6,14 +6,11 @@ import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Date;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -47,8 +44,7 @@ public class JobDetail extends Auditable implements Serializable {
     private Integer failureAllowed;
     @Setter
     private Boolean notifiedAdmin;
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date lastExecution;
+    private Long lastExecution;
     @Embedded
     @Setter(AccessLevel.PRIVATE)
     private JobId jobId;
@@ -68,7 +64,7 @@ public class JobDetail extends Auditable implements Serializable {
     public boolean recordJobFailure() {
         this.failureCount++;
         failureReason = "JOB_EXECUTION";
-        this.lastExecution = Date.from(Instant.now());
+        this.lastExecution = Instant.now().toEpochMilli();
         this.lastStatus = JobStatus.FAILURE;
         return isPaused();
     }
@@ -76,7 +72,7 @@ public class JobDetail extends Auditable implements Serializable {
     public void executeSuccess() {
         this.failureCount = 0;
         failureReason = null;
-        this.lastExecution = Date.from(Instant.now());
+        this.lastExecution = Instant.now().toEpochMilli();
         this.lastStatus = JobStatus.SUCCESS;
         this.notifiedAdmin = false;
     }
@@ -97,7 +93,7 @@ public class JobDetail extends Auditable implements Serializable {
     }
 
     public boolean notifyJobStarving() {
-        long idleTime = System.currentTimeMillis() - this.lastExecution.getTime();
+        long idleTime = Instant.now().toEpochMilli() - this.lastExecution;
         return idleTime > this.minimumIdleTimeMilli;
     }
 }

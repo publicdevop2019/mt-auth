@@ -3,7 +3,6 @@ package com.mt.access.domain.model.operation_cool_down;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import java.time.Instant;
-import java.util.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -36,7 +35,7 @@ public class OperationCoolDown extends Auditable {
     private OperationType operationType;
 
     @Column(name = "last_opt_at")
-    private Date lastOperateAt;
+    private Long lastOperateAt;
 
     /**
      * constructor.
@@ -49,7 +48,7 @@ public class OperationCoolDown extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setExecutor(executor);
         setOperationType(operationType);
-        setLastOperateAt(Date.from(Instant.now()));
+        setLastOperateAt(Instant.now().toEpochMilli());
     }
 
     /**
@@ -58,10 +57,10 @@ public class OperationCoolDown extends Auditable {
      * @return boolean if cool down or not
      */
     public boolean hasCoolDown() {
-        return System.currentTimeMillis() > lastOperateAt.getTime() + 60 * 1000;
+        return Instant.now().toEpochMilli() > lastOperateAt + 60 * 1000;
     }
 
     public void updateLastOperateAt() {
-        lastOperateAt = new Date(System.currentTimeMillis());
+        lastOperateAt = Instant.now().toEpochMilli();
     }
 }

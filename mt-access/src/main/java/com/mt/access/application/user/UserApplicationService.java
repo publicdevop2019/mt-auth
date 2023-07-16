@@ -48,7 +48,6 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;

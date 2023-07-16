@@ -3,7 +3,6 @@ package com.mt.access.domain.model.user;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;

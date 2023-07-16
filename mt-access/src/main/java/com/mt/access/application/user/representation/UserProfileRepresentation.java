@@ -26,9 +26,9 @@ public class UserProfileRepresentation {
                                      @Nullable LoginInfo loginInfo) {
         this.id = user.getUserId().getDomainId();
         this.email = user.getEmail().getEmail();
-        this.createdAt = user.getCreatedAt().getTime();
+        this.createdAt = user.getCreatedAt();
         if (loginInfo != null) {
-            lastLoginAt = loginInfo.getLoginAt().getTime();
+            lastLoginAt = loginInfo.getLoginAt();
             ipAddress = loginInfo.getIpAddress();
             agent = loginInfo.getAgent();
         }
