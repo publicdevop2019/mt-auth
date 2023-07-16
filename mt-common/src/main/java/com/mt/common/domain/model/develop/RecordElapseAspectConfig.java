@@ -1,5 +1,6 @@
 package com.mt.common.domain.model.develop;
 
+import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,11 +20,11 @@ public class RecordElapseAspectConfig {
 
     @Around(value = "com.mt.common.domain.model.develop.RecordElapseAspectConfig.recordElapse()")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
-        long startTime = System.currentTimeMillis();
+        long startTime = Instant.now().toEpochMilli();
         Object proceed = joinPoint.proceed();
-        log.info("elapse time for [class] {} [method] {} is [{}]",
+        log.info("elapse time for {} [method] {} is [{}]",
             joinPoint.getSignature().getDeclaringType(), joinPoint.getSignature().getName(),
-            System.currentTimeMillis() - startTime);
+            Instant.now().toEpochMilli() - startTime);
         return proceed;
     }
 }

@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.role;
 
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,7 +19,7 @@ public class RoleValidator {
     }
 
     private void reservedNameCannotBeUsed() {
-        if (!role.getSystemCreate()) {
+        if (Checker.isFalse(role.getSystemCreate())) {
             if (Role.reservedName.contains(role.getName())) {
                 handler.handleError("reserved names not allowed");
             }

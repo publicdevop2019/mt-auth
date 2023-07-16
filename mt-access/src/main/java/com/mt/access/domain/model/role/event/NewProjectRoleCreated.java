@@ -19,19 +19,15 @@ public class NewProjectRoleCreated extends DomainEvent {
     private ProjectId projectId;
     @Getter
     private RoleId userRoleId;
-    @Getter
-    private Set<PermissionId> permissionIds;
 
     {
         setTopic(NEW_PROJECT_ROLE_CREATED);
         setName(name);
-
     }
 
     public NewProjectRoleCreated(RoleId adminRoleId, RoleId userRoleId, ProjectId projectId,
-                                 Set<PermissionId> permissionIdSet, UserId creator) {
+                                 UserId creator) {
         super(adminRoleId);
-        this.permissionIds = permissionIdSet;
         this.creator = creator;
         this.userRoleId = userRoleId;
         this.projectId = projectId;

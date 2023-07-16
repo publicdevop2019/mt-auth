@@ -314,7 +314,7 @@ export const zhHans = {
     "NEW_PROJECT_CREATED": "新项目创建",
     "HANGING_TX": "悬挂事件",
     "NEW_PROJECT_NOTE": "项目创建成功, 请重新登录!",
-    "DISMISS": "知道了",
+    "DISMISS": "好的",
     "SHARED_API": "共享API",
     "API_PROJECT_ID": "项目名称",
     "MY_PERMISSION": "我的权限",

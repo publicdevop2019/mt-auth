@@ -45,6 +45,9 @@ export class NewProjectComponent implements OnDestroy {
         id: '',
         version: 0
       }
+      this.count = 0;
+      this.showNotes = false;
+      this.systemError = false
       this.projectSvc.create(payload, this.changeId).subscribe(next => {
         this.createLoading = true;
         let pull = setInterval(() => {

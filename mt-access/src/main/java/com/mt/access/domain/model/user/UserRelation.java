@@ -42,8 +42,9 @@ import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+@Slf4j
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
 @Entity
 @NoArgsConstructor
@@ -105,6 +106,7 @@ public class UserRelation extends Auditable {
     public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator,
                                          ProjectId tenantId, ProjectId authProjectId,
                                          TransactionContext context) {
+        log.debug("start of onboarding new project");
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
             .query(new UserRelationQuery(creator, authProjectId)).findFirst();
@@ -126,6 +128,7 @@ public class UserRelation extends Auditable {
         Project project = DomainRegistry.getProjectRepository().get(tenantId);
         context
             .append(new ProjectOnboardingComplete(project));
+        log.debug("end of onboarding new project");
     }
 
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,

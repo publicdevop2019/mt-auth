@@ -41,8 +41,9 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
-
+@Slf4j
 @Table
 @Entity
 @Getter
@@ -327,6 +328,7 @@ public class Permission extends Auditable {
      */
     public static void onboardNewProject(ProjectId tenantId,
                                          UserId creatorId, TransactionContext context) {
+        log.debug("start of creating new permissions");
         ProjectId projectId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
         PermissionId rootId = new PermissionId();
         Permission p0 = Permission
@@ -579,16 +581,20 @@ public class Permission extends Auditable {
         createdPermissions.add(p43);
         createdPermissions.add(p44);
         createdPermissions.add(p45);
-        Set<PermissionId> collect = createdPermissions.stream().flatMap(e -> {
+        Set<PermissionId> linkedPermissionIds = createdPermissions.stream().flatMap(e -> {
             if (e.getLinkedApiPermissionIds() != null && !e.getLinkedApiPermissionIds().isEmpty()) {
-                e.getLinkedApiPermissionIds().add(e.getPermissionId());
                 return e.linkedApiPermissionIds.stream();
             } else {
-                return Stream.of(e.getPermissionId());
+                return Stream.empty();
             }
         }).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<PermissionId> commonPermissionIds =
+            createdPermissions.stream().map(Permission::getPermissionId)
+                .collect(Collectors.toSet());
         context
-            .append(new ProjectPermissionCreated(collect, tenantId, creatorId));
+            .append(new ProjectPermissionCreated(commonPermissionIds, linkedPermissionIds, tenantId,
+                creatorId));
+        log.debug("end of creating new permissions");
     }
 
     public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId,

@@ -10,6 +10,7 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Objects;
@@ -24,10 +25,13 @@ public class RoleValidationService {
 
     public void validate(boolean newProjectOrClient, Role role,
                          ValidationNotificationHandler handler) {
-        parentIdMustBeSameProject(newProjectOrClient, role);
-        permissionMustBeSameProject(role, handler);
-        checkPermission(role.getApiPermissionIds(), PermissionType.API);
-        checkPermission(role.getCommonPermissionIds(), PermissionType.COMMON);
+        //skip validation for system create to boost performance
+        if (Checker.isFalse(role.getSystemCreate())) {
+            parentIdMustBeSameProject(newProjectOrClient, role);
+            permissionMustBeSameProject(role, handler);
+            checkPermission(role.getApiPermissionIds(), PermissionType.API);
+            checkPermission(role.getCommonPermissionIds(), PermissionType.COMMON);
+        }
     }
 
     private void permissionMustBeSameProject(Role role, ValidationNotificationHandler handler) {
@@ -39,13 +43,15 @@ public class RoleValidationService {
             Set<ProjectId> permProjectIds =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (permProjectIds.size() != 1) {
-                handler.handleError("common permissions added to role must belong to same tenant project");
+                handler.handleError(
+                    "common permissions added to role must belong to same tenant project");
             }
             ProjectId projectId = permProjectIds.stream().findFirst().get();
             if (!projectId.equals(role.getProjectId())) {
                 log.debug("permission project id is {} and role project id is {}", projectId,
                     role.getProjectId());
-                handler.handleError("common permissions and role must belong to same tenant project");
+                handler.handleError(
+                    "common permissions and role must belong to same tenant project");
             }
         }
         Set<PermissionId> apiPermissionIds = role.getApiPermissionIds();
@@ -56,7 +62,8 @@ public class RoleValidationService {
             Set<ProjectId> collect =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (collect.size() != 1) {
-                handler.handleError("api permissions added to role must belong to same tenant project");
+                handler.handleError(
+                    "api permissions added to role must belong to same tenant project");
             }
             if (!collect.stream().findFirst().get().equals(role.getProjectId())) {
                 handler.handleError("api permissions and role must belong to same tenant project");

@@ -28,6 +28,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -208,11 +209,11 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-
+    @RecordElapseTime
     public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.info("handle new project created event");
+                log.debug("handle new project created event");
                 ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
                 Permission.onboardNewProject(tenantProjectId, event.getCreator(),context);
                 return null;

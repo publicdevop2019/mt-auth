@@ -29,6 +29,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -37,7 +38,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -77,7 +77,7 @@ public class RoleApplicationService {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.replace(command,context);
+                    e.replace(command, context);
                     DomainRegistry.getRoleRepository().add(e);
                 });
                 return null;
@@ -160,17 +160,16 @@ public class RoleApplicationService {
      *
      * @param event permission created event
      */
+    @RecordElapseTime
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.info("handle new project permission created event");
+                log.debug("handle new project permission created event");
                 ProjectId tenantProjectId = event.getProjectId();
                 ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
                 UserId creator = event.getCreator();
-                Set<PermissionId> permissionIdSet =
-                    event.getDomainIds().stream().map(e -> new PermissionId(e.getDomainId()))
-                        .collect(Collectors.toSet());
-                Role.onboardNewProject(authPId, tenantProjectId, permissionIdSet, creator,context);
+                Role.onboardNewProject(authPId, tenantProjectId, event.getCommonPermissionIds(),
+                    event.getLinkedPermissionIds(), creator, context);
                 return null;
             }, ROLE);
     }
