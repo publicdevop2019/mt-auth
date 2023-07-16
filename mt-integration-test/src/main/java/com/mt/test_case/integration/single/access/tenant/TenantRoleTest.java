@@ -234,7 +234,7 @@ public class TenantRoleTest {
         //delete permission
         PermissionUtility.deleteTenantPermission(tenantContext, permission);
         //wait
-        Thread.sleep(10 * 1000);
+        Thread.sleep(5 * 1000);
         //read again
         ResponseEntity<Role> roleResponseEntity =
             RoleUtility.readTenantRoleById(tenantContext, role);
@@ -253,7 +253,7 @@ public class TenantRoleTest {
             EndpointUtility.createTenantEndpoint(tenantContext, ep);
         ep.setId(UrlUtility.getId(tenantEndpoint2));
         //wait for permission to create
-        Thread.sleep(10 * 1000);
+        Thread.sleep(5 * 1000);
         //create role
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
@@ -282,7 +282,7 @@ public class TenantRoleTest {
         //delete endpoint
         EndpointUtility.deleteTenantEndpoint(tenantContext, ep);
         //wait for role clean up
-        Thread.sleep(20 * 1000);
+        Thread.sleep(10 * 1000);
         //read again
         ResponseEntity<Role> roleResponseEntity =
             RoleUtility.readTenantRoleById(tenantContext, role);

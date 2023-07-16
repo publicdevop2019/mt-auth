@@ -109,7 +109,7 @@ public class TenantCorsTest extends TenantTest {
         //delete cors
         ResponseEntity<Void> cors2 = CorsUtility.deleteTenantCors(tenantContext, corsObj);
         Assertions.assertEquals(HttpStatus.OK, cors2.getStatusCode());
-        Thread.sleep(10*1000);
+        Thread.sleep(5*1000);
         //read endpoint to verify cache id remove
         randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =

@@ -58,7 +58,7 @@ public class SubscriptionTest extends CommonTest {
         Assertions.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
         String endpointId = UrlUtility.getId(endpoint1);
         Assertions.assertNotNull(endpointId);
-        Thread.sleep(20*1000);//wait for proxy update
+        Thread.sleep(10*1000);//wait for proxy update
         //mt-mall can subscribe to it
         SubscriptionReq subscriptionReq = new SubscriptionReq();
         subscriptionReq.setReplenishRate(10);
@@ -78,7 +78,7 @@ public class SubscriptionTest extends CommonTest {
         //rate limit should work
         String path = endpoint.getPath();
         //call new endpoint
-        Thread.sleep(20*1000);//wait for proxy update
+        Thread.sleep(10*1000);//wait for proxy update
         String accessUrl = UrlUtility.getTestUrl(path);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers1 = new HttpHeaders();
@@ -94,7 +94,7 @@ public class SubscriptionTest extends CommonTest {
         ResponseEntity<String> stringResponseEntity = EndpointUtility.expireEndpoint(endpointId);
         Assertions.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
 
-        Thread.sleep(20*1000);//wait for notification send
+        Thread.sleep(5*1000);//wait for notification send
         ResponseEntity<SumTotal<Notification>> newNotification =
             MessageUtility.readMessages(user);
         Assertions.assertNotEquals(newNotification.getBody().getTotalItemCount(),

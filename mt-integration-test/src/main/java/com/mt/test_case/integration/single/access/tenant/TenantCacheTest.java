@@ -114,7 +114,7 @@ public class TenantCacheTest extends TenantTest {
         //delete cache
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
-        Thread.sleep(10*1000);
+        Thread.sleep(5*1000);
         //read endpoint to verify cache id remove
         ResponseEntity<Endpoint> endpointResponseEntity =
             EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);

@@ -231,7 +231,7 @@ public class TenantMarketTest {
             RoleUtility.createTenantRole(tenantContextB, role);
         role.setId(UrlUtility.getId(tenantRole));
         //wait for cache to expire
-        Thread.sleep(20 * 1000);
+        Thread.sleep(5 * 1000);
         //update it's api
         ResponseEntity<SumTotal<Permission>> shared =
             PermissionUtility.readTenantPermissionShared(tenantContextB);

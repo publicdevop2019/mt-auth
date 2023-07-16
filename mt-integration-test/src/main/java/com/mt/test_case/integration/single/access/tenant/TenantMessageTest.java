@@ -61,9 +61,9 @@ public class TenantMessageTest {
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         //wait for cache to expire
-        Thread.sleep(20 * 1000);
+        Thread.sleep(5 * 1000);
         EndpointUtility.expireTenantEndpoint(tenantContextA, endpoint);
-        Thread.sleep(10 * 1000);
+        Thread.sleep(5 * 1000);
         ResponseEntity<SumTotal<Notification>> sumTotalResponseEntity =
             MessageUtility.readMessages(tenantContextB.getCreator());
         Assertions.assertEquals(1, sumTotalResponseEntity.getBody().getData().size());
