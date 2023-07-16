@@ -16,6 +16,7 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -40,12 +41,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Table
 @Entity
-@NoArgsConstructor
 @Getter
 @Cacheable
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
@@ -166,21 +165,7 @@ public class Permission extends Auditable {
     private PermissionType type;
     private Boolean systemCreate;
 
-    private Permission(ProjectId projectId, PermissionId permissionId, String name,
-                       PermissionType type, @Nullable PermissionId parentId,
-                       @Nullable ProjectId tenantId,
-                       @Nullable Set<PermissionId> linkedApiPermissionIds, Boolean shared) {
-        super();
-        this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        setPermissionId(permissionId);
-        setLinkedApiPermissionIds(linkedApiPermissionIds);
-        setParentId(parentId);
-        setProjectId(projectId);
-        setTenantId(tenantId);
-        setName(name);
-        setType(type);
-        setShared(shared);
-        setSystemCreate(false);
+    private Permission() {
     }
 
     private void setParentId(PermissionId parentId) {
@@ -233,10 +218,17 @@ public class Permission extends Auditable {
                                                    @Nullable PermissionId parentId,
                                                    @Nullable ProjectId tenantId,
                                                    @Nullable PermissionId linkedApiPermissionId) {
-        Permission permission =
-            new Permission(projectId, permissionId, name, type, parentId, tenantId,
-                linkedApiPermissionId == null ? null :
-                    Stream.of(linkedApiPermissionId).collect(Collectors.toSet()), false);
+        Permission permission = new Permission();
+        permission.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        permission.setProjectId(projectId);
+        permission.setPermissionId(permissionId);
+        permission.setName(name);
+        permission.setType(type);
+        permission.setParentId(parentId);
+        permission.setTenantId(tenantId);
+        permission.setLinkedApiPermissionIds(
+            linkedApiPermissionId == null ? null : Collections.singleton(linkedApiPermissionId));
+        permission.setShared(false);
         permission.setSystemCreate(true);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
@@ -260,10 +252,17 @@ public class Permission extends Auditable {
         @Nullable ProjectId tenantId,
         @Nullable Set<PermissionId> linkedApiPermissionId
     ) {
-        Permission permission =
-            new Permission(projectId, permissionId, name, PermissionType.COMMON, parentId, tenantId,
-                linkedApiPermissionId, false);
-        permission.systemCreate = true;
+        Permission permission = new Permission();
+        permission.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        permission.setPermissionId(permissionId);
+        permission.setLinkedApiPermissionIds(linkedApiPermissionId);
+        permission.setParentId(parentId);
+        permission.setProjectId(projectId);
+        permission.setTenantId(tenantId);
+        permission.setName(name);
+        permission.setType(PermissionType.COMMON);
+        permission.setShared(false);
+        permission.setSystemCreate(true);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -273,19 +272,24 @@ public class Permission extends Auditable {
      *
      * @param projectId    project id
      * @param permissionId permission id
-     * @param apiDomainId  endpoint id
+     * @param endpointId   endpoint id
      * @param parentId     api root
      * @param shared       if api is shared
      * @return permission aggregate
      */
     private static Permission autoCreateForEndpoint(ProjectId projectId, PermissionId permissionId,
-                                                    String apiDomainId,
+                                                    String endpointId,
                                                     @Nullable PermissionId parentId,
                                                     boolean shared) {
-        Permission permission =
-            new Permission(projectId, permissionId, apiDomainId, PermissionType.API, parentId, null,
-                null, shared);
-        permission.systemCreate = true;
+        Permission permission = new Permission();
+        permission.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        permission.setProjectId(projectId);
+        permission.setPermissionId(permissionId);
+        permission.setName(endpointId);
+        permission.setType(PermissionType.API);
+        permission.setParentId(parentId);
+        permission.setShared(shared);
+        permission.setSystemCreate(true);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -295,9 +299,17 @@ public class Permission extends Auditable {
                                           @Nullable PermissionId parentId,
                                           @Nullable ProjectId tenantId,
                                           @Nullable Set<PermissionId> linkedApiPermissionId) {
-        Permission permission =
-            new Permission(projectId, permissionId, name, type, parentId, tenantId,
-                linkedApiPermissionId, false);
+        Permission permission = new Permission();
+        permission.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        permission.setPermissionId(permissionId);
+        permission.setLinkedApiPermissionIds(linkedApiPermissionId);
+        permission.setParentId(parentId);
+        permission.setProjectId(projectId);
+        permission.setTenantId(tenantId);
+        permission.setName(name);
+        permission.setType(type);
+        permission.setShared(false);
+        permission.setSystemCreate(false);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -494,40 +506,44 @@ public class Permission extends Auditable {
             .autoCreateForProject(tenantId, new PermissionId(), API_ACCESS, PermissionType.API,
                 null, null, null);
 
-        DomainRegistry.getPermissionRepository().add(apiPermission);
-        DomainRegistry.getPermissionRepository().add(p0);
-        DomainRegistry.getPermissionRepository().add(p1);
-        DomainRegistry.getPermissionRepository().add(p2);
-        DomainRegistry.getPermissionRepository().add(p3);
-        DomainRegistry.getPermissionRepository().add(p4);
-        DomainRegistry.getPermissionRepository().add(p5);
-        DomainRegistry.getPermissionRepository().add(p6);
-        DomainRegistry.getPermissionRepository().add(p7);
-        DomainRegistry.getPermissionRepository().add(p11);
-        DomainRegistry.getPermissionRepository().add(p13);
-        DomainRegistry.getPermissionRepository().add(p14);
-        DomainRegistry.getPermissionRepository().add(p16);
-        DomainRegistry.getPermissionRepository().add(p19);
-        DomainRegistry.getPermissionRepository().add(p21);
-        DomainRegistry.getPermissionRepository().add(p22);
-        DomainRegistry.getPermissionRepository().add(p23);
-        DomainRegistry.getPermissionRepository().add(p25);
-        DomainRegistry.getPermissionRepository().add(p26);
-        DomainRegistry.getPermissionRepository().add(p28);
-        DomainRegistry.getPermissionRepository().add(p29);
-        DomainRegistry.getPermissionRepository().add(p32);
-        DomainRegistry.getPermissionRepository().add(p34);
-        DomainRegistry.getPermissionRepository().add(p35);
-        DomainRegistry.getPermissionRepository().add(p36);
-        DomainRegistry.getPermissionRepository().add(p37);
-        DomainRegistry.getPermissionRepository().add(p38);
-        DomainRegistry.getPermissionRepository().add(p39);
-        DomainRegistry.getPermissionRepository().add(p40);
-        DomainRegistry.getPermissionRepository().add(p41);
-        DomainRegistry.getPermissionRepository().add(p42);
-        DomainRegistry.getPermissionRepository().add(p43);
-        DomainRegistry.getPermissionRepository().add(p44);
-        DomainRegistry.getPermissionRepository().add(p45);
+
+        Set<Permission> tobeStoredPermissions = new HashSet<>();
+        tobeStoredPermissions.add(apiPermission);
+        tobeStoredPermissions.add(p0);
+        tobeStoredPermissions.add(p1);
+        tobeStoredPermissions.add(p2);
+        tobeStoredPermissions.add(p3);
+        tobeStoredPermissions.add(p4);
+        tobeStoredPermissions.add(p5);
+        tobeStoredPermissions.add(p6);
+        tobeStoredPermissions.add(p7);
+        tobeStoredPermissions.add(p11);
+        tobeStoredPermissions.add(p13);
+        tobeStoredPermissions.add(p14);
+        tobeStoredPermissions.add(p16);
+        tobeStoredPermissions.add(p19);
+        tobeStoredPermissions.add(p21);
+        tobeStoredPermissions.add(p22);
+        tobeStoredPermissions.add(p23);
+        tobeStoredPermissions.add(p25);
+        tobeStoredPermissions.add(p26);
+        tobeStoredPermissions.add(p28);
+        tobeStoredPermissions.add(p29);
+        tobeStoredPermissions.add(p32);
+        tobeStoredPermissions.add(p34);
+        tobeStoredPermissions.add(p35);
+        tobeStoredPermissions.add(p36);
+        tobeStoredPermissions.add(p37);
+        tobeStoredPermissions.add(p38);
+        tobeStoredPermissions.add(p39);
+        tobeStoredPermissions.add(p40);
+        tobeStoredPermissions.add(p41);
+        tobeStoredPermissions.add(p42);
+        tobeStoredPermissions.add(p43);
+        tobeStoredPermissions.add(p44);
+        tobeStoredPermissions.add(p45);
+        DomainRegistry.getPermissionRepository().addAll(tobeStoredPermissions);
+
         //add new permission to event so role can link to it
         Set<Permission> createdPermissions = new HashSet<>();
         createdPermissions.add(p0);

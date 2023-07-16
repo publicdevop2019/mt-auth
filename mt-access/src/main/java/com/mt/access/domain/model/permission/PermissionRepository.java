@@ -9,6 +9,8 @@ import java.util.Set;
 public interface PermissionRepository {
     void add(Permission role);
 
+    void addAll(Set<Permission> role);
+
     SumPagedRep<Permission> query(PermissionQuery roleQuery);
 
     void remove(Permission e);

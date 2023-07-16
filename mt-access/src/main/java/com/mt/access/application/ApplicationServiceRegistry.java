@@ -8,10 +8,8 @@ import com.mt.access.application.cross_domain_validation.CrossDomainValidationAp
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
-import com.mt.access.application.organization.OrganizationApplicationService;
 import com.mt.access.application.pending_user.PendingUserApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
-import com.mt.access.application.position.PositionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
 import com.mt.access.application.registry.RegistryApplicationService;
@@ -63,10 +61,6 @@ public class ApplicationServiceRegistry {
     private static ProxyApplicationService proxyApplicationService;
     @Getter
     private static RedisAuthorizationCodeServices redisAuthorizationCodeServices;
-    @Getter
-    private static OrganizationApplicationService organizationApplicationService;
-    @Getter
-    private static PositionApplicationService positionApplicationService;
     @Getter
     private static UserRelationApplicationService userRelationApplicationService;
     @Getter
@@ -137,17 +131,6 @@ public class ApplicationServiceRegistry {
         ApplicationServiceRegistry.userRelationApplicationService = userRelationApplicationService;
     }
 
-    @Autowired
-    public void setPositionApplicationService(
-        PositionApplicationService positionApplicationService) {
-        ApplicationServiceRegistry.positionApplicationService = positionApplicationService;
-    }
-
-    @Autowired
-    public void setOrganizationApplicationService(
-        OrganizationApplicationService organizationApplicationService) {
-        ApplicationServiceRegistry.organizationApplicationService = organizationApplicationService;
-    }
 
     @Autowired
     public void setRedisAuthorizationCodeServices(

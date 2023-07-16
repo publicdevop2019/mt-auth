@@ -1,12 +1,9 @@
 package com.mt.common.domain.model.domain_event;
 
-import static com.mt.common.domain.model.constant.AppInfo.EVENT_SCAN_JOB_NAME;
 import static com.mt.common.domain.model.constant.AppInfo.MISSED_EVENT_SCAN_JOB_NAME;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.notification.PublishedEventTracker;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.List;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;

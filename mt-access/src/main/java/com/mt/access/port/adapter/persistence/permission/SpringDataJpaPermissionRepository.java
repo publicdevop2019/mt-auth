@@ -33,6 +33,10 @@ public interface SpringDataJpaPermissionRepository
         save(permission);
     }
 
+    default void addAll(Set<Permission> permissions) {
+        saveAll(permissions);
+    }
+
     default void remove(Permission permission) {
         delete(permission);
     }

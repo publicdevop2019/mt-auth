@@ -28,12 +28,10 @@ import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.domain.model.operation_cool_down.OperationCoolDownRepository;
-import com.mt.access.domain.model.organization.OrganizationRepository;
 import com.mt.access.domain.model.pending_user.PendingUserRepository;
 import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionService;
-import com.mt.access.domain.model.position.PositionRepository;
 import com.mt.access.domain.model.project.ProjectRepository;
 import com.mt.access.domain.model.proxy.ProxyService;
 import com.mt.access.domain.model.report.DataProcessTrackerRepository;
@@ -113,10 +111,6 @@ public class DomainRegistry {
     private static RoleRepository roleRepository;
     @Getter
     private static PermissionRepository permissionRepository;
-    @Getter
-    private static OrganizationRepository organizationRepository;
-    @Getter
-    private static PositionRepository positionRepository;
     @Getter
     private static UserRelationRepository userRelationRepository;
     @Getter
@@ -320,15 +314,6 @@ public class DomainRegistry {
         DomainRegistry.userRelationRepository = repository;
     }
 
-    @Autowired
-    public void setPositionRepository(PositionRepository repository) {
-        DomainRegistry.positionRepository = repository;
-    }
-
-    @Autowired
-    public void setOrganizationRepository(OrganizationRepository organizationRepository) {
-        DomainRegistry.organizationRepository = organizationRepository;
-    }
 
     @Autowired
     public void setPermissionRepository(PermissionRepository permissionRepository) {

@@ -4,9 +4,7 @@ import com.mt.access.port.adapter.persistence.cache_profile.SpringDataJpaCachePr
 import com.mt.access.port.adapter.persistence.client.SpringDataJpaClientRepository;
 import com.mt.access.port.adapter.persistence.cors_profile.SpringDataJpaCorsProfileRepository;
 import com.mt.access.port.adapter.persistence.endpoint.SpringDataJpaEndpointRepository;
-import com.mt.access.port.adapter.persistence.organization.SpringDataJpaOrganizationRepository;
 import com.mt.access.port.adapter.persistence.permission.SpringDataJpaPermissionRepository;
-import com.mt.access.port.adapter.persistence.position.SpringDataJpaPositionRepository;
 import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectRepository;
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
@@ -51,11 +49,6 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor
         permissionAdaptor;
-    @Getter
-    private static SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor
-        organizationAdaptor;
-    @Getter
-    private static SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor;
 
 
     @Autowired
@@ -70,17 +63,6 @@ public class QueryBuilderRegistry {
         QueryBuilderRegistry.userRelationAdaptor = userRelationAdaptor;
     }
 
-    @Autowired
-    public void setJpaCriteriaApiPositionAdaptor(
-        SpringDataJpaPositionRepository.JpaCriteriaApiPositionAdaptor positionAdaptor) {
-        QueryBuilderRegistry.positionAdaptor = positionAdaptor;
-    }
-
-    @Autowired
-    public void setJpaCriteriaApiOrganizationAdaptor(
-        SpringDataJpaOrganizationRepository.JpaCriteriaApiOrganizationAdaptor organizationAdaptor) {
-        QueryBuilderRegistry.organizationAdaptor = organizationAdaptor;
-    }
 
     @Autowired
     public void setJpaCriteriaApiProjectAdaptor(

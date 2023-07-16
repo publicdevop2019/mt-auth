@@ -2,6 +2,7 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import lombok.Getter;
 @EqualsAndHashCode
 public class PasswordResetCode {
     @Getter
+    @Column(name = "pwd_reset_code")
     private String value;
 
     public PasswordResetCode() {

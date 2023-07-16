@@ -9,7 +9,6 @@ import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
 import com.mt.common.domain.model.job.DistributedJobService;
 import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.local_transaction.TransactionService;
-import com.mt.common.domain.model.notification.PublishedEventTrackerRepository;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import lombok.Getter;
@@ -30,8 +29,6 @@ public class CommonDomainRegistry {
     private static ChangeRecordRepository changeRecordRepository;
     @Getter
     private static DomainEventRepository domainEventRepository;
-    @Getter
-    private static PublishedEventTrackerRepository publishedEventTrackerRepository;
     @Getter
     private static DistributedJobService jobService;
     @Getter
@@ -64,12 +61,6 @@ public class CommonDomainRegistry {
     @Autowired
     public void setHibernateCacheService(HibernateCacheService hibernateCacheService) {
         CommonDomainRegistry.hibernateCacheService = hibernateCacheService;
-    }
-
-    @Autowired
-    public void setPublishedEventTrackerRepository(
-        PublishedEventTrackerRepository publishedEventTrackerRepository) {
-        CommonDomainRegistry.publishedEventTrackerRepository = publishedEventTrackerRepository;
     }
 
     @Autowired

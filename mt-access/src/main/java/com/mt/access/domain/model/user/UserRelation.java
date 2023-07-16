@@ -1,8 +1,6 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.organization.OrganizationId;
-import com.mt.access.domain.model.position.PositionId;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
@@ -84,17 +82,6 @@ public class UserRelation extends Auditable {
     @Convert(converter = ProjectIdConverter.class)
     private Set<ProjectId> tenantIds;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "organizationId"))
-    })
-    private OrganizationId organizationId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "positionId"))
-    })
-    private PositionId positionId;
-
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
@@ -116,7 +103,8 @@ public class UserRelation extends Auditable {
     }
 
     public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator,
-                                         ProjectId tenantId, ProjectId authProjectId, TransactionContext context) {
+                                         ProjectId tenantId, ProjectId authProjectId,
+                                         TransactionContext context) {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
             .query(new UserRelationQuery(creator, authProjectId)).findFirst();
