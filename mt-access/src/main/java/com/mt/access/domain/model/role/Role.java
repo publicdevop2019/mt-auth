@@ -245,12 +245,13 @@ public class Role extends Auditable {
         Role tenantUserRoot =
             Role.newProjectRole(tenantProjectId, roleId1, tenantProjectId.getDomainId(),
                 Collections.emptySet(), RoleType.PROJECT, null, null);
-
-        DomainRegistry.getRoleRepository().add(adminRole);
-        DomainRegistry.getRoleRepository().add(userRole);
-        DomainRegistry.getRoleRepository().add(rootRole);
-        DomainRegistry.getRoleRepository().add(tenantClientRoot);
-        DomainRegistry.getRoleRepository().add(tenantUserRoot);
+        Set<Role> tobeStored = new HashSet<>();
+        tobeStored.add(adminRole);
+        tobeStored.add(userRole);
+        tobeStored.add(rootRole);
+        tobeStored.add(tenantClientRoot);
+        tobeStored.add(tenantUserRoot);
+        DomainRegistry.getRoleRepository().addAll(tobeStored);
         context
             .append(new NewProjectRoleCreated(adminRole.getRoleId(),
                 userRole.getRoleId(), tenantProjectId, permissionIdSet, creator));

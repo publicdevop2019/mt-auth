@@ -8,6 +8,8 @@ import java.util.Set;
 public interface RoleRepository {
     void add(Role role);
 
+    void addAll(Set<Role> role);
+
     SumPagedRep<Role> query(RoleQuery roleQuery);
 
     void remove(Role e);

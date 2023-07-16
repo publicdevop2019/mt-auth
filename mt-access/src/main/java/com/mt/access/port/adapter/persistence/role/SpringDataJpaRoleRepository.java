@@ -32,6 +32,10 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         save(role);
     }
 
+    default void addAll(Set<Role> roles) {
+        saveAll(roles);
+    }
+
     default void remove(Role role) {
         delete(role);
     }
