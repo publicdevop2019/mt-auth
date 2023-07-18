@@ -9,6 +9,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { debounceTime } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { IProjectAdmin } from 'src/app/misc/interface';
+import { Logger } from 'src/app/misc/logger';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyAdminService } from 'src/app/services/my-admin.service';
@@ -87,6 +88,7 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
   ngOnInit(): void {
   }
   doRefresh() {
+    Logger.debug("refreshing admin dashboard")
     const search = {
       value: '',
       resetPage: false

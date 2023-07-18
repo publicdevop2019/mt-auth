@@ -62,16 +62,6 @@ public class StoredEvent implements Serializable {
     public static StoredEvent skipStoredEvent(DomainEvent event) {
         StoredEvent storedEvent = new StoredEvent(event);
         storedEvent.id = null;//set id to null
-        storedEvent.eventBody = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
-        storedEvent.timestamp = event.getTimestamp();
-        storedEvent.name = event.getName();
-        storedEvent.internal = event.getInternal();
-        storedEvent.topic = event.getTopic();
-        storedEvent.applicationId =
-            CommonDomainRegistry.getApplicationInfoService().getApplicationId();
-        if (event.getDomainId() != null) {
-            storedEvent.domainId = event.getDomainId().getDomainId();
-        }
         return storedEvent;
     }
 

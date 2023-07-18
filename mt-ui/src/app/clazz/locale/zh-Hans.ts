@@ -539,7 +539,7 @@ export const zhHans = {
     "TOTOAL_ROLE_CREATED": "角色总数",
     "TOTOAL_PERMISSION_CREATED": "权限总数",
     "MY_ADMIN_DASHBOARD": "管理员",
-    "ENTER_USER_EMAIL": "请输入管理员Email",
+    "ENTER_USER_EMAIL": "请输入Email",
     "ADD_TENANT_ADMIN": "添加",
     "UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION": "UserRelation数据未清除",
     "ADMIN_MGMT": "管理管理员",
