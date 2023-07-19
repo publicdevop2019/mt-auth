@@ -32,4 +32,12 @@
             <appender-ref ref="fileLogger"/>
         </Root>
     </Loggers>
+    <Logger name="org.springframework.security" level="debug" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="fileLogger"/>
+    </Logger>
+    <Logger name="org.springframework.web" level="debug" additivity="false">
+        <appender-ref ref="console"/>
+        <appender-ref ref="fileLogger"/>
+    </Logger>
 </Configuration>

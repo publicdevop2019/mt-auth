@@ -25,6 +25,7 @@ import com.mt.test_case.helper.utility.TestContext;
 import com.mt.test_case.helper.utility.UrlUtility;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -240,6 +241,106 @@ public class TenantMarketTest {
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =
             RoleUtility.updateTenantRole(tenantContextB, role);
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
+    }
+
+    @Test
+    public void tenant_assign_approved_api_to_role_when_api_delete_cleanup_performed()
+        throws InterruptedException {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        //send sub req tenantB
+        SubscriptionReq randomTenantSubReqObj =
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> voidResponseEntity =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
+        String subReqId = UrlUtility.getId(voidResponseEntity);
+        //approve sub req
+        MarketUtility.approveSubReq(tenantContextA, subReqId);
+
+        //create tenantB role
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> tenantRole =
+            RoleUtility.createTenantRole(tenantContextB, role);
+        role.setId(UrlUtility.getId(tenantRole));
+        //wait for cache to expire
+        Thread.sleep(5 * 1000);
+        //update it's api
+        ResponseEntity<SumTotal<Permission>> shared =
+            PermissionUtility.readTenantPermissionShared(tenantContextB);
+        String permissionId = shared.getBody().getData().get(0).getId();
+        role.setExternalPermissionIds(Collections.singleton(permissionId));
+        role.setType(UpdateType.API_PERMISSION.name());
+        ResponseEntity<Void> response4 =
+            RoleUtility.updateTenantRole(tenantContextB, role);
+        //api is added
+        ResponseEntity<Role> roleResponseEntity2 =
+            RoleUtility.readTenantRoleById(tenantContextB, role);
+        Assertions.assertEquals(1, roleResponseEntity2.getBody()
+            .getExternalPermissionIds().size());
+
+        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        //expire then delete endpoint
+        ResponseEntity<Void> tenantEndpoint2 =
+            EndpointUtility.expireTenantEndpoint(tenantContextA, endpoint);
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint2.getStatusCode());
+        ResponseEntity<Void> tenantEndpoint3 =
+            EndpointUtility.deleteTenantEndpoint(tenantContextA, endpoint);
+        Assertions.assertEquals(HttpStatus.OK, tenantEndpoint3.getStatusCode());
+        //wait for cleanup
+        Thread.sleep(5 * 1000);
+        ResponseEntity<Role> roleResponseEntity =
+            RoleUtility.readTenantRoleById(tenantContextB, role);
+        Assertions.assertEquals(0, roleResponseEntity.getBody()
+            .getExternalPermissionIds().size());
+    }
+
+    @Test
+    public void tenant_other_admin_can_see_and_assign_approved_api_to_role_requested_by_dif_admin()
+        throws InterruptedException {
+        //create shared endpoint tenantA
+        Endpoint endpoint =
+            EndpointUtility.createValidSharedEndpointObj(clientA.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
+        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        //send sub req tenantB
+        SubscriptionReq randomTenantSubReqObj =
+            MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
+        ResponseEntity<Void> voidResponseEntity =
+            MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
+        String subReqId = UrlUtility.getId(voidResponseEntity);
+        //approve sub req
+        MarketUtility.approveSubReq(tenantContextA, subReqId);
+        User user = tenantContextB.getUsers().get(0);
+        //dif admin can see approve api
+        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =
+            PermissionUtility.readTenantPermissionShared(tenantContextB.getProject(), user
+            );
+        Set<Permission> collect = sumTotalResponseEntity.getBody().getData().stream()
+            .filter(e -> e.getName().equalsIgnoreCase(endpoint.getName())).collect(
+                Collectors.toSet());
+        Assertions.assertEquals(1, collect.size());
+        //create tenantB role
+        Role role = RoleUtility.createRandomRoleObj();
+        ResponseEntity<Void> tenantRole =
+            RoleUtility.createTenantRole(tenantContextB.getProject(), user, role);
+        role.setId(UrlUtility.getId(tenantRole));
+        //wait for cache to expire
+        Thread.sleep(5 * 1000);
+        //update it's api
+        ResponseEntity<SumTotal<Permission>> shared =
+            PermissionUtility.readTenantPermissionShared(tenantContextB);
+        String permissionId = shared.getBody().getData().get(0).getId();
+        role.setExternalPermissionIds(Collections.singleton(permissionId));
+        role.setType(UpdateType.API_PERMISSION.name());
+        ResponseEntity<Void> response4 =
+            RoleUtility.updateTenantRole(tenantContextB.getProject(),
+                tenantContextB.getUsers().get(0), role);
         Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
     }
 

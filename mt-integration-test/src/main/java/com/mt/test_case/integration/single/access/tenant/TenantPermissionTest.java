@@ -42,6 +42,7 @@ public class TenantPermissionTest {
     private static Permission rootPermission;
     private static Endpoint publicEndpointObj;
     private static Endpoint sharedEndpointObj;
+    private static Client client;
     private static Role role;
 
     @BeforeAll
@@ -56,10 +57,11 @@ public class TenantPermissionTest {
         rootPermission.setId(UrlUtility.getId(response));
         log.info("init tenant complete");
         //create client for endpoint
-        Client randomBackendClientObj = ClientUtility.createRandomSharedBackendClientObj();
+        client = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
-            ClientUtility.createTenantClient(tenantContext, randomBackendClientObj);
+            ClientUtility.createTenantClient(tenantContext, client);
         String clientId = UrlUtility.getId(tenantClient);
+        client.setId(clientId);
         //create public endpoint
         publicEndpointObj = EndpointUtility.createRandomPublicEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint =
@@ -139,6 +141,43 @@ public class TenantPermissionTest {
         ResponseEntity<Void> voidResponseEntity =
             PermissionUtility.deleteTenantPermission(tenantContext, permission);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
+    }
+
+    @Test
+    public void permission_cleanup_after_linked_endpoint_deleted() throws InterruptedException {
+        //create secured endpoint
+        Endpoint endpoint =
+            EndpointUtility.createValidGetEndpoint(client.getId());
+        ResponseEntity<Void> tenantEndpoint =
+            EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
+        String endpointId = UrlUtility.getId(tenantEndpoint);
+        endpoint.setId(endpointId);
+        //link this endpoint to permission
+        Permission permission = PermissionUtility.createRandomPermissionObj();
+        permission.setLinkedApiIds(List.of(endpointId));
+        ResponseEntity<Void> response =
+            PermissionUtility.createTenantPermission(tenantContext, permission);
+        String s = UrlUtility.getId(response);
+        permission.setId(s);
+        ResponseEntity<Permission> permissionResponseEntity =
+            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        //linked permission added
+        List<String> linkedApiPermissionIds =
+            permissionResponseEntity.getBody().getLinkedApiPermissionIds();
+        Assertions.assertEquals(1, linkedApiPermissionIds.size());
+
+        //delete endpoint
+        ResponseEntity<Void> response1 =
+            EndpointUtility.deleteTenantEndpoint(tenantContext, endpoint);
+        //wait for cleanup
+        Thread.sleep(5 * 1000);
+        //permission linked api permission should be cleanup
+        ResponseEntity<Permission> afterCleanup =
+            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        //linked permission added
+        List<String> list =
+            afterCleanup.getBody().getLinkedApiPermissionIds();
+        Assertions.assertEquals(0, list.size());
     }
 
     @Test

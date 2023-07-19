@@ -48,8 +48,8 @@ export class NewProjectComponent implements OnDestroy {
       this.count = 0;
       this.showNotes = false;
       this.systemError = false
+      this.createLoading = true;
       this.projectSvc.create(payload, this.changeId).subscribe(next => {
-        this.createLoading = true;
         let pull = setInterval(() => {
           this.projectSvc.ready(next).subscribe(next => {
             this.count++;
@@ -77,6 +77,8 @@ export class NewProjectComponent implements OnDestroy {
         const errorMsg = ((error as HttpErrorResponse).error as ICommonServerError).errors[0]
         this.fis.updateError(this.formId, FORM_CONFIG.inputs[0].key, errorMsg);
         this.createLoading = false;
+      },()=>{
+        Logger.debug("complete")
       })
     }
 

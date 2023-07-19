@@ -5,6 +5,7 @@ import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Permission;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.SumTotal;
+import com.mt.test_case.helper.pojo.User;
 import java.util.Collections;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +49,14 @@ public class PermissionUtility {
 
     public static ResponseEntity<SumTotal<Permission>> readTenantPermissionShared(
         TenantContext tenantContext) {
-        String url = UrlUtility.appendPath(TenantUtility.getTenantUrl(tenantContext.getProject()),
+        return readTenantPermissionShared(tenantContext.getProject(), tenantContext.getCreator());
+    }
+
+    public static ResponseEntity<SumTotal<Permission>> readTenantPermissionShared(
+        Project project, User user) {
+        String url = UrlUtility.appendPath(TenantUtility.getTenantUrl(project),
             "permissions/shared");
-        return Utility.readResource(tenantContext.getCreator(), url, reference);
+        return Utility.readResource(user, url, reference);
     }
 
     public static ResponseEntity<Void> createTenantPermission(

@@ -5,6 +5,7 @@ import com.mt.test_case.helper.pojo.PatchCommand;
 import com.mt.test_case.helper.pojo.Project;
 import com.mt.test_case.helper.pojo.Role;
 import com.mt.test_case.helper.pojo.SumTotal;
+import com.mt.test_case.helper.pojo.User;
 import java.util.Collections;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
@@ -49,14 +50,24 @@ public class RoleUtility {
 
     public static ResponseEntity<Void> createTenantRole(
         TenantContext tenantContext, Role role) {
-        String url = getUrl(tenantContext.getProject());
-        return Utility.createResource(tenantContext.getCreator(), url, role);
+        return createTenantRole(tenantContext.getProject(), tenantContext.getCreator(), role);
+    }
+
+    public static ResponseEntity<Void> createTenantRole(
+        Project project, User user, Role role) {
+        String url = getUrl(project);
+        return Utility.createResource(user, url, role);
     }
 
     public static ResponseEntity<Void> updateTenantRole(
         TenantContext tenantContext, Role role) {
-        String url = getUrl(tenantContext.getProject());
-        return Utility.updateResource(tenantContext.getCreator(), url, role, role.getId());
+        return updateTenantRole(tenantContext.getProject(), tenantContext.getCreator(), role);
+    }
+
+    public static ResponseEntity<Void> updateTenantRole(
+        Project project, User user, Role role) {
+        String url = getUrl(project);
+        return Utility.updateResource(user, url, role, role.getId());
     }
 
     public static ResponseEntity<Void> patchTenantRole(

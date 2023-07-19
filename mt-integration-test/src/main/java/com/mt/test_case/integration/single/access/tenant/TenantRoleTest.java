@@ -49,18 +49,6 @@ public class TenantRoleTest {
     private static Endpoint sharedEndpointObj;
     private static Client client;
 
-    static Stream<Arguments> commonDescriptionArgs() {
-        return Stream.of(
-            Arguments.of(null, HttpStatus.OK),
-            Arguments.of("", HttpStatus.BAD_REQUEST),
-            Arguments.of("  ", HttpStatus.BAD_REQUEST),
-            Arguments.of("<", HttpStatus.BAD_REQUEST),
-            Arguments.of("012345678901234567890123456789012345678901234567890123456789" +
-                    "012345678901234567890123456789012345678901234567890123456789"
-                , HttpStatus.BAD_REQUEST)
-        );
-    }
-
     @BeforeAll
     public static void initTenant() {
         log.info("init tenant in progress");
