@@ -203,6 +203,7 @@ public class RoleApplicationService {
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (context) -> {
+                log.info("handling client created event with id {}", event.getDomainId().getDomainId());
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleId roleId = event.getRoleId();
@@ -239,7 +240,7 @@ public class RoleApplicationService {
     public void handle(ClientDeleted event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (context) -> {
-                log.debug("handle client removed event {}", event.getDomainId().getDomainId());
+                log.info("handle client removed event {}", event.getDomainId().getDomainId());
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleQuery roleQuery = RoleQuery.forClientId(clientId);
                 Set<Role> allByQuery = QueryUtility

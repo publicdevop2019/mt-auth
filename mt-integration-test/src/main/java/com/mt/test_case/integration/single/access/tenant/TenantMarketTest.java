@@ -272,7 +272,10 @@ public class TenantMarketTest {
         //update it's api
         ResponseEntity<SumTotal<Permission>> shared =
             PermissionUtility.readTenantPermissionShared(tenantContextB);
-        String permissionId = shared.getBody().getData().get(0).getId();
+        String permissionId = shared.getBody().getData().stream()
+            .filter(e->e.getName().equalsIgnoreCase(
+            endpoint.getName())).findFirst().get().getId();
+
         role.setExternalPermissionIds(Collections.singleton(permissionId));
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =
@@ -292,7 +295,7 @@ public class TenantMarketTest {
             EndpointUtility.deleteTenantEndpoint(tenantContextA, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint3.getStatusCode());
         //wait for cleanup
-        Thread.sleep(5 * 1000);
+        Thread.sleep(10 * 1000);
         ResponseEntity<Role> roleResponseEntity =
             RoleUtility.readTenantRoleById(tenantContextB, role);
         Assertions.assertEquals(0, roleResponseEntity.getBody()
