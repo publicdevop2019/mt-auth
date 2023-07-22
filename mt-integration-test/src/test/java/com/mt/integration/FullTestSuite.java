@@ -19,7 +19,6 @@ import com.mt.integration.single.proxy.EndpointSecurityTest;
 import com.mt.integration.single.proxy.GatewayFilterTest;
 import com.mt.integration.single.proxy.JwtSecurityTest;
 import com.mt.integration.single.proxy.RevokeTokenTest;
-import org.junit.jupiter.api.Disabled;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 @Suite

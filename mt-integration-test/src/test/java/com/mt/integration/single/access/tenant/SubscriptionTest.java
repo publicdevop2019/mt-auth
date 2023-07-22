@@ -1,6 +1,6 @@
 package com.mt.integration.single.access.tenant;
 
-import static com.mt.test_case.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
+import static com.mt.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.CommonTest;
@@ -20,7 +20,6 @@ import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;

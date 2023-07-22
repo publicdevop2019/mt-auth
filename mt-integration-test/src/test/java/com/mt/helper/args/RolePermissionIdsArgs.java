@@ -1,6 +1,7 @@
 package com.mt.helper.args;
 
-import static com.mt.test_case.helper.AppConstant.MT_ACCESS_PERMISSION_ID;
+
+import static com.mt.helper.AppConstant.MT_ACCESS_PERMISSION_ID;
 
 import java.util.Collections;
 import java.util.HashSet;

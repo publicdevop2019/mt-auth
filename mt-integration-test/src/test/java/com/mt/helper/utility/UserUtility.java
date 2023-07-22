@@ -1,6 +1,7 @@
 package com.mt.helper.utility;
 
-import static com.mt.test_case.integration.single.access.mgmt.MgmtUserTest.USER_MGMT;
+
+import static com.mt.integration.single.access.mgmt.MgmtUserTest.USER_MGMT;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.TenantContext;

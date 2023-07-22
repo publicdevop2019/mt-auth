@@ -1,6 +1,7 @@
 package com.mt.helper.args;
 
-import static com.mt.test_case.helper.AppConstant.MT_ACCESS_ENDPOINT_ID;
+
+import static com.mt.helper.AppConstant.MT_ACCESS_ENDPOINT_ID;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.utility.RandomUtility;
