@@ -35,6 +35,8 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
+    TenantTestSuite.class,
+    ValidationTestSuite.class,
     MgmtClientTest.class,
     MgmtEndpointTest.class,
     MgmtProjectTest.class,
@@ -42,17 +44,6 @@ import org.junit.platform.suite.api.Suite;
     MgmtUserTest.class,
     MgmtUtilityTest.class,
     SubscriptionTest.class,
-    TenantAdminTest.class,
-    TenantCacheTest.class,
-    TenantClientTest.class,
-    TenantCorsTest.class,
-    TenantEndpointTest.class,
-    TenantMarketTest.class,
-    TenantMessageTest.class,
-    TenantPermissionTest.class,
-    TenantProjectTest.class,
-    TenantRoleTest.class,
-    TenantUserTest.class,
     VersionTest.class,
     AuthorizationCodeTest.class,
     ClientCredentialsTest.class,
@@ -66,5 +57,5 @@ import org.junit.platform.suite.api.Suite;
     JwtSecurityTest.class,
     RevokeTokenTest.class,
 })
-public class TestSuite {
+public class FullTestSuite {
 }

@@ -66,49 +66,4 @@ public class TenantProjectTest extends CommonTest {
         Assertions.assertEquals(1, projectResponseEntity.getBody().getTotalUserOwned().intValue());
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(ProjectNameArgs.class)
-    public void validation_create_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
-        Project randomProjectObj = ProjectUtility.createRandomProjectObj();
-        randomProjectObj.setName(name);
-        ResponseEntity<Void> response =
-            ProjectUtility.createTenantProject(randomProjectObj, user);
-        Assertions.assertEquals(httpStatus, response.getStatusCode());
-    }
-
-    //endpoint note added
-    @Disabled
-    @ParameterizedTest
-    @ArgumentsSource(ProjectNameArgs.class)
-    public void validation_update_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
-        Project project = ProjectUtility.createRandomProjectObj();
-        ResponseEntity<Void> tenantProject =
-            ProjectUtility.createTenantProject(project, user);
-        project.setId(UrlUtility.getId(tenantProject));
-        project.setName(name);
-        ResponseEntity<Void> response =
-            ProjectUtility.updateTenantProject(project, user);
-        Assertions.assertEquals(httpStatus, response.getStatusCode());
-    }
-
-    //endpoint note added
-    @Disabled
-    @ParameterizedTest
-    @ArgumentsSource(ProjectNameArgs.class)
-    public void validation_patch_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
-        Project project = ProjectUtility.createRandomProjectObj();
-        ResponseEntity<Void> tenantProject =
-            ProjectUtility.createTenantProject(project, user);
-        project.setId(UrlUtility.getId(tenantProject));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        patchCommand.setValue(name);
-        ResponseEntity<Void> response =
-            ProjectUtility.patchTenantProject(project, user, patchCommand);
-        Assertions.assertEquals(httpStatus, response.getStatusCode());
-    }
 }
