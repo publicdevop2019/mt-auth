@@ -2,7 +2,7 @@
 <Configuration status="warn">
     <Properties>
         <Property name="location">./logs</Property>
-        <Property name="name">integration-test</Property>
+        <Property name="name">test</Property>
     </Properties>
 
     <Appenders>
@@ -27,17 +27,21 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
+        <Logger name="org.springframework.security" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="org.springframework.web" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="com.netflix" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <Root level="info" additivity="false" includeLocation="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Root>
     </Loggers>
-    <Logger name="org.springframework.security" level="debug" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="fileLogger"/>
-    </Logger>
-    <Logger name="org.springframework.web" level="debug" additivity="false">
-        <appender-ref ref="console"/>
-        <appender-ref ref="fileLogger"/>
-    </Logger>
 </Configuration>
