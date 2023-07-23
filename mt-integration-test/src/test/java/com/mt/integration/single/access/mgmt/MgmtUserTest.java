@@ -29,12 +29,11 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @Slf4j
 public class MgmtUserTest extends CommonTest {
-    public static final String USER_MGMT = "/mgmt/users";
     private static final String root_index = "0U8AZTODP4H0";
 
     @Test
     public void admin_can_view_all_users() {
-        String url = UrlUtility.getAccessUrl(USER_MGMT);
+        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtAdmin);
@@ -53,14 +52,14 @@ public class MgmtUserTest extends CommonTest {
         headers.setBearerAuth(jwtAdmin);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(USER_MGMT), HttpMethod.GET, request,
+            .exchange(UrlUtility.getAccessUrl(AppConstant.USER_MGMT), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
         List<User> data = Objects.requireNonNull(exchange.getBody()).getData();
         int i = RandomUtility.pickRandomFromList(data.size());
         User user = data.get(i);
         ResponseEntity<UserMgmt> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(USER_MGMT, user.getId())),
+            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(AppConstant.USER_MGMT, user.getId())),
                 HttpMethod.GET, request, UserMgmt.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getLoginHistory());
@@ -71,7 +70,7 @@ public class MgmtUserTest extends CommonTest {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
-        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(user1));
+        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(user1));
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
@@ -99,7 +98,7 @@ public class MgmtUserTest extends CommonTest {
     public void admin_cannot_delete_root_user() {
 
         String url =
-            UrlUtility.getAccessUrl(USER_MGMT + "/" + root_index);
+            UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
@@ -148,7 +147,7 @@ public class MgmtUserTest extends CommonTest {
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(createResp));
+        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(createResp));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
@@ -184,7 +183,7 @@ public class MgmtUserTest extends CommonTest {
         headers.setBearerAuth(bearer);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         String url =
-            UrlUtility.getAccessUrl(USER_MGMT + "/" + root_index);
+            UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
         ResponseEntity<Void> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, Void.class);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
@@ -205,7 +204,7 @@ public class MgmtUserTest extends CommonTest {
         user.setLocked(null);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(USER_MGMT + "/" + UrlUtility.getId(createResp));
+        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(createResp));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
