@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CommonTestResource {
 
-    public static final String DEFAULT_TEST_RESPONSE_BODY = "\"test\":\"test\"";
+    private static final String DEFAULT_TEST_RESPONSE_BODY = "\"test\":\"test\"";
 
     @GetMapping("delay/{delay}")
     public ResponseEntity<?> delay(@PathVariable String delay) {
