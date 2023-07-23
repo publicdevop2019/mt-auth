@@ -1,6 +1,6 @@
 package com.mt.integration.single.access.tenant;
 
-import static com.mt.integration.single.proxy.GatewayFilterTest.X_MT_RATELIMIT_LEFT;
+import static com.mt.helper.AppConstant.X_MT_RATELIMIT_LEFT;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.CommonTest;

@@ -27,7 +27,6 @@ import org.springframework.web.client.RestTemplate;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class GatewayFilterTest extends CommonTest {
-    public static final String X_MT_RATELIMIT_LEFT = "x-mt-ratelimit-left";
 
     @Test
     public void should_get_etag_for_get_resources() {
@@ -204,7 +203,8 @@ public class GatewayFilterTest extends CommonTest {
             ResponseEntity<String> exchange = TestContext.getRestTemplate()
                 .exchange(url2, HttpMethod.GET, null, String.class);
             log.trace("response status is {}", exchange.getStatusCode().value());
-            log.trace("rate limit left is {}", exchange.getHeaders().get(X_MT_RATELIMIT_LEFT));
+            log.trace("rate limit left is {}", exchange.getHeaders().get(
+                AppConstant.X_MT_RATELIMIT_LEFT));
             if (exchange.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 count.getAndSet(count.get() + 1);
             }
