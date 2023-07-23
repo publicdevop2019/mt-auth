@@ -2,7 +2,9 @@ package com.mt.integration.single.access;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mt.helper.AppConstant;
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.ClientType;
 import com.mt.helper.pojo.Endpoint;
@@ -11,6 +13,7 @@ import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
+import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import java.io.IOException;
@@ -21,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -32,9 +37,20 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2RefreshToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class RefreshTokenTest extends TenantTest {
+public class RefreshTokenTest {
+    protected static TenantContext tenantContext;
+
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAllTenant(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void refresh_token_should_work() throws InterruptedException {
@@ -84,7 +100,7 @@ public class RefreshTokenTest extends TenantTest {
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        Thread.sleep(60*1000 + 60*1000 + 2*1000);//spring cloud gateway add 60S leeway
+        Thread.sleep(60 * 1000 + 60 * 1000 + 2 * 1000);//spring cloud gateway add 60S leeway
         //access token should expire
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);

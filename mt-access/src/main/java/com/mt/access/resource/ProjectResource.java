@@ -43,7 +43,6 @@ public class ProjectResource {
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
-        log.info("creating new project");
         DomainRegistry.getCurrentUserService().setUser(jwt);
         return ResponseEntity.ok().header("Location",
                 ApplicationServiceRegistry.getProjectApplicationService().tenantCreate(command, changeId))

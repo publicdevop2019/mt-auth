@@ -3,8 +3,9 @@ package com.mt.integration.single.access.tenant;
 import static com.mt.helper.AppConstant.X_MT_RATELIMIT_LEFT;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Notification;
 import com.mt.helper.pojo.SubscriptionReq;
@@ -20,6 +21,8 @@ import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -29,9 +32,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Slf4j
-@ExtendWith(SpringExtension.class)
-public class SubscriptionTest extends CommonTest {
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
+public class SubscriptionTest{
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     //public api shared
     @Test
     public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mgmt()

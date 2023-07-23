@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.validation;
 
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.ClientAutoApproveArgs;
 import com.mt.helper.args.ClientExternalUrlArgs;
 import com.mt.helper.args.ClientGrantTypeArgs;
@@ -28,6 +30,8 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,9 +42,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("validation")
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantClientValidationTest extends TenantTest {
+public class TenantClientValidationTest{
+    private static TenantContext tenantContext;
+    @BeforeAll
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
+    }
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void validation_create_valid_backend() {
         Client client = ClientUtility.createValidBackendClient();

@@ -1,6 +1,7 @@
 package com.mt.integration.single.proxy;
 
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import com.mt.helper.utility.UserUtility;
@@ -8,6 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -18,10 +21,18 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class JwtSecurityTest extends CommonTest {
+public class JwtSecurityTest {
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void user_modify_jwt_token_after_login() {

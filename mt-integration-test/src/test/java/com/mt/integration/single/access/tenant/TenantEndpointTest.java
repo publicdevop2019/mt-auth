@@ -1,38 +1,43 @@
 package com.mt.integration.single.access.tenant;
 
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantEndpointTest extends TenantTest {
+public class TenantEndpointTest {
+    private static TenantContext tenantContext;
     private static Client client;
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @BeforeAll
-    public static void initTenant() {
-        log.info("init tenant in progress");
-        TestContext.init();
-        tenantContext = TenantUtility.initTenant();
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
         client = ClientUtility.createValidBackendClient();
         client.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(UrlUtility.getId(tenantClient));
-        log.info("init tenant complete");
     }
 
     @Test

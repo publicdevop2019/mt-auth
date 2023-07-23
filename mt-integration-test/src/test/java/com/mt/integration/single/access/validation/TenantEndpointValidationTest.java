@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.validation;
 
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.CacheIdArgs;
 import com.mt.helper.args.CorsIdArgs;
 import com.mt.helper.args.DescriptionArgs;
@@ -25,6 +27,7 @@ import com.mt.helper.utility.Utility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,15 +38,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("validation")
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantEndpointValidationTest extends TenantTest {
+public class TenantEndpointValidationTest{
     private static Client client;
+    private static TenantContext tenantContext;
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContext = TenantUtility.initTenant();
         client = ClientUtility.createValidBackendClient();
         client.setResourceIndicator(true);

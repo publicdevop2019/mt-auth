@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Cache;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Cors;
@@ -29,6 +31,7 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -39,7 +42,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * when update resource with same payload multiple times, version should not change
  */
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 public class VersionTest {
     private static TenantContext tenantContext;
     private static Client client;
@@ -48,8 +51,8 @@ public class VersionTest {
 
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContext = TenantUtility.initTenant();
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
@@ -70,6 +73,10 @@ public class VersionTest {
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
     }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void client_version_will_not_increase() {
         Client client = ClientUtility.createValidBackendClient();

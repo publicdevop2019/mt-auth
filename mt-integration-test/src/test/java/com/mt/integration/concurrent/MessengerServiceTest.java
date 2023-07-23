@@ -29,7 +29,7 @@ package com.mt.integration.concurrent;//package com.hw.integration.concurrent;
 ///**
 // * need to verify through log or a real email
 // */
-//@ExtendWith(SpringExtension.class)
+//@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 //@Slf4j
 //@SpringBootTest
 //public class MessengerServiceTest {

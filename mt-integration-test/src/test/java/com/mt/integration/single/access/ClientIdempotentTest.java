@@ -1,7 +1,8 @@
 package com.mt.integration.single.access;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.ConcurrentUtility;
@@ -13,6 +14,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -24,11 +27,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class ClientIdempotentTest extends CommonTest {
+public class ClientIdempotentTest{
 
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void create_client_w_same_changeId_two_times() {
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);

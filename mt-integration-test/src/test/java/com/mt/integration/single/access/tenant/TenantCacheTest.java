@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.tenant;
 
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Cache;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
@@ -14,14 +16,28 @@ import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantCacheTest extends TenantTest {
+public class TenantCacheTest {
+    private static TenantContext tenantContext;
+
+    @BeforeAll
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void tenant_can_create_cache() {
@@ -99,7 +115,7 @@ public class TenantCacheTest extends TenantTest {
         //delete cache
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
-        Thread.sleep(5*1000);
+        Thread.sleep(5 * 1000);
         //read endpoint to verify cache id remove
         ResponseEntity<Endpoint> endpointResponseEntity =
             EndpointUtility.readTenantEndpoint(tenantContext, randomEndpointObj);

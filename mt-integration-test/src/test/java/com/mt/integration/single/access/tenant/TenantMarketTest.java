@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Permission;
@@ -24,12 +26,13 @@ import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantMarketTest {
     protected static TenantContext tenantContextA;
@@ -38,8 +41,8 @@ public class TenantMarketTest {
 
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContextA = TenantUtility.initTenant();
         tenantContextB = TenantUtility.initTenant();
 
@@ -50,6 +53,10 @@ public class TenantMarketTest {
         clientA.setId(UrlUtility.getId(tenantClient));
 
         log.info("init tenant complete");
+    }
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
     }
 
     @Test

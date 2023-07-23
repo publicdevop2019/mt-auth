@@ -211,11 +211,11 @@ public class UserRelationApplicationService {
     public void handle(NewProjectRoleCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.info("handle new project role created event");
                 RoleId adminRoleId = new RoleId(event.getDomainId().getDomainId());
                 RoleId userRoleId = event.getUserRoleId();
                 UserId creator = event.getCreator();
                 ProjectId tenantId = event.getProjectId();
+                log.info("handle new project role created event, project id {}", tenantId.getDomainId());
                 UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
                     new ProjectId(MT_AUTH_PROJECT_ID),context);
                 return null;

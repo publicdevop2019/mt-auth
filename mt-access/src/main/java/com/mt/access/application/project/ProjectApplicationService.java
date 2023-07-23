@@ -86,13 +86,13 @@ public class ProjectApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Project project =
                 DomainRegistry.getProjectRepository().get(projectId);
-                DomainRegistry.getProjectRepository().remove(project);
-                DomainRegistry.getAuditService()
-                    .storeAuditAction(DELETE_TENANT_PROJECT,
-                        project);
-                DomainRegistry.getAuditService()
-                    .logUserAction(log, DELETE_TENANT_PROJECT,
-                        project);
+            DomainRegistry.getProjectRepository().remove(project);
+            DomainRegistry.getAuditService()
+                .storeAuditAction(DELETE_TENANT_PROJECT,
+                    project);
+            DomainRegistry.getAuditService()
+                .logUserAction(log, DELETE_TENANT_PROJECT,
+                    project);
             return null;
         }, PROJECT);
     }
@@ -105,13 +105,13 @@ public class ProjectApplicationService {
             .idempotent(changeId, (context) -> {
                 Project project =
                     DomainRegistry.getProjectRepository().get(projectId);
-                    ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
-                    ProjectPatchCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, ProjectPatchCommand.class);
-                    project.replace(
-                        afterPatch.getName()
-                    );
+                ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
+                ProjectPatchCommand afterPatch =
+                    CommonDomainRegistry.getCustomObjectSerializer()
+                        .applyJsonPatch(command, beforePatch, ProjectPatchCommand.class);
+                project.replace(
+                    afterPatch.getName()
+                );
                 return null;
             }, PROJECT);
     }
@@ -120,10 +120,11 @@ public class ProjectApplicationService {
     @AuditLog(actionName = CREATE_TENANT_PROJECT)
     public String tenantCreate(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
+        log.info("creating new project {}", projectId.getDomainId());
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                Project project = new Project(projectId, command.getName(), userId,context);
+                Project project = new Project(projectId, command.getName(), userId, context);
                 DomainRegistry.getProjectRepository().add(project);
                 return projectId.getDomainId();
             }, PROJECT);

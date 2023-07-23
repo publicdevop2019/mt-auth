@@ -1,12 +1,15 @@
 package com.mt.integration.single.access.mgmt;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
@@ -17,10 +20,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.client.RestTemplate;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 
 @Slf4j
-public class MgmtUtilityTest extends CommonTest {
+public class MgmtUtilityTest{
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void can_clean_cache() {
         RestTemplate restTemplate = TestContext.getRestTemplate();

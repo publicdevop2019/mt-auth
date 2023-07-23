@@ -2,13 +2,16 @@ package com.mt.integration.single.proxy;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
 import java.util.HashMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -25,14 +28,24 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  */
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
-public class RevokeTokenTest extends CommonTest {
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
+public class RevokeTokenTest {
     private static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
+
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()
         throws JsonProcessingException, InterruptedException {
-        Thread.sleep(10*1000);
+        Thread.sleep(10 * 1000);
         String url = AppConstant.PROXY_URL + PROXY_BLACKLIST;
         String url2 = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
         /**
@@ -180,6 +193,7 @@ public class RevokeTokenTest extends CommonTest {
 
     @Test
     public void validation_revoke_token_id() {
+        //TODO
         //null
         //blank
         //empty

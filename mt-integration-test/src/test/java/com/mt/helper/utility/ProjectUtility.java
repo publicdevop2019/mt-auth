@@ -5,6 +5,7 @@ import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 
@@ -56,6 +57,7 @@ public class ProjectUtility {
             throw new RuntimeException(e);
         }
         SumTotal<Project> tenantProjects = readTenantProjects(tenantUser).getBody();
+        Assertions.assertEquals(1, tenantProjects.getData().size());
         return tenantProjects.getData().get(0);
     }
 }

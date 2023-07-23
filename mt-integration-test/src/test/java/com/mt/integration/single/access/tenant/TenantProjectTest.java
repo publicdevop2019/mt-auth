@@ -1,6 +1,7 @@
 package com.mt.integration.single.access.tenant;
 
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
@@ -9,14 +10,24 @@ import com.mt.helper.utility.UrlUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantProjectTest extends CommonTest {
+public class TenantProjectTest{
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void tenant_can_create_project() throws InterruptedException {
         User user = UserUtility.createUser();

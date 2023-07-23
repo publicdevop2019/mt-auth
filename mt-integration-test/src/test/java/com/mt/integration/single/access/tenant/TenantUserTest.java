@@ -1,7 +1,9 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.UserRoleArgs;
 import com.mt.helper.pojo.Role;
 import com.mt.helper.pojo.SumTotal;
@@ -15,6 +17,8 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -22,10 +26,18 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantUserTest extends TenantTest {
-
+public class TenantUserTest{
+    private static TenantContext tenantContext;
+    @BeforeAll
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
+    }
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void tenant_can_search_user_by_email() {
         ResponseEntity<SumTotal<User>> sumTotalResponseEntity =

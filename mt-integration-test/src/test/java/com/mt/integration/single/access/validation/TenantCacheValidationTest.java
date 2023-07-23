@@ -1,7 +1,8 @@
 package com.mt.integration.single.access.validation;
 
-import com.mt.helper.CommonTest;
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.CacheControlArgs;
 import com.mt.helper.args.CacheMaxAge;
 import com.mt.helper.args.CacheSMaxAge;
@@ -22,6 +23,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,19 +34,20 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("validation")
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantCacheValidationTest extends CommonTest {
+public class TenantCacheValidationTest{
     protected static TenantContext tenantContext;
 
     @BeforeAll
-    public static void initTenant() {
-        log.info("init tenant in progress");
-        TestContext.init();
-        tenantContext = TenantUtility.initTenant();
-        log.info("init tenant complete");
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
     }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void validation_create_valid() {
         Cache cacheObj = CacheUtility.getValidNoCache();

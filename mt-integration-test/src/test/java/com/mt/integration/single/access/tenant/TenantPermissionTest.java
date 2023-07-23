@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Permission;
@@ -20,12 +22,13 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantPermissionTest {
     private static TenantContext tenantContext;
@@ -37,8 +40,8 @@ public class TenantPermissionTest {
 
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContext = TenantUtility.initTenant();
         //create root node
         rootPermission = PermissionUtility.createRandomPermissionObj();
@@ -70,6 +73,10 @@ public class TenantPermissionTest {
 
     }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void tenant_can_create_permission() {
         Permission permission = PermissionUtility.createRandomPermissionObj();

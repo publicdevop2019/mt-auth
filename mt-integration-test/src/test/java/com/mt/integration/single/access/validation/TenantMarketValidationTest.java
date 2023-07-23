@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.validation;
 
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.SubRequestCapacityArgs;
 import com.mt.helper.args.SubRequestEndpointIdArgs;
 import com.mt.helper.args.SubRequestProjectIdArgs;
@@ -19,6 +21,7 @@ import com.mt.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -28,17 +31,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("validation")
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantMarketValidationTest {
     protected static TenantContext tenantContextA;
     protected static TenantContext tenantContextB;
     protected static Client clientA;
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContextA = TenantUtility.initTenant();
         tenantContextB = TenantUtility.initTenant();
 

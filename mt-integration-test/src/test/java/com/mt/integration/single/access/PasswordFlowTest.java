@@ -1,12 +1,15 @@
 package com.mt.integration.single.access;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
@@ -15,9 +18,18 @@ import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class PasswordFlowTest extends CommonTest {
+public class PasswordFlowTest {
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void create_user_then_login() {

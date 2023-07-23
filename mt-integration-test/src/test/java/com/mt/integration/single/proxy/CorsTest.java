@@ -1,10 +1,13 @@
 package com.mt.integration.single.proxy;
 
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -18,12 +21,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
  * this test suits requires cors profile to be added.
  */
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class CorsTest extends CommonTest {
+public class CorsTest {
     private final String thirdPartyOrigin = "http://localhost:4300";
     private final String[] corsUris = {"/oauth/token", "/mgmt/clients/0", "/mgmt/clients",
         "/authorize", "/mgmt/users", "/mgmt/users/0", "/users/pwd", "/users"};
+
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void cors_oauthToken() {

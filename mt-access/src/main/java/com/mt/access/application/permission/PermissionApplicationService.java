@@ -127,7 +127,7 @@ public class PermissionApplicationService {
                     Set<PermissionId> permissionIds =
                         DomainRegistry.getPermissionService()
                             .tenantFindPermissionIds(command.getLinkedApiIds(),
-                            permissionQuery.getProjectIds());
+                                permissionQuery.getProjectIds());
                     ee.replace(command.getName(), permissionIds);
                     DomainRegistry.getPermissionRepository().add(ee);
                 });
@@ -213,9 +213,10 @@ public class PermissionApplicationService {
     public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle new project created event");
                 ProjectId tenantProjectId = new ProjectId(event.getDomainId().getDomainId());
-                Permission.onboardNewProject(tenantProjectId, event.getCreator(),context);
+                log.info("handle new project created event, project id {}",
+                    tenantProjectId.getDomainId());
+                Permission.onboardNewProject(tenantProjectId, event.getCreator(), context);
                 return null;
             }, PERMISSION);
     }
@@ -244,7 +245,8 @@ public class PermissionApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle secured endpoint remove event");
-                DomainRegistry.getPermissionService().cleanRelated(event.getPermissionId(),context);
+                DomainRegistry.getPermissionService()
+                    .cleanRelated(event.getPermissionId(), context);
                 return null;
             }, PERMISSION);
     }

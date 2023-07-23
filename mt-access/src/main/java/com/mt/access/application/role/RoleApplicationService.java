@@ -164,8 +164,9 @@ public class RoleApplicationService {
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle new project permission created event");
                 ProjectId tenantProjectId = event.getProjectId();
+                log.info("handle new project permission created event, project id {}",
+                    tenantProjectId.getDomainId());
                 ProjectId authPId = new ProjectId(AppConstant.MT_AUTH_PROJECT_ID);
                 UserId creator = event.getCreator();
                 Role.onboardNewProject(authPId, tenantProjectId, event.getCommonPermissionIds(),
@@ -203,7 +204,8 @@ public class RoleApplicationService {
     public void handle(ClientCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotentMsg(event.getChangeId(), (context) -> {
-                log.info("handling client created event with id {}", event.getDomainId().getDomainId());
+                log.info("handling client created event with id {}",
+                    event.getDomainId().getDomainId());
                 ProjectId projectId = event.getProjectId();
                 ClientId clientId = new ClientId(event.getDomainId().getDomainId());
                 RoleId roleId = event.getRoleId();

@@ -1,7 +1,8 @@
 package com.mt.integration.single.access.mgmt;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
@@ -14,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,12 +28,20 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 
 @Slf4j
-public class MgmtUserTest extends CommonTest {
+public class MgmtUserTest{
     private static final String root_index = "0U8AZTODP4H0";
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void admin_can_view_all_users() {
         String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT);

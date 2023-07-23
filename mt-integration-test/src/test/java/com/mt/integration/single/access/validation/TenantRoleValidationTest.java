@@ -1,6 +1,8 @@
 package com.mt.integration.single.access.validation;
 
 import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.DescriptionArgs;
 import com.mt.helper.args.NameArgs;
 import com.mt.helper.args.ProjectIdArgs;
@@ -26,6 +28,7 @@ import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -36,7 +39,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Tag("validation")
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantRoleValidationTest {
     private static TenantContext tenantContext;
@@ -46,8 +49,8 @@ public class TenantRoleValidationTest {
 
     @BeforeAll
     public static void initTenant() {
+        TestHelper.beforeAll(log);
         log.info("init tenant in progress");
-        TestContext.init();
         tenantContext = TenantUtility.initTenant();
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
@@ -68,6 +71,10 @@ public class TenantRoleValidationTest {
         sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
     }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void validation_create_valid() {

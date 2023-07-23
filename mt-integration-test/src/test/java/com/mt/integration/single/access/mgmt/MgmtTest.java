@@ -1,7 +1,8 @@
 package com.mt.integration.single.access.mgmt;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.CommonTest;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.BellNotification;
 import com.mt.helper.pojo.CheckSum;
 import com.mt.helper.pojo.Job;
@@ -16,6 +17,8 @@ import com.mt.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
@@ -25,11 +28,19 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 
 @Slf4j
-public class MgmtTest extends CommonTest {
+public class MgmtTest{
+    @BeforeAll
+    public static void beforeAll() {
+        TestHelper.beforeAll(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
     @Test
     public void admin_can_view_system_bell_notification() {
         HttpEntity<String> request = getAdminHttpEntity();

@@ -1,12 +1,15 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.ProjectAdmin;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.AdminUtility;
 import com.mt.helper.utility.RandomUtility;
+import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import com.mt.helper.utility.UserUtility;
@@ -16,6 +19,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -24,9 +29,21 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantAdminTest extends TenantTest {
+public class TenantAdminTest{
+    private static TenantContext tenantContext;
+
+    @BeforeAll
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
+    }
+
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void tenant_can_view_admin() {

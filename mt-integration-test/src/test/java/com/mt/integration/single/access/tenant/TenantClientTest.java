@@ -1,7 +1,9 @@
 package com.mt.integration.single.access.tenant;
 
 import com.mt.helper.AppConstant;
-import com.mt.helper.TenantTest;
+import com.mt.helper.TenantContext;
+import com.mt.helper.TestHelper;
+import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.ClientType;
 import com.mt.helper.pojo.Endpoint;
@@ -11,6 +13,7 @@ import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
+import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UrlUtility;
 import com.mt.helper.utility.UserUtility;
@@ -19,6 +22,8 @@ import java.util.HashSet;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -28,10 +33,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@ExtendWith(SpringExtension.class)
+@ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantClientTest extends TenantTest {
+public class TenantClientTest{
+    private static TenantContext tenantContext;
+    @BeforeAll
+    public static void beforeAll() {
+        tenantContext = TestHelper.beforeAllTenant(log);
+    }
 
+    @BeforeEach
+    public void beforeEach() {
+        TestHelper.beforeEach(log);
+    }
 
     @Test
     public void tenant_frontend_type_client_can_not_be_resource() {

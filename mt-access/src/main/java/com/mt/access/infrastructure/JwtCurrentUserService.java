@@ -171,7 +171,7 @@ public class JwtCurrentUserService implements CurrentUserService {
         private String value;
 
         public UserJwt() {
-            log.debug("creating new UserJwt");
+            log.trace("creating new UserJwt");
         }
 
         public String get() {
