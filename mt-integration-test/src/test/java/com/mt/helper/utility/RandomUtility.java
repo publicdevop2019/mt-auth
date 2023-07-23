@@ -7,7 +7,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.lang.Nullable;
 
 public class RandomUtility {
-    public static final Random random = new Random();
+    private static final Random random = new Random();
 
     /**
      * pick random index from list, return -1 if list is empty

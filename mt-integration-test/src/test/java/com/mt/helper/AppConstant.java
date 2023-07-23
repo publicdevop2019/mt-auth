@@ -44,6 +44,8 @@ public class AppConstant {
     public static final String MGMT_EVENT_AUDIT = "/mgmt/events/audit";
     public static final String X_MT_RATELIMIT_LEFT = "x-mt-ratelimit-left";
     public static final String USER_MGMT = "/mgmt/users";
+    public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
+    public static final String MFA_CODE = "654321";
     public static String PROXY_URL = "http://localhost:" + 8111;
     public static String ACCESS_URL = "http://localhost:" + 8080;
     public static String TEST_URL = "http://localhost:" + 9999;

@@ -20,8 +20,6 @@ import org.springframework.util.MultiValueMap;
  */
 public class OAuth2Utility {
 
-    public static final String MFA_CODE = "654321";
-
     /**
      * get oauth2 password response.
      *
@@ -261,7 +259,7 @@ public class OAuth2Utility {
         } else {
             String mfaId = (String) exchange.getBody().getAdditionalInformation().get("mfaId");
             return getOAuth2WithUserMfa(grantType, clientId, clientSecret, username, userPwd,
-                mfaId, MFA_CODE);
+                mfaId, AppConstant.MFA_CODE);
         }
     }
 

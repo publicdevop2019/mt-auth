@@ -27,7 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 public class RevokeTokenTest extends CommonTest {
-    public static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
+    private static final String PROXY_BLACKLIST = "/auth-svc/mgmt/revoke-tokens";
 
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()

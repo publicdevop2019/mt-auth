@@ -38,7 +38,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 @Slf4j
 public class TenantEndpointValidationTest extends TenantTest {
-    public static final String ENDPOINTS = "/projects/0P8HE307W6IO/endpoints";
     private static Client client;
 
     @BeforeAll

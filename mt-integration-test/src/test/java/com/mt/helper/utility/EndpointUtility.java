@@ -6,7 +6,6 @@ import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
-import com.mt.integration.single.access.tenant.TenantEndpointTest;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -91,7 +90,7 @@ public class EndpointUtility {
     }
 
     public static ResponseEntity<String> createEndpoint(Endpoint endpoint) {
-        String url = UrlUtility.getAccessUrl(TenantEndpointTest.ENDPOINTS);
+        String url = UrlUtility.getAccessUrl(AppConstant.ENDPOINTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(endpoint, headers1);
@@ -147,7 +146,7 @@ public class EndpointUtility {
 
     public static ResponseEntity<String> expireEndpoint(String endpointId) {
         String url =
-            UrlUtility.getAccessUrl(TenantEndpointTest.ENDPOINTS) + "/" + endpointId + "/expire";
+            UrlUtility.getAccessUrl(AppConstant.ENDPOINTS) + "/" + endpointId + "/expire";
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         headers1.setContentType(MediaType.APPLICATION_JSON);
