@@ -1,4 +1,4 @@
-package com.mt.common.domain.model.unique_id;
+package com.mt.proxy.domain;
 
 public interface UniqueIdGeneratorService {
     long id();

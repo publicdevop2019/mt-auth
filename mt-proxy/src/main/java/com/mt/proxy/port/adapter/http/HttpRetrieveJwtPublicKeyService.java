@@ -1,12 +1,16 @@
 package com.mt.proxy.port.adapter.http;
 
+import static com.mt.proxy.infrastructure.AppConstant.SPAN_ID_HTTP;
+import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_HTTP;
+
 import com.mt.proxy.domain.JwtService;
 import com.mt.proxy.domain.RetrieveJwtPublicKeyService;
 import com.nimbusds.jose.jwk.JWKSet;
 import java.text.ParseException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -19,10 +23,13 @@ public class HttpRetrieveJwtPublicKeyService implements RetrieveJwtPublicKeyServ
     @Autowired
     private HttpUtility httpHelper;
 
+
     @Override
     public JWKSet loadKeys() {
+        log.debug("loading jwt keys");
         ResponseEntity<String> exchange = httpHelper.getRestTemplate()
-            .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null, String.class);
+            .exchange(jwtService.getJwtKeyUrl(), HttpMethod.GET, null,
+                String.class);
         try {
             return JWKSet.parse(exchange.getBody());
         } catch (ParseException e) {

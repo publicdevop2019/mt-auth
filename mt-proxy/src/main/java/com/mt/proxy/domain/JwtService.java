@@ -1,5 +1,6 @@
 package com.mt.proxy.domain;
 
+import com.mt.proxy.infrastructure.LogService;
 import com.mt.proxy.port.adapter.http.HttpUtility;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.crypto.RSASSAVerifier;
@@ -28,11 +29,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class JwtService {
-    private static final String JWT_KEY_URL =".well-known/jwks.json";
+    private static final String JWT_KEY_URL = ".well-known/jwks.json";
 
     private RSAPublicKey publicKey;
     @Autowired
     private HttpUtility httpHelper;
+    @Autowired
+    private LogService logService;
+
     @Bean
     public ReactiveJwtDecoder jwtDecoder() {
         return new NimbusReactiveJwtDecoder(getJwtKeyUrl());
@@ -40,6 +44,7 @@ public class JwtService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void loadKeys() {
+        logService.initTrace();
         JWKSet jwkSet = DomainRegistry.getRetrieveJwtPublicKeyService().loadKeys();
         JWK jwk = jwkSet.getKeys().get(0);
         try {
@@ -48,9 +53,11 @@ public class JwtService {
             e.printStackTrace();
         }
     }
+
     public String getJwtKeyUrl() {
         return httpHelper.resolveAccessPath() + JWT_KEY_URL;
     }
+
     public boolean verify(String jwt) {
         SignedJWT parse;
         try {

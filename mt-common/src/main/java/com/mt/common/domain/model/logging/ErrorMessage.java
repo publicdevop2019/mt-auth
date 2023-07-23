@@ -32,17 +32,17 @@ public class ErrorMessage {
                             ":" + e.getLineNumber())
                     .collect(
                         Collectors.toList());
-            log.info("defined exception UUID - {} - exception: {} - details: {}", errorId,
+            log.info("defined exception error id - {} - exception: {} - details: {}", errorId,
                 strings.get(0), collect);
         } else if (NestedExceptionUtils.getMostSpecificCause(ex).getMessage() != null) {
             strings = List.of(
                 NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
                     .split("\n"));
-            log.error("known cause exception UUID - {} - {} - exception: ", errorId,
+            log.error("known cause exception error id - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         } else {
             strings = List.of("Unable to get most specific cause, see log");
-            log.error("unknown cause exception UUID - {} - {} - exception: ", errorId,
+            log.error("unknown cause exception error id - {} - {} - exception: ", errorId,
                 ex.getClass(), ex);
         }
         errors = strings;

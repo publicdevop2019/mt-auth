@@ -7,7 +7,7 @@ import { Utility } from 'src/app/misc/utility';
 export class RequestIdHttpInterceptor implements HttpInterceptor {
     constructor(public dialog: MatDialog) { }
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
-        req = req.clone({ setHeaders: { UUID: Utility.getChangeId() }});
+        req = req.clone({ setHeaders: { "x-mt-request-id": Utility.getChangeId() }});
         return next.handle(req)
     }
 }

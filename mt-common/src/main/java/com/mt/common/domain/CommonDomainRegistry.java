@@ -9,6 +9,7 @@ import com.mt.common.domain.model.idempotent.ChangeRecordRepository;
 import com.mt.common.domain.model.job.DistributedJobService;
 import com.mt.common.domain.model.job.JobRepository;
 import com.mt.common.domain.model.local_transaction.TransactionService;
+import com.mt.common.domain.model.logging.LogService;
 import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import lombok.Getter;
@@ -37,10 +38,17 @@ public class CommonDomainRegistry {
     private static ApplicationInfoService applicationInfoService;
     @Getter
     private static TransactionService transactionService;
+    @Getter
+    private static LogService logService;
 
     @Autowired
     public void setTransactionService(TransactionService transactionService) {
         CommonDomainRegistry.transactionService = transactionService;
+    }
+
+    @Autowired
+    public void setLogService(LogService logService) {
+        CommonDomainRegistry.logService = logService;
     }
 
     @Autowired

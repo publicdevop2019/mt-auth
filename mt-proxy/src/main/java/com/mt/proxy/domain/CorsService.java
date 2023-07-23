@@ -2,7 +2,7 @@ package com.mt.proxy.domain;
 
 import static com.mt.proxy.domain.Utility.isWebSocket;
 
-import com.mt.proxy.infrastructure.LogHelper;
+import com.mt.proxy.infrastructure.LogService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,19 +67,19 @@ public class CorsService implements CorsConfigurationSource {
         Optional<Endpoint> endpoint = DomainRegistry.getEndpointService()
             .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
         if (endpoint.isEmpty()) {
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.debug("unable to find cors config due to missing endpoint"));
             return null;
         }
         CorsConfiguration corsConfiguration = corsConfigurations.get(endpoint.get());
         if (corsConfiguration != null) {
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.debug("mismatch cors config could also result 403"));
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.trace("found {} for path {} with method {}", corsConfiguration,
                     exchange.getRequest().getPath().value(),
                     exchange.getRequest().getMethodValue()));
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
         }
         return corsConfiguration;
@@ -95,7 +95,7 @@ public class CorsService implements CorsConfigurationSource {
         String targetMethod;
         if ("options".equalsIgnoreCase(exchange.getRequest().getMethodValue())) {
             if (exchange.getRequest().getHeaders().getAccessControlRequestMethod() == null) {
-                LogHelper.log(exchange.getRequest(),
+                LogService.reactiveLog(exchange.getRequest(),
                     (ignored) -> log.error(
                         "unexpected null value for access-control-request-method"));
                 return null;

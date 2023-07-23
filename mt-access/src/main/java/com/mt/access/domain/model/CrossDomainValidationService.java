@@ -25,6 +25,7 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -47,6 +48,7 @@ public class CrossDomainValidationService {
     private String adminEmail;
 
     public void validate(TransactionContext context) {
+        CommonDomainRegistry.getLogService().initTrace();
         log.trace("start of validate job");
         Optional<ValidationResult> validationResult1 =
             DomainRegistry.getValidationResultRepository().query();

@@ -57,6 +57,7 @@ public class EndpointApplicationService {
      */
     @EventListener(ApplicationReadyEvent.class)
     protected void reloadProxy() {
+        CommonDomainRegistry.getLogService().initTrace();
         if (reloadOnAppStart) {
             try {
                 Thread.sleep(90 * 1000);

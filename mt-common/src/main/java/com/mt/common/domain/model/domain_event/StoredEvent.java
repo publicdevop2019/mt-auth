@@ -1,5 +1,7 @@
 package com.mt.common.domain.model.domain_event;
 
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
+
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import javax.persistence.Entity;
@@ -12,6 +14,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.slf4j.MDC;
 
 @Entity
 @Table
@@ -33,6 +36,7 @@ public class StoredEvent implements Serializable {
     private String domainId;
 
     private String applicationId;
+    private String traceId;
     private Boolean routable = true;
     private Boolean rejected = false;
 
@@ -47,6 +51,7 @@ public class StoredEvent implements Serializable {
         if (event.getDomainId() != null) {
             this.domainId = event.getDomainId().getDomainId();
         }
+        this.traceId = MDC.get(TRACE_ID_LOG);
     }
 
     /**

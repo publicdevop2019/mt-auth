@@ -9,6 +9,14 @@ public class AppInfo {
     public static final String MT15_APP_NAME = "saga";
     public static final String MISSED_EVENT_SCAN_JOB_NAME = "MISSED_EVENT_SCAN";
     public static final String EVENT_SCAN_JOB_NAME = "EVENT_SCAN";
+    public static final String SPAN_ID_HTTP = "span-id";
+    public static final String SPAN_ID_LOG = "SPAN_ID";
+    public static final String TRACE_ID_HTTP = "trace-id";
+    public static final String REQUEST_ID_HTTP = "request-id";
+    public static final String TRACE_ID_LOG = "TRACE_ID";
+    public static final String CLIENT_IP_LOG = "CLIENT_IP";
+    public static final String X_FORWARDED_FOR = "X-FORWARDED-FOR";
+
     public static class EventName {
         public static final String MT3_MALL_NOTIFICATION = "MT3_MALL_NOTIFICATION";
         public static final String MT3_SKU_UPDATE_FAILED = "SKU_UPDATE_FAILED";

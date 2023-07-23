@@ -1,6 +1,8 @@
 package com.mt.proxy.domain;
 
-import static com.mt.proxy.infrastructure.AppConstant.REQ_UUID;
+import static com.mt.proxy.infrastructure.AppConstant.REQUEST_ID_HTTP;
+import static com.mt.proxy.infrastructure.AppConstant.SPAN_ID_HTTP;
+import static com.mt.proxy.infrastructure.AppConstant.TRACE_ID_HTTP;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,8 +19,14 @@ public class Utility {
         return "websocket".equals(headers.getUpgrade());
     }
 
-    public static String getUuid(HttpMessage request) {
-        return request.getHeaders().getFirst(REQ_UUID);
+    public static String getSpanId(HttpMessage request) {
+        return request.getHeaders().getFirst(SPAN_ID_HTTP);
+    }
+    public static String getRequestId(HttpMessage request) {
+        return request.getHeaders().getFirst(REQUEST_ID_HTTP);
+    }
+    public static String getTraceId(HttpMessage request) {
+        return request.getHeaders().getFirst(TRACE_ID_HTTP);
     }
 
     /**

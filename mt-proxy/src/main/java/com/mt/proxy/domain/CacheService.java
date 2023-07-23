@@ -3,7 +3,7 @@ package com.mt.proxy.domain;
 import static com.mt.proxy.domain.Utility.isWebSocket;
 import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.GATEWAY_ORIGINAL_REQUEST_URL_ATTR;
 
-import com.mt.proxy.infrastructure.LogHelper;
+import com.mt.proxy.infrastructure.LogService;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
@@ -55,12 +55,12 @@ public class CacheService {
         Optional<Endpoint> endpoint = DomainRegistry.getEndpointService()
             .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
         if (endpoint.isEmpty()) {
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.debug("unable to find cache config due to missing endpoint"));
             return null;
         }
         CacheConfiguration cacheConfiguration = this.configurationMap.get(endpoint.get());
-        LogHelper.log(exchange.getRequest(),
+        LogService.reactiveLog(exchange.getRequest(),
             (ignored) -> log.trace("found config {} for path {} with method {}", cacheConfiguration,
                 path,
                 method));

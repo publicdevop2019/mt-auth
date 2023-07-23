@@ -7,6 +7,8 @@ import static com.mt.common.CommonConstant.EXCHANGE_NAME_REJECT;
 import static com.mt.common.CommonConstant.QUEUE_NAME_ALT;
 import static com.mt.common.CommonConstant.QUEUE_NAME_DELAY;
 import static com.mt.common.CommonConstant.QUEUE_NAME_REJECT;
+import static com.mt.common.domain.model.constant.AppInfo.SPAN_ID_LOG;
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -34,6 +36,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -241,11 +244,14 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     channelNumber = -1;
                 }
                 channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
-                    log.trace("mq message received");
                     String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
                     StoredEvent storedEvent =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .deserialize(s, StoredEvent.class);
+                    MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
+                    MDC.put(SPAN_ID_LOG,
+                        CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+                    log.trace("mq message received");
                     if (log.isDebugEnabled()) {
                         long l = Instant.now().toEpochMilli();
                         Long timestamp = storedEvent.getTimestamp();
@@ -344,9 +350,11 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
+        MDC.put(TRACE_ID_LOG,event.getTraceId());
         String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
         //async publish confirm for best performance
         ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
+            MDC.put(TRACE_ID_LOG, event.getTraceId());
             Consumer<StoredEvent> markAsSent = (storedEvent) -> {
                 CommonApplicationServiceRegistry.getStoredEventApplicationService()
                     .markAsSent(storedEvent);
@@ -374,6 +382,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         };
         //in case of failure, just clear outstandingConfirms and do nothing
         ConfirmCallback nAckCallback = (sequenceNumber, multiple) -> {
+            MDC.put(TRACE_ID_LOG,event.getTraceId());
             StoredEvent body = outstandingConfirms.get(sequenceNumber);
             log.error(
                 "message with body {} has been nack-ed. sequence number: {}, multiple: {}",

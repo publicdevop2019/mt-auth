@@ -11,7 +11,8 @@ import com.mt.proxy.domain.ReportService;
 import com.mt.proxy.domain.SanitizeService;
 import com.mt.proxy.domain.Utility;
 import com.mt.proxy.domain.rate_limit.RateLimitResult;
-import com.mt.proxy.infrastructure.LogHelper;
+import com.mt.proxy.infrastructure.AppConstant;
+import com.mt.proxy.infrastructure.LogService;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
@@ -49,7 +50,6 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class ScgCustomFilter implements GlobalFilter, Ordered {
-    public static final String X_RATE_LIMIT = "x-mt-ratelimit-left";
     @Autowired
     JsonSanitizeService jsonSanitizeService;
     @Value("${mt.common.domain-name}")
@@ -91,13 +91,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
     private static boolean responseError(ServerWebExchange exchange) {
         ServerHttpResponse response = exchange.getResponse();
-        LogHelper.log(exchange.getRequest(),
+        LogService.reactiveLog(exchange.getRequest(),
             (ignored) -> log.trace("checking response in case of downstream error"));
         boolean b = response.getStatusCode() != null
             &&
             response.getStatusCode().is5xxServerError();
         if (b) {
-            LogHelper.log(exchange.getRequest(),
+            LogService.reactiveLog(exchange.getRequest(),
                 (ignored) -> log.debug("downstream error, hidden error body"));
             response.getHeaders().setContentLength(0);
         }
@@ -328,7 +328,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     }
 
     private void checkEndpoint(ServerHttpRequest request, CustomFilterContext context) {
-        LogHelper.log(request,
+        LogService.reactiveLog(request,
             (ignored) -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
                 request.getURI().getScheme()));
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
@@ -336,12 +336,12 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             request.getMethod().name(),
             context.getAuthHeader(), context.getWebsocket());
         if (!allow) {
-            LogHelper.log(request,
+            LogService.reactiveLog(request,
                 (ignored) -> log.debug("access is not allowed"));
             context.endpointCheckFailed();
             return;
         }
-        LogHelper.log(request,
+        LogService.reactiveLog(request,
             (ignored) -> log.debug("access is allowed"));
     }
 
@@ -354,13 +354,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
                 exchange.getRequest().getHeaders(), exchange.getRequest().getRemoteAddress());
         if (rateLimitResult.getAllowed() == null || !rateLimitResult.getAllowed()) {
             response.getHeaders()
-                .set(X_RATE_LIMIT, "0");
+                .set(AppConstant.X_RATE_LIMIT, "0");
             context.rateLimitReached();
         }
         ServerHttpResponse originalResponse = exchange.getResponse();
         originalResponse.beforeCommit(() -> {
             originalResponse.getHeaders()
-                .set(X_RATE_LIMIT, String.valueOf(rateLimitResult.getNewTokens()));
+                .set(AppConstant.X_RATE_LIMIT, String.valueOf(rateLimitResult.getNewTokens()));
             return Mono.empty();
         });
     }

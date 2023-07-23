@@ -26,6 +26,7 @@ import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -207,7 +208,7 @@ public class UserRelationApplicationService {
      *
      * @param event new project role created event
      */
-
+    @RecordElapseTime
     public void handle(NewProjectRoleCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {

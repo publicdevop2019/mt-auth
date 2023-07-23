@@ -23,6 +23,7 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -118,9 +119,10 @@ public class ProjectApplicationService {
 
 
     @AuditLog(actionName = CREATE_TENANT_PROJECT)
+    @RecordElapseTime
     public String tenantCreate(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
-        log.info("creating new project {}", projectId.getDomainId());
+        log.info("creating new project id {}", projectId.getDomainId());
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();

@@ -992,6 +992,7 @@ CREATE TABLE `stored_event` (
   `routable` bit(1) NOT NULL,
   `rejected` bit(1) NOT NULL,
   `application_id` varchar(255) NOT NULL,
+  `trace_id` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;

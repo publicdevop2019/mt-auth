@@ -21,6 +21,7 @@ import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -97,7 +98,7 @@ public class NotificationApplicationService {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
-
+    @RecordElapseTime
     public void handle(ProjectOnboardingComplete event) {
         log.info("handle new project onboarding complete event, project id {}",
             event.getDomainId().getDomainId());

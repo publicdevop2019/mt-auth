@@ -1,7 +1,11 @@
 package com.mt.common.domain.model.logging;
 
+import static com.mt.common.domain.model.constant.AppInfo.REQUEST_ID_HTTP;
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_HTTP;
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
+
+import com.mt.common.domain.CommonDomainRegistry;
 import java.io.IOException;
-import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpRequest;
@@ -17,13 +21,17 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
     public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes,
                                         ClientHttpRequestExecution clientHttpRequestExecution)
         throws IOException {
-        if (null == MDC.get("UUID")) {
-            String s = UUID.randomUUID().toString();
-            MDC.put("UUID", s);
-            log.info("UUID not found for outgoing request {}, auto generate value {}",
-                httpRequest.getURI(),s);
+
+        String requestId = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
+        httpRequest.getHeaders().set(REQUEST_ID_HTTP, requestId);
+        if (null == MDC.get(TRACE_ID_LOG)) {
+            String traceId = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
+            MDC.put(TRACE_ID_LOG, traceId);
+            log.info("trace id created {} path {}", traceId,
+                httpRequest.getURI());
         }
-        httpRequest.getHeaders().set("UUID", MDC.get("UUID"));
+        log.debug("request id created {} path {}", requestId, httpRequest.getURI());
+        httpRequest.getHeaders().set(TRACE_ID_HTTP, MDC.get(TRACE_ID_LOG));
         return clientHttpRequestExecution.execute(httpRequest, bytes);
     }
 }

@@ -1,5 +1,6 @@
 package com.mt.proxy.domain;
 
+import com.mt.proxy.infrastructure.LogService;
 import com.mt.proxy.port.adapter.http.HttpUtility;
 import java.io.BufferedReader;
 import java.io.File;
@@ -42,41 +43,43 @@ public class ReportService {
     private final List<String> record = new ArrayList<>();
     @Autowired
     private EndpointService endpointService;
+    @Autowired
+    private LogService logService;
     @Value("${mt.common.instance-id}")
     private String instanceId;
     @Autowired
     private HttpUtility httpHelper;
     /**
      * log response access record.
-     * response is linked to request via uuid, method & path is not logged because
+     * response is linked to request via span id, method & path is not logged because
      * fetch value requires reflection which is a performance concern
      *
      * @param exchange ServerWebExchange
      */
     public void logResponseDetail(ServerWebExchange exchange) {
         ServerHttpResponse response = exchange.getResponse();
-        String uuid = Utility.getUuid(exchange.getRequest());
+        String spanId = Utility.getSpanId(exchange.getRequest());
         long responseTimestamp = Instant.now().toEpochMilli();
         int responseStatusCode = response.getStatusCode().value();
         long contentLength = response.getHeaders().getContentLength();
         record.add("type:response,timestamp:" + responseTimestamp +
-            ",uuid:" + uuid + ",statusCode:" + responseStatusCode + ",contentLength:" +
+            ",uuid:" + spanId + ",statusCode:" + responseStatusCode + ",contentLength:" +
             contentLength);
     }
 
     public void logRequestDetails(ServerHttpRequest request) {
         long requestTimestamp = Instant.now().toEpochMilli();
         String clientIp = Utility.getClientIp(request);
-        String uuid = Utility.getUuid(request);
+        String spanId = Utility.getSpanId(request);
         String path = request.getPath().toString();
         String method = request.getMethod().toString();
         Optional<Endpoint> endpoint = endpointService.findEndpoint(path, method, false);
         if (endpoint.isPresent()) {
-            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + uuid
+            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + spanId
                 + ",clientIp:" + clientIp + ",method:" + method + ",path:" + path + ",endpointId:" +
                 endpoint.get().getId());
         } else {
-            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + uuid
+            record.add("type:request,timestamp:" + requestTimestamp + ",uuid:" + spanId
                 + ",clientIp:" + clientIp + ",method:" + method + ",path:" + path +
                 ",endpointId:not_found");
         }
@@ -87,6 +90,7 @@ public class ReportService {
      */
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void flush() {
+        logService.initTrace();
         log.trace("start of scheduled task 1");
         log.debug("start of flushing api reports");
         int size = record.size();
@@ -131,6 +135,7 @@ public class ReportService {
      */
     @Scheduled(fixedRate = 5 * 60 * 1000, initialDelay = 60 * 1000)
     public void uploadReport() {
+        logService.initTrace();
         log.trace("start of scheduled task 2");
         log.debug("start of sending api reports");
         AtomicInteger maxFileSend = new AtomicInteger(5);
