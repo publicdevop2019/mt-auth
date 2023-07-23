@@ -203,8 +203,8 @@ public class GatewayFilterTest extends CommonTest {
             TestContext.init();
             ResponseEntity<String> exchange = TestContext.getRestTemplate()
                 .exchange(url2, HttpMethod.GET, null, String.class);
-            log.info("response status is {}", exchange.getStatusCode().value());
-            log.info("rate limit left is {}", exchange.getHeaders().get(X_MT_RATELIMIT_LEFT));
+            log.trace("response status is {}", exchange.getStatusCode().value());
+            log.trace("rate limit left is {}", exchange.getHeaders().get(X_MT_RATELIMIT_LEFT));
             if (exchange.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
                 count.getAndSet(count.get() + 1);
             }

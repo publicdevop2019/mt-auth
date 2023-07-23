@@ -1,4 +1,4 @@
-package com.mt.test.resource;
+package com.mt.test_helper.resource;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

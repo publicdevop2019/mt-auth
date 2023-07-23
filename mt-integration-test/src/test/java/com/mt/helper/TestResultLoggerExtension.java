@@ -9,7 +9,7 @@ import org.junit.jupiter.api.extension.TestWatcher;
 public class TestResultLoggerExtension implements TestWatcher {
     @Override
     public void testFailed(ExtensionContext context, Throwable cause) {
-        log.error("test failed, method {}, id {}", context.getDisplayName(),
+        log.error("test failed, name {} test id {}", context.getDisplayName(),
             TestContext.getTestId());
     }
 }

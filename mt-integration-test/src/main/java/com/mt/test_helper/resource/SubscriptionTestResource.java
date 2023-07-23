@@ -1,4 +1,4 @@
-package com.mt.test.resource;
+package com.mt.test_helper.resource;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

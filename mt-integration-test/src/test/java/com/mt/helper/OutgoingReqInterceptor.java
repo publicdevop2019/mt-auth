@@ -26,7 +26,7 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
         httpRequest.getHeaders().set("testId", testId.toString());
         if (httpRequest.getHeaders().get("changeId") == null) {
             String s = UUID.randomUUID().toString();
-            log.debug("change id for request is {}", s);
+            log.trace("change id for request is {}", s);
             httpRequest.getHeaders().set("changeId", s);
         }
         if (httpRequest.getHeaders().get("uuid") == null) {

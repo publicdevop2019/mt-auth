@@ -1,4 +1,4 @@
-package com.mt.test.infrastructure;
+package com.mt.test_helper.infrastructure;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

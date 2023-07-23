@@ -1,9 +1,9 @@
 package com.mt.common.domain.model.logging;
 
+import com.mt.common.domain.model.clazz.ClassUtility;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -25,8 +25,11 @@ public class ErrorMessage {
             strings = List.of(
                 NestedExceptionUtils.getMostSpecificCause(ex).getMessage().replace("\t", "")
                     .split("\n"));
-            List<StackTraceElement> collect =
+            List<String> collect =
                 Arrays.stream(ex.getStackTrace()).filter(e -> e.getClassName().contains("com.mt"))
+                    .map(
+                        e -> ClassUtility.getShortName(e.getClassName()) + "." + e.getMethodName() +
+                            ":" + e.getLineNumber())
                     .collect(
                         Collectors.toList());
             log.info("defined exception UUID - {} - exception: {} - details: {}", errorId,
