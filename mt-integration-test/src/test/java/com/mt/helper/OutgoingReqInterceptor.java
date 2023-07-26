@@ -29,10 +29,10 @@ public class OutgoingReqInterceptor implements ClientHttpRequestInterceptor {
             log.trace("change id for request is {}", s);
             httpRequest.getHeaders().set("changeId", s);
         }
-        if (httpRequest.getHeaders().get("uuid") == null) {
+        if (httpRequest.getHeaders().get("x-mt-request-id") == null) {
             String s = UUID.randomUUID().toString();
-            log.info("{} uuid {}", httpRequest.getURI(), s);
-            httpRequest.getHeaders().set("uuid", s);
+            log.info("{} request id {}", httpRequest.getURI(), s);
+            httpRequest.getHeaders().set("x-mt-request-id", s);
         }
         httpRequest.getHeaders().set("X-XSRF-TOKEN", "123");
         httpRequest.getHeaders().add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");

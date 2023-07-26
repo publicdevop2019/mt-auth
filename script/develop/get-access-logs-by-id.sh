@@ -1,1 +1,0 @@
-cat ../../logs/access.log | grep -E "$1" > ../../logs/analytics/$1.log

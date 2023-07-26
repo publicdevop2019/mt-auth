@@ -1,5 +1,6 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import com.mt.common.domain.model.develop.Analytics;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +41,9 @@ public class DtxDistLockAspectConfig {
         String key = lockKeyValue.toString() + "_dist_lock";
         Object obj;
         RLock lock = redissonClient.getLock(key);
+        Analytics lockAnalytics = Analytics.start(Analytics.Type.LOCK_ACQUIRE);
         lock.lock(dtxDistLock.unlockAfter(), TimeUnit.SECONDS);
-        log.trace("acquire lock success for {}", key);
+        lockAnalytics.stop();
         obj = joinPoint.proceed();
         return obj;
     }

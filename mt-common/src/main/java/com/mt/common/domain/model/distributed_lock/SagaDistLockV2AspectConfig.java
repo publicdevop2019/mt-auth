@@ -1,7 +1,7 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import com.mt.common.domain.model.develop.Analytics;
 import java.lang.reflect.Method;
-import java.time.Instant;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.Signature;
@@ -41,12 +41,11 @@ public class SagaDistLockV2AspectConfig {
         String key = lockKeyValue.replace("_cancel", "") + "_dist_lock";
         Object obj;
         RLock lock = redissonClient.getLock(key + "_" + sagaDistLock.aggregateName());
-        long l1 = Instant.now().toEpochMilli();
+        Analytics lockAnalytics = Analytics.start(Analytics.Type.LOCK_ACQUIRE);
         lock.lock();//lock infinitely to avoid unexpected release
-        long l2 = Instant.now().toEpochMilli();
-        log.debug("acquire lock success for {} time taken {} milli", key, l2 - l1);
+        lockAnalytics.stop();
         obj = joinPoint.proceed();
-        if(lock.isHeldByCurrentThread()) {
+        if (lock.isHeldByCurrentThread()) {
             lock.unlock();
         }
         return obj;

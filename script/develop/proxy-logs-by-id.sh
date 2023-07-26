@@ -1,0 +1,1 @@
+cat ../../logs/proxy.log | grep -E "$1" > ../../logs/analytics/prox.$1.log

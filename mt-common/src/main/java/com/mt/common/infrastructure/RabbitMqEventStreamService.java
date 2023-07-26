@@ -13,6 +13,7 @@ import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.clazz.ClassUtility;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.MqHelper;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -251,7 +253,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
                     MDC.put(SPAN_ID_LOG,
                         CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+                    Analytics deliverAnalytic = Analytics.start(storedEvent);
                     log.trace("mq message received");
+                    deliverAnalytic.stopEvent(channelNumber, consumerTag, storedEvent);
                     if (log.isDebugEnabled()) {
                         long l = Instant.now().toEpochMilli();
                         Long timestamp = storedEvent.getTimestamp();
@@ -279,22 +283,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         consumeSuccess = false;
                     }
                     if (consumeSuccess) {
-                        long l1 = Instant.now().toEpochMilli();
-                        Long l2 = storedEvent.getTimestamp();
-                        log.debug(
-                            "channel num {} tag {} complete handling {} with id {}, total time taken is {} milli",
-                            channelNumber,
-                            consumerTag,
-                            ClassUtility.getShortName(storedEvent.getName()),
-                            storedEvent.getId(), l1 - l2);
-                        if (l1 - l2 > 10 * 1000) {
-                            log.error(
-                                "channel num {} tag {} complete handling {} with id {}, total time taken is {} milli",
-                                channelNumber,
-                                consumerTag,
-                                ClassUtility.getShortName(storedEvent.getName()),
-                                storedEvent.getId(), l1 - l2);
-                        }
                         finalChannel.basicAck(deliveryTag, false);
                     } else {
                         finalChannel.basicNack(deliveryTag, false,
@@ -350,10 +338,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
-        MDC.put(TRACE_ID_LOG,event.getTraceId());
+        AtomicReference<Analytics> publishAnalytic = new AtomicReference<>();
+        MDC.put(TRACE_ID_LOG, event.getTraceId());
         String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
         //async publish confirm for best performance
-        ConfirmCallback ackCallback = (sequenceNumber, multiple) -> {
+        ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
+            publishAnalytic.get().stop();
             MDC.put(TRACE_ID_LOG, event.getTraceId());
             Consumer<StoredEvent> markAsSent = (storedEvent) -> {
                 CommonApplicationServiceRegistry.getStoredEventApplicationService()
@@ -381,8 +371,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }
         };
         //in case of failure, just clear outstandingConfirms and do nothing
-        ConfirmCallback nAckCallback = (sequenceNumber, multiple) -> {
-            MDC.put(TRACE_ID_LOG,event.getTraceId());
+        ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
+            MDC.put(TRACE_ID_LOG, event.getTraceId());
             StoredEvent body = outstandingConfirms.get(sequenceNumber);
             log.error(
                 "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
@@ -410,14 +400,15 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     HttpResponseCode.NOT_HTTP, e);
             }
             channel.addConfirmListener(
-                ackCallback,
-                nAckCallback);
+                confirmCallback,
+                rejectCallback);
             pubChannel.put(thread, channel);
         }
         //publish msg
         try {
             String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
             checkExchange(channel);
+            publishAnalytic.set(Analytics.start(Analytics.Type.EVENT_PUBLISH_CONFIRM));
             outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
             log.debug("channel num {} publish next event id {} with routing key {}",
                 channel.getChannelNumber(), event.getId(), routingKey);

@@ -1,0 +1,1 @@
+cat ../../logs/test-run.log | grep -E "$1" > ../../logs/analytics/test.$1.log

@@ -1,6 +1,7 @@
 package com.mt.common.infrastructure;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.job.DistributedJobService;
 import com.mt.common.domain.model.job.JobDetail;
@@ -52,6 +53,7 @@ public class RedisDistributedJobService implements DistributedJobService {
             return;
         }
         taskExecutor.execute(() -> {
+            Analytics start = Analytics.start(Analytics.Type.JOB_EXECUTION);
             log.debug("running job {}", jobName);
             //check if job exist
             Optional<JobDetail> byName =
@@ -94,6 +96,7 @@ public class RedisDistributedJobService implements DistributedJobService {
                 JobDetail jobDetail = instanceJob.orElse(template);
                 jobWrapper(jobFn, transactional, jobDetail);
             }
+            start.stop();
         });
     }
 
@@ -163,7 +166,7 @@ public class RedisDistributedJobService implements DistributedJobService {
         log.trace("before starting scheduler {} job", jobName);
         String key = getJobLockKey(jobName);
         RLock lock = redissonClient.getLock(key);
-        //"if (lock.tryLock())" guarantee atomic operation
+        //NOTE: "if (lock.tryLock())" guarantee atomic operation
         if (lock.tryLock()) {
             log.trace("acquire lock success for key {}", key);
             // release lock after below steps complete to avoid concurrent update issue

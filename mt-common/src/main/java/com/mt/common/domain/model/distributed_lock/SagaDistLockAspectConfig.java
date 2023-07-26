@@ -1,5 +1,6 @@
 package com.mt.common.domain.model.distributed_lock;
 
+import com.mt.common.domain.model.develop.Analytics;
 import java.lang.reflect.Method;
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
@@ -42,10 +43,9 @@ public class SagaDistLockAspectConfig {
         String key = lockKeyValue.replace("_cancel", "") + "_dist_lock";
         Object obj;
         RLock lock = redissonClient.getLock(key + "_" + sagaDistLock.aggregateName());
-        long l1 = Instant.now().toEpochMilli();
+        Analytics lockAnalytics = Analytics.start(Analytics.Type.LOCK_ACQUIRE);
         lock.lock(sagaDistLock.unlockAfter(), TimeUnit.SECONDS);//todo check if lock still acquired when task finish
-        long l2 = Instant.now().toEpochMilli();
-        log.debug("acquire lock success for {} time taken {} milli", key, l2 - l1);
+        lockAnalytics.stop();
         obj = joinPoint.proceed();
         return obj;
     }

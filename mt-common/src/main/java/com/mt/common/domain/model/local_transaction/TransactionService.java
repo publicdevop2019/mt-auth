@@ -1,7 +1,9 @@
 package com.mt.common.domain.model.local_transaction;
 
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.Analytics;
 import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import lombok.extern.slf4j.Slf4j;
@@ -25,31 +27,50 @@ public class TransactionService {
     public void transactionalEvent(Consumer<TransactionContext> fn) {
         TransactionContext init = TransactionContext.init();
         TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+        AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
         template.execute(new TransactionCallbackWithoutResult() {
             @Override
             protected void doInTransactionWithoutResult(TransactionStatus status) {
+                Analytics wrapperAnalytics = Analytics.start(Analytics.Type.DOMAIN_LOGIC_AND_IDEMPOTENT_ENTITY);
                 fn.accept(init);
+                wrapperAnalytics.stop();
+                persistAnalytics.set(Analytics.start(Analytics.Type.DATA_PERSISTENCE));
             }
         });
+        persistAnalytics.get().stop();
         submitEvent(init);
     }
 
-    public <T> T returnedTransactionalEvent(Function<TransactionContext, T> fn) {
+    public <T> T returnedTransactionalEvent(Function<TransactionContext, T> domainLogicWrapper) {
         TransactionContext init = TransactionContext.init();
         TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
-        T t = template.execute(transactionStatus -> fn.apply(init));
+        AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
+        T t = template.execute(transactionStatus -> {
+            Analytics wrapperAnalytics = Analytics.start(Analytics.Type.DOMAIN_LOGIC_AND_IDEMPOTENT_ENTITY);
+            T apply = domainLogicWrapper.apply(init);
+            wrapperAnalytics.stop();
+            persistAnalytics.set(Analytics.start(Analytics.Type.DATA_PERSISTENCE));
+            return apply;
+        });
+        persistAnalytics.get().stop();
         submitEvent(init);
         return t;
     }
 
     private void submitEvent(TransactionContext context) {
+        if(context.getEvents().isEmpty()){
+            log.debug("skip publishing event since no event found");
+            return;
+        }
         eventSubmitExecutor.execute(() -> {
+            Analytics start = Analytics.start(Analytics.Type.EVENT_EMIT);
             log.debug("total domain event found {}", context.getEvents().size());
             context.getEvents().forEach(e -> {
                 log.trace("publishing event {} with id {}", e.getName(),
                     e.getId());
                 CommonDomainRegistry.getEventStreamService().next(e);
             });
+            start.stop();
         });
     }
 }

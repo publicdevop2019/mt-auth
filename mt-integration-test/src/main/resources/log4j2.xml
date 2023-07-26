@@ -9,7 +9,7 @@
         <RollingFile name="fileLogger" fileName="${location}/${name}.log"
                      filePattern="${location}/archived/${name}-%d{yyyy-MM-dd}.%i.log" immediateFlush="false">
             <PatternLayout>
-                <pattern>%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} - %msg%n</pattern>
+                <pattern>%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %c{1.} %msg%n</pattern>
             </PatternLayout>
             <Policies>
                 <OnStartupTriggeringPolicy/>
@@ -19,7 +19,7 @@
         </RollingFile>
         <Console name="console" target="SYSTEM_OUT">
             <PatternLayout
-                    pattern="%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %logger{36} - %msg%n"/>
+                    pattern="%d{ISO8601_OFFSET_DATE_TIME_HHCMM} [%thread] %level %c{1.} %msg%n"/>
         </Console>
     </Appenders>
     <Loggers>
