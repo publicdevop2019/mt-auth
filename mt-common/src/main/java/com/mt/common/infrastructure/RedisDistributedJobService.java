@@ -1,5 +1,8 @@
 package com.mt.common.infrastructure;
 
+import static com.mt.common.domain.model.constant.AppInfo.SPAN_ID_LOG;
+import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
+
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -18,6 +21,7 @@ import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -49,6 +53,8 @@ public class RedisDistributedJobService implements DistributedJobService {
     @Override
     public void execute(String jobName, Consumer<TransactionContext> jobFn, boolean transactional,
                         int ignoreCount) {
+        MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+        MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
         Integer orDefault = jobIgnoreCount.getOrDefault(jobName, ignoreCount);
         if (orDefault != 0) {
             jobIgnoreCount.put(jobName, --orDefault);

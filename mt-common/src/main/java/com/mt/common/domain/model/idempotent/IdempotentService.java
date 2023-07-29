@@ -126,8 +126,8 @@ public class IdempotentService {
                              String aggregateName) {
         Analytics analytics = Analytics.start(Analytics.Type.IDEMPOTENT_CHECK);
         Optional<ChangeRecord> changeRecord =
-            CommonDomainRegistry.getChangeRecordRepository().query(
-                ChangeRecordQuery.idempotentQuery(changeId, aggregateName)).findFirst();
+            CommonDomainRegistry.getChangeRecordRepository().internalQuery(
+                changeId, aggregateName);
         analytics.stop();
         if (changeRecord.isPresent()) {
             log.debug("change already exist, return saved result");

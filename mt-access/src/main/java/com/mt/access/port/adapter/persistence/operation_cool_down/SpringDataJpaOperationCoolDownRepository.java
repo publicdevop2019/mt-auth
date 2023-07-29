@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface SpringDataJpaOperationCoolDownRepository
     extends JpaRepository<OperationCoolDown, Long>,
     OperationCoolDownRepository {
+
     @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
     @Query("SELECT p FROM #{#entityName} as p WHERE p.executor = ?1 AND p.operationType = ?2")
     Optional<OperationCoolDown> findByExecutorAndOperationType(String executor,

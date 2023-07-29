@@ -6,6 +6,8 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import javax.persistence.EntityListeners;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
@@ -29,6 +31,7 @@ public abstract class Auditable implements Serializable {
     @Id
     @Setter(AccessLevel.PROTECTED)
     @Getter(AccessLevel.PRIVATE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     @CreatedBy
     @Setter(AccessLevel.PROTECTED)
