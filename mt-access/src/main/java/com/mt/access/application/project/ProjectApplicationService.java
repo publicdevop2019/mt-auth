@@ -119,7 +119,6 @@ public class ProjectApplicationService {
 
 
     @AuditLog(actionName = CREATE_TENANT_PROJECT)
-    @RecordElapseTime
     public String tenantCreate(ProjectCreateCommand command, String changeId) {
         ProjectId projectId = new ProjectId();
         log.info("creating new project id {}", projectId.getDomainId());

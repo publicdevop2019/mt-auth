@@ -50,8 +50,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Autowired
-    @Qualifier("msg")
-    private ThreadPoolExecutor subExecutor;
+    @Qualifier("event-sub")
+    private ThreadPoolExecutor eventSubPoolExecutor;
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
     private final Boolean autoAck = false;
@@ -194,13 +194,14 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         Class<T> clazz,
         String... topics) {
         //using pool to avoid single thread get all queue bindings
-        subExecutor.execute(() -> {
+        eventSubPoolExecutor.execute(() -> {
             Thread thread = Thread.currentThread();
             log.debug("{} subscribing to queue {}", thread.getName(), queueName);
             Channel channel = subChannel.get(thread);
             if (channel == null) {
                 try {
                     channel = connectionSub.createChannel();
+                    checkExchange(channel);
                 } catch (IOException e) {
                     throw new DefinedRuntimeException(
                         "unable create subscribe channel with routing key " + routingKeyPrefix +
@@ -222,7 +223,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     }
                     channel.queueDeclare(queueName, true, false, autoDelete, args);
                 }
-                checkExchange(channel);
                 //TODO find out proper prefetch value, this requires test in prod env
                 channel.basicQos(30);
                 for (String topic : topics) {
@@ -257,14 +257,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     log.trace("mq message received");
                     deliverAnalytic.stopEvent(channelNumber, consumerTag, storedEvent);
                     if (log.isDebugEnabled()) {
-                        long l = Instant.now().toEpochMilli();
-                        Long timestamp = storedEvent.getTimestamp();
                         log.debug(
-                            "channel num {} tag {} handling {} with id {}, total time taken before consume is {} milli",
+                            "channel num {} tag {} handling {} with id {}",
                             channelNumber,
                             consumerTag,
                             ClassUtility.getShortName(storedEvent.getName()),
-                            storedEvent.getId(), l - timestamp);
+                            storedEvent.getId());
                     }
                     long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                     boolean consumeSuccess = true;
@@ -338,8 +336,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
-        AtomicReference<Analytics> publishAnalytic = new AtomicReference<>();
         MDC.put(TRACE_ID_LOG, event.getTraceId());
+        AtomicReference<Analytics> publishAnalytic = new AtomicReference<>();
         String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
         //async publish confirm for best performance
         ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
@@ -390,9 +388,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         Thread thread = Thread.currentThread();
         Channel channel = pubChannel.get(thread);
         if (channel == null) {
+            log.debug("no channel found, creating new");
             try {
                 channel = connectionPub.createChannel();
                 channel.confirmSelect();
+                checkExchange(channel);
+                log.debug("complete exchange check");
             } catch (IOException e) {
                 throw new DefinedRuntimeException(
                     "unable create channel for " + appId + " with routing key " + routingKey,
@@ -406,8 +407,9 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         }
         //publish msg
         try {
+            log.trace("before publish message");
             String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
-            checkExchange(channel);
+            log.trace("complete serialization");
             publishAnalytic.set(Analytics.start(Analytics.Type.EVENT_PUBLISH_CONFIRM));
             outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
             log.debug("channel num {} publish next event id {} with routing key {}",
@@ -431,12 +433,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     private void checkExchange(Channel channel) throws IOException {
         Map<String, Object> args = new HashMap<>();
         args.put("alternate-exchange", EXCHANGE_NAME_ALT);
-
+        log.debug("exchange declare");
         channel.exchangeDeclare(EXCHANGE_NAME, "topic", true, false, args);
         channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout", true, false, null);
         channel.exchangeDeclare(EXCHANGE_NAME_REJECT, "fanout", true, false, null);
         channel.exchangeDeclare(EXCHANGE_NAME_DELAY, "fanout", true, false, null);
-
+        log.debug("queue declare");
         channel.queueDeclare(QUEUE_NAME_ALT, true, false, false, null);
         channel.queueDeclare(QUEUE_NAME_REJECT, true, false, false, null);
 
@@ -444,7 +446,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         args2.put("x-dead-letter-exchange", EXCHANGE_NAME);
         args2.put("x-message-ttl", 60 * 1000);//redeliver after 60s
         channel.queueDeclare(QUEUE_NAME_DELAY, true, false, false, args2);
-
+        log.debug("queue bind");
         channel.queueBind(QUEUE_NAME_ALT, EXCHANGE_NAME_ALT, "");
         channel.queueBind(QUEUE_NAME_REJECT, EXCHANGE_NAME_REJECT, "");
         channel.queueBind(QUEUE_NAME_DELAY, EXCHANGE_NAME_DELAY, "");

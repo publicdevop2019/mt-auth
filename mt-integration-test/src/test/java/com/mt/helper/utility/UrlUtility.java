@@ -2,11 +2,13 @@ package com.mt.helper.utility;
 
 import com.mt.helper.AppConstant;
 import java.util.Objects;
+import org.junit.jupiter.api.Assertions;
 import org.springframework.http.ResponseEntity;
 
 public class UrlUtility {
 
     public static String getId(ResponseEntity<?> entity) {
+        Assertions.assertNotNull(entity.getHeaders().getLocation());
         return Objects.requireNonNull(entity.getHeaders().getLocation()).toString();
     }
 

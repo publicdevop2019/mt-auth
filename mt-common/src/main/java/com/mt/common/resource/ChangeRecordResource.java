@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json", path = "changes")
 public class ChangeRecordResource {
-
+    //TODO remove or add to UI
     @GetMapping("root")
     public ResponseEntity<?> readForRootByQuery(
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,

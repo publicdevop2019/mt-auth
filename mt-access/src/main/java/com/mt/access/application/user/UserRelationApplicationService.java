@@ -208,7 +208,6 @@ public class UserRelationApplicationService {
      *
      * @param event new project role created event
      */
-    @RecordElapseTime
     public void handle(NewProjectRoleCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {

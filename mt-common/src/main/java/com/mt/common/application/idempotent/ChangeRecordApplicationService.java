@@ -5,53 +5,30 @@ import com.mt.common.domain.model.idempotent.ChangeRecord;
 import com.mt.common.domain.model.idempotent.ChangeRecordQuery;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ChangeRecordApplicationService {
-    public SumPagedRep<ChangeRecord> changeRecords(String s) {
+
+    public SumPagedRep<ChangeRecord> changeRecords(String queryParam, String pageConfig,
+                                                   String queryConfig) {
         return CommonDomainRegistry.getChangeRecordRepository()
-            .changeRecordsOfQuery(new ChangeRecordQuery(s));
+            .query(new ChangeRecordQuery(queryParam, pageConfig, queryConfig));
     }
 
-    public SumPagedRep<ChangeRecord> changeRecords(String s, String s1, String s2) {
-        return CommonDomainRegistry.getChangeRecordRepository()
-            .changeRecordsOfQuery(new ChangeRecordQuery(s, s1, s2));
+    public ChangeRecord saveChange(String changeId, String aggregate) {
+        ChangeRecord changeRecord = ChangeRecord.create(changeId, aggregate);
+        CommonDomainRegistry.getChangeRecordRepository().add(changeRecord);
+        return changeRecord;
     }
 
-    @Transactional
-    public void createForward(CreateChangeRecordCommand changeRecord) {
-        long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        ChangeRecord changeRecord1 =
-            new ChangeRecord(id, changeRecord.getChangeId(), changeRecord.getAggregateName(),
-                changeRecord.getReturnValue());
-        CommonDomainRegistry.getChangeRecordRepository().addForwardChangeRecord(changeRecord1);
-    }
-
-    @Transactional
-    public void createEmptyForward(CreateChangeRecordCommand changeRecord) {
-        long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        ChangeRecord changeRecord1 =
-            new ChangeRecord(id, changeRecord.getChangeId(), changeRecord.getAggregateName(),
-                changeRecord.getReturnValue());
-        CommonDomainRegistry.getChangeRecordRepository().addEmptyForwardChangeRecord(changeRecord1);
-    }
-
-    @Transactional
-    public void createReverse(CreateChangeRecordCommand changeRecord) {
-        long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        ChangeRecord changeRecord1 =
-            new ChangeRecord(id, changeRecord.getChangeId(), changeRecord.getAggregateName(),
-                changeRecord.getReturnValue());
-        CommonDomainRegistry.getChangeRecordRepository().addReverseChangeRecord(changeRecord1);
-    }
-
-    @Transactional
-    public void createEmptyReverse(CreateChangeRecordCommand changeRecord) {
-        long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        ChangeRecord changeRecord1 =
-            new ChangeRecord(id, changeRecord.getChangeId(), changeRecord.getAggregateName(),
-                changeRecord.getReturnValue());
-        CommonDomainRegistry.getChangeRecordRepository().addEmptyReverseChangeRecord(changeRecord1);
+    public ChangeRecord saveEmptyChange(String changeId, String aggregate) {
+        ChangeRecord emptyBackwardChange = ChangeRecord.create(changeId, aggregate);
+        emptyBackwardChange.setEmptyOpt(Boolean.TRUE);
+        //create empty forward change for concurrent safe
+        ChangeRecord emptyForwardChange = ChangeRecord.create(ChangeRecord.getForwardChangeId(changeId), aggregate);
+        emptyForwardChange.setEmptyOpt(Boolean.TRUE);
+        CommonDomainRegistry.getChangeRecordRepository().add(emptyBackwardChange);
+        CommonDomainRegistry.getChangeRecordRepository().add(emptyForwardChange);
+        return emptyBackwardChange;
     }
 }

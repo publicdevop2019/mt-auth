@@ -142,6 +142,7 @@ CREATE TABLE `change_record` (
   `id` bigint NOT NULL,
   `change_id` varchar(255) NOT NULL,
   `entity_type` varchar(255) NOT NULL,
+  `empty_opt` bit(1) DEFAULT NULL,
   `return_value` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `UK2lxn3cforhkp6bwr3a2tjrnbw` (`change_id`,`entity_type`)

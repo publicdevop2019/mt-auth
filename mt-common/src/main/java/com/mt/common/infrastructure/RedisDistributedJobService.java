@@ -11,14 +11,15 @@ import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.infrastructure.thread_pool.JobThreadPoolExecutor;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RedisDistributedJobService implements DistributedJobService {
     @Autowired
-    private JobThreadPoolExecutor taskExecutor;
+    @Qualifier("job")
+    private ThreadPoolExecutor taskExecutor;
     @Autowired
     private RedissonClient redissonClient;
     @Value("${mt.common.instance-id}")

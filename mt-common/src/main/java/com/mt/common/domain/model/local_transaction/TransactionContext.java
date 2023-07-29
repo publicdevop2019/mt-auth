@@ -1,11 +1,11 @@
 package com.mt.common.domain.model.local_transaction;
 
-import com.mt.common.application.idempotent.CreateChangeRecordCommand;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.idempotent.ChangeRecord;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
@@ -14,7 +14,8 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 @Getter
 public class TransactionContext {
     List<StoredEvent> events = new ArrayList<>();
-    CreateChangeRecordCommand changeRecord;
+    ChangeRecord changeRecord;
+
     public static TransactionContext init() {
         return new TransactionContext();
     }
@@ -29,7 +30,7 @@ public class TransactionContext {
         events.add(storedEvent);
     }
 
-    public void setChangeRecord(CreateChangeRecordCommand changeRecord) {
+    public void setChangeRecord(ChangeRecord changeRecord) {
         this.changeRecord = changeRecord;
     }
 }

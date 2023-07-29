@@ -1,16 +1,12 @@
 package com.mt.common.domain.model.idempotent;
 
 import com.mt.common.domain.model.restful.SumPagedRep;
+import java.util.Optional;
 
 public interface ChangeRecordRepository {
-    SumPagedRep<ChangeRecord> changeRecordsOfQuery(ChangeRecordQuery changeRecordQuery);
+    SumPagedRep<ChangeRecord> query(ChangeRecordQuery changeRecordQuery);
 
-    void addForwardChangeRecord(ChangeRecord changeRecord);
+    Optional<ChangeRecord> internalQuery(String changeId, String entityType);
 
-    void addReverseChangeRecord(ChangeRecord changeRecord);
-
-    void addEmptyReverseChangeRecord(ChangeRecord changeRecord);
-
-    void addEmptyForwardChangeRecord(ChangeRecord changeRecord);
-
+    void add(ChangeRecord changeRecord);
 }

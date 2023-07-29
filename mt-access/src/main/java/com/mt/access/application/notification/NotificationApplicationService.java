@@ -98,7 +98,6 @@ public class NotificationApplicationService {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
-    @RecordElapseTime
     public void handle(ProjectOnboardingComplete event) {
         log.info("handle new project onboarding complete event, project id {}",
             event.getDomainId().getDomainId());

@@ -32,6 +32,14 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
+        <Logger name="com.mt.common.domain.model.local_transaction.TransactionService" level="debug" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
+        <Logger name="com.mt.common.domain.model.develop.Analytics" level="info" additivity="false">
+            <appender-ref ref="console"/>
+            <appender-ref ref="fileLogger"/>
+        </Logger>
         <Logger name="com.mt.access" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>

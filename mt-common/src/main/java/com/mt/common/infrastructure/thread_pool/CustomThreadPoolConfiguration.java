@@ -4,6 +4,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import lombok.extern.slf4j.Slf4j;
@@ -13,20 +14,20 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @Slf4j
 public class CustomThreadPoolConfiguration {
-    @Bean
-    public JobThreadPoolExecutor pool() {
+    @Bean(name = "job")
+    public CleanUpThreadPoolExecutor pool() {
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(8);//fixed queue size
-        return new JobThreadPoolExecutor(
+        return new CleanUpThreadPoolExecutor(
             10,
             25,
             1000,
             TimeUnit.SECONDS,
             queue,
-            new JobThreadFactory(),
+            new NamedThreadPoolFactory("job"),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                    log.error("reject " + r.toString() + ", queue.size: " + queue.size());
+                    log.warn("reject " + r.toString() + ", queue.size: " + queue.size());
                 }
             }
         );
@@ -34,43 +35,44 @@ public class CustomThreadPoolConfiguration {
 
     /**
      * create custom thread pool for rabbitmq, to avoid single thread get all queue bindings
+     *
      * @return thread pool executor
      */
-    @Bean(name = "msg")
-    public ThreadPoolExecutor pool2() {
+    @Bean(name = "event-sub")
+    public CleanUpThreadPoolExecutor pool2() {
         //for msg queue we give it max value to avoid rejection
         BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-        return new ThreadPoolExecutor(
+        return new CleanUpThreadPoolExecutor(
             20,
             20,
             1000,
             TimeUnit.SECONDS,
             queue,
-            new MsgThreadFactory(),
+            new NamedThreadPoolFactory("event-sub"),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                    log.debug("reject " + r.toString() + ", queue.size: " + queue.size());
+                    log.warn("reject " + r.toString() + ", queue.size: " + queue.size());
                 }
             }
         );
     }
 
-    @Bean(name = "event-submit")
-    public ThreadPoolExecutor pool3() {
-        //we give it max value to avoid rejection
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
-        return new ThreadPoolExecutor(
-            5,
-            5,
-            1000,
+    @Bean(name = "event-pub")
+    public CleanUpThreadPoolExecutor pool3() {
+        //no queueing, unlimited pool size
+        BlockingQueue<Runnable> queue = new SynchronousQueue<>();
+        return new CleanUpThreadPoolExecutor(
+            20,
+            Integer.MAX_VALUE,
+            60,
             TimeUnit.SECONDS,
             queue,
-            new EventSubmitThreadFactory(),
+            new NamedThreadPoolFactory("event-pub"),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-                    log.debug("reject " + r.toString() + ", queue.size: " + queue.size());
+                    log.warn("reject " + r.toString() + ", queue.size: " + queue.size());
                 }
             }
         );

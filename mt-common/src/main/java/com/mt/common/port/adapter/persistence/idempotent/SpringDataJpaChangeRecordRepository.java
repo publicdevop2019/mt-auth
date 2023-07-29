@@ -11,6 +11,7 @@ import com.mt.common.port.adapter.persistence.CommonQueryBuilderRegistry;
 import java.util.Optional;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -21,23 +22,18 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaChangeRecordRepository
     extends ChangeRecordRepository, JpaRepository<ChangeRecord, Long> {
 
-    default SumPagedRep<ChangeRecord> changeRecordsOfQuery(ChangeRecordQuery changeRecordQuery) {
+    default SumPagedRep<ChangeRecord> query(ChangeRecordQuery changeRecordQuery) {
         return CommonQueryBuilderRegistry.getChangeRecordQueryBuilder().execute(changeRecordQuery);
     }
 
-    default void addForwardChangeRecord(ChangeRecord changeRecord) {
-        save(changeRecord);
+    default Optional<ChangeRecord> internalQuery(String changeId, String entityType) {
+        return _findByChangeIdAndEntityType(changeId, entityType);
     }
 
-    default void addReverseChangeRecord(ChangeRecord changeRecord) {
-        save(changeRecord);
-    }
+    @Query("select c from #{#entityName} c where c.changeId = ?1 and c.entityType = ?2")
+    Optional<ChangeRecord> _findByChangeIdAndEntityType(String changeId, String entityType);
 
-    default void addEmptyReverseChangeRecord(ChangeRecord changeRecord) {
-        save(changeRecord);
-    }
-
-    default void addEmptyForwardChangeRecord(ChangeRecord changeRecord) {
+    default void add(ChangeRecord changeRecord) {
         save(changeRecord);
     }
 

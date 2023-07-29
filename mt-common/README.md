@@ -16,9 +16,3 @@
 
 - Github package 不允许PAT(personal access token)在公共资源上使用（会直接删除PAT）,docker build一直失败
 - JFrog 同样需要身份验证
-
-# Create index for change record table
-
-```
-CREATE INDEX change_id_idx ON change_record (change_Id);
-```

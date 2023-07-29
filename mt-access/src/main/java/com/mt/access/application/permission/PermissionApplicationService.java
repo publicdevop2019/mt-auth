@@ -209,7 +209,6 @@ public class PermissionApplicationService {
             }, PERMISSION);
     }
 
-    @RecordElapseTime
     public void handle(StartNewProjectOnboarding event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {

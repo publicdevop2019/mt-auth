@@ -160,7 +160,6 @@ public class RoleApplicationService {
      *
      * @param event permission created event
      */
-    @RecordElapseTime
     public void handle(ProjectPermissionCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
