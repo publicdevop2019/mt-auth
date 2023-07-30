@@ -5,8 +5,8 @@ import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class PermissionCheckService {
     public void canAccess(Set<ProjectId> ids, String permissionName) {
         Validator.notNull(ids);
+        Analytics permissionAnalytics = Analytics.start(Analytics.Type.PERMISSION_CHECK);
         if (ids == null) {
             throw new DefinedRuntimeException("no project id found", "1027",
                 HttpResponseCode.FORBIDDEN);
@@ -39,14 +40,15 @@ public class PermissionCheckService {
         }
         //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery
-            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), ids);
-        permissionQuery.setNames(Collections.singleton(permissionName));
+            .ofProjectWithTenantIds(ids, permissionName);
         Set<Permission> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 permissionQuery);
-        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
-            allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
-        if (!b1) {
+        boolean hasPermissions =
+            DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
+                allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
+        permissionAnalytics.stop();
+        if (!hasPermissions) {
             throw new DefinedRuntimeException("no required access permission: " + permissionName,
                 "1030",
                 HttpResponseCode.FORBIDDEN);

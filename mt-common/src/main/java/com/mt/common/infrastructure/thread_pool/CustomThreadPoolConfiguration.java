@@ -40,12 +40,12 @@ public class CustomThreadPoolConfiguration {
      */
     @Bean(name = "event-sub")
     public CleanUpThreadPoolExecutor pool2() {
-        //for msg queue we give it max value to avoid rejection
-        BlockingQueue<Runnable> queue = new LinkedBlockingQueue<>();
+        //for event-pub, unlimited pool size to make sure one channel has one consumer only
+        BlockingQueue<Runnable> queue = new SynchronousQueue<>();
         return new CleanUpThreadPoolExecutor(
             20,
-            20,
-            1000,
+            Integer.MAX_VALUE,
+            60,
             TimeUnit.SECONDS,
             queue,
             new NamedThreadPoolFactory("event-sub"),
@@ -69,6 +69,46 @@ public class CustomThreadPoolConfiguration {
             TimeUnit.SECONDS,
             queue,
             new NamedThreadPoolFactory("event-pub"),
+            new RejectedExecutionHandler() {
+                @Override
+                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                    log.warn("reject " + r.toString() + ", queue.size: " + queue.size());
+                }
+            }
+        );
+    }
+
+    @Bean(name = "event-exe")
+    public CleanUpThreadPoolExecutor pool4() {
+        //no queueing, max pool size = 60
+        BlockingQueue<Runnable> queue = new SynchronousQueue<>();
+        return new CleanUpThreadPoolExecutor(
+            50,
+            100,
+            60,
+            TimeUnit.SECONDS,
+            queue,
+            new NamedThreadPoolFactory("event-exe"),
+            new RejectedExecutionHandler() {
+                @Override
+                public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                    log.warn("reject " + r.toString() + ", queue.size: " + queue.size());
+                }
+            }
+        );
+    }
+
+    @Bean(name = "mark-event")
+    public CleanUpThreadPoolExecutor pool5() {
+        //no queueing, max pool size = 60
+        BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(64);
+        return new CleanUpThreadPoolExecutor(
+            50,
+            100,
+            60,
+            TimeUnit.SECONDS,
+            queue,
+            new NamedThreadPoolFactory("mark-event"),
             new RejectedExecutionHandler() {
                 @Override
                 public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {

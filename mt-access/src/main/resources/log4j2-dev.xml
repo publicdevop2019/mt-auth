@@ -28,11 +28,11 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <Logger name="com.mt.common.infrastructure.RabbitMqEventStreamService" level="debug" additivity="false">
+        <Logger name="com.mt.common.infrastructure.RabbitMqEventStreamService" level="info" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <Logger name="com.mt.common.domain.model.local_transaction.TransactionService" level="debug" additivity="false">
+        <Logger name="com.mt.common.domain.model.local_transaction.TransactionService" level="info" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>

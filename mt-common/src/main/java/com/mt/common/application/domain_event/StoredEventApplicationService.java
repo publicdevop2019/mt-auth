@@ -42,7 +42,6 @@ public class StoredEventApplicationService {
      *
      * @param event unroutable event
      */
-    @Transactional
     public void markAsUnroutable(StoredEvent event) {
         Long id = event.getId();
         if (id != null) {

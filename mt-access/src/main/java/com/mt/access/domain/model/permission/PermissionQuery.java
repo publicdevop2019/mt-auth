@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.permission;
 
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -100,21 +101,24 @@ public class PermissionQuery extends QueryCriteria {
     }
 
     /**
-     * create query to find read project permission for tenant
+     * create query to find tenant permission for root project
      *
-     * @param projectId project id
      * @param tenantIds tenant id
      * @return PermissionQuery
      */
-    public static PermissionQuery ofProjectWithTenantIds(ProjectId projectId,
-                                                         Set<ProjectId> tenantIds) {
+    public static PermissionQuery ofProjectWithTenantIds(
+        Set<ProjectId> tenantIds,
+        String permissionName
+    ) {
         PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.projectIds = Collections.singleton(projectId);
+        permissionQuery.projectIds =
+            Collections.singleton(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
         Validator.notEmpty(tenantIds);
         permissionQuery.tenantIds = tenantIds;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
-        permissionQuery.setQueryConfig(QueryConfig.skipCount());
+        permissionQuery.setQueryConfig(QueryConfig.countRequired());
         permissionQuery.sort = PermissionSort.byId(true);
+        permissionQuery.names = Collections.singleton(permissionName);
         return permissionQuery;
     }
 

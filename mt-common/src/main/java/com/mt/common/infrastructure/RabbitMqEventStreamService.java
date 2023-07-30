@@ -24,6 +24,7 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -34,7 +35,6 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -52,12 +52,17 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Autowired
     @Qualifier("event-sub")
     private ThreadPoolExecutor eventSubPoolExecutor;
+    @Autowired
+    @Qualifier("mark-event")
+    private ThreadPoolExecutor markEventPoolExecutor;
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
-    private final Boolean autoAck = false;
     private final Connection connectionPub;
     private final Connection connectionSub;
-    ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms = new ConcurrentSkipListMap<>();
+    private Map<Thread, ConcurrentNavigableMap<Long, StoredEvent>> pendingConfirms =
+        new HashMap<>();
+    private Map<Thread, ConcurrentNavigableMap<Long, Long>> pendingConfirmsStartAt =
+        new HashMap<>();
     private static final HashSet<String> reservedQueue = new HashSet<>();
 
     static {
@@ -66,7 +71,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         reservedQueue.add(QUEUE_NAME_DELAY);
     }
 
-    public RabbitMqEventStreamService(@Value("${mt.common.url.message-queue}") final String url) {
+    public RabbitMqEventStreamService(
+        @Value("${mt.common.url.message-queue}") final String url,
+        @Autowired @Qualifier("event-exe") ThreadPoolExecutor eventExePoolExecutor
+    ) {
         log.debug("initializing event stream service with url {}", url);
         ConnectionFactory factory = new ConnectionFactory();
         String[] split = url.split(":");
@@ -75,7 +83,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             factory.setPort(Integer.parseInt(split[1]));
         }
         try {
-            connectionSub = factory.newConnection("mt-access-sub");
+            connectionSub = factory.newConnection(eventExePoolExecutor, "mt-access-sub");
         } catch (IOException | TimeoutException ex) {
             throw new DefinedRuntimeException("unable to create subscribe connection", "0000",
                 HttpResponseCode.NOT_HTTP, ex);
@@ -199,6 +207,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             log.debug("{} subscribing to queue {}", thread.getName(), queueName);
             Channel channel = subChannel.get(thread);
             if (channel == null) {
+                log.debug("initiating consumer channel");
                 try {
                     channel = connectionSub.createChannel();
                     checkExchange(channel);
@@ -209,62 +218,51 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         HttpResponseCode.NOT_HTTP, e);
                 }
                 subChannel.put(thread, channel);
-            }
-            try {
-
-                if (reservedQueue.contains(queueName)) {
-                    channel.queueDeclare(queueName, true, false, autoDelete, null);
-                } else {
-                    Map<String, Object> args = new HashMap<>();
-                    if (strategy.equals(ErrorHandleStrategy.MANUAL)) {
-                        args.put("x-dead-letter-exchange", EXCHANGE_NAME_REJECT);
-                    } else if (strategy.equals(ErrorHandleStrategy.DELAY_1MIN)) {
-                        args.put("x-dead-letter-exchange", EXCHANGE_NAME_DELAY);
+                try {
+                    if (reservedQueue.contains(queueName)) {
+                        channel.queueDeclare(queueName, true, false, autoDelete, null);
+                    } else {
+                        Map<String, Object> args = new HashMap<>();
+                        if (strategy.equals(ErrorHandleStrategy.MANUAL)) {
+                            args.put("x-dead-letter-exchange", EXCHANGE_NAME_REJECT);
+                        } else if (strategy.equals(ErrorHandleStrategy.DELAY_1MIN)) {
+                            args.put("x-dead-letter-exchange", EXCHANGE_NAME_DELAY);
+                        }
+                        channel.queueDeclare(queueName, true, false, autoDelete, args);
                     }
-                    channel.queueDeclare(queueName, true, false, autoDelete, args);
+                    channel.basicQos(250);
+                    for (String topic : topics) {
+                        channel.queueBind(queueName,
+                            exchangeName == null ? EXCHANGE_NAME : exchangeName,
+                            routingKeyPrefix + topic);
+                    }
+                } catch (IOException e) {
+                    throw new DefinedRuntimeException(
+                        "unable create queue with routing key " + routingKeyPrefix +
+                            " and queue name " +
+                            queueName, "0004",
+                        HttpResponseCode.NOT_HTTP, e);
                 }
-                //TODO find out proper prefetch value, this requires test in prod env
-                channel.basicQos(30);
-                for (String topic : topics) {
-                    channel.queueBind(queueName,
-                        exchangeName == null ? EXCHANGE_NAME : exchangeName,
-                        routingKeyPrefix + topic);
-                }
-            } catch (IOException e) {
-                throw new DefinedRuntimeException(
-                    "unable create queue with routing key " + routingKeyPrefix +
-                        " and queue name " +
-                        queueName, "0004",
-                    HttpResponseCode.NOT_HTTP, e);
             }
-            Channel finalChannel = channel;
             try {
-                int channelNumber;
-                if (log.isDebugEnabled()) {
-                    channelNumber = channel.getChannelNumber();
-                } else {
-                    channelNumber = -1;
-                }
-                channel.basicConsume(queueName, autoAck, (consumerTag, delivery) -> {
-                    String s = new String(delivery.getBody(), StandardCharsets.UTF_8);
-                    StoredEvent storedEvent =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .deserialize(s, StoredEvent.class);
-                    MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
+                Channel finalChannel = channel;
+                channel.basicConsume(queueName, false, (consumerTag, delivery) -> {
                     MDC.put(SPAN_ID_LOG,
                         CommonDomainRegistry.getUniqueIdGeneratorService().idString());
-                    Analytics deliverAnalytic = Analytics.start(storedEvent);
-                    log.trace("mq message received");
-                    deliverAnalytic.stopEvent(channelNumber, consumerTag, storedEvent);
+                    StoredEvent storedEvent =
+                        CommonDomainRegistry.getCustomObjectSerializer()
+                            .deserialize(new String(delivery.getBody(), StandardCharsets.UTF_8), StoredEvent.class);
+                    MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
+                    long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                     if (log.isDebugEnabled()) {
                         log.debug(
-                            "channel num {} tag {} handling {} with id {}",
-                            channelNumber,
+                            "tag {} handling {} with delivery id {} event id {} ",
                             consumerTag,
-                            ClassUtility.getShortName(storedEvent.getName()),
+                            storedEvent.getName(),
+                            deliveryTag,
                             storedEvent.getId());
                     }
-                    long deliveryTag = delivery.getEnvelope().getDeliveryTag();
+                    Analytics.stopEvent(consumerTag, storedEvent);
                     boolean consumeSuccess = true;
                     try {
                         if (clazz == null) {
@@ -280,13 +278,13 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             ex);
                         consumeSuccess = false;
                     }
+                    log.debug("replying delivery tag {}, result {}, channel number {}", deliveryTag, consumeSuccess, finalChannel.getChannelNumber());
                     if (consumeSuccess) {
                         finalChannel.basicAck(deliveryTag, false);
                     } else {
                         finalChannel.basicNack(deliveryTag, false,
                             strategy.equals(ErrorHandleStrategy.REQUEUE));
                     }
-                    log.trace("mq message consumed");
                 }, consumerTag -> {
                 });
             } catch (IOException e) {
@@ -335,60 +333,22 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     }
 
     @Override
+    public void next(StoredEvent event) {
+        next(event.getApplicationId(), event.getInternal(), event.getTopic(), event);
+    }
+
+    @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
         MDC.put(TRACE_ID_LOG, event.getTraceId());
-        AtomicReference<Analytics> publishAnalytic = new AtomicReference<>();
+        Thread currentThread = Thread.currentThread();
         String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
-        //async publish confirm for best performance
-        ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
-            publishAnalytic.get().stop();
-            MDC.put(TRACE_ID_LOG, event.getTraceId());
-            Consumer<StoredEvent> markAsSent = (storedEvent) -> {
-                CommonApplicationServiceRegistry.getStoredEventApplicationService()
-                    .markAsSent(storedEvent);
-            };
-            if (multiple) {
-                log.debug("ack callback with multiple confirm");
-                ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                    outstandingConfirms.headMap(
-                        sequenceNumber, true
-                    );
-                confirmed.values().forEach(markAsSent);
-                confirmed.clear();
-            } else {
-                log.debug("ack callback with single confirm");
-                StoredEvent storedEvent = outstandingConfirms.get(sequenceNumber);
-                if (storedEvent != null) {
-                    markAsSent.accept(storedEvent);
-                } else {
-                    log.warn(
-                        "unable to find stored event, this may indicate some issue, sequenceNum {}",
-                        sequenceNumber);
-                }
-                outstandingConfirms.remove(sequenceNumber);
-            }
-        };
-        //in case of failure, just clear outstandingConfirms and do nothing
-        ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
-            MDC.put(TRACE_ID_LOG, event.getTraceId());
-            StoredEvent body = outstandingConfirms.get(sequenceNumber);
-            log.error(
-                "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
-                body, sequenceNumber, multiple);
-            if (multiple) {
-                ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                    outstandingConfirms.headMap(
-                        sequenceNumber, true
-                    );
-                confirmed.clear();
-            } else {
-                outstandingConfirms.remove(sequenceNumber);
-            }
-        };
-        Thread thread = Thread.currentThread();
-        Channel channel = pubChannel.get(thread);
+        Channel channel = pubChannel.get(currentThread);
+        ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms =
+            pendingConfirms.get(currentThread);
+        ConcurrentNavigableMap<Long, Long> outstandingConfirmsStartAt =
+            pendingConfirmsStartAt.get(currentThread);
         if (channel == null) {
-            log.debug("no channel found, creating new");
+            log.debug("initiating channel");
             try {
                 channel = connectionPub.createChannel();
                 channel.confirmSelect();
@@ -400,23 +360,115 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     "0006",
                     HttpResponseCode.NOT_HTTP, e);
             }
+            pubChannel.put(currentThread, channel);
+            //initiating confirm select
+            outstandingConfirms = new ConcurrentSkipListMap<>();
+            pendingConfirms.put(currentThread, outstandingConfirms);
+            outstandingConfirmsStartAt = new ConcurrentSkipListMap<>();
+            pendingConfirmsStartAt.put(currentThread, outstandingConfirmsStartAt);
+            String name = currentThread.getName();
+            //async publish confirm for best performance
+            //NOTE do not move below two lambda as class variable
+            ConcurrentNavigableMap<Long, StoredEvent> finalOutstandingConfirms =
+                outstandingConfirms;
+            ConcurrentNavigableMap<Long, Long> finalOutstandingConfirmsStartAt =
+                outstandingConfirmsStartAt;
+            ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
+                log.debug("confirm callback, published by {} sequence number {} multiple {}", name,
+                    sequenceNumber, multiple);
+                Consumer<StoredEvent> markAsSent = (storedEvent) -> {
+                    markEventPoolExecutor.submit(() -> {
+                        MDC.put(TRACE_ID_LOG, event.getTraceId());
+                        log.debug("marking stored event id {} as sent", storedEvent.getId());
+                        Analytics markEvent = Analytics.start(Analytics.Type.MARK_EVENT);
+                        CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                            .markAsSent(storedEvent);
+                        markEvent.stop();
+                        MDC.clear();
+                    });
+                };
+                if (multiple) {
+                    ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                        finalOutstandingConfirms.headMap(
+                            sequenceNumber, true
+                        );
+                    ConcurrentNavigableMap<Long, Long> confirmedStartAt =
+                        finalOutstandingConfirmsStartAt.headMap(
+                            sequenceNumber, true
+                        );
+                    log.debug("batch confirming, sequence number {}", sequenceNumber);
+                    confirmed.values().forEach(markAsSent);
+                    confirmedStartAt.forEach((k, startAt) -> {
+                        StoredEvent storedEvent = confirmed.get(k);
+                        if (startAt == null) {
+                            log.warn("unable to find startAt time");
+                        } else {
+                            Analytics.stopPublish(startAt, storedEvent);
+                        }
+                    });
+                    confirmed.clear();
+                    confirmedStartAt.clear();
+                } else {
+                    StoredEvent storedEvent = finalOutstandingConfirms.get(sequenceNumber);
+                    Long startAt = finalOutstandingConfirmsStartAt.get(sequenceNumber);
+                    if (startAt == null) {
+                        log.warn("unable to find startAt time");
+                    } else {
+                        Analytics.stopPublish(startAt, storedEvent);
+                    }
+                    if (storedEvent != null) {
+                        markAsSent.accept(storedEvent);
+                    } else {
+                        log.error(
+                            "unable to find stored event, sequence number {}",
+                            sequenceNumber);
+                    }
+                    finalOutstandingConfirms.remove(sequenceNumber);
+                }
+            };
+
+            //in case of failure, just clear outstandingConfirms and do nothing
+            ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
+                log.debug("reject callback, published by {}", name);
+                StoredEvent body = finalOutstandingConfirms.get(sequenceNumber);
+                log.error(
+                    "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
+                    body, sequenceNumber, multiple);
+                if (multiple) {
+                    ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                        finalOutstandingConfirms.headMap(
+                            sequenceNumber, true
+                        );
+                    ConcurrentNavigableMap<Long, Long> confirmedStartAt =
+                        finalOutstandingConfirmsStartAt.headMap(
+                            sequenceNumber, true
+                        );
+                    confirmed.clear();
+                    confirmedStartAt.clear();
+                } else {
+                    finalOutstandingConfirms.remove(sequenceNumber);
+                    finalOutstandingConfirmsStartAt.remove(sequenceNumber);
+                }
+            };
             channel.addConfirmListener(
                 confirmCallback,
                 rejectCallback);
-            pubChannel.put(thread, channel);
         }
         //publish msg
         try {
             log.trace("before publish message");
             String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
             log.trace("complete serialization");
-            publishAnalytic.set(Analytics.start(Analytics.Type.EVENT_PUBLISH_CONFIRM));
-            outstandingConfirms.put(channel.getNextPublishSeqNo(), event);
-            log.debug("channel num {} publish next event id {} with routing key {}",
-                channel.getChannelNumber(), event.getId(), routingKey);
+            long nextPublishSeqNo = channel.getNextPublishSeqNo();
+            log.debug("put outstanding confirms {} and  {}", nextPublishSeqNo, event.getId());
+            outstandingConfirms.put(nextPublishSeqNo, event);
+            outstandingConfirmsStartAt.put(nextPublishSeqNo,
+                Instant.now().toEpochMilli());
             channel.basicPublish(EXCHANGE_NAME, routingKey, true,
                 null, body.getBytes(StandardCharsets.UTF_8)
             );
+            log.debug("channel num {} published next event id {} with routing key {}",
+                channel.getChannelNumber(), event.getId(), routingKey);
         } catch (IOException e) {
             //when msg has no matching route and alternate exchange is also down
             throw new DefinedRuntimeException(
@@ -425,20 +477,16 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         }
     }
 
-    @Override
-    public void next(StoredEvent event) {
-        next(event.getApplicationId(), event.getInternal(), event.getTopic(), event);
-    }
 
     private void checkExchange(Channel channel) throws IOException {
         Map<String, Object> args = new HashMap<>();
         args.put("alternate-exchange", EXCHANGE_NAME_ALT);
-        log.debug("exchange declare");
+        log.trace("exchange declare");
         channel.exchangeDeclare(EXCHANGE_NAME, "topic", true, false, args);
         channel.exchangeDeclare(EXCHANGE_NAME_ALT, "fanout", true, false, null);
         channel.exchangeDeclare(EXCHANGE_NAME_REJECT, "fanout", true, false, null);
         channel.exchangeDeclare(EXCHANGE_NAME_DELAY, "fanout", true, false, null);
-        log.debug("queue declare");
+        log.trace("queue declare");
         channel.queueDeclare(QUEUE_NAME_ALT, true, false, false, null);
         channel.queueDeclare(QUEUE_NAME_REJECT, true, false, false, null);
 
@@ -446,7 +494,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         args2.put("x-dead-letter-exchange", EXCHANGE_NAME);
         args2.put("x-message-ttl", 60 * 1000);//redeliver after 60s
         channel.queueDeclare(QUEUE_NAME_DELAY, true, false, false, args2);
-        log.debug("queue bind");
+        log.trace("queue bind");
         channel.queueBind(QUEUE_NAME_ALT, EXCHANGE_NAME_ALT, "");
         channel.queueBind(QUEUE_NAME_REJECT, EXCHANGE_NAME_REJECT, "");
         channel.queueBind(QUEUE_NAME_DELAY, EXCHANGE_NAME_DELAY, "");
@@ -467,4 +515,6 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                 .recordRejectedEvent(event);
         }, ErrorHandleStrategy.MANUAL, "");
     }
+
+
 }

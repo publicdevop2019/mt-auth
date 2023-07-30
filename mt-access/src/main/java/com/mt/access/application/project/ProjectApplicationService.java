@@ -23,7 +23,6 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -180,8 +179,8 @@ public class ProjectApplicationService {
         }
         //second check has read project access to current project
         PermissionQuery permissionQuery = PermissionQuery
-            .ofProjectWithTenantIds(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID), tenantIds);
-        permissionQuery.setNames(Collections.singleton(VIEW_PROJECT_INFO));
+            .ofProjectWithTenantIds(tenantIds,
+                VIEW_PROJECT_INFO);
         Set<Permission> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 permissionQuery);
