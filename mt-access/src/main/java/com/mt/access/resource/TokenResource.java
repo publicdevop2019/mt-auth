@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.exceptions.InvalidGrantException;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
 import org.springframework.security.oauth2.provider.endpoint.TokenEndpoint;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -56,6 +57,9 @@ public class TokenResource {
             } catch (InvalidTokenException ex) {
                 log.info("refresh token expired, no need to log details");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            } catch (InvalidGrantException ex) {
+                log.info("invalid grant detail: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
             }
         } else {
             if (Checker.isTrue(loginResult.getInvalidMfa())) {

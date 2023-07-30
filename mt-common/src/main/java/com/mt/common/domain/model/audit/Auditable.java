@@ -31,7 +31,6 @@ public abstract class Auditable implements Serializable {
     @Id
     @Setter(AccessLevel.PROTECTED)
     @Getter(AccessLevel.PRIVATE)
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long id;
     @CreatedBy
     @Setter(AccessLevel.PROTECTED)

@@ -80,7 +80,7 @@ public class TransactionService {
         Analytics start = Analytics.start(Analytics.Type.EVENT_START_PUBLISH);
         eventSubmitExecutor.execute(() -> {
             MDC.put(TRACE_ID_LOG, context.getEvents().get(0).getTraceId());
-            log.debug("submitting event publish job");
+            log.debug("publishing event");
             start.stop();
             Analytics analytics = Analytics.start(Analytics.Type.EVENTS_PUBLISH);
             log.debug("total domain event found {}", context.getEvents().size());

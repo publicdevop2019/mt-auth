@@ -26,7 +26,7 @@ public class TestHelper {
 
     public static TenantContext beforeAllTenant(Logger log) {
         beforeAll(log);
-        log.info("init tenant in started");
+        log.info("init tenant started");
         TenantContext tenantContext = TenantUtility.initTenant();
         log.info("init tenant complete");
         return tenantContext;
