@@ -14,7 +14,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable r) {
         Thread thread = new Thread(r);
-        thread.setName(name + "-thread-" + count.incrementAndGet());
+        thread.setName(name + "-" + count.incrementAndGet());
         return thread;
     }
 

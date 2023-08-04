@@ -123,6 +123,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'0061',explain:'实际值与期待值校验失败'},
     {code:'0062',explain:'校验：不是空集合'},
     {code:'0063',explain:'请开启事务'},
+    {code:'0064',explain:'数据库更新失败'},
   ]
   constructor() { }
 

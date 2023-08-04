@@ -36,4 +36,6 @@ public interface UserRepository {
     long countTotal();
 
     Set<UserId> getIds();
+
+    void updateMfaInfo(MfaInfo mfaInfo, User user);
 }

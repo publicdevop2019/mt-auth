@@ -35,7 +35,7 @@ public class Analytics {
         long elapse = stopAt - startAt;
         if (elapse > Type.EVENT_PUBLISH_CONFIRM.getBudget()) {
             if (event == null) {
-                log.warn("{} exceed budget, took {} event detail unknown",
+                log.error("{} exceed budget, took {} event detail unknown",
                     Type.EVENT_PUBLISH_CONFIRM.getLabel(),
                     prettyTime(elapse));
             } else {

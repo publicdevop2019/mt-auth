@@ -14,6 +14,7 @@ import com.mt.common.domain.model.serializer.CustomObjectSerializer;
 import com.mt.common.domain.model.unique_id.UniqueIdGeneratorService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,6 +41,13 @@ public class CommonDomainRegistry {
     private static TransactionService transactionService;
     @Getter
     private static LogService logService;
+    @Getter
+    private static JdbcTemplate jdbcTemplate;
+
+    @Autowired
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        CommonDomainRegistry.jdbcTemplate = jdbcTemplate;
+    }
 
     @Autowired
     public void setTransactionService(TransactionService transactionService) {

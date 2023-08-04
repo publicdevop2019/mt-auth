@@ -73,7 +73,6 @@ public class User extends Auditable {
     @Embedded
     private PasswordResetCode pwdResetToken;
     @Getter
-    @Setter
     @Embedded
     private MfaInfo mfaInfo;
 

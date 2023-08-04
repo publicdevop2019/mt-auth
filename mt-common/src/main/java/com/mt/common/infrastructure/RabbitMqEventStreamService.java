@@ -12,7 +12,6 @@ import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.clazz.ClassUtility;
 import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import com.mt.common.domain.model.domain_event.MqHelper;
@@ -24,7 +23,6 @@ import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.DefaultConsumer;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -51,10 +49,13 @@ import org.springframework.stereotype.Component;
 public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Autowired
     @Qualifier("event-sub")
-    private ThreadPoolExecutor eventSubPoolExecutor;
+    private ThreadPoolExecutor eventSubExecutor;
     @Autowired
     @Qualifier("mark-event")
-    private ThreadPoolExecutor markEventPoolExecutor;
+    private ThreadPoolExecutor markEventExecutor;
+    @Autowired
+    @Qualifier("event-pub")
+    private ThreadPoolExecutor eventPubExecutor;
     public static final Map<Thread, Channel> pubChannel = new HashMap<>();
     public static final Map<Thread, Channel> subChannel = new HashMap<>();
     private final Connection connectionPub;
@@ -202,7 +203,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         Class<T> clazz,
         String... topics) {
         //using pool to avoid single thread get all queue bindings
-        eventSubPoolExecutor.execute(() -> {
+        eventSubExecutor.execute(() -> {
             Thread thread = Thread.currentThread();
             log.debug("{} subscribing to queue {}", thread.getName(), queueName);
             Channel channel = subChannel.get(thread);
@@ -251,7 +252,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         CommonDomainRegistry.getUniqueIdGeneratorService().idString());
                     StoredEvent storedEvent =
                         CommonDomainRegistry.getCustomObjectSerializer()
-                            .deserialize(new String(delivery.getBody(), StandardCharsets.UTF_8), StoredEvent.class);
+                            .deserialize(new String(delivery.getBody(), StandardCharsets.UTF_8),
+                                StoredEvent.class);
                     MDC.put(TRACE_ID_LOG, storedEvent.getTraceId());
                     long deliveryTag = delivery.getEnvelope().getDeliveryTag();
                     if (log.isDebugEnabled()) {
@@ -278,7 +280,8 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             ex);
                         consumeSuccess = false;
                     }
-                    log.debug("replying delivery tag {}, result {}, channel number {}", deliveryTag, consumeSuccess, finalChannel.getChannelNumber());
+                    log.debug("replying delivery tag {}, result {}, channel number {}", deliveryTag,
+                        consumeSuccess, finalChannel.getChannelNumber());
                     if (consumeSuccess) {
                         finalChannel.basicAck(deliveryTag, false);
                     } else {
@@ -339,142 +342,164 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
 
     @Override
     public void next(String appId, boolean internal, String topic, StoredEvent event) {
-        MDC.put(TRACE_ID_LOG, event.getTraceId());
-        Thread currentThread = Thread.currentThread();
-        String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
-        Channel channel = pubChannel.get(currentThread);
-        ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms =
-            pendingConfirms.get(currentThread);
-        ConcurrentNavigableMap<Long, Long> outstandingConfirmsStartAt =
-            pendingConfirmsStartAt.get(currentThread);
-        if (channel == null) {
-            log.debug("initiating channel");
-            try {
-                channel = connectionPub.createChannel();
-                channel.confirmSelect();
-                checkExchange(channel);
-                log.debug("complete exchange check");
-            } catch (IOException e) {
-                throw new DefinedRuntimeException(
-                    "unable create channel for " + appId + " with routing key " + routingKey,
-                    "0006",
-                    HttpResponseCode.NOT_HTTP, e);
-            }
-            pubChannel.put(currentThread, channel);
-            //initiating confirm select
-            outstandingConfirms = new ConcurrentSkipListMap<>();
-            pendingConfirms.put(currentThread, outstandingConfirms);
-            outstandingConfirmsStartAt = new ConcurrentSkipListMap<>();
-            pendingConfirmsStartAt.put(currentThread, outstandingConfirmsStartAt);
-            String name = currentThread.getName();
-            //async publish confirm for best performance
-            //NOTE do not move below two lambda as class variable
-            ConcurrentNavigableMap<Long, StoredEvent> finalOutstandingConfirms =
-                outstandingConfirms;
-            ConcurrentNavigableMap<Long, Long> finalOutstandingConfirmsStartAt =
-                outstandingConfirmsStartAt;
-            ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
-                log.debug("confirm callback, published by {} sequence number {} multiple {}", name,
-                    sequenceNumber, multiple);
-                Consumer<StoredEvent> markAsSent = (storedEvent) -> {
-                    markEventPoolExecutor.submit(() -> {
-                        MDC.put(TRACE_ID_LOG, event.getTraceId());
-                        log.debug("marking stored event id {} as sent", storedEvent.getId());
-                        Analytics markEvent = Analytics.start(Analytics.Type.MARK_EVENT);
-                        CommonApplicationServiceRegistry.getStoredEventApplicationService()
-                            .markAsSent(storedEvent);
-                        markEvent.stop();
-                        MDC.clear();
-                    });
-                };
-                if (multiple) {
-                    ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                        finalOutstandingConfirms.headMap(
-                            sequenceNumber, true
-                        );
-                    ConcurrentNavigableMap<Long, Long> confirmedStartAt =
-                        finalOutstandingConfirmsStartAt.headMap(
-                            sequenceNumber, true
-                        );
-                    log.debug("batch confirming, sequence number {}", sequenceNumber);
-                    confirmed.values().forEach(markAsSent);
-                    confirmedStartAt.forEach((k, startAt) -> {
-                        StoredEvent storedEvent = confirmed.get(k);
+        log.debug("before submit event {} with id {} to pub pool", event.getName(),
+            event.getId());
+        Analytics start = Analytics.start(Analytics.Type.EVENT_START_PUBLISH);
+        if (log.isTraceEnabled()) {
+            int size = eventPubExecutor.getQueue().size();
+            int activeCount = eventPubExecutor.getActiveCount();
+            long completedTaskCount = eventPubExecutor.getCompletedTaskCount();
+            int poolSize = eventPubExecutor.getPoolSize();
+            log.debug(
+                "event submit pool status: queue size {} active count {} completed task count {} pool size {}",
+                size, activeCount, completedTaskCount, poolSize);
+        }
+        eventPubExecutor.execute(() -> {
+            MDC.put(TRACE_ID_LOG, event.getTraceId());
+            log.debug("publishing event");
+            start.stop();
+            Analytics pubAnalytics = Analytics.start(Analytics.Type.EVENTS_PUBLISH);
+            Thread currentThread = Thread.currentThread();
+            String routingKey = appId + "." + (internal ? "internal" : "external") + "." + topic;
+            Channel channel = pubChannel.get(currentThread);
+            ConcurrentNavigableMap<Long, StoredEvent> outstandingConfirms =
+                pendingConfirms.get(currentThread);
+            ConcurrentNavigableMap<Long, Long> outstandingConfirmsStartAt =
+                pendingConfirmsStartAt.get(currentThread);
+            if (channel == null) {
+                log.debug("initiating publisher related resources");
+                try {
+                    channel = connectionPub.createChannel();
+                    channel.confirmSelect();
+                    checkExchange(channel);
+                    log.debug("complete exchange check");
+                } catch (IOException e) {
+                    throw new DefinedRuntimeException(
+                        "unable create channel for " + appId + " with routing key " + routingKey,
+                        "0006",
+                        HttpResponseCode.NOT_HTTP, e);
+                }
+                pubChannel.put(currentThread, channel);
+                outstandingConfirms = new ConcurrentSkipListMap<>();
+                pendingConfirms.put(currentThread, outstandingConfirms);
+                outstandingConfirmsStartAt = new ConcurrentSkipListMap<>();
+                pendingConfirmsStartAt.put(currentThread, outstandingConfirmsStartAt);
+                String name = currentThread.getName();
+                //async publish confirm for best performance
+                //NOTE do not move below two lambda as class variable
+                ConcurrentNavigableMap<Long, StoredEvent> finalOutstandingConfirms =
+                    outstandingConfirms;
+                ConcurrentNavigableMap<Long, Long> finalOutstandingConfirmsStartAt =
+                    outstandingConfirmsStartAt;
+                ConfirmCallback confirmCallback = (sequenceNumber, multiple) -> {
+                    log.debug("confirm callback, published by {} sequence number {} multiple {}",
+                        name,
+                        sequenceNumber, multiple);
+                    Consumer<StoredEvent> markAsSent = (storedEvent) -> {
+                        markEventExecutor.submit(() -> {
+                            MDC.put(TRACE_ID_LOG, event.getTraceId());
+                            log.debug("marking stored event id {} as sent", storedEvent.getId());
+                            Analytics markEvent = Analytics.start(Analytics.Type.MARK_EVENT);
+                            CommonApplicationServiceRegistry.getStoredEventApplicationService()
+                                .markAsSent(storedEvent);
+                            markEvent.stop();
+                            MDC.clear();
+                        });
+                    };
+                    if (multiple) {
+                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                            finalOutstandingConfirms.headMap(
+                                sequenceNumber, true
+                            );
+                        ConcurrentNavigableMap<Long, Long> confirmedStartAt =
+                            finalOutstandingConfirmsStartAt.headMap(
+                                sequenceNumber, true
+                            );
+                        log.debug("batch confirming, sequence number {}", sequenceNumber);
+                        log.debug("confirm event count {}", confirmed.values().size());
+                        log.debug("confirm start at count {}", confirmedStartAt.values().size());
+                        confirmed.values().forEach(markAsSent);
+                        confirmedStartAt.forEach((sequenceId, startAt) -> {
+                            StoredEvent storedEvent = confirmed.get(sequenceId);
+                            if (startAt == null) {
+                                log.error("unable to find startAt time");
+                            } else {
+                                Analytics.stopPublish(startAt, storedEvent);
+                            }
+                        });
+                        confirmed.clear();
+                        confirmedStartAt.clear();
+                    } else {
+                        StoredEvent storedEvent = finalOutstandingConfirms.get(sequenceNumber);
+                        Long startAt = finalOutstandingConfirmsStartAt.get(sequenceNumber);
                         if (startAt == null) {
                             log.warn("unable to find startAt time");
                         } else {
                             Analytics.stopPublish(startAt, storedEvent);
                         }
-                    });
-                    confirmed.clear();
-                    confirmedStartAt.clear();
-                } else {
-                    StoredEvent storedEvent = finalOutstandingConfirms.get(sequenceNumber);
-                    Long startAt = finalOutstandingConfirmsStartAt.get(sequenceNumber);
-                    if (startAt == null) {
-                        log.warn("unable to find startAt time");
-                    } else {
-                        Analytics.stopPublish(startAt, storedEvent);
+                        if (storedEvent != null) {
+                            markAsSent.accept(storedEvent);
+                        } else {
+                            log.error(
+                                "unable to find stored event, sequence number {}",
+                                sequenceNumber);
+                        }
+                        finalOutstandingConfirms.remove(sequenceNumber);
                     }
-                    if (storedEvent != null) {
-                        markAsSent.accept(storedEvent);
-                    } else {
-                        log.error(
-                            "unable to find stored event, sequence number {}",
-                            sequenceNumber);
-                    }
-                    finalOutstandingConfirms.remove(sequenceNumber);
-                }
-            };
+                };
 
-            //in case of failure, just clear outstandingConfirms and do nothing
-            ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
-                log.debug("reject callback, published by {}", name);
-                StoredEvent body = finalOutstandingConfirms.get(sequenceNumber);
-                log.error(
-                    "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
-                    body, sequenceNumber, multiple);
-                if (multiple) {
-                    ConcurrentNavigableMap<Long, StoredEvent> confirmed =
-                        finalOutstandingConfirms.headMap(
-                            sequenceNumber, true
-                        );
-                    ConcurrentNavigableMap<Long, Long> confirmedStartAt =
-                        finalOutstandingConfirmsStartAt.headMap(
-                            sequenceNumber, true
-                        );
-                    confirmed.clear();
-                    confirmedStartAt.clear();
-                } else {
-                    finalOutstandingConfirms.remove(sequenceNumber);
-                    finalOutstandingConfirmsStartAt.remove(sequenceNumber);
-                }
-            };
-            channel.addConfirmListener(
-                confirmCallback,
-                rejectCallback);
-        }
-        //publish msg
-        try {
-            log.trace("before publish message");
-            String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
-            log.trace("complete serialization");
-            long nextPublishSeqNo = channel.getNextPublishSeqNo();
-            log.debug("put outstanding confirms {} and  {}", nextPublishSeqNo, event.getId());
-            outstandingConfirms.put(nextPublishSeqNo, event);
-            outstandingConfirmsStartAt.put(nextPublishSeqNo,
-                Instant.now().toEpochMilli());
-            channel.basicPublish(EXCHANGE_NAME, routingKey, true,
-                null, body.getBytes(StandardCharsets.UTF_8)
-            );
-            log.debug("channel num {} published next event id {} with routing key {}",
-                channel.getChannelNumber(), event.getId(), routingKey);
-        } catch (IOException e) {
-            //when msg has no matching route and alternate exchange is also down
-            throw new DefinedRuntimeException(
-                "unable publish message for " + appId + " with routing key " + routingKey, "0007",
-                HttpResponseCode.NOT_HTTP, e);
-        }
+                //in case of failure, just clear outstandingConfirms and do nothing
+                ConfirmCallback rejectCallback = (sequenceNumber, multiple) -> {
+                    log.debug("reject callback, published by {}", name);
+                    StoredEvent body = finalOutstandingConfirms.get(sequenceNumber);
+                    log.error(
+                        "message with body {} has been nack-ed. sequence number: {}, multiple: {}",
+                        body, sequenceNumber, multiple);
+                    if (multiple) {
+                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                            finalOutstandingConfirms.headMap(
+                                sequenceNumber, true
+                            );
+                        ConcurrentNavigableMap<Long, Long> confirmedStartAt =
+                            finalOutstandingConfirmsStartAt.headMap(
+                                sequenceNumber, true
+                            );
+                        confirmed.clear();
+                        confirmedStartAt.clear();
+                    } else {
+                        finalOutstandingConfirms.remove(sequenceNumber);
+                        finalOutstandingConfirmsStartAt.remove(sequenceNumber);
+                    }
+                };
+                channel.addConfirmListener(
+                    confirmCallback,
+                    rejectCallback);
+            }
+            //publish msg
+            try {
+                log.trace("before publish message");
+                String body = CommonDomainRegistry.getCustomObjectSerializer().serialize(event);
+                log.trace("complete serialization");
+                long nextPublishSeqNo = channel.getNextPublishSeqNo();
+                log.debug("put outstanding confirms {} and {}", nextPublishSeqNo, event.getId());
+                outstandingConfirms.put(nextPublishSeqNo, event);
+                outstandingConfirmsStartAt.put(nextPublishSeqNo,
+                    Instant.now().toEpochMilli());
+                byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
+                channel.basicPublish(EXCHANGE_NAME, routingKey, true,
+                    null,bytes
+                );
+                log.debug("channel num {} published next event id {} with routing key {} size {}(bytes)",
+                    channel.getChannelNumber(), event.getId(), routingKey, bytes.length);
+                pubAnalytics.stop();
+            } catch (IOException e) {
+                //when msg has no matching route and alternate exchange is also down
+                throw new DefinedRuntimeException(
+                    "unable publish message for " + appId + " with routing key " + routingKey,
+                    "0007",
+                    HttpResponseCode.NOT_HTTP, e);
+            }
+        });
     }
 
 

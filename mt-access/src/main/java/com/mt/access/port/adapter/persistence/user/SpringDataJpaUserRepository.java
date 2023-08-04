@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import com.mt.access.domain.model.user.MfaInfo;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserEmail;
 import com.mt.access.domain.model.user.UserId;
@@ -7,10 +8,12 @@ import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserRepository;
 import com.mt.access.domain.model.user.User_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.sql.DatabaseUtility;
 import com.mt.common.domain.model.validate.Checker;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,6 +68,18 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
 
     @Query("select distinct u.userId from User u")
     Set<UserId> getUserIds_();
+
+    /**
+     * update mfa info without trigger version increase & modified at change
+     * @param mfaInfo new mfa info
+     * @param user user to udpate
+     */
+    default void updateMfaInfo(MfaInfo mfaInfo, User user) {
+        String sql = "UPDATE user_ u SET u.mfa_id  = ?, u.mfa_code = ? WHERE u.domain_id = ?";
+        int update = CommonDomainRegistry.getJdbcTemplate()
+            .update(sql, mfaInfo.getId().getValue(), mfaInfo.getCode().getValue(), user.getUserId().getDomainId());
+        DatabaseUtility.checkUpdate(update);
+    }
 
 
     @Query("select count(*) from User")

@@ -48,6 +48,7 @@ public class TokenResource {
         @RequestHeader(name = "User-Agent") String agentInfo
     ) throws HttpRequestMethodNotSupportedException {
         String clientIpAddress = getClientIpAddress(servletRequest);
+        log.info("user login with ip {}", clientIpAddress);
         LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));

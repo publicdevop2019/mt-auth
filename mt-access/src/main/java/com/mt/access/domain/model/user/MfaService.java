@@ -47,7 +47,7 @@ public class MfaService {
     public MfaId triggerMfa(UserId userId, TransactionContext context) {
         User user1 = DomainRegistry.getUserRepository().get(userId);
         MfaInfo mfaInfo = MfaInfo.create();
-        user1.setMfaInfo(mfaInfo);
+        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo,user1);
         context
             .append(new UserMfaNotificationEvent(user1, mfaInfo));
         return mfaInfo.getId();
