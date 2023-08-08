@@ -424,7 +424,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                             if (startAt == null) {
                                 log.error("unable to find startAt time");
                             } else {
-                                Analytics.stopPublish(startAt, storedEvent);
+                                Analytics.stopPublish(startAt, storedEvent, sequenceId);
                             }
                         });
                         confirmed.clear();
@@ -435,7 +435,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         if (startAt == null) {
                             log.warn("unable to find startAt time");
                         } else {
-                            Analytics.stopPublish(startAt, storedEvent);
+                            Analytics.stopPublish(startAt, storedEvent, sequenceNumber);
                         }
                         if (storedEvent != null) {
                             markAsSent.accept(storedEvent);

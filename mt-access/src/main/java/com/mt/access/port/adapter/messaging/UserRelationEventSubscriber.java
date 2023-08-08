@@ -22,7 +22,7 @@ public class UserRelationEventSubscriber {
     private void listener1() {
         ListenerHelper.listen(new NewProjectRoleCreated(),
             (event) -> ApplicationServiceRegistry.getUserRelationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
     @EventListener(ApplicationReadyEvent.class)

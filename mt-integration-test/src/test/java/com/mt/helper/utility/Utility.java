@@ -53,6 +53,25 @@ public class Utility {
         }
     }
 
+    public static <T> ResponseEntity<Void> createResource(String token, String url,
+                                                          @Nullable T resource) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        if (resource == null) {
+            HttpEntity<Void> request =
+                new HttpEntity<>(headers);
+            return TestContext.getRestTemplate().exchange(url,
+                HttpMethod.POST, request,
+                Void.class);
+        } else {
+            HttpEntity<T> request =
+                new HttpEntity<>(resource, headers);
+            return TestContext.getRestTemplate().exchange(url,
+                HttpMethod.POST, request,
+                Void.class);
+        }
+    }
+
     public static <T> ResponseEntity<Void> updateResource(User user, String url,
                                                           T resource, String resourceId) {
         String login = UserUtility.login(user);

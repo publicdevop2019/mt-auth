@@ -32,7 +32,7 @@ public class FormattedAccessRecord {
     public static final String CONTENT_LENGTH = "contentLength";
     @Id
     @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
+    @Getter(AccessLevel.PUBLIC)
     protected Long id;
     @Embedded
     @AttributeOverrides({

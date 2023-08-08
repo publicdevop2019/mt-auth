@@ -30,14 +30,14 @@ public class Analytics {
         return analytics;
     }
 
-    public static void stopPublish(Long startAt, StoredEvent event) {
+    public static void stopPublish(Long startAt, StoredEvent event, Long sequenceId) {
         long stopAt = Instant.now().toEpochMilli();
         long elapse = stopAt - startAt;
         if (elapse > Type.EVENT_PUBLISH_CONFIRM.getBudget()) {
             if (event == null) {
-                log.error("{} exceed budget, took {} event detail unknown",
+                log.error("{} exceed budget, took {} event detail unknown, sequence id {} start at {}",
                     Type.EVENT_PUBLISH_CONFIRM.getLabel(),
-                    prettyTime(elapse));
+                    prettyTime(elapse), sequenceId, startAt);
             } else {
                 String traceId = event.getTraceId();
                 MDC.put(TRACE_ID_LOG, traceId);

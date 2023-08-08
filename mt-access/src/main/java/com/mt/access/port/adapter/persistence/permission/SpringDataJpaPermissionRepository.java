@@ -8,10 +8,16 @@ import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.Permission_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -20,6 +26,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaPermissionRepository
@@ -34,7 +43,44 @@ public interface SpringDataJpaPermissionRepository
     }
 
     default void addAll(Set<Permission> permissions) {
-        saveAll(permissions);
+        List<Permission> arrayList = new ArrayList<>(permissions);
+        CommonDomainRegistry.getJdbcTemplate()
+            .batchUpdate("INSERT INTO permission " +
+                    "(" +
+                    "id, " +
+                    "created_at, " +
+                    "created_by, " +
+                    "modified_at, " +
+                    "modified_by, " +
+                    "version, " +
+                    "name, " +
+                    "parent_id, " +
+                    "domain_id, " +
+                    "project_id, " +
+                    "shared, " +
+                    "system_create, " +
+                    "tenant_id, " +
+                    "type" +
+                    ") VALUES " +
+                    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", arrayList, permissions.size(),
+                (ps, permission) -> {
+                    ps.setLong(1, permission.getId());
+                    ps.setLong(2, Instant.now().toEpochMilli());
+                    ps.setString(3, "NOT_HTTP");
+                    ps.setLong(4, Instant.now().toEpochMilli());
+                    ps.setString(5, "NOT_HTTP");
+                    ps.setLong(6, 0L);
+                    ps.setString(7, permission.getName());
+                    ps.setString(8, permission.getParentId() == null ? null :
+                        permission.getParentId().getDomainId());
+                    ps.setString(9, permission.getPermissionId().getDomainId());
+                    ps.setString(10, permission.getProjectId().getDomainId());
+                    ps.setBoolean(11, permission.getShared());
+                    ps.setBoolean(12, permission.getSystemCreate());
+                    ps.setString(13, permission.getTenantId() == null ? null :
+                        permission.getTenantId().getDomainId());
+                    ps.setString(14, permission.getType().name());
+                });
     }
 
     default void remove(Permission permission) {

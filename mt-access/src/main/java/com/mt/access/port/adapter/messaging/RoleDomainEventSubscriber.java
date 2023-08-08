@@ -22,7 +22,7 @@ public class RoleDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
         ListenerHelper.listen(new ProjectPermissionCreated(),
-            (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event));
+            (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event), 10);
     }
 
     @EventListener(ApplicationReadyEvent.class)

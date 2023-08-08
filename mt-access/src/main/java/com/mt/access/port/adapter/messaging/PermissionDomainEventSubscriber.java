@@ -16,7 +16,8 @@ public class PermissionDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
         ListenerHelper.listen(new StartNewProjectOnboarding(),
-            (event) -> ApplicationServiceRegistry.getPermissionApplicationService().handle(event));
+            (event) -> ApplicationServiceRegistry.getPermissionApplicationService()
+                .handle(event), 10);
     }
 
     @EventListener(ApplicationReadyEvent.class)

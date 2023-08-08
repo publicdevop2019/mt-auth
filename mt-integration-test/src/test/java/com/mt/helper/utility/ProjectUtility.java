@@ -27,6 +27,9 @@ public class ProjectUtility {
     public static ResponseEntity<Void> createTenantProject(Project project, User user) {
         return Utility.createResource(user, getUrl(), project);
     }
+    public static ResponseEntity<Void> createTenantProject(Project project, String token) {
+        return Utility.createResource(token, getUrl(), project);
+    }
 
     public static ResponseEntity<Void> updateTenantProject(Project project, User user) {
         return Utility.updateResource(user, getUrl(), project, project.getId());

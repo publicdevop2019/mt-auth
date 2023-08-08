@@ -62,7 +62,7 @@ public class RawAccessRecordProcessService {
                     .append(new RawAccessRecordProcessingWarning(issueIds));
             }
             DomainRegistry.getDataProcessTrackerRepository().update(tracker, foundedRecords);
-            DomainRegistry.getFormattedAccessRecordRepository().saveBatch(records);
+            DomainRegistry.getFormattedAccessRecordRepository().addAll(records);
             log.debug("etl job summary, new records to insert count {}", records.size());
         } else {
             log.debug("no data found, ending this ETL job");

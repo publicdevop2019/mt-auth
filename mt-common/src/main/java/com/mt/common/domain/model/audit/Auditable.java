@@ -30,7 +30,7 @@ public abstract class Auditable implements Serializable {
 
     @Id
     @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     protected Long id;
     @CreatedBy
     @Setter(AccessLevel.PROTECTED)

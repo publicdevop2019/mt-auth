@@ -7,11 +7,14 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.Role_;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +36,44 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
     }
 
     default void addAll(Set<Role> roles) {
-        saveAll(roles);
+        List<Role> arrayList = new ArrayList<>(roles);
+        CommonDomainRegistry.getJdbcTemplate()
+            .batchUpdate("INSERT INTO role " +
+                    "(" +
+                    "id, " +
+                    "created_at, " +
+                    "created_by, " +
+                    "modified_at, " +
+                    "modified_by, " +
+                    "version, " +
+                    "name, " +
+                    "description, " +
+                    "parent_id, " +
+                    "domain_id, " +
+                    "project_id, " +
+                    "system_create, " +
+                    "tenant_id, " +
+                    "type" +
+                    ") VALUES " +
+                    "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", arrayList, roles.size(),
+                (ps, role) -> {
+                    ps.setLong(1, role.getId());
+                    ps.setLong(2, Instant.now().toEpochMilli());
+                    ps.setString(3, "NOT_HTTP");
+                    ps.setLong(4, Instant.now().toEpochMilli());
+                    ps.setString(5, "NOT_HTTP");
+                    ps.setLong(6, 0L);
+                    ps.setString(7, role.getName());
+                    ps.setString(8, role.getDescription());
+                    ps.setString(9, role.getParentId() == null ? null :
+                        role.getParentId().getDomainId());
+                    ps.setString(10, role.getRoleId().getDomainId());
+                    ps.setString(11, role.getProjectId().getDomainId());
+                    ps.setBoolean(12, role.getSystemCreate());
+                    ps.setString(13, role.getTenantId() == null ? null :
+                        role.getTenantId().getDomainId());
+                    ps.setString(14, role.getType().name());
+                });
     }
 
     default void remove(Role role) {

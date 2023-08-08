@@ -9,5 +9,5 @@ public interface FormattedAccessRecordRepository {
 
     Set<FormattedAccessRecord> getAllRecord(EndpointId endpointId);
 
-    void saveBatch(List<FormattedAccessRecord> formattedAccessRecordList);
+    void addAll(List<FormattedAccessRecord> formattedAccessRecordList);
 }

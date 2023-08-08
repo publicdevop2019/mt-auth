@@ -54,23 +54,6 @@ public class TransactionService {
         return t;
     }
 
-    public <T> T returnedNativeTransactionalEvent(Function<TransactionContext, T> domainLogicWrapper) {
-        TransactionContext init = TransactionContext.init();
-        TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
-        AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
-        T t = template.execute(transactionStatus -> {
-            Analytics wrapperAnalytics =
-                Analytics.start(Analytics.Type.DOMAIN_LOGIC_AND_IDEMPOTENT_ENTITY);
-            T apply = domainLogicWrapper.apply(init);
-            wrapperAnalytics.stop();
-            persistAnalytics.set(Analytics.start(Analytics.Type.DATA_PERSISTENCE));
-            return apply;
-        });
-        persistAnalytics.get().stop();
-        submitEvent(init);
-        return t;
-    }
-
     private void submitEvent(TransactionContext context) {
         if (context.getEvents().isEmpty()) {
             log.trace("skip publishing event since no event found");
