@@ -3,10 +3,8 @@ package com.mt.access.port.adapter.persistence.report;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.report.FormattedAccessRecord;
 import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
-import com.mt.access.domain.model.role.Role;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -48,8 +46,10 @@ public interface SpringDataJpaFormattedAccessRecordRepository
                     ps.setLong(3, record.getRequestAt());
                     ps.setString(4, record.getPath());
                     ps.setString(5, record.getClientIp());
-                    ps.setString(6, record.getUserId().getDomainId());
-                    ps.setString(7, record.getProjectId().getDomainId());
+                    ps.setString(6,
+                        record.getUserId() == null ? null : record.getUserId().getDomainId());
+                    ps.setString(7,
+                        record.getProjectId() == null ? null : record.getProjectId().getDomainId());
                     ps.setString(8, record.getMethod());
                     ps.setLong(9, record.getResponseAt());
                     ps.setInt(10, record.getResponseCode());
