@@ -685,17 +685,11 @@ DROP TABLE IF EXISTS `opt_cool_down`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `opt_cool_down` (
-  `id` bigint NOT NULL,
-  `created_at` bigint NOT NULL,
-  `created_by` varchar(255) NOT NULL,
-  `modified_at` bigint NOT NULL,
-  `modified_by` varchar(255) NOT NULL,
   `version` int NOT NULL,
   `opt_type` varchar(255) NOT NULL,
   `executor` varchar(255) NOT NULL,
   `last_opt_at` bigint NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK7t5atr8fdeocq2166eativjub` (`executor`,`opt_type`)
+  PRIMARY KEY (`executor`,`opt_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

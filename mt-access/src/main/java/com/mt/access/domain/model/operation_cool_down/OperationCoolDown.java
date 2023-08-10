@@ -7,29 +7,43 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.Id;
+import javax.persistence.IdClass;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.annotation.LastModifiedDate;
 
 
 @Entity
 @Data
-@EqualsAndHashCode(callSuper = true)
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"executor",
-    "opt_type"}), name = "opt_cool_down")
+@Table(name = "opt_cool_down")
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
-public class OperationCoolDown extends Auditable {
+@IdClass(OperationCoolId.class)
+public class OperationCoolDown{
+    @Version
+    @Setter(AccessLevel.PRIVATE)
+    @Getter
+    private Integer version;
+
     /**
      * person who execute this operation, can be email or user id.
      */
+    @Id
     @Column(name = "executor")
     private String executor;
 
+    @Id
     @Column(name = "opt_type")
     @Enumerated(EnumType.STRING)
     private OperationType operationType;
@@ -45,7 +59,6 @@ public class OperationCoolDown extends Auditable {
      */
     public OperationCoolDown(String executor, OperationType operationType) {
         super();
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         setExecutor(executor);
         setOperationType(operationType);
         setLastOperateAt(Instant.now().toEpochMilli());
