@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.operation_cool_down;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
@@ -31,11 +32,16 @@ public class CoolDownService {
                     HttpResponseCode.BAD_REQUEST);
             }
             log.info("operation has cool down");
-            coolDown.updateLastOperateAt();
+            //it's ok if update success but following operation failed
+            CommonDomainRegistry.getTransactionService().transactionalEvent((ignored) -> {
+                DomainRegistry.getOperationCoolDownRepository().updateLastOperateAt(coolDown);
+            });
         } else {
             log.info("new operation");
-            OperationCoolDown coolDown = new OperationCoolDown(domainId, operationType);
-            DomainRegistry.getOperationCoolDownRepository().add(coolDown);
+            CommonDomainRegistry.getTransactionService().transactionalEvent((ignored) -> {
+                OperationCoolDown coolDown = new OperationCoolDown(domainId, operationType);
+                DomainRegistry.getOperationCoolDownRepository().add(coolDown);
+            });
         }
     }
 }

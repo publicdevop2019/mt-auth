@@ -72,8 +72,4 @@ public class OperationCoolDown{
     public boolean hasCoolDown() {
         return Instant.now().toEpochMilli() > lastOperateAt + 60 * 1000;
     }
-
-    public void updateLastOperateAt() {
-        lastOperateAt = Instant.now().toEpochMilli();
-    }
 }

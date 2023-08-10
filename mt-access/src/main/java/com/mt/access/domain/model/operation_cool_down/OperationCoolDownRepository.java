@@ -6,4 +6,6 @@ public interface OperationCoolDownRepository {
     Optional<OperationCoolDown> query(String executor, OperationType operationType);
 
     void add(OperationCoolDown message);
+
+    void updateLastOperateAt(OperationCoolDown coolDown);
 }
