@@ -3,9 +3,10 @@ package com.mt.access.domain.model.report;
 import java.util.Set;
 
 public interface RawAccessRecordRepository {
-    void add(RawAccessRecord rawAccessRecord);
 
     Set<RawAccessRecord> getBucketRequestRecordSinceId(Long id);
 
     Set<RawAccessRecord> getResponseForUuid(Set<String> collect);
+
+    void addAll(Set<RawAccessRecord> records);
 }

@@ -15,9 +15,10 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,10 +29,10 @@ public class ReportApplicationService {
 
     public void uploadReport(List<String> records, String instanceId, String name) {
         CommonDomainRegistry.getTransactionService().transactionalEvent(context -> {
-            records.forEach(e -> {
-                RawAccessRecord rawAccessRecord = new RawAccessRecord(name, instanceId, e);
-                DomainRegistry.getRawAccessRecordRepository().add(rawAccessRecord);
-            });
+            Set<RawAccessRecord> recordSet =
+                records.stream().map(e -> new RawAccessRecord(name, instanceId, e))
+                    .collect(Collectors.toSet());
+            DomainRegistry.getRawAccessRecordRepository().addAll(recordSet);
         });
     }
 
@@ -61,10 +62,11 @@ public class ReportApplicationService {
         return report.get();
     }
 
-    @Scheduled(cron = "0 * * ? * *")
+    //@Scheduled(cron = "0 * * ? * *")
     public void rawDataEtl() {
         log.trace("triggered scheduled task 3");
         CommonDomainRegistry.getJobService().execute(ACCESS_DATA_PROCESSING_JOB_NAME,
-            (context) -> DomainRegistry.getRawAccessRecordProcessService().process(context), true, 1);
+            (context) -> DomainRegistry.getRawAccessRecordProcessService().process(context), true,
+            1);
     }
 }
