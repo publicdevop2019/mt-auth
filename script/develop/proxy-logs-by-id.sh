@@ -1,1 +1,1 @@
-cat ../../logs/proxy.log | grep -E "$1" > ../../logs/analytics/prox.$1.log
+cat ../../logs/proxy.log | grep -E "$1" > ../../logs/analytics/proxy.$1.log
