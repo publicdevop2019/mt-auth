@@ -332,8 +332,7 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             (ignored) -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
                 request.getURI().getScheme()));
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
-            request.getPath().toString(),
-            request.getMethod().name(),
+            request,
             context.getAuthHeader(), context.getWebsocket());
         if (!allow) {
             LogService.reactiveLog(request,

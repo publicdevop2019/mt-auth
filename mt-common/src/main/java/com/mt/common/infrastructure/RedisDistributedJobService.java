@@ -61,6 +61,8 @@ public class RedisDistributedJobService implements DistributedJobService {
             return;
         }
         taskExecutor.execute(() -> {
+            MDC.put(TRACE_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
+            MDC.put(SPAN_ID_LOG, CommonDomainRegistry.getUniqueIdGeneratorService().idString());
             Analytics start = Analytics.start(Analytics.Type.JOB_EXECUTION);
             log.debug("running job {}", jobName);
             //check if job exist

@@ -2,16 +2,15 @@ package com.mt.proxy.domain;
 
 import static com.mt.proxy.domain.Utility.antPathMatcher;
 
+import com.mt.proxy.infrastructure.LogService;
 import java.text.ParseException;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
@@ -69,23 +68,30 @@ public class EndpointService {
         DomainRegistry.getCacheService().refresh(cached);
     }
 
-    public boolean checkAccess(String requestUri, String method, @Nullable String authHeader,
+    public boolean checkAccess(ServerHttpRequest request, @Nullable String authHeader,
                                Boolean webSocket) {
+        String requestUri = request.getPath().toString();
+        String method = request.getMethod().name();
         if (Boolean.TRUE.equals(webSocket)) {
             if (authHeader == null) {
-                log.debug("check failure due to empty auth info");
+                LogService.reactiveLog(request,
+                    (ignored) -> log.debug("check failure due to empty auth info"));
                 return false;
             }
             if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
-                log.debug("check failure due to jwt failed for verification");
+                LogService.reactiveLog(request,
+                    (ignored) -> log.debug("check failure due to jwt failed for verification"));
                 return false;
             } else {
                 //check roles
                 try {
-                    return checkAccessByPermissionId(requestUri, method, authHeader, true);
+                    return checkAccessByPermissionId(requestUri, method, authHeader, true, request);
                 } catch (ParseException e) {
-                    log.error("error during parse", e);
-                    log.debug("check failure due to parse error");
+                    LogService.reactiveLog(request,
+                        (ignored) -> {
+                            log.error("error during parse", e);
+                            log.debug("check failure due to parse error");
+                        });
                     return false;
                 }
             }
@@ -95,44 +101,57 @@ public class EndpointService {
             return true;
         } else if (authHeader == null || !authHeader.contains("Bearer")) {
             if (cached.size() == 0) {
-                log.debug("check failure due to cached endpoints are empty");
+                LogService.reactiveLog(request,
+                    (ignored) -> log.debug("check failure due to cached endpoints are empty"));
                 return false;
             }
             List<Endpoint> collect1 = cached.stream().filter(e -> !e.getSecured()).filter(
-                e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
+                    e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
                 .collect(Collectors.toList());
             if (collect1.size() == 0) {
-                log.debug(
-                    "check failure due to un-registered public "
-                        +
-                        "endpoints or no authentication info found");
+                LogService.reactiveLog(request,
+                    (ignored) -> log.debug(
+                        "check failure due to un-registered public "
+                            +
+                            "endpoints or no authentication info found"));
+
                 return false;
             } else {
                 return true;
             }
         } else if (authHeader.contains("Bearer")) {
             try {
-                return checkAccessByPermissionId(requestUri, method, authHeader, false);
+                return checkAccessByPermissionId(requestUri, method, authHeader, false, request);
             } catch (ParseException e) {
-                log.error("error during parse", e);
-                log.debug("check failure due to parse error");
+                LogService.reactiveLog(request,
+                    (ignored) -> {
+                        log.error("error during parse", e);
+                        log.debug("check failure due to parse error");
+                    });
+
                 return false;
             }
         } else {
-            log.debug("return 403 due to un-registered endpoints");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("return 403 due to un-registered endpoints"));
             return false;
         }
     }
 
     private boolean checkAccessByPermissionId(String requestUri, String method, String authHeader,
-                                              boolean websocket) throws ParseException {
+                                              boolean websocket, ServerHttpRequest request)
+        throws ParseException {
         //check endpoint url, method first then check resourceId and security rule
         String jwtRaw = authHeader.replace("Bearer ", "");
         Set<String> resourceIds = DomainRegistry.getJwtService().getResourceIds(jwtRaw);
 
         //fetch endpoint
         if (resourceIds == null || resourceIds.isEmpty()) {
-            log.debug("return 403 due to resourceIds is null or empty");
+            LogService.reactiveLog(request,
+                (ignored) -> {
+                    log.debug("return 403 due to resourceIds is null or empty");
+                });
+
             return false;
         }
         Set<Endpoint> sameResourceId =
@@ -141,13 +160,16 @@ public class EndpointService {
         Optional<Endpoint> endpoint = findEndpoint(sameResourceId, requestUri, method, websocket);
         boolean passed;
         if (endpoint.isPresent()) {
-            passed = endpoint.get().allowAccess(jwtRaw,log);
+            passed = endpoint.get().allowAccess(jwtRaw, log, request);
         } else {
-            log.debug("return 403 due to endpoint not found or duplicate endpoints");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug(
+                    "return 403 due to endpoint not found or duplicate endpoints"));
             return false;
         }
         if (!passed) {
-            log.debug("return 403 due to not pass check");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("return 403 due to not pass check"));
             return false;
         } else {
             return true;
@@ -180,7 +202,7 @@ public class EndpointService {
                 .collect(Collectors.toList());
         } else {
             next = from.stream().filter(
-                e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
+                    e -> antPathMatcher.match(e.getPath(), requestUri) && method.equals(e.getMethod()))
                 .collect(Collectors.toList());
         }
         return getClosestEndpoint(next, requestUri);

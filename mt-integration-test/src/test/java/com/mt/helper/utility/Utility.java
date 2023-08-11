@@ -4,6 +4,7 @@ import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -11,7 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
-
+@Slf4j
 public class Utility {
     public static <T> ResponseEntity<SumTotal<T>> readResource(User user, String url,
                                                                ParameterizedTypeReference<SumTotal<T>> param) {
@@ -36,6 +37,7 @@ public class Utility {
     public static <T> ResponseEntity<Void> createResource(User user, String url,
                                                           @Nullable T resource) {
         String login = UserUtility.login(user);
+        log.info("login token {}", login);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(login);
         if (resource == null) {

@@ -2,6 +2,7 @@ package com.mt.proxy.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.mt.proxy.infrastructure.LogService;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.LinkedHashSet;
@@ -12,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.slf4j.Logger;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 
 /**
  * mirror of mt-access EndpointProxyCacheRepresentation
@@ -38,21 +40,26 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
     @JsonDeserialize(as = LinkedHashSet.class)
     private Set<Subscription> subscriptions;
 
-    public boolean allowAccess(String jwtRaw, Logger log) throws ParseException {
+    public boolean allowAccess(String jwtRaw, Logger log, ServerHttpRequest request)
+        throws ParseException {
         if (secured && permissionId == null) {
-            log.debug("not pass check due to permissionId missing");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("not pass check due to permissionId missing"));
             return false;
         }
         if (!secured && permissionId == null) {
-            log.debug("pass check due to public endpoint");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("pass check due to public endpoint"));
             return true;
         }
         Set<String> permissionIds = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
         boolean contains = permissionIds.contains(permissionId);
         if (contains) {
-            log.debug("pass check due to permissionId match");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("pass check due to permissionId match"));
         } else {
-            log.debug("not pass check due to permissionId mismatch");
+            LogService.reactiveLog(request,
+                (ignored) -> log.debug("not pass check due to permissionId mismatch"));
         }
         return contains;
     }

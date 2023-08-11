@@ -1,13 +1,28 @@
 package com.mt.helper.utility;
 
 import com.mt.helper.AppConstant;
+import java.io.IOException;
 import java.util.Objects;
+import lombok.extern.slf4j.Slf4j;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.http.ResponseEntity;
 
+@Slf4j
 public class UrlUtility {
 
     public static String getId(ResponseEntity<?> entity) {
+        log.info("get id from response body");
+        if (entity.getHeaders().getLocation() == null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                log.info("id not found, response code {} body {}", entity.getStatusCode(),
+                    objectMapper.writeValueAsString(entity.getBody()));
+            } catch (IOException e) {
+                log.info("error reading response body");
+                throw new RuntimeException(e);
+            }
+        }
         Assertions.assertNotNull(entity.getHeaders().getLocation());
         return Objects.requireNonNull(entity.getHeaders().getLocation()).toString();
     }

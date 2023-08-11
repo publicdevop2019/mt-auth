@@ -24,10 +24,12 @@ public class TenantUtility {
         tenantContext.setCreator(tenant);
         Project project = ProjectUtility.tenantCreateProject(tenant);
         tenantContext.setProject(project);
+        log.info("project created, id {}", project.getId());
         Client ssoLoginClient = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, ssoLoginClient);
         ssoLoginClient.setId(UrlUtility.getId(tenantClient));
+        log.info("project client created, id {}", ssoLoginClient.getId());
         User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
         log.info("created user {}", user1.getEmail());
         User user2 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());

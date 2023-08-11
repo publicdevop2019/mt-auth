@@ -19,6 +19,7 @@ import com.mt.common.domain.model.domain_event.SagaEventStreamService;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.Connection;
@@ -33,6 +34,7 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
@@ -407,7 +409,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         });
                     };
                     if (multiple) {
-                        ConcurrentNavigableMap<Long, StoredEvent> confirmed =
+                        ConcurrentNavigableMap<Long, StoredEvent> confirmedEvent =
                             finalOutstandingConfirms.headMap(
                                 sequenceNumber, true
                             );
@@ -416,18 +418,26 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                 sequenceNumber, true
                             );
                         log.debug("batch confirming, sequence number {}", sequenceNumber);
-                        log.debug("confirm event count {}", confirmed.values().size());
+                        log.debug("confirm event count {}", confirmedEvent.values().size());
                         log.debug("confirm start at count {}", confirmedStartAt.values().size());
-                        confirmed.values().forEach(markAsSent);
+                        confirmedEvent.values().forEach(markAsSent);
+                        AtomicBoolean eventMissMatch = new AtomicBoolean(false);
                         confirmedStartAt.forEach((sequenceId, startAt) -> {
-                            StoredEvent storedEvent = confirmed.get(sequenceId);
-                            if (startAt == null) {
-                                log.error("unable to find startAt time");
-                            } else {
-                                Analytics.stopPublish(startAt, storedEvent, sequenceId, true);
+                            StoredEvent storedEvent = confirmedEvent.get(sequenceId);
+                            if (Checker.isNull(storedEvent)) {
+                                eventMissMatch.set(true);
                             }
+                            Analytics.stopBatchPublish(startAt, storedEvent, sequenceId);
                         });
-                        confirmed.clear();
+                        if (eventMissMatch.get()) {
+                            log.error("outstanding confirms {}",
+                                CommonDomainRegistry.getCustomObjectSerializer()
+                                    .serialize(finalOutstandingConfirms));
+                            log.error("outstanding confirms start at {}",
+                                CommonDomainRegistry.getCustomObjectSerializer()
+                                    .serialize(finalOutstandingConfirmsStartAt));
+                        }
+                        confirmedEvent.clear();
                         confirmedStartAt.clear();
                     } else {
                         StoredEvent storedEvent = finalOutstandingConfirms.get(sequenceNumber);
@@ -435,7 +445,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                         if (startAt == null) {
                             log.warn("unable to find startAt time");
                         } else {
-                            Analytics.stopPublish(startAt, storedEvent, sequenceNumber, false);
+                            Analytics.stopSinglePublish(startAt, storedEvent, sequenceNumber);
                         }
                         if (storedEvent != null) {
                             markAsSent.accept(storedEvent);
@@ -445,6 +455,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                 sequenceNumber);
                         }
                         finalOutstandingConfirms.remove(sequenceNumber);
+                        finalOutstandingConfirmsStartAt.remove(sequenceNumber);
                     }
                 };
 
@@ -487,9 +498,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     Instant.now().toEpochMilli());
                 byte[] bytes = body.getBytes(StandardCharsets.UTF_8);
                 channel.basicPublish(EXCHANGE_NAME, routingKey, true,
-                    null,bytes
+                    null, bytes
                 );
-                log.debug("channel num {} published next event id {} with routing key {} size {}(bytes)",
+                log.debug(
+                    "channel num {} published next event id {} with routing key {} size {}(bytes)",
                     channel.getChannelNumber(), event.getId(), routingKey, bytes.length);
                 pubAnalytics.stop();
             } catch (IOException e) {
