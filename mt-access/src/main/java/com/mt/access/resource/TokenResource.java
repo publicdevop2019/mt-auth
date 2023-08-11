@@ -2,6 +2,7 @@ package com.mt.access.resource;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.validate.Checker;
 import java.security.Principal;
 import java.util.HashMap;
@@ -23,10 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RestController
 public class TokenResource {
-    private static final String[] HEADERS_TO_TRY = {
-        "X-Real-IP",
-        "X-Forwarded-For",
-    };
     @Autowired
     private TokenEndpoint tokenEndpoint;
 
@@ -47,7 +44,7 @@ public class TokenResource {
         HttpServletRequest servletRequest,
         @RequestHeader(name = "User-Agent") String agentInfo
     ) throws HttpRequestMethodNotSupportedException {
-        String clientIpAddress = getClientIpAddress(servletRequest);
+        String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("user login with ip {}", clientIpAddress);
         LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
             .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
@@ -72,20 +69,5 @@ public class TokenResource {
                 return ResponseEntity.ok().body(stringStringHashMap);
             }
         }
-    }
-
-    private String getClientIpAddress(HttpServletRequest request) {
-        log.trace("--start of get client ip address");
-        request.getHeaderNames().asIterator().forEachRemaining(e -> {
-            log.trace("header name [{}] and value: {}", e, request.getHeader(e));
-        });
-        for (String header : HEADERS_TO_TRY) {
-            String ip = request.getHeader(header);
-            if (ip != null && ip.length() != 0 && !"unknown".equalsIgnoreCase(ip)) {
-                return ip;
-            }
-        }
-        log.trace("--end of get client ip address");
-        return request.getRemoteAddr();
     }
 }

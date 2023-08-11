@@ -18,7 +18,9 @@ import com.mt.access.application.client.representation.ClientProxyRepresentation
 import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -43,7 +45,11 @@ public class ClientResource {
         @PathVariable String projectId,
         @RequestBody ClientCreateCommand command,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt) {
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        HttpServletRequest servletRequest
+    ) {
+        String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
+        log.info("tenant ip {}", clientIpAddress);
         DomainRegistry.getCurrentUserService().setUser(jwt);
         command.setProjectId(projectId);
         return ResponseEntity.ok().header("Location",
