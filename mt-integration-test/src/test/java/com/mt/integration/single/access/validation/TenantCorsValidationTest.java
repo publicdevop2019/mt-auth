@@ -13,7 +13,7 @@ import com.mt.helper.pojo.Cors;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.CorsUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -130,7 +130,7 @@ public class TenantCorsValidationTest{
     public void validation_update_name(String name, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setName(name);
         ResponseEntity<Void> response1 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response1.getStatusCode());
@@ -141,7 +141,7 @@ public class TenantCorsValidationTest{
     public void validation_update_description(String description, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setDescription(description);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response3.getStatusCode());
@@ -151,7 +151,7 @@ public class TenantCorsValidationTest{
     public void validation_update_allow_credential() {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         //null
         cors.setAllowCredentials(null);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
@@ -163,7 +163,7 @@ public class TenantCorsValidationTest{
     public void validation_update_allowed_headers(Set<String> ids, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setAllowedHeaders(ids);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response3.getStatusCode());
@@ -174,7 +174,7 @@ public class TenantCorsValidationTest{
     public void validation_update_allow_origin(Set<String> origins, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setAllowOrigin(origins);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response3.getStatusCode());
@@ -185,7 +185,7 @@ public class TenantCorsValidationTest{
     public void validation_update_exposed_headers(Set<String> ids, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setExposedHeaders(ids);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response3.getStatusCode());
@@ -196,7 +196,7 @@ public class TenantCorsValidationTest{
     public void validation_update_max_age(Long maxAge, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         cors.setMaxAge(maxAge);
         ResponseEntity<Void> response3 = CorsUtility.updateTenantCors(tenantContext, cors);
         Assertions.assertEquals(status, response3.getStatusCode());
@@ -207,7 +207,7 @@ public class TenantCorsValidationTest{
     public void validation_patch_name(String name, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
@@ -222,7 +222,7 @@ public class TenantCorsValidationTest{
     public void validation_patch_description(String description, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
@@ -237,7 +237,7 @@ public class TenantCorsValidationTest{
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();
         ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(UrlUtility.getId(response2));
+        cors.setId(HttpUtility.getId(response2));
         Project project1 = new Project();
         project1.setId(projectId);
         String url = CorsUtility.getUrl(project1);

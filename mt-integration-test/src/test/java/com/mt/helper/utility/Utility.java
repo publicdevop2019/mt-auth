@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+
 @Slf4j
 public class Utility {
     public static <T> ResponseEntity<SumTotal<T>> readResource(User user, String url,
@@ -25,13 +26,17 @@ public class Utility {
     }
 
     public static <T> ResponseEntity<T> readResource(User user, String url,
-                                                     String resourceId, Class<T> tClass) {
+                                                     String pathSuffix, Class<T> tClass) {
+        return readResource(user, HttpUtility.appendPath(url, pathSuffix), tClass);
+    }
+
+    public static <T> ResponseEntity<T> readResource(User user, String url, Class<T> tClass) {
         String login = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(login);
         HttpEntity<Void> request = new HttpEntity<>(headers);
         return TestContext.getRestTemplate()
-            .exchange(UrlUtility.appendPath(url, resourceId), HttpMethod.GET, request, tClass);
+            .exchange(url, HttpMethod.GET, request, tClass);
     }
 
     public static <T> ResponseEntity<Void> createResource(User user, String url,
@@ -82,7 +87,7 @@ public class Utility {
         HttpEntity<T> request =
             new HttpEntity<>(resource, headers);
         return TestContext.getRestTemplate().exchange(
-            UrlUtility.appendPath(url, resourceId),
+            HttpUtility.appendPath(url, resourceId),
             HttpMethod.PUT, request,
             Void.class);
     }
@@ -98,7 +103,7 @@ public class Utility {
         HttpEntity<Void> request =
             new HttpEntity<>(headers);
         return TestContext.getRestTemplate().exchange(
-            UrlUtility.appendPath(url, resourceId),
+            HttpUtility.appendPath(url, resourceId),
             HttpMethod.DELETE, request,
             Void.class);
     }
@@ -111,7 +116,7 @@ public class Utility {
         headers.set("Content-Type", "application/json-patch+json");
         HttpEntity<List<PatchCommand>> request =
             new HttpEntity<>(Lists.list(command), headers);
-        return TestContext.getRestTemplate().exchange(UrlUtility.appendPath(url, resourceId),
+        return TestContext.getRestTemplate().exchange(HttpUtility.appendPath(url, resourceId),
             HttpMethod.PATCH, request,
             Void.class);
     }

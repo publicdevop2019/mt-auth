@@ -9,7 +9,7 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.pojo.UserMgmt;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +44,7 @@ public class MgmtUserTest{
     }
     @Test
     public void admin_can_view_all_users() {
-        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT);
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(jwtAdmin);
@@ -63,14 +63,14 @@ public class MgmtUserTest{
         headers.setBearerAuth(jwtAdmin);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<User>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.USER_MGMT), HttpMethod.GET, request,
+            .exchange(HttpUtility.getAccessUrl(AppConstant.USER_MGMT), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
         List<User> data = Objects.requireNonNull(exchange.getBody()).getData();
         int i = RandomUtility.pickRandomFromList(data.size());
         User user = data.get(i);
         ResponseEntity<UserMgmt> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(UrlUtility.combinePath(AppConstant.USER_MGMT, user.getId())),
+            .exchange(HttpUtility.getAccessUrl(HttpUtility.combinePath(AppConstant.USER_MGMT, user.getId())),
                 HttpMethod.GET, request, UserMgmt.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getLoginHistory());
@@ -81,7 +81,7 @@ public class MgmtUserTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> user1 = UserUtility.register(user);
 
-        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(user1));
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(user1));
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
             UserUtility.login(user.getEmail(), user.getPassword());
@@ -109,7 +109,7 @@ public class MgmtUserTest{
     public void admin_cannot_delete_root_user() {
 
         String url =
-            UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
+            HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = UserUtility.login(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
@@ -140,7 +140,7 @@ public class MgmtUserTest{
         patchCommand.setOp("replace");
         patchCommand.setValue(true);
         ResponseEntity<Void> response =
-            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
@@ -158,7 +158,7 @@ public class MgmtUserTest{
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(createResp));
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(createResp));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
@@ -194,7 +194,7 @@ public class MgmtUserTest{
         headers.setBearerAuth(bearer);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
+            HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
         ResponseEntity<Void> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, Void.class);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange.getStatusCode());
@@ -215,7 +215,7 @@ public class MgmtUserTest{
         user.setLocked(null);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = UrlUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + UrlUtility.getId(createResp));
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(createResp));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
@@ -233,7 +233,7 @@ public class MgmtUserTest{
         patchCommand.setOp("replace");
         patchCommand.setValue(null);
         ResponseEntity<Void> response =
-            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
     }
 
@@ -248,7 +248,7 @@ public class MgmtUserTest{
         patchCommand.setOp("replace");
         patchCommand.setValue(true);
         ResponseEntity<Void> response2 =
-            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
     }
 
@@ -263,7 +263,7 @@ public class MgmtUserTest{
         patchCommand.setOp(RandomUtility.randomStringNoNum());
         patchCommand.setValue(true);
         ResponseEntity<Void> response3 =
-            UserUtility.lockUser(UrlUtility.getId(createResp), admin, patchCommand);
+            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 }

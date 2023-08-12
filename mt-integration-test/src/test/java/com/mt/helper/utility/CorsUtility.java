@@ -16,7 +16,7 @@ public class CorsUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "cors");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "cors");
     }
 
     public static Cors createRandomCorsObj() {
@@ -74,7 +74,7 @@ public class CorsUtility {
 
     public static ResponseEntity<SumTotal<Cors>> readTenantCorsById(TenantContext tenantContext,
                                                                     String id) {
-        String url = UrlUtility.appendQuery(getUrl(tenantContext.getProject()), "query=id:" + id);
+        String url = HttpUtility.appendQuery(getUrl(tenantContext.getProject()), "query=id:" + id);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 }

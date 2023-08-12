@@ -9,7 +9,7 @@ import com.mt.helper.pojo.UserUpdatePwd;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -49,7 +49,7 @@ public class UserValidationTest{
     @Test
     public void validation_create_avatar() throws FileNotFoundException {
         //created user
-        String url = UrlUtility.getAccessUrl("/users" + "/profile/avatar");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile/avatar");
         User user = UserUtility.createUser();
         String bearer = UserUtility.login(user);
         //type
@@ -116,7 +116,7 @@ public class UserValidationTest{
     @Test
     public void validation_update_user_profile_name() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -164,7 +164,7 @@ public class UserValidationTest{
     @Test
     public void validation_update_user_profile_country_code() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -209,7 +209,7 @@ public class UserValidationTest{
     @Test
     public void validation_update_user_profile_mobile() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -254,7 +254,7 @@ public class UserValidationTest{
     @Test
     public void validation_update_user_profile_language() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -515,7 +515,7 @@ public class UserValidationTest{
             .getOAuth2ClientCredentialToken(
                 AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
-        String url = UrlUtility.getAccessUrl("/users" + "/forgetPwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(value);
@@ -577,11 +577,11 @@ public class UserValidationTest{
         headers.setBearerAuth(value);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
-        String url = UrlUtility.getAccessUrl("/users" + "/forgetPwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String url2 = UrlUtility.getAccessUrl("/users" + "/resetPwd");
+        String url2 = HttpUtility.getAccessUrl("/users" + "/resetPwd");
         forgetPasswordRequest.setToken("123456789");
         forgetPasswordRequest.setNewPassword(
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
@@ -644,11 +644,11 @@ public class UserValidationTest{
         headers.setBearerAuth(value);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
-        String url = UrlUtility.getAccessUrl("/users" + "/forgetPwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String url2 = UrlUtility.getAccessUrl("/users" + "/resetPwd");
+        String url2 = HttpUtility.getAccessUrl("/users" + "/resetPwd");
         forgetPasswordRequest.setToken("123456789");
         forgetPasswordRequest.setNewPassword(
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
@@ -722,11 +722,11 @@ public class UserValidationTest{
         headers.setBearerAuth(value);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
-        String url = UrlUtility.getAccessUrl("/users" + "/forgetPwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-        String url2 = UrlUtility.getAccessUrl("/users" + "/resetPwd");
+        String url2 = HttpUtility.getAccessUrl("/users" + "/resetPwd");
         forgetPasswordRequest.setToken("123456789");
         forgetPasswordRequest.setNewPassword(
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
@@ -795,7 +795,7 @@ public class UserValidationTest{
 
     @Test
     public void validation_update_pwd_new_password() {
-        String url = UrlUtility.getAccessUrl("/users" + "/pwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
         UserUpdatePwd updatePwd = new UserUpdatePwd();
@@ -857,7 +857,7 @@ public class UserValidationTest{
 
     @Test
     public void validation_update_pwd_current_password() {
-        String url = UrlUtility.getAccessUrl("/users" + "/pwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
         UserUpdatePwd updatePwd = new UserUpdatePwd();

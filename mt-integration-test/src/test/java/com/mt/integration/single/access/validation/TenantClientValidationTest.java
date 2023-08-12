@@ -24,7 +24,7 @@ import com.mt.helper.pojo.GrantType;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.HashSet;
 import java.util.Set;
@@ -276,7 +276,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         Project project = new Project();
         project.setId(projectId);
         String url = ClientUtility.getUrl(project);
@@ -290,7 +290,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
 
         //type is backend and secret is missing, then secret will not change
         client.setHasSecret(true);
@@ -305,13 +305,13 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         //type is frontend but secret is present
         Client client1 = ClientUtility.createValidFrontendClient();
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client1);
         Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        client1.setId(UrlUtility.getId(response2));
+        client1.setId(HttpUtility.getId(response2));
         client1.setClientSecret("test");
         ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client1);
@@ -323,7 +323,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         //secret format
         client.setHasSecret(true);
         client.setClientSecret("0123456789012345678901234567890123456789");
@@ -338,7 +338,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setDescription(description);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -350,7 +350,7 @@ public class TenantClientValidationTest{
     public void validation_update_path(Client client, String path, HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setPath(path);
         ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -364,7 +364,7 @@ public class TenantClientValidationTest{
                                                HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setExternalUrl(externalUrl);
         ResponseEntity<Void> response3 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -377,7 +377,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setGrantTypeEnums(grantTypes);
         ResponseEntity<Void> response4 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -391,7 +391,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response2));
+        client.setId(HttpUtility.getId(response2));
         client.setRegisteredRedirectUri(urls);
         ResponseEntity<Void> response7 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -405,7 +405,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         HashSet<String> strings = new HashSet<>();
         strings.add(GrantType.PASSWORD.name());
         strings.add(GrantType.REFRESH_TOKEN.name());
@@ -422,7 +422,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setAccessTokenValiditySeconds(integer);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -439,7 +439,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setGrantTypeEnums(grantTypes);
         client.setRegisteredRedirectUri(urls);
         ResponseEntity<Void> response3 =
@@ -455,7 +455,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response0 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response0));
+        client.setId(HttpUtility.getId(response0));
 
         client.setGrantTypeEnums(grantType);
         client.setRefreshTokenValiditySeconds(integer);
@@ -471,7 +471,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setResourceIds(ids);
         ResponseEntity<Void> response2 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -484,7 +484,7 @@ public class TenantClientValidationTest{
                                                      HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setResourceIndicator(indicator);
         ResponseEntity<Void> response5 =
             ClientUtility.updateTenantClient(tenantContext, client);
@@ -501,7 +501,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         client.setAutoApprove(autoApprove);
         client.setGrantTypeEnums(grantTypes);
         client.setRegisteredRedirectUri(redirectUrls);
@@ -516,7 +516,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
@@ -531,7 +531,7 @@ public class TenantClientValidationTest{
     public void validation_patch_path(Client client, String path, HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/path");
@@ -547,11 +547,11 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         Client client1 = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
+        client1.setId(HttpUtility.getId(response2));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/grantTypeEnums");
@@ -567,7 +567,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/accessTokenValiditySeconds");
@@ -584,7 +584,7 @@ public class TenantClientValidationTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/resourceIds");
@@ -600,11 +600,11 @@ public class TenantClientValidationTest{
                                                     HttpStatus status) {
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(response1));
+        client.setId(HttpUtility.getId(response1));
         Client client1 = ClientUtility.createValidFrontendClient();
         ResponseEntity<Void> response2 =
             ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(UrlUtility.getId(response2));
+        client1.setId(HttpUtility.getId(response2));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/resourceIndicator");

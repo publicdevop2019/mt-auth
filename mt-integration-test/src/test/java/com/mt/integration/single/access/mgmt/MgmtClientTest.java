@@ -7,7 +7,7 @@ import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class MgmtClientTest{
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<Client>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_CLIENTS), HttpMethod.GET, request,
+            .exchange(HttpUtility.getAccessUrl(AppConstant.MGMT_CLIENTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
         Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
@@ -58,7 +58,7 @@ public class MgmtClientTest{
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        String accessUrl = UrlUtility.getAccessUrl(AppConstant.MGMT_CLIENTS);
+        String accessUrl = HttpUtility.getAccessUrl(AppConstant.MGMT_CLIENTS);
         ResponseEntity<SumTotal<Client>> exchange = TestContext.getRestTemplate()
             .exchange(accessUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
@@ -81,7 +81,7 @@ public class MgmtClientTest{
         log.info("picked client id {}", clientId);
         ResponseEntity<Client> exchange2 = TestContext.getRestTemplate()
             .exchange(
-                UrlUtility.getAccessUrl(UrlUtility.combinePath(AppConstant.MGMT_CLIENTS, clientId)),
+                HttpUtility.getAccessUrl(HttpUtility.combinePath(AppConstant.MGMT_CLIENTS, clientId)),
                 HttpMethod.GET, request,
                 Client.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());

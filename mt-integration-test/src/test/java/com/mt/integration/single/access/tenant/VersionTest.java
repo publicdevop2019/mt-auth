@@ -20,8 +20,7 @@ import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,20 +56,20 @@ public class VersionTest {
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
-        rootRole.setId(UrlUtility.getId(tenantRole));
+        rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
 
         //create client for endpoint
         client = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        String clientId = UrlUtility.getId(tenantClient);
+        String clientId = HttpUtility.getId(tenantClient);
         client.setId(clientId);
         //create shared endpoint
         sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
-        sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
+        sharedEndpointObj.setId(HttpUtility.getId(tenantEndpoint2));
     }
 
     @BeforeEach
@@ -83,7 +82,7 @@ public class VersionTest {
         client.setClientSecret(" ");
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(tenantClient));
+        client.setId(HttpUtility.getId(tenantClient));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
         ResponseEntity<Void> client3 = ClientUtility.updateTenantClient(tenantContext, client);
@@ -98,7 +97,7 @@ public class VersionTest {
     public void cache_version_will_not_increase() {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = UrlUtility.getId(cache);
+        String cacheId = HttpUtility.getId(cache);
         cacheObj.setId(cacheId);
         CacheUtility.updateTenantCache(tenantContext, cacheObj);
         CacheUtility.updateTenantCache(tenantContext, cacheObj);
@@ -115,7 +114,7 @@ public class VersionTest {
     public void cors_version_will_not_increase() {
         Cors corsObj = CorsUtility.createValidCors();
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = UrlUtility.getId(cors);
+        String corsId = HttpUtility.getId(cors);
 
         corsObj.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
@@ -137,7 +136,7 @@ public class VersionTest {
         corsObj.setAllowedHeaders(null);
         corsObj.setExposedHeaders(null);
         ResponseEntity<Void> cors = CorsUtility.createTenantCors(tenantContext, corsObj);
-        String corsId = UrlUtility.getId(cors);
+        String corsId = HttpUtility.getId(cors);
 
         corsObj.setId(corsId);
         ResponseEntity<Void> cors2 = CorsUtility.updateTenantCors(tenantContext, corsObj);
@@ -159,7 +158,7 @@ public class VersionTest {
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         endpoint.setName(RandomUtility.randomStringWithNum());
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         //update endpoint
@@ -183,7 +182,7 @@ public class VersionTest {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = UrlUtility.getId(response);
+        String s = HttpUtility.getId(response);
         randomPermissionObj.setId(s);
         randomPermissionObj.setName(RandomUtility.randomStringWithNum());
         //update permission
@@ -206,12 +205,12 @@ public class VersionTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //update it's permission
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response1 =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(UrlUtility.getId(response1));
+        permission.setId(HttpUtility.getId(response1));
         role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> response2 =
@@ -274,7 +273,7 @@ public class VersionTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //read user
         User user = tenantContext.getUsers().get(0);
         ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);

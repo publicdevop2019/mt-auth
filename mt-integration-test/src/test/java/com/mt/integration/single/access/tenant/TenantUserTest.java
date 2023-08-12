@@ -10,7 +10,7 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +77,7 @@ public class TenantUserTest{
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //read user
         User user = tenantContext.getUsers().get(0);
         ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);

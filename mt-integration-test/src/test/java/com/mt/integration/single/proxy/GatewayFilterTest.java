@@ -5,7 +5,7 @@ import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -42,7 +42,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_etag_for_get_resources() {
-        String url2 = UrlUtility.getTestUrl("/cache");
+        String url2 = HttpUtility.getTestUrl("/cache");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
@@ -54,7 +54,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_cache_control_for_get_resources() {
-        String url2 = UrlUtility.getTestUrl("cache");
+        String url2 = HttpUtility.getTestUrl("cache");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
@@ -70,7 +70,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_gzip_for_get_resources_more_then_1kb() {
-        String url2 = UrlUtility.getAccessUrl(AppConstant.CLIENTS);
+        String url2 = HttpUtility.getAccessUrl(AppConstant.CLIENTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         headers1.set("changeId", UUID.randomUUID().toString());
@@ -93,7 +93,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_304_when_etag_present() {
-        String url2 = UrlUtility.getTestUrl("/cache");
+        String url2 = HttpUtility.getTestUrl("/cache");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
@@ -111,7 +111,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_request_json_replace_single_quote_with_double_quote() {
-        String url = UrlUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -128,7 +128,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_sanitize_response_json_replace_single_quote_with_double_quote() {
-        String url = UrlUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("post");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.set("X-XSRF-TOKEN", "123");
         headers1.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
@@ -144,7 +144,7 @@ public class GatewayFilterTest {
     @Test
     public void should_allow_public_access() {
         String url =
-            UrlUtility.getTestUrl("/get/hello");
+            HttpUtility.getTestUrl("/get/hello");
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
@@ -154,7 +154,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_cut_off_api_when_max_limit_reach() {
-        String url = UrlUtility.getTestUrl("/delay/" + "15000");
+        String url = HttpUtility.getTestUrl("/delay/" + "15000");
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
@@ -165,7 +165,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_has_no_response_body_when_500() {
-        String url = UrlUtility.getTestUrl("/status/500");
+        String url = HttpUtility.getTestUrl("/status/500");
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
@@ -176,7 +176,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_ask_for_csrf_token_when_post() {
-        String url = UrlUtility.getTestUrl("post");
+        String url = HttpUtility.getTestUrl("post");
         HttpHeaders headers1 = new HttpHeaders();
         TestRestTemplate restTemplate = new TestRestTemplate();
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>("Test", headers1);
@@ -193,7 +193,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_add_csrf_token_when_call_access() {
-        String url = UrlUtility.getAccessUrl("csrf");
+        String url = HttpUtility.getAccessUrl("csrf");
         HttpHeaders headers1 = new HttpHeaders();
         TestRestTemplate restTemplate = new TestRestTemplate();
         HttpEntity<String> hashMapHttpEntity1 = new HttpEntity<>(null, headers1);
@@ -207,7 +207,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_too_many_request_exceed_burst_rate_limit() {
-        String url2 = UrlUtility.getTestUrl("get/0");
+        String url2 = HttpUtility.getTestUrl("get/0");
         AtomicReference<Integer> count = new AtomicReference<>(0);
         Runnable runnable2 = () -> {
             //need to init TestContext again due to runnable is executed in different thread pool hence TestContext threadlocal is null

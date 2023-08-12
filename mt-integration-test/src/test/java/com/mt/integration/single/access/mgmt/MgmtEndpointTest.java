@@ -7,7 +7,7 @@ import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -44,7 +44,7 @@ public class MgmtEndpointTest{
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<Endpoint>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_ENDPOINTS), HttpMethod.GET, request,
+            .exchange(HttpUtility.getAccessUrl(AppConstant.MGMT_ENDPOINTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
         Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
@@ -59,7 +59,7 @@ public class MgmtEndpointTest{
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
-        String accessUrl = UrlUtility.getAccessUrl(AppConstant.MGMT_ENDPOINTS);
+        String accessUrl = HttpUtility.getAccessUrl(AppConstant.MGMT_ENDPOINTS);
         ResponseEntity<SumTotal<Endpoint>> exchange = TestContext.getRestTemplate()
             .exchange(accessUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
@@ -81,7 +81,7 @@ public class MgmtEndpointTest{
         log.info("picked endpointId {}", epId);
         ResponseEntity<Endpoint> exchange4 = TestContext.getRestTemplate()
             .exchange(
-                UrlUtility.getAccessUrl(UrlUtility.combinePath(AppConstant.MGMT_ENDPOINTS, epId)),
+                HttpUtility.getAccessUrl(HttpUtility.combinePath(AppConstant.MGMT_ENDPOINTS, epId)),
                 HttpMethod.GET, request,
                 Endpoint.class);
         Assertions.assertEquals(HttpStatus.OK, exchange4.getStatusCode());

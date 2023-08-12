@@ -8,8 +8,7 @@ import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.RandomUtility;
-import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -37,7 +36,7 @@ public class TenantEndpointTest {
         client.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(tenantClient));
+        client.setId(HttpUtility.getId(tenantClient));
     }
 
     @Test
@@ -47,7 +46,7 @@ public class TenantEndpointTest {
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         //delete endpoint
         ResponseEntity<Void> voidResponseEntity =
@@ -63,7 +62,7 @@ public class TenantEndpointTest {
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         endpoint.setName(RandomUtility.randomStringWithNum());
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
         //update endpoint
@@ -84,7 +83,7 @@ public class TenantEndpointTest {
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //read endpoint
         ResponseEntity<Endpoint> endpointResponseEntity =
             EndpointUtility.readTenantEndpoint(tenantContext, endpoint);
@@ -100,7 +99,7 @@ public class TenantEndpointTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //try to delete endpoint
         ResponseEntity<Void> voidResponseEntity =
             EndpointUtility.deleteTenantEndpoint(tenantContext, endpoint);

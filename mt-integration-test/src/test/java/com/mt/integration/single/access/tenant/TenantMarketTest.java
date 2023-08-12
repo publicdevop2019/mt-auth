@@ -17,8 +17,7 @@ import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +49,7 @@ public class TenantMarketTest {
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
-        clientA.setId(UrlUtility.getId(tenantClient));
+        clientA.setId(HttpUtility.getId(tenantClient));
 
         log.info("init tenant complete");
     }
@@ -97,7 +96,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
@@ -113,7 +112,7 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //find this endpoint in market
         User creator = tenantContextA.getCreator();
         ResponseEntity<SumTotal<Endpoint>> response =
@@ -130,7 +129,7 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
@@ -146,7 +145,7 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextA, endpoint.getId());
@@ -162,7 +161,7 @@ public class TenantMarketTest {
             EndpointUtility.createRandomPublicEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
@@ -178,14 +177,14 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-        String subReqId = UrlUtility.getId(voidResponseEntity);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
         //tenantB can view sub req
         ResponseEntity<SumTotal<SubscriptionReq>> voidResponseEntity12 =
             MarketUtility.viewMySubReq(tenantContextB);
@@ -214,13 +213,13 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = UrlUtility.getId(voidResponseEntity);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
 
@@ -228,7 +227,7 @@ public class TenantMarketTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //wait for cache to expire
         Thread.sleep(5 * 1000);
         //update it's api
@@ -250,13 +249,13 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = UrlUtility.getId(voidResponseEntity);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
 
@@ -264,7 +263,7 @@ public class TenantMarketTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //wait for cache to expire
         Thread.sleep(5 * 1000);
         //update it's api
@@ -308,13 +307,13 @@ public class TenantMarketTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = UrlUtility.getId(voidResponseEntity);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         User user = tenantContextB.getUsers().get(0);
@@ -330,7 +329,7 @@ public class TenantMarketTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB.getProject(), user, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //wait for cache to expire
         Thread.sleep(5 * 1000);
         //update it's api

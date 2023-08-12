@@ -26,7 +26,7 @@ public class ClientUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "clients");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "clients");
     }
 
     /**

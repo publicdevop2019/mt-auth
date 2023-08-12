@@ -7,7 +7,7 @@ import com.mt.helper.pojo.Client;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.UUID;
@@ -68,7 +68,7 @@ public class ClientIdempotentTest{
         headers.set("X-XSRF-TOKEN", "123");
         headers.add(HttpHeaders.COOKIE, "XSRF-TOKEN=123");
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
+            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/" + HttpUtility.getId(client1));
         oldClient.setVersion(0);
         HttpEntity<Client> request = new HttpEntity<>(oldClient, headers);
         ResponseEntity<String> exchange =
@@ -91,7 +91,7 @@ public class ClientIdempotentTest{
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
+            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/" + HttpUtility.getId(client1));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);
@@ -158,7 +158,7 @@ public class ClientIdempotentTest{
         AtomicReference<Integer> success = new AtomicReference<>(0);
         AtomicReference<Integer> failed = new AtomicReference<>(0);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
+            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/" + HttpUtility.getId(client1));
         Runnable runnable2 = () -> {
             TestContext.init();
             ResponseEntity<String> exchange =
@@ -193,7 +193,7 @@ public class ClientIdempotentTest{
         Assertions.assertEquals(HttpStatus.OK, client1.getStatusCode());
         oldClient.setAccessTokenValiditySeconds(120);
         String url =
-            UrlUtility.getAccessUrl(AppConstant.CLIENTS + "/" + UrlUtility.getId(client1));
+            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/" + HttpUtility.getId(client1));
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);

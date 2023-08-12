@@ -20,8 +20,7 @@ import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.Collections;
 import java.util.Set;
@@ -55,20 +54,20 @@ public class TenantRoleValidationTest {
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
-        rootRole.setId(UrlUtility.getId(tenantRole));
+        rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
 
         //create client for endpoint
         client = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        String clientId = UrlUtility.getId(tenantClient);
+        String clientId = HttpUtility.getId(tenantClient);
         client.setId(clientId);
         //create shared endpoint
         sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
-        sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
+        sharedEndpointObj.setId(HttpUtility.getId(tenantEndpoint2));
     }
 
     @BeforeEach
@@ -165,7 +164,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("BASIC");
         role.setDescription(description);
         ResponseEntity<Void> response1 =
@@ -178,7 +177,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         //null
         role.setType(null);
         ResponseEntity<Void> response1 =
@@ -194,7 +193,7 @@ public class TenantRoleValidationTest {
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response4 =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(UrlUtility.getId(response4));
+        permission.setId(HttpUtility.getId(response4));
         role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         ResponseEntity<Void> response3 =
             RoleUtility.updateTenantRole(tenantContext, role);
@@ -212,7 +211,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("BASIC");
         role.setName(name);
         ResponseEntity<Void> response1 =
@@ -226,7 +225,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("BASIC");
         role.setParentId(parentId);
         ResponseEntity<Void> response1 =
@@ -240,7 +239,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("BASIC");
         Project project1 = new Project();
         project1.setId(projectId);
@@ -256,7 +255,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("API_PERMISSION");
         role.setApiPermissionIds(ids);
         ResponseEntity<Void> response1 =
@@ -270,7 +269,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("COMMON_PERMISSION");
         role.setCommonPermissionIds(ids);
         ResponseEntity<Void> response1 =
@@ -284,7 +283,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         role.setType("API_PERMISSION");
         role.setExternalPermissionIds(ids);
         ResponseEntity<Void> response1 =
@@ -299,7 +298,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
@@ -316,7 +315,7 @@ public class TenantRoleValidationTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(response));
+        role.setId(HttpUtility.getId(response));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");

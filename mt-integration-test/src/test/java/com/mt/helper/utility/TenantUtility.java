@@ -28,7 +28,7 @@ public class TenantUtility {
         Client ssoLoginClient = ClientUtility.createAuthorizationClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, ssoLoginClient);
-        ssoLoginClient.setId(UrlUtility.getId(tenantClient));
+        ssoLoginClient.setId(HttpUtility.getId(tenantClient));
         log.info("project client created, id {}", ssoLoginClient.getId());
         User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
         log.info("created user {}", user1.getEmail());
@@ -44,8 +44,8 @@ public class TenantUtility {
     }
 
     public static String getTenantUrl(Project project) {
-        return UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId()));
+        return HttpUtility.getAccessUrl(
+            HttpUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX, project.getId()));
     }
 
 }

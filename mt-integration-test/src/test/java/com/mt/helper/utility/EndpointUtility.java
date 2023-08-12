@@ -19,7 +19,7 @@ public class EndpointUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "endpoints");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "endpoints");
     }
 
     public static Endpoint createRandomEndpointObj(String clientId) {
@@ -90,7 +90,7 @@ public class EndpointUtility {
     }
 
     public static ResponseEntity<String> createEndpoint(Endpoint endpoint) {
-        String url = UrlUtility.getAccessUrl(AppConstant.ENDPOINTS);
+        String url = HttpUtility.getAccessUrl(AppConstant.ENDPOINTS);
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Endpoint> hashMapHttpEntity1 = new HttpEntity<>(endpoint, headers1);
@@ -131,8 +131,8 @@ public class EndpointUtility {
         TenantContext tenantContext, Endpoint endpoint, String reason) {
         String bearer =
             UserUtility.login(tenantContext.getCreator());
-        String accessUrl = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX,
+        String accessUrl = HttpUtility.getAccessUrl(
+            HttpUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX,
                 tenantContext.getProject().getId(),
                 "endpoints/" + endpoint.getId() + "/expire"));
         HttpHeaders headers1 = new HttpHeaders();
@@ -146,7 +146,7 @@ public class EndpointUtility {
 
     public static ResponseEntity<String> expireEndpoint(String endpointId) {
         String url =
-            UrlUtility.getAccessUrl(AppConstant.ENDPOINTS) + "/" + endpointId + "/expire";
+            HttpUtility.getAccessUrl(AppConstant.ENDPOINTS) + "/" + endpointId + "/expire";
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         headers1.setContentType(MediaType.APPLICATION_JSON);

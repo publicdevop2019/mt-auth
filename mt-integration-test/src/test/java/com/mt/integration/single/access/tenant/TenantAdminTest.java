@@ -9,9 +9,8 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.AdminUtility;
 import com.mt.helper.utility.RandomUtility;
-import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import java.util.Objects;
@@ -120,8 +119,8 @@ public class TenantAdminTest{
         HttpEntity<String> request =
             new HttpEntity<>(null, headers);
         ResponseEntity<Void> exchange2 = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(
-                    UrlUtility.combinePath(
+            .exchange(HttpUtility.getAccessUrl(
+                    HttpUtility.combinePath(
                         AppConstant.TENANT_PROJECTS_PREFIX, tenantContext.getProject().getId(),
                         "/admins/" + RandomUtility.randomStringWithNum())),
                 HttpMethod.POST, request,

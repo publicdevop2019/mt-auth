@@ -16,8 +16,7 @@ import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,20 +45,20 @@ public class TenantRoleTest {
         //create root node
         rootRole = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
-        rootRole.setId(UrlUtility.getId(tenantRole));
+        rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
 
         //create client for endpoint
         client = ClientUtility.createRandomSharedBackendClientObj();
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        String clientId = UrlUtility.getId(tenantClient);
+        String clientId = HttpUtility.getId(tenantClient);
         client.setId(clientId);
         //create shared endpoint
         sharedEndpointObj = EndpointUtility.createValidSharedEndpointObj(clientId);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
-        sharedEndpointObj.setId(UrlUtility.getId(tenantEndpoint2));
+        sharedEndpointObj.setId(HttpUtility.getId(tenantEndpoint2));
     }
 
     @BeforeEach
@@ -72,7 +71,7 @@ public class TenantRoleTest {
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
         Assertions.assertEquals(HttpStatus.OK, tenantRole.getStatusCode());
-        Assertions.assertNotNull(UrlUtility.getId(tenantRole));
+        Assertions.assertNotNull(HttpUtility.getId(tenantRole));
     }
 
     @Test
@@ -111,7 +110,7 @@ public class TenantRoleTest {
         Role randomRoleObj = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
-        randomRoleObj.setId(UrlUtility.getId(tenantRole));
+        randomRoleObj.setId(HttpUtility.getId(tenantRole));
         ResponseEntity<Void> voidResponseEntity = RoleUtility.deleteTenantRole(tenantContext,
             randomRoleObj);
         Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
@@ -123,7 +122,7 @@ public class TenantRoleTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //read user
         User user = tenantContext.getUsers().get(0);
         ResponseEntity<User> userResponseEntity = UserUtility.readTenantUser(tenantContext, user);
@@ -147,12 +146,12 @@ public class TenantRoleTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //update it's permission
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(UrlUtility.getId(response));
+        permission.setId(HttpUtility.getId(response));
         role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         ResponseEntity<Void> response2 =
@@ -203,12 +202,12 @@ public class TenantRoleTest {
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //update it's permission
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =
             PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(UrlUtility.getId(response));
+        permission.setId(HttpUtility.getId(response));
         role.setCommonPermissionIds(Collections.singleton(permission.getId()));
         role.setType(UpdateType.COMMON_PERMISSION.name());
         RoleUtility.updateTenantRole(tenantContext, role);
@@ -232,14 +231,14 @@ public class TenantRoleTest {
         ep.setShared(false);
         ResponseEntity<Void> tenantEndpoint2 =
             EndpointUtility.createTenantEndpoint(tenantContext, ep);
-        ep.setId(UrlUtility.getId(tenantEndpoint2));
+        ep.setId(HttpUtility.getId(tenantEndpoint2));
         //wait for permission to create
         Thread.sleep(5 * 1000);
         //create role
         Role role = RoleUtility.createRandomRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(UrlUtility.getId(tenantRole));
+        role.setId(HttpUtility.getId(tenantRole));
         //update it's api
         //find root
         ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =

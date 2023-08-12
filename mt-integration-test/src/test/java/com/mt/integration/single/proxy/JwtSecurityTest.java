@@ -3,7 +3,7 @@ package com.mt.integration.single.proxy;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
@@ -37,7 +37,7 @@ public class JwtSecurityTest {
     @Test
     public void user_modify_jwt_token_after_login() {
         String defaultUserToken = UserUtility.registerNewUserThenLogin();
-        String url = UrlUtility.getAccessUrl("/status/200");
+        String url = HttpUtility.getAccessUrl("/status/200");
         ResponseEntity<String> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, getHttpRequest(defaultUserToken + "valueChange"),
                 String.class);
@@ -46,7 +46,7 @@ public class JwtSecurityTest {
 
     @Test
     public void trying_access_protected_api_without_jwt_token() {
-        String url = UrlUtility.getAccessUrl("/status/200");
+        String url = HttpUtility.getAccessUrl("/status/200");
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate()
                 .exchange(url, HttpMethod.GET, getHttpRequest(null), String.class);

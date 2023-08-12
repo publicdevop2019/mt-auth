@@ -6,7 +6,7 @@ import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ProjectUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +58,7 @@ public class TenantProjectTest{
             ProjectUtility.createTenantProject(randomProjectObj, user);
         Assertions.assertEquals(HttpStatus.OK, tenantProject.getStatusCode());
         Thread.sleep(10*1000);
-        String id = UrlUtility.getId(tenantProject);
+        String id = HttpUtility.getId(tenantProject);
         randomProjectObj.setId(id);
         //get updated project list
         ResponseEntity<SumTotal<Project>> exchange2 = ProjectUtility.readTenantProjects(user);

@@ -13,7 +13,7 @@ public class AdminUtility {
         };
 
     private static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "admins");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "admins");
     }
 
 
@@ -24,7 +24,7 @@ public class AdminUtility {
 
     public static ResponseEntity<Void> makeAdmin(User creator, Project project, User user) {
         String adminUrl = getUrl(project);
-        return Utility.createResource(creator, UrlUtility.appendPath(adminUrl, user.getId()));
+        return Utility.createResource(creator, HttpUtility.appendPath(adminUrl, user.getId()));
     }
 
     public static ResponseEntity<Void> removeAdmin(User creator, Project project, User user) {

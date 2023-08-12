@@ -16,7 +16,7 @@ public class PermissionUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(
+        return HttpUtility.appendPath(
             TenantUtility.getTenantUrl(project), "permissions");
     }
 
@@ -43,7 +43,7 @@ public class PermissionUtility {
     public static ResponseEntity<SumTotal<Permission>> readTenantPermissionWithQuery(
         TenantContext tenantContext, String query) {
         String accessUrl = getUrl(tenantContext.getProject());
-        String url = UrlUtility.appendQuery(accessUrl, query);
+        String url = HttpUtility.appendQuery(accessUrl, query);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
@@ -54,7 +54,7 @@ public class PermissionUtility {
 
     public static ResponseEntity<SumTotal<Permission>> readTenantPermissionShared(
         Project project, User user) {
-        String url = UrlUtility.appendPath(TenantUtility.getTenantUrl(project),
+        String url = HttpUtility.appendPath(TenantUtility.getTenantUrl(project),
             "permissions/shared");
         return Utility.readResource(user, url, reference);
     }

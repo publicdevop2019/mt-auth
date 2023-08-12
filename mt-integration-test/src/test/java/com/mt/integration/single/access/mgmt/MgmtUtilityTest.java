@@ -4,7 +4,7 @@ import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -50,7 +50,7 @@ public class MgmtUtilityTest{
         httpHeaders.setBearerAuth(jwtAdmin);
         HttpEntity<Void> voidRequestEntity = new HttpEntity<>(null, httpHeaders);
         ResponseEntity<Void> exchange =
-            restTemplate.exchange(UrlUtility.getAccessUrl("registry"),
+            restTemplate.exchange(HttpUtility.getAccessUrl("registry"),
                 HttpMethod.GET, voidRequestEntity, new ParameterizedTypeReference<>() {
                 });
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
@@ -60,7 +60,7 @@ public class MgmtUtilityTest{
     public void can_get_csrf_value() {
         RestTemplate restTemplate = TestContext.getRestTemplate();
         ResponseEntity<Void> exchange =
-            restTemplate.exchange(UrlUtility.getAccessUrl("csrf"),
+            restTemplate.exchange(HttpUtility.getAccessUrl("csrf"),
                 HttpMethod.GET, null, Void.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
@@ -73,7 +73,7 @@ public class MgmtUtilityTest{
         httpHeaders.setBearerAuth(userJwt);
         HttpEntity<Void> voidRequestEntity = new HttpEntity<>(null, httpHeaders);
         ResponseEntity<Void> exchange =
-            restTemplate.exchange(UrlUtility.getAccessUrl("expire/check"),
+            restTemplate.exchange(HttpUtility.getAccessUrl("expire/check"),
                 HttpMethod.GET, voidRequestEntity, Void.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
     }
@@ -82,12 +82,12 @@ public class MgmtUtilityTest{
     public void can_call_access_health_check() {
         RestTemplate restTemplate = TestContext.getRestTemplate();
         ResponseEntity<Void> exchange =
-            restTemplate.exchange(UrlUtility.appendPath(AppConstant.ACCESS_URL, "health"),
+            restTemplate.exchange(HttpUtility.appendPath(AppConstant.ACCESS_URL, "health"),
                 HttpMethod.GET, null,
                 Void.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         ResponseEntity<Void> exchange2 =
-            restTemplate.exchange(UrlUtility.getAccessUrl("health"),
+            restTemplate.exchange(HttpUtility.getAccessUrl("health"),
                 HttpMethod.GET, null, Void.class);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, exchange2.getStatusCode());
     }

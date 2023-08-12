@@ -11,7 +11,7 @@ import com.mt.helper.utility.CacheUtility;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.RandomUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -44,14 +44,14 @@ public class TenantCacheTest {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.OK, cache.getStatusCode());
-        Assertions.assertNotNull(UrlUtility.getId(cache));
+        Assertions.assertNotNull(HttpUtility.getId(cache));
     }
 
     @Test
     public void tenant_can_update_cache() {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = UrlUtility.getId(cache);
+        String cacheId = HttpUtility.getId(cache);
         String newName = RandomUtility.randomStringWithNum();
         cacheObj.setName(newName);
         cacheObj.setId(cacheId);
@@ -78,7 +78,7 @@ public class TenantCacheTest {
     public void tenant_can_delete_cache() {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = UrlUtility.getId(cache);
+        String cacheId = HttpUtility.getId(cache);
         cacheObj.setId(cacheId);
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
@@ -96,21 +96,21 @@ public class TenantCacheTest {
         //create cache
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        String cacheId = UrlUtility.getId(cache);
+        String cacheId = HttpUtility.getId(cache);
         cacheObj.setId(cacheId);
         //create backend client
         Client randomClient = ClientUtility.createValidBackendClient();
         randomClient.setResourceIndicator(false);
         ResponseEntity<Void> client =
             ClientUtility.createTenantClient(tenantContext, randomClient);
-        String clientId = UrlUtility.getId(client);
+        String clientId = HttpUtility.getId(client);
         randomClient.setId(clientId);
         //create client's endpoint
         Endpoint randomEndpointObj = EndpointUtility.createValidGetEndpoint(clientId);
         randomEndpointObj.setCacheProfileId(cacheId);
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, randomEndpointObj);
-        String endpointId = UrlUtility.getId(tenantEndpoint);
+        String endpointId = HttpUtility.getId(tenantEndpoint);
         randomEndpointObj.setId(endpointId);
         //delete cache
         ResponseEntity<Void> cache2 = CacheUtility.deleteTenantCache(tenantContext, cacheObj);

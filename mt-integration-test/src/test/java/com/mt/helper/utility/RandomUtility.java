@@ -55,7 +55,7 @@ public class RandomUtility {
             pageSize = random.nextInt(totalItemCount) + 1;//avoid 0
         }
         int i = pickRandomPage(sumTotal, pageSize);
-        return UrlUtility.appendQuery(url, UrlUtility.getPageQuery(i, pageSize));
+        return HttpUtility.appendQuery(url, HttpUtility.getPageQuery(i, pageSize));
     }
 
     public static String randomStringWithNum() {

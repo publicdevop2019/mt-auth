@@ -16,7 +16,7 @@ import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.MessageUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +66,7 @@ public class SubscriptionTest{
         endpoint.setBurstCapacity(20);
         ResponseEntity<String> endpoint1 = EndpointUtility.createEndpoint(endpoint);
         Assertions.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
-        String endpointId = UrlUtility.getId(endpoint1);
+        String endpointId = HttpUtility.getId(endpoint1);
         Assertions.assertNotNull(endpointId);
         Thread.sleep(10*1000);//wait for proxy update
         //mt-mall can subscribe to it
@@ -83,13 +83,13 @@ public class SubscriptionTest{
         TenantContext tenantContext = new TenantContext();
         tenantContext.setCreator(adminUser);
         ResponseEntity<Void> approveResult =
-            MarketUtility.approveSubReq(tenantContext, UrlUtility.getId(subReq));
+            MarketUtility.approveSubReq(tenantContext, HttpUtility.getId(subReq));
         Assertions.assertEquals(HttpStatus.OK, approveResult.getStatusCode());
         //rate limit should work
         String path = endpoint.getPath();
         //call new endpoint
         Thread.sleep(10*1000);//wait for proxy update
-        String accessUrl = UrlUtility.getTestUrl(path);
+        String accessUrl = HttpUtility.getTestUrl(path);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(jwtAdmin);

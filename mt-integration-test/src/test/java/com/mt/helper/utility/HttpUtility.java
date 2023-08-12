@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Assertions;
 import org.springframework.http.ResponseEntity;
 
 @Slf4j
-public class UrlUtility {
+public class HttpUtility {
 
     public static String getId(ResponseEntity<?> entity) {
         log.info("get id from response body");

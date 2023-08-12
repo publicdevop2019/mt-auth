@@ -16,7 +16,7 @@ public class RoleUtility {
         };
 
     public static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "roles");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "roles");
     }
 
     public static Role createRandomRoleObj() {
@@ -44,7 +44,7 @@ public class RoleUtility {
     public static ResponseEntity<SumTotal<Role>> readTenantRoleWithQuery(
         TenantContext tenantContext, String query) {
         String accessUrl = getUrl(tenantContext.getProject());
-        String url = UrlUtility.appendQuery(accessUrl, query);
+        String url = HttpUtility.appendQuery(accessUrl, query);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 

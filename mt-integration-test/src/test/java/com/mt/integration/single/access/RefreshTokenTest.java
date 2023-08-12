@@ -13,9 +13,8 @@ import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
-import com.mt.helper.utility.TenantUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
@@ -60,7 +59,7 @@ public class RefreshTokenTest {
         ResponseEntity<Void> client4 =
             ClientUtility.createTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, client4.getStatusCode());
-        clientAsResource.setId(UrlUtility.getId(client4));
+        clientAsResource.setId(HttpUtility.getId(client4));
         //create endpoint
         Endpoint endpoint =
             EndpointUtility.createRandomPublicEndpointObj(clientAsResource.getId());
@@ -84,7 +83,7 @@ public class RefreshTokenTest {
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
-        clientRaw.setId(UrlUtility.getId(client));
+        clientRaw.setId(HttpUtility.getId(client));
         Assertions.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> token = OAuth2Utility
@@ -92,7 +91,7 @@ public class RefreshTokenTest {
                 tenantContext.getCreator(), tenantContext);
         Assertions.assertEquals(HttpStatus.OK, token.getStatusCode());
         //access endpoint
-        String url = UrlUtility.getTenantUrl(clientAsResource.getPath(),
+        String url = HttpUtility.getTenantUrl(clientAsResource.getPath(),
             "get" + "/" + RandomUtility.randomStringNoNum());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token.getBody().getValue());
@@ -137,7 +136,7 @@ public class RefreshTokenTest {
         clientRaw.setPath(RandomUtility.randomStringNoNum());
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
-        clientRaw.setId(UrlUtility.getId(client));
+        clientRaw.setId(HttpUtility.getId(client));
         Assertions.assertEquals(HttpStatus.OK, client.getStatusCode());
         //get jwt
         ResponseEntity<DefaultOAuth2AccessToken> jwtPasswordWithClient =

@@ -13,8 +13,7 @@ import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.MessageUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -41,7 +40,7 @@ public class TenantMessageTest {
         clientA.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContextA, clientA);
-        clientA.setId(UrlUtility.getId(tenantClient));
+        clientA.setId(HttpUtility.getId(tenantClient));
 
         log.info("init tenant complete");
     }
@@ -57,13 +56,13 @@ public class TenantMessageTest {
             EndpointUtility.createValidSharedEndpointObj(clientA.getId());
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContextA, endpoint);
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         //send sub req tenantB
         SubscriptionReq randomTenantSubReqObj =
             MarketUtility.createValidSubReq(tenantContextB, endpoint.getId());
         ResponseEntity<Void> voidResponseEntity =
             MarketUtility.subToEndpoint(tenantContextB.getCreator(), randomTenantSubReqObj);
-        String subReqId = UrlUtility.getId(voidResponseEntity);
+        String subReqId = HttpUtility.getId(voidResponseEntity);
         //approve sub req
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         //wait for cache to expire

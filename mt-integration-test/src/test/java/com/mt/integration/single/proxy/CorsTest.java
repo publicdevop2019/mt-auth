@@ -3,7 +3,7 @@ package com.mt.integration.single.proxy;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -40,7 +40,7 @@ public class CorsTest {
 
     @Test
     public void cors_oauthToken() {
-        String url = UrlUtility.getAccessUrl(corsUris[0]);
+        String url = HttpUtility.getAccessUrl(corsUris[0]);
         ResponseEntity<?> res = sendValidCorsForTokenUri(url);
         corsAssertToken(res);
     }
@@ -48,7 +48,7 @@ public class CorsTest {
 
     @Test
     public void cors_clients() {
-        String url = UrlUtility.getAccessUrl(corsUris[2]);
+        String url = HttpUtility.getAccessUrl(corsUris[2]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.GET);
         Assertions.assertEquals("[GET]",
             res.getHeaders().getAccessControlAllowMethods().toString());
@@ -58,7 +58,7 @@ public class CorsTest {
 
     @Test
     public void cors_authorize() {
-        String url = UrlUtility.getAccessUrl(corsUris[3]);
+        String url = HttpUtility.getAccessUrl(corsUris[3]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.POST);
         Assertions.assertEquals("[POST]",
             res.getHeaders().getAccessControlAllowMethods().toString());
@@ -68,7 +68,7 @@ public class CorsTest {
 
     @Test
     public void cors_resourceOwner() {
-        String url = UrlUtility.getAccessUrl(corsUris[4]);
+        String url = HttpUtility.getAccessUrl(corsUris[4]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.GET);
         Assertions.assertEquals("[GET]",
             res.getHeaders().getAccessControlAllowMethods().toString());
@@ -78,7 +78,7 @@ public class CorsTest {
 
     @Test
     public void cors_resourceOwner_id_put() {
-        String url = UrlUtility.getAccessUrl(corsUris[5]);
+        String url = HttpUtility.getAccessUrl(corsUris[5]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.PUT);
         Assertions.assertEquals("[PUT]",
             res.getHeaders().getAccessControlAllowMethods().toString());
@@ -88,7 +88,7 @@ public class CorsTest {
 
     @Test
     public void cors_resourceOwner_id_delete() {
-        String url = UrlUtility.getAccessUrl(corsUris[5]);
+        String url = HttpUtility.getAccessUrl(corsUris[5]);
         ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.DELETE);
         Assertions.assertEquals("[DELETE]",
             res.getHeaders().getAccessControlAllowMethods().toString());

@@ -10,7 +10,7 @@ import com.mt.helper.pojo.UserUpdatePwd;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -63,7 +63,7 @@ public class UserTest {
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
-        String url = UrlUtility.getAccessUrl("/users" + "/pwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         String newPassword = UUID.randomUUID().toString().replace("-", "");
         //Login
         ResponseEntity<DefaultOAuth2AccessToken> login =
@@ -96,7 +96,7 @@ public class UserTest {
         headers.setBearerAuth(value);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
-        String url = UrlUtility.getAccessUrl("/users" + "/forgetPwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         ResponseEntity<Object> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
@@ -109,7 +109,7 @@ public class UserTest {
         header2.setBearerAuth(value);
         HttpEntity<ForgetPasswordRequest> request2 =
             new HttpEntity<>(forgetPasswordRequest, header2);
-        String url2 = UrlUtility.getAccessUrl("/users" + "/resetPwd");
+        String url2 = HttpUtility.getAccessUrl("/users" + "/resetPwd");
         TestContext.getRestTemplate().exchange(url2, HttpMethod.POST, request2, Object.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //login
@@ -129,7 +129,7 @@ public class UserTest {
         updatePwd.setPassword(RandomUtility.randomPassword());
         UserUtility.register(user);
         //Location is not used in this case, root/admin/user can only update their password
-        String url = UrlUtility.getAccessUrl("/users" + "/pwd");
+        String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         //Login
         String oldPassword = user.getPassword();
         String bearer = UserUtility.login(user);
@@ -171,7 +171,7 @@ public class UserTest {
     @Test
     public void user_can_update_profile() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         user.setUsername(RandomUtility.randomStringWithNum().substring(0, 10));
         HttpHeaders headers = new HttpHeaders();
@@ -191,7 +191,7 @@ public class UserTest {
     @Test
     public void user_can_view_profile() {
         User user = UserUtility.createUser();
-        String url = UrlUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile");
         String bearer = UserUtility.login(user);
         user.setUsername(RandomUtility.randomStringWithNum());
         HttpHeaders headers = new HttpHeaders();
@@ -209,7 +209,7 @@ public class UserTest {
     @Test
     public void user_can_update_avatar() throws FileNotFoundException {
         //created user has no avatar by default
-        String url = UrlUtility.getAccessUrl("/users" + "/profile/avatar");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile/avatar");
         User user = UserUtility.createUser();
         String bearer = UserUtility.login(user);
         HttpHeaders headers2 = new HttpHeaders();

@@ -13,7 +13,7 @@ public class MessageUtility {
         };
 
     private static String getUrl() {
-        return UrlUtility.getAccessUrl("user/notifications/bell");
+        return HttpUtility.getAccessUrl("user/notifications/bell");
     }
 
     public static ResponseEntity<SumTotal<Notification>> readMessages(User user) {

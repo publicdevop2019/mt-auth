@@ -21,8 +21,7 @@ import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -57,7 +56,7 @@ public class TenantEndpointValidationTest{
         client.setResourceIndicator(true);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(tenantClient));
+        client.setId(HttpUtility.getId(tenantClient));
         log.info("init tenant complete");
     }
 
@@ -156,7 +155,7 @@ public class TenantEndpointValidationTest{
         client.setResourceIndicator(false);
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(UrlUtility.getId(tenantClient));
+        client.setId(HttpUtility.getId(tenantClient));
         Endpoint endpoint2 =
             EndpointUtility.createRandomEndpointObj(client.getId());
         endpoint2.setShared(true);
@@ -266,7 +265,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setName(name);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -280,7 +279,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setDescription(description);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -293,7 +292,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         //websocket update will ignore
         endpoint.setWebsocket(null);
         ResponseEntity<Void> response =
@@ -307,7 +306,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         //null
         endpoint.setCsrfEnabled(null);
         ResponseEntity<Void> response =
@@ -328,7 +327,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setCorsProfileId(corsId);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -342,7 +341,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setCacheProfileId(cacheId);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -356,7 +355,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         Project project1 = new Project();
         project1.setId(projectId);
         String url = EndpointUtility.getUrl(project1);
@@ -372,7 +371,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setPath(path);
         ResponseEntity<Void> response =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -387,7 +386,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         //null but burst capacity not null
         endpoint.setReplenishRate(replenishRate);
         endpoint.setBurstCapacity(burstCapacity);
@@ -404,7 +403,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setReplenishRate(replenishRate);
         endpoint.setBurstCapacity(burstCapacity);
         ResponseEntity<Void> response =
@@ -420,7 +419,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         endpoint.setMethod(method);
         ResponseEntity<Void> response2 =
             EndpointUtility.updateTenantEndpoint(tenantContext, endpoint);
@@ -435,7 +434,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
@@ -452,7 +451,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
@@ -469,7 +468,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/path");
@@ -486,7 +485,7 @@ public class TenantEndpointValidationTest{
             EndpointUtility.createValidGetEndpoint(client.getId());
         ResponseEntity<Void> response0 =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
-        endpoint.setId(UrlUtility.getId(response0));
+        endpoint.setId(HttpUtility.getId(response0));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/method");
@@ -505,7 +504,7 @@ public class TenantEndpointValidationTest{
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        endpoint.setId(UrlUtility.getId(tenantEndpoint));
+        endpoint.setId(HttpUtility.getId(tenantEndpoint));
         ResponseEntity<Void> response1 =
             EndpointUtility.expireTenantEndpoint(tenantContext, endpoint, reason);
         Assertions.assertEquals(status, response1.getStatusCode());

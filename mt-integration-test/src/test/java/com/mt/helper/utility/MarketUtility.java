@@ -20,20 +20,20 @@ public class MarketUtility {
         };
 
     public static ResponseEntity<SumTotal<Endpoint>> readMarketEndpoint(User user) {
-        String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT);
+        String url = HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT);
         return Utility.readResource(user, url, reference);
     }
 
     public static ResponseEntity<SumTotal<Endpoint>> searchMarketEndpoint(User user,
                                                                           String endpointId) {
-        String url = UrlUtility.appendQuery(
-            UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT),
+        String url = HttpUtility.appendQuery(
+            HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT),
             "query=id:" + endpointId);
         return Utility.readResource(user, url, reference);
     }
 
     public static ResponseEntity<Void> subToEndpoint(User user, SubscriptionReq req) {
-        String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
+        String url = HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
         return Utility.createResource(user, url, req);
     }
 
@@ -58,8 +58,8 @@ public class MarketUtility {
 
     public static ResponseEntity<Void> approveSubReq(TenantContext tenantContext,
                                                      String subReqId) {
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "approve"));
+        String url = HttpUtility.getAccessUrl(
+            HttpUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "approve"));
         return Utility.createResource(tenantContext.getCreator(), url);
     }
 
@@ -67,16 +67,16 @@ public class MarketUtility {
                                                     String subReqId,
                                                     RejectSubRequestCommand command
     ) {
-        String url = UrlUtility.getAccessUrl(
-            UrlUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "reject"));
+        String url = HttpUtility.getAccessUrl(
+            HttpUtility.combinePath(AppConstant.MARKET_ENDPOINT_SUB, subReqId, "reject"));
         return Utility.createResource(tenantContext.getCreator(), url, command);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubReq(
         TenantContext tenantContext) {
         String url =
-            UrlUtility.appendQuery(
-                UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+            HttpUtility.appendQuery(
+                HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
                 "query=type:my_request");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
@@ -84,20 +84,20 @@ public class MarketUtility {
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMyPendingApprove(
         TenantContext tenantContext) {
         String url =
-            UrlUtility.appendQuery(
-                UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
+            HttpUtility.appendQuery(
+                HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB),
                 "query=type:PENDING_APPROVAL");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
 
     public static ResponseEntity<SumTotal<SubscriptionReq>> viewMySubs(
         TenantContext tenantContext) {
-        String url = UrlUtility.getAccessUrl("subscriptions");
+        String url = HttpUtility.getAccessUrl("subscriptions");
         return Utility.readResource(tenantContext.getCreator(), url, reference2);
     }
 
     public static ResponseEntity<Void> updateSubReq(User user, SubscriptionReq req) {
-        String url = UrlUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
+        String url = HttpUtility.getAccessUrl(AppConstant.MARKET_ENDPOINT_SUB);
         return Utility.updateResource(user, url, req, req.getId());
     }
 }

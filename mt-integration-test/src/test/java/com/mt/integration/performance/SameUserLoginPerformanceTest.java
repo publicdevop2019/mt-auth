@@ -8,7 +8,7 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class SameUserLoginPerformanceTest {
         User user = UserUtility.createRandomUserObj();
         TestContext.init();
         ResponseEntity<Void> pendingUser = UserUtility.register(user);
-        user.setId(UrlUtility.getId(pendingUser));
+        user.setId(HttpUtility.getId(pendingUser));
         Runnable runnable = () -> {
             TestContext.init();
             log.info("start of user login");

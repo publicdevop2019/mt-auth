@@ -15,9 +15,7 @@ import com.mt.helper.pojo.Cache;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.CacheUtility;
-import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
@@ -267,7 +265,7 @@ public class TenantCacheValidationTest{
     public void validation_update_name(String name, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         cacheObj.setName(name);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(status, cache.getStatusCode());
@@ -278,7 +276,7 @@ public class TenantCacheValidationTest{
     public void validation_update_description(String description, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         cacheObj.setDescription(description);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(status, cache.getStatusCode());
@@ -291,7 +289,7 @@ public class TenantCacheValidationTest{
                                                 HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         cacheObj.setAllowCache(allow);
         cacheObj.setExpires(1L);
         cacheObj.setCacheControl(cacheControl);
@@ -306,7 +304,7 @@ public class TenantCacheValidationTest{
         cacheObj.setMaxAge(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //null
         cacheObj.setExpires(expire);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
@@ -319,7 +317,7 @@ public class TenantCacheValidationTest{
         cacheObj.setMaxAge(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //present but allow cache false
         cacheObj.setAllowCache(false);
         cacheObj.setExpires(1L);
@@ -335,7 +333,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         cacheObj.setMaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
         Assertions.assertEquals(status, cache.getStatusCode());
@@ -347,7 +345,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //if max age then no s max age
         cacheObj.setMaxAge(1L);
         cacheObj.setSmaxAge(1L);
@@ -361,7 +359,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //present but allow cache false
         cacheObj.setAllowCache(false);
         cacheObj.setMaxAge(1L);
@@ -377,7 +375,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //null
         cacheObj.setSmaxAge(maxAge);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
@@ -391,7 +389,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //present but allow cache false
         cacheObj.setAllowCache(false);
         cacheObj.setSmaxAge(1L);
@@ -407,7 +405,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //null
         cacheObj.setVary(vary);
         ResponseEntity<Void> cache = CacheUtility.updateTenantCache(tenantContext, cacheObj);
@@ -420,7 +418,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //present but allow cache false
         cacheObj.setVary("123");
         cacheObj.setAllowCache(false);
@@ -433,7 +431,7 @@ public class TenantCacheValidationTest{
     public void validation_update_allow_cache_null() {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //null
         cacheObj.setAllowCache(null);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
@@ -444,7 +442,7 @@ public class TenantCacheValidationTest{
     public void validation_update_allow_cache_true_but_no_config() {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //true but no config
         cacheObj.setAllowCache(true);
         cacheObj.setEtag(null);
@@ -464,7 +462,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //null
         cacheObj.setWeakValidation(null);
         ResponseEntity<Void> cache = CacheUtility.createTenantCache(tenantContext, cacheObj);
@@ -477,7 +475,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //true but etag null
         cacheObj.setWeakValidation(true);
         cacheObj.setEtag(null);
@@ -491,7 +489,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //true but etag not true
         cacheObj.setWeakValidation(true);
         cacheObj.setEtag(false);
@@ -505,7 +503,7 @@ public class TenantCacheValidationTest{
         cacheObj.setExpires(1L);
         cacheObj.setAllowCache(true);
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         //present but allow cache false
         cacheObj.setWeakValidation(true);
         cacheObj.setEtag(true);
@@ -520,7 +518,7 @@ public class TenantCacheValidationTest{
     public void validation_patch_name(String name, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");
@@ -536,7 +534,7 @@ public class TenantCacheValidationTest{
     public void validation_patch_description(String description, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/description");
@@ -552,7 +550,7 @@ public class TenantCacheValidationTest{
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();
         ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(UrlUtility.getId(tenantCache));
+        cacheObj.setId(HttpUtility.getId(tenantCache));
         Project project1 = new Project();
         project1.setId(projectId);
         String url = CacheUtility.getUrl(project1);

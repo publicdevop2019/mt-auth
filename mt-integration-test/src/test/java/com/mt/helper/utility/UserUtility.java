@@ -28,7 +28,7 @@ public class UserUtility {
         };
 
     private static String getUrl(Project project) {
-        return UrlUtility.appendPath(TenantUtility.getTenantUrl(project), "users");
+        return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "users");
     }
 //    public void initTestUser() {
 //        if (testUser.size() == 0) {
@@ -109,7 +109,7 @@ public class UserUtility {
         HttpEntity<PendingUser> request1 =
             new HttpEntity<>(pendingUser, headers1);
         return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl("/users"), HttpMethod.POST, request1,
+            .exchange(HttpUtility.getAccessUrl("/users"), HttpMethod.POST, request1,
                 Void.class);
     }
 
@@ -125,7 +125,7 @@ public class UserUtility {
 
         HttpEntity<PendingUser> request = new HttpEntity<>(pendingUser, headers);
         return TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl("/pending-users"), HttpMethod.POST, request,
+            .exchange(HttpUtility.getAccessUrl("/pending-users"), HttpMethod.POST, request,
                 Void.class);
     }
 
@@ -139,7 +139,7 @@ public class UserUtility {
 
     public static ResponseEntity<Void> lockUser(String userIdToLock, User user,
                                                 PatchCommand command) {
-        String url = UrlUtility.getAccessUrl(USER_MGMT);
+        String url = HttpUtility.getAccessUrl(USER_MGMT);
         return Utility.patchResource(user, url, command, userIdToLock);
     }
 
@@ -198,7 +198,7 @@ public class UserUtility {
     public static User createUser() {
         User user = createRandomUserObj();
         ResponseEntity<Void> register = register(user);
-        String s = UrlUtility.getId(register);
+        String s = HttpUtility.getId(register);
         user.setId(s);
         return user;
     }
@@ -247,7 +247,7 @@ public class UserUtility {
     public static ResponseEntity<SumTotal<User>> readTenantUsersByQuery(
         TenantContext tenantContext, String query) {
         String accessUrl = getUrl(tenantContext.getProject());
-        String url = UrlUtility.appendQuery(accessUrl, query);
+        String url = HttpUtility.appendQuery(accessUrl, query);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 }

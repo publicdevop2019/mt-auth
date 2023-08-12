@@ -6,7 +6,7 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +42,7 @@ public class MgmtProjectTest{
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<SumTotal<Project>> exchange = TestContext.getRestTemplate()
-            .exchange(UrlUtility.getAccessUrl(AppConstant.MGMT_PROJECTS), HttpMethod.GET, request,
+            .exchange(HttpUtility.getAccessUrl(AppConstant.MGMT_PROJECTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
         Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());

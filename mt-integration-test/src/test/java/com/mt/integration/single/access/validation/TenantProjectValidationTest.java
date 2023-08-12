@@ -7,7 +7,7 @@ import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ProjectUtility;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -54,7 +54,7 @@ public class TenantProjectValidationTest{
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(project, user);
-        project.setId(UrlUtility.getId(tenantProject));
+        project.setId(HttpUtility.getId(tenantProject));
         project.setName(name);
         ResponseEntity<Void> response =
             ProjectUtility.updateTenantProject(project, user);
@@ -70,7 +70,7 @@ public class TenantProjectValidationTest{
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(project, user);
-        project.setId(UrlUtility.getId(tenantProject));
+        project.setId(HttpUtility.getId(tenantProject));
         PatchCommand patchCommand = new PatchCommand();
         patchCommand.setOp("replace");
         patchCommand.setPath("/name");

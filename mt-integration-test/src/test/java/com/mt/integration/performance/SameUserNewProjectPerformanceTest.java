@@ -8,7 +8,7 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.ProjectUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.UrlUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +38,7 @@ public class SameUserNewProjectPerformanceTest {
         User user = UserUtility.createRandomUserObj();
         TestContext.init();
         ResponseEntity<Void> pendingUser = UserUtility.register(user);
-        String id = UrlUtility.getId(pendingUser);
+        String id = HttpUtility.getId(pendingUser);
         log.info("user id {}", id);
         user.setId(id);
         String login = UserUtility.login(user);
