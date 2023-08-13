@@ -11,10 +11,10 @@ import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.GrantType;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
@@ -43,7 +43,7 @@ public class RefreshTokenTest {
 
     @BeforeAll
     public static void beforeAll() {
-        TestHelper.beforeAllTenant(log);
+        tenantContext = TestHelper.beforeAllTenant(log);
     }
 
     @BeforeEach

@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Component;
  * capture issued at time to enable token revocation feature,
  * use user id instead of username to enhance security.
  */
+@Slf4j
 @Component
 public class CustomTokenEnhancer implements TokenEnhancer {
     private static final String NOT_USED = "not_used";
@@ -62,12 +64,14 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                     UserRelation newRelation =
                         ApplicationServiceRegistry.getUserRelationApplicationService()
                             .internalOnboardUserToTenant(userId, projectId);
+                    log.debug("new tenant user relation for token is {}", newRelation);
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(newRelation);
                     info.put(JWT_CLAIM_PERM,
                         compute.stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
                     info.put(PROJECT_ID, newRelation.getProjectId().getDomainId());
                 } else {
+                    log.debug("tenant user relation for token is {}", userRelation.get());
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(userRelation.get());
                     info.put(JWT_CLAIM_PERM,
@@ -79,6 +83,8 @@ public class CustomTokenEnhancer implements TokenEnhancer {
                 Optional<UserRelation> userRelation =
                     ApplicationServiceRegistry.getUserRelationApplicationService()
                         .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                userRelation.ifPresent(
+                    relation -> log.debug("auth user relation for token is {}", relation));
                 userRelation.ifPresent(relation -> {
                     Set<PermissionId> compute =
                         DomainRegistry.getComputePermissionService().compute(relation);

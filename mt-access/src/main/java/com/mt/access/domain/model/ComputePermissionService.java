@@ -7,12 +7,15 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.UserRelation;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class ComputePermissionService {
     /**
@@ -27,21 +30,27 @@ public class ComputePermissionService {
             return Collections.emptySet();
         }
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
-        Set<Role> allByQuery = QueryUtility.getAllByQuery(
+        log.debug("role id found {}",
+            CommonDomainRegistry.getCustomObjectSerializer().serialize(standaloneRoles));
+        Set<Role> roles = QueryUtility.getAllByQuery(
             q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),
             new RoleQuery(standaloneRoles));
         Set<PermissionId> commonPermissionIds =
-            allByQuery.stream().flatMap(e -> e.getCommonPermissionIds().stream())
+            roles.stream().flatMap(e -> e.getCommonPermissionIds().stream())
                 .collect(Collectors.toSet());
-        Set<PermissionId> collect =
-            allByQuery.stream().flatMap(e -> e.getTotalPermissionIds().stream()
+        log.debug("common permission id found {}",
+            CommonDomainRegistry.getCustomObjectSerializer().serialize(commonPermissionIds));
+        Set<PermissionId> totalPermissions =
+            roles.stream().flatMap(e -> e.getTotalPermissionIds().stream()
             ).collect(Collectors.toSet());
+        log.debug("total permission id found {}",
+            CommonDomainRegistry.getCustomObjectSerializer().serialize(totalPermissions));
         if (!commonPermissionIds.isEmpty()) {
             Set<PermissionId> linkedApiPermissionFor =
                 DomainRegistry.getPermissionRepository()
                     .getLinkedApiPermissionFor(commonPermissionIds);
-            collect.addAll(linkedApiPermissionFor);
+            totalPermissions.addAll(linkedApiPermissionFor);
         }
-        return collect;
+        return totalPermissions;
     }
 }

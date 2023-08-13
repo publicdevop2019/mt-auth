@@ -40,7 +40,7 @@ public class ClientUtility {
         Set<String> types = new HashSet<>();
         types.add(ClientType.BACKEND_APP.name());
         client.setTypes(types);
-        client.setPath(RandomUtility.randomStringNoNum());
+        client.setPath(RandomUtility.randomStringNoNum() + RandomUtility.randomStringNoNum());
         client.setExternalUrl(RandomUtility.randomLocalHostUrl());
         return client;
     }

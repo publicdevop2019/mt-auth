@@ -218,4 +218,9 @@ public class UserRelation extends Auditable {
             setTenantIds(null);
         }
     }
+
+    @Override
+    public String toString() {
+        return CommonDomainRegistry.getCustomObjectSerializer().serialize(this);
+    }
 }

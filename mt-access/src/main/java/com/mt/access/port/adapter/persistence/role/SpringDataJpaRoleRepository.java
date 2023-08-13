@@ -6,6 +6,7 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.Role_;
+import com.mt.access.port.adapter.persistence.BatchInsertPermission;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -74,6 +75,69 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                         role.getTenantId().getDomainId());
                     ps.setString(14, role.getType().name());
                 });
+        //for mapped tables
+        List<BatchInsertPermission> commonPermList = new ArrayList<>();
+        List<BatchInsertPermission> apiPermList = new ArrayList<>();
+        List<BatchInsertPermission> extPermList = new ArrayList<>();
+        roles.forEach(e -> {
+            if (Checker.notNullOrEmpty(e.getCommonPermissionIds())) {
+                List<BatchInsertPermission> collect = e.getCommonPermissionIds().stream()
+                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                        Collectors.toList());
+                commonPermList.addAll(collect);
+            }
+            if (Checker.notNullOrEmpty(e.getApiPermissionIds())) {
+                List<BatchInsertPermission> collect = e.getApiPermissionIds().stream()
+                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                        Collectors.toList());
+                apiPermList.addAll(collect);
+            }
+            if (Checker.notNullOrEmpty(e.getExternalPermissionIds())) {
+                List<BatchInsertPermission> collect = e.getExternalPermissionIds().stream()
+                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                        Collectors.toList());
+                extPermList.addAll(collect);
+            }
+        });
+        if (commonPermList.size() > 0) {
+            CommonDomainRegistry.getJdbcTemplate()
+                .batchUpdate("INSERT INTO role_common_permission_map " +
+                        "(" +
+                        "id, " +
+                        "permission" +
+                        ") VALUES " +
+                        "(?,?)", commonPermList, commonPermList.size(),
+                    (ps, perm) -> {
+                        ps.setLong(1, perm.getId());
+                        ps.setString(2, perm.getDomainId());
+                    });
+        }
+        if (apiPermList.size() > 0) {
+            CommonDomainRegistry.getJdbcTemplate()
+                .batchUpdate("INSERT INTO role_api_permission_map " +
+                        "(" +
+                        "id, " +
+                        "permission" +
+                        ") VALUES " +
+                        "(?,?)", apiPermList, apiPermList.size(),
+                    (ps, perm) -> {
+                        ps.setLong(1, perm.getId());
+                        ps.setString(2, perm.getDomainId());
+                    });
+        }
+        if (extPermList.size() > 0) {
+            CommonDomainRegistry.getJdbcTemplate()
+                .batchUpdate("INSERT INTO role_external_permission_map " +
+                        "(" +
+                        "id, " +
+                        "permission" +
+                        ") VALUES " +
+                        "(?,?)", extPermList, extPermList.size(),
+                    (ps, perm) -> {
+                        ps.setLong(1, perm.getId());
+                        ps.setString(2, perm.getDomainId());
+                    });
+        }
     }
 
     default void remove(Role role) {

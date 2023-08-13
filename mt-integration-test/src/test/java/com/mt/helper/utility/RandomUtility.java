@@ -69,7 +69,7 @@ public class RandomUtility {
         }
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
-
+    //TODO make sure random string length is stable
     public static String randomStringNoNum() {
         return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
     }

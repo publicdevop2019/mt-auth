@@ -255,6 +255,8 @@ public class Role extends Auditable {
                 RoleType.PROJECT, null, null);
         Set<Role> tobeStored = new HashSet<>();
         tobeStored.add(adminRole);
+        log.debug("admin role created {}",
+            CommonDomainRegistry.getCustomObjectSerializer().serialize(adminRole));
         tobeStored.add(userRole);
         tobeStored.add(rootRole);
         tobeStored.add(tenantClientRoot);

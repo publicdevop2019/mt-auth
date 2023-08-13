@@ -7,6 +7,7 @@ import com.mt.common.domain.model.sql.DatabaseUtility;
 import java.time.Instant;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -19,7 +20,7 @@ public interface SpringDataJpaOperationCoolDownRepository
     @Query("SELECT p FROM #{#entityName} as p WHERE p.executor = ?1 AND p.operationType = ?2")
     Optional<OperationCoolDown> findByExecutorAndOperationType(String executor,
                                                                OperationType operationType);
-
+    @Modifying
     @Query("UPDATE #{#entityName} as p SET p.lastOperateAt = ?1 WHERE p.executor = ?2 " +
         "AND p.operationType = ?3 AND p.lastOperateAt = ?4")
     Integer updateLastOptAt(Long now, String executor,
