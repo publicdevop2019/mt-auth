@@ -11,6 +11,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMessage;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.reactive.function.server.ServerRequest;
 
 public class Utility {
     public static final AntPathMatcher antPathMatcher = new AntPathMatcher();
@@ -22,11 +23,21 @@ public class Utility {
     public static String getSpanId(HttpMessage request) {
         return request.getHeaders().getFirst(SPAN_ID_HTTP);
     }
+
     public static String getRequestId(HttpMessage request) {
         return request.getHeaders().getFirst(REQUEST_ID_HTTP);
     }
+
     public static String getTraceId(HttpMessage request) {
         return request.getHeaders().getFirst(TRACE_ID_HTTP);
+    }
+
+    public static String getSpanId(ServerRequest request) {
+        return request.headers().firstHeader(SPAN_ID_HTTP);
+    }
+
+    public static String getTraceId(ServerRequest request) {
+        return request.headers().firstHeader(TRACE_ID_HTTP);
     }
 
     /**
@@ -82,6 +93,25 @@ public class Utility {
         } else {
             if (request.getRemoteAddress() != null) {
                 clientIp = request.getRemoteAddress().toString();
+            }
+        }
+        return clientIp.replaceAll(":", "_");
+    }
+
+    /**
+     * get client ip, replace : with _ for report processing purpose
+     *
+     * @param request ServerRequest
+     * @return formatted client ip
+     */
+    public static String getClientIp(ServerRequest request) {
+        String clientIp = "NOT_FOUND";
+        String first = request.headers().firstHeader("X-FORWARDED-FOR");
+        if (first != null) {
+            clientIp = first;
+        } else {
+            if (request.remoteAddress().isPresent()) {
+                clientIp = request.remoteAddress().get().toString();
             }
         }
         return clientIp.replaceAll(":", "_");

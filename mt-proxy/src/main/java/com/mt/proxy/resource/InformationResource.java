@@ -20,7 +20,7 @@ public class InformationResource {
      */
     @GetMapping(path = "checkSum")
     public ResponseEntity<String> checkSync(ServerHttpRequest request) {
-        LogService.reactiveLog(request, (ignored) -> log.debug("checking proxy md5 triggered"));
+        LogService.reactiveLog(request, () -> log.debug("checking proxy md5 triggered"));
         String check = DomainRegistry.getEndpointService().checkSumValue();
         return ResponseEntity.ok(check);
     }

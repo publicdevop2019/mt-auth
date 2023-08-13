@@ -75,12 +75,12 @@ public class EndpointService {
         if (Boolean.TRUE.equals(webSocket)) {
             if (authHeader == null) {
                 LogService.reactiveLog(request,
-                    (ignored) -> log.debug("check failure due to empty auth info"));
+                    () -> log.debug("check failure due to empty auth info"));
                 return false;
             }
             if (!DomainRegistry.getJwtService().verify(authHeader.replace("Bearer ", ""))) {
                 LogService.reactiveLog(request,
-                    (ignored) -> log.debug("check failure due to jwt failed for verification"));
+                    () -> log.debug("check failure due to jwt failed for verification"));
                 return false;
             } else {
                 //check roles
@@ -88,7 +88,7 @@ public class EndpointService {
                     return checkAccessByPermissionId(requestUri, method, authHeader, true, request);
                 } catch (ParseException e) {
                     LogService.reactiveLog(request,
-                        (ignored) -> {
+                        () -> {
                             log.error("error during parse", e);
                             log.debug("check failure due to parse error");
                         });
@@ -102,7 +102,7 @@ public class EndpointService {
         } else if (authHeader == null || !authHeader.contains("Bearer")) {
             if (cached.size() == 0) {
                 LogService.reactiveLog(request,
-                    (ignored) -> log.debug("check failure due to cached endpoints are empty"));
+                    () -> log.debug("check failure due to cached endpoints are empty"));
                 return false;
             }
             List<Endpoint> collect1 = cached.stream().filter(e -> !e.getSecured()).filter(
@@ -110,7 +110,7 @@ public class EndpointService {
                 .collect(Collectors.toList());
             if (collect1.size() == 0) {
                 LogService.reactiveLog(request,
-                    (ignored) -> log.debug(
+                    () -> log.debug(
                         "check failure due to un-registered public "
                             +
                             "endpoints or no authentication info found"));
@@ -124,7 +124,7 @@ public class EndpointService {
                 return checkAccessByPermissionId(requestUri, method, authHeader, false, request);
             } catch (ParseException e) {
                 LogService.reactiveLog(request,
-                    (ignored) -> {
+                    () -> {
                         log.error("error during parse", e);
                         log.debug("check failure due to parse error");
                     });
@@ -133,7 +133,7 @@ public class EndpointService {
             }
         } else {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("return 403 due to un-registered endpoints"));
+                () -> log.debug("return 403 due to un-registered endpoints"));
             return false;
         }
     }
@@ -148,7 +148,7 @@ public class EndpointService {
         //fetch endpoint
         if (resourceIds == null || resourceIds.isEmpty()) {
             LogService.reactiveLog(request,
-                (ignored) -> {
+                () -> {
                     log.debug("return 403 due to resourceIds is null or empty");
                 });
 
@@ -163,13 +163,13 @@ public class EndpointService {
             passed = endpoint.get().allowAccess(jwtRaw, log, request);
         } else {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug(
+                () -> log.debug(
                     "return 403 due to endpoint not found or duplicate endpoints"));
             return false;
         }
         if (!passed) {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("return 403 due to not pass check"));
+                () -> log.debug("return 403 due to not pass check"));
             return false;
         } else {
             return true;

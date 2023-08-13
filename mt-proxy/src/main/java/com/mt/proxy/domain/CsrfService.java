@@ -30,24 +30,24 @@ public class CsrfService {
         String method = request.getMethodValue();
         HttpHeaders headers = request.getHeaders();
         if (isWebSocket(headers)) {
-            LogService.reactiveLog(request, (ignored) -> log.debug("csrf not required for websocket"));
+            LogService.reactiveLog(request, () -> log.debug("csrf not required for websocket"));
             return true;
         } else {
-            LogService.reactiveLog(request, (ignored) -> {
+            LogService.reactiveLog(request, () -> {
                 log.debug("checking csrf token for path {} method {}", path, method);
             });
             Optional<Endpoint> endpoint = DomainRegistry.getEndpointService()
                 .findEndpoint(path, method, isWebSocket(headers));
             if (endpoint.isEmpty()) {
                 LogService.reactiveLog(request,
-                    (ignored) -> log.debug("unable to find csrf config due to missing endpoint"));
+                    () -> log.debug("unable to find csrf config due to missing endpoint"));
                 return false;
             }
             boolean contains = bypassList.contains(endpoint.get());
             if (contains) {
-                LogService.reactiveLog(request, (ignored) -> log.debug("csrf not required"));
+                LogService.reactiveLog(request, () -> log.debug("csrf not required"));
             } else {
-                LogService.reactiveLog(request, (ignored) -> log.debug("csrf required"));
+                LogService.reactiveLog(request, () -> log.debug("csrf required"));
             }
             return contains;
         }

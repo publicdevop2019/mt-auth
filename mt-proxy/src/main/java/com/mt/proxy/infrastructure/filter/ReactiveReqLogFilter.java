@@ -51,7 +51,7 @@ public class ReactiveReqLogFilter implements WebFilter, Ordered {
             String finalRequestId = requestId;
             ServerHttpRequest finalRequest = request;
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> {
+                () -> {
                     log.debug("created request id {} for endpoint {}",
                         finalRequestId,
                         finalRequest.getPath().value());
@@ -60,7 +60,7 @@ public class ReactiveReqLogFilter implements WebFilter, Ordered {
             String finalRequestId = requestId;
             ServerHttpRequest finalRequest = request;
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> {
+                () -> {
                     log.debug("received request id {} for endpoint {}",
                         finalRequestId,
                         finalRequest.getPath().value());

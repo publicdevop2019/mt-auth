@@ -56,12 +56,12 @@ public class CacheService {
             .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
         if (endpoint.isEmpty()) {
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.debug("unable to find cache config due to missing endpoint"));
+                () -> log.debug("unable to find cache config due to missing endpoint"));
             return null;
         }
         CacheConfiguration cacheConfiguration = this.configurationMap.get(endpoint.get());
         LogService.reactiveLog(exchange.getRequest(),
-            (ignored) -> log.trace("found config {} for path {} with method {}", cacheConfiguration,
+            () -> log.trace("found config {} for path {} with method {}", cacheConfiguration,
                 path,
                 method));
         return cacheConfiguration;

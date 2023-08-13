@@ -68,19 +68,19 @@ public class CorsService implements CorsConfigurationSource {
             .findEndpoint(path, method, isWebSocket(exchange.getRequest().getHeaders()));
         if (endpoint.isEmpty()) {
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.debug("unable to find cors config due to missing endpoint"));
+                () -> log.debug("unable to find cors config due to missing endpoint"));
             return null;
         }
         CorsConfiguration corsConfiguration = corsConfigurations.get(endpoint.get());
         if (corsConfiguration != null) {
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.debug("mismatch cors config could also result 403"));
+                () -> log.debug("mismatch cors config could also result 403"));
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.trace("found {} for path {} with method {}", corsConfiguration,
+                () -> log.trace("found {} for path {} with method {}", corsConfiguration,
                     exchange.getRequest().getPath().value(),
                     exchange.getRequest().getMethodValue()));
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
+                () -> log.trace("pattern {}", corsConfiguration.getAllowedOriginPatterns()));
         }
         return corsConfiguration;
     }
@@ -96,7 +96,7 @@ public class CorsService implements CorsConfigurationSource {
         if ("options".equalsIgnoreCase(exchange.getRequest().getMethodValue())) {
             if (exchange.getRequest().getHeaders().getAccessControlRequestMethod() == null) {
                 LogService.reactiveLog(exchange.getRequest(),
-                    (ignored) -> log.error(
+                    () -> log.error(
                         "unexpected null value for access-control-request-method"));
                 return null;
             }

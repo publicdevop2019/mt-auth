@@ -92,13 +92,13 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
     private static boolean responseError(ServerWebExchange exchange) {
         ServerHttpResponse response = exchange.getResponse();
         LogService.reactiveLog(exchange.getRequest(),
-            (ignored) -> log.trace("checking response in case of downstream error"));
+            () -> log.trace("checking response in case of downstream error"));
         boolean b = response.getStatusCode() != null
             &&
             response.getStatusCode().is5xxServerError();
         if (b) {
             LogService.reactiveLog(exchange.getRequest(),
-                (ignored) -> log.debug("downstream error, hidden error body"));
+                () -> log.debug("downstream error, hidden error body"));
             response.getHeaders().setContentLength(0);
         }
         return b;
@@ -329,19 +329,19 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
 
     private void checkEndpoint(ServerHttpRequest request, CustomFilterContext context) {
         LogService.reactiveLog(request,
-            (ignored) -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
+            () -> log.trace("endpoint path: {} scheme: {}", request.getURI().getPath(),
                 request.getURI().getScheme()));
         boolean allow = DomainRegistry.getEndpointService().checkAccess(
             request,
             context.getAuthHeader(), context.getWebsocket());
         if (!allow) {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("access is not allowed"));
+                () -> log.debug("access is not allowed"));
             context.endpointCheckFailed();
             return;
         }
         LogService.reactiveLog(request,
-            (ignored) -> log.debug("access is allowed"));
+            () -> log.debug("access is allowed"));
     }
 
     private void checkRateLimit(ServerWebExchange exchange, CustomFilterContext context) {

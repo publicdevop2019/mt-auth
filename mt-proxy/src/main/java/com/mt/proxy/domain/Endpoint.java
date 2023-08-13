@@ -44,22 +44,22 @@ public class Endpoint implements Serializable, Comparable<Endpoint> {
         throws ParseException {
         if (secured && permissionId == null) {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("not pass check due to permissionId missing"));
+                () -> log.debug("not pass check due to permissionId missing"));
             return false;
         }
         if (!secured && permissionId == null) {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("pass check due to public endpoint"));
+                () -> log.debug("pass check due to public endpoint"));
             return true;
         }
         Set<String> permissionIds = DomainRegistry.getJwtService().getPermissionIds(jwtRaw);
         boolean contains = permissionIds.contains(permissionId);
         if (contains) {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("pass check due to permissionId match"));
+                () -> log.debug("pass check due to permissionId match"));
         } else {
             LogService.reactiveLog(request,
-                (ignored) -> log.debug("not pass check due to permissionId mismatch"));
+                () -> log.debug("not pass check due to permissionId mismatch"));
         }
         return contains;
     }
