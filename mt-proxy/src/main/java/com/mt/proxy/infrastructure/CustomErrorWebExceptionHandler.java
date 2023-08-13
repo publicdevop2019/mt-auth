@@ -1,6 +1,7 @@
 package com.mt.proxy.infrastructure;
 
 import java.util.Map;
+import java.util.Optional;
 import org.apache.commons.logging.Log;
 import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -21,6 +22,7 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 @Component
@@ -48,10 +50,24 @@ public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
     private Mono<ServerResponse> renderErrorResponse(final ServerRequest request) {
         final Map<String, Object>
             errorPropertiesMap = getErrorAttributes(request, ErrorAttributeOptions.defaults());
-        return ServerResponse.status(HttpStatus.BAD_REQUEST)
+        Optional<Object> first = request.exchange().getAttributes().values().stream()
+            .filter(e -> e instanceof ResponseStatusException).findFirst();
+        if (first.isPresent()) {
+            LogService.reactiveLog(request, () -> {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("response took longer than timeout");
+                }
+            });
+            ResponseStatusException ex = (ResponseStatusException) first.get();
+            return ServerResponse.status(ex.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(errorPropertiesMap));
+        }
+        return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
             .contentType(MediaType.APPLICATION_JSON)
             .body(BodyInserters.fromValue(errorPropertiesMap));
     }
+
     //modify based on abstract
     @Override
     protected void logError(ServerRequest request, ServerResponse response, Throwable throwable) {
@@ -61,21 +77,22 @@ public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
                     request.exchange().getLogPrefix() + this.formatError(throwable, request));
             }
         });
-        if (HttpStatus.resolve(response.rawStatusCode()) != null &&
-            response.statusCode().equals(HttpStatus.INTERNAL_SERVER_ERROR)) {
+        if (HttpStatus.resolve(response.rawStatusCode()) != null) {
             LogService.reactiveLog(request, () -> {
                 logger.error(LogMessage.of(() -> {
-                    return String.format("%s 500 Server Error for %s",
-                        request.exchange().getLogPrefix(), this.formatRequest(request));
+                    return String.format("%s Server Error for %s", response.statusCode().value(),
+                        this.formatRequest(request));
                 }), throwable);
             });
         }
     }
+
     //copy from abstract
     private String formatError(Throwable ex, ServerRequest request) {
         String reason = ex.getClass().getSimpleName() + ": " + ex.getMessage();
         return "Resolved [" + reason + "] for HTTP " + request.methodName() + " " + request.path();
     }
+
     //copy from abstract
     private String formatRequest(ServerRequest request) {
         String rawQuery = request.uri().getRawQuery();

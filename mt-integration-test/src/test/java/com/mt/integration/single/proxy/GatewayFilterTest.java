@@ -159,8 +159,7 @@ public class GatewayFilterTest {
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.GET, request, String.class);
-        //will get 500 instead of 504 due to proxy configured only return 500
-        Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.GATEWAY_TIMEOUT, exchange.getStatusCode());
     }
 
     @Test
