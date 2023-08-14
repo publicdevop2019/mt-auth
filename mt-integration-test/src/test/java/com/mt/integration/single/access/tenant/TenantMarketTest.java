@@ -224,7 +224,7 @@ public class TenantMarketTest {
         MarketUtility.approveSubReq(tenantContextA, subReqId);
 
         //create tenantB role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -260,7 +260,7 @@ public class TenantMarketTest {
         MarketUtility.approveSubReq(tenantContextA, subReqId);
 
         //create tenantB role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -326,7 +326,7 @@ public class TenantMarketTest {
                 Collectors.toSet());
         Assertions.assertEquals(1, collect.size());
         //create tenantB role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContextB.getProject(), user, role);
         role.setId(HttpUtility.getId(tenantRole));

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
+
 @Slf4j
 public class ProjectUtility {
     private static final ParameterizedTypeReference<SumTotal<Project>> reference =
@@ -71,9 +72,13 @@ public class ProjectUtility {
             throw new RuntimeException(e);
         }
         log.info("after default timeout, check project status");
-        ProjectStatus body = checkProjectReady(tenantUser, project).getBody();
-        log.info("project status {}", Objects.requireNonNull(body).isStatus());
-        Assertions.assertTrue(body.isStatus());
+        ResponseEntity<ProjectStatus> statusCode =
+            checkProjectReady(tenantUser, project);
+        if (!statusCode.getStatusCode().is2xxSuccessful()) {
+            log.info("project status check failed, status {} body {}", statusCode.getStatusCode().value(), statusCode.getBody());
+        }
+        log.info("project status {}", Objects.requireNonNull(statusCode.getBody()).isStatus());
+        Assertions.assertTrue(statusCode.getBody().isStatus());
         return project;
     }
 }

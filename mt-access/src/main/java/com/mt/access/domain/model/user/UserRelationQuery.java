@@ -50,16 +50,6 @@ public class UserRelationQuery extends QueryCriteria {
         this.sort = Sort.byId(true);
     }
 
-    public UserRelationQuery(UserId userId, ProjectId projectId) {
-        userIds = new HashSet<>();
-        userIds.add(userId);
-        projectIds = new HashSet<>();
-        projectIds.add(projectId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
-    }
-
     public UserRelationQuery(UserId userId) {
         userIds = new HashSet<>();
         userIds.add(userId);

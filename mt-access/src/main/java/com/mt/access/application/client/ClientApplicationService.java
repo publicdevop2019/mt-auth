@@ -287,8 +287,10 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
+        log.debug("loading client by id started");
         LoginOAuthClient client =
             DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
+        log.debug("loading client by id end");
         return new ClientSpringOAuth2Representation(client);
     }
 

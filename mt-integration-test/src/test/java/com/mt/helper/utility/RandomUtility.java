@@ -62,6 +62,14 @@ public class RandomUtility {
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
 
+    public static String randomStringWithNum(int length) {
+        StringBuilder next = new StringBuilder(randomStringWithNum());
+        while (next.length() < length) {
+            next.append(randomStringWithNum());
+        }
+        return next.substring(0, length);
+    }
+
     public static String randomStringWithNumNullable() {
         int i = random.nextInt(2);
         if (i == 0) {
@@ -69,15 +77,28 @@ public class RandomUtility {
         }
         return UUID.randomUUID().toString().replaceAll("-", "");
     }
-    //TODO make sure random string length is stable
+
     public static String randomStringNoNum() {
         return UUID.randomUUID().toString().replaceAll("-", "").replaceAll("\\d", "");
     }
-    public static String randomHttpPath(){
+
+    public static String randomStringNoNum(int length) {
+        StringBuilder next = new StringBuilder(randomStringNoNum());
+        if (next.length() < length) {
+            while (next.length() < length) {
+                next.append(randomStringNoNum());
+            }
+        }
+        return next.substring(0, length);
+    }
+
+
+    public static String randomHttpPath() {
         return "test/" + RandomUtility.randomStringNoNum()
             +
             "/abc";
     }
+
     public static Long randomLong() {
         return random.nextLong();
     }

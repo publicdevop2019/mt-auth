@@ -2,7 +2,7 @@ package com.mt.integration;
 
 import com.mt.integration.single.access.AuthorizationCodeTest;
 import com.mt.integration.single.access.ClientCredentialsTest;
-import com.mt.integration.single.access.ClientIdempotentTest;
+import com.mt.integration.concurrent.ClientIdempotentTest;
 import com.mt.integration.single.access.PasswordFlowTest;
 import com.mt.integration.single.access.RefreshTokenTest;
 import com.mt.integration.single.access.UserTest;

@@ -65,7 +65,7 @@ public class TenantPermissionTest {
             EndpointUtility.createTenantEndpoint(tenantContext, sharedEndpointObj);
         sharedEndpointObj.setId(HttpUtility.getId(tenantEndpoint2));
         //create rol
-        role = RoleUtility.createRandomRoleObj();
+        role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));

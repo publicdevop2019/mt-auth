@@ -7,9 +7,10 @@ import com.mt.helper.pojo.Role;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import java.util.Collections;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
-
+@Slf4j
 public class RoleUtility {
     private static final ParameterizedTypeReference<SumTotal<Role>> reference =
         new ParameterizedTypeReference<>() {
@@ -19,9 +20,10 @@ public class RoleUtility {
         return HttpUtility.appendPath(TenantUtility.getTenantUrl(project), "roles");
     }
 
-    public static Role createRandomRoleObj() {
+    public static Role createRandomValidRoleObj() {
         Role role = new Role();
-        role.setName(RandomUtility.randomStringWithNum());
+        role.setName(RandomUtility.randomStringWithNum(25));
+        log.info("role name is {}", role.getName());
         role.setDescription(RandomUtility.randomStringWithNum());
         role.setCommonPermissionIds(Collections.emptySet());
         role.setApiPermissionIds(Collections.emptySet());

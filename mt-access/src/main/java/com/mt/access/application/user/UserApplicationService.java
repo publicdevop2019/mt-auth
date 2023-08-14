@@ -103,6 +103,7 @@ public class UserApplicationService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        log.debug("loading user by username started");
         User user;
         if (Validator.isValidEmail(username)) {
             //for login
@@ -112,6 +113,7 @@ public class UserApplicationService implements UserDetailsService {
             //for refresh token
             user = DomainRegistry.getUserRepository().get(new UserId(username));
         }
+        log.debug("loading user by username end");
         return new UserSpringRepresentation(user);
     }
 

@@ -54,7 +54,7 @@ public class VersionTest {
         log.info("init tenant in progress");
         tenantContext = TenantUtility.initTenant();
         //create root node
-        rootRole = RoleUtility.createRandomRoleObj();
+        rootRole = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
         rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
@@ -202,7 +202,7 @@ public class VersionTest {
     @Test
     public void role_version_will_not_increase() {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -270,7 +270,7 @@ public class VersionTest {
     @Test
     public void tenant_user_version_will_not_increase() {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));

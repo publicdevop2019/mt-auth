@@ -12,6 +12,7 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import java.util.Objects;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -22,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 
+@Slf4j
 public class UserUtility {
     private static final ParameterizedTypeReference<SumTotal<User>> reference =
         new ParameterizedTypeReference<>() {
@@ -165,10 +167,16 @@ public class UserUtility {
     }
 
     public static String login(User user) {
-        return OAuth2Utility
+        ResponseEntity<DefaultOAuth2AccessToken> oAuth2PasswordToken = OAuth2Utility
             .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
                 user.getEmail(),
-                user.getPassword()).getBody().getValue();
+                user.getPassword());
+        String token = oAuth2PasswordToken.getBody().getValue();
+        log.info("login token {}", token);
+        if (token == null) {
+            log.info("login token response{}", oAuth2PasswordToken.getStatusCode().value());
+        }
+        return token;
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
@@ -217,11 +225,18 @@ public class UserUtility {
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token,
                 AppConstant.TEST_REDIRECT_URL);
+        if (!codeResponse.getStatusCode().is2xxSuccessful()) {
+            log.info("authorize failed with status code {}", codeResponse.getStatusCode().value());
+        }
         Assertions.assertEquals(HttpStatus.OK, codeResponse.getStatusCode());
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
                 AppConstant.TEST_REDIRECT_URL, clientId, "");
+        if (!oAuth2AuthorizationToken.getStatusCode().is2xxSuccessful()) {
+            log.info("get token failed with status code {}",
+                oAuth2AuthorizationToken.getStatusCode().value());
+        }
         Assertions.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
         return tenantUser;
     }

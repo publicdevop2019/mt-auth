@@ -42,7 +42,6 @@ public class Utility {
     public static <T> ResponseEntity<Void> createResource(User user, String url,
                                                           @Nullable T resource) {
         String login = UserUtility.login(user);
-        log.info("login token {}", login);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(login);
         if (resource == null) {

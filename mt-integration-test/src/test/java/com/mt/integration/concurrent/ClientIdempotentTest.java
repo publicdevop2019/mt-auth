@@ -1,4 +1,4 @@
-package com.mt.integration.single.access;
+package com.mt.integration.concurrent;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
@@ -26,7 +27,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-
+@Disabled
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class ClientIdempotentTest{

@@ -45,7 +45,7 @@ public class UserRelationApplicationService {
 
     public Optional<UserRelation> query(UserId userId, ProjectId projectId) {
         return DomainRegistry.getUserRelationRepository()
-            .query(new UserRelationQuery(userId, projectId)).findFirst();
+            .query(userId, projectId);
     }
 
     public UserTenantRepresentation tenantUser(String projectId, String userId) {
@@ -235,7 +235,7 @@ public class UserRelationApplicationService {
                 HttpResponseCode.BAD_REQUEST);
         }
         Optional<UserRelation> targetUser = DomainRegistry.getUserRelationRepository()
-            .query(new UserRelationQuery(userId, tenantProjectId)).findFirst();
+            .query(userId, tenantProjectId);
         if (targetUser.isEmpty()) {
             throw new DefinedRuntimeException("unable to find user relation", "1078",
                 HttpResponseCode.BAD_REQUEST);

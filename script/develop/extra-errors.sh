@@ -1,0 +1,1 @@
+cat ../../logs/access.log | grep -E 'WARN|ERROR|^\tat |Exception|^Caused by: |\t... \d+ more' > ../../logs/analytics/access-error.log

@@ -42,6 +42,7 @@ public class CustomTokenEnhancer implements TokenEnhancer {
     @Override
     public OAuth2AccessToken enhance(OAuth2AccessToken accessToken,
                                      OAuth2Authentication authentication) {
+        log.debug("enhancing token");
         Map<String, Object> info = new HashMap<>();
         info.put("iat", Instant.now().getEpochSecond());
         if (!authentication.isClientOnly()) {

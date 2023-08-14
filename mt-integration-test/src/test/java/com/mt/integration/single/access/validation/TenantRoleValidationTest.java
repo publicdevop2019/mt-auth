@@ -52,7 +52,7 @@ public class TenantRoleValidationTest {
         log.info("init tenant in progress");
         tenantContext = TenantUtility.initTenant();
         //create root node
-        rootRole = RoleUtility.createRandomRoleObj();
+        rootRole = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
         rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
@@ -77,7 +77,7 @@ public class TenantRoleValidationTest {
 
     @Test
     public void validation_create_valid() {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -86,7 +86,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(NameArgs.class)
     public void validation_create_name(String name, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setName(name);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -96,7 +96,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(DescriptionArgs.class)
     public void validation_create_description(String description, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setDescription(description);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -106,7 +106,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RoleParentIdArgs.class)
     public void validation_create_parent_id(String parentId, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setParentId(parentId);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -116,7 +116,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_create_project_id(String projectId, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         Project project1 = new Project();
         project1.setId(projectId);
         String url = RoleUtility.getUrl(project1);
@@ -129,7 +129,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_create_api_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setApiPermissionIds(ids);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -139,7 +139,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_create_common_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setCommonPermissionIds(ids);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -150,7 +150,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_create_external_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         role.setExternalPermissionIds(ids);
         ResponseEntity<Void> response1 =
             RoleUtility.createTenantRole(tenantContext, role);
@@ -161,7 +161,7 @@ public class TenantRoleValidationTest {
     @ArgumentsSource(DescriptionArgs.class)
     public void validation_update_description(String description, HttpStatus httpStatus) {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -174,7 +174,7 @@ public class TenantRoleValidationTest {
 
     @Test
     public void validation_update_type() {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -208,7 +208,7 @@ public class TenantRoleValidationTest {
     @ArgumentsSource(NameArgs.class)
     public void validation_update_name(String name, HttpStatus httpStatus) {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -222,7 +222,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RoleParentIdArgs.class)
     public void validation_update_parent_id(String parentId, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -236,7 +236,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_update_project_id(String projectId, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -252,7 +252,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_update_api_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -266,7 +266,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_update_common_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -280,7 +280,7 @@ public class TenantRoleValidationTest {
     @ParameterizedTest
     @ArgumentsSource(RolePermissionIdsArgs.class)
     public void validation_update_external_permission_ids(Set<String> ids, HttpStatus httpStatus) {
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -295,7 +295,7 @@ public class TenantRoleValidationTest {
     @ArgumentsSource(NameArgs.class)
     public void validation_patch_name(String name, HttpStatus httpStatus) {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));
@@ -312,7 +312,7 @@ public class TenantRoleValidationTest {
     @ArgumentsSource(DescriptionArgs.class)
     public void validation_patch_description(String description, HttpStatus httpStatus) {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> response =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(response));

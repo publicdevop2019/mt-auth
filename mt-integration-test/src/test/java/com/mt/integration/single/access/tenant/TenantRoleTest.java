@@ -43,7 +43,7 @@ public class TenantRoleTest {
         log.info("init tenant in progress");
         tenantContext = TenantUtility.initTenant();
         //create root node
-        rootRole = RoleUtility.createRandomRoleObj();
+        rootRole = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole = RoleUtility.createTenantRole(tenantContext, rootRole);
         rootRole.setId(HttpUtility.getId(tenantRole));
         log.info("init tenant complete");
@@ -67,7 +67,7 @@ public class TenantRoleTest {
     }
     @Test
     public void tenant_can_create_role() {
-        Role randomRoleObj = RoleUtility.createRandomRoleObj();
+        Role randomRoleObj = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
         Assertions.assertEquals(HttpStatus.OK, tenantRole.getStatusCode());
@@ -107,7 +107,7 @@ public class TenantRoleTest {
 
     @Test
     public void tenant_can_delete_role() {
-        Role randomRoleObj = RoleUtility.createRandomRoleObj();
+        Role randomRoleObj = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, randomRoleObj);
         randomRoleObj.setId(HttpUtility.getId(tenantRole));
@@ -119,7 +119,7 @@ public class TenantRoleTest {
     @Test
     public void tenant_can_delete_assigned_role() {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -143,7 +143,7 @@ public class TenantRoleTest {
     @Test
     public void tenant_can_update_role_detail() {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -199,7 +199,7 @@ public class TenantRoleTest {
     @Test
     public void tenant_role_should_not_contain_deleted_permissions() throws InterruptedException {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));
@@ -235,7 +235,7 @@ public class TenantRoleTest {
         //wait for permission to create
         Thread.sleep(5 * 1000);
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));

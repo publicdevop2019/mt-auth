@@ -74,7 +74,7 @@ public class TenantUserTest{
     @Test
     public void tenant_can_assign_role_to_user() {
         //create role
-        Role role = RoleUtility.createRandomRoleObj();
+        Role role = RoleUtility.createRandomValidRoleObj();
         ResponseEntity<Void> tenantRole =
             RoleUtility.createTenantRole(tenantContext, role);
         role.setId(HttpUtility.getId(tenantRole));

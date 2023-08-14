@@ -44,6 +44,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 @Slf4j
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
 @Entity
@@ -109,7 +110,7 @@ public class UserRelation extends Auditable {
         log.debug("start of onboarding new project");
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
-            .query(new UserRelationQuery(creator, authProjectId)).findFirst();
+            .query(creator, authProjectId);
         UserRelation userRelation;
         if (byUserIdAndProjectId.isPresent()) {
             userRelation = byUserIdAndProjectId.get();
