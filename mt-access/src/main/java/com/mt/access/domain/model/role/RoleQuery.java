@@ -125,15 +125,6 @@ public class RoleQuery extends QueryCriteria {
         this.sort = RoleSort.byId(true);
     }
 
-    public static RoleQuery getRootRole() {
-        RoleQuery roleQuery = new RoleQuery();
-        roleQuery.parentIdNull = true;
-        roleQuery.setPageConfig(PageConfig.defaultConfig());
-        roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
-        return roleQuery;
-    }
-
     public static RoleQuery projectDefaultRoleQuery() {
         RoleQuery roleQuery = new RoleQuery();
         Set<RoleType> roleTypes = new HashSet<>();

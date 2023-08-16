@@ -1,6 +1,8 @@
 package com.mt.helper.utility;
 
 import com.mt.helper.AppConstant;
+import com.mt.helper.pojo.Endpoint;
+import com.mt.helper.pojo.SumTotal;
 import java.io.IOException;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
@@ -76,5 +78,12 @@ public class HttpUtility {
 
     private static String removeLeadingQuestionMark(String path) {
         return path.replaceAll("^/?+", "");
+    }
+
+    public static void logBodyIfNot200(ResponseEntity<SumTotal<Endpoint>> exchange) {
+        if (!exchange.getStatusCode().is2xxSuccessful()) {
+            log.info("return error with status {} body {}", exchange.getStatusCode().value(),
+                exchange.getBody());
+        }
     }
 }

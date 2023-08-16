@@ -140,6 +140,10 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         }
     }
 
+    default Optional<Role> queryClientRoot(ProjectId projectId) {
+        return _queryClientRoot(projectId);
+    }
+
     default void remove(Role role) {
         delete(role);
     }
@@ -152,10 +156,13 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
         return getProjectId();
     }
 
-    @Query("select distinct ep.projectId from Role ep")
+    @Query("SELECT DISTINCT r.projectId FROM Role r")
     Set<ProjectId> getProjectId();
 
-    @Query("select count(*) from Role r where r.projectId = ?1 and r.type = 'USER' ")
+    @Query("SELECT r FROM Role r WHERE r.type = 'CLIENT_ROOT' AND r.projectId = ?1")
+    Optional<Role> _queryClientRoot(ProjectId projectId);
+
+    @Query("SELECT count(*) FROM Role r WHERE r.projectId = ?1 AND r.type = 'USER' ")
     long countProjectCreateTotal_(ProjectId projectId);
 
     default long countProjectCreateTotal(ProjectId projectId) {

@@ -28,7 +28,7 @@ public class RoleDomainEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener1() {
         ListenerHelper.listen(new ClientCreated(),
-            (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event));
+            (event) -> ApplicationServiceRegistry.getRoleApplicationService().handle(event), 10);
     }
 
     /**

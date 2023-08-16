@@ -221,7 +221,7 @@ public class TenantClientTest{
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(10 * 1000);//wait for proxy update
+        Thread.sleep(90 * 1000);//wait for proxy update
         Client clientAsNonResource =
             ClientUtility.getClientAsNonResource(clientAsResource.getId(),
                 clientAsResource2.getId());
@@ -252,7 +252,7 @@ public class TenantClientTest{
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(5*1000);
+        Thread.sleep(90 * 1000);//wait for proxy update
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);

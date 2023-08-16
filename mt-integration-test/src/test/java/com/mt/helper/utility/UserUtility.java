@@ -174,7 +174,7 @@ public class UserUtility {
         String token = oAuth2PasswordToken.getBody().getValue();
         log.info("login token {}", token);
         if (token == null) {
-            log.info("login token response{}", oAuth2PasswordToken.getStatusCode().value());
+            log.info("login token error with response {}", oAuth2PasswordToken.getStatusCode().value());
         }
         return token;
     }
@@ -194,8 +194,13 @@ public class UserUtility {
     }
 
     public static String getJwtAdmin() {
-        return login(AppConstant.ACCOUNT_USERNAME_ADMIN,
-            AppConstant.ACCOUNT_PASSWORD_ADMIN).getBody().getValue();
+        ResponseEntity<DefaultOAuth2AccessToken> login = login(AppConstant.ACCOUNT_USERNAME_ADMIN,
+            AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        if (!login.getStatusCode().is2xxSuccessful()) {
+            log.info("jwt admin token failed with status {} body {}", login.getStatusCode().value(),
+                login.getBody());
+        }
+        return login.getBody().getValue();
     }
 
     /**

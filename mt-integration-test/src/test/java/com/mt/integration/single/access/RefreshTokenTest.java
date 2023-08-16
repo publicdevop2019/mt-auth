@@ -68,7 +68,7 @@ public class RefreshTokenTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(20 * 1000);
+        Thread.sleep(90 * 1000);//wait for proxy update
 
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw(clientAsResource.getId());

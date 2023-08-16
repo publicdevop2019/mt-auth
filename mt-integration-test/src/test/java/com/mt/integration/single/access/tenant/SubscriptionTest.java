@@ -68,7 +68,7 @@ public class SubscriptionTest{
         Assertions.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
         String endpointId = HttpUtility.getId(endpoint1);
         Assertions.assertNotNull(endpointId);
-        Thread.sleep(10*1000);//wait for proxy update
+        Thread.sleep(90*1000);//wait for proxy update
         //mt-mall can subscribe to it
         SubscriptionReq subscriptionReq = new SubscriptionReq();
         subscriptionReq.setReplenishRate(10);
@@ -88,7 +88,7 @@ public class SubscriptionTest{
         //rate limit should work
         String path = endpoint.getPath();
         //call new endpoint
-        Thread.sleep(10*1000);//wait for proxy update
+        Thread.sleep(90*1000);//wait for proxy update
         String accessUrl = HttpUtility.getTestUrl(path);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers1 = new HttpHeaders();

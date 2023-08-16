@@ -1,5 +1,6 @@
 package com.mt.integration;
 
+import com.mt.integration.concurrent.GatewayFilterConcurrentTest;
 import com.mt.integration.single.access.AuthorizationCodeTest;
 import com.mt.integration.single.access.ClientCredentialsTest;
 import com.mt.integration.concurrent.ClientIdempotentTest;
@@ -44,6 +45,7 @@ import org.junit.platform.suite.api.Suite;
     GatewayFilterTest.class,
     JwtSecurityTest.class,
     RevokeTokenTest.class,
+    GatewayFilterConcurrentTest.class
 })
 public class FullTestSuite {
 }

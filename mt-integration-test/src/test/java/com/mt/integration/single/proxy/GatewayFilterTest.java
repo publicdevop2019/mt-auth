@@ -154,7 +154,7 @@ public class GatewayFilterTest {
 
     @Test
     public void should_cut_off_api_when_max_limit_reach() {
-        String url = HttpUtility.getTestUrl("/delay/" + "15000");
+        String url = HttpUtility.getTestUrl("/delay/" + "16000");
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<String> request = new HttpEntity<>(null, headers);
         ResponseEntity<String> exchange =
@@ -204,31 +204,4 @@ public class GatewayFilterTest {
         Assertions.assertNotEquals(-1, sameSite);
     }
 
-    @Test
-    public void should_get_too_many_request_exceed_burst_rate_limit() {
-        String url2 = HttpUtility.getTestUrl("get/0");
-        AtomicReference<Integer> count = new AtomicReference<>(0);
-        Runnable runnable2 = () -> {
-            //need to init TestContext again due to runnable is executed in different thread pool hence TestContext threadlocal is null
-            TestContext.init();
-            ResponseEntity<String> exchange = TestContext.getRestTemplate()
-                .exchange(url2, HttpMethod.GET, null, String.class);
-            log.trace("response status is {}", exchange.getStatusCode().value());
-            log.trace("rate limit left is {}", exchange.getHeaders().get(
-                AppConstant.X_MT_RATELIMIT_LEFT));
-            if (exchange.getStatusCode().equals(HttpStatus.TOO_MANY_REQUESTS)) {
-                count.getAndSet(count.get() + 1);
-            }
-        };
-        ArrayList<Runnable> runnables = new ArrayList<>();
-        for (int i = 0; i < 90; i++) {
-            runnables.add(runnable2);
-        }
-        try {
-            ConcurrentUtility.assertConcurrent("", runnables, 30000);
-            Assertions.assertNotEquals(0, count.get().intValue());
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }

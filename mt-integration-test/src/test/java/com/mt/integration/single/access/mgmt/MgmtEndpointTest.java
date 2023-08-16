@@ -47,6 +47,7 @@ public class MgmtEndpointTest{
             .exchange(HttpUtility.getAccessUrl(AppConstant.MGMT_ENDPOINTS), HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
+        HttpUtility.logBodyIfNot200(exchange);
         Assertions.assertNotSame(0, Objects.requireNonNull(exchange.getBody()).getData().size());
     }
 

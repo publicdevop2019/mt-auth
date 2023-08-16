@@ -3,6 +3,7 @@ package com.mt.access.domain.model.role;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
+import java.util.Optional;
 import java.util.Set;
 
 public interface RoleRepository {
@@ -30,4 +31,7 @@ public interface RoleRepository {
     Set<ProjectId> getProjectIds();
 
     long countProjectCreateTotal(ProjectId projectId);
+
+    Optional<Role> queryClientRoot(ProjectId projectId);
+
 }

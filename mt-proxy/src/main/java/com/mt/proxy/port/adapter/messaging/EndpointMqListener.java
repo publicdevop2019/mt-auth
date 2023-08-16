@@ -46,11 +46,11 @@ public class EndpointMqListener {
             DeliverCallback deliverCallback = (consumerTag, delivery) -> {
                 try {
                     //use auto ack, since admin will have to trigger sync job to match
-                    DomainRegistry.getProxyCacheService().reloadProxyCache();
+                    DomainRegistry.getProxyCacheService().triggerReload();
                 } catch (Exception ex) {
                     log.error("error in mq, error will not throw to keep mq connection", ex);
                 }
-                log.info("cached endpoints refreshed");
+                log.info("cache refresh requested");
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
             });
