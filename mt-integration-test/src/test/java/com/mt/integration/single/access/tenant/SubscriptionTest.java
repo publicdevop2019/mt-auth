@@ -17,6 +17,7 @@ import com.mt.helper.utility.MessageUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TestUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -68,7 +69,7 @@ public class SubscriptionTest{
         Assertions.assertEquals(HttpStatus.OK, endpoint1.getStatusCode());
         String endpointId = HttpUtility.getId(endpoint1);
         Assertions.assertNotNull(endpointId);
-        Thread.sleep(90*1000);//wait for proxy update
+        TestUtility.proxyDefaultWait();
         //mt-mall can subscribe to it
         SubscriptionReq subscriptionReq = new SubscriptionReq();
         subscriptionReq.setReplenishRate(10);
@@ -88,7 +89,7 @@ public class SubscriptionTest{
         //rate limit should work
         String path = endpoint.getPath();
         //call new endpoint
-        Thread.sleep(90*1000);//wait for proxy update
+        TestUtility.proxyDefaultWait();
         String accessUrl = HttpUtility.getTestUrl(path);
         String jwtAdmin = UserUtility.getJwtAdmin();
         HttpHeaders headers1 = new HttpHeaders();

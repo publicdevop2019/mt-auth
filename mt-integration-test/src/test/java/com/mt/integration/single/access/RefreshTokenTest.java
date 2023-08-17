@@ -15,6 +15,7 @@ import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
+import com.mt.helper.utility.TestUtility;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Collections;
@@ -68,7 +69,7 @@ public class RefreshTokenTest {
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(90 * 1000);//wait for proxy update
+        TestUtility.proxyDefaultWait();
 
         //create client supports refresh token
         Client clientRaw = ClientUtility.getClientRaw(clientAsResource.getId());

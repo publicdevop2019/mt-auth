@@ -66,11 +66,7 @@ public class ProjectUtility {
         Project project = createRandomProjectObj();
         ResponseEntity<Void> tenantProject = createTenantProject(project, tenantUser);
         project.setId(HttpUtility.getId(tenantProject));
-        try {
-            Thread.sleep(10 * 1000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        TestUtility.createProjectDefaultWait();
         log.info("after default timeout, check project status");
         ResponseEntity<ProjectStatus> statusCode =
             checkProjectReady(tenantUser, project);

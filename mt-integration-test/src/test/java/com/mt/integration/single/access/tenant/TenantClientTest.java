@@ -15,6 +15,7 @@ import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.TestUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Collections;
 import java.util.HashSet;
@@ -221,7 +222,7 @@ public class TenantClientTest{
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(90 * 1000);//wait for proxy update
+        TestUtility.proxyDefaultWait();
         Client clientAsNonResource =
             ClientUtility.getClientAsNonResource(clientAsResource.getId(),
                 clientAsResource2.getId());
@@ -252,7 +253,7 @@ public class TenantClientTest{
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(90 * 1000);//wait for proxy update
+        TestUtility.proxyDefaultWait();
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
