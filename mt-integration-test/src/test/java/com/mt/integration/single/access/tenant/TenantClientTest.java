@@ -299,7 +299,7 @@ public class TenantClientTest{
         ResponseEntity<Void> tenantEndpoint =
             EndpointUtility.createTenantEndpoint(tenantContext, endpoint);
         Assertions.assertEquals(HttpStatus.OK, tenantEndpoint.getStatusCode());
-        Thread.sleep(5 * 1000);
+        TestUtility.proxyDefaultWait();
         Client clientAsNonResource =
             ClientUtility.getClientAsNonResource(clientAsResource.getId(),
                 clientAsResource2.getId());
