@@ -90,6 +90,7 @@ public class RefreshTokenTest {
         ResponseEntity<DefaultOAuth2AccessToken> token = OAuth2Utility
             .getTenantPasswordToken(clientRaw,
                 tenantContext.getCreator(), tenantContext);
+        log.info("access token is {}", token.getBody().getValue());
         Assertions.assertEquals(HttpStatus.OK, token.getStatusCode());
         //access endpoint
         String url = HttpUtility.getTenantUrl(clientAsResource.getPath(),

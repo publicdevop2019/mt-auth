@@ -55,7 +55,7 @@ public class CustomErrorWebExceptionHandler extends AbstractErrorWebExceptionHan
         if (first.isPresent()) {
             LogService.reactiveLog(request, () -> {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("response took longer than timeout");
+                    logger.debug("response status exception");
                 }
             });
             ResponseStatusException ex = (ResponseStatusException) first.get();

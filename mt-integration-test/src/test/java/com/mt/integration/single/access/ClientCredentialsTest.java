@@ -63,7 +63,7 @@ public class ClientCredentialsTest{
             OAuth2Utility.getOAuth2WithClient(AppConstant.GRANT_TYPE_PASSWORD,
                 AppConstant.CLIENT_ID_OAUTH2_ID,
                 AppConstant.COMMON_CLIENT_SECRET);
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse.getStatusCode());
 
     }
 

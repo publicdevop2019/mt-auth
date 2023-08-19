@@ -287,7 +287,7 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
-        log.debug("loading client by id started");
+        log.debug("loading client by id {} started", id);
         LoginOAuthClient client =
             DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
         log.debug("loading client by id end");

@@ -24,6 +24,7 @@ public class SelfSignedJwtTokenService {
         this.tokenGranter = tokenGranter;
     }
 
+    @Deprecated
     public OAuth2AccessToken getSelfSignedAccessToken() {
         ClientDetails clientDetails =
             ApplicationServiceRegistry.getClientApplicationService().loadClientByClientId(id);

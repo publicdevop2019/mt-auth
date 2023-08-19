@@ -100,7 +100,7 @@ public class AuthorizationCodeTest{
             OAuth2Utility.getOAuth2WithCode(
                 AppConstant.GRANT_TYPE_PASSWORD, code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_OM_ID, AppConstant.EMPTY_CLIENT_SECRET);
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, authorizationToken.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
 

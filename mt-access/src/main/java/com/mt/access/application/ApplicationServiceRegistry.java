@@ -18,6 +18,8 @@ import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.sub_request.SubRequestApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
+import com.mt.access.application.token.AuthorizeCodeApplicationService;
+import com.mt.access.application.token.TokenApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user.UserRelationApplicationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
@@ -79,6 +81,15 @@ public class ApplicationServiceRegistry {
     private static ReportApplicationService reportApplicationService;
     @Getter
     private static SubRequestApplicationService subRequestApplicationService;
+    @Getter
+    private static TokenApplicationService tokenApplicationService;
+
+    @Autowired
+    public void setTokenApplicationService(
+        TokenApplicationService tokenApplicationService) {
+        ApplicationServiceRegistry.tokenApplicationService =
+            tokenApplicationService;
+    }
 
     @Autowired
     public void setReportApplicationService(

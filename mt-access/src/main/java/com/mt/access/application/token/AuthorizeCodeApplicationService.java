@@ -1,5 +1,6 @@
-package com.mt.access.application;
+package com.mt.access.application.token;
 
+import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
