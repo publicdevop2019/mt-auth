@@ -21,7 +21,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class AuthorizationCodeTest{
+public class AuthorizationCodeTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
@@ -31,6 +31,7 @@ public class AuthorizationCodeTest{
     public void beforeEach() {
         TestHelper.beforeEach(log);
     }
+
     @Test
     public void get_authorize_code_after_pwd_login_for_user() {
         ResponseEntity<String> code = OAuth2Utility
@@ -47,15 +48,16 @@ public class AuthorizationCodeTest{
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
 
+        log.debug("code is {}", code);
         Assertions.assertNotNull(code);
 
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken =
             OAuth2Utility
                 .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                     AppConstant.CLIENT_ID_OM_ID, AppConstant.EMPTY_CLIENT_SECRET);
-
         Assertions.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
         Assertions.assertNotNull(authorizationToken.getBody());
+        log.debug("token is {}", authorizationToken.getBody().getValue());
         DefaultOAuth2AccessToken body = authorizationToken.getBody();
         List<String> authorities = JwtUtility.getPermissions(body.getValue());
         Assertions.assertNotEquals(0, authorities.size());
@@ -114,7 +116,7 @@ public class AuthorizationCodeTest{
             .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.EMPTY_CLIENT_SECRET);
-        Assertions.assertEquals(HttpStatus.UNAUTHORIZED, authorizationToken.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
 

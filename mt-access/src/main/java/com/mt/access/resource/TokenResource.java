@@ -33,7 +33,8 @@ public class TokenResource {
     ) {
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("user login with ip {}", clientIpAddress);
+        String clientId = principal.getName();
         return ApplicationServiceRegistry.getTokenApplicationService()
-            .grantToken(principal, parameters, agentInfo, clientIpAddress);
+            .grantToken(clientId, parameters, agentInfo, clientIpAddress);
     }
 }

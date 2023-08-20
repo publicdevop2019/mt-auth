@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.apache.commons.validator.routines.UrlValidator;
 import org.springframework.util.StringUtils;
 
 public class Validator {
@@ -34,14 +35,8 @@ public class Validator {
     private static final String TEXT_WHITE_LIST_MSG = "condition not match whitelistOnly";
     private static final Pattern TEXT_WHITE_LIST =
         Pattern.compile("^[a-zA-Z0-9_ +\\-x/:(),.!\\u4E00-\\u9FFF\\uff0c\\u3002]+$");
-    private static final Pattern HTTP_URL = Pattern.compile(
-        "^https?://(www\\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}"
-            +
-            "\\.[a-zA-Z0-9()]{1,6}\\b([-a-zA-Z0-9()@:%_+.~#?&/=]*)");
-    private static final Pattern HTTP_URL_LOCAL =
-        Pattern.compile("^https?://localhost:"
-            +
-            "[0-9]{1,5}/([-a-zA-Z0-9()@:%_+.~#?&/=]*)");
+    private static final UrlValidator httpValidator =
+        new UrlValidator(UrlValidator.ALLOW_LOCAL_URLS);
 
 
     public static void notNull(Object obj) {
@@ -194,9 +189,7 @@ public class Validator {
     }
 
     public static void isHttpUrl(String url) {
-        Matcher matcher = HTTP_URL.matcher(url);
-        Matcher localMatcher = HTTP_URL_LOCAL.matcher(url);
-        if (!matcher.find() && !localMatcher.find()) {
+        if (!httpValidator.isValid(url)) {
             throw new DefinedRuntimeException(URL_MSG, "0048",
                 HttpResponseCode.BAD_REQUEST);
         }

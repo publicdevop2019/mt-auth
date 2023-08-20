@@ -26,6 +26,9 @@ public class RedisAuthorizationCodeServices extends RandomValueAuthorizationCode
             authentication.getOAuth2Request());
         byte[] bytes = CommonDomainRegistry.getCustomObjectSerializer()
             .nativeSerialize(storedRequest);
+        String serialize =
+            CommonDomainRegistry.getCustomObjectSerializer().serialize(storedRequest);
+        log.info("stored {}", serialize);
         Base64.Encoder encoder = Base64.getEncoder();
         String s = encoder.encodeToString(bytes);
         String combined = CODE_PREFIX + code;

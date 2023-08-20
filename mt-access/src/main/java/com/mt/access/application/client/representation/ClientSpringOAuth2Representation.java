@@ -3,11 +3,14 @@ package com.mt.access.application.client.representation;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.LoginOAuthClient;
+import com.mt.access.domain.model.project.Project;
+import com.mt.access.domain.model.project.ProjectId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.provider.ClientDetails;
@@ -15,6 +18,8 @@ import org.springframework.security.oauth2.provider.ClientDetails;
 @Setter
 public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
+    @Getter
+    private ProjectId projectId;
     private String clientSecret;
     private Set<GrantType> grantTypes;
     private Integer accessTokenValiditySeconds;
@@ -25,6 +30,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
 
     public ClientSpringOAuth2Representation(LoginOAuthClient client) {
         setClientId(client.getClientId());
+        setProjectId(client.getProjectId());
         setClientSecret(client.getSecret());
         setGrantTypes(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());

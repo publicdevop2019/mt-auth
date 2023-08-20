@@ -20,6 +20,7 @@ import com.mt.access.infrastructure.JwtInfoProviderService;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JOSEObjectType;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -44,8 +45,11 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.ClientDetails;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -69,7 +73,8 @@ public class TokenService {
         } else if ("refresh_token".equalsIgnoreCase(parameters.get("grant_type"))) {
             return grantRefreshToken(clientDetails, parameters.get("refresh_token"));
         } else if ("authorization_code".equalsIgnoreCase(parameters.get("grant_type"))) {
-            return grantAuthorizationCode(clientDetails);
+            return grantAuthorizationCode(clientDetails, parameters.get("code"),
+                parameters.get("redirect_uri"));
         } else {
             return null;
         }
@@ -168,12 +173,42 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantAuthorizationCode(ClientDetails tokenRequest) {
-        return null;
+    private JwtToken grantAuthorizationCode(ClientDetails clientDetails, String code,
+                                            String redirectUrl) {
+        ClientSpringOAuth2Representation clientDetail =
+            (ClientSpringOAuth2Representation) clientDetails;
+        Validator.notNull(code);
+        Validator.notNull(redirectUrl);
+        OAuth2Authentication oAuth2Authentication =
+            ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
+                .consumeAuthorizationCode(code);
+        OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
+        Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
+        Validator.notNull(oAuth2Request);
+        //check redirect url
+        Validator.equals(redirectUrl, oAuth2Request.getRedirectUri());
+        //check client
+        Validator.equals(clientDetail.getClientId(),
+            oAuth2Request.getClientId());
+        Set<PermissionId> permissionIds =
+            userAuthentication.getAuthorities().stream().map(e -> new PermissionId(e.getAuthority()))
+                .collect(Collectors.toSet());
+        String userId = (String) userAuthentication.getPrincipal();
+        return createJwtToken(
+            clientDetail.getProjectId(),
+            clientDetail.getAccessTokenValiditySeconds(),
+            0,
+            clientDetail.getResourceIds(),
+            oAuth2Request.getScope(),
+            new ClientId(oAuth2Authentication.getOAuth2Request().getClientId()),
+            new UserId(userId),
+            false,
+            permissionIds,
+            Collections.emptySet()
+        );
     }
 
     private JwtToken grantRefreshToken(ClientDetails clientDetails, String refreshToken) {
-        //TODO check expire?
         ClientSpringOAuth2Representation clientDetail =
             (ClientSpringOAuth2Representation) clientDetails;
         Set<PermissionId> permissionIds =

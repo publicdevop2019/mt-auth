@@ -4,10 +4,11 @@ import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -41,55 +42,41 @@ public class AuthorizeCodeApplicationService {
      * @return authorization response params
      */
     public Map<String, String> authorize(Map<String, String> parameters) {
-        //make sure authorize client exist
-        if (ApplicationServiceRegistry.getClientApplicationService()
-            .loadClientByClientId(parameters.get(OAuth2Utils.CLIENT_ID)) == null) {
+        String clientId = parameters.get("client_id");
+        String responseType = parameters.get("response_type");
+        String redirectUri = parameters.get("redirect_uri");
+        Validator.notNull(clientId);
+        Validator.notNull(responseType);
+        Validator.notNull(redirectUri);
+        if (!"code".equalsIgnoreCase(responseType)) {
+            throw new DefinedRuntimeException("unsupported response types: " + responseType,
+                "1006",
+                HttpResponseCode.BAD_REQUEST);
+        }
+
+        ClientDetails client = ApplicationServiceRegistry.getClientApplicationService()
+            .loadClientByClientId(clientId);
+
+        if (client == null) {
             throw new DefinedRuntimeException(
                 "unable to find authorize client " + parameters.get(OAuth2Utils.CLIENT_ID), "1005",
                 HttpResponseCode.BAD_REQUEST);
         }
 
-        log.debug("before create authorization request");
-        AuthorizationRequest authorizationRequest =
-            defaultOAuth2RequestFactory.createAuthorizationRequest(parameters);
-        log.debug("after create authorization request");
 
-        Set<String> responseTypes = authorizationRequest.getResponseTypes();
-
-        if (!responseTypes.contains("token") && !responseTypes.contains("code")) {
-            throw new DefinedRuntimeException("unsupported response types: " + responseTypes,
-                "1006",
-                HttpResponseCode.BAD_REQUEST);
-        }
-
-        if (authorizationRequest.getClientId() == null) {
-            throw new DefinedRuntimeException("a client id must be provided", "1007",
-                HttpResponseCode.BAD_REQUEST);
-        }
-
-
-        ClientDetails client = ApplicationServiceRegistry.getClientApplicationService()
-            .loadClientByClientId(authorizationRequest.getClientId());
-
-        String redirectUriParameter =
-            authorizationRequest.getRequestParameters().get(OAuth2Utils.REDIRECT_URI);
-        String resolvedRedirect = redirectResolver.resolveRedirect(redirectUriParameter, client);
-        if (!StringUtils.hasText(redirectUriParameter)) {
-            throw new DefinedRuntimeException(
-                "a redirect uri must be either supplied or preconfigured in the client details",
-                "1008",
-                HttpResponseCode.BAD_REQUEST);
-        }
+        String resolvedRedirect = redirectResolver.resolveRedirect(redirectUri, client);
+        AuthorizationRequest authorizationRequest = new AuthorizationRequest();
         authorizationRequest.setRedirectUri(resolvedRedirect);
-
         authorizationRequest.setApproved(true);
+        authorizationRequest.setResponseTypes(Collections.singleton(responseType));
+        authorizationRequest.setClientId(clientId);
         authorizationRequest.setScope(Collections.singleton(parameters.get("project_id")));
 
-        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        HashMap<String, String> returnParams = new HashMap<>();
         Authentication authentication = DomainRegistry.getCurrentUserService().getAuthentication();
-        stringStringHashMap
+        returnParams
             .put("authorize_code", generateCode(authorizationRequest, authentication));
-        return stringStringHashMap;
+        return returnParams;
 
 
     }
