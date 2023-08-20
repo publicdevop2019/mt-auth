@@ -82,7 +82,7 @@ public class PasswordFlowTest {
             OAuth2Utility.getOAuth2WithUser(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        Assertions.assertEquals(tokenResponse.getStatusCode(), HttpStatus.UNAUTHORIZED);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST,tokenResponse.getStatusCode());
     }
 
 

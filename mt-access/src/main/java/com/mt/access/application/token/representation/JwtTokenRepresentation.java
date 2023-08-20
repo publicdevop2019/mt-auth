@@ -40,6 +40,6 @@ public class JwtTokenRepresentation {
         this.tenantIds =
             token.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         this.tokenType = "bearer";
-        this.uid = token.getUserId().getDomainId();
+        this.uid = token.getUserId()==null?null:token.getUserId().getDomainId();
     }
 }

@@ -7,8 +7,10 @@ import com.mt.access.domain.model.token.JwtToken;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
+import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.common.domain.model.validate.Checker;
 import java.security.Principal;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -33,25 +35,55 @@ public class TokenApplicationService {
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
         String clientId = principal.getName();
         if (Checker.isTrue(loginResult.getAllowed())) {
-            if ("password".equalsIgnoreCase(parameters.get("grant_type"))) {
+            if ("password".equalsIgnoreCase(parameters.get("grant_type")) ||
+                "client_credentials".equalsIgnoreCase(parameters.get("grant_type")) ||
+                "refresh_token".equalsIgnoreCase(parameters.get("grant_type"))
+            ) {
                 log.info("customize password token flow");
-                //TODO validation client id
-                //TODO validation refresh token if refresh grant
-                //TODO validate scope?
-                //TODO validate grant type
-                UserDetails username = null;
+                if (Checker.notNull(parameters.get("refresh_token")) &&
+                    !parameters.get("grant_type").equalsIgnoreCase("refresh_token")
+                ) {
+                    throw new DefinedRuntimeException("invalid token params", "1089",
+                        HttpResponseCode.BAD_REQUEST);
+                }
+                if (Checker.isNull(parameters.get("refresh_token")) &&
+                    parameters.get("grant_type").equalsIgnoreCase("refresh_token")
+                ) {
+                    throw new DefinedRuntimeException("invalid token params", "1089",
+                        HttpResponseCode.BAD_REQUEST);
+                }
+                if (Checker.notNull(parameters.get("username")) &&
+                    !parameters.get("grant_type").equalsIgnoreCase("password")) {
+                    throw new DefinedRuntimeException("invalid token params", "1089",
+                        HttpResponseCode.BAD_REQUEST);
+                }
                 if (parameters.get("grant_type").equalsIgnoreCase("password")) {
-                    if (parameters.get("username") == null) {
-                        throw new DefinedRuntimeException("invalid token params", "1089", HttpResponseCode.BAD_REQUEST);
+                    if (Checker.isNull(parameters.get("username"))) {
+                        throw new DefinedRuntimeException("invalid token params", "1089",
+                            HttpResponseCode.BAD_REQUEST);
                     }
-                    username = ApplicationServiceRegistry.getUserApplicationService()
+                }
+                UserDetails userDetails = null;
+                if (Checker.notNull(parameters.get("username"))) {
+                    userDetails = ApplicationServiceRegistry.getUserApplicationService()
                         .loadUserByUsername(parameters.get("username"));
                 }
                 ClientDetails clientDetails =
                     ApplicationServiceRegistry.getClientApplicationService()
                         .loadClientByClientId(clientId);
+                if (parameters.get("grant_type").equalsIgnoreCase("refresh_token")) {
+                    if (!clientDetails.getAuthorizedGrantTypes().contains("refresh_token")) {
+                        throw new DefinedRuntimeException("invalid token params", "1089",
+                            HttpResponseCode.UNAUTHORIZED);
+                    }
+                    Integer expInSec = JwtUtility.getField("exp", parameters.get("refresh_token"));
+                    if (Instant.now().isAfter(Instant.ofEpochSecond(expInSec))) {
+                        throw new DefinedRuntimeException("refresh token expired", "1090",
+                            HttpResponseCode.UNAUTHORIZED);
+                    }
+                }
                 JwtToken token =
-                    DomainRegistry.getTokenService().grant(parameters, clientDetails, username);
+                    DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
                 return ResponseEntity.ok(new JwtTokenRepresentation(token));
             } else {
                 try {

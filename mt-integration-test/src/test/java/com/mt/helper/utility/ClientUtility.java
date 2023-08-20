@@ -92,7 +92,7 @@ public class ClientUtility {
     }
 
     /**
-     * create valid backend client with client_credential grant
+     * create valid backend client with client_credentials grant
      *
      * @return client
      */
@@ -110,7 +110,7 @@ public class ClientUtility {
     }
 
     /**
-     * create valid frontend client with client_credential grant
+     * create valid frontend client with client_credentials grant
      *
      * @return client
      */
@@ -126,7 +126,7 @@ public class ClientUtility {
     }
 
     /**
-     * create valid backend client with client_credential grant
+     * create valid backend client with client_credentials grant
      *
      * @return client
      */
