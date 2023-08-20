@@ -18,7 +18,6 @@ import com.mt.access.application.revoke_token.RevokeTokenApplicationService;
 import com.mt.access.application.role.RoleApplicationService;
 import com.mt.access.application.sub_request.SubRequestApplicationService;
 import com.mt.access.application.ticket.TicketApplicationService;
-import com.mt.access.application.token.AuthorizeCodeApplicationService;
 import com.mt.access.application.token.TokenApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user.UserRelationApplicationService;
@@ -55,8 +54,6 @@ public class ApplicationServiceRegistry {
     private static RevokeTokenApplicationService revokeTokenApplicationService;
     @Getter
     private static TicketApplicationService ticketApplicationService;
-    @Getter
-    private static AuthorizeCodeApplicationService authorizeCodeApplicationService;
     @Getter
     private static CacheProfileApplicationService cacheProfileApplicationService;
     @Getter
@@ -217,16 +214,7 @@ public class ApplicationServiceRegistry {
      */
     @Autowired
     public void setClientApplicationService(ClientApplicationService clientApplicationService) {
-        log.debug("[order1] setting clientApplicationService,value is {}",
-            clientApplicationService == null ? "null" : "not null");
         ApplicationServiceRegistry.clientApplicationService = clientApplicationService;
-    }
-
-    @Autowired
-    public void setAuthorizeCodeApplicationService(
-        AuthorizeCodeApplicationService authorizeCodeApplicationService) {
-        ApplicationServiceRegistry.authorizeCodeApplicationService =
-            authorizeCodeApplicationService;
     }
 
     @Autowired

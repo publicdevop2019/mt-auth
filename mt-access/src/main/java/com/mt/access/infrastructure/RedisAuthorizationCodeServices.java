@@ -1,5 +1,6 @@
 package com.mt.access.infrastructure;
 
+import com.mt.access.domain.model.token.AuthorizeInfo;
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
 import java.util.Base64;
@@ -10,25 +11,23 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.code.RandomValueAuthorizationCodeServices;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class RedisAuthorizationCodeServices extends RandomValueAuthorizationCodeServices {
+public class RedisAuthorizationCodeServices {
     private static final String CODE_PREFIX = "AUTHORIZATION_CODE_";
     @Autowired
     private StringRedisTemplate redisTemplate;
 
-    @Override
-    protected void store(String code, OAuth2Authentication authentication) {
-        StoredRequest storedRequest = new StoredRequest(authentication.getUserAuthentication(),
-            authentication.getOAuth2Request());
+    public void store(String code, AuthorizeInfo authorizeInfo) {
         byte[] bytes = CommonDomainRegistry.getCustomObjectSerializer()
-            .nativeSerialize(storedRequest);
-        String serialize =
-            CommonDomainRegistry.getCustomObjectSerializer().serialize(storedRequest);
-        log.info("stored {}", serialize);
+            .nativeSerialize(authorizeInfo);
+        if (log.isDebugEnabled()) {
+            String serialize =
+                CommonDomainRegistry.getCustomObjectSerializer().serialize(authorizeInfo);
+            log.debug("stored {}", serialize);
+        }
         Base64.Encoder encoder = Base64.getEncoder();
         String s = encoder.encodeToString(bytes);
         String combined = CODE_PREFIX + code;
@@ -36,20 +35,23 @@ public class RedisAuthorizationCodeServices extends RandomValueAuthorizationCode
         redisTemplate.opsForValue().set(combined, s);
     }
 
-    @Override
-    protected OAuth2Authentication remove(String code) {
+    public AuthorizeInfo remove(String code) {
         log.debug("retrieve stored info for {}", code);
         String combined = CODE_PREFIX + code;
-        String s = redisTemplate.opsForValue().get(combined);
+        String value = redisTemplate.opsForValue().get(combined);
         redisTemplate.delete(code);
-        if (s != null) {
+        if (value != null) {
             Base64.Decoder decoder = Base64.getDecoder();
-            byte[] decode1 = decoder.decode(s);
-            StoredRequest storedRequest =
-                (StoredRequest) CommonDomainRegistry.getCustomObjectSerializer()
-                    .nativeDeserialize(decode1);
-            return new OAuth2Authentication(storedRequest.oauth2Request,
-                storedRequest.userAuthentication);
+            byte[] decoded = decoder.decode(value);
+            AuthorizeInfo retrieved =
+                (AuthorizeInfo) CommonDomainRegistry.getCustomObjectSerializer()
+                    .nativeDeserialize(decoded);
+            if (log.isDebugEnabled()) {
+                String serialize =
+                    CommonDomainRegistry.getCustomObjectSerializer().serialize(retrieved);
+                log.debug("retrieved {}", serialize);
+            }
+            return retrieved;
         }
         return null;
     }

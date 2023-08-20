@@ -1,8 +1,12 @@
 package com.mt.access.resource;
 
+import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
+
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.infrastructure.HttpUtility;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TokenResource {
 
     /**
-     * override framework provided /oauth/token endpoint to track last login.
+     * token endpoint to track last login.
      *
      * @param parameters     oauth2 params
      * @param servletRequest http request
@@ -36,5 +40,25 @@ public class TokenResource {
         String clientId = principal.getName();
         return ApplicationServiceRegistry.getTokenApplicationService()
             .grantToken(clientId, parameters, agentInfo, clientIpAddress);
+    }
+
+    /**
+     * entry point for authorization flow.
+     *
+     * @param parameters request params
+     * @param jwt        jwt generated
+     * @return authorization flow response
+     */
+    @PostMapping("/authorize")
+    public Map<String, String> authorize(
+        @RequestParam Map<String, String> parameters,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        HashMap<String, String> response = new HashMap<>();
+        String code = ApplicationServiceRegistry.getTokenApplicationService()
+            .authorize(parameters);
+        response.put("authorize_code", code);
+        return response;
     }
 }

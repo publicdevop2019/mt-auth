@@ -17,7 +17,10 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.access.infrastructure.JwtInfoProviderService;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
@@ -45,11 +48,8 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -179,31 +179,26 @@ public class TokenService {
             (ClientSpringOAuth2Representation) clientDetails;
         Validator.notNull(code);
         Validator.notNull(redirectUrl);
-        OAuth2Authentication oAuth2Authentication =
-            ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
-                .consumeAuthorizationCode(code);
-        OAuth2Request oAuth2Request = oAuth2Authentication.getOAuth2Request();
-        Authentication userAuthentication = oAuth2Authentication.getUserAuthentication();
-        Validator.notNull(oAuth2Request);
+        AuthorizeInfo authorizeInfo = ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
+            .remove(code);
+        if (Checker.isNull(authorizeInfo)) {
+            throw new DefinedRuntimeException("invalid token params", "1089",
+                HttpResponseCode.BAD_REQUEST);
+        }
         //check redirect url
-        Validator.equals(redirectUrl, oAuth2Request.getRedirectUri());
+        Validator.equals(redirectUrl, authorizeInfo.getRedirectUri());
         //check client
-        Validator.equals(clientDetail.getClientId(),
-            oAuth2Request.getClientId());
-        Set<PermissionId> permissionIds =
-            userAuthentication.getAuthorities().stream().map(e -> new PermissionId(e.getAuthority()))
-                .collect(Collectors.toSet());
-        String userId = (String) userAuthentication.getPrincipal();
+        Validator.equals(clientDetail.getClientId(), authorizeInfo.getClientId().getDomainId());
         return createJwtToken(
             clientDetail.getProjectId(),
             clientDetail.getAccessTokenValiditySeconds(),
             0,
             clientDetail.getResourceIds(),
-            oAuth2Request.getScope(),
-            new ClientId(oAuth2Authentication.getOAuth2Request().getClientId()),
-            new UserId(userId),
+            authorizeInfo.getScope(),
+            authorizeInfo.getClientId(),
+            authorizeInfo.getUserId(),
             false,
-            permissionIds,
+            authorizeInfo.getPermissionIds(),
             Collections.emptySet()
         );
     }
@@ -346,4 +341,17 @@ public class TokenService {
         return signedJWT.serialize();
     }
 
+    public String authorize(String redirectUri, String clientId, Set<String> scope,
+                            Set<PermissionId> permissionIds, UserId userId) {
+        AuthorizeInfo authorizeInfo = new AuthorizeInfo();
+        authorizeInfo.setRedirectUri(redirectUri);
+        authorizeInfo.setClientId(new ClientId(clientId));
+        authorizeInfo.setScope(scope);
+        authorizeInfo.setPermissionIds(permissionIds);
+        authorizeInfo.setUserId(userId);
+        String code = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
+        ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
+            .store(code, authorizeInfo);
+        return code;
+    }
 }

@@ -67,16 +67,6 @@ public class JwtCurrentUserService implements CurrentUserService {
     }
 
     @Override
-    public Authentication getAuthentication() {
-        String jwt = userJwt.get();
-        Collection<? extends GrantedAuthority> au =
-            JwtUtility.getPermissionIds(jwt).stream().map(e -> (GrantedAuthority) () -> e)
-                .collect(Collectors.toList());
-        String userId = JwtUtility.getUserId(jwt);
-        return new MyAuthentication(au, userId);
-    }
-
-    @Override
     public UserId getUserId() {
         String jwt = userJwt.get();
         String userId;
@@ -114,54 +104,6 @@ public class JwtCurrentUserService implements CurrentUserService {
     @RequestScope
     public UserJwt userJwt() {
         return new UserJwt();
-    }
-
-    private static class MyAuthentication implements Authentication, Serializable {
-        private final Collection<? extends GrantedAuthority> au;
-        private final String userId;
-
-        public MyAuthentication(Collection<? extends GrantedAuthority> au, String userId) {
-            this.au = au;
-            this.userId = userId;
-        }
-
-        @Override
-        public Collection<? extends GrantedAuthority> getAuthorities() {
-            return au;
-        }
-
-        @Override
-        public Object getCredentials() {
-            return null;
-        }
-
-        @Override
-        public Object getDetails() {
-            return null;
-        }
-
-        /**
-         * required for authorization code flow.
-         */
-        @Override
-        public Object getPrincipal() {
-            return userId;
-        }
-
-        @Override
-        public boolean isAuthenticated() {
-            return false;
-        }
-
-        @Override
-        public void setAuthenticated(boolean b) {
-            // not used
-        }
-
-        @Override
-        public String getName() {
-            return null;
-        }
     }
 
     @Getter

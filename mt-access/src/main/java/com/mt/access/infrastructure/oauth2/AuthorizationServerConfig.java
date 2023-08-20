@@ -51,24 +51,6 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
         clients.withClientDetails(ApplicationServiceRegistry.getClientApplicationService());
     }
 
-    /**
-     * explicitly set authenticationManager to enable password flow.
-     */
-    @Override
-    public void configure(AuthorizationServerEndpointsConfigurer endpoints) {
-        TokenEnhancerChain enhancerChain = new TokenEnhancerChain();
-        enhancerChain
-            .setTokenEnhancers(Arrays.asList(customTokenEnhancer, jwtAccessTokenConverter));
-        endpoints
-            .tokenStore(tokenStore)
-            .tokenEnhancer(enhancerChain)
-            .authenticationManager(authenticationManager)
-            .authorizationCodeServices(authorizationCodeServices)
-            .reuseRefreshTokens(false)
-        ;
-        authTokenHelper.setTokenGranter(endpoints.getTokenGranter());
-    }
-
     @Override
     public void configure(AuthorizationServerSecurityConfigurer oauthServer) {
         oauthServer

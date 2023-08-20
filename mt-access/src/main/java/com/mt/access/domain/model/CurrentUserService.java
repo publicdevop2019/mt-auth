@@ -17,8 +17,6 @@ public interface CurrentUserService {
 
     void setUser(Object obj);
 
-    Authentication getAuthentication();
-
     UserId getUserId();
 
     ClientId getClientId();
