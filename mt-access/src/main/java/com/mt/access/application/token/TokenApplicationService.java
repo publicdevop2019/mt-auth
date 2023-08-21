@@ -2,8 +2,11 @@ package com.mt.access.application.token;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.token.representation.JwtTokenRepresentation;
+import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.JwtToken;
+import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -16,14 +19,9 @@ import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.common.exceptions.OAuth2Exception;
 import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.AuthorizationRequest;
 import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -37,33 +35,45 @@ public class TokenApplicationService {
                 parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
         if (Checker.isTrue(loginResult.getAllowed())) {
             log.info("customize password token flow");
+            boolean invalidParams = false;
             if (Checker.notNull(parameters.get("refresh_token")) &&
                 !parameters.get("grant_type").equalsIgnoreCase("refresh_token")
             ) {
-                throw new DefinedRuntimeException("invalid token params", "1089",
-                    HttpResponseCode.BAD_REQUEST);
+                invalidParams = true;
             }
             if (Checker.isNull(parameters.get("refresh_token")) &&
                 parameters.get("grant_type").equalsIgnoreCase("refresh_token")
             ) {
-                throw new DefinedRuntimeException("invalid token params", "1089",
-                    HttpResponseCode.BAD_REQUEST);
+                invalidParams = true;
             }
             if (Checker.notNull(parameters.get("username")) &&
                 !parameters.get("grant_type").equalsIgnoreCase("password")) {
-                throw new DefinedRuntimeException("invalid token params", "1089",
-                    HttpResponseCode.BAD_REQUEST);
+                invalidParams = true;
             }
             if (parameters.get("grant_type").equalsIgnoreCase("password")) {
                 if (Checker.isNull(parameters.get("username"))) {
-                    throw new DefinedRuntimeException("invalid token params", "1089",
-                        HttpResponseCode.BAD_REQUEST);
+                    invalidParams = true;
                 }
+            }
+            if (invalidParams) {
+                throw new DefinedRuntimeException("invalid token params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
             }
             UserDetails userDetails = null;
             if (Checker.notNull(parameters.get("username"))) {
                 userDetails = ApplicationServiceRegistry.getUserApplicationService()
                     .loadUserByUsername(parameters.get("username"));
+                if (!userDetails.isAccountNonLocked()) {
+                    throw new DefinedRuntimeException("invalid token params", "1089",
+                        HttpResponseCode.BAD_REQUEST);
+                }
+                UserSpringRepresentation userDetails1 = (UserSpringRepresentation) userDetails;
+                if (!DomainRegistry.getEncryptionService()
+                    .compare(userDetails1.getUserPassword(),
+                        new CurrentPassword(parameters.get("password")))) {
+                    throw new DefinedRuntimeException("wrong password", "1000",
+                        HttpResponseCode.BAD_REQUEST);
+                }
             }
             ClientDetails clientDetails =
                 ApplicationServiceRegistry.getClientApplicationService()
@@ -128,6 +138,7 @@ public class TokenApplicationService {
         return DomainRegistry.getTokenService()
             .authorize(
                 redirectUri, clientId, Collections.singleton(parameters.get("project_id")),
+                new ProjectId(parameters.get("project_id")),
                 DomainRegistry.getCurrentUserService().getPermissionIds(),
                 DomainRegistry.getCurrentUserService().getUserId()
             );

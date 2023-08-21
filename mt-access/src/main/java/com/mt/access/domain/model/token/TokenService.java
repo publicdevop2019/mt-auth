@@ -122,25 +122,10 @@ public class TokenService {
                 //get tenant project permission
                 Optional<String> first = scope.stream().findFirst();
                 projectId = new ProjectId(first.get());
-
-                Optional<UserRelation> userRelation =
-                    ApplicationServiceRegistry.getUserRelationApplicationService()
-                        .query(userId, projectId);
-                if (userRelation.isEmpty()) {
-                    //auto assign default user role for target project
-                    UserRelation newRelation =
-                        ApplicationServiceRegistry.getUserRelationApplicationService()
-                            .internalOnboardUserToTenant(userId, projectId);
-                    log.debug("new tenant user relation for token is {}", newRelation);
-                    permissionIds =
-                        DomainRegistry.getComputePermissionService().compute(newRelation);
-                    projectId = newRelation.getProjectId();
-                } else {
-                    log.debug("tenant user relation for token is {}", userRelation.get());
-                    permissionIds =
-                        DomainRegistry.getComputePermissionService().compute(userRelation.get());
-                    projectId = userRelation.get().getProjectId();
-                }
+                UserRelation userRelation = createUserRelationIfNotExist(userId, projectId);
+                permissionIds =
+                    DomainRegistry.getComputePermissionService().compute(userRelation);
+                projectId = userRelation.getProjectId();
             } else {
                 //get auth project permission and user tenant projects
                 Optional<UserRelation> userRelation =
@@ -173,6 +158,23 @@ public class TokenService {
         }
     }
 
+    private UserRelation createUserRelationIfNotExist(UserId userId, ProjectId projectId) {
+        Optional<UserRelation> userRelation =
+            ApplicationServiceRegistry.getUserRelationApplicationService()
+                .query(userId, projectId);
+        if (userRelation.isEmpty()) {
+            //auto assign default user role for target project
+            UserRelation newRelation =
+                ApplicationServiceRegistry.getUserRelationApplicationService()
+                    .internalOnboardUserToTenant(userId, projectId);
+            log.debug("new tenant user relation for token is {}", newRelation);
+            return newRelation;
+        } else {
+            log.debug("tenant user relation for token is {}", userRelation.get());
+            return userRelation.get();
+        }
+    }
+
     private JwtToken grantAuthorizationCode(ClientDetails clientDetails, String code,
                                             String redirectUrl) {
         ClientSpringOAuth2Representation clientDetail =
@@ -189,6 +191,11 @@ public class TokenService {
         Validator.equals(redirectUrl, authorizeInfo.getRedirectUri());
         //check client
         Validator.equals(clientDetail.getClientId(), authorizeInfo.getClientId().getDomainId());
+
+        UserRelation userRelation =
+            createUserRelationIfNotExist(authorizeInfo.getUserId(), authorizeInfo.getProjectId());
+        Set<PermissionId> compute =
+            DomainRegistry.getComputePermissionService().compute(userRelation);
         return createJwtToken(
             clientDetail.getProjectId(),
             clientDetail.getAccessTokenValiditySeconds(),
@@ -198,7 +205,7 @@ public class TokenService {
             authorizeInfo.getClientId(),
             authorizeInfo.getUserId(),
             false,
-            authorizeInfo.getPermissionIds(),
+            compute,
             Collections.emptySet()
         );
     }
@@ -342,6 +349,7 @@ public class TokenService {
     }
 
     public String authorize(String redirectUri, String clientId, Set<String> scope,
+                            ProjectId projectId,
                             Set<PermissionId> permissionIds, UserId userId) {
         AuthorizeInfo authorizeInfo = new AuthorizeInfo();
         authorizeInfo.setRedirectUri(redirectUri);
@@ -349,6 +357,7 @@ public class TokenService {
         authorizeInfo.setScope(scope);
         authorizeInfo.setPermissionIds(permissionIds);
         authorizeInfo.setUserId(userId);
+        authorizeInfo.setProjectId(projectId);
         String code = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
         ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
             .store(code, authorizeInfo);

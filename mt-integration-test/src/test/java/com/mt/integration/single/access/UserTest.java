@@ -121,7 +121,7 @@ public class UserTest {
     }
 
     @Test
-    public void update_user_password_with_current_pwd() throws JsonProcessingException {
+    public void update_user_password_with_current_pwd(){
         User user = UserUtility.createRandomUserObj();
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());

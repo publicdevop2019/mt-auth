@@ -11,8 +11,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ProxyCacheService {
-    private boolean reloadRequested = false;
-    private boolean reloadInProgress = false;
+    private volatile boolean reloadRequested = false;
+    private volatile boolean reloadInProgress = false;
 
     public void triggerReload() {
         reloadRequested = true;
@@ -28,7 +28,7 @@ public class ProxyCacheService {
     }
 
     @Scheduled(fixedRate = 60 * 1000, initialDelay = 60 * 1000)
-    public synchronized void reload() {
+    public void reload() {
         logService.initTrace();
         if (!reloadRequested) {
             log.info("refresh skipped due to not required");
@@ -40,9 +40,14 @@ public class ProxyCacheService {
         }
         reloadInProgress = true;
         log.info("start refresh cached endpoints");
-        DomainRegistry.getEndpointService().refreshCache();
-        DomainRegistry.getRegisteredApplicationService().refreshCache();
-        reloadRequested = false;
-        reloadInProgress = false;
+        try {
+            DomainRegistry.getEndpointService().refreshCache();
+            DomainRegistry.getRegisteredApplicationService().refreshCache();
+            reloadRequested = false;
+        } catch (Exception ex) {
+            log.error("exception during proxy refresh", ex);
+        } finally {
+            reloadInProgress = false;
+        }
     }
 }

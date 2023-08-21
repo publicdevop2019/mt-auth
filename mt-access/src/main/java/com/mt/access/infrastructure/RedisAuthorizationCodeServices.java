@@ -55,15 +55,4 @@ public class RedisAuthorizationCodeServices {
         }
         return null;
     }
-
-    @Getter
-    private static class StoredRequest implements Serializable {
-        private final Authentication userAuthentication;
-        private final OAuth2Request oauth2Request;
-
-        public StoredRequest(Authentication userAuthentication, OAuth2Request oauth2Request) {
-            this.userAuthentication = userAuthentication;
-            this.oauth2Request = oauth2Request;
-        }
-    }
 }
