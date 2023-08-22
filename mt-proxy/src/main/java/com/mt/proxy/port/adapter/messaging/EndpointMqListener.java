@@ -1,5 +1,6 @@
 package com.mt.proxy.port.adapter.messaging;
 
+import static com.mt.proxy.domain.ProxyCacheService.CACHE_LOG_PREFIX;
 import static com.mt.proxy.infrastructure.AppConstant.MT_ACCESS_ID;
 
 import com.mt.proxy.domain.DomainRegistry;
@@ -50,7 +51,7 @@ public class EndpointMqListener {
                 } catch (Exception ex) {
                     log.error("error in mq, error will not throw to keep mq connection", ex);
                 }
-                log.info("cache refresh requested");
+                log.info("{} refresh requested", CACHE_LOG_PREFIX);
             };
             channel.basicConsume(queueName, true, deliverCallback, consumerTag -> {
             });

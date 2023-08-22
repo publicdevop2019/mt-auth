@@ -93,19 +93,20 @@ public class GatewayFilterTest {
 
     @Test
     public void should_get_304_when_etag_present() {
-        String url2 = HttpUtility.getTestUrl("/cache");
+        String url = HttpUtility.getTestUrl("/cache");
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(UserUtility.getJwtAdmin());
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange2 =
             TestContext.getRestTemplate()
-                .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+                .exchange(url, HttpMethod.GET, hashMapHttpEntity1, String.class);
         String etag = exchange2.getHeaders().getETag();
+        log.info("etag returned {}", etag);
         headers1.setIfNoneMatch(Objects.requireNonNull(etag));
         HttpEntity<Object> hashMapHttpEntity2 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange3 =
             TestContext.getRestTemplate()
-                .exchange(url2, HttpMethod.GET, hashMapHttpEntity2, String.class);
+                .exchange(url, HttpMethod.GET, hashMapHttpEntity2, String.class);
         Assertions.assertEquals(HttpStatus.NOT_MODIFIED, exchange3.getStatusCode());
     }
 
