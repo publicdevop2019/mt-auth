@@ -30,7 +30,7 @@ public class ComputePermissionService {
             return Collections.emptySet();
         }
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
-        log.debug("role id found {}",
+        log.trace("role id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(standaloneRoles));
         Set<Role> roles = QueryUtility.getAllByQuery(
             q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),
@@ -38,12 +38,12 @@ public class ComputePermissionService {
         Set<PermissionId> commonPermissionIds =
             roles.stream().flatMap(e -> e.getCommonPermissionIds().stream())
                 .collect(Collectors.toSet());
-        log.debug("common permission id found {}",
+        log.trace("common permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(commonPermissionIds));
         Set<PermissionId> totalPermissions =
             roles.stream().flatMap(e -> e.getTotalPermissionIds().stream()
             ).collect(Collectors.toSet());
-        log.debug("total permission id found {}",
+        log.trace("total permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(totalPermissions));
         if (!commonPermissionIds.isEmpty()) {
             Set<PermissionId> linkedApiPermissionFor =

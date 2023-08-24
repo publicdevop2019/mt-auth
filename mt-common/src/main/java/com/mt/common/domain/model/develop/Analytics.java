@@ -2,10 +2,8 @@ package com.mt.common.domain.model.develop;
 
 import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentNavigableMap;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -106,6 +104,7 @@ public class Analytics {
     public enum Type {
         LOCK_ACQUIRE("lock_acquire", 2000L),
         DATA_PERSISTENCE("data_persistence", 3000L),
+        DATA_QUERY("data_query", 1000L),
         JOB_EXECUTION("job_execution", 10000L),
         EVENT_START_PUBLISH("event_start_publish", 50L),
         IDEMPOTENT_CHECK("idempotent_check", 1000L),
@@ -117,6 +116,7 @@ public class Analytics {
         EVENT_BATCH_PUBLISH_CONFIRM("event_batch_publish_confirm", 500L),
         EVENT_SINGLE_PUBLISH_CONFIRM("event_single_publish_confirm", 500L),
         PERMISSION_CHECK("permission_check", 1000L),
+        LOAD_CLIENT_FOR_LOGIN("load_client", 2000L),
         MARK_EVENT("mark_event", 1000L);
         private final String label;
         private final Long budget;

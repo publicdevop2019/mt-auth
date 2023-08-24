@@ -34,6 +34,7 @@ import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -287,10 +288,12 @@ public class ClientApplicationService implements ClientDetailsService {
 
     @Override
     public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
+        Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
         log.debug("loading client by id {} started", id);
         LoginOAuthClient client =
             DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
         log.debug("loading client by id end");
+        start.stop();
         return new ClientSpringOAuth2Representation(client);
     }
 

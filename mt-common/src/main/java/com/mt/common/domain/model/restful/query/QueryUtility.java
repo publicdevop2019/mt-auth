@@ -1,6 +1,7 @@
 package com.mt.common.domain.model.restful.query;
 
 import com.mt.common.CommonConstant;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -50,7 +51,10 @@ public class QueryUtility {
         int i = BigDecimal.valueOf(ceil).intValue();
         Set<T> data = new LinkedHashSet<>(sumPagedRep.getData());
         for (int a = 1; a < i; a++) {
-            data.addAll(ofQuery.apply(query.pageOf(a)).getData());
+            Analytics start = Analytics.start(Analytics.Type.DATA_QUERY);
+            List<T> nextPage = ofQuery.apply(query.pageOf(a)).getData();
+            start.stop();
+            data.addAll(nextPage);
         }
         long l2 = System.currentTimeMillis();
         if (l2 - l1 > 5 * 1000) {
