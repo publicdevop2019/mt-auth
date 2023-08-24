@@ -5,4 +5,5 @@ mkdir ../logs/analytics
 # mvn test -Dtest="UserRegisterPerformanceTest" > ../logs/test-run.log
 # mvn test -Dtest="SameUserLoginPerformanceTest" > ../logs/test-run.log
 # mvn test -Dtest="SameUserNewProjectPerformanceTest" > ../logs/test-run.log
-mvn test -Dtest="DifUserNewProjectPerformanceTest" > ../logs/test-run.log
+# mvn test -Dtest="DifUserNewProjectPerformanceTest" > ../logs/test-run.log
+mvn test -Dtest="DifUserLoginPerformanceTest" > ../logs/test-run.log
