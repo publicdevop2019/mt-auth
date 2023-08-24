@@ -4,11 +4,18 @@ import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ClientRepository;
+import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.Client_;
+import com.mt.access.domain.model.client.ExternalUrl;
+import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.LoginOAuthClient;
+import com.mt.access.domain.model.client.RedirectUrl;
+import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.TokenDetail_;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.DomainId_;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -17,6 +24,8 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.sql.clause.OrderClause;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,8 +41,10 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -41,20 +52,95 @@ import org.springframework.stereotype.Repository;
 public interface SpringDataJpaClientRepository
     extends JpaRepository<Client, Long>, ClientRepository {
 
-    default LoginOAuthClient getForLogin(ClientId clientId){
-        EntityManager entityManager = QueryUtility.getEntityManager();
-        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
-            "SELECT * FROM client c " +
-                "LEFT JOIN client_grant_type_map cgtm ON c.id = cgtm.id " +
-                "LEFT JOIN client_type_map ctm ON c.id = ctm.id " +
-                "LEFT JOIN client_redirect_url_map crum ON c.id = crum .id " +
-                "LEFT JOIN resources_map rm ON c.id = rm.id " +
-                "LEFT JOIN external_resources_map erm ON c.id = erm .id " +
-                "WHERE c.domain_id = :clientId"
-        , LoginOAuthClient.class);
-        nativeQuery.setParameter("clientId",clientId.getDomainId());
-        Object singleResult = nativeQuery.getSingleResult();
-        return (LoginOAuthClient) singleResult;
+    String SELECT_CLIENT =
+        "SELECT c.accessible_, c.auto_approve, c.domain_id, c.description, c.name, c.path, " +
+            "c.project_id, c.role_id, c.secret, c.access_token_validity_seconds, c.refresh_token_validity_seconds, c.external_url, cgtm.grant_type as grant_type, " +
+            "ctm.type as type, crum.redirect_url as redirect_url, rm.domain_id as resource_id, erm.domain_id as external_resource_id FROM client c " +
+            "LEFT JOIN client_grant_type_map cgtm ON c.id = cgtm.id " +
+            "LEFT JOIN client_type_map ctm ON c.id = ctm.id " +
+            "LEFT JOIN client_redirect_url_map crum ON c.id = crum.id " +
+            "LEFT JOIN resources_map rm ON c.id = rm.id " +
+            "LEFT JOIN external_resources_map erm ON c.id = erm.id " +
+            "WHERE c.domain_id = ?";
+
+    default LoginOAuthClient getForLogin(ClientId clientId) {
+        Object query = CommonDomainRegistry.getJdbcTemplate()
+            .query(SELECT_CLIENT, new Object[] {clientId.getDomainId()},
+                new ResultSetExtractor<Object>() {
+                    @Override
+                    public Object extractData(ResultSet rs)
+                        throws SQLException, DataAccessException {
+                        LoginOAuthClient client = null;
+                        if (!rs.next()) {
+                            return null;
+                        }
+                        //map first row to client
+                        client = new LoginOAuthClient();
+                        LoginOAuthClient.OAuthRedirectDetail oAuthRedirectDetail =
+                            new LoginOAuthClient.OAuthRedirectDetail();
+                        client.setAccessible(rs.getBoolean("accessible_"));
+                        oAuthRedirectDetail.setAutoApprove(rs.getBoolean("auto_approve"));
+                        client.setAuthorizationCodeGrant(oAuthRedirectDetail);
+                        client.setClientId(new ClientId(rs.getString("domain_id")));
+                        client.setDescription(rs.getString("description"));
+                        client.setName(rs.getString("name"));
+                        client.setPath(rs.getString("path"));
+                        client.setProjectId(new ProjectId(rs.getString("project_id")));
+                        client.setRoleId(new RoleId(rs.getString("role_id")));
+                        client.setSecret(rs.getString("secret"));
+                        Integer refreshTokenValiditySecondsWrapper = null;
+                        int refreshTokenValiditySeconds =
+                            rs.getInt("refresh_token_validity_seconds");
+                        if (!rs.wasNull()) {
+                            refreshTokenValiditySecondsWrapper = refreshTokenValiditySeconds;
+                        }
+                        TokenDetail tokenDetail =
+                            new TokenDetail(rs.getInt("access_token_validity_seconds"),
+                                refreshTokenValiditySecondsWrapper);
+                        client.setTokenDetail(tokenDetail);
+                        String externalUrl = rs.getString("external_url");
+                        client.setExternalUrl(
+                            externalUrl == null ? null : new ExternalUrl(externalUrl));
+                        do {
+                            String grantType = rs.getString("grant_type");
+                            if (grantType != null) {
+
+                                client.getGrantTypes()
+                                    .add(GrantType.valueOf(grantType));
+                            }
+                            String type = rs.getString("type");
+                            if (type != null) {
+
+                                client.getTypes().add(ClientType.valueOf(type));
+                            }
+                            String redirectUrl = rs.getString("redirect_url");
+                            if (redirectUrl != null) {
+                                oAuthRedirectDetail.getRedirectUrls()
+                                    .add(new RedirectUrl(redirectUrl));
+                            }
+                            String resourceId = rs.getString("resource_id");
+                            if (resourceId != null) {
+
+                                client.getResources().add(new ClientId(resourceId));
+                            }
+                            String externalResourceId = rs.getString("external_resource_id");
+                            if (externalResourceId != null) {
+
+                                client.getExternalResources()
+                                    .add(new ClientId(externalResourceId));
+                            }
+
+                        } while (rs.next());
+                        return client;
+                    }
+                });
+//        EntityManager entityManager = QueryUtility.getEntityManager();
+//        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
+//            SELECT_CLIENT
+//            , LoginOAuthClient.class);
+//        nativeQuery.setParameter("clientId", clientId.getDomainId());
+//        Object singleResult = nativeQuery.getSingleResult();
+        return (LoginOAuthClient) query;
     }
 
     default Set<ProjectId> getProjectIds() {

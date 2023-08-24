@@ -67,8 +67,9 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<ClientCardRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
-            .tenantQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<ClientCardRepresentation> rep =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .tenantQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(rep);
     }
 
@@ -82,8 +83,9 @@ public class ClientResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<ClientDropdownRepresentation> clients = ApplicationServiceRegistry.getClientApplicationService()
-            .tenantDropdownQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<ClientDropdownRepresentation> clients =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .tenantDropdownQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(clients);
     }
 
@@ -95,8 +97,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<ClientCardRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
-            .mgmtQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<ClientCardRepresentation> rep =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .mgmtQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(rep);
     }
 
@@ -108,8 +111,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<ClientDropdownRepresentation> rep = ApplicationServiceRegistry.getClientApplicationService()
-            .mgmtDropdownQuery(queryParam, pageParam, skipCount);
+        SumPagedRep<ClientDropdownRepresentation> rep =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .mgmtDropdownQuery(queryParam, pageParam, skipCount);
         return ResponseEntity.ok(rep);
     }
 
@@ -118,6 +122,7 @@ public class ClientResource {
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
+        log.debug("admin reading client, id {}", id);
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Client client =
             ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);

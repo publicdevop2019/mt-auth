@@ -25,8 +25,10 @@ import javax.persistence.JoinTable;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
+import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.hibernate.annotations.Immutable;
 
 /**
@@ -36,6 +38,7 @@ import org.hibernate.annotations.Immutable;
  * 3. eager load
  * 4. subset of client
  */
+@Data
 @Entity
 @Immutable
 @NoArgsConstructor
@@ -111,7 +114,7 @@ public class LoginOAuthClient {
     @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "type")
     @Enumerated(EnumType.STRING)
-    private Set<ClientType> types;
+    private Set<ClientType> types=new HashSet<>();
 
     @Getter
     @Column(name = "accessible_")
@@ -126,12 +129,13 @@ public class LoginOAuthClient {
     @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "grant_type")
     @Enumerated(EnumType.STRING)
-    private Set<GrantType> grantTypes;
+    private Set<GrantType> grantTypes=new HashSet<>();
 
     @Embedded
     @Getter
     private TokenDetail tokenDetail;
 
+    @Data
     @Embeddable
     @NoArgsConstructor
     public static class OAuthRedirectDetail{
@@ -144,7 +148,8 @@ public class LoginOAuthClient {
         private final Set<RedirectUrl> redirectUrls = new HashSet<>();
 
         @Getter
-        private final Boolean autoApprove = false;
+        @Setter
+        private Boolean autoApprove = false;
     }
 
     public Integer accessTokenValiditySeconds() {

@@ -47,7 +47,7 @@ public class NotificationDomainEventSubscriber {
     protected void listener1() {
         ListenerHelper.listen(new NewUserRegistered(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -76,7 +76,7 @@ public class NotificationDomainEventSubscriber {
     protected void listener5() {
         ListenerHelper.listen(new UserMfaNotificationEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
     /**
@@ -89,7 +89,7 @@ public class NotificationDomainEventSubscriber {
         ((RabbitMqEventStreamService) CommonDomainRegistry.getEventStreamService())
             .listen(AppInfo.MT_ACCESS_APP_ID, true, null, SendBellNotificationEvent.class,
                 (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                    .handle(event), SEND_BELL_NOTIFICATION_EVENT);
+                    .handle(event), 20, SEND_BELL_NOTIFICATION_EVENT);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -103,7 +103,7 @@ public class NotificationDomainEventSubscriber {
     protected void listener8() {
         ListenerHelper.listen(new PendingUserActivationCodeUpdated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
     @EventListener(ApplicationReadyEvent.class)
@@ -117,7 +117,7 @@ public class NotificationDomainEventSubscriber {
     protected void listener11() {
         ListenerHelper.listen(new SendEmailNotificationEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
 
@@ -168,7 +168,7 @@ public class NotificationDomainEventSubscriber {
     protected void listener18() {
         ListenerHelper.listen(new PendingUserCreated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
-                .handle(event));
+                .handle(event), 10);
     }
 
     /**

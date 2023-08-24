@@ -12,6 +12,8 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,6 +21,9 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -62,7 +67,7 @@ public class ReportApplicationService {
         return report.get();
     }
 
-    //@Scheduled(cron = "0 * * ? * *")
+    @Scheduled(cron = "0 * * ? * *")
     public void rawDataEtl() {
         log.trace("triggered scheduled task 3");
         CommonDomainRegistry.getJobService().execute(ACCESS_DATA_PROCESSING_JOB_NAME,

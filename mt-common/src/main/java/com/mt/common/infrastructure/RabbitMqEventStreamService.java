@@ -36,6 +36,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
@@ -145,10 +146,12 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
         @Nullable String queueName,
         Class<T> clazz,
         Consumer<T> consumer,
+        Integer concurrent,
         String... eventNames) {
+
         String routingKeyPrefix =
             appName + "." + (internal ? "internal" : "external") + ".";
-        boolean autoDelete = false;
+        boolean autoDelete;
         if (queueName == null) {
             //auto delete random generated queue
             autoDelete = true;
@@ -161,10 +164,16 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
             }
             queueName = Long.toString(id, 36) + "_" + s;
 
+        } else {
+            autoDelete = false;
         }
-        subscribe(null, routingKeyPrefix, queueName, autoDelete, ErrorHandleStrategy.MANUAL,
-            consumer, clazz,
-            eventNames);
+        String finalQueueName = queueName;
+        IntStream.range(0, concurrent).forEach((ignore) -> {
+            subscribe(null, routingKeyPrefix, finalQueueName, autoDelete,
+                ErrorHandleStrategy.MANUAL,
+                consumer, clazz,
+                eventNames);
+        });
     }
 
     @Override
@@ -308,7 +317,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                                 String eventName, Class<T> clazz,
                                                 Consumer<T> consumer) {
         listen(subAppName, internal, MqHelper.handleReplyOf(subAppName, eventName),
-            clazz, consumer, MqHelper.replyOf(eventName));
+            clazz, consumer, 1, MqHelper.replyOf(eventName));
     }
 
     @Override
@@ -317,7 +326,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                                       Class<T> clazz,
                                                       Consumer<T> consumer) {
         listen(subAppName, internal,
-            MqHelper.handleReplyCancelOf(subAppName, eventName), clazz, consumer,
+            MqHelper.handleReplyCancelOf(subAppName, eventName), clazz, consumer, 1,
             MqHelper.replyCancelOf(eventName));
     }
 
@@ -326,7 +335,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                                  String eventName, Class<T> clazz,
                                                  Consumer<T> consumer) {
         listen(subAppName, internal, MqHelper.handleCancelOf(subAppName, eventName),
-            clazz, consumer, MqHelper.cancelOf(eventName));
+            clazz, consumer, 1, MqHelper.cancelOf(eventName));
     }
 
     @Override
@@ -334,7 +343,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                                            String eventName, Class<T> clazz,
                                            Consumer<T> consumer) {
         listen(subAppName, internal, MqHelper.handlerOf(subAppName, eventName),
-            clazz, consumer, eventName);
+            clazz, consumer, 1, eventName);
     }
 
     @Override

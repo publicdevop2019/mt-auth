@@ -55,6 +55,7 @@ public class MgmtClientTest{
         //read first page
         String token =
             UserUtility.getJwtAdmin();
+        log.info("admin token is {}", token);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
         HttpEntity<String> request = new HttpEntity<>(null, headers);
@@ -63,6 +64,7 @@ public class MgmtClientTest{
             .exchange(accessUrl, HttpMethod.GET, request,
                 new ParameterizedTypeReference<>() {
                 });
+        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //get random page
         String randomPageUrl = RandomUtility.pickRandomPage(accessUrl,
             Objects.requireNonNull(exchange.getBody()), 50);

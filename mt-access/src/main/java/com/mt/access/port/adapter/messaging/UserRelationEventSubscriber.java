@@ -32,7 +32,7 @@ public class UserRelationEventSubscriber {
                 MqHelper.handlerOf(AppInfo.MT_ACCESS_APP_ID + "_user_relation", USER_DELETED),
                 UserDeleted.class,
                 (event) -> ApplicationServiceRegistry.getUserRelationApplicationService()
-                    .handle(event), USER_DELETED);
+                    .handle(event),1, USER_DELETED);
     }
 
 }
