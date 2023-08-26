@@ -15,7 +15,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "login_history")
-@NoArgsConstructor
 @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
     region = "loginHistoryRegion")
 @EqualsAndHashCode
@@ -29,10 +28,14 @@ public class LoginHistory {
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
     @Getter
+
+    @Setter(AccessLevel.PRIVATE)
     private Long loginAt;
     @Getter
+    @Setter(AccessLevel.PRIVATE)
     private String ipAddress;
     @Getter
+    @Setter(AccessLevel.PRIVATE)
     private String agent;
 
     public LoginHistory(UserLoginRequest command) {
@@ -41,6 +44,19 @@ public class LoginHistory {
         loginAt = Instant.now().toEpochMilli();
         ipAddress = command.getIpAddress();
         agent = command.getAgent();
+    }
+
+    private LoginHistory() {
+    }
+
+    public static LoginHistory create(Long id, UserId userId, Long loginAt, String ipAddress, String agent) {
+        LoginHistory loginHistory = new LoginHistory();
+        loginHistory.setId(id);
+        loginHistory.setUserId(userId);
+        loginHistory.setLoginAt(loginAt);
+        loginHistory.setIpAddress(ipAddress);
+        loginHistory.setAgent(agent);
+        return loginHistory;
     }
 
 }

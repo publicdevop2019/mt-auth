@@ -20,6 +20,10 @@ public class UserPassword {
         setPassword(password);
     }
 
+    public void setPasswordWithoutEncrypt(String rawPassword) {
+        this.password = rawPassword;
+    }
+
     private void setPassword(String rawPassword) {
         Validator.notNull(rawPassword);
         Validator.notBlank(rawPassword);

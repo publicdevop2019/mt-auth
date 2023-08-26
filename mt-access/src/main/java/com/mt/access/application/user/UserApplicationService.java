@@ -51,7 +51,7 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import com.mt.common.domain.model.validate.Validator;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -105,13 +105,13 @@ public class UserApplicationService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("loading user by username started");
         User user;
-        if (Validator.isValidEmail(username)) {
+        if (Checker.isEmail(username)) {
             //for login
             user =
-                DomainRegistry.getUserRepository().get(new UserEmail(username));
+                DomainRegistry.getUserRepository().getLoginUser(new UserEmail(username));
         } else {
             //for refresh token
-            user = DomainRegistry.getUserRepository().get(new UserId(username));
+            user = DomainRegistry.getUserRepository().getLoginUser(new UserId(username));
         }
         log.debug("loading user by username end");
         return new UserSpringRepresentation(user);
@@ -127,7 +127,7 @@ public class UserApplicationService implements UserDetailsService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 user.lockUser(
-                    command.getLocked(),context
+                    command.getLocked(), context
                 );
                 return null;
             }, USER);
@@ -144,7 +144,7 @@ public class UserApplicationService implements UserDetailsService {
                         new UserPassword(command.getPassword()),
                         new ActivationCode(command.getActivationCode()),
                         new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                        userId,context
+                        userId, context
                     );
                     return userId1.getDomainId();
                 }, USER
@@ -190,7 +190,7 @@ public class UserApplicationService implements UserDetailsService {
                     CommonDomainRegistry.getCustomObjectSerializer()
                         .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
                 user.lockUser(
-                    afterPatch.getLocked(),context
+                    afterPatch.getLocked(), context
                 );
                 return null;
             }, USER);
@@ -204,7 +204,7 @@ public class UserApplicationService implements UserDetailsService {
                 commands);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                DomainRegistry.getUserService().batchLock(commands,context);
+                DomainRegistry.getUserService().batchLock(commands, context);
                 return null;
             }, USER);
     }
@@ -218,7 +218,7 @@ public class UserApplicationService implements UserDetailsService {
             .idempotent(changeId, (context) -> {
                 DomainRegistry.getUserService()
                     .updatePassword(user, new CurrentPassword(command.getCurrentPwd()),
-                        new UserPassword(command.getPassword()),context);
+                        new UserPassword(command.getPassword()), context);
                 return null;
             }, USER);
         DomainRegistry.getUserRepository().add(user);
@@ -231,7 +231,8 @@ public class UserApplicationService implements UserDetailsService {
             .idempotent(changeId, (context) -> {
                 DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
                     OperationType.PWD_RESET);
-                DomainRegistry.getUserService().forgetPassword(new UserEmail(command.getEmail()),context);
+                DomainRegistry.getUserService()
+                    .forgetPassword(new UserEmail(command.getEmail()), context);
                 return null;
             }, USER);
     }
@@ -243,7 +244,7 @@ public class UserApplicationService implements UserDetailsService {
             .idempotent(changeId, (context) -> {
                 DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),
                     new UserPassword(command.getNewPassword()),
-                    new PasswordResetCode(command.getToken()),context);
+                    new PasswordResetCode(command.getToken()), context);
                 return null;
             }, USER);
     }
@@ -270,37 +271,38 @@ public class UserApplicationService implements UserDetailsService {
         return imageId;
     }
 
-    public LoginResult userLogin(String ipAddress, String agentInfo, String grantType,
-                                 String username, @Nullable String mfa, @Nullable String mfaId) {
-        if ("password".equalsIgnoreCase(grantType) && username != null) {
-            UserEmail userEmail = new UserEmail(username);
-            User user =
-                DomainRegistry.getUserRepository().get(userEmail);
-            UserId userId = user.getUserId();
-            boolean mfaRequired =
-                DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
-            if (!mfaRequired) {
-                //if mfa not required, record current login info
-                recordLoginInfo(ipAddress, agentInfo, userId);
-                return LoginResult.allow();
-            } else {
-                if (mfa != null) {
-                    if (DomainRegistry.getMfaService().validateMfa(userId, mfa, mfaId)) {
-                        recordLoginInfo(ipAddress, agentInfo, userId);
-                        return LoginResult.allow();
-                    } else {
-                        return LoginResult.mfaMissMatch();
-                    }
+    public LoginResult userLogin(String ipAddress, String agentInfo,
+                                 String username, @Nullable String mfaCode, @Nullable String mfaId) {
+        UserEmail userEmail = new UserEmail(username);
+        UserId userId =
+            DomainRegistry.getUserRepository().getUserId(userEmail);
+        log.debug("found user id {}", userId.getDomainId());
+        boolean mfaRequired =
+            DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
+        if (!mfaRequired) {
+            log.debug("mfa not required, record current login information");
+            recordLoginInfo(ipAddress, agentInfo, userId);
+            return LoginResult.allow();
+        } else {
+            if (mfaCode != null) {
+                log.debug("mfa code present");
+                if (DomainRegistry.getMfaService().validateMfa(userId, mfaCode, mfaId)) {
+                    log.debug("mfa required and check passed, record current login information");
+                    recordLoginInfo(ipAddress, agentInfo, userId);
+                    return LoginResult.allow();
                 } else {
-                    MfaId execute = CommonDomainRegistry.getTransactionService()
-                        .returnedTransactionalEvent(
-                            (context) -> DomainRegistry.getMfaService().triggerMfa(userId,context));
-                    return LoginResult
-                        .mfaMissing(execute);
+                    log.debug("mfa check failed");
+                    return LoginResult.mfaMissMatch();
                 }
+            } else {
+                log.debug("mfa required and need input by user");
+                MfaId execute = CommonDomainRegistry.getTransactionService()
+                    .returnedTransactionalEvent(
+                        (context) -> DomainRegistry.getMfaService().triggerMfa(userId, context));
+                return LoginResult
+                    .mfaMissing(execute);
             }
         }
-        return LoginResult.allow();
     }
 
 

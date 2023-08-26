@@ -134,12 +134,6 @@ public interface SpringDataJpaClientRepository
                         return client;
                     }
                 });
-//        EntityManager entityManager = QueryUtility.getEntityManager();
-//        javax.persistence.Query nativeQuery = entityManager.createNativeQuery(
-//            SELECT_CLIENT
-//            , LoginOAuthClient.class);
-//        nativeQuery.setParameter("clientId", clientId.getDomainId());
-//        Object singleResult = nativeQuery.getSingleResult();
         return (LoginOAuthClient) query;
     }
 

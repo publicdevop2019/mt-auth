@@ -131,25 +131,42 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
             //TODO add token check for websocket
             return chain.filter(exchange);
         }
+        LogService.reactiveLog(request,
+            () -> log.debug("checking rate limit"));
         checkRateLimit(exchange, context);
         if (context.hasCheckFailed()) {
+            LogService.reactiveLog(request,
+                () -> log.debug("rate limit check failed"));
             return stopResponse(exchange, context);
         }
+        LogService.reactiveLog(request,
+            () -> log.debug("update request"));
         Mono<ServerHttpRequest> requestMono = updateRequest(exchange, context);
         if (context.hasCheckFailed()) {
+            LogService.reactiveLog(request,
+                () -> log.debug("check failed during update request"));
             return stopResponse(exchange, context);
         }
+        LogService.reactiveLog(request,
+            () -> log.debug("log request and response detail"));
         //only log request if pass endpoint & rate limit & token (except /oauth/token endpoint) check, so system is not impacted by malicious request
         reportService.logRequestDetails(exchange.getRequest());
         ServerHttpResponse updatedResp = updateResponse(exchange);
-
+        LogService.reactiveLog(request,
+            () -> log.debug("response updated"));
         return requestMono.flatMap(req -> {
             if (Boolean.TRUE.equals(context.hasCheckFailed())) {
+                LogService.reactiveLog(request,
+                    () -> log.debug("has check failed, stop response"));
                 return stopResponse(exchange, context);
             }
             if (Boolean.TRUE.equals(context.getBodyCopied())) {
+                LogService.reactiveLog(request,
+                    () -> log.debug("body copied"));
                 return chain.filter(exchange.mutate().request(req).response(updatedResp).build());
             } else {
+                LogService.reactiveLog(request,
+                    () -> log.debug("body not copied"));
                 return chain.filter(exchange.mutate().response(updatedResp).build());
             }
         });
@@ -320,6 +337,8 @@ public class ScgCustomFilter implements GlobalFilter, Ordered {
         } else {
             if (DomainRegistry.getRevokeTokenService()
                 .revoked(context.getAuthHeader(), request.getPath().toString(), null)) {
+                LogService.reactiveLog(request,
+                    () -> log.debug("token revoked"));
                 context.tokenRevoked();
                 return Mono.just(request);
             }

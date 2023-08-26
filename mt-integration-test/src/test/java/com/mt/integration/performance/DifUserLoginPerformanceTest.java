@@ -2,10 +2,12 @@ package com.mt.integration.performance;
 
 import static com.mt.helper.TestHelper.RUN_ID;
 
+import com.mt.helper.AppConstant;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.HttpUtility;
+import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
@@ -20,36 +22,57 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.MDC;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Disabled
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class DifUserLoginPerformanceTest {
     @Test
     public void login() {
-        int numOfConcurrent = 10;
-        AtomicInteger failCount = new AtomicInteger(0);
         String s = UUID.randomUUID().toString();
         MDC.clear();
         MDC.put(RUN_ID, s);
+        TestContext.init();
         log.info("run id {}", s);
-        Runnable runnable = () -> {
-            log.info("start of dif user login");
-            TestContext.init();
+        List<User> users = new ArrayList<>();
+        int numOfUser = 20;
+        IntStream.range(0, numOfUser).forEach(i -> {
             User user = UserUtility.createRandomUserObj();
             ResponseEntity<Void> pendingUser = UserUtility.register(user);
             String id = HttpUtility.getId(pendingUser);
             log.info("created user id {}", id);
             user.setId(id);
-            String login = UserUtility.login(user);
-            if (login == null) {
+            users.add(user);
+        });
+        log.info("create user completed");
+        AtomicInteger failCount = new AtomicInteger(0);
+        AtomicInteger timeoutCount = new AtomicInteger(0);
+        AtomicInteger index = new AtomicInteger();
+        Runnable runnable = () -> {
+            log.info("start of dif user login");
+            TestContext.init();
+            int andIncrement = index.getAndIncrement();
+            User user = users.get(andIncrement);
+
+            ResponseEntity<DefaultOAuth2AccessToken> response = OAuth2Utility
+                .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                    AppConstant.EMPTY_CLIENT_SECRET,
+                    user.getEmail(),
+                    user.getPassword());
+
+            if (response.getStatusCode().value() == 504) {
+                timeoutCount.getAndIncrement();
+            }
+            if (response.getStatusCode().value() != 200) {
                 failCount.getAndIncrement();
             }
-            log.info("login token {}", login);
+            log.info("login response {}", response.getStatusCode().value());
             log.info("end of dif user login");
         };
         List<Runnable> runnableList = new ArrayList<>();
-        IntStream.range(0, numOfConcurrent).forEach(e -> {
+        IntStream.range(0, numOfUser).forEach(e -> {
             runnableList.add(runnable);
         });
         try {

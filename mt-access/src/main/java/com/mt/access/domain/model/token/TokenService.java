@@ -92,14 +92,14 @@ public class TokenService {
         Set<PermissionId> permissionIds = Collections.emptySet();
         Set<ProjectId> tenantIds = Collections.emptySet();
         if (isClient) {
+            log.debug("grant client token");
             //for client
-            Client client =
-                ApplicationServiceRegistry.getClientApplicationService().internalQuery(clientId);
-            RoleId roleId = client.getRoleId();
+            RoleId roleId = clientDetail.getRoleId();
             Role byId =
                 ApplicationServiceRegistry.getRoleApplicationService().internalQueryById(roleId);
-            projectId = client.getProjectId();
+            projectId = clientDetail.getProjectId();
             permissionIds = byId.getTotalPermissionIds();
+            log.debug("creating token");
             return createJwtToken(
                 projectId,
                 clientDetail.getAccessTokenValiditySeconds(),
@@ -113,13 +113,14 @@ public class TokenService {
                 Collections.emptySet()
             );
         } else {
+            log.debug("grant user token");
             String username = userDetails.getUsername();
             UserId userId = new UserId(username);
             if (scope != null && scope.size() > 0
                 &&
                 !NOT_USED.equals(scope.stream().findFirst().get())) {
                 //only one projectId allowed
-                //get tenant project permission
+                log.debug("get tenant project permission");
                 Optional<String> first = scope.stream().findFirst();
                 projectId = new ProjectId(first.get());
                 UserRelation userRelation = createUserRelationIfNotExist(userId, projectId);
@@ -127,7 +128,7 @@ public class TokenService {
                     DomainRegistry.getComputePermissionService().compute(userRelation);
                 projectId = userRelation.getProjectId();
             } else {
-                //get auth project permission and user tenant projects
+                log.debug("get auth project permission and user tenant projects");
                 Optional<UserRelation> userRelation =
                     ApplicationServiceRegistry.getUserRelationApplicationService()
                         .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
@@ -143,6 +144,7 @@ public class TokenService {
                     }
                 }
             }
+            log.debug("creating token");
             return createJwtToken(
                 projectId,
                 clientDetail.getAccessTokenValiditySeconds(),

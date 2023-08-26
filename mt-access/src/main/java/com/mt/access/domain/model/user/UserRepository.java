@@ -23,6 +23,14 @@ public interface UserRepository {
         return user;
     }
 
+    default UserId getUserId(UserEmail email) {
+        UserId userId = queryUserId(email).orElse(null);
+        Validator.notNull(userId);
+        return userId;
+    }
+
+    Optional<UserId> queryUserId(UserEmail email);
+
     Optional<User> query(UserEmail email);
 
     void add(User user);
@@ -38,4 +46,20 @@ public interface UserRepository {
     Set<UserId> getIds();
 
     void updateMfaInfo(MfaInfo mfaInfo, User user);
+
+    Optional<User> queryLoginUser(UserEmail email);
+
+    Optional<User> queryLoginUser(UserId userId);
+
+    default User getLoginUser(UserEmail email) {
+        User user = queryLoginUser(email).orElse(null);
+        Validator.notNull(user);
+        return user;
+    }
+
+    default User getLoginUser(UserId userId) {
+        User user = queryLoginUser(userId).orElse(null);
+        Validator.notNull(user);
+        return user;
+    }
 }

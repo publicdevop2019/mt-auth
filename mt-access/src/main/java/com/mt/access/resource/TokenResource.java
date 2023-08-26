@@ -36,7 +36,7 @@ public class TokenResource {
         @RequestHeader(name = "User-Agent") String agentInfo
     ) {
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
-        log.info("user login with ip {}", clientIpAddress);
+        log.info("token acquire with ip {}", clientIpAddress);
         String clientId = principal.getName();
         return ApplicationServiceRegistry.getTokenApplicationService()
             .grantToken(clientId, parameters, agentInfo, clientIpAddress);

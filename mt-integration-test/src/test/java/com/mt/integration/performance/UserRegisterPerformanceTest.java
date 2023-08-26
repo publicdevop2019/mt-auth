@@ -26,7 +26,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 public class UserRegisterPerformanceTest {
     @Test
     public void send_activation_code_pending_user() {
-        int numOfConcurrent = 10;
+        int numOfConcurrent = 20;
         AtomicInteger failCount = new AtomicInteger(0);
         String s = UUID.randomUUID().toString();
         MDC.clear();

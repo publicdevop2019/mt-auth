@@ -2,6 +2,7 @@ package com.mt.common.domain.model.validate;
 
 import java.util.Collection;
 import java.util.Objects;
+import org.apache.commons.validator.routines.EmailValidator;
 
 public class Checker {
     public static boolean isNull(Object obj) {
@@ -46,5 +47,9 @@ public class Checker {
 
     public static boolean equals(Object a, Object b) {
         return Objects.equals(a, b);
+    }
+
+    public static boolean isEmail(String email) {
+        return EmailValidator.getInstance().isValid(email);
     }
 }

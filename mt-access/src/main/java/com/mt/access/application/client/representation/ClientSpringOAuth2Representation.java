@@ -5,6 +5,7 @@ import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.LoginOAuthClient;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleId;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -20,6 +21,8 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
     private ClientId clientId;
     @Getter
     private ProjectId projectId;
+    @Getter
+    private RoleId roleId;
     private String clientSecret;
     private Set<GrantType> grantTypes;
     private Integer accessTokenValiditySeconds;
@@ -31,6 +34,7 @@ public class ClientSpringOAuth2Representation implements ClientDetails {
     public ClientSpringOAuth2Representation(LoginOAuthClient client) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
+        setRoleId(client.getRoleId());
         setClientSecret(client.getSecret());
         setGrantTypes(client.getGrantTypes());
         setAccessTokenValiditySeconds(client.accessTokenValiditySeconds());

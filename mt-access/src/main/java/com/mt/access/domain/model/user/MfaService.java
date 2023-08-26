@@ -7,11 +7,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
+@Slf4j
 @Service
 public class MfaService {
     public boolean isMfaRequired(UserId userId, UserSession userSession) {
+        log.debug("searching login info");
         Set<LoginHistory> loginHistorySet =
             DomainRegistry.getLoginHistoryRepository().getLast100Login(userId);
         Map<String, Integer> ipCount = new HashMap<>();
@@ -36,11 +38,13 @@ public class MfaService {
 
     public boolean validateMfa(UserId userId, String mfaCode,
                                String mfaId) {
-        User user1 = DomainRegistry.getUserRepository().get(userId);
-        MfaInfo mfaInfo = user1.getMfaInfo();
+        User user = DomainRegistry.getUserRepository().get(userId);
+        MfaInfo mfaInfo = user.getMfaInfo();
         if (mfaInfo == null) {
+            log.debug("mfa info not found");
             return false;
         }
+        log.debug("comparing mfa");
         return mfaInfo.validate(mfaCode, mfaId);
     }
 

@@ -65,9 +65,10 @@ public class MgmtClientTest{
                 new ParameterizedTypeReference<>() {
                 });
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertNotNull(exchange.getBody());
         //get random page
         String randomPageUrl = RandomUtility.pickRandomPage(accessUrl,
-            Objects.requireNonNull(exchange.getBody()), 50);
+            exchange.getBody(), 50);
         log.info("page url is {}", randomPageUrl);
         ResponseEntity<SumTotal<Client>> exchange3 = TestContext.getRestTemplate()
             .exchange(randomPageUrl, HttpMethod.GET, request,

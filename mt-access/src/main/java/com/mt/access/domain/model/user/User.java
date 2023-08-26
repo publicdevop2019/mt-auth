@@ -24,7 +24,6 @@ import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * user aggregate.
@@ -32,7 +31,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Embeddable
 @Entity
 @Table(name = "user_")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "userRegion")
 @EqualsAndHashCode(callSuper = true)
 public class User extends Auditable {
     private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
@@ -94,6 +92,14 @@ public class User extends Auditable {
     }
 
     private User() {
+    }
+
+    public static User loginUser(UserId userId, UserPassword password, Boolean locked) {
+        User user = new User();
+        user.setUserId(userId);
+        user.setPassword(password);
+        user.setLocked(locked);
+        return user;
     }
 
     public static User newUser(UserEmail userEmail, UserPassword password, UserId userId,
