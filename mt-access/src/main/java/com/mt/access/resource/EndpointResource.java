@@ -61,12 +61,9 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
+        SumPagedRep<EndpointCardRepresentation> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
             .tenantQuery(queryParam, pageParam, config);
-        SumPagedRep<EndpointCardRepresentation> rep =
-            new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
-        EndpointCardRepresentation.updateDetail(rep.getData());
-        return ResponseEntity.ok(rep);
+        return ResponseEntity.ok(endpoints);
     }
 
     @GetMapping(path = "mgmt/endpoints")
@@ -77,12 +74,9 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        SumPagedRep<Endpoint> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
+        SumPagedRep<EndpointCardRepresentation> endpoints = ApplicationServiceRegistry.getEndpointApplicationService()
             .mgmtQuery(queryParam, pageParam, config);
-        SumPagedRep<EndpointCardRepresentation> endpointCardRepresentationSumPagedRep =
-            new SumPagedRep<>(endpoints, EndpointCardRepresentation::new);
-        EndpointCardRepresentation.updateDetail(endpointCardRepresentationSumPagedRep.getData());
-        return ResponseEntity.ok(endpointCardRepresentationSumPagedRep);
+        return ResponseEntity.ok(endpoints);
     }
 
     @GetMapping(path = "mgmt/endpoints/{id}")
@@ -91,9 +85,9 @@ public class EndpointResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Endpoint endpoint =
+        EndpointMgmtRepresentation endpoint =
             ApplicationServiceRegistry.getEndpointApplicationService().mgmtQueryById(id);
-        return ResponseEntity.ok(new EndpointMgmtRepresentation(endpoint));
+        return ResponseEntity.ok(endpoint);
     }
 
     /**
@@ -194,11 +188,8 @@ public class EndpointResource {
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
-        SumPagedRep<Endpoint> shared = ApplicationServiceRegistry.getEndpointApplicationService()
+        SumPagedRep<EndpointSharedCardRepresentation> shared = ApplicationServiceRegistry.getEndpointApplicationService()
             .marketQuery(queryParam, pageParam, config);
-        SumPagedRep<EndpointSharedCardRepresentation> rep =
-            new SumPagedRep<>(shared, EndpointSharedCardRepresentation::new);
-        EndpointSharedCardRepresentation.updateDetail(rep.getData());
-        return ResponseEntity.ok(rep);
+        return ResponseEntity.ok(shared);
     }
 }

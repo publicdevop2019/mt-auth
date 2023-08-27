@@ -22,16 +22,4 @@ public class RegistryCardRepresentation {
         List<InstanceInfo> instances = application.getInstances();
         count = instances.size();
     }
-
-    public static void updateDetails(List<RegistryCardRepresentation> info) {
-        Set<ClientId> collect =
-            info.stream().map(e -> new ClientId(e.name)).collect(Collectors.toSet());
-        Set<Client> clients =
-            ApplicationServiceRegistry.getClientApplicationService().internalQuery(collect);
-        info.forEach(
-            e -> clients.stream().filter(ee -> ee.getClientId().equals(new ClientId(e.name)))
-                .findFirst().ifPresent(ee -> {
-                    e.name = ee.getName();
-                }));
-    }
 }

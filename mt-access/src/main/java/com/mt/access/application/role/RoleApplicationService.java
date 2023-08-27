@@ -12,18 +12,25 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RolePatchCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
+import com.mt.access.application.role.representation.RoleCardRepresentation;
+import com.mt.access.application.role.representation.RoleRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
+import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.event.ClientCreated;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.event.PermissionRemoved;
 import com.mt.access.domain.model.permission.event.ProjectPermissionCreated;
+import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
+import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
@@ -34,8 +41,11 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.infrastructure.CommonUtility;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -48,16 +58,29 @@ public class RoleApplicationService {
         return DomainRegistry.getRoleRepository().query(roleQuery);
     }
 
-    public SumPagedRep<Role> query(String queryParam, String pageParam, String skipCount) {
-        RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().query(roleQuery);
+    public SumPagedRep<RoleCardRepresentation> query(String queryParam, String pageParam,
+                                                     String skipCount) {
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+
+                RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
+                DomainRegistry.getPermissionCheckService()
+                    .canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
+                SumPagedRep<Role> query = DomainRegistry.getRoleRepository().query(roleQuery);
+                SumPagedRep<RoleCardRepresentation> roleCardRepresentationSumPagedRep =
+                    new SumPagedRep<>(query, RoleCardRepresentation::new);
+                updateName(roleCardRepresentationSumPagedRep);
+                return roleCardRepresentationSumPagedRep;
+            });
     }
 
-    public Role query(String projectId, String id) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
-        return DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
+    public RoleRepresentation query(String projectId, String id) {
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context) -> {
+            ProjectId projectId1 = new ProjectId(projectId);
+            DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
+            Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
+            return new RoleRepresentation(role);
+        });
     }
 
 
@@ -241,4 +264,52 @@ public class RoleApplicationService {
             }, (cmd) -> null, ROLE);
     }
 
+    public static SumPagedRep<RoleCardRepresentation> updateName(
+        SumPagedRep<RoleCardRepresentation> response) {
+        List<RoleCardRepresentation> data = response.getData();
+        Set<ProjectId> collect =
+            data.stream().filter(e -> e.getRoleType().equals(RoleType.PROJECT)).flatMap(e -> {
+                if (e.getTenantId() != null) {
+                    return Stream.of(new ProjectId(e.getName()), new ProjectId(e.getTenantId()));
+                }
+                return Stream.of(new ProjectId(e.getName()));
+            }).collect(Collectors.toSet());
+        Set<ProjectId> collect2 =
+            data.stream().filter(e -> e.getTenantId() != null)
+                .map(e -> new ProjectId(e.getTenantId()))
+                .collect(Collectors.toSet());
+        collect.addAll(collect2);
+        if (collect.size() > 0) {
+            Set<Project> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
+                    new ProjectQuery(collect));
+            data.forEach(e -> {
+                if (e.getRoleType().equals(RoleType.PROJECT)) {
+                    allByQuery.stream()
+                        .filter(ee -> ee.getProjectId().getDomainId().equals(e.getName()))
+                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
+                }
+                if (e.getTenantId() != null) {
+                    allByQuery.stream()
+                        .filter(ee2 -> ee2.getProjectId().getDomainId().equals(e.getTenantId()))
+                        .findFirst().ifPresent(eee -> e.setTenantId(eee.getName()));
+                }
+            });
+        }
+        Set<ClientId> collect1 = data.stream().filter(e -> e.getRoleType().equals(RoleType.CLIENT))
+            .map(e -> new ClientId(e.getName())).collect(Collectors.toSet());
+        if (collect1.size() > 0) {
+            Set<Client> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect1));
+            data.forEach(e -> {
+                if (e.getRoleType().equals(RoleType.CLIENT)) {
+                    allByQuery2.stream()
+                        .filter(ee -> ee.getClientId().getDomainId().equals(e.getName()))
+                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
+                }
+            });
+        }
+        return response;
+    }
 }

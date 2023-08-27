@@ -213,16 +213,16 @@ public class UserApplicationService implements UserDetailsService {
 
     @AuditLog(actionName = USER_UPDATE_PWD)
     public void updatePassword(UserUpdatePasswordCommand command, String changeId) {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        User user = DomainRegistry.getUserRepository().get(userId);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
+                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                User user = DomainRegistry.getUserRepository().get(userId);
                 DomainRegistry.getUserService()
                     .updatePassword(user, new CurrentPassword(command.getCurrentPwd()),
                         new UserPassword(command.getPassword()), context);
+                DomainRegistry.getUserRepository().add(user);
                 return null;
             }, USER);
-        DomainRegistry.getUserRepository().add(user);
     }
 
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
@@ -251,7 +251,7 @@ public class UserApplicationService implements UserDetailsService {
     }
 
 
-    public Optional<Image> profileAvatar() {
+    public Optional<Image> queryProfileAvatar() {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         User user = DomainRegistry.getUserRepository().get(userId);
         if (user.getUserAvatar() != null) {
@@ -263,12 +263,14 @@ public class UserApplicationService implements UserDetailsService {
     }
 
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        User user = DomainRegistry.getUserRepository().get(userId);
         ImageId imageId =
             ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
         CommonDomainRegistry.getTransactionService()
-            .transactionalEvent((context) -> user.setUserAvatar(new UserAvatar(imageId)));
+            .transactionalEvent((context) -> {
+                UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+                User user = DomainRegistry.getUserRepository().get(userId);
+                user.setUserAvatar(new UserAvatar(imageId));
+            });
         return imageId;
     }
 

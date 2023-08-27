@@ -1,13 +1,11 @@
 package com.mt.access.application.client.representation;
 
-import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.RedirectUrl;
-import java.util.List;
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -47,7 +45,8 @@ public class ClientCardRepresentation {
     public ClientCardRepresentation(Client client1) {
         id = client1.getClientId().getDomainId();
         name = client1.getName();
-        grantTypeEnums = client1.getGrantTypes();
+        grantTypeEnums = new HashSet<>();//avoid lazy load
+        grantTypeEnums.addAll(client1.getGrantTypes());
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
         if (client1.getRedirectDetail() != null) {
@@ -62,31 +61,12 @@ public class ClientCardRepresentation {
                 .collect(Collectors.toSet());
         }
         resourceIndicator = client1.getAccessible();
-        types = client1.getTypes();
-    }
-
-    public static void updateDetails(List<ClientCardRepresentation> data) {
-        Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
-            .flatMap(e -> e.getResourceIds().stream()).map(ClientId::new)
-            .collect(Collectors.toSet());
-        if (!collect.isEmpty()) {
-            Set<Client> allByIds =
-                ApplicationServiceRegistry.getClientApplicationService().internalQuery(collect);
-            data.forEach(e -> {
-                if (e.getResourceIds() != null) {
-                    e.resources = e.getResourceIds().stream().map(ee -> {
-                        Optional<Client> first = allByIds.stream()
-                            .filter(el -> el.getClientId().getDomainId().equals(ee)).findFirst();
-                        return first.map(client -> new ResourceClientInfo(client.getName(), ee))
-                            .orElseGet(() -> new ResourceClientInfo(ee, ee));
-                    }).collect(Collectors.toSet());
-                }
-            });
-        }
+        types = new HashSet<>();//avoid lazy load
+        types.addAll(client1.getTypes());
     }
 
     @Data
-    private static class ResourceClientInfo {
+    public static class ResourceClientInfo {
         private String name;
         private String id;
 

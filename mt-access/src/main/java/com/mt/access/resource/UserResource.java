@@ -227,7 +227,7 @@ public class UserResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         Optional<Image> avatar =
-            ApplicationServiceRegistry.getUserApplicationService().profileAvatar();
+            ApplicationServiceRegistry.getUserApplicationService().queryProfileAvatar();
         return avatar.map(e -> {
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.set(CONTENT_TYPE,

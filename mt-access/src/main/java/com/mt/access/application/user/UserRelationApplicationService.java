@@ -26,7 +26,6 @@ import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -49,13 +48,16 @@ public class UserRelationApplicationService {
     }
 
     public UserTenantRepresentation tenantUser(String projectId, String userId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, VIEW_TENANT_USER);
-        UserRelation relation =
-            DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
-        User user = DomainRegistry.getUserRepository().get(relation.getUserId());
-        return new UserTenantRepresentation(relation, user);
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+
+            ProjectId projectId1 = new ProjectId(projectId);
+            DomainRegistry.getPermissionCheckService()
+                .canAccess(projectId1, VIEW_TENANT_USER);
+            UserRelation relation =
+                DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
+            User user = DomainRegistry.getUserRepository().get(relation.getUserId());
+            return new UserTenantRepresentation(relation, user);
+        }));
     }
 
 
@@ -114,7 +116,7 @@ public class UserRelationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(projectId.getDomainId() + "_onboard_user" + userId.getDomainId(),
                 (context) -> {
-                //TODO check why nested transactions
+                    //TODO check why nested transactions
                     UserRelation userRelation1 =
                         CommonDomainRegistry.getTransactionService()
                             .returnedTransactionalEvent((innerContext) -> {
@@ -215,9 +217,10 @@ public class UserRelationApplicationService {
                 RoleId userRoleId = event.getUserRoleId();
                 UserId creator = event.getCreator();
                 ProjectId tenantId = event.getProjectId();
-                log.info("handle new project role created event, project id {}", tenantId.getDomainId());
+                log.info("handle new project role created event, project id {}",
+                    tenantId.getDomainId());
                 UserRelation.onboardNewProject(adminRoleId, userRoleId, creator, tenantId,
-                    new ProjectId(MT_AUTH_PROJECT_ID),context);
+                    new ProjectId(MT_AUTH_PROJECT_ID), context);
                 return null;
             }, USER_RELATION);
     }

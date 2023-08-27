@@ -12,6 +12,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.cors_profile.command.CorsProfileCreateCommand;
 import com.mt.access.application.cors_profile.command.CorsProfilePatchCommand;
 import com.mt.access.application.cors_profile.command.CorsProfileUpdateCommand;
+import com.mt.access.application.cors_profile.representation.CorsProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cors_profile.CorsProfile;
@@ -33,13 +34,16 @@ public class CorsProfileApplicationService {
 
     private static final String CORS_PROFILE = "CORS_PROFILE";
 
-    public SumPagedRep<CorsProfile> tenantQuery(String projectId1, String queryParam,
-                                                String pageParam,
-                                                String config) {
-        ProjectId projectId = new ProjectId(projectId1);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_CORS);
-        return DomainRegistry.getCorsProfileRepository()
-            .query(new CorsProfileQuery(queryParam, pageParam, config));
+    public SumPagedRep<CorsProfileRepresentation> tenantQuery(String projectId1, String queryParam,
+                                                              String pageParam,
+                                                              String config) {
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            ProjectId projectId = new ProjectId(projectId1);
+            DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_CORS);
+            SumPagedRep<CorsProfile> query = DomainRegistry.getCorsProfileRepository()
+                .query(new CorsProfileQuery(queryParam, pageParam, config));
+            return new SumPagedRep<>(query, CorsProfileRepresentation::new);
+        }));
     }
 
     @AuditLog(actionName = CREATE_TENANT_CORS_PROFILE)

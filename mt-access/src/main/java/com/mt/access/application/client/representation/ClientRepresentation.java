@@ -5,6 +5,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientType;
 import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.domain.model.client.RedirectUrl;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -46,7 +47,8 @@ public class ClientRepresentation {
         name = client.getName();
         path = client.getPath();
         description = client.getDescription();
-        grantTypeEnums = client.getGrantTypes();
+        grantTypeEnums = new HashSet<>();//avoid lazy load
+        grantTypeEnums.addAll(client.getGrantTypes());
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         if (client.getRedirectDetail() != null) {
             registeredRedirectUri = client.getRedirectDetail().getRedirectUrls().stream()
@@ -67,7 +69,8 @@ public class ClientRepresentation {
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;
-        types = client.getTypes();
+        types = new HashSet<>();//avoid lazy load
+        types.addAll(client.getTypes());
 
     }
 }

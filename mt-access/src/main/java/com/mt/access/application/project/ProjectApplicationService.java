@@ -14,13 +14,12 @@ import com.mt.access.application.project.representation.DashboardRepresentation;
 import com.mt.access.application.project.representation.ProjectRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
-import com.mt.access.domain.model.permission.Permission;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -30,7 +29,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -181,11 +179,11 @@ public class ProjectApplicationService {
         PermissionQuery permissionQuery = PermissionQuery
             .ofProjectWithTenantIds(tenantIds,
                 VIEW_PROJECT_INFO);
-        Set<Permission> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
+        Set<PermissionId> allByQuery = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().queryPermissionId(e),
                 permissionQuery);
-        boolean b1 = DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
-            allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
+        boolean b1 =
+            DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(allByQuery);
         if (!b1) {
             throw new DefinedRuntimeException("no project read access", "1017",
                 HttpResponseCode.FORBIDDEN);

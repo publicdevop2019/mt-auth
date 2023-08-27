@@ -54,10 +54,10 @@ public class CacheProfileResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<CacheProfile> users =
+        SumPagedRep<CacheProfileCardRepresentation> users =
             ApplicationServiceRegistry.getCacheProfileApplicationService()
                 .tenantQuery(projectId, queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(users, CacheProfileCardRepresentation::new));
+        return ResponseEntity.ok(users);
     }
 
     @PutMapping(path = "projects/{projectId}/cache/{id}")

@@ -36,7 +36,6 @@ public class UtilityResource {
     public ResponseEntity<List<RegistryCardRepresentation>> registryInfo() {
         List<RegistryCardRepresentation> info =
             ApplicationServiceRegistry.getRegistryApplicationService().getInfo();
-        RegistryCardRepresentation.updateDetails(info);
         return ResponseEntity.ok(info);
     }
 

@@ -14,6 +14,7 @@ import com.mt.access.application.client.command.ClientPatchCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
+import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -41,6 +42,7 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -58,14 +60,45 @@ public class ClientApplicationService implements ClientDetailsService {
 
     public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
                                                              String configParam) {
-        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        ClientCardRepresentation.updateDetails(rep.getData());
-        return rep;
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+                DomainRegistry.getPermissionCheckService()
+                    .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
+                SumPagedRep<Client> clients =
+                    DomainRegistry.getClientRepository().query(clientQuery);
+                SumPagedRep<ClientCardRepresentation> rep =
+                    new SumPagedRep<>(clients, ClientCardRepresentation::new);
+                updateDetails(rep.getData());
+                return rep;
+            });
+    }
+
+    private static void updateDetails(List<ClientCardRepresentation> data) {
+        Set<ClientId> collect = data.stream().filter(e -> e.getResourceIds() != null)
+            .flatMap(e -> e.getResourceIds().stream()).map(ClientId::new)
+            .collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            Set<Client> allByIds = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            data.forEach(e -> {
+                if (e.getResourceIds() != null) {
+                    Set<ClientCardRepresentation.ResourceClientInfo> collect1 =
+                        e.getResourceIds().stream().map(ee -> {
+                            Optional<Client> first = allByIds.stream()
+                                .filter(el -> el.getClientId().getDomainId().equals(ee))
+                                .findFirst();
+                            return first.map(
+                                    client -> new ClientCardRepresentation.ResourceClientInfo(
+                                        client.getName(), ee))
+                                .orElseGet(
+                                    () -> new ClientCardRepresentation.ResourceClientInfo(ee, ee));
+                        }).collect(Collectors.toSet());
+                    e.setResources(collect1);
+                }
+            });
+        }
     }
 
     /**
@@ -87,21 +120,30 @@ public class ClientApplicationService implements ClientDetailsService {
         return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
 
-    public Client tenantQueryById(String clientId, String projectId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, VIEW_CLIENT);
-        return DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
+    public ClientRepresentation tenantQueryById(String clientId, String projectId) {
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                ProjectId projectId1 = new ProjectId(projectId);
+                DomainRegistry.getPermissionCheckService()
+                    .canAccess(projectId1, VIEW_CLIENT);
+                Client client =
+                    DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
+                return new ClientRepresentation(client);
+            });
     }
 
     public SumPagedRep<ClientCardRepresentation> mgmtQuery(String queryParam, String pagingParam,
                                                            String configParam) {
-        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-        SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
-        SumPagedRep<ClientCardRepresentation> rep =
-            new SumPagedRep<>(clients, ClientCardRepresentation::new);
-        ClientCardRepresentation.updateDetails(rep.getData());
-        return rep;
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent(context -> {
+                ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+                SumPagedRep<Client> clients =
+                    DomainRegistry.getClientRepository().query(clientQuery);
+                SumPagedRep<ClientCardRepresentation> rep =
+                    new SumPagedRep<>(clients, ClientCardRepresentation::new);
+                updateDetails(rep.getData());
+                return rep;
+            });
     }
 
     /**
@@ -121,27 +163,18 @@ public class ClientApplicationService implements ClientDetailsService {
         return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
 
-    public Client mgmtQueryById(String id) {
-        return DomainRegistry.getClientRepository().get(new ClientId(id));
+    public ClientRepresentation mgmtQueryById(String id) {
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
+                return new ClientRepresentation(client);
+            });
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
         return DomainRegistry.getClientRepository()
             .query(ClientQuery.internalQuery(pagingParam, configParam));
     }
-
-
-    public Client internalQuery(ClientId id) {
-        return DomainRegistry.getClientRepository().get(id);
-    }
-
-
-    public Set<Client> internalQuery(Set<ClientId> ids) {
-        return QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                new ClientQuery(ids));
-    }
-
 
     public Client canAutoApprove(String projectId, String id) {
         return

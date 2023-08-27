@@ -1,7 +1,7 @@
 package com.mt.access.domain.model;
 
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.permission.Permission;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
@@ -41,12 +41,11 @@ public class PermissionCheckService {
         //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery
             .ofProjectWithTenantIds(ids, permissionName);
-        Set<Permission> allByQuery = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
+        Set<PermissionId> idSet = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getPermissionRepository().queryPermissionId(e),
                 permissionQuery);
         boolean hasPermissions =
-            DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(
-                allByQuery.stream().map(Permission::getPermissionId).collect(Collectors.toSet()));
+            DomainRegistry.getCurrentUserService().getPermissionIds().containsAll(idSet);
         permissionAnalytics.stop();
         if (!hasPermissions) {
             throw new DefinedRuntimeException("no required access permission: " + permissionName,

@@ -13,6 +13,8 @@ public interface PermissionRepository {
 
     SumPagedRep<Permission> query(PermissionQuery roleQuery);
 
+    SumPagedRep<PermissionId> queryPermissionId(PermissionQuery query);
+
     void remove(Permission e);
 
     void removeAll(Set<Permission> e);

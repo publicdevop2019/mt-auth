@@ -56,10 +56,10 @@ public class CorsProfileResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<CorsProfile> corsProfile =
+        SumPagedRep<CorsProfileRepresentation> corsProfile =
             ApplicationServiceRegistry.getCorsProfileApplicationService()
                 .tenantQuery(projectId,queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(corsProfile, CorsProfileRepresentation::new));
+        return ResponseEntity.ok(corsProfile);
     }
 
     @PutMapping(path = "projects/{projectId}/cors/{id}")

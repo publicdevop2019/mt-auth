@@ -13,13 +13,18 @@ import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
+import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileRemoved;
 import com.mt.access.domain.model.cache_profile.event.CacheProfileUpdated;
+import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
+import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.event.ClientDeleted;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.event.CorsProfileRemoved;
@@ -28,7 +33,9 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.endpoint.event.EndpointCollectionModified;
+import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
@@ -95,25 +102,99 @@ public class EndpointApplicationService {
             .query(e), new EndpointQuery(endpointIds));
     }
 
-    public SumPagedRep<Endpoint> tenantQuery(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
-        return DomainRegistry.getEndpointRepository().query(endpointQuery);
+    public SumPagedRep<EndpointCardRepresentation> tenantQuery(String queryParam, String pageParam,
+                                                               String config) {
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+            DomainRegistry.getPermissionCheckService()
+                .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+            SumPagedRep<Endpoint> rep2 =
+                DomainRegistry.getEndpointRepository().query(endpointQuery);
+            return updateDetail(rep2);
+        }));
     }
 
-    public SumPagedRep<Endpoint> marketQuery(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
-        return DomainRegistry.getEndpointRepository().query(endpointQuery);
+    private static SumPagedRep<EndpointCardRepresentation> updateDetail(
+        SumPagedRep<Endpoint> rep2) {
+        SumPagedRep<EndpointCardRepresentation> rep =
+            new SumPagedRep<>(rep2, EndpointCardRepresentation::new);
+        Set<ClientId> collect =
+            rep.getData().stream().map(e -> new ClientId(e.getResourceId()))
+                .collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            Set<Client> allByIds = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            rep.getData().forEach(e -> allByIds.stream()
+                .filter(ee -> ee.getClientId().getDomainId().equals(e.getResourceId())).findFirst()
+                .ifPresent(ee -> {
+                    e.setResourceName(ee.getName());
+                }));
+        }
+        return rep;
     }
 
-    public SumPagedRep<Endpoint> mgmtQuery(String queryParam, String pageParam, String config) {
-        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-        return DomainRegistry.getEndpointRepository().query(endpointQuery);
+    public SumPagedRep<EndpointSharedCardRepresentation> marketQuery(String queryParam,
+                                                                     String pageParam,
+                                                                     String config) {
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
+            SumPagedRep<Endpoint> query =
+                DomainRegistry.getEndpointRepository().query(endpointQuery);
+            SumPagedRep<EndpointSharedCardRepresentation> rep =
+                new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
+            updateDetail(rep.getData());
+            return rep;
+        }));
     }
 
-    public Endpoint mgmtQueryById(String id) {
-        return DomainRegistry.getEndpointRepository().get(new EndpointId(id));
+    private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
+        if (!original.isEmpty()) {
+            Set<ClientId> collect =
+                original.stream().map(EndpointSharedCardRepresentation::getClientId)
+                    .collect(Collectors.toSet());
+            Set<ProjectId> collect2 =
+                original.stream().map(EndpointSharedCardRepresentation::getOriginalProjectId)
+                    .collect(Collectors.toSet());
+            Set<Client> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            Set<Project> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
+                    new ProjectQuery(collect2));
+            original.forEach(e -> {
+                Optional<Client> first =
+                    allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId()))
+                        .findFirst();
+                first.ifPresent(ee -> {
+                    String path = ee.getPath();
+                    e.setPath("/" + path + "/" + e.getPath());
+                });
+                Optional<Project> first2 = allByQuery2.stream()
+                    .filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
+                first2.ifPresent(ee -> {
+                    e.setProjectName(ee.getName());
+                });
+            });
+        }
+    }
+
+    public SumPagedRep<EndpointCardRepresentation> mgmtQuery(String queryParam, String pageParam,
+                                                             String config) {
+
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+            SumPagedRep<Endpoint> rep =
+                DomainRegistry.getEndpointRepository().query(endpointQuery);
+            return updateDetail(rep);
+        }));
+    }
+
+    public EndpointMgmtRepresentation mgmtQueryById(String id) {
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            Endpoint endpoint = DomainRegistry.getEndpointRepository().get(new EndpointId(id));
+            return new EndpointMgmtRepresentation(endpoint);
+        }));
     }
 
     public Endpoint tenantQueryById(String projectId, String id) {

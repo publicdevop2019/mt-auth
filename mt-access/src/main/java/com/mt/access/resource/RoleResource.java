@@ -59,10 +59,10 @@ public class RoleResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = Utility.updateProjectIds(queryParam, projectId);
-        SumPagedRep<Role> clients = ApplicationServiceRegistry.getRoleApplicationService()
-            .query(queryParam, pageParam, skipCount);
-        return ResponseEntity.ok(RoleCardRepresentation
-            .updateName(new SumPagedRep<>(clients, RoleCardRepresentation::new)));
+        SumPagedRep<RoleCardRepresentation> query =
+            ApplicationServiceRegistry.getRoleApplicationService()
+                .query(queryParam, pageParam, skipCount);
+        return ResponseEntity.ok(query);
     }
 
     @GetMapping("projects/{projectId}/roles/{id}")
@@ -72,9 +72,9 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Role role =
+        RoleRepresentation role =
             ApplicationServiceRegistry.getRoleApplicationService().query(projectId, id);
-        return ResponseEntity.ok(new RoleRepresentation(role));
+        return ResponseEntity.ok(role);
     }
 
     @PutMapping("projects/{projectId}/roles/{id}")

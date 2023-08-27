@@ -14,22 +14,22 @@ import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.Order;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.jdbc.core.BatchPreparedStatementSetter;
-import org.springframework.jdbc.core.PreparedStatementCreator;
-import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 
 public interface SpringDataJpaPermissionRepository
@@ -37,6 +37,62 @@ public interface SpringDataJpaPermissionRepository
 
     default Permission query(PermissionId id) {
         return query(new PermissionQuery(id)).findFirst().orElse(null);
+    }
+
+    default SumPagedRep<PermissionId> queryPermissionId(PermissionQuery query) {
+        String inSql = String.join(",", Collections.nCopies(query.getTenantIds().size(), "?"));
+        String inSql2 = String.join(",", Collections.nCopies(query.getNames().size(), "?"));
+        List<Object> dataArgs = new ArrayList<>();
+        dataArgs.addAll(
+            query.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+        dataArgs.addAll(query.getNames());
+        dataArgs.add(query.getPageConfig().getPageSize());
+        dataArgs.add(query.getPageConfig().getOffset());
+        Object data = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                String.format("SELECT p.domain_id FROM permission p " +
+                    "WHERE p.tenant_id IN (%s) " +
+                    "AND p.name IN (%s) " +
+                    "ORDER BY p.id ASC " +
+                    "LIMIT ? " +
+                    "OFFSET ?", inSql, inSql2),
+                dataArgs.toArray(),
+                new ResultSetExtractor<Object>() {
+                    @Override
+                    public Object extractData(ResultSet rs)
+                        throws SQLException, DataAccessException {
+                        if (!rs.next()) {
+                            return Collections.emptyList();
+                        }
+                        List<PermissionId> permissionIds = new ArrayList<>();
+                        do {
+                            permissionIds.add(new PermissionId(rs.getString("domain_id")));
+                        } while (rs.next());
+                        return permissionIds;
+                    }
+                });
+        List<Object> countArgs = new ArrayList<>();
+        countArgs.addAll(
+            query.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
+        countArgs.addAll(query.getNames());
+        Long count = (Long) CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                String.format("SELECT COUNT(*) AS count FROM permission p " +
+                    "WHERE p.tenant_id IN (%s) " +
+                    "AND p.name IN (%s)", inSql, inSql2),
+                countArgs.toArray(),
+                new ResultSetExtractor<Object>() {
+                    @Override
+                    public Object extractData(ResultSet rs)
+                        throws SQLException, DataAccessException {
+                        if (!rs.next()) {
+                            return 0L;
+                        }else{
+                            return rs.getLong("count");
+                        }
+                    }
+                });
+        return new SumPagedRep<>((List<PermissionId>) data, count);
     }
 
     default void add(Permission permission) {

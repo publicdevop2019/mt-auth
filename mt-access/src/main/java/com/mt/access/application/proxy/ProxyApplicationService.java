@@ -16,12 +16,14 @@ public class ProxyApplicationService {
     @Scheduled(cron = "0 * * ? * *")
     protected void checkSum() {
         log.trace("triggered scheduled task 2");
-            CommonDomainRegistry.getJobService()
-                .execute(PROXY_VALIDATION_JOB_NAME,
-                    (context) -> DomainRegistry.getProxyService().checkSum(context), true,3);
+        CommonDomainRegistry.getJobService()
+            .execute(PROXY_VALIDATION_JOB_NAME,
+                (context) -> DomainRegistry.getProxyService().checkSum(context), true, 3);
     }
 
     public CheckSumRepresentation checkSumValue() {
-        return DomainRegistry.getProxyService().checkSumValue();
+        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
+            return DomainRegistry.getProxyService().checkSumValue();
+        }));
     }
 }

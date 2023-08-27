@@ -94,10 +94,10 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Permission permission =
+        PermissionRepresentation permission =
             ApplicationServiceRegistry.getPermissionApplicationService()
                 .tenantQueryById(projectId, id);
-        return ResponseEntity.ok(new PermissionRepresentation(permission));
+        return ResponseEntity.ok(permission);
     }
 
     @PutMapping(path = "projects/{projectId}/permissions/{id}")

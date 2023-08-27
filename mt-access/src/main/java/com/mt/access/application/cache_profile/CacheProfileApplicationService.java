@@ -13,6 +13,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.PatchCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
+import com.mt.access.application.cache_profile.representation.CacheProfileCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.cache_profile.CacheControlValue;
@@ -34,13 +35,18 @@ public class CacheProfileApplicationService {
 
     private static final String CACHE_PROFILE = "CACHE_PROFILE";
 
-    public SumPagedRep<CacheProfile> tenantQuery(String projectId, String queryParam,
-                                                 String pageParam,
-                                                 String config) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
-        return DomainRegistry.getCacheProfileRepository()
-            .query(new CacheProfileQuery(queryParam, pageParam, config));
+    public SumPagedRep<CacheProfileCardRepresentation> tenantQuery(String projectId,
+                                                                   String queryParam,
+                                                                   String pageParam,
+                                                                   String config) {
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                ProjectId projectId1 = new ProjectId(projectId);
+                DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
+                SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
+                    .query(new CacheProfileQuery(queryParam, pageParam, config));
+                return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
+            });
     }
 
     @AuditLog(actionName = CREATE_TENANT_CACHE_PROFILE)
@@ -82,14 +88,14 @@ public class CacheProfileApplicationService {
             cacheProfile1.ifPresent(e -> e.update(
                 command.getName(),
                 command.getDescription(),
-                CommonUtility.map(command.getCacheControl(),CacheControlValue::valueOfLabel),
+                CommonUtility.map(command.getCacheControl(), CacheControlValue::valueOfLabel),
                 command.getExpires(),
                 command.getMaxAge(),
                 command.getSmaxAge(),
                 command.getVary(),
                 command.getAllowCache(),
                 command.getEtag(),
-                command.getWeakValidation(),context
+                command.getWeakValidation(), context
             ));
             return null;
         }, CACHE_PROFILE);
@@ -102,7 +108,8 @@ public class CacheProfileApplicationService {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId1, cacheProfileId);
+                CacheProfileQuery cacheProfileQuery =
+                    new CacheProfileQuery(projectId1, cacheProfileId);
                 Optional<CacheProfile> cacheProfile =
                     DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
                 if (cacheProfile.isPresent()) {

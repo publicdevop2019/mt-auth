@@ -124,9 +124,9 @@ public class ClientResource {
     ) {
         log.debug("admin reading client, id {}", id);
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Client client =
+        ClientRepresentation clientRepresentation =
             ApplicationServiceRegistry.getClientApplicationService().mgmtQueryById(id);
-        return ResponseEntity.ok(new ClientRepresentation(client));
+        return ResponseEntity.ok(clientRepresentation);
     }
 
     //for internal proxy to create router
@@ -147,9 +147,9 @@ public class ClientResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        Client client =
+        ClientRepresentation client =
             ApplicationServiceRegistry.getClientApplicationService().tenantQueryById(id, projectId);
-        return ResponseEntity.ok(new ClientRepresentation(client));
+        return ResponseEntity.ok(client);
     }
 
     @PutMapping("projects/{projectId}/clients/{id}")

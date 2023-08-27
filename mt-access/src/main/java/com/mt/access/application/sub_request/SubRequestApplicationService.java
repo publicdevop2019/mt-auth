@@ -158,12 +158,12 @@ public class SubRequestApplicationService {
     @AuditLog(actionName = APPROVE_SUB_REQUEST)
     public void approve(String id, String changeId) {
         SubRequestId subRequestId = new SubRequestId(id);
-        SubRequest subRequest = DomainRegistry.getSubRequestRepository().get(subRequestId);
-        ProjectId endpointProjectId = subRequest.getEndpointProjectId();
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointProjectId, SUB_REQ_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
+                SubRequest subRequest = DomainRegistry.getSubRequestRepository().get(subRequestId);
+                ProjectId endpointProjectId = subRequest.getEndpointProjectId();
+                DomainRegistry.getPermissionCheckService()
+                    .canAccess(endpointProjectId, SUB_REQ_MGMT);
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 subRequest.approve(userId);
                 context
