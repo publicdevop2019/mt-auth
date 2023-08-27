@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import com.mt.access.domain.model.user.LoginUser;
 import com.mt.access.domain.model.user.MfaCode;
 import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.MfaInfo;
@@ -49,8 +50,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         return findByEmailEmail(email.getEmail());
     }
 
-    //TODO create login user domain object
-    default Optional<User> queryLoginUser(UserEmail email) {
+    default Optional<LoginUser> queryLoginUser(UserEmail email) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
             .query("SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?",
                 new Object[] {email.getEmail()},
@@ -63,11 +63,12 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                         }
                         UserPassword userPassword = new UserPassword();
                         userPassword.setPasswordWithoutEncrypt(rs.getString("password"));
-                        return User.loginUser(new UserId(rs.getString("domain_id")), userPassword,
-                            rs.getBoolean("locked"));
+                        return LoginUser.deserialize(new UserId(rs.getString("domain_id")),
+                            rs.getBoolean("locked")
+                            , userPassword);
                     }
                 });
-        return Optional.ofNullable((User) query);
+        return Optional.ofNullable((LoginUser) query);
     }
 
     default MfaInfo getUserMfaInfo(UserId userId) {
@@ -88,7 +89,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         return (MfaInfo) query;
     }
 
-    default Optional<User> queryLoginUser(UserId userId) {
+    default Optional<LoginUser> queryLoginUser(UserId userId) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
             .query("SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.domain_id = ?",
                 new Object[] {userId.getDomainId()},
@@ -101,11 +102,12 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                         }
                         UserPassword userPassword = new UserPassword();
                         userPassword.setPasswordWithoutEncrypt(rs.getString("password"));
-                        return User.loginUser(new UserId(rs.getString("domain_id")), userPassword,
-                            rs.getBoolean("locked"));
+                        return LoginUser.deserialize(new UserId(rs.getString("domain_id")),
+                            rs.getBoolean("locked")
+                            , userPassword);
                     }
                 });
-        return Optional.ofNullable((User) query);
+        return Optional.ofNullable((LoginUser) query);
     }
 
     default Optional<UserId> queryUserId(UserEmail userEmail) {

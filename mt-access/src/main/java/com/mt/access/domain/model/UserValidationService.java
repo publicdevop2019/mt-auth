@@ -3,6 +3,7 @@ package com.mt.access.domain.model;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.pending_user.PendingUser;
 import com.mt.access.domain.model.pending_user.RegistrationEmail;
+import com.mt.access.domain.model.user.LoginUser;
 import com.mt.access.domain.model.user.User;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import java.util.Optional;
@@ -16,8 +17,8 @@ public class UserValidationService {
         if (pendingUser.isEmpty()) {
             handler.handleError("please get activation code first");
         }
-        Optional<User> user1 =
-            DomainRegistry.getUserRepository().query(user.getEmail());
+        Optional<LoginUser> user1 =
+            DomainRegistry.getUserRepository().queryLoginUser(user.getEmail());
         if (user1.isPresent()) {
             handler.handleError("already an user " + user.getEmail().getEmail());
         }

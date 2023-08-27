@@ -49,18 +49,18 @@ public interface UserRepository {
 
     void updateMfaInfo(MfaInfo mfaInfo, UserId userId);
 
-    Optional<User> queryLoginUser(UserEmail email);
+    Optional<LoginUser> queryLoginUser(UserEmail email);
 
-    Optional<User> queryLoginUser(UserId userId);
+    Optional<LoginUser> queryLoginUser(UserId userId);
 
-    default User getLoginUser(UserEmail email) {
-        User user = queryLoginUser(email).orElse(null);
+    default LoginUser getLoginUser(UserEmail email) {
+        LoginUser user = queryLoginUser(email).orElse(null);
         Validator.notNull(user);
         return user;
     }
 
-    default User getLoginUser(UserId userId) {
-        User user = queryLoginUser(userId).orElse(null);
+    default LoginUser getLoginUser(UserId userId) {
+        LoginUser user = queryLoginUser(userId).orElse(null);
         Validator.notNull(user);
         return user;
     }

@@ -28,7 +28,7 @@ public class JdbcLoginInfoRepository implements LoginInfoRepository {
                     public Object extractData(ResultSet rs)
                         throws SQLException, DataAccessException {
                         if (!rs.next()) {
-                            return Collections.emptySet();
+                            return null;
                         }
                         return LoginInfo.create(
                             rs.getLong("id"),

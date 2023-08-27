@@ -94,14 +94,6 @@ public class User extends Auditable {
     private User() {
     }
 
-    public static User loginUser(UserId userId, UserPassword password, Boolean locked) {
-        User user = new User();
-        user.setUserId(userId);
-        user.setPassword(password);
-        user.setLocked(locked);
-        return user;
-    }
-
     public static User newUser(UserEmail userEmail, UserPassword password, UserId userId,
                                UserMobile mobile) {
         return new User(userEmail, password, userId, mobile);

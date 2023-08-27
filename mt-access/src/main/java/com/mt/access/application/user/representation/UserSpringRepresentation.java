@@ -1,5 +1,6 @@
 package com.mt.access.application.user.representation;
 
+import com.mt.access.domain.model.user.LoginUser;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserPassword;
 import java.util.Collection;
@@ -15,7 +16,7 @@ public class UserSpringRepresentation implements UserDetails {
     private UserPassword userPassword;
     private Boolean locked;
 
-    public UserSpringRepresentation(User user) {
+    public UserSpringRepresentation(LoginUser user) {
         id = user.getUserId().getDomainId();
         password = user.getPassword().getPassword();
         userPassword = user.getPassword();
