@@ -71,7 +71,7 @@ public class StoredEventApplicationService {
     public void recordRejectedEvent(StoredEvent event) {
         Long id = event.getId();
         if (id != null) {
-            CommonDomainRegistry.getTransactionService().transactionalEvent((context)->{
+            CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                 context
                     .append(new RejectedMsgReceivedEvent(event));
                 StoredEvent first = CommonDomainRegistry.getDomainEventRepository()
@@ -91,21 +91,23 @@ public class StoredEventApplicationService {
      *
      * @param storedEvent stored event
      */
-    @Transactional
     public void markAsSent(StoredEvent storedEvent) {
-        Long id = storedEvent.getId();
-        if (id != null) {
-            if (log.isDebugEnabled()) {
-                long epochSecond = Instant.now().toEpochMilli();
-                Long timestamp = storedEvent.getTimestamp();
-                log.debug("marking event with id = {} as sent, time taken to emit is {} milli", id,
-                    epochSecond - timestamp);
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+            Long id = storedEvent.getId();
+            if (id != null) {
+                if (log.isDebugEnabled()) {
+                    long epochSecond = Instant.now().toEpochMilli();
+                    Long timestamp = storedEvent.getTimestamp();
+                    log.debug("marking event with id = {} as sent, time taken to emit is {} milli",
+                        id,
+                        epochSecond - timestamp);
+                }
+                StoredEvent byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
+                byId.sendToMQ();
+            } else {
+                log.info(
+                    "none-stored event are being marked as sent, which is ok");
             }
-            StoredEvent byId = CommonDomainRegistry.getDomainEventRepository().getById(id);
-            byId.sendToMQ();
-        } else {
-            log.info(
-                "none-stored event are being marked as sent, which is ok");
-        }
+        });
     }
 }

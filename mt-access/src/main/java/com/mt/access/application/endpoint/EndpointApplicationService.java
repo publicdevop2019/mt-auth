@@ -71,13 +71,17 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
-        SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
-            .query(new EndpointQuery(pageParam));
-        List<EndpointProxyCacheRepresentation> collect =
-            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
-                .collect(Collectors.toList());
-        EndpointProxyCacheRepresentation.updateDetail(collect);
-        return new SumPagedRep<>(collect, endpoints.getTotalItemCount());
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
+                    .query(new EndpointQuery(pageParam));
+                List<EndpointProxyCacheRepresentation> collect =
+                    endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
+                        .collect(Collectors.toList());
+                EndpointProxyCacheRepresentation.updateDetail(collect);
+                return new SumPagedRep<>(collect,
+                    endpoints.getTotalItemCount());
+            });
     }
 
     /**

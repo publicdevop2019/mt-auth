@@ -7,7 +7,6 @@ import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
@@ -96,7 +95,7 @@ public class TokenService {
             //for client
             RoleId roleId = clientDetail.getRoleId();
             Role byId =
-                ApplicationServiceRegistry.getRoleApplicationService().internalQueryById(roleId);
+                DomainRegistry.getRoleRepository().query(roleId);
             projectId = clientDetail.getProjectId();
             permissionIds = byId.getTotalPermissionIds();
             log.debug("creating token");
@@ -130,7 +129,7 @@ public class TokenService {
             } else {
                 log.debug("get auth project permission and user tenant projects");
                 Optional<UserRelation> userRelation =
-                    ApplicationServiceRegistry.getUserRelationApplicationService()
+                    DomainRegistry.getUserRelationRepository()
                         .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
                 userRelation.ifPresent(
                     relation -> log.debug("auth user relation for token is {}", relation));
@@ -162,7 +161,7 @@ public class TokenService {
 
     private UserRelation createUserRelationIfNotExist(UserId userId, ProjectId projectId) {
         Optional<UserRelation> userRelation =
-            ApplicationServiceRegistry.getUserRelationApplicationService()
+            DomainRegistry.getUserRelationRepository()
                 .query(userId, projectId);
         if (userRelation.isEmpty()) {
             //auto assign default user role for target project
@@ -183,7 +182,7 @@ public class TokenService {
             (ClientSpringOAuth2Representation) clientDetails;
         Validator.notNull(code);
         Validator.notNull(redirectUrl);
-        AuthorizeInfo authorizeInfo = ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
+        AuthorizeInfo authorizeInfo = DomainRegistry.getAuthorizationCodeRepository()
             .remove(code);
         if (Checker.isNull(authorizeInfo)) {
             throw new DefinedRuntimeException("invalid token params", "1089",
@@ -361,7 +360,7 @@ public class TokenService {
         authorizeInfo.setUserId(userId);
         authorizeInfo.setProjectId(projectId);
         String code = CommonDomainRegistry.getUniqueIdGeneratorService().idString();
-        ApplicationServiceRegistry.getRedisAuthorizationCodeServices()
+        DomainRegistry.getAuthorizationCodeRepository()
             .store(code, authorizeInfo);
         return code;
     }

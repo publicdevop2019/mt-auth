@@ -8,6 +8,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.JwtToken;
 import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
@@ -17,6 +18,7 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -60,24 +62,27 @@ public class TokenApplicationService {
         //if password grant then do mfa check
         if (parameters.get("grant_type").equalsIgnoreCase("password")) {
             log.debug("checking user mfa");
-            LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
-                .userLoginCheck(clientIpAddress, agentInfo, parameters.get("username"),
-                    parameters.get("mfa_code"),
-                    parameters.get("mfa_id"));
-            if (Checker.isFalse(loginResult.getAllowed())) {
-                if (Checker.isTrue(loginResult.getInvalidMfa())) {
+            AtomicReference<LoginResult> loginResult = new AtomicReference<>();
+            CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                loginResult.set(ApplicationServiceRegistry.getUserApplicationService()
+                    .userLoginCheck(clientIpAddress, agentInfo, parameters.get("username"),
+                        parameters.get("mfa_code"),
+                        parameters.get("mfa_id")));
+            });
+            if (Checker.isFalse(loginResult.get().getAllowed())) {
+                if (Checker.isTrue(loginResult.get().getInvalidMfa())) {
                     log.debug("invalid mfa");
                     return ResponseEntity.badRequest().build();
                 } else {
                     log.debug("asking mfa");
                     HashMap<String, String> stringStringHashMap = new HashMap<>();
                     stringStringHashMap.put("message", MFA_REQUIRED);
-                    stringStringHashMap.put("mfaId", loginResult.getMfaId().getValue());
+                    stringStringHashMap.put("mfaId", loginResult.get().getMfaId().getValue());
                     return ResponseEntity.ok().body(stringStringHashMap);
                 }
             }
         }
-        UserDetails userDetails = null;
+        UserDetails userDetails;
         if (Checker.notNull(parameters.get("username"))) {
             userDetails = ApplicationServiceRegistry.getUserApplicationService()
                 .loadUserByUsername(parameters.get("username"));
@@ -92,6 +97,8 @@ public class TokenApplicationService {
                 throw new DefinedRuntimeException("wrong password", "1000",
                     HttpResponseCode.BAD_REQUEST);
             }
+        } else {
+            userDetails = null;
         }
         ClientDetails clientDetails =
             ApplicationServiceRegistry.getClientApplicationService()
@@ -107,9 +114,12 @@ public class TokenApplicationService {
                     HttpResponseCode.UNAUTHORIZED);
             }
         }
-        JwtToken token =
-            DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
-        return ResponseEntity.ok(new JwtTokenRepresentation(token));
+        AtomicReference<JwtToken> token = new AtomicReference<>();
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+            token.set(
+                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails));
+        });
+        return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
     }
 
     /**

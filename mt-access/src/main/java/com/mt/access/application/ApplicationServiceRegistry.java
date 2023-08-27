@@ -22,7 +22,6 @@ import com.mt.access.application.token.TokenApplicationService;
 import com.mt.access.application.user.UserApplicationService;
 import com.mt.access.application.user.UserRelationApplicationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
-import com.mt.access.infrastructure.RedisAuthorizationCodeServices;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +57,6 @@ public class ApplicationServiceRegistry {
     private static CacheProfileApplicationService cacheProfileApplicationService;
     @Getter
     private static ProxyApplicationService proxyApplicationService;
-    @Getter
-    private static RedisAuthorizationCodeServices redisAuthorizationCodeServices;
     @Getter
     private static UserRelationApplicationService userRelationApplicationService;
     @Getter
@@ -137,13 +134,6 @@ public class ApplicationServiceRegistry {
     public void setUserRelationApplicationService(
         UserRelationApplicationService userRelationApplicationService) {
         ApplicationServiceRegistry.userRelationApplicationService = userRelationApplicationService;
-    }
-
-
-    @Autowired
-    public void setRedisAuthorizationCodeServices(
-        RedisAuthorizationCodeServices redisAuthorizationCodeServices) {
-        ApplicationServiceRegistry.redisAuthorizationCodeServices = redisAuthorizationCodeServices;
     }
 
     @Autowired

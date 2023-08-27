@@ -45,6 +45,7 @@ import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.RoleValidationService;
 import com.mt.access.domain.model.sub_request.SubRequestRepository;
 import com.mt.access.domain.model.ticket.TicketService;
+import com.mt.access.domain.model.token.AuthorizationCodeRepository;
 import com.mt.access.domain.model.token.TokenService;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.LoginInfoRepository;
@@ -170,6 +171,14 @@ public class DomainRegistry {
     private static PermissionService permissionService;
     @Getter
     private static TokenService tokenService;
+    @Getter
+    private static AuthorizationCodeRepository authorizationCodeRepository;
+
+
+    @Autowired
+    public void setRedisAuthorizationCodeServices(AuthorizationCodeRepository services) {
+        DomainRegistry.authorizationCodeRepository = services;
+    }
 
     @Autowired
     public void setTokenService(TokenService tokenService) {

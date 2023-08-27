@@ -31,6 +31,7 @@ import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.domain.model.user.LoginUser;
 import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.PasswordResetCode;
 import com.mt.access.domain.model.user.User;
@@ -104,7 +105,7 @@ public class UserApplicationService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("loading user by username started");
-        User user;
+        LoginUser user;
         if (Checker.isEmail(username)) {
             //for login
             user =
@@ -271,8 +272,9 @@ public class UserApplicationService implements UserDetailsService {
         return imageId;
     }
 
-    public LoginResult userLogin(String ipAddress, String agentInfo,
-                                 String username, @Nullable String mfaCode, @Nullable String mfaId) {
+    public LoginResult userLoginCheck(String ipAddress, String agentInfo,
+                                      String username, @Nullable String mfaCode,
+                                      @Nullable String mfaId) {
         UserEmail userEmail = new UserEmail(username);
         UserId userId =
             DomainRegistry.getUserRepository().getUserId(userEmail);
@@ -296,11 +298,11 @@ public class UserApplicationService implements UserDetailsService {
                 }
             } else {
                 log.debug("mfa required and need input by user");
-                MfaId execute = CommonDomainRegistry.getTransactionService()
+                MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
                     .returnedTransactionalEvent(
                         (context) -> DomainRegistry.getMfaService().triggerMfa(userId, context));
                 return LoginResult
-                    .mfaMissing(execute);
+                    .mfaMissing(mfaId1);
             }
         }
     }
@@ -322,12 +324,9 @@ public class UserApplicationService implements UserDetailsService {
     private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
         UserLoginRequest userLoginRequest =
             new UserLoginRequest(ipAddress, userId, agentInfo);
-        updateLastLoginInfo(userLoginRequest);
-    }
-
-    private void updateLastLoginInfo(UserLoginRequest command) {
         CommonDomainRegistry.getTransactionService()
             .transactionalEvent(
-                (context) -> DomainRegistry.getUserService().updateLastLogin(command));
+                (context) -> DomainRegistry.getUserService().updateLastLogin(userLoginRequest));
     }
+
 }

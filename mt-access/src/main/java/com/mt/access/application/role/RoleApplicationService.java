@@ -24,7 +24,6 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
-import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
@@ -59,10 +58,6 @@ public class RoleApplicationService {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
         return DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
-    }
-
-    public Role internalQueryById(RoleId id) {
-        return DomainRegistry.getRoleRepository().get(id);
     }
 
 

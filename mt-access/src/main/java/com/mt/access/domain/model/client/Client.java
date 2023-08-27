@@ -73,10 +73,6 @@ public class Client extends Auditable {
         reservedClientIds.add(new ClientId(MT_UI_LOGIN_ID));
     }
 
-    /**
-     * if lazy then loadClientByClientId needs to be transactional
-     * use eager to avoid @Transactional adding too much overhead.
-     */
     @Getter
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "resources_map", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"), uniqueConstraints = @UniqueConstraint(columnNames = {

@@ -1,21 +1,17 @@
-package com.mt.access.infrastructure;
+package com.mt.access.port.adapter.persistence.token;
 
+import com.mt.access.domain.model.token.AuthorizationCodeRepository;
 import com.mt.access.domain.model.token.AuthorizeInfo;
 import com.mt.common.domain.CommonDomainRegistry;
-import java.io.Serializable;
 import java.util.Base64;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class RedisAuthorizationCodeServices {
+public class RedisAuthorizationCodeRepository implements AuthorizationCodeRepository {
     private static final String CODE_PREFIX = "AUTHORIZATION_CODE_";
     @Autowired
     private StringRedisTemplate redisTemplate;

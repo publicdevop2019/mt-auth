@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class JobApplicationService {
@@ -25,11 +24,12 @@ public class JobApplicationService {
                 Collectors.toList());
     }
 
-    @Transactional
     public void resetJob(String id) {
-        JobDetail byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
-        Validator.notNull(byId);
-        byId.reset();
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+            JobDetail byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
+            Validator.notNull(byId);
+            byId.reset();
+        });
     }
 
     /**

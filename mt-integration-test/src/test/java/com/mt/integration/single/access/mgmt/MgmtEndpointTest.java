@@ -67,7 +67,7 @@ public class MgmtEndpointTest{
                 });
         //get random page
         String randomPageUrl = RandomUtility.pickRandomPage(accessUrl,
-            Objects.requireNonNull(exchange.getBody()), null);
+            Objects.requireNonNull(exchange.getBody()), 50);
         log.info("page url is {}", randomPageUrl);
         ResponseEntity<SumTotal<Endpoint>> exchange3 = TestContext.getRestTemplate()
             .exchange(randomPageUrl, HttpMethod.GET, request,

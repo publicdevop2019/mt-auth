@@ -9,7 +9,7 @@ import java.util.Set;
 public interface ClientRepository {
     /**
      * special method for login only,
-     * eager load everything to avoid using @Transactional
+     * eager load everything
      * @param clientId client
      * @return client used for login
      */

@@ -22,6 +22,7 @@ public class TransactionService {
     public void transactionalEvent(Consumer<TransactionContext> fn) {
         TransactionContext init = TransactionContext.init();
         TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+        log.debug("transaction template created");
         AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
         template.execute(new TransactionCallbackWithoutResult() {
             @Override

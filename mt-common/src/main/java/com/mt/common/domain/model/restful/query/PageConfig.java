@@ -86,7 +86,7 @@ public class PageConfig {
     public static PageConfig limited(@Nullable String pagingParamStr, Integer maxPageSize) {
         PageConfig pageConfig = new PageConfig(pagingParamStr);
         if (pageConfig.getPageSize() > maxPageSize) {
-            throw new DefinedRuntimeException("unable to parse page info", "0026",
+            throw new DefinedRuntimeException("max page size reached", "0026",
                 HttpResponseCode.BAD_REQUEST);
         }
         return pageConfig;
