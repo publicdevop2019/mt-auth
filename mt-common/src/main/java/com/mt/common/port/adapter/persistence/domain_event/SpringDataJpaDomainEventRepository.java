@@ -1,5 +1,6 @@
 package com.mt.common.port.adapter.persistence.domain_event;
 
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
@@ -19,7 +20,41 @@ public interface SpringDataJpaDomainEventRepository
     extends CrudRepository<StoredEvent, Long>, DomainEventRepository {
 
     default void append(StoredEvent event) {
-        save(event);
+        //for migrated logic use native save instead of hibernate
+        if (event.getName().equalsIgnoreCase("USER_MFA_NOTIFICATION")) {
+            CommonDomainRegistry.getJdbcTemplate()
+                .update("INSERT INTO stored_event " +
+                        "(" +
+                        "id, " +
+                        "domain_id, " +
+                        "event_body, " +
+                        "internal, " +
+                        "name, " +
+                        "timestamp, " +
+                        "topic, " +
+                        "send, " +
+                        "routable, " +
+                        "rejected, " +
+                        "application_id, " +
+                        "trace_id" +
+                        ") VALUES" +
+                        "(?,?,?,?,?,?,?,?,?,?,?,?)",
+                    event.getId(),
+                    event.getDomainId(),
+                    event.getEventBody(),
+                    event.getInternal(),
+                    event.getName(),
+                    event.getTimestamp(),
+                    event.getTopic(),
+                    event.getSend(),
+                    event.getRoutable(),
+                    event.getRejected(),
+                    event.getApplicationId(),
+                    event.getTraceId()
+                );
+        } else {
+            save(event);
+        }
     }
 
     default StoredEvent getById(long id) {

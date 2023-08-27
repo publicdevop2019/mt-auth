@@ -28,80 +28,88 @@ import org.springframework.stereotype.Service;
 @Service
 public class TokenApplicationService {
 
+    private static final String MFA_REQUIRED = "mfa required";
+
     public ResponseEntity<?> grantToken(String clientId, Map<String, String> parameters,
                                         String agentInfo, String clientIpAddress) {
-        LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
-            .userLogin(clientIpAddress, agentInfo, parameters.get("grant_type"),
-                parameters.get("username"), parameters.get("mfa_code"), parameters.get("mfa_id"));
-        if (Checker.isTrue(loginResult.getAllowed())) {
-            log.info("customize password token flow");
-            boolean invalidParams = false;
-            if (Checker.notNull(parameters.get("refresh_token")) &&
-                !parameters.get("grant_type").equalsIgnoreCase("refresh_token")
-            ) {
+        log.debug("customize token flow");
+        boolean invalidParams = false;
+        if (Checker.notNull(parameters.get("refresh_token")) &&
+            !parameters.get("grant_type").equalsIgnoreCase("refresh_token")
+        ) {
+            invalidParams = true;
+        }
+        if (Checker.isNull(parameters.get("refresh_token")) &&
+            parameters.get("grant_type").equalsIgnoreCase("refresh_token")
+        ) {
+            invalidParams = true;
+        }
+        if (Checker.notNull(parameters.get("username")) &&
+            !parameters.get("grant_type").equalsIgnoreCase("password")) {
+            invalidParams = true;
+        }
+        if (parameters.get("grant_type").equalsIgnoreCase("password")) {
+            if (Checker.isNull(parameters.get("username"))) {
                 invalidParams = true;
             }
-            if (Checker.isNull(parameters.get("refresh_token")) &&
-                parameters.get("grant_type").equalsIgnoreCase("refresh_token")
-            ) {
-                invalidParams = true;
-            }
-            if (Checker.notNull(parameters.get("username")) &&
-                !parameters.get("grant_type").equalsIgnoreCase("password")) {
-                invalidParams = true;
-            }
-            if (parameters.get("grant_type").equalsIgnoreCase("password")) {
-                if (Checker.isNull(parameters.get("username"))) {
-                    invalidParams = true;
+        }
+        if (invalidParams) {
+            throw new DefinedRuntimeException("invalid token params", "1089",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        //if password grant then do mfa check
+        if (parameters.get("grant_type").equalsIgnoreCase("password")) {
+            log.debug("checking user mfa");
+            LoginResult loginResult = ApplicationServiceRegistry.getUserApplicationService()
+                .userLoginCheck(clientIpAddress, agentInfo, parameters.get("username"),
+                    parameters.get("mfa_code"),
+                    parameters.get("mfa_id"));
+            if (Checker.isFalse(loginResult.getAllowed())) {
+                if (Checker.isTrue(loginResult.getInvalidMfa())) {
+                    log.debug("invalid mfa");
+                    return ResponseEntity.badRequest().build();
+                } else {
+                    log.debug("asking mfa");
+                    HashMap<String, String> stringStringHashMap = new HashMap<>();
+                    stringStringHashMap.put("message", MFA_REQUIRED);
+                    stringStringHashMap.put("mfaId", loginResult.getMfaId().getValue());
+                    return ResponseEntity.ok().body(stringStringHashMap);
                 }
             }
-            if (invalidParams) {
+        }
+        UserDetails userDetails = null;
+        if (Checker.notNull(parameters.get("username"))) {
+            userDetails = ApplicationServiceRegistry.getUserApplicationService()
+                .loadUserByUsername(parameters.get("username"));
+            if (!userDetails.isAccountNonLocked()) {
                 throw new DefinedRuntimeException("invalid token params", "1089",
                     HttpResponseCode.BAD_REQUEST);
             }
-            UserDetails userDetails = null;
-            if (Checker.notNull(parameters.get("username"))) {
-                userDetails = ApplicationServiceRegistry.getUserApplicationService()
-                    .loadUserByUsername(parameters.get("username"));
-                if (!userDetails.isAccountNonLocked()) {
-                    throw new DefinedRuntimeException("invalid token params", "1089",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-                UserSpringRepresentation userDetails1 = (UserSpringRepresentation) userDetails;
-                if (!DomainRegistry.getEncryptionService()
-                    .compare(userDetails1.getUserPassword(),
-                        new CurrentPassword(parameters.get("password")))) {
-                    throw new DefinedRuntimeException("wrong password", "1000",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-            }
-            ClientDetails clientDetails =
-                ApplicationServiceRegistry.getClientApplicationService()
-                    .loadClientByClientId(clientId);
-            if (parameters.get("grant_type").equalsIgnoreCase("refresh_token")) {
-                if (!clientDetails.getAuthorizedGrantTypes().contains("refresh_token")) {
-                    throw new DefinedRuntimeException("invalid token params", "1089",
-                        HttpResponseCode.BAD_REQUEST);
-                }
-                Integer expInSec = JwtUtility.getField("exp", parameters.get("refresh_token"));
-                if (Instant.now().isAfter(Instant.ofEpochSecond(expInSec))) {
-                    throw new DefinedRuntimeException("refresh token expired", "1090",
-                        HttpResponseCode.UNAUTHORIZED);
-                }
-            }
-            JwtToken token =
-                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
-            return ResponseEntity.ok(new JwtTokenRepresentation(token));
-        } else {
-            if (Checker.isTrue(loginResult.getInvalidMfa())) {
-                return ResponseEntity.badRequest().build();
-            } else {
-                HashMap<String, String> stringStringHashMap = new HashMap<>();
-                stringStringHashMap.put("message", "mfa required");
-                stringStringHashMap.put("mfaId", loginResult.getMfaId().getValue());
-                return ResponseEntity.ok().body(stringStringHashMap);
+            UserSpringRepresentation userDetails1 = (UserSpringRepresentation) userDetails;
+            if (!DomainRegistry.getEncryptionService()
+                .compare(userDetails1.getUserPassword(),
+                    new CurrentPassword(parameters.get("password")))) {
+                throw new DefinedRuntimeException("wrong password", "1000",
+                    HttpResponseCode.BAD_REQUEST);
             }
         }
+        ClientDetails clientDetails =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .loadClientByClientId(clientId);
+        if (parameters.get("grant_type").equalsIgnoreCase("refresh_token")) {
+            if (!clientDetails.getAuthorizedGrantTypes().contains("refresh_token")) {
+                throw new DefinedRuntimeException("invalid token params", "1089",
+                    HttpResponseCode.BAD_REQUEST);
+            }
+            Integer expInSec = JwtUtility.getField("exp", parameters.get("refresh_token"));
+            if (Instant.now().isAfter(Instant.ofEpochSecond(expInSec))) {
+                throw new DefinedRuntimeException("refresh token expired", "1090",
+                    HttpResponseCode.UNAUTHORIZED);
+            }
+        }
+        JwtToken token =
+            DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
+        return ResponseEntity.ok(new JwtTokenRepresentation(token));
     }
 
     /**

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password, TransactionContext context) {
+    public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password,
+                               TransactionContext context) {
         if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
             throw new DefinedRuntimeException("wrong password", "1000",
                 HttpResponseCode.BAD_REQUEST);
@@ -28,12 +29,13 @@ public class UserService {
     public void forgetPassword(UserEmail email, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
-        user.setPwdResetToken(passwordResetToken,context);
+        user.setPwdResetToken(passwordResetToken, context);
         DomainRegistry.getUserRepository().add(user);
 
     }
 
-    public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token, TransactionContext context) {
+    public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token,
+                              TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         if (user.getPwdResetToken() == null) {
             throw new DefinedRuntimeException("token not exist", "1003",
@@ -61,10 +63,12 @@ public class UserService {
     public void updateLastLogin(UserLoginRequest command) {
         UserId userId = command.getUserId();
         Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().query(userId);
-        loginInfo.ifPresentOrElse(e -> e.updateLastLogin(command), () -> {
-            LoginInfo loginInfo1 = new LoginInfo(command);
-            DomainRegistry.getLoginInfoRepository().add(loginInfo1);
-        });
+        loginInfo.ifPresentOrElse(
+            e -> DomainRegistry.getLoginInfoRepository().updateLastLogin(command, userId),
+            () -> {
+                LoginInfo info = new LoginInfo(command);
+                DomainRegistry.getLoginInfoRepository().add(info);
+            });
         LoginHistory loginHistory = new LoginHistory(command);
         DomainRegistry.getLoginHistoryRepository().add(loginHistory);
     }

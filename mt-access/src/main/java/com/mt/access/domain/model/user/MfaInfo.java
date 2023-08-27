@@ -20,6 +20,13 @@ public class MfaInfo {
         return mfaInfo;
     }
 
+    public static MfaInfo deserialize(MfaId id, MfaCode code) {
+        MfaInfo mfaInfo = new MfaInfo();
+        mfaInfo.id = id;
+        mfaInfo.code = code;
+        return mfaInfo;
+    }
+
     public boolean validate(String mfaCode, String mfaId) {
         if (code == null || id == null) {
             return false;

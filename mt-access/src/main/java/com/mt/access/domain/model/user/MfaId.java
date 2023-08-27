@@ -16,4 +16,7 @@ public class MfaId {
     public MfaId() {
         value = UUID.randomUUID().toString();
     }
+    public MfaId(String value) {
+        this.value = value;
+    }
 }

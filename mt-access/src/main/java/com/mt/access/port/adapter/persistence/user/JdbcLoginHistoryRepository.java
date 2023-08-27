@@ -8,22 +8,39 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-public interface SpringDataJpaLoginHistoryRepository extends JpaRepository<LoginHistory, Long>,
-    LoginHistoryRepository {
-    default void add(LoginHistory info) {
-        save(info);
+@Repository
+public class JdbcLoginHistoryRepository implements LoginHistoryRepository {
+    @Override
+    public void add(LoginHistory info) {
+        CommonDomainRegistry.getJdbcTemplate()
+            .update("INSERT INTO login_history " +
+                    "(" +
+                    "id, " +
+                    "login_at, " +
+                    "domain_id, " +
+                    "ip_address, " +
+                    "agent" +
+                    ") VALUES" +
+                    "(?,?,?,?,?)",
+                info.getId(),
+                info.getLoginAt(),
+                info.getUserId().getDomainId(),
+                info.getIpAddress(),
+                info.getAgent()
+            );
     }
 
-    default Set<LoginHistory> getLast100Login(UserId userId) {
+    @Override
+    public Set<LoginHistory> getLast100Login(UserId userId) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
-            .query("SELECT * FROM login_history lh WHERE lh.domain_id = ? ORDER BY lh.login_at DESC LIMIT 100",
+            .query(
+                "SELECT * FROM login_history lh WHERE lh.domain_id = ? ORDER BY lh.login_at DESC LIMIT 100",
                 new Object[] {userId.getDomainId()},
                 new ResultSetExtractor<Object>() {
                     @Override
@@ -46,6 +63,6 @@ public interface SpringDataJpaLoginHistoryRepository extends JpaRepository<Login
                         return objects;
                     }
                 });
-        return (Set<LoginHistory>)query;
+        return (Set<LoginHistory>) query;
     }
 }

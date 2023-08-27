@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+
 @Slf4j
 @Service
 public class MfaService {
@@ -38,8 +39,7 @@ public class MfaService {
 
     public boolean validateMfa(UserId userId, String mfaCode,
                                String mfaId) {
-        User user = DomainRegistry.getUserRepository().get(userId);
-        MfaInfo mfaInfo = user.getMfaInfo();
+        MfaInfo mfaInfo = DomainRegistry.getUserRepository().getUserMfaInfo(userId);
         if (mfaInfo == null) {
             log.debug("mfa info not found");
             return false;
@@ -51,7 +51,7 @@ public class MfaService {
     public MfaId triggerMfa(UserId userId, TransactionContext context) {
         User user1 = DomainRegistry.getUserRepository().get(userId);
         MfaInfo mfaInfo = MfaInfo.create();
-        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo,user1);
+        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, userId);
         context
             .append(new UserMfaNotificationEvent(user1, mfaInfo));
         return mfaInfo.getId();

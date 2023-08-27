@@ -20,6 +20,10 @@ public class MfaCode implements Serializable {
         setValue(DomainRegistry.getMfaCodeService().generate());
     }
 
+    public MfaCode(String value) {
+        this.value = value;
+    }
+
     private void setValue(String value) {
         this.value = value;
     }

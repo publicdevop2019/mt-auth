@@ -1,5 +1,7 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import com.mt.access.domain.model.user.MfaCode;
+import com.mt.access.domain.model.user.MfaId;
 import com.mt.access.domain.model.user.MfaInfo;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserEmail;
@@ -47,6 +49,7 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
         return findByEmailEmail(email.getEmail());
     }
 
+    //TODO create login user domain object
     default Optional<User> queryLoginUser(UserEmail email) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
             .query("SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?",
@@ -65,6 +68,24 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
                     }
                 });
         return Optional.ofNullable((User) query);
+    }
+
+    default MfaInfo getUserMfaInfo(UserId userId) {
+        Object query = CommonDomainRegistry.getJdbcTemplate()
+            .query("SELECT u.mfa_id, u.mfa_code FROM user_ u WHERE u.domain_id = ?",
+                new Object[] {userId.getDomainId()},
+                new ResultSetExtractor<Object>() {
+                    @Override
+                    public Object extractData(ResultSet rs)
+                        throws SQLException, DataAccessException {
+                        if (!rs.next()) {
+                            return null;
+                        }
+                        return MfaInfo.deserialize(new MfaId(rs.getString("mfa_id")),
+                            new MfaCode(rs.getString("mfa_code")));
+                    }
+                });
+        return (MfaInfo) query;
     }
 
     default Optional<User> queryLoginUser(UserId userId) {
@@ -135,13 +156,13 @@ public interface SpringDataJpaUserRepository extends JpaRepository<User, Long>, 
      * update mfa info without trigger version increase & modified at change
      *
      * @param mfaInfo new mfa info
-     * @param user    user to udpate
+     * @param userId  user id to update
      */
-    default void updateMfaInfo(MfaInfo mfaInfo, User user) {
+    default void updateMfaInfo(MfaInfo mfaInfo, UserId userId) {
         String sql = "UPDATE user_ u SET u.mfa_id  = ?, u.mfa_code = ? WHERE u.domain_id = ?";
         int update = CommonDomainRegistry.getJdbcTemplate()
             .update(sql, mfaInfo.getId().getValue(), mfaInfo.getCode().getValue(),
-                user.getUserId().getDomainId());
+                userId.getDomainId());
         DatabaseUtility.checkUpdate(update);
     }
 

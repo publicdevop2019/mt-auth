@@ -6,4 +6,6 @@ public interface LoginInfoRepository {
     Optional<LoginInfo> query(UserId userId);
 
     void add(LoginInfo info);
+
+    void updateLastLogin(UserLoginRequest command, UserId userId);
 }

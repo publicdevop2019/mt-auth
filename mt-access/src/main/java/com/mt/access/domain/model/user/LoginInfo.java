@@ -22,7 +22,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 public class LoginInfo {
     @Id
     @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     protected Long id;
     @Embedded
     @Getter
@@ -43,10 +43,14 @@ public class LoginInfo {
         agent = command.getAgent();
     }
 
-    public void updateLastLogin(UserLoginRequest command) {
-        loginAt = Instant.now().toEpochMilli();
-        ipAddress = command.getIpAddress();
-        agent = command.getAgent();
+    public static LoginInfo create(Long id, UserId userId, Long loginAt, String ipAddress,
+                                   String agent) {
+        LoginInfo info = new LoginInfo();
+        info.setId(id);
+        info.setUserId(userId);
+        info.loginAt = loginAt;
+        info.ipAddress = ipAddress;
+        info.agent = agent;
+        return info;
     }
-
 }
