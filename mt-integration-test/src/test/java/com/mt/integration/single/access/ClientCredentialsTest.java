@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,8 +26,8 @@ public class ClientCredentialsTest{
     }
 
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
     @Test
     public void use_client_with_secret() {

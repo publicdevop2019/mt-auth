@@ -18,6 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -38,8 +39,8 @@ public class ClientIdempotentTest{
     }
 
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
     @Test
     public void create_client_w_same_changeId_two_times() {

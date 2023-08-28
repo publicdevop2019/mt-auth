@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -33,8 +34,8 @@ public class MgmtEndpointTest{
     }
 
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
     @Test
     public void admin_can_view_all_endpoints() {

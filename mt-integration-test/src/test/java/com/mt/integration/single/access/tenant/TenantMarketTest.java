@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,8 +55,8 @@ public class TenantMarketTest {
         log.info("init tenant complete");
     }
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
 
     @Test

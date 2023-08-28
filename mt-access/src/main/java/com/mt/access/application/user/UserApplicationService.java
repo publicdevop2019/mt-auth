@@ -313,13 +313,14 @@ public class UserApplicationService implements UserDetailsService {
     @AuditLog(actionName = USER_UPDATE_PROFILE)
     public void updateProfile(UserUpdateProfileCommand command) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        User user = DomainRegistry.getUserRepository().get(userId);
-        CommonDomainRegistry.getTransactionService().transactionalEvent((context) ->
-            user.update(
-                new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                command.getUsername() != null ? new UserName(command.getUsername()) : null,
-                command.getLanguage()
-            )
+        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
+                User user = DomainRegistry.getUserRepository().get(userId);
+                user.update(
+                    new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+                    command.getUsername() != null ? new UserName(command.getUsername()) : null,
+                    command.getLanguage()
+                );
+            }
         );
     }
 

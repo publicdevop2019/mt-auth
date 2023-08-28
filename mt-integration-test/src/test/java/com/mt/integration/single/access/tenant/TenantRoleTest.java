@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,8 +63,8 @@ public class TenantRoleTest {
     }
 
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
     @Test
     public void tenant_can_create_role() {
