@@ -6,5 +6,5 @@ import com.mt.access.domain.model.user.UserPassword;
 public interface EncryptionService {
     String encryptedValue(String secret);
 
-    boolean compare(UserPassword userPassword, CurrentPassword currentPwd);
+    boolean compare(String raw, String encrypted);
 }

@@ -74,7 +74,7 @@ public class ClientCredentialsTest{
             OAuth2Utility.getOAuth2WithClient(AppConstant.GRANT_TYPE_PASSWORD,
                 UUID.randomUUID().toString(),
                 UUID.randomUUID().toString());
-        Assertions.assertEquals(tokenResponse.getStatusCode(), HttpStatus.UNAUTHORIZED);
+        Assertions.assertEquals(tokenResponse.getStatusCode(), HttpStatus.BAD_REQUEST);
 
     }
 }

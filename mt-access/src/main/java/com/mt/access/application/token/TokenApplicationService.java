@@ -1,12 +1,12 @@
 package com.mt.access.application.token;
 
 import com.mt.access.application.ApplicationServiceRegistry;
+import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
 import com.mt.access.application.token.representation.JwtTokenRepresentation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.JwtToken;
-import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginResult;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -21,9 +21,6 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.common.util.OAuth2Utils;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -32,7 +29,8 @@ public class TokenApplicationService {
 
     private static final String MFA_REQUIRED = "mfa required";
 
-    public ResponseEntity<?> grantToken(String clientId, Map<String, String> parameters,
+    public ResponseEntity<?> grantToken(String clientId, String clientSecret,
+                                        Map<String, String> parameters,
                                         String agentInfo, String clientIpAddress) {
         log.debug("customize token flow");
         boolean invalidParams = false;
@@ -82,7 +80,7 @@ public class TokenApplicationService {
                 }
             }
         }
-        UserDetails userDetails;
+        UserSpringRepresentation userDetails;
         if (Checker.notNull(parameters.get("username"))) {
             userDetails = ApplicationServiceRegistry.getUserApplicationService()
                 .loadUserByUsername(parameters.get("username"));
@@ -90,19 +88,29 @@ public class TokenApplicationService {
                 throw new DefinedRuntimeException("invalid token params", "1089",
                     HttpResponseCode.BAD_REQUEST);
             }
-            UserSpringRepresentation userDetails1 = (UserSpringRepresentation) userDetails;
             if (!DomainRegistry.getEncryptionService()
-                .compare(userDetails1.getUserPassword(),
-                    new CurrentPassword(parameters.get("password")))) {
+                .compare(parameters.get("password"),
+                    userDetails.getUserPassword().getPassword())) {
                 throw new DefinedRuntimeException("wrong password", "1000",
                     HttpResponseCode.BAD_REQUEST);
             }
         } else {
             userDetails = null;
         }
-        ClientDetails clientDetails =
+        ClientSpringOAuth2Representation clientDetails =
             ApplicationServiceRegistry.getClientApplicationService()
                 .loadClientByClientId(clientId);
+        if (clientDetails == null) {
+            throw new DefinedRuntimeException("client not found", "1091",
+                HttpResponseCode.UNAUTHORIZED);
+        }
+        if (!DomainRegistry.getEncryptionService()
+            .compare(clientSecret,
+                clientDetails.getClientSecret())
+        ) {
+            throw new DefinedRuntimeException("wrong client password", "1070",
+                HttpResponseCode.UNAUTHORIZED);
+        }
         if (parameters.get("grant_type").equalsIgnoreCase("refresh_token")) {
             if (!clientDetails.getAuthorizedGrantTypes().contains("refresh_token")) {
                 throw new DefinedRuntimeException("invalid token params", "1089",
@@ -141,12 +149,13 @@ public class TokenApplicationService {
                 HttpResponseCode.BAD_REQUEST);
         }
 
-        ClientDetails client = ApplicationServiceRegistry.getClientApplicationService()
-            .loadClientByClientId(clientId);
+        ClientSpringOAuth2Representation client =
+            ApplicationServiceRegistry.getClientApplicationService()
+                .loadClientByClientId(clientId);
 
         if (client == null) {
             throw new DefinedRuntimeException(
-                "unable to find authorize client " + parameters.get(OAuth2Utils.CLIENT_ID), "1005",
+                "unable to find authorize client", "1005",
                 HttpResponseCode.BAD_REQUEST);
         }
         if (!client.getRegisteredRedirectUri().contains(redirectUri)) {

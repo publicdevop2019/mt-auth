@@ -57,7 +57,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1066',explain:'密码验证：不允许空格'},
     {code:'1067',explain:'密码验证：至少一个特殊字符'},
     {code:'1068',explain:'无法获得MD5校验值'},
-    {code:'1070',explain:'无法将access token转化为json'},
+    {code:'1070',explain:'登录：客户端密码错误'},
     {code:'1071',explain:'无法发送email'},
     {code:'1072',explain:'无法识别的query值'},
     {code:'1073',explain:'无法识别的order by值'},
@@ -76,6 +76,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1088',explain:'电话号码格式错误'},
     {code:'1089',explain:'Token参数错误'},
     {code:'1090',explain:'Refresh Token已过期'},
+    {code:'1091',explain:'找不到客户端'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},

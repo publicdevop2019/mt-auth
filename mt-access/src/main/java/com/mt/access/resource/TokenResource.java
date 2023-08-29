@@ -5,7 +5,7 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.infrastructure.HttpUtility;
-import java.security.Principal;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -30,16 +30,30 @@ public class TokenResource {
      */
     @PostMapping(path = "/oauth/token")
     public ResponseEntity<?> getToken(
-        Principal principal,
         @RequestParam Map<String, String> parameters,
         HttpServletRequest servletRequest,
+        @RequestHeader(name = "Authorization") String authorization,
         @RequestHeader(name = "User-Agent") String agentInfo
     ) {
+        String basic = authorization.replace("Basic ", "");
+        String decoded = new String(Base64.getDecoder().decode(basic));
+        String[] split = decoded.split(":");
+        String clientId;
+        String clientSecret;
+        if (split.length == 0) {
+            clientId = "";
+            clientSecret = "";
+        } else if (split.length == 1) {
+            clientId = split[0];
+            clientSecret = "";
+        } else {
+            clientId = split[0];
+            clientSecret = decoded.split(":")[1];
+        }
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("token acquire with ip {}", clientIpAddress);
-        String clientId = principal.getName();
         return ApplicationServiceRegistry.getTokenApplicationService()
-            .grantToken(clientId, parameters, agentInfo, clientIpAddress);
+            .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress);
     }
 
     /**

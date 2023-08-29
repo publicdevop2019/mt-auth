@@ -16,7 +16,8 @@ public class UserService {
 
     public void updatePassword(User user, CurrentPassword currentPwd, UserPassword password,
                                TransactionContext context) {
-        if (!DomainRegistry.getEncryptionService().compare(user.getPassword(), currentPwd)) {
+        if (!DomainRegistry.getEncryptionService()
+            .compare(currentPwd.getRawPassword(), user.getPassword().getPassword())) {
             throw new DefinedRuntimeException("wrong password", "1000",
                 HttpResponseCode.BAD_REQUEST);
         }

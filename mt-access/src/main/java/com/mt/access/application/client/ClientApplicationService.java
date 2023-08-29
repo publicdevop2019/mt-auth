@@ -47,14 +47,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.oauth2.provider.ClientDetails;
-import org.springframework.security.oauth2.provider.ClientDetailsService;
-import org.springframework.security.oauth2.provider.ClientRegistrationException;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-public class ClientApplicationService implements ClientDetailsService {
+public class ClientApplicationService {
 
     private static final String CLIENT = "Client";
 
@@ -319,14 +316,16 @@ public class ClientApplicationService implements ClientDetailsService {
             }, CLIENT);
     }
 
-    @Override
-    public ClientDetails loadClientByClientId(String id) throws ClientRegistrationException {
+    public ClientSpringOAuth2Representation loadClientByClientId(String id) {
         Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
-        log.debug("loading client by id {} started", id);
+        log.debug("loading client by id started");
         LoginOAuthClient client =
             DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
         log.debug("loading client by id end");
         start.stop();
+        if (client == null) {
+            return null;
+        }
         return new ClientSpringOAuth2Representation(client);
     }
 

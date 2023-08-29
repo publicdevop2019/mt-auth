@@ -6,6 +6,7 @@ import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
+import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -47,8 +48,6 @@ import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.oauth2.provider.ClientDetails;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -61,7 +60,7 @@ public class TokenService {
     private static final String PROJECT_ID = "projectId";
 
     public JwtToken grant(Map<String, String> parameters,
-                          ClientDetails clientDetails, UserDetails userDetails) {
+                          ClientSpringOAuth2Representation clientDetails, UserSpringRepresentation userDetails) {
         String scope = parameters.get("scope");
         if ("client_credentials".equalsIgnoreCase(parameters.get("grant_type"))
             ||
@@ -79,13 +78,11 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantToken(ClientDetails clientDetails, @Nullable UserDetails userDetails,
+    private JwtToken grantToken(ClientSpringOAuth2Representation clientDetails, @Nullable UserSpringRepresentation userDetails,
                                 Set<String> scope) {
         final boolean isClient = Checker.isNull(userDetails);
-        ClientSpringOAuth2Representation clientDetail =
-            (ClientSpringOAuth2Representation) clientDetails;
-        final boolean hasRefresh = clientDetail.getAuthorizedGrantTypes().contains("refresh_token");
-        ClientId clientId = new ClientId(clientDetail.getClientId());
+        final boolean hasRefresh = clientDetails.getAuthorizedGrantTypes().contains("refresh_token");
+        ClientId clientId = new ClientId(clientDetails.getClientId());
         //for user & client
         ProjectId projectId = null;
         Set<PermissionId> permissionIds = Collections.emptySet();
@@ -93,17 +90,17 @@ public class TokenService {
         if (isClient) {
             log.debug("grant client token");
             //for client
-            RoleId roleId = clientDetail.getRoleId();
+            RoleId roleId = clientDetails.getRoleId();
             Role byId =
                 DomainRegistry.getRoleRepository().query(roleId);
-            projectId = clientDetail.getProjectId();
+            projectId = clientDetails.getProjectId();
             permissionIds = byId.getTotalPermissionIds();
             log.debug("creating token");
             return createJwtToken(
                 projectId,
-                clientDetail.getAccessTokenValiditySeconds(),
-                clientDetail.getRefreshTokenValiditySeconds(),
-                clientDetail.getResourceIds(),
+                clientDetails.getAccessTokenValiditySeconds(),
+                clientDetails.getRefreshTokenValiditySeconds(),
+                clientDetails.getResourceIds(),
                 scope,
                 clientId,
                 null,
@@ -146,9 +143,9 @@ public class TokenService {
             log.debug("creating token");
             return createJwtToken(
                 projectId,
-                clientDetail.getAccessTokenValiditySeconds(),
-                clientDetail.getRefreshTokenValiditySeconds(),
-                clientDetail.getResourceIds(),
+                clientDetails.getAccessTokenValiditySeconds(),
+                clientDetails.getRefreshTokenValiditySeconds(),
+                clientDetails.getResourceIds(),
                 scope,
                 clientId,
                 userId,
@@ -176,10 +173,8 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantAuthorizationCode(ClientDetails clientDetails, String code,
+    private JwtToken grantAuthorizationCode(ClientSpringOAuth2Representation clientDetails, String code,
                                             String redirectUrl) {
-        ClientSpringOAuth2Representation clientDetail =
-            (ClientSpringOAuth2Representation) clientDetails;
         Validator.notNull(code);
         Validator.notNull(redirectUrl);
         AuthorizeInfo authorizeInfo = DomainRegistry.getAuthorizationCodeRepository()
@@ -191,17 +186,17 @@ public class TokenService {
         //check redirect url
         Validator.equals(redirectUrl, authorizeInfo.getRedirectUri());
         //check client
-        Validator.equals(clientDetail.getClientId(), authorizeInfo.getClientId().getDomainId());
+        Validator.equals(clientDetails.getClientId(), authorizeInfo.getClientId().getDomainId());
 
         UserRelation userRelation =
             createUserRelationIfNotExist(authorizeInfo.getUserId(), authorizeInfo.getProjectId());
         Set<PermissionId> compute =
             DomainRegistry.getComputePermissionService().compute(userRelation);
         return createJwtToken(
-            clientDetail.getProjectId(),
-            clientDetail.getAccessTokenValiditySeconds(),
+            clientDetails.getProjectId(),
+            clientDetails.getAccessTokenValiditySeconds(),
             0,
-            clientDetail.getResourceIds(),
+            clientDetails.getResourceIds(),
             authorizeInfo.getScope(),
             authorizeInfo.getClientId(),
             authorizeInfo.getUserId(),
@@ -211,9 +206,7 @@ public class TokenService {
         );
     }
 
-    private JwtToken grantRefreshToken(ClientDetails clientDetails, String refreshToken) {
-        ClientSpringOAuth2Representation clientDetail =
-            (ClientSpringOAuth2Representation) clientDetails;
+    private JwtToken grantRefreshToken(ClientSpringOAuth2Representation clientDetails, String refreshToken) {
         Set<PermissionId> permissionIds =
             JwtUtility.getPermissionIds(refreshToken).stream().map(PermissionId::new)
                 .collect(Collectors.toSet());
@@ -228,9 +221,9 @@ public class TokenService {
         ProjectId projectId1 = new ProjectId(projectId);
         return createJwtToken(
             projectId1,
-            clientDetail.getAccessTokenValiditySeconds(),
-            clientDetail.getRefreshTokenValiditySeconds(),
-            clientDetail.getResourceIds(),
+            clientDetails.getAccessTokenValiditySeconds(),
+            clientDetails.getRefreshTokenValiditySeconds(),
+            clientDetails.getResourceIds(),
             scope,
             clientId1,
             userId,

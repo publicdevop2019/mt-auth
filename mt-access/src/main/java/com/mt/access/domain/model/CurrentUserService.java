@@ -5,7 +5,6 @@ import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
 import java.util.Set;
-import org.springframework.security.core.Authentication;
 
 public interface CurrentUserService {
 

@@ -71,7 +71,7 @@ public class PasswordFlowTest {
     public void should_not_get_token_when_user_credentials_are_valid_but_client_is_wrong() {
         ResponseEntity<?> tokenResponse = OAuth2Utility.getOAuth2WithUser(
             AppConstant.GRANT_TYPE_PASSWORD,
-            "root2",
+            "0C000001",
             AppConstant.EMPTY_CLIENT_SECRET, AppConstant.ACCOUNT_USERNAME_ADMIN,
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());

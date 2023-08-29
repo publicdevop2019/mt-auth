@@ -58,15 +58,12 @@ import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
-public class UserApplicationService implements UserDetailsService {
+public class UserApplicationService {
 
     private static final String USER = "User";
     private static final String DEFAULT_USERID = "0U8AZTODP4H0";
@@ -102,8 +99,7 @@ public class UserApplicationService implements UserDetailsService {
         return new UserMgmtRepresentation(user, allForUser);
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserSpringRepresentation loadUserByUsername(String username) {
         log.debug("loading user by username started");
         LoginUser user;
         if (Checker.isEmail(username)) {
