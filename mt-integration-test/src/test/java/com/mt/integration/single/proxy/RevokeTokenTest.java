@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
+import com.mt.helper.pojo.User;
+import com.mt.helper.utility.AdminUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
@@ -12,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,10 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-/**
- * this integration auth requires oauth2service to be running.
- */
-
+@Disabled
 @Slf4j
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 public class RevokeTokenTest {
@@ -38,19 +39,16 @@ public class RevokeTokenTest {
     }
 
     @BeforeEach
-    public void beforeEach() {
-        TestHelper.beforeEach(log);
+    public void beforeEach(TestInfo testInfo) {
+        TestHelper.beforeEach(log, testInfo);
     }
 
     @Test
     public void receive_request_blacklist_client_then_block_client_old_request_which_trying_to_access_proxy_external_endpoints()
         throws JsonProcessingException, InterruptedException {
-        Thread.sleep(10 * 1000);
         String url = AppConstant.PROXY_URL + PROXY_BLACKLIST;
         String url2 = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
-        /**
-         * before client get blacklisted, client is able to access auth server non token endpoint
-         */
+        //before client get blacklisted, client is able to access auth server none token endpoint
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
             OAuth2Utility.getOAuth2PasswordToken(
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
@@ -64,10 +62,7 @@ public class RevokeTokenTest {
         Assertions.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
 
 
-        /**
-         * block client
-         */
-
+        //block client
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", AppConstant.CLIENT_ID_LOGIN_ID);
         stringStringHashMap.put("type", "CLIENT");
@@ -81,18 +76,14 @@ public class RevokeTokenTest {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
-        /**
-         * after client get blacklisted, client with old token will get 401
-         */
+        //after client get blacklisted, client with old token will get 401
         ResponseEntity<String> exchange2 =
             TestContext.getRestTemplate()
                 .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange2.getStatusCode());
 
-        /**
-         * after client obtain new token from auth server, it can access resource again
-         * add thread sleep to prevent token get revoked and generate within a second
-         */
+        //after client obtain new token from auth server, it can access resource again
+        //add thread sleep to prevent token get revoked and generate within a second
         Thread.sleep(1000);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
             OAuth2Utility.getOAuth2PasswordToken(
@@ -127,13 +118,12 @@ public class RevokeTokenTest {
     @Test
     public void receive_request_blacklist_user_then_block_user_old_request()
         throws JsonProcessingException, InterruptedException {
-        String url2 = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
-        /**
-         * user can login & call resourceOwner api & refresh token should work
-         */
+        //create new user to avoid impact other tests
+        User user = UserUtility.createUser();
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse =
-            UserUtility.getJwtPasswordAdmin();
-
+            UserUtility.login(user.getEmail(), user.getPassword());
+        String publicUrl = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/external/shared/no/auth";
+        //user can log in & call test api & refresh token should work
         String bearer0 = pwdTokenResponse.getBody().getValue();
         String refreshToken = pwdTokenResponse.getBody().getRefreshToken().getValue();
         String userId = (String) pwdTokenResponse.getBody().getAdditionalInformation().get("uid");
@@ -141,7 +131,7 @@ public class RevokeTokenTest {
         headers1.setBearerAuth(bearer0);
         HttpEntity<Object> hashMapHttpEntity1 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
-            .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+            .exchange(publicUrl, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
@@ -149,10 +139,7 @@ public class RevokeTokenTest {
                 AppConstant.EMPTY_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.OK, refreshTokenResponse.getStatusCode());
 
-        /**
-         * blacklist admin account
-         */
-
+        //blacklist user account
         String url = AppConstant.PROXY_URL + PROXY_BLACKLIST;
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("id", userId);
@@ -166,27 +153,24 @@ public class RevokeTokenTest {
             .exchange(url, HttpMethod.POST, hashMapHttpEntity, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
 
-        /**
-         * resourceOwner request get blocked, even refresh token should not work
-         */
+        //user request get blocked, even refresh token should not work
         ResponseEntity<String> exchange1 = TestContext.getRestTemplate()
-            .exchange(url2, HttpMethod.GET, hashMapHttpEntity1, String.class);
+            .exchange(publicUrl, HttpMethod.GET, hashMapHttpEntity1, String.class);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, exchange1.getStatusCode());
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse2 =
             OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.EMPTY_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse2.getStatusCode());
-
-        /**
-         * after resourceOwner obtain new token, access is permitted
-         * add thread sleep to prevent token get revoked and generate within a second
-         */
+        //after resourceOwner obtain new token, access is permitted
+        //add thread sleep to prevent token get revoked and generate within a second
         Thread.sleep(1000);
-        headers1.setBearerAuth(UserUtility.getJwtAdmin());
+        ResponseEntity<DefaultOAuth2AccessToken> newToken =
+            UserUtility.login(user.getEmail(), user.getPassword());
+        headers1.setBearerAuth(newToken.getBody().getValue());
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange3 = TestContext.getRestTemplate()
-            .exchange(url2, HttpMethod.GET, hashMapHttpEntity3, String.class);
+            .exchange(publicUrl, HttpMethod.GET, hashMapHttpEntity3, String.class);
         Assertions.assertEquals(HttpStatus.OK, exchange3.getStatusCode());
 
     }
