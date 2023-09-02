@@ -4,6 +4,7 @@ import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.infrastructure.HttpUtility;
 import java.util.Base64;
 import java.util.HashMap;
@@ -52,6 +53,11 @@ public class TokenResource {
         }
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("token acquire with ip {}", clientIpAddress);
+//        String refreshToken = parameters.get("refresh_token");
+//        String grantType = parameters.get("grant_type");
+//        GrantType grantType1 = GrantType.valueOf(grantType.toUpperCase());
+//        String username = parameters.get("username");
+//        String password = parameters.get("password");
         return ApplicationServiceRegistry.getTokenApplicationService()
             .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress);
     }

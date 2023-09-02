@@ -88,8 +88,8 @@ public class RoleQuery extends QueryCriteria {
         this.sort = RoleSort.byId(true);
     }
 
-    public RoleQuery(Set<RoleId> standaloneRoles) {
-        ids = standaloneRoles;
+    public RoleQuery(Set<RoleId> roleIds) {
+        ids = roleIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
         this.sort = RoleSort.byId(true);

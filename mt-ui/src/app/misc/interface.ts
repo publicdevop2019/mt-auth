@@ -176,6 +176,7 @@ export interface ITokenResponse {
     token_type?: string;
     expires_in?: string;
     scope?: string;
+    viewTenantId?: string;
 }
 export interface IAuthorizeParty {
     response_type: string;

@@ -23,6 +23,7 @@ public class JwtTokenRepresentation {
     private String refreshToken;
     private String scope;
     private Set<String> tenantIds;
+    private String viewTenantId;
     @JsonProperty("token_type")
     private String tokenType;
     private String uid;
@@ -40,6 +41,8 @@ public class JwtTokenRepresentation {
         this.tenantIds =
             token.getTenantIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet());
         this.tokenType = "bearer";
-        this.uid = token.getUserId()==null?null:token.getUserId().getDomainId();
+        this.uid = token.getUserId() == null ? null : token.getUserId().getDomainId();
+        this.viewTenantId =
+            token.getViewTenantId() == null ? null : token.getViewTenantId().getDomainId();
     }
 }

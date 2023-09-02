@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,7 +61,8 @@ public class TokenService {
     private static final String PROJECT_ID = "projectId";
 
     public JwtToken grant(Map<String, String> parameters,
-                          ClientSpringOAuth2Representation clientDetails, UserSpringRepresentation userDetails) {
+                          ClientSpringOAuth2Representation clientDetails,
+                          UserSpringRepresentation userDetails) {
         String scope = parameters.get("scope");
         if ("client_credentials".equalsIgnoreCase(parameters.get("grant_type"))
             ||
@@ -69,7 +71,9 @@ public class TokenService {
             return grantToken(clientDetails, userDetails,
                 scope != null ? Collections.singleton(scope) : Collections.emptySet());
         } else if ("refresh_token".equalsIgnoreCase(parameters.get("grant_type"))) {
-            return grantRefreshToken(clientDetails, parameters.get("refresh_token"));
+            ProjectId viewTenantId = parameters.get("view_tenant_id") == null ? null :
+                new ProjectId(parameters.get("view_tenant_id"));
+            return grantRefreshToken(clientDetails, parameters.get("refresh_token"), viewTenantId);
         } else if ("authorization_code".equalsIgnoreCase(parameters.get("grant_type"))) {
             return grantAuthorizationCode(clientDetails, parameters.get("code"),
                 parameters.get("redirect_uri"));
@@ -78,13 +82,16 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantToken(ClientSpringOAuth2Representation clientDetails, @Nullable UserSpringRepresentation userDetails,
+    private JwtToken grantToken(ClientSpringOAuth2Representation clientDetails,
+                                @Nullable UserSpringRepresentation userDetails,
                                 Set<String> scope) {
         final boolean isClient = Checker.isNull(userDetails);
-        final boolean hasRefresh = clientDetails.getAuthorizedGrantTypes().contains("refresh_token");
+        final boolean hasRefresh =
+            clientDetails.getAuthorizedGrantTypes().contains("refresh_token");
         ClientId clientId = new ClientId(clientDetails.getClientId());
         //for user & client
         ProjectId projectId = null;
+        ProjectId viewTenantId = null;
         Set<PermissionId> permissionIds = Collections.emptySet();
         Set<ProjectId> tenantIds = Collections.emptySet();
         if (isClient) {
@@ -106,7 +113,8 @@ public class TokenService {
                 null,
                 hasRefresh,
                 permissionIds,
-                Collections.emptySet()
+                Collections.emptySet(),
+                null
             );
         } else {
             log.debug("grant user token");
@@ -121,22 +129,28 @@ public class TokenService {
                 projectId = new ProjectId(first.get());
                 UserRelation userRelation = createUserRelationIfNotExist(userId, projectId);
                 permissionIds =
-                    DomainRegistry.getComputePermissionService().compute(userRelation);
+                    DomainRegistry.getComputePermissionService().compute(userRelation, null);
                 projectId = userRelation.getProjectId();
             } else {
-                log.debug("get auth project permission and user tenant projects");
-                Optional<UserRelation> userRelation =
+                log.debug("get user relation for root project");
+                Optional<UserRelation> optional =
                     DomainRegistry.getUserRelationRepository()
                         .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
-                userRelation.ifPresent(
-                    relation -> log.debug("auth user relation for token is {}", relation));
-                if (userRelation.isPresent()) {
-                    UserRelation userRelation1 = userRelation.get();
+                if (optional.isPresent()) {
+                    UserRelation userRelation = optional.get();
+                    log.debug("auth user relation for token is {}", userRelation);
+                    if (!userRelation.getTenantIds().isEmpty()) {
+                        //for user with no projects
+                        viewTenantId = DomainRegistry.getProjectService()
+                            .getDefaultProject(userRelation.getTenantIds());
+                    }
+                    //get default project instead of all projects' permission to reduce header size
                     permissionIds =
-                        DomainRegistry.getComputePermissionService().compute(userRelation1);
-                    projectId = userRelation1.getProjectId();
-                    if (userRelation1.getTenantIds() != null) {
-                        tenantIds = userRelation1.getTenantIds();
+                        DomainRegistry.getComputePermissionService()
+                            .compute(userRelation, viewTenantId);
+                    projectId = userRelation.getProjectId();
+                    if (userRelation.getTenantIds() != null) {
+                        tenantIds = userRelation.getTenantIds();
                     }
                 }
             }
@@ -151,7 +165,8 @@ public class TokenService {
                 userId,
                 hasRefresh,
                 permissionIds,
-                tenantIds
+                tenantIds,
+                viewTenantId
             );
         }
     }
@@ -173,7 +188,8 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantAuthorizationCode(ClientSpringOAuth2Representation clientDetails, String code,
+    private JwtToken grantAuthorizationCode(ClientSpringOAuth2Representation clientDetails,
+                                            String code,
                                             String redirectUrl) {
         Validator.notNull(code);
         Validator.notNull(redirectUrl);
@@ -191,7 +207,7 @@ public class TokenService {
         UserRelation userRelation =
             createUserRelationIfNotExist(authorizeInfo.getUserId(), authorizeInfo.getProjectId());
         Set<PermissionId> compute =
-            DomainRegistry.getComputePermissionService().compute(userRelation);
+            DomainRegistry.getComputePermissionService().compute(userRelation, null);
         return createJwtToken(
             clientDetails.getProjectId(),
             clientDetails.getAccessTokenValiditySeconds(),
@@ -202,16 +218,42 @@ public class TokenService {
             authorizeInfo.getUserId(),
             false,
             compute,
-            Collections.emptySet()
+            Collections.emptySet(),
+            null
         );
     }
 
-    private JwtToken grantRefreshToken(ClientSpringOAuth2Representation clientDetails, String refreshToken) {
-        Set<PermissionId> permissionIds =
-            JwtUtility.getPermissionIds(refreshToken).stream().map(PermissionId::new)
-                .collect(Collectors.toSet());
-        String username = JwtUtility.getUserId(refreshToken);
-        UserId userId = new UserId(username);
+    private JwtToken grantRefreshToken(ClientSpringOAuth2Representation clientDetails,
+                                       String refreshToken, @Nullable ProjectId viewTenantId) {
+        UserId userId = new UserId(JwtUtility.getUserId(refreshToken));
+        Set<PermissionId> permissionIds = new HashSet<>();
+        if (viewTenantId != null) {
+            ProjectId originalViewTenantId =
+                new ProjectId(JwtUtility.getField("viewTenantId", refreshToken));
+            if (viewTenantId.equals(originalViewTenantId)) {
+                permissionIds =
+                    JwtUtility.getPermissionIds(refreshToken).stream().map(PermissionId::new)
+                        .collect(Collectors.toSet());
+            } else {
+                log.debug("retrieve permissions for new view tenant id");
+                Optional<UserRelation> optional =
+                    DomainRegistry.getUserRelationRepository()
+                        .query(userId, new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
+                if (optional.isPresent()) {
+                    UserRelation userRelation = optional.get();
+                    //get default project instead of all projects' permission to reduce header size
+                    permissionIds =
+                        DomainRegistry.getComputePermissionService()
+                            .compute(userRelation, viewTenantId);
+                }
+            }
+        } else {
+
+            permissionIds =
+                JwtUtility.getPermissionIds(refreshToken).stream().map(PermissionId::new)
+                    .collect(Collectors.toSet());
+        }
+
         String clientId = JwtUtility.getClientId(refreshToken);
         ClientId clientId1 = new ClientId(clientId);
         List<String> scope = JwtUtility.getScopes(refreshToken);
@@ -229,7 +271,8 @@ public class TokenService {
             userId,
             true,
             permissionIds,
-            tenantIds
+            tenantIds,
+            viewTenantId
         );
     }
 
@@ -243,7 +286,8 @@ public class TokenService {
         UserId userId,
         boolean hasRefreshToken,
         Set<PermissionId> permissionIds,
-        Set<ProjectId> tenantIds
+        Set<ProjectId> tenantIds,
+        ProjectId viewTenantId
     ) {
         JwtToken jwtToken = new JwtToken();
 
@@ -261,7 +305,8 @@ public class TokenService {
             scope,
             clientId,
             permissionIds,
-            tenantIds
+            tenantIds,
+            viewTenantId
         );
         jwtToken.setSignedAccessToken(jwtString);
 
@@ -273,6 +318,7 @@ public class TokenService {
         jwtToken.setProjectId(projectId);
         jwtToken.setTenantIds(tenantIds);
         jwtToken.setUserId(userId);
+        jwtToken.setViewTenantId(viewTenantId);
         if (hasRefreshToken) {
             //refresh token
             long refreshExpMilli =
@@ -286,7 +332,8 @@ public class TokenService {
                 scope,
                 clientId,
                 permissionIds,
-                tenantIds
+                tenantIds,
+                viewTenantId
             );
             jwtToken.setSignedRefreshToken(refreshJwtString);
         }
@@ -294,17 +341,18 @@ public class TokenService {
     }
 
     private String createJwtString(
-        UserId userId,
+        @Nullable UserId userId,
         Collection<String> aud,
         Date iat,
         Date exp,
-        ProjectId projectId,
+        @Nullable ProjectId projectId,
         String jwtId,
         @Nullable String referredTokenId,
         Collection<String> scope,
         ClientId clientId,
         Collection<PermissionId> permissionIds,
-        Collection<ProjectId> tenantIds
+        Collection<ProjectId> tenantIds,
+        @Nullable ProjectId viewTenantId
     ) {
         KeyPair keyPair = jwtInfoProviderService.getKeyPair();
         JWKSet publicKeys = jwtInfoProviderService.getPublicKeys();
@@ -327,6 +375,7 @@ public class TokenService {
                     scope.isEmpty() ? List.of("not_used") : scope)//required for refresh
                 .jwtID(jwtId)
                 .claim(CLIENT_ID, clientId.getDomainId())
+                .claim("viewTenantId", viewTenantId == null ? null : viewTenantId.getDomainId())
                 .claim(PERMISSION_IDS,
                     permissionIds.stream().map(DomainId::getDomainId).collect(
                         Collectors.toSet()))

@@ -25,6 +25,7 @@ export class ProjectService extends EntityCommonService<IProjectSimple, IProject
   private PRODUCT_SVC_NAME = '/auth-svc';
   private ENTITY_NAME = '/mgmt/projects';
   public totalProjects: IProjectSimple[] = [];
+  public viewProject: IProjectSimple = undefined;
   entityRepo: string = environment.serverUri + this.PRODUCT_SVC_NAME + this.ENTITY_NAME;
   permissionDetail: ReplaySubject<IProjectPermission[]> = new ReplaySubject();
   constructor(public httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {

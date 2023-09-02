@@ -1,11 +1,14 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { createImageFromBlob, logout } from 'src/app/misc/utility';
+import { Logger } from 'src/app/misc/logger';
+import { Utility, createImageFromBlob, logout } from 'src/app/misc/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -265,6 +268,9 @@ export class NavBarComponent implements OnInit {
     },
   ];
   private _mobileQueryListener: () => void;
+  switchProjectForm = new FormGroup({
+    viewTenantId: new FormControl('', [])
+  });
   @ViewChild("snav", { static: true }) snav: MatSidenav;
   name: string;
   constructor(
@@ -300,9 +306,15 @@ export class NavBarComponent implements OnInit {
   }
   avatar: string | ArrayBuffer;
   sub: Subscription;
+  totalProjectsOptions: IOption[] = [];
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects = next.data;
+      Logger.trace("view tenant id {}", this.httpProxySvc.currentUserAuthInfo.viewTenantId)
+      this.projectSvc.viewProject = next.data.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
+      Logger.debug("view project is {}", this.projectSvc.viewProject)
+      this.switchProjectForm.get('viewTenantId').setValue(this.projectSvc.viewProject.id, { emitEvent: false })
+      this.totalProjectsOptions = this.projectSvc.totalProjects.map(e => { return { value: e.id, label: e.name } as IOption })
     })
     this.projectSvc.findUIPermission().subscribe(next => {
       this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
@@ -321,6 +333,14 @@ export class NavBarComponent implements OnInit {
       this.getAvatar()
     })
     this.getAvatar()
+    this.switchProjectForm.get('viewTenantId').valueChanges.subscribe(next => {
+      Logger.debug("next view tenant id {}", next)
+      this.httpProxySvc.refreshToken(next).subscribe(newToken => {
+        this.httpProxySvc.currentUserAuthInfo = newToken;
+        this.projectSvc.viewProject = this.projectSvc.totalProjects.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
+        this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+      })
+    })
   }
   getAvatar() {
     this.httpProxySvc.getAvatar().subscribe(blob => {
@@ -361,7 +381,7 @@ export class NavBarComponent implements OnInit {
     const count = msgs.filter((e, i) => msgs.findIndex(ee => ee.id === e.id) === i).length
     return count > 99 ? '99+' : new String(count);
   }
-  openDoc(){
+  openDoc() {
     window.open('./docs', '_blank').focus();
   }
 }

@@ -33,6 +33,7 @@ import com.mt.access.domain.model.pending_user.PendingUserService;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.project.ProjectRepository;
+import com.mt.access.domain.model.project.ProjectService;
 import com.mt.access.domain.model.proxy.ProxyService;
 import com.mt.access.domain.model.report.DataProcessTrackerRepository;
 import com.mt.access.domain.model.report.FormattedAccessRecordRepository;
@@ -110,6 +111,8 @@ public class DomainRegistry {
     @Getter
     private static ProjectRepository projectRepository;
     @Getter
+    private static ProjectService projectService;
+    @Getter
     private static RoleRepository roleRepository;
     @Getter
     private static PermissionRepository permissionRepository;
@@ -178,6 +181,11 @@ public class DomainRegistry {
     @Autowired
     public void setRedisAuthorizationCodeServices(AuthorizationCodeRepository services) {
         DomainRegistry.authorizationCodeRepository = services;
+    }
+
+    @Autowired
+    public void setProjectService(ProjectService services) {
+        DomainRegistry.projectService = services;
     }
 
     @Autowired

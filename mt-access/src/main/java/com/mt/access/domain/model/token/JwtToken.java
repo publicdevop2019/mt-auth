@@ -16,5 +16,6 @@ public class JwtToken {
     private ProjectId projectId;
     private String signedRefreshToken;
     private Set<ProjectId> tenantIds;
+    private ProjectId viewTenantId;
     private UserId userId;
 }

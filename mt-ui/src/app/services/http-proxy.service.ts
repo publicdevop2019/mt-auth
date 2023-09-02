@@ -16,6 +16,7 @@ import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectPermissionInfo } from './project.service';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { Logger } from '../misc/logger';
 export interface IPatch {
     op: string,
     path: string,
@@ -242,9 +243,10 @@ export class HttpProxyService {
             });
         });
     };
-    refreshToken(): Observable<ITokenResponse> {
+    refreshToken(nextViewTenantId?: string): Observable<ITokenResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'refresh_token');
+        formData.append('view_tenant_id', nextViewTenantId ? nextViewTenantId : this.currentUserAuthInfo.viewTenantId);
         formData.append('refresh_token', this.currentUserAuthInfo.refresh_token);
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })

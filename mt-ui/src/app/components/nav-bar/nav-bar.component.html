@@ -11,8 +11,11 @@
             </div>
         </div>
         <div style="display: flex;">
-            <div style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center; cursor: pointer;" (click)="openDoc()" >
-                <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div><mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon></div>
+            <div style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
+                (click)="openDoc()">
+                <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div><mat-icon
+                    style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
+            </div>
             <button mat-button [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
                 <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
                     matBadgeSize="small" matBadgeColor="accent">notifications_none
@@ -31,8 +34,8 @@
         </ng-container>
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
-                <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length"
-                    [index]="i" (onAck)="msgSvc.dismiss($event)"></app-card-notification>
+                <app-card-notification [value]="el" [length]="msgSvc.latestMessage.length" [index]="i"
+                    (onAck)="msgSvc.dismiss($event)"></app-card-notification>
             </ng-container>
         </ng-container>
     </mat-menu>
@@ -52,6 +55,17 @@
         <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
             [opened]="navExpand('side_bar')" (opened)="openedHandler('side_bar')" (closed)="closedHander('side_bar')"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
+            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm"  style="margin: 8px 8px 0 8px; height: 56px;">
+                <!-- switch project select -->
+                <mat-form-field>
+                    <mat-label>{{'SWITCH_PROJECT'|translate}}</mat-label>
+                    <mat-select formControlName="viewTenantId">
+                        <mat-option *ngFor="let e of totalProjectsOptions" [value]="e.value">
+                            {{e.label}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </div>
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
@@ -59,8 +73,8 @@
                     translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')" (closed)="closedHander('api_nav')"
-                [expanded]="navExpand('api_nav')">
+            <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')"
+                (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
                         {{'ENDPOINT_CENTER'| translate}}
@@ -91,19 +105,19 @@
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-expansion-panel *ngFor="let project of projectSvc.totalProjects" (opened)="openedHandler(project.id)"
-                (closed)="closedHander(project.id)" [expanded]="navExpand(project.id)">
+            <mat-expansion-panel *ngIf="projectSvc.viewProject" (opened)="openedHandler(projectSvc.viewProject.id)"
+                (closed)="closedHander(projectSvc.viewProject.id)" [expanded]="navExpand(projectSvc.viewProject.id)">
                 <mat-expansion-panel-header>
                     <mat-panel-title style="font-weight: 600;">
-                        {{project.name}}
+                        {{projectSvc.viewProject.name}}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
                 <mat-nav-list>
                     <ng-container *ngFor="let nav of menuTenant">
-                        <mat-list-item mat-list-item [routerLink]="project.id+'/'+nav.link"
+                        <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/'+nav.link"
                             routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                             [queryParams]="preserveURLQueryParams(nav)"
-                            *appRequireP="getPermissionId(project.id,nav.authName) | async">
+                            *appRequireP="getPermissionId(projectSvc.viewProject.id,nav.authName) | async">
                             <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
                             {{nav.display| translate}}
                         </mat-list-item>

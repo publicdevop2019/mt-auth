@@ -48,6 +48,10 @@ public class TokenApplicationService {
             !parameters.get("grant_type").equalsIgnoreCase("password")) {
             invalidParams = true;
         }
+        if (Checker.notNull(parameters.get("view_tenant_id")) &&
+            Checker.notNull(parameters.get("scope"))) {
+            invalidParams = true;
+        }
         if (parameters.get("grant_type").equalsIgnoreCase("password")) {
             if (Checker.isNull(parameters.get("username"))) {
                 invalidParams = true;

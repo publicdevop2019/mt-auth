@@ -561,4 +561,5 @@ export const zhHans = {
     "EDIT_CACHE": "编辑缓存",
     "REFERENCE_ID": "关联ID",
     "PROJECT_PERMISSION_REMOVED": "项目权限移除",
+    "SWITCH_PROJECT": "切换项目",
 }
