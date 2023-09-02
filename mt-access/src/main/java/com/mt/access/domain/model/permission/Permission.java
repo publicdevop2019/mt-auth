@@ -47,9 +47,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table
 @Entity
 @Getter
-@Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "permissionRegion")
 @EqualsAndHashCode(callSuper = true)
 public class Permission extends Auditable {
     public static final String API_ACCESS = "API_ACCESS";
@@ -147,8 +144,6 @@ public class Permission extends Auditable {
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
     })
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "linkedPermissionIdsRegion")
     private Set<PermissionId> linkedApiPermissionIds = new LinkedHashSet<>();
 
     @Embedded

@@ -31,13 +31,7 @@ public class PermissionCheckService {
             throw new DefinedRuntimeException("no project id found", "1028",
                 HttpResponseCode.FORBIDDEN);
         }
-        //first check access to tenant project, query projectId must be one of jwt tenant ids
-        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
-        boolean b = authorizedTenantId.containsAll(ids);
-        if (!b) {
-            throw new DefinedRuntimeException("not allowed project", "1029",
-                HttpResponseCode.FORBIDDEN);
-        }
+        checkIfOwnsProject(ids);
         //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery
             .ofProjectWithTenantIds(ids, permissionName);
@@ -54,9 +48,24 @@ public class PermissionCheckService {
         }
     }
 
+    private static void checkIfOwnsProject(Set<ProjectId> ids) {
+        //first check access to tenant project, query projectId must be one of jwt tenant ids
+        Set<ProjectId> authorizedTenantId = DomainRegistry.getCurrentUserService().getTenantIds();
+        boolean b = authorizedTenantId.containsAll(ids);
+        if (!b) {
+            throw new DefinedRuntimeException("not allowed project", "1029",
+                HttpResponseCode.FORBIDDEN);
+        }
+    }
+
     public void canAccess(ProjectId id, String permissionName) {
         Validator.notNull(id);
         canAccess(Collections.singleton(id), permissionName);
+    }
+
+    public void canAccess(ProjectId id) {
+        Validator.notNull(id);
+        checkIfOwnsProject(Collections.singleton(id));
     }
 
     public void sameCreatedBy(Auditable e) {

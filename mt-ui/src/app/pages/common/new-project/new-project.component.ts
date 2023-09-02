@@ -7,6 +7,7 @@ import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/new-project.config';
 import { ICommonServerError, IProjectSimple } from 'src/app/misc/interface';
 import { ProjectService } from 'src/app/services/project.service';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-new-project',
@@ -24,6 +25,7 @@ export class NewProjectComponent implements OnDestroy {
   constructor(
     private projectSvc: ProjectService,
     public fis: FormInfoService,
+    public dsvc: DeviceService,
   ) {
     this.fis.init(FORM_CONFIG, this.formId);
     this.fis.formGroups[this.formId].valueChanges.subscribe(() => {
@@ -49,6 +51,9 @@ export class NewProjectComponent implements OnDestroy {
       this.showNotes = false;
       this.systemError = false
       this.createLoading = true;
+      this.dsvc.operationCancelled.subscribe((_ => {
+        this.createLoading = false;
+      }))
       this.projectSvc.create(payload, this.changeId).subscribe(next => {
         let pull = setInterval(() => {
           this.projectSvc.ready(next).subscribe(next => {
@@ -77,7 +82,7 @@ export class NewProjectComponent implements OnDestroy {
         const errorMsg = ((error as HttpErrorResponse).error as ICommonServerError).errors[0]
         this.fis.updateError(this.formId, FORM_CONFIG.inputs[0].key, errorMsg);
         this.createLoading = false;
-      },()=>{
+      }, () => {
         Logger.debug("complete")
       })
     }

@@ -15,6 +15,7 @@ import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionPatchCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.application.permission.representation.PermissionRepresentation;
+import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -29,6 +30,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
@@ -83,17 +85,13 @@ public class PermissionApplicationService {
      *
      * @return permission set
      */
-    public Set<Permission> uiQuery() {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
-                Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
-                if (tenantIds.isEmpty()) {
-                    return Collections.emptySet();
-                }
-                return QueryUtility
-                    .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                        PermissionQuery.uiPermissionQuery(tenantIds, reservedUIPermissionName));
-            });
+    public UiPermissionInfo uiQuery(String rawProjectId) {
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId);
+        SumPagedRep<Permission> query =
+            DomainRegistry.getPermissionRepository()
+                .query(PermissionQuery.uiPermissionQuery(projectId, reservedUIPermissionName));
+        return new UiPermissionInfo(query.getData());
     }
 
     public SumPagedRep<Permission> tenantQuery(String queryParam, String pageParam,
@@ -108,12 +106,12 @@ public class PermissionApplicationService {
 
     public PermissionRepresentation tenantQueryById(String projectId, String id) {
         return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, VIEW_PERMISSION);
+            ProjectId projectId1 = new ProjectId(projectId);
+            DomainRegistry.getPermissionCheckService()
+                .canAccess(projectId1, VIEW_PERMISSION);
             Permission permission =
                 DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
-        return new PermissionRepresentation(permission);
+            return new PermissionRepresentation(permission);
         }));
     }
 

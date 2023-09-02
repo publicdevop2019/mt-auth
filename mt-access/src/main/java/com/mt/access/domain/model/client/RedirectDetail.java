@@ -27,8 +27,6 @@ public class RedirectDetail implements Serializable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_redirect_url_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "redirect_url")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "clientRedirectUrlRegion")
     @Convert(converter = RedirectUrlConverter.class)
     private Set<RedirectUrl> redirectUrls;
 

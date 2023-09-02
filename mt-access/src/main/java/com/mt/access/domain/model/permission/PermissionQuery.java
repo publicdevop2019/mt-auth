@@ -89,11 +89,12 @@ public class PermissionQuery extends QueryCriteria {
         this.sort = PermissionSort.byId(true);
     }
 
-    public static PermissionQuery uiPermissionQuery(Set<ProjectId> tenantIds, Set<String> names) {
-        Validator.notEmpty(tenantIds);
+    public static PermissionQuery uiPermissionQuery(ProjectId projectId, Set<String> names) {
+        Validator.notNull(projectId);
         PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.tenantIds = tenantIds;
-        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.tenantIds = Collections.singleton(projectId);
+        permissionQuery.setPageConfig(
+            PageConfig.limited("num:0,size:" + names.size(), names.size()));
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
         permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.names = names;

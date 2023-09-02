@@ -315,9 +315,10 @@ export class NavBarComponent implements OnInit {
       Logger.debug("view project is {}", this.projectSvc.viewProject)
       this.switchProjectForm.get('viewTenantId').setValue(this.projectSvc.viewProject.id, { emitEvent: false })
       this.totalProjectsOptions = this.projectSvc.totalProjects.map(e => { return { value: e.id, label: e.name } as IOption })
-    })
-    this.projectSvc.findUIPermission().subscribe(next => {
-      this.projectSvc.permissionDetail.next(next.projectPermissionInfo);
+      
+      this.projectSvc.findUiPermission(this.projectSvc.viewProject.id).subscribe(next => {
+        this.projectSvc.permissionDetail.next(next);
+      })
     })
     if (this.httpProxySvc.currentUserAuthInfo.permissionIds.includes('0Y8HVWH0K64P')) {
       this.msgSvc.connectToMonitor();
@@ -350,7 +351,7 @@ export class NavBarComponent implements OnInit {
     })
   }
   getPermissionId(projectId: string, name: string[]) {
-    return this.projectSvc.permissionDetail.pipe(map(_ => _.find(e => e.projectId === projectId)?.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
+    return this.projectSvc.permissionDetail.pipe(map(_ => _.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
     logout(undefined, this.httpProxySvc)

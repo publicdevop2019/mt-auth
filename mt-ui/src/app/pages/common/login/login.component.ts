@@ -12,6 +12,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
 import { IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
+import { MatSnackBar } from '@angular/material/snack-bar';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -19,7 +20,6 @@ import { Logger } from 'src/app/misc/logger';
 })
 export class LoginComponent {
   context: 'REGISTER' | 'LOGIN' | 'FORGET' = this.hasLoginSuccessfully ? 'LOGIN' : 'REGISTER'
-  isBeta: boolean = true;
   public get hasLoginSuccessfully() {
     return localStorage.getItem('successLogin') === 'true'
   }
@@ -78,7 +78,8 @@ export class LoginComponent {
     public dialog: MatDialog,
     private router: ActivatedRoute,
     public translate: TranslateService,
-    public authSvc: AuthService
+    public authSvc: AuthService,
+    private snackBar: MatSnackBar
   ) {
     this.httpProxy.refreshInprogress = false;
     this.router.queryParamMap.subscribe(queryMaps => {
@@ -87,6 +88,12 @@ export class LoginComponent {
         this.nextUrl = '/authorize';
       }
     });
+
+    this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+      this.snackBar.open(next, 'OK');
+    })
+
+
     this.loginForm.valueChanges.subscribe(() => {
       if (this.enableLoginError) {
         Logger.debug('checking login')

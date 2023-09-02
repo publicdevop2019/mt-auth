@@ -53,8 +53,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table
 @Entity
 @Getter
-@Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "roleRegion")
 @EqualsAndHashCode(callSuper = true)
 public class Role extends Auditable {
     public static final String PROJECT_USER = "PROJECT_USER";
@@ -78,24 +76,18 @@ public class Role extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_common_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "roleCommonPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> commonPermissionIds = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "roleApiPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> apiPermissionIds = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "permission")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "roleExternalPermissionRegion")
     @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> externalPermissionIds = new LinkedHashSet<>();
     @Embedded

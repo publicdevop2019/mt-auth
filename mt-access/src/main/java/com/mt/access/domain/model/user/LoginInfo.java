@@ -16,8 +16,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "login_info")
 @NoArgsConstructor
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "loginRegion")
 @EqualsAndHashCode
 public class LoginInfo {
     @Id

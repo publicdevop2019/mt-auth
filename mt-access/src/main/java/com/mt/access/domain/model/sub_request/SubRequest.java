@@ -28,8 +28,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Slf4j
 @NoArgsConstructor
 @Getter
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "subRequestRegion")
 @NamedQuery(name = "getMySubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
 @NamedQuery(name = "getMySubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 @NamedQuery(name = "getEpSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")

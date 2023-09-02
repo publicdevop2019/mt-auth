@@ -19,9 +19,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @NoArgsConstructor
 @Getter
-@Cacheable
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "projectRegion")
 public class Project extends Auditable {
 
     private String name;

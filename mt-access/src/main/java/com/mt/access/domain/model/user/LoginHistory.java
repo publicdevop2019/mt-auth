@@ -15,8 +15,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "login_history")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "loginHistoryRegion")
 @EqualsAndHashCode
 public class LoginHistory {
     @Id

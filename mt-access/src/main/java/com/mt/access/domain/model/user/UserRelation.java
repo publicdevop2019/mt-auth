@@ -50,11 +50,8 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @NoArgsConstructor
 @Getter
-@Cacheable
 @NamedQuery(name = "findEmailLike", query = "SELECT ur FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "userRelationRegion")
 @EqualsAndHashCode(callSuper = true)
 public class UserRelation extends Auditable {
     @Embedded
@@ -71,16 +68,12 @@ public class UserRelation extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "role")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "userRelationRoleRegion")
     @Convert(converter = RoleIdConverter.class)
     private Set<RoleId> standaloneRoles;
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "tenant")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "userRelationTenantRegion")
     @Convert(converter = ProjectIdConverter.class)
     private Set<ProjectId> tenantIds;
 

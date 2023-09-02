@@ -20,8 +20,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @NoArgsConstructor
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "pendingUserRegion")
 @Table
 @EqualsAndHashCode(callSuper = true)
 public class PendingUser extends Auditable {

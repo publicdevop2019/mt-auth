@@ -54,8 +54,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor
-@Cacheable
-//@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientRegion")
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path"}))
 public class Client extends Auditable {
     private static final String MT_ACCESS_ID = "0C8AZTODP4HT";
@@ -79,7 +77,6 @@ public class Client extends Auditable {
         "id", "domainId"}))
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientResourceRegion")
     private Set<ClientId> resources = new LinkedHashSet<>();
 
     @Getter
@@ -88,7 +85,6 @@ public class Client extends Auditable {
         "id", "domainId"}))
     @AttributeOverrides({
         @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientExtResourceRegion")
     private Set<ClientId> externalResources = new LinkedHashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
@@ -130,7 +126,6 @@ public class Client extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "type")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientTypeRegion")
     @Enumerated(EnumType.STRING)
     private Set<ClientType> types = new LinkedHashSet<>();
 
@@ -146,7 +141,6 @@ public class Client extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "grant_type")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE, region = "clientGrantTypeRegion")
     @Enumerated(EnumType.STRING)
     private Set<GrantType> grantTypes = new LinkedHashSet<>();
 

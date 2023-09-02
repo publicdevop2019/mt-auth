@@ -44,8 +44,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Slf4j
 @NoArgsConstructor
 @Getter
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "cacheProfileRegion")
 @ToString
 public class CacheProfile extends Auditable {
 
@@ -61,8 +59,6 @@ public class CacheProfile extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cache_control_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "cache_control")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "cacheControlRegion")
     @Enumerated(EnumType.STRING)
     private Set<CacheControlValue> cacheControl = new LinkedHashSet<>();
     /**

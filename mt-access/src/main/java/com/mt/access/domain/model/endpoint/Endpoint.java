@@ -46,8 +46,6 @@ import org.springframework.http.HttpMethod;
 @Slf4j
 @NoArgsConstructor
 @Getter
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "endpointRegion")
 public class Endpoint extends Auditable {
     private static final Set<String> HTTP_METHODS =
         Arrays.stream(HttpMethod.values()).map(Enum::name).collect(

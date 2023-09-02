@@ -39,7 +39,6 @@ public class QueryUtility {
 
     public static <T, S extends QueryCriteria> Set<T> getAllByQuery(
         Function<S, SumPagedRep<T>> ofQuery, S query) {
-        long l1 = System.currentTimeMillis();
         SumPagedRep<T> sumPagedRep = ofQuery.apply(query);
         if (sumPagedRep.getData().size() == 0) {
             return Collections.emptySet();
@@ -50,18 +49,14 @@ public class QueryUtility {
         double ceil = Math.ceil(l);
         int i = BigDecimal.valueOf(ceil).intValue();
         Set<T> data = new LinkedHashSet<>(sumPagedRep.getData());
+        Analytics queryAll = Analytics.start(Analytics.Type.DATA_QUERY_ALL);
         for (int a = 1; a < i; a++) {
             Analytics start = Analytics.start(Analytics.Type.DATA_QUERY);
             List<T> nextPage = ofQuery.apply(query.pageOf(a)).getData();
             start.stop();
             data.addAll(nextPage);
         }
-        long l2 = System.currentTimeMillis();
-        if (l2 - l1 > 5 * 1000) {
-            log.warn(
-                "current query all takes {} milli to execute! detail {}",
-                l2 - l1, query);
-        }
+        queryAll.stop();
         return data;
     }
 
@@ -94,7 +89,6 @@ public class QueryUtility {
         query.select(context.getCriteriaBuilder().count(context.getCountRoot()));
         query.where(predicate);
         TypedQuery<Long> query1 = em.createQuery(query);
-        ((Query) query1).setHint("org.hibernate.cacheable", true);
         return query1.getSingleResult();
     }
 
@@ -119,7 +113,6 @@ public class QueryUtility {
         TypedQuery<T> query1 = em.createQuery(query)
             .setFirstResult(BigDecimal.valueOf(page.getOffset()).intValue())
             .setMaxResults(page.getPageSize());
-        ((Query) query1).setHint("org.hibernate.cacheable", true);
         return query1.getResultList();
     }
 

@@ -36,8 +36,6 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "cors_profile")
 @Getter
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-    region = "corsProfileRegion")
 @EqualsAndHashCode(callSuper = true)
 public class CorsProfile extends Auditable {
     private static final Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-zA-Z-]+$");
@@ -50,23 +48,17 @@ public class CorsProfile extends Auditable {
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_header")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "allowedHeadersRegion")
     private Set<String> allowedHeaders = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "allowed_origin")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "corsOriginRegion")
     @Convert(converter = Origin.OriginConverter.class)
     private Set<Origin> allowOrigin = new LinkedHashSet<>();
 
     @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
     @Column(name = "exposed_header")
-    @org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE,
-        region = "exposedHeadersRegion")
     private Set<String> exposedHeaders = new LinkedHashSet<>();
     private Long maxAge;
 

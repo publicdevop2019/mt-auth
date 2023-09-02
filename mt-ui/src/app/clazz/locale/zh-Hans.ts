@@ -294,7 +294,6 @@ export const zhHans = {
     "APP_NAME": "MT - AUTH",
     "APP_DESCRIPTION_1": "多租户权限管理平台",
     "APP_DESCRIPTION_2": "用户、角色、权限、 应用、 API一站式管理",
-    "APP_DESCRIPTION_3": "beta版本，请勿使用真实个人信息，您的数据将在版本更新时丢失，系统不会发送邮件，短信",
     "PLS_LIKE": "请收藏",
     "RAISE_ISSUE": "如有问题, 请提交issue至Github",
     "MIRROR": "镜像仓库",
@@ -562,4 +561,5 @@ export const zhHans = {
     "REFERENCE_ID": "关联ID",
     "PROJECT_PERMISSION_REMOVED": "项目权限移除",
     "SWITCH_PROJECT": "切换项目",
+    "HOME_NOTIFICAIONT": "beta版本，请勿使用真实个人信息，您的数据将在版本更新时丢失，系统不会发送邮件，短信",
 }

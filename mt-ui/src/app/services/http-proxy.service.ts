@@ -14,7 +14,7 @@ import { IAnalysisResult } from '../components/endpoint-analysis-dialog/endpoint
 import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component';
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
-import { IProjectPermissionInfo } from './project.service';
+import { IProjectUiPermission } from './project.service';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
 import { Logger } from '../misc/logger';
 export interface IPatch {
@@ -451,8 +451,8 @@ export class HttpProxyService {
     private getResourceUrl(resourceUrl: string, pageConfig: string) {
         return environment.serverUri + resourceUrl + (resourceUrl.includes('?') ? '&' + pageConfig : '?' + pageConfig)
     }
-    getUIPermission() {
-        return this._httpClient.get<IProjectPermissionInfo>(environment.serverUri + '/auth-svc/permissions/ui')
+    getUIPermission(projectId: string) {
+        return this._httpClient.get<IProjectUiPermission>(environment.serverUri + `/auth-svc/projects/${projectId}/permissions/ui`)
     }
     private addPrefix(query: string): string {
         let var0: string = query;

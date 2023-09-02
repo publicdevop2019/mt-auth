@@ -48,6 +48,7 @@ export class DeviceService {
     private contentTitleFilter = 65.5;
     private summaryRowHeader = 56;
     private summaryRowFooter = 56;
+    public operationCancelled = new Subject();
     constructor(
         private breakpointObserver: BreakpointObserver,
         public httpClient: HttpClient,
