@@ -1,8 +1,8 @@
 package com.mt.access.domain.model.report;
 
 import com.mt.access.domain.model.endpoint.EndpointId;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,6 +20,7 @@ public class EndpointReport {
     private final AtomicInteger authenticationRequiredRequestCount = new AtomicInteger(0);//403
     private final AtomicInteger internalServerErrorCount = new AtomicInteger(0);//500
     private final AtomicInteger serviceUnavailableErrorCount = new AtomicInteger(0);//503
+    private final Map<Integer, AtomicInteger> statusCodeMap = new HashMap<>();//503
     private Long averageSuccessRoundTimeInMili;
     private Integer averageResponseSize;
 
@@ -50,11 +51,14 @@ public class EndpointReport {
                     internalServerErrorCount.getAndIncrement();
                 } else if (e.getResponseCode() == 503) {
                     serviceUnavailableErrorCount.getAndIncrement();
-                } else {
-                    throw new DefinedRuntimeException(
-                        "unknown response code " + e.getResponseCode(), "1052",
-                        HttpResponseCode.BAD_REQUEST);
                 }
+            }
+            AtomicInteger atomicInteger = statusCodeMap.get(e.getResponseCode());
+            if (atomicInteger == null) {
+                atomicInteger = new AtomicInteger(1);
+                statusCodeMap.put(e.getResponseCode(), atomicInteger);
+            } else {
+                atomicInteger.getAndIncrement();
             }
         });
     }

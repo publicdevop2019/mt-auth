@@ -53,11 +53,6 @@ public class TokenResource {
         }
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("token acquire with ip {}", clientIpAddress);
-//        String refreshToken = parameters.get("refresh_token");
-//        String grantType = parameters.get("grant_type");
-//        GrantType grantType1 = GrantType.valueOf(grantType.toUpperCase());
-//        String username = parameters.get("username");
-//        String password = parameters.get("password");
         return ApplicationServiceRegistry.getTokenApplicationService()
             .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress);
     }

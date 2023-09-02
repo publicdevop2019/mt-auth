@@ -1,5 +1,6 @@
 package com.mt.access.port.adapter.persistence.user;
 
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginHistoryRepository;
 import com.mt.access.domain.model.user.UserId;
@@ -25,14 +26,16 @@ public class JdbcLoginHistoryRepository implements LoginHistoryRepository {
                     "login_at, " +
                     "domain_id, " +
                     "ip_address, " +
-                    "agent" +
+                    "agent, " +
+                    "project_id" +
                     ") VALUES" +
-                    "(?,?,?,?,?)",
+                    "(?,?,?,?,?,?)",
                 info.getId(),
                 info.getLoginAt(),
                 info.getUserId().getDomainId(),
                 info.getIpAddress(),
-                info.getAgent()
+                info.getAgent(),
+                info.getProjectId().getDomainId()
             );
     }
 
@@ -56,7 +59,8 @@ public class JdbcLoginHistoryRepository implements LoginHistoryRepository {
                                 new UserId(rs.getString("domain_id")),
                                 rs.getLong("login_at"),
                                 rs.getString("ip_address"),
-                                rs.getString("agent")
+                                rs.getString("agent"),
+                                new ProjectId(rs.getString("project_id"))
                             );
                             objects.add(loginHistory);
                         } while (rs.next());

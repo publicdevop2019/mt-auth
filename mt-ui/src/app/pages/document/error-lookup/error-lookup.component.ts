@@ -44,7 +44,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1048',explain:'频繁操作，请等待'},
     {code:'1049,1051,1054',explain:'该对象不允许更改名称'},
     {code:'1050,1055',explain:'系统创建权限不允许更改'},
-    {code:'1052',explain:'生成报告：reponse code无法识别'},
     {code:'1056',explain:'无法删除系统创建角色'},
     {code:'1057',explain:'不允许订阅自己的端口'},
     {code:'1058',explain:'不允许订阅过期端口'},

@@ -600,6 +600,7 @@ CREATE TABLE `login_history` (
   `login_at` bigint NOT NULL,
   `domain_id` varchar(255) NOT NULL,
   `ip_address` varchar(255) NOT NULL,
+  `project_id` varchar(255) NOT NULL,
   `agent` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

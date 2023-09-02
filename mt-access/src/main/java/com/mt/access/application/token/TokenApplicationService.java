@@ -8,6 +8,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.token.JwtToken;
 import com.mt.access.domain.model.user.LoginResult;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -48,9 +49,10 @@ public class TokenApplicationService {
             !parameters.get("grant_type").equalsIgnoreCase("password")) {
             invalidParams = true;
         }
+        boolean hasValidScope = Checker.notNull(parameters.get("scope")) &&
+            !parameters.get("scope").equalsIgnoreCase("not_used");
         if (Checker.notNull(parameters.get("view_tenant_id")) &&
-            Checker.notNull(parameters.get("scope")) &&
-            !parameters.get("scope").equalsIgnoreCase("not_used")
+            hasValidScope
         ) {
             invalidParams = true;
         }
@@ -71,7 +73,11 @@ public class TokenApplicationService {
                 loginResult.set(ApplicationServiceRegistry.getUserApplicationService()
                     .userLoginCheck(clientIpAddress, agentInfo, parameters.get("username"),
                         parameters.get("mfa_code"),
-                        parameters.get("mfa_id")));
+                        parameters.get("mfa_id"),
+                        hasValidScope ? new ProjectId(parameters.get("scope")) :
+                            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID)
+                    )
+                );
             });
             if (Checker.isFalse(loginResult.get().getAllowed())) {
                 if (Checker.isTrue(loginResult.get().getInvalidMfa())) {

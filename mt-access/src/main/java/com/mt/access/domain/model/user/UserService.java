@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -61,7 +62,7 @@ public class UserService {
         DomainRegistry.getUserRepository().batchLock(commands);
     }
 
-    public void updateLastLogin(UserLoginRequest command) {
+    public void updateLastLogin(UserLoginRequest command, ProjectId loginProjectId) {
         UserId userId = command.getUserId();
         Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().query(userId);
         loginInfo.ifPresentOrElse(
@@ -70,7 +71,7 @@ public class UserService {
                 LoginInfo info = new LoginInfo(command);
                 DomainRegistry.getLoginInfoRepository().add(info);
             });
-        LoginHistory loginHistory = new LoginHistory(command);
+        LoginHistory loginHistory = new LoginHistory(command, loginProjectId);
         DomainRegistry.getLoginHistoryRepository().add(loginHistory);
     }
 

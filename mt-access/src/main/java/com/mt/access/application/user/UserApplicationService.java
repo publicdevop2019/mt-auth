@@ -27,6 +27,7 @@ import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.image.Image;
 import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
+import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.CurrentPassword;
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginInfo;
@@ -272,7 +273,7 @@ public class UserApplicationService {
 
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,
                                       String username, @Nullable String mfaCode,
-                                      @Nullable String mfaId) {
+                                      @Nullable String mfaId, ProjectId loginProjectId) {
         UserEmail userEmail = new UserEmail(username);
         UserId userId =
             DomainRegistry.getUserRepository().getUserId(userEmail);
@@ -281,14 +282,14 @@ public class UserApplicationService {
             DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
         if (!mfaRequired) {
             log.debug("mfa not required, record current login information");
-            recordLoginInfo(ipAddress, agentInfo, userId);
+            recordLoginInfo(ipAddress, agentInfo, userId, loginProjectId);
             return LoginResult.allow();
         } else {
             if (mfaCode != null) {
                 log.debug("mfa code present");
                 if (DomainRegistry.getMfaService().validateMfa(userId, mfaCode, mfaId)) {
                     log.debug("mfa required and check passed, record current login information");
-                    recordLoginInfo(ipAddress, agentInfo, userId);
+                    recordLoginInfo(ipAddress, agentInfo, userId, loginProjectId);
                     return LoginResult.allow();
                 } else {
                     log.debug("mfa check failed");
@@ -320,12 +321,12 @@ public class UserApplicationService {
         );
     }
 
-    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId) {
+    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId, ProjectId loginProjectId) {
         UserLoginRequest userLoginRequest =
             new UserLoginRequest(ipAddress, userId, agentInfo);
         CommonDomainRegistry.getTransactionService()
             .transactionalEvent(
-                (context) -> DomainRegistry.getUserService().updateLastLogin(userLoginRequest));
+                (context) -> DomainRegistry.getUserService().updateLastLogin(userLoginRequest, loginProjectId));
     }
 
 }
