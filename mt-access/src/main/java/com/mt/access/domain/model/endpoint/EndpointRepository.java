@@ -48,4 +48,6 @@ public interface EndpointRepository {
     long countPublicTotal();
 
     long countProjectTotal(ProjectId projectId);
+
+    boolean checkDuplicate(ClientId clientId, String path, String method);
 }

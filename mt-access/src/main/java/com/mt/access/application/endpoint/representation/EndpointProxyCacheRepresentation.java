@@ -17,6 +17,7 @@ import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Checker;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -66,10 +67,13 @@ public class EndpointProxyCacheRepresentation
         this.corsProfileId = endpoint.getCorsProfileId();
         this.cacheProfileId = endpoint.getCacheProfileId();
         this.clientId = endpoint.getClientId();
-        this.subscriptions = new HashSet<>();
         //add owner project
-        this.subscriptions.add(new ProjectSubscription(this.projectId, endpoint.getReplenishRate(),
-            endpoint.getBurstCapacity()));
+        this.subscriptions = new HashSet<>();
+        if (Checker.isFalse(endpoint.getWebsocket())) {
+            this.subscriptions.add(
+                new ProjectSubscription(this.projectId, endpoint.getReplenishRate(),
+                    endpoint.getBurstCapacity()));
+        }
         this.permissionId =
             endpoint.getPermissionId() == null ? null : endpoint.getPermissionId().getDomainId();
     }

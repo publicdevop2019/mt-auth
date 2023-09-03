@@ -40,6 +40,8 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.event.ApplicationStartedEvent;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.List;
@@ -50,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -209,36 +212,51 @@ public class EndpointApplicationService {
                                String changeId) {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId = new ProjectId(command.getProjectId());
+        ClientId clientId = new ClientId(command.getResourceId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
-        return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                String clientId = command.getResourceId();
-                Endpoint endpoint = Endpoint.addNewEndpoint(
-                    new ClientId(clientId),
-                    projectId,
-                    command.getCacheProfileId() != null
-                        ?
-                        new CacheProfileId(command.getCacheProfileId()) : null,
-                    command.getName(),
-                    command.getDescription(),
-                    command.getPath(),
-                    endpointId,
-                    command.getMethod(),
-                    command.getSecured(),
-                    command.getWebsocket(),
-                    command.getCsrfEnabled(),
-                    command.getCorsProfileId() != null
-                        ?
-                        new CorsProfileId(command.getCorsProfileId()) : null,
-                    command.getShared(),
-                    command.getExternal(),
-                    command.getReplenishRate(),
-                    command.getBurstCapacity(),
-                    context
-                );
-                DomainRegistry.getEndpointRepository().add(endpoint);
-                return endpointId.getDomainId();
-            }, ENDPOINT);
+        if(DomainRegistry.getEndpointRepository()
+            .checkDuplicate(clientId, command.getPath(), command.getMethod())){
+            throw new DefinedRuntimeException("duplicate endpoint", "1092",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        String idempotent;
+        try {
+            idempotent = CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(changeId, (context) -> {
+                    Endpoint endpoint = Endpoint.addNewEndpoint(
+                        clientId,
+                        projectId,
+                        command.getCacheProfileId() != null
+                            ?
+                            new CacheProfileId(command.getCacheProfileId()) : null,
+                        command.getName(),
+                        command.getDescription(),
+                        command.getPath(),
+                        endpointId,
+                        command.getMethod(),
+                        command.getSecured(),
+                        command.getWebsocket(),
+                        command.getCsrfEnabled(),
+                        command.getCorsProfileId() != null
+                            ?
+                            new CorsProfileId(command.getCorsProfileId()) : null,
+                        command.getShared(),
+                        command.getExternal(),
+                        command.getReplenishRate(),
+                        command.getBurstCapacity(),
+                        context
+                    );
+                    DomainRegistry.getEndpointRepository().add(endpoint);
+                    return endpointId.getDomainId();
+                }, ENDPOINT);
+        } catch (DataIntegrityViolationException ex) {
+            log.info(
+                "unique constrain violation due to concurrent insert (no need to handle this error)",
+                ex);
+            throw new DefinedRuntimeException("duplicate endpoint", "1092",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        return idempotent;
     }
 
     @AuditLog(actionName = UPDATE_TENANT_ENDPOINT)

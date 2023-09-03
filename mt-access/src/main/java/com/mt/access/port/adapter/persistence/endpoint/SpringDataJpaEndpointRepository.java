@@ -10,10 +10,13 @@ import com.mt.access.domain.model.endpoint.EndpointRepository;
 import com.mt.access.domain.model.endpoint.Endpoint_;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
@@ -22,8 +25,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
@@ -99,6 +104,28 @@ public interface SpringDataJpaEndpointRepository
 
     default long countProjectTotal(ProjectId projectId) {
         return countProjectTotal_(projectId);
+    }
+
+    default boolean checkDuplicate(ClientId clientId, String path, String method) {
+        Object query = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                "SELECT COUNT(*) AS count FROM endpoint e WHERE e.client_id = ? AND e.path = ? AND e.method = ?",
+                new Object[] {
+                    clientId.getDomainId(),
+                    path,
+                    method
+                },
+                new ResultSetExtractor<Object>() {
+                    @Override
+                    public Object extractData(ResultSet rs)
+                        throws SQLException, DataAccessException {
+                        if (!rs.next()) {
+                            return null;
+                        }
+                        return rs.getInt("count");
+                    }
+                });
+        return ((Integer) query) > 0;
     }
 
     @Component

@@ -76,6 +76,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1089',explain:'Token参数错误'},
     {code:'1090',explain:'Refresh Token已过期'},
     {code:'1091',explain:'找不到客户端'},
+    {code:'1092',explain:'endpoint重复'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},

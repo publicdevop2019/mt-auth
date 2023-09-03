@@ -50,6 +50,9 @@ public class Endpoint extends Auditable {
     private static final Set<String> HTTP_METHODS =
         Arrays.stream(HttpMethod.values()).map(Enum::name).collect(
             Collectors.toSet());
+    static {
+        HTTP_METHODS.add("WEB_SOCKET");
+    }
     private static final Pattern PATH_REGEX =
         Pattern.compile("^[a-z\\-/*]*$");
     @Column(name = "secured")
@@ -166,10 +169,9 @@ public class Endpoint extends Auditable {
     }
 
     private void setMethod(String method) {
-        if (Checker.notNull(method)) {
-            method = method.toUpperCase();
-            Validator.memberOf(method, HTTP_METHODS);
-        }
+        Validator.notNull(method);
+        method = method.toUpperCase();
+        Validator.memberOf(method, HTTP_METHODS);
         this.method = method;
     }
 

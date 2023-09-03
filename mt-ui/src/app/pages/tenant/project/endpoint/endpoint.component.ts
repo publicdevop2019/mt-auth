@@ -191,22 +191,23 @@ export class EndpointComponent implements OnDestroy {
     const catalogFormGroup = this.fis.formGroups[this.formId];
     const secured = catalogFormGroup.get('isSecured').value === 'yes';
     const external = catalogFormGroup.get('isExternal').value === 'yes';
+    const isWs = basicFormGroup.get('isWebsocket').value === 'yes'
     return {
       id: catalogFormGroup.get('id').value,
       description: basicFormGroup.get('description').value ? basicFormGroup.get('description').value : null,
       name: basicFormGroup.get('name').value,
       resourceId: basicFormGroup.get('resourceId').value,
       path: basicFormGroup.get('path').value,
-      method: basicFormGroup.get('method').value,
+      method: isWs ? "GET" : basicFormGroup.get('method').value,
       secured: secured,
       external: external,
-      websocket: basicFormGroup.get('isWebsocket').value === 'yes',
+      websocket: isWs,
       shared: catalogFormGroup.get('isShared').value === 'yes',
-      csrfEnabled: !!secureFormGroup.get('csrf').value,
+      csrfEnabled: isWs ? null : !!secureFormGroup.get('csrf').value,
       corsProfileId: Utility.noEmptyString(secureFormGroup.get("corsProfile").value),
       cacheProfileId: basicFormGroup.get('method').value === 'GET' ? Utility.noEmptyString(perFormGroup.get("cacheProfile").value) : null,
-      replenishRate: +perFormGroup.get("replenishRate").value,
-      burstCapacity: +perFormGroup.get("burstCapacity").value,
+      replenishRate: isWs ? null : +perFormGroup.get("replenishRate").value,
+      burstCapacity: isWs ? null : +perFormGroup.get("burstCapacity").value,
       version: this.data.from && this.data.from.version
     }
   }

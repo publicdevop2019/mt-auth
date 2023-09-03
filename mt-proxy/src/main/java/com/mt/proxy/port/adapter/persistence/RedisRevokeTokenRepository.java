@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Slf4j
 @Repository
-public class ReadOnlyRedisRevokeTokenRepository implements RevokeTokenRepository {
+public class RedisRevokeTokenRepository implements RevokeTokenRepository {
     private static final String REVOKE_TOKEN_PREFIX = "RT:";
     @Autowired
     private StringRedisTemplate redisTemplate;

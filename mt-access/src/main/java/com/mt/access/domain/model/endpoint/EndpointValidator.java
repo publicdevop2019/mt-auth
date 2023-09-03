@@ -76,9 +76,9 @@ public class EndpointValidator {
     }
 
     private void websocketAndHttpMethod() {
-        if (Boolean.FALSE.equals(endpoint.getWebsocket())) {
-            if (endpoint.getMethod() == null || endpoint.getMethod().isBlank()) {
-                handler.handleError("non websocket endpoints must have method");
+        if (Checker.isTrue(endpoint.getWebsocket())) {
+            if (endpoint.getMethod() == null || !endpoint.getMethod().equals("GET")) {
+                handler.handleError("websocket endpoints must have GET method");
             }
         }
     }
