@@ -16,12 +16,14 @@ import org.springframework.transaction.support.TransactionTemplate;
 @Slf4j
 @Service
 public class TransactionService {
+    private static final Integer DEFAULT_TX_TIMEOUT = -1;
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
 
     public void transactionalEvent(Consumer<TransactionContext> fn) {
         TransactionContext init = TransactionContext.init();
         TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+        template.setTimeout(DEFAULT_TX_TIMEOUT);
         log.debug("transaction template created");
         AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
         template.execute(new TransactionCallbackWithoutResult() {
@@ -41,6 +43,7 @@ public class TransactionService {
     public <T> T returnedTransactionalEvent(Function<TransactionContext, T> domainLogicWrapper) {
         TransactionContext init = TransactionContext.init();
         TransactionTemplate template = new TransactionTemplate(platformTransactionManager);
+        template.setTimeout(DEFAULT_TX_TIMEOUT);
         AtomicReference<Analytics> persistAnalytics = new AtomicReference<>();
         T t = template.execute(transactionStatus -> {
             Analytics wrapperAnalytics =

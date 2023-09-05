@@ -290,7 +290,7 @@ export const zhHans = {
     "COMMON": "通用",
     "PROJECT": "项目",
     "NOT_FOUND": "无法找到该页面",
-    "WELCOME": "关于",
+    "WELCOME": "首页",
     "APP_NAME": "MT - AUTH",
     "APP_DESCRIPTION_1": "多租户权限管理平台",
     "APP_DESCRIPTION_2": "用户、角色、权限、 应用、 API一站式管理",
