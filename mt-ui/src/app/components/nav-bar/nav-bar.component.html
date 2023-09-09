@@ -5,32 +5,54 @@
             <button mat-icon-button (click)="snav.toggle();" style="margin-top: -2px;">
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
-            <img *ngIf="avatar" mat-card-avatar [src]="avatar"
-                style="height: 24px; width: 24px; margin-right: 8px; border-radius: 50%;" />
-            <div style="font-size: 14px;"><span style="padding-right: 8px;">{{'WELCOME_MSG'|translate}}</span>{{name}}
+            <div style="border-left: 1px solid white; margin: 0px 16px 0px 8px; height: 24px;">&nbsp;</div>
+            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm" style="width: 160px;">
+                <!-- switch project select -->
+                <mat-form-field>
+                    <mat-select formControlName="viewTenantId">
+                        <mat-option *ngFor="let e of totalProjectsOptions" [value]="e.value">
+                            {{e.label}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
             </div>
         </div>
-        <div style="display: flex;">
-            <div style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                (click)="openDoc()">
-                <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div><mat-icon
-                    style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
-            </div>
-            <button mat-button [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
+        <div style="display: flex; align-items: center;">
+            <button mat-button (click)="openDoc()" style="display: flex;">
+                <div
+                    style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center;">
+                    <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div>
+                    <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
+                </div>
+            </button>
+            <button mat-button class="avatar-wrapper" [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
                 <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
                     matBadgeSize="small" matBadgeColor="accent">notifications_none
                 </mat-icon>
             </button>
-            <button *ngIf="hasAuth()" mat-button [matMenuTriggerFor]="menu" (click)="msgSvc.clone()">
+            <button *ngIf="hasAuth()" class="avatar-wrapper" style="margin-left: 20px;" mat-button
+                [matMenuTriggerFor]="mgmtMenu" (click)="msgSvc.clone()">
                 <mat-icon matBadge="{{bellCount(msgSvc.latestMessage)}}" matBadgeOverlap="false" matBadgeSize="small"
                     matBadgeColor="warn">notifications_none
                 </mat-icon>
             </button>
+            <button mat-button class="avatar-wrapper" style="margin-left: 20px;" [matMenuTriggerFor]="account">
+                <img *ngIf="avatar" mat-card-avatar [src]="avatar"
+                    style="height: 24px; width: 24px; border-radius: 50%;" />
+                <div *ngIf="!avatar"
+                    style="height: 24px; width: 24px; border-radius: 50%; background-color: white; color: #673ab7; line-height: 24px;">
+                    {{firstLetter(name)}}</div>
+            </button>
         </div>
     </mat-toolbar>
-    <mat-menu #menu="matMenu">
+    <mat-menu #mgmtMenu="matMenu">
+        <button mat-menu-item [routerLink]="'message-center'">
+            <mat-icon fontSet="material-icons-outlined">notifications_none</mat-icon>
+            <span> {{'MESSAGE_DASHBOARD'|translate}}</span>
+        </button>
+        <mat-divider></mat-divider>
         <ng-container *ngIf="msgSvc.latestMessage.length===0">
-            <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
+            <div style="text-align: center;margin-top: 36px;">{{'NO_MSG'|translate}}</div>
         </ng-container>
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
@@ -40,8 +62,13 @@
         </ng-container>
     </mat-menu>
     <mat-menu #userMenu="matMenu">
+        <button mat-menu-item [routerLink]="'user-notification'">
+            <mat-icon fontSet="material-icons-outlined">notifications_none</mat-icon>
+            <span> {{'USER_MESSAGE'|translate}}</span>
+        </button>
+        <mat-divider></mat-divider>
         <ng-container *ngIf="userMsgSvc.latestMessage.length===0">
-            <div style="text-align: center;margin-top: 10px;">{{'NO_MSG'|translate}}</div>
+            <div style="height: 48px; text-align: center; line-height: 48px;">{{'NO_MSG'|translate}}</div>
         </ng-container>
         <ng-container *ngIf="userMsgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(userMsgSvc.latestMessage); let i = index">
@@ -50,45 +77,47 @@
             </ng-container>
         </ng-container>
     </mat-menu>
+    <mat-menu #account="matMenu">
+        <div style="margin: 8px 16px;">
+            <div style="display: flex; margin: 0px 8px 0px 0px;">
+                <div style="height: 36px; width: 36px; display: flex; justify-content: center; align-items: center;">
+                    <img *ngIf="avatar" mat-card-avatar [src]="avatar"
+                        style="height: 24px; width: 24px; border-radius: 50%;" />
+                    <div *ngIf="!avatar"
+                        style="height: 24px; width: 24px; border-radius: 50%; background-color: white; color: #673ab7; line-height: 24px; border: 1px solid #673ab7; text-align: center;">
+                        {{firstLetter(name)}}</div>
+                </div>
+                <div style="font-size: 14px; color: #673ab7; line-height: 36px; font-weight: 700;">{{name}}</div>
+            </div>
+            <div style="margin-left: -12px;">
+                <button mat-menu-item [routerLink]="'my-profile'">
+                    <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
+                    <span> {{'MY_PROFILE'|translate}}</span>
+                </button>
+                <button mat-menu-item [routerLink]="'settings'">
+                    <mat-icon fontSet="material-icons-outlined">settings</mat-icon>
+                    <span> {{'SYSTEM_SETTINGS'|translate}}</span>
+                </button>
+                <button mat-menu-item [routerLink]="'user-notification'" (click)="doLogout()">
+                    <mat-icon fontSet="material-icons-outlined">exit_to_app</mat-icon>
+                    <span> {{'LOGOUT'|translate}}</span>
+                </button>
+            </div>
+        </div>
+    </mat-menu>
     <mat-sidenav-container class="example-sidenav-container"
         [style.marginTop.px]="mobileQuery.matches ? deviceSvc.topBar : 0">
         <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
-            [opened]="navExpand('side_bar')" (opened)="openedHandler('side_bar')" (closed)="closedHander('side_bar')"
+            [opened]="navSideBar()" (opened)="openedSideBar()" (closed)="closedSideBar()"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
-            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm"  style="margin: 8px 8px 0 8px; height: 56px;">
-                <!-- switch project select -->
-                <mat-form-field>
-                    <mat-label>{{'SWITCH_PROJECT'|translate}}</mat-label>
-                    <mat-select formControlName="viewTenantId">
-                        <mat-option *ngFor="let e of totalProjectsOptions" [value]="e.value">
-                            {{e.label}}
-                        </mat-option>
-                    </mat-select>
-                </mat-form-field>
-            </div>
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
-                    <mat-icon style="padding-right:8px" *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display|
+                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px"
+                        *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display|
                     translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')"
-                (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'ENDPOINT_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                        *ngFor="let nav of menuEp">
-                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                        {{nav.display| translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-            </mat-expansion-panel>
             <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
                 *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
                 <mat-expansion-panel-header>
@@ -100,42 +129,41 @@
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                         [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
                         *ngFor="let nav of menuMgmt">
-                        <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">{{nav.icon}}</mat-icon>
                         {{nav.display| translate}}
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-expansion-panel *ngIf="projectSvc.viewProject" (opened)="openedHandler(projectSvc.viewProject.id)"
-                (closed)="closedHander(projectSvc.viewProject.id)" [expanded]="navExpand(projectSvc.viewProject.id)">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{projectSvc.viewProject.name}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
+            <ng-container *ngIf="projectSvc.viewProject">
                 <mat-nav-list>
                     <ng-container *ngFor="let nav of menuTenant">
                         <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/'+nav.link"
                             routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                             [queryParams]="preserveURLQueryParams(nav)"
                             *appRequireP="getPermissionId(projectSvc.viewProject.id,nav.authName) | async">
-                            <mat-icon style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                            <mat-icon fontSet="material-icons-outlined"
+                                style="padding-right:8px;">{{nav.icon}}</mat-icon>
                             {{nav.display| translate}}
                         </mat-list-item>
                     </ng-container>
                 </mat-nav-list>
-            </mat-expansion-panel>
-
+            </ng-container>
+            <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')"
+            (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
+            <mat-expansion-panel-header>
+                <mat-panel-title>
+                    <mat-icon fontSet="material-icons-outlined">code</mat-icon>
+                    {{'ENDPOINT_CENTER'| translate}}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                    style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuMisc">
-                    <mat-icon style="padding-right:8px">{{nav.icon}}</mat-icon>{{nav.display| translate}}
+                    [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                    *ngFor="let nav of menuEp">
+                    {{nav.display| translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-nav-list>
-                <mat-list-item mat-list-item style="font-size: 14px;" (click)="doLogout()">
-                    <mat-icon style="padding-right:8px">exit_to_app</mat-icon>{{'LOGOUT'| translate}}
-                </mat-list-item>
-            </mat-nav-list>
+        </mat-expansion-panel>
         </mat-sidenav>
 
         <mat-sidenav-content [style.padding-left.px]="mobileQuery.matches ? 15 : 30"

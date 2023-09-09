@@ -12,9 +12,9 @@ export class WelcomeComponent implements OnInit {
   ngOnInit(): void {
   }
   openGit(){
-    window.open('./docs', '_blank').focus();
+    window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
   }
   openGitee(){
-    window.open('./docs', '_blank').focus();
+    window.open('https://gitee.com/mirrors/MT-AUTH', '_blank').focus();
   }
 }

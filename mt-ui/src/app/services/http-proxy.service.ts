@@ -246,7 +246,7 @@ export class HttpProxyService {
     refreshToken(nextViewTenantId?: string): Observable<ITokenResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'refresh_token');
-        formData.append('view_tenant_id', nextViewTenantId ? nextViewTenantId : this.currentUserAuthInfo.viewTenantId);
+        formData.append('view_tenant_id', nextViewTenantId ? nextViewTenantId : (this.currentUserAuthInfo.viewTenantId ? this.currentUserAuthInfo.viewTenantId : ''));
         formData.append('refresh_token', this.currentUserAuthInfo.refresh_token);
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })

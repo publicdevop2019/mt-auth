@@ -43,7 +43,7 @@ export class DeviceService {
     refreshSummary: Subject<any> = new Subject();
     private summaryRow = 48;
     private optionalVerticalScrollbar = 48;
-    public topBar = 48;
+    public topBar = 56;
     private contentTitle = 74.81;
     private contentTitleFilter = 65.5;
     private summaryRowHeader = 56;

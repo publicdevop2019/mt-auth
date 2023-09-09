@@ -29,7 +29,6 @@ import { MyPermissionsComponent } from './pages/tenant/project/my-permissions/my
 import { MyProjectComponent } from './pages/tenant/project/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/project/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.component';
-import { UpdatePwdComponent } from './pages/common/update-pwd/update-pwd.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
@@ -71,7 +70,6 @@ const routes: Routes = [
       { path: 'registry', component: RegistryComponent },
       { path: 'jobs', component: JobComponent },
       { path: 'clients', component: SummaryClientComponent },
-      { path: 'updatePwd', component: UpdatePwdComponent },
       { path: 'mgmt-user', component: SummaryResourceOwnerComponent },
       { path: 'api-profiles', component: SummaryEndpointComponent },
       { path: 'role-profiles', component: SummaryRoleComponent },

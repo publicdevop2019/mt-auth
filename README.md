@@ -62,8 +62,6 @@
 # 演示项目
 - [NodeJs](./mt-sample/nodejs)
 - [Spring Boot](./mt-sample/spring-boot)
-# 咨询与合作
-请发送邮件至: letsauth@163.com
 # 环境信息
 - 操作系统: Ubuntu  18.04 64bit
 - Java: java version "11.0.14" 2022-01-18 LTS

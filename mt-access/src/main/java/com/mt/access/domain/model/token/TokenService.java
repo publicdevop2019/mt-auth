@@ -71,7 +71,8 @@ public class TokenService {
             return grantToken(clientDetails, userDetails,
                 scope != null ? Collections.singleton(scope) : Collections.emptySet());
         } else if ("refresh_token".equalsIgnoreCase(parameters.get("grant_type"))) {
-            ProjectId viewTenantId = parameters.get("view_tenant_id") == null ? null :
+            ProjectId viewTenantId = (parameters.get("view_tenant_id") == null ||
+                parameters.get("view_tenant_id").isBlank()) ? null :
                 new ProjectId(parameters.get("view_tenant_id"));
             return grantRefreshToken(clientDetails, parameters.get("refresh_token"), viewTenantId);
         } else if ("authorization_code".equalsIgnoreCase(parameters.get("grant_type"))) {
