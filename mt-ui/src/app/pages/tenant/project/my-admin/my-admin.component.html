@@ -1,5 +1,9 @@
-<h2 class="flex-row-space-between">{{projectSvc.resolveNameById(projectId)|async}} / {{'MY_ADMIN_DASHBOARD'|translate}}
-</h2>
+<div style="display: flex; justify-content: space-between; margin-top: 16px;">
+    <div>
+        <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;"> {{'MY_ADMIN_DASHBOARD'|translate}}</div>
+        <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'ADMIN_SUB'|translate}}</div>
+    </div>
+</div>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:space-between;">
     <mat-form-field style="flex: 1;">
         <mat-label>{{'ENTER_USER_EMAIL' | translate}}</mat-label>

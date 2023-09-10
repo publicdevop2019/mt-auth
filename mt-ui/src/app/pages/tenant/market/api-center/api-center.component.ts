@@ -3,7 +3,7 @@ import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-s
 import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { IBottomSheet, SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { IDomainContext, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
@@ -66,7 +66,7 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
     config.autoFocus = true;
     config.panelClass = 'fix-height'
     const endpoint = this.dataSource.data.find(e => e.id === id)!
-    config.data = <IBottomSheet<IEndpoint>>{ context: 'new', from: endpoint, params: this.bottomSheetParams };
+    config.data = <IDomainContext<IEndpoint>>{ context: 'new', from: endpoint, params: this.bottomSheetParams };
     this.bottomSheet.open(this.sheetComponent, config);
   }
 }

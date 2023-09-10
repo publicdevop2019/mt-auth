@@ -27,7 +27,7 @@ export const FORM_CONFIG: IForm = {
         {
             "type": "text",
             "display": true,
-            "label": "ENTER_NAME",
+            "label": "ENTER_CLIENT_NAME",
             "key": "name",
             required: true,
             "position": {
@@ -36,30 +36,30 @@ export const FORM_CONFIG: IForm = {
             }
         },
         {
-            "type": "text",
-            "display": true,
-            "label": "ENTER_DESCRIPTION",
-            "key": "description",
-            "position": {
-                "row": "2",
-                "column": "0"
-            },
-        },
-        {
             "type": "radio",
             "display": true,
             "label": "SELECT_APP_TYPE_1",
             "key": "frontOrBackApp",
             direction:'column',
             "position": {
-                "row": "5",
+                "row": "2",
                 "column": "0"
             },
             "options": [
-                { label: 'YES', value: 'FRONTEND_APP'},
-                { label: 'NO', value: 'BACKEND_APP'},
+                { label: 'TYPE_MIXED_APP', value: 'BACKEND_APP'},
+                { label: 'TYPE_FRONTEND_APP', value: 'FRONTEND_APP'},
             ],
             required: true,
+        },
+        {
+            "type": "text",
+            "display": true,
+            "label": "ENTER_DESCRIPTION",
+            "key": "description",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
         },
         {
             "type": "text",

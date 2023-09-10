@@ -1,12 +1,12 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div style="max-width: 960px; margin: 0px auto; padding: 20px 24px 50px 24px;">
+    <button (click)="goToClientDashboard()" mat-button style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <lib-factory [formId]="formId"></lib-factory>
+    <button mat-raised-button color="primary" class="app-btn"
+        (click)="update()"
+        *ngIf="data.context === 'edit'">{{'UPDATE'|translate}}</button>
+    <button mat-raised-button color="primary" class="app-btn"
+        (click)="create()"
+        *ngIf="data.context === 'new' || data.context === 'clone'">{{'CREATE'|translate}}</button>
 </div>
-<lib-factory [formId]="formId"></lib-factory>
-<button mat-raised-button color="primary" class="app-btn"
-    (click)="update()"
-    *ngIf="data.context === 'edit'">{{'UPDATE'|translate}}</button>
-<button mat-raised-button color="primary" class="app-btn"
-    (click)="create()"
-    *ngIf="data.context === 'new' || data.context === 'clone'">{{'CREATE'|translate}}</button>

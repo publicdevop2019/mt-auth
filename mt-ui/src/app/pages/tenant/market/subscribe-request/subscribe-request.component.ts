@@ -3,7 +3,7 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { FormInfoService } from 'mt-form-builder';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Logger } from 'src/app/misc/logger';
-import { IBottomSheet, IIdBasedEntity } from 'src/app/clazz/summary.component';
+import { IDomainContext, IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/sub-request.config';
@@ -32,7 +32,7 @@ export class SubscribeRequestComponent implements OnDestroy {
     private subReqSvc: CreateSubRequestService,
     public httpProxySvc: HttpProxyService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IEndpoint | ISubRequest>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IEndpoint | ISubRequest>,
     public bottomSheetRef: MatBottomSheetRef<SubscribeRequestComponent>,
   ) {
     this.fis.init(FORM_CONFIG, this.formId)

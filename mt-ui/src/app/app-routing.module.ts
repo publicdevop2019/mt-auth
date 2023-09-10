@@ -45,6 +45,7 @@ import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approv
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
+import { ClientComponent } from './pages/tenant/project/client/client.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -90,6 +91,8 @@ const routes: Routes = [
       { path: 'position-profiles', component: SummaryPositionComponent },
       { path: 'sys-message-center', component: SummaryNotificationComponent },
       { path: 'dashboard', component: DashboardComponent },
+      { path: 'client-detail', component: ClientComponent },
+      { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-cache', component: MyCacheComponent },
       { path: ':id/my-cors', component: MyCorsComponent },

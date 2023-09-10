@@ -136,22 +136,6 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'my-cors',
-      display: 'MY_CORS',
-      icon: 'strikethrough_s',
-      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
-      params: {
-      },
-    },
-    {
-      link: 'my-cache',
-      display: 'MY_CACHE',
-      icon: 'cached',
-      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
-      params: {
-      },
-    },
-    {
       link: 'my-permission',
       display: 'MY_PERMISSION_DASHBOARD',
       icon: 'policy',
@@ -172,6 +156,22 @@ export class NavBarComponent implements OnInit {
       display: 'MY_USER_DASHBOARD',
       icon: 'people',
       authName: ['EDIT_TENANT_USER', 'VIEW_TENANT_USER'],
+      params: {
+      },
+    },
+    {
+      link: 'my-cors',
+      display: 'MY_CORS',
+      icon: 'strikethrough_s',
+      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
+      params: {
+      },
+    },
+    {
+      link: 'my-cache',
+      display: 'MY_CACHE',
+      icon: 'cached',
+      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
       params: {
       },
     },

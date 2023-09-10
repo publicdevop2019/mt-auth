@@ -1,7 +1,7 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
@@ -20,7 +20,7 @@ export class CacheComponent implements OnDestroy {
   constructor(
     public entityService: MyCacheService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<ICacheProfile>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<ICacheProfile>,
     public bottomSheetRef: MatBottomSheetRef<CacheComponent>,
   ) {
     this.fis.init(FORM_CONFIG, this.formId);

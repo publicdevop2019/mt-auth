@@ -1,22 +1,81 @@
-<mat-card style="margin-top: 36px;">
-    <mat-card-header>
-        <mat-card-title>
-            <div style="display: flex;"><mat-icon style="margin-right: 4px;">star</mat-icon>{{'WELCOME_MSG_1'|translate}}</div>
-        </mat-card-title>
-        <mat-card-subtitle>{{'RAISE_ISSUE'|translate}}</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-actions align="end">
-        <button mat-button (click)="openGit()">
-            <div style="display: flex;justify-content: right; align-items: center;">
-                <div style="font-size: 12px; margin-right: 8px;">{{'PLS_LIKE'|translate}}</div>GitHub
-                <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
-            </div>
-        </button>
-        <button mat-button (click)="openGitee()">
-            <div style="display: flex;justify-content: right; align-items: center;">
-                <div style="font-size: 12px; margin-right: 8px;">{{'MIRROR'|translate}}</div>Gitee
-                <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
-            </div>
-        </button>
-    </mat-card-actions>
-</mat-card>
+<div style="max-width: 960px; margin: 0px auto; padding: 20px 24px 50px 24px;">
+    <mat-card style="margin-top: 36px;">
+        <mat-card-header>
+            <mat-card-title>
+                <div style="display: flex;"><mat-icon
+                        style="margin-right: 4px;" color="accent">star</mat-icon>{{'WELCOME_MSG_1'|translate}}</div>
+            </mat-card-title>
+            <mat-card-subtitle>{{'RAISE_ISSUE'|translate}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions align="end">
+            <button mat-button (click)="openGit()">
+                <div style="display: flex;justify-content: right; align-items: center;">
+                    <div style="font-size: 12px; margin-right: 8px;">{{'PLS_LIKE'|translate}}</div>GitHub
+                    <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
+                </div>
+            </button>
+            <button mat-button (click)="openGitee()">
+                <div style="display: flex;justify-content: right; align-items: center;">
+                    <div style="font-size: 12px; margin-right: 8px;">{{'MIRROR'|translate}}</div>Gitee
+                    <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
+                </div>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+    <div style="font-size: 24px; font-weight: 700; margin-top: 32px; margin-bottom: 8px;">{{'QUICK_START'|translate}}
+    </div>
+    <mat-card>
+        <mat-card-header>
+            <mat-card-title style="display: flex; align-items: center;">
+                {{'WELCOME_STEP_1'|translate}}
+                <mat-icon fontSet="material-icons-outlined" color="primary" style="margin-left: 8px;">add_box</mat-icon>
+            </mat-card-title>
+            <mat-card-subtitle>{{'WELCOME_STEP_1_SUB'|translate}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions align="end">
+            <button mat-button color="primary" [routerLink]="'../new-project'">
+                <div style="display: flex;justify-content: right; align-items: center;">
+                    <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_1_ACTION'|translate}}</div>
+                    <mat-icon
+                        style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">arrow_forward</mat-icon>
+                </div>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+    <mat-card style="margin-top: 16px;" *ngIf="hasProject()">
+        <mat-card-header>
+            <mat-card-title style="display: flex; align-items: center;">
+                {{'WELCOME_STEP_2'|translate}}
+                <mat-icon fontSet="material-icons-outlined" color="primary" style="margin-left: 8px;">apps</mat-icon>
+            </mat-card-title>
+            <mat-card-subtitle>{{'WELCOME_STEP_2_SUB'|translate}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions align="end">
+            <button mat-button color="primary" (click)="goToClient()">
+                <div style="display: flex;justify-content: right; align-items: center;">
+                    <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_2_ACTION'|translate}}</div>
+                    <mat-icon
+                        style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">arrow_forward</mat-icon>
+                </div>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+    <mat-card style="margin-top: 16px;" *ngIf="hasProject()">
+        <mat-card-header>
+            <mat-card-title style="display: flex; align-items: center;">
+                {{'WELCOME_STEP_3'|translate}}
+                <mat-icon fontSet="material-icons-outlined" color="primary" style="margin-left: 8px;">api</mat-icon>
+            </mat-card-title>
+            <mat-card-subtitle>{{'WELCOME_STEP_3_SUB'|translate}}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-actions align="end">
+            <button mat-button color="primary" (click)="goToEndpoint()">
+                <div style="display: flex;justify-content: right; align-items: center;">
+                    <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_3_ACTION'|translate}}</div>
+                    <mat-icon
+                        style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">arrow_forward</mat-icon>
+                </div>
+            </button>
+        </mat-card-actions>
+    </mat-card>
+</div>

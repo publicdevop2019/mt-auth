@@ -1,6 +1,12 @@
-<h2 class="flex-row-space-between">{{projectSvc.resolveNameById(projectId)|async}} / {{'SECURITY_PROFILE_DASHBOARD'
-    |translate}}<button mat-fab color="primary" (click)="openBottomSheet()" *ngIf="extractResult(canDo('CREATE_API'))|async"
-        >{{'ADD'|translate}}</button></h2>
+<div style="display: flex; justify-content: space-between; margin-top: 16px;">
+    <div>
+        <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;"> {{'SECURITY_PROFILE_DASHBOARD'|translate}}
+        </div>
+        <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_ENDPOINT_SUB'|translate}}</div>
+    </div>
+    <button mat-fab color="primary" (click)="openBottomSheet()"
+        *ngIf="extractResult(canDo('CREATE_API')) |async ">{{'ADD'|translate}}</button>
+</div>
 <ng-container *ngIf="extractResult(canDo('VIEW_API'))|async">
 
     <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
@@ -16,9 +22,9 @@
                     (click)="batchOperation()">{{'BATCH_OPERATION_DETAIL'|translate}}</button>
             </ng-container> -->
         </section>
-        <app-table-column-config [formId]="formId" ></app-table-column-config>
+        <app-table-column-config [formId]="formId"></app-table-column-config>
     </div>
-    <div >
+    <div>
         <div class="table-container">
             <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
                 <!-- Checkbox Column -->
@@ -114,8 +120,10 @@
                     <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['expire']|translate}}</th>
                     <td mat-cell *matCellDef="let row" class="table-icon">
                         <ng-container *ngIf="row.shared">
-                            <mat-icon  *ngIf="!row.expired" (click)="doExpireById(row.id)" [color]="'warn'" matTooltip="{{row.expireReason}}">remove</mat-icon>
-                            <mat-icon  *ngIf="row.expired" (click)="doExpireById(row.id)" [color]="'warn'" matTooltip="{{row.expireReason}}">done</mat-icon>
+                            <mat-icon *ngIf="!row.expired" (click)="doExpireById(row.id)" [color]="'warn'"
+                                matTooltip="{{row.expireReason}}">remove</mat-icon>
+                            <mat-icon *ngIf="row.expired" (click)="doExpireById(row.id)" [color]="'warn'"
+                                matTooltip="{{row.expireReason}}">done</mat-icon>
                         </ng-container>
                         <ng-container *ngIf="!row.shared">
                             N/A
@@ -123,9 +131,10 @@
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="expireReason">
-                    <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['expireReason']|translate}}</th>
+                    <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['expireReason']|translate}}
+                    </th>
                     <td mat-cell *matCellDef="let row" class="table-icon">
-                      
+
                         <ng-container *ngIf="row.expired">
                             {{row.expireReason}}
                         </ng-container>

@@ -39,7 +39,7 @@ export interface ISumRep<T> {
   data: T[],
   totalItemCount: number
 }
-export interface IBottomSheet<S> {
+export interface IDomainContext<S> {
   context: 'clone' | 'new' | 'edit';
   from: S;
   params: {}
@@ -131,10 +131,10 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     config.panelClass = 'fix-height'
     const doNext = (data: S | T) => {
       if (clone) {
-        config.data = <IBottomSheet<S>>{ context: 'clone', from: data, params: this.bottomSheetParams };
+        config.data = <IDomainContext<S>>{ context: 'clone', from: data, params: this.bottomSheetParams };
         this.bottomSheet.open(this.sheetComponent, config);
       } else {
-        config.data = <IBottomSheet<S>>{ context: 'edit', from: data, params: this.bottomSheetParams };
+        config.data = <IDomainContext<S>>{ context: 'edit', from: data, params: this.bottomSheetParams };
         this.bottomSheet.open(this.sheetComponent, config);
       }
     }
@@ -148,7 +148,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
         })
       }
     } else {
-      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
+      config.data = <IDomainContext<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

@@ -18,7 +18,7 @@ import { ISearchEvent, SearchComponent } from '../components/search/search.compo
 import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
 import { HttpProxyService } from '../services/http-proxy.service';
 import { IProjectUiPermission, ProjectService } from '../services/project.service';
-import { IIdBasedEntity, IBottomSheet, ISumRep } from './summary.component';
+import { IIdBasedEntity, IDomainContext, ISumRep } from './summary.component';
 import { TenantEntityService } from './tenant-entity.service';
 import { Utility } from '../misc/utility';
 import { TABLE_SETTING_KEY } from '../misc/constant';
@@ -126,10 +126,10 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     config.panelClass = 'fix-height'
     const doNext = (data: S | T) => {
       if (clone) {
-        config.data = <IBottomSheet<S>>{ context: 'clone', from: data, params: this.bottomSheetParams };
+        config.data = <IDomainContext<S>>{ context: 'clone', from: data, params: this.bottomSheetParams };
         this.bottomSheet.open(this.sheetComponent, config);
       } else {
-        config.data = <IBottomSheet<S>>{ context: 'edit', from: data, params: this.bottomSheetParams };
+        config.data = <IDomainContext<S>>{ context: 'edit', from: data, params: this.bottomSheetParams };
         this.bottomSheet.open(this.sheetComponent, config);
       }
     }
@@ -143,7 +143,7 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
         })
       }
     } else {
-      config.data = <IBottomSheet<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
+      config.data = <IDomainContext<S>>{ context: 'new', from: undefined, params: this.bottomSheetParams };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

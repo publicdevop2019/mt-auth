@@ -5,7 +5,7 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CLIENT_TYPE, grantTypeEnums } from 'src/app/misc/constant';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { IClient } from 'src/app/misc/interface';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
@@ -21,7 +21,7 @@ export class MgmtClientComponent implements OnDestroy {
     public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public bottomSheetRef: MatBottomSheetRef<MgmtClientComponent>,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IClient>
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IClient>
   ) {
     const client = data.from
     this.fis.init(FORM_CONFIG, this.formId)

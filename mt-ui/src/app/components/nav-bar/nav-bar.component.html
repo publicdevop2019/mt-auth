@@ -110,6 +110,22 @@
         <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
             [opened]="navSideBar()" (opened)="openedSideBar()" (closed)="closedSideBar()"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
+            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
+            *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
+            <mat-expansion-panel-header>
+                <mat-panel-title style="font-weight: 600;">
+                    {{'AUTH_CENTER'| translate}}
+                </mat-panel-title>
+            </mat-expansion-panel-header>
+            <mat-nav-list>
+                <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                    [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                    *ngFor="let nav of menuMgmt">
+                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                    {{nav.display| translate}}
+                </mat-list-item>
+            </mat-nav-list>
+        </mat-expansion-panel>
             <mat-nav-list>
                 <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                     style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
@@ -118,22 +134,6 @@
                     translate}}
                 </mat-list-item>
             </mat-nav-list>
-            <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
-                *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title style="font-weight: 600;">
-                        {{'AUTH_CENTER'| translate}}
-                    </mat-panel-title>
-                </mat-expansion-panel-header>
-                <mat-nav-list>
-                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                        *ngFor="let nav of menuMgmt">
-                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                        {{nav.display| translate}}
-                    </mat-list-item>
-                </mat-nav-list>
-            </mat-expansion-panel>
             <ng-container *ngIf="projectSvc.viewProject">
                 <mat-nav-list>
                     <ng-container *ngFor="let nav of menuTenant">

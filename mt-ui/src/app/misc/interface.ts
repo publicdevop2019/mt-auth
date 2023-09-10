@@ -147,6 +147,11 @@ export interface IUpdatePwdCommand {
     password: string;
     currentPwd: string;
 }
+export interface IClientCreate {
+    name: string;
+    projectId: string;
+    type: string
+}
 export interface IClient extends IIdName {
     name: string;
     path?: string;

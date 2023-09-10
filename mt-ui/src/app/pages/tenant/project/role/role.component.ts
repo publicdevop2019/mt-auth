@@ -6,7 +6,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { DynamicTreeComponent, INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG, FORM_CONFIG_SHARED } from 'src/app/form-configs/role.config';
 import { EndpointService } from 'src/app/services/endpoint.service';
@@ -49,7 +49,7 @@ export class RoleComponent implements OnDestroy {
     public httpProxySvc: HttpProxyService,
     public sharedPermSvc: SharedPermissionService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<INewRole>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<INewRole>,
     public bottomSheetRef: MatBottomSheetRef<RoleComponent>,
     public cdr: ChangeDetectorRef
   ) {

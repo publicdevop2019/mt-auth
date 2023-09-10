@@ -4,7 +4,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, merge, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { BASIC_FORM_CONFIG, CATALOG_FORM_CONFIG, PERFORMANCE_FORM_CONFIG, SECURE_FORM_CONFIG } from 'src/app/form-configs/create-endpoint.config';
 import { MyCacheService } from 'src/app/services/my-cache.service';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
@@ -38,7 +38,7 @@ export class EndpointComponent implements OnDestroy {
     public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IEndpoint>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IEndpoint>,
     public bottomSheetRef: MatBottomSheetRef<EndpointComponent>,
     cdr: ChangeDetectorRef
   ) {
