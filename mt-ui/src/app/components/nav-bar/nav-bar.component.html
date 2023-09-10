@@ -52,7 +52,7 @@
         </button>
         <mat-divider></mat-divider>
         <ng-container *ngIf="msgSvc.latestMessage.length===0">
-            <div style="text-align: center;margin-top: 36px;">{{'NO_MSG'|translate}}</div>
+            <div style="height: 48px; text-align: center; line-height: 48px;">{{'NO_MSG'|translate}}</div>
         </ng-container>
         <ng-container *ngIf="msgSvc.latestMessage.length!==0">
             <ng-container *ngFor="let el of filterDuplicate(msgSvc.latestMessage); let i = index">
