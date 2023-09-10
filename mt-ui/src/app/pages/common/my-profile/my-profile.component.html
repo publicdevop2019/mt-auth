@@ -1,6 +1,6 @@
 
 <div>
-    <h2>{{'MY_PROFILE_DETAIL'|translate}}</h2>
+    <h2>{{'MY_PROFILE'|translate}}</h2>
     <div style="max-width: 375px;">
         <div style="display: flex; margin-bottom: 16px;align-items: center;">
             <div style="margin-right: 16px;">{{'USER_ID'|translate}}</div>
@@ -19,5 +19,12 @@
         </div>
         <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
         (click)="update()">{{'UPDATE'|translate}}</button>
+    </div>
+    <div style="margin-top: 24px;">
+        <form>
+            <lib-factory [formId]="pwdFormId"></lib-factory>
+        </form>
+        <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+            (click)="updatePwd()">{{'UPDATE_PASSWORD'|translate}}</button>
     </div>
 </div>

@@ -2,7 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { of } from 'rxjs';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
@@ -66,15 +66,15 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
       of(this.dataSource.data.find(e => e.id === id))
         .subscribe(next => {
           if (clone) {
-            config.data = <IBottomSheet<ICorsProfile>>{ context: 'clone', from: next };
+            config.data = <IDomainContext<ICorsProfile>>{ context: 'clone', from: next };
             this.bottomSheet.open(this.sheetComponent, config);
           } else {
-            config.data = <IBottomSheet<ICorsProfile>>{ context: 'edit', from: next };
+            config.data = <IDomainContext<ICorsProfile>>{ context: 'edit', from: next };
             this.bottomSheet.open(this.sheetComponent, config);
           }
         })
     } else {
-      config.data = <IBottomSheet<ICorsProfile>>{ context: 'new', from: undefined, params: {} };
+      config.data = <IDomainContext<ICorsProfile>>{ context: 'new', from: undefined, params: {} };
       this.bottomSheet.open(this.sheetComponent, config);
     }
   }

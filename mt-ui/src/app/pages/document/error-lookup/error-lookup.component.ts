@@ -15,7 +15,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1008',explain:'Authorization:找不到跳转URL'},
     {code:'1009',explain:'删除客户端：该客户端不允许删除'},
     {code:'1010',explain:'创建端口：Project Id不匹配'},
-    {code:'1014,1015,1027,1028',explain:'找不到ProjectId'},
+    {code:'1014,1015',explain:'找不到ProjectId'},
     {code:'1016,1029',explain:'没有该项目权限'},
     {code:'1017',explain:'读项目：没有该项目的读权限'},
     {code:'1018',explain:'端口报告查询：报告类型不支持'},

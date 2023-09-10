@@ -3,7 +3,7 @@ import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bott
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { FORM_CONFIG } from 'src/app/form-configs/permission.config';
@@ -27,7 +27,7 @@ export class PermissionComponent implements OnDestroy {
     public epSvc: MyEndpointService,
     public httpProxySvc: HttpProxyService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IPermission>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IPermission>,
     public bottomSheetRef: MatBottomSheetRef<PermissionComponent>,
     cdr: ChangeDetectorRef
   ) {

@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { map, tap } from 'rxjs/operators';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { FORM_CONFIG } from 'src/app/form-configs/user.config';
@@ -30,7 +30,7 @@ export class UserComponent implements OnDestroy {
     public userSvc: MyUserService,
     public fis: FormInfoService,
     public roleSvc: MyRoleService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IProjectUser>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IProjectUser>,
     public bottomSheetRef: MatBottomSheetRef<UserComponent>,
     public cdr: ChangeDetectorRef
   ) {

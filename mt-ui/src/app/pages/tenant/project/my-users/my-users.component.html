@@ -1,4 +1,13 @@
-<h2>{{projectSvc.resolveNameById(projectId)|async}} / {{'USER_DASHBOARD'|translate}}</h2>
+<div style="display: flex; justify-content: space-between; margin-top: 16px;">
+    <div>
+        <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
+            {{'USER_DASHBOARD'|translate}}
+        </div>
+        <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'USER_SUB'|translate}}
+        </div>
+    </div>
+</div>
+
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
 </app-search>
 <ng-container *ngIf="extractResult(canDo('VIEW_TENANT_USER'))|async">

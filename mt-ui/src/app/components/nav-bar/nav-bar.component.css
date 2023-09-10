@@ -28,3 +28,13 @@ h1.example-app-name {
 .nav-active {
   color: #673ab7;
 }
+
+.avatar-wrapper {
+  min-width: 36px;
+  padding: 0;
+  height: 36px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0px 8px;
+}

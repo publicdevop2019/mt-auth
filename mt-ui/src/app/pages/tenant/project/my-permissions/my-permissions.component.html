@@ -1,6 +1,14 @@
-<h2 class="flex-row-space-between">{{projectSvc.resolveNameById(projectId)|async}} / {{'MY_PERMISSION_DASHBOARD'
-    |translate}}<button mat-fab color="primary" (click)="openBottomSheet()"
-        *ngIf="extractResult(canDo('CREATE_PERMISSION'))|async">{{'ADD'|translate}}</button></h2>
+<div style="display: flex; justify-content: space-between; margin-top: 16px;">
+    <div>
+        <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
+            {{'MY_PERMISSION_DASHBOARD'|translate}}
+        </div>
+        <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_PERM_SUB'|translate}}
+        </div>
+    </div>
+    <button mat-fab color="primary" (click)="openBottomSheet()"
+        *ngIf="extractResult(canDo('CREATE_PERMISSION')) |async ">{{'ADD'|translate}}</button>
+</div>
 <ng-container *ngIf="extractResult(canDo('VIEW_PERMISSION'))|async">
     <mat-tab-group *ngIf="authSvc.advancedMode">
         <mat-tab label="{{'COMMON_PERMISSION'|translate}}">
@@ -8,7 +16,8 @@
                 <lib-factory [formId]="viewFormId"></lib-factory>
             </div>
             <ng-container *ngIf="viewType==='LIST_VIEW'">
-                <app-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
+                <app-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs"
+                    [emitEvent]="false">
                 </app-search>
                 <div
                     style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
@@ -22,10 +31,9 @@
                                     (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
                             </ng-container> -->
                     </section>
-                    <app-table-column-config [formId]="formId"
-                        ></app-table-column-config>
+                    <app-table-column-config [formId]="formId"></app-table-column-config>
                 </div>
-                <div >
+                <div>
                     <div class="table-container">
                         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
                             <!-- Checkbox Column -->
@@ -131,7 +139,7 @@
             </div>
         </mat-tab>
         <mat-tab label="{{'API_PERMISSION'|translate}}">
-            <div >
+            <div>
                 <div class="table-container">
                     <table mat-table [dataSource]="apiDataSource">
                         <ng-container matColumnDef="id">
@@ -159,7 +167,7 @@
         </mat-tab>
     </mat-tab-group>
     <ng-container *ngIf="!authSvc.advancedMode">
-        <div >
+        <div>
             <div class="table-container">
                 <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
                     <!-- Checkbox Column -->

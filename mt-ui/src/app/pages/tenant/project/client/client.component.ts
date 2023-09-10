@@ -1,17 +1,18 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
+import { Component, OnDestroy } from '@angular/core';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { CLIENT_TYPE, GRANT_TYPE_LIST, grantTypeEnums } from 'src/app/misc/constant';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IClientCreate } from 'src/app/misc/interface';
+import { Router } from '@angular/router';
+import { ProjectService } from 'src/app/services/project.service';
 
 @Component({
   selector: 'app-client',
@@ -22,18 +23,22 @@ export class ClientComponent implements OnDestroy {
   formId: string;
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
+  data: IDomainContext<IClient>
   constructor(
     public clientSvc: MyClientService,
+    public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<IClient>,
-    public bottomSheetRef: MatBottomSheetRef<ClientComponent>,
+    public router: Router,
   ) {
-    clientSvc.setProjectId(this.data.params['projectId'])
+    this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IClient>
+    if (this.data === undefined) {
+      this.goToHome()
+    }
+    clientSvc.setProjectId(this.data.from.projectId)
     this.fis.queryProvider[this.formId + '_' + 'resourceId'] = this.getResourceIds();
     this.fis.init(FORM_CONFIG, this.formId)
     if (this.data.context === 'new') {
-      this.fis.formGroups[this.formId].get('projectId').setValue(this.data.params['projectId'])
       this.fis.formGroups[this.formId].valueChanges.subscribe(() => {
         if (this.allowError) {
           this.validateCreateForm()
@@ -96,6 +101,12 @@ export class ClientComponent implements OnDestroy {
         this.fis.hideIfMatch(this.formId, var3)
       }
     })
+    if (this.data.context === 'new') {
+      const createData = this.router.getCurrentNavigation().extras.state as IDomainContext<IClientCreate>
+      this.fis.formGroups[this.formId].get('projectId').setValue(createData.from.projectId)
+      // this.fis.formGroups[this.formId].get('name').setValue(createData.from.name)
+      // this.fis.formGroups[this.formId].get('frontOrBackApp').setValue(createData.from.type)
+    }
     if (this.data.context === 'edit') {
       const var0: Observable<any>[] = [];
       if (this.data.from.resourceIds && this.data.from.resourceIds.length > 0) {
@@ -272,8 +283,10 @@ export class ClientComponent implements OnDestroy {
     return !var0.errorMsg && !var1.errorMsg && grantType && accTokenSec
       && refTokenSec && path && externalUrl && clientSecret && redirectUrl
   }
-  dismiss(event: MouseEvent) {
-    this.bottomSheetRef.dismiss();
-    event.preventDefault();
+  goToClientDashboard() {
+    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-client'])
+  }
+  goToHome() {
+    this.router.navigate(['home'])
   }
 }

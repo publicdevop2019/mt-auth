@@ -2,7 +2,7 @@ import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { IForm } from 'mt-form-builder/lib/classes/template.interface';
-import { IBottomSheet } from 'src/app/clazz/summary.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG, FORM_CONFIG, ORIGIN_FORM_CONFIG } from 'src/app/form-configs/cors.config';
@@ -27,7 +27,7 @@ export class CorsComponent implements OnDestroy {
   constructor(
     public entityService: MyCorsProfileService,
     public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IBottomSheet<ICorsProfile>,
+    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<ICorsProfile>,
     public bottomSheetRef: MatBottomSheetRef<CorsComponent>,
   ) {
     this.fis.init(FORM_CONFIG, this.formId);

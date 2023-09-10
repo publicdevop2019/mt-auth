@@ -14,6 +14,7 @@
 - [官方地址(www.letsauth.cloud)](https://www.letsauth.cloud/login)
 - 演示账号：demo@sample.com 密：Password1!
 - 演示账号：superadmin@sample.com 密：Password1!
+- 演示账号：testuser1@sample.com 密：Password1!
 - **注：当前版本为beta版，不保证数据安全并且随时回滚**
 # 示意图
 
@@ -62,8 +63,6 @@
 # 演示项目
 - [NodeJs](./mt-sample/nodejs)
 - [Spring Boot](./mt-sample/spring-boot)
-# 咨询与合作
-请发送邮件至: letsauth@163.com
 # 环境信息
 - 操作系统: Ubuntu  18.04 64bit
 - Java: java version "11.0.14" 2022-01-18 LTS

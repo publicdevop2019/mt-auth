@@ -21,10 +21,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 export class LoginComponent {
   context: 'REGISTER' | 'LOGIN' | 'FORGET' = this.hasLoginSuccessfully ? 'LOGIN' : 'REGISTER'
   public get hasLoginSuccessfully() {
-    return localStorage.getItem('successLogin') === 'true'
+    return localStorage.getItem('success_login') === 'true'
   }
   public set hasLoginSuccessfully(next: boolean) {
-    localStorage.setItem('successLogin', next + '')
+    localStorage.setItem('success_login', next + '')
   }
   nextUrl: string = '/home';
 
@@ -88,11 +88,15 @@ export class LoginComponent {
         this.nextUrl = '/authorize';
       }
     });
+    if (localStorage.getItem('home_notification') !== 'true') {
 
-    this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
-      this.snackBar.open(next, 'OK');
-    })
-
+      this.translate.get("HOME_NOTIFICAIONT").subscribe(next => {
+        this.snackBar.open(next, 'OK');
+        this.snackBar._openedSnackBarRef.afterDismissed().subscribe(() => {
+          localStorage.setItem('home_notification', 'true')
+        })
+      })
+    }
 
     this.loginForm.valueChanges.subscribe(() => {
       if (this.enableLoginError) {

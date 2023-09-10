@@ -1,8 +1,10 @@
 <h2>{{'REGISTER_MY_PROJECT'|translate}}</h2>
 <div class="form-wrapper">
     <lib-factory [formId]="formId"></lib-factory>
-    <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;" [disabled]="createLoading"
-        (click)="create()">{{'CREATE'|translate}}</button>
+    <div style="display: flex; ">
+        <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;" [disabled]="createLoading"
+            (click)="create()">{{'CREATE'|translate}}</button>
+    </div>
 </div>
 <ng-container *ngIf="createLoading">
     <div style="display: flex;flex-direction: column;align-items: center;">
@@ -18,3 +20,7 @@
     <mat-icon style="padding-right:8px;" [color]="'warn'">error</mat-icon>
     <div>{{'NEW_PROJECT_ERROR_NOTE'|translate}}</div>
 </mat-card>
+<div class="default-background" style="display: flex; justify-content: center; ">
+    <div>
+    </div>
+</div>

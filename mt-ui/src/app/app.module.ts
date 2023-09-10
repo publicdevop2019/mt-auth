@@ -83,7 +83,6 @@ import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.compo
 import { PermissionComponent } from './pages/tenant/project/permission/permission.component';
 import { RoleComponent } from './pages/tenant/project/role/role.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
-import { UpdatePwdComponent } from './pages/common/update-pwd/update-pwd.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
 import { DeviceService } from './services/device.service';
@@ -137,6 +136,7 @@ import { UserNotificationComponent } from './pages/common/user-notification/user
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
+import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -151,7 +151,6 @@ import { LanguageService } from './services/language.service';
     AuthorizeComponent,
     SummaryEndpointComponent,
     BackButtonComponent,
-    UpdatePwdComponent,
     OperationConfirmDialogComponent,
     SettingComponent,
     EditableFieldComponent,
@@ -220,6 +219,7 @@ import { LanguageService } from './services/language.service';
     UserNotificationComponent,
     ErrorLookupComponent,
     DashboardComponent,
+    ClientCreateDialogComponent,
 
   ],
   imports: [

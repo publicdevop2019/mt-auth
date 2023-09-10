@@ -42,9 +42,9 @@ public class SubRequestApplicationService {
      * @return paginated data
      */
     public SumPagedRep<SubRequest> query(String queryParam, String pageParam) {
-        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        ProjectId id = DomainRegistry.getCurrentUserService().getViewProjectId();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(tenantIds, SUB_REQ_MGMT);
+            .canAccess(id, SUB_REQ_MGMT);
         SubRequestQuery subRequestQuery = new SubRequestQuery(queryParam, pageParam);
         return DomainRegistry.getSubRequestRepository()
             .query(subRequestQuery);
@@ -57,9 +57,9 @@ public class SubRequestApplicationService {
      * @return paginated data
      */
     public SumPagedRep<SubRequest> query(String pageParam) {
-        Set<ProjectId> tenantIds = DomainRegistry.getCurrentUserService().getTenantIds();
+        ProjectId id = DomainRegistry.getCurrentUserService().getViewProjectId();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(tenantIds, SUB_REQ_MGMT);
+            .canAccess(id, SUB_REQ_MGMT);
         SubRequestQuery subRequestQuery = SubRequestQuery.mySubscriptions(pageParam);
         return DomainRegistry.getSubRequestRepository().getMySubscriptions(subRequestQuery);
     }

@@ -26,7 +26,7 @@ export class UserNotificationComponent extends SummaryEntityComponent<IBellNotif
   ) {
     super(entitySvc, deviceSvc, bottomSheet, fis,-2);
     this.doRefresh();
-
+    this.initTableSetting();
   }
   doRefresh(){
     super.doSearch({value:'',resetPage:false})

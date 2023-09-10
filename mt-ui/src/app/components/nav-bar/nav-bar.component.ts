@@ -39,13 +39,6 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
-      link: 'message-center',
-      display: 'MESSAGE_DASHBOARD',
-      icon: 'message',
-      params: {
-      },
-    },
-    {
       link: 'registry',
       display: 'REGISTRY_STATUS',
       icon: 'receipt',
@@ -121,7 +114,7 @@ export class NavBarComponent implements OnInit {
     {
       link: 'my-project',
       display: 'MY_PROJECT',
-      icon: 'blur_on',
+      icon: 'leaderboard',
       authName: ['VIEW_PROJECT_INFO', 'EDIT_PROJECT_INFO'],
       params: {
       },
@@ -137,24 +130,8 @@ export class NavBarComponent implements OnInit {
     {
       link: 'my-api',
       display: 'MY_API',
-      icon: 'mediation',
+      icon: 'api',
       authName: ['CREATE_API', 'EDIT_API', 'VIEW_API'],
-      params: {
-      },
-    },
-    {
-      link: 'my-cors',
-      display: 'MY_CORS',
-      icon: 'share',
-      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
-      params: {
-      },
-    },
-    {
-      link: 'my-cache',
-      display: 'MY_CACHE',
-      icon: 'local_offer',
-      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
       params: {
       },
     },
@@ -183,6 +160,22 @@ export class NavBarComponent implements OnInit {
       },
     },
     {
+      link: 'my-cors',
+      display: 'MY_CORS',
+      icon: 'strikethrough_s',
+      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
+      params: {
+      },
+    },
+    {
+      link: 'my-cache',
+      display: 'MY_CACHE',
+      icon: 'cached',
+      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
+      params: {
+      },
+    },
+    {
       link: 'my-admin',
       display: 'MY_ADMIN_DASHBOARD',
       icon: 'admin_panel_settings',
@@ -191,78 +184,32 @@ export class NavBarComponent implements OnInit {
       },
     },
   ];
-  menuMisc: INavElement[] = [
-    {
-      link: 'updatePwd',
-      display: 'UPDATE_PASSWORD',
-      icon: 'vpn_key',
-      params: {
-      },
-    },
-    {
-      link: 'settings',
-      display: 'SYSTEM_SETTINGS',
-      icon: 'settings',
-      params: {
-      },
-    },
-  ];
-  menuTop: INavElement[] = [
-    {
-      link: 'welcome',
-      display: 'WELCOME',
-      icon: 'dashboard',
-      params: {
-      },
-    },
-    {
-      link: 'new-project',
-      display: 'REGISTER_MY_PROJECT',
-      icon: 'blur_on',
-      params: {
-      },
-    },
-    {
-      link: 'my-profile',
-      display: 'MY_PROFILE',
-      icon: 'account_circle',
-      params: {
-      },
-    },
-    {
-      link: 'user-notification',
-      display: 'USER_MESSAGE',
-      icon: 'message',
-      params: {
-      },
-    },
-  ];
   menuEp: INavElement[] = [
     {
       link: 'api-center',
       display: 'API_CENTER',
-      icon: 'mediation',
+      icon: 'store',
       params: {
       },
     },
     {
       link: 'my-sub-request',
       display: 'MY_SUB_REQUEST',
-      icon: 'request_page',
+      icon: 'shopping_cart',
       params: {
       },
     },
     {
       link: 'pending-sub-request',
       display: 'PENDING_SUB_REQUEST',
-      icon: 'request_quote',
+      icon: 'checklist',
       params: {
       },
     },
     {
       link: 'my-subs',
       display: 'MY_SUBS',
-      icon: 'contact_page',
+      icon: 'subscriptions',
       params: {
       },
     },
@@ -295,10 +242,20 @@ export class NavBarComponent implements OnInit {
   }
 
   closedHander(panelName: string) {
-    localStorage.setItem(panelName, 'false')
+    localStorage.removeItem(panelName)
   }
   navExpand(panelName: string) {
     return localStorage.getItem(panelName) === 'true'
+  }
+  openedSideBar() {
+    localStorage.removeItem('close_side_bar')
+  }
+
+  closedSideBar() {
+    localStorage.setItem('close_side_bar', 'true')
+  }
+  navSideBar() {
+    return localStorage.getItem('close_side_bar') !== 'true'
   }
   ngOnDestroy(): void {
     this.mobileQuery.removeListener(this._mobileQueryListener);
@@ -310,15 +267,17 @@ export class NavBarComponent implements OnInit {
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects = next.data;
-      Logger.trace("view tenant id {}", this.httpProxySvc.currentUserAuthInfo.viewTenantId)
-      this.projectSvc.viewProject = next.data.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
-      Logger.debug("view project is {}", this.projectSvc.viewProject)
-      this.switchProjectForm.get('viewTenantId').setValue(this.projectSvc.viewProject.id, { emitEvent: false })
-      this.totalProjectsOptions = this.projectSvc.totalProjects.map(e => { return { value: e.id, label: e.name } as IOption })
-      
-      this.projectSvc.findUiPermission(this.projectSvc.viewProject.id).subscribe(next => {
-        this.projectSvc.permissionDetail.next(next);
-      })
+      if(this.projectSvc.totalProjects && this.projectSvc.totalProjects.length>0){
+        Logger.trace("view tenant id {}", this.httpProxySvc.currentUserAuthInfo.viewTenantId)
+        this.projectSvc.viewProject = next.data.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
+        Logger.debug("view project is {}", this.projectSvc.viewProject)
+        this.switchProjectForm.get('viewTenantId').setValue(this.projectSvc.viewProject.id, { emitEvent: false })
+        this.totalProjectsOptions = this.projectSvc.totalProjects.map(e => { return { value: e.id, label: e.name } as IOption })
+        
+        this.projectSvc.findUiPermission(this.projectSvc.viewProject.id).subscribe(next => {
+          this.projectSvc.permissionDetail.next(next);
+        })
+      }
     })
     if (this.httpProxySvc.currentUserAuthInfo.permissionIds.includes('0Y8HVWH0K64P')) {
       this.msgSvc.connectToMonitor();
@@ -339,7 +298,11 @@ export class NavBarComponent implements OnInit {
       this.httpProxySvc.refreshToken(next).subscribe(newToken => {
         this.httpProxySvc.currentUserAuthInfo = newToken;
         this.projectSvc.viewProject = this.projectSvc.totalProjects.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
-        this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+        this.projectSvc.findUiPermission(next).subscribe(next => {
+          this.projectSvc.permissionDetail.next(next);
+          Logger.debug("view project {}", this.projectSvc.viewProject)
+          this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+        })
       })
     })
   }
@@ -384,5 +347,11 @@ export class NavBarComponent implements OnInit {
   }
   openDoc() {
     window.open('./docs', '_blank').focus();
+  }
+  firstLetter(name:string){
+    if(!name){
+      return '';
+    }
+    return name.substring(0,1).toUpperCase()
   }
 }

@@ -1,9 +1,8 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
-import { take } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { Utility, uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
@@ -14,7 +13,12 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ClientComponent } from '../client/client.component';
 import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IClientCreate } from 'src/app/misc/interface';
+import { MatDialog } from '@angular/material/dialog';
+import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';
+import { switchMap } from 'rxjs/operators';
+import { Logger } from 'src/app/misc/logger';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 
 @Component({
   selector: 'app-my-clients',
@@ -75,6 +79,8 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public route: ActivatedRoute,
+    private router: Router,
+    public dialog: MatDialog,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
     (!this.authSvc.advancedMode) && this.deviceSvc.refreshSummary.subscribe(() => {
@@ -140,5 +146,23 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
   }
   removeFirst(input: string[]) {
     return input.filter((e, i) => i !== 0);
+  }
+  createNewClient() {
+    // const dialogRef = this.dialog.open(ClientCreateDialogComponent, { data: {} });
+    // dialogRef.afterClosed().subscribe(next => {
+    //   if (next !== undefined) {
+    //     Logger.debugObj('client basic info',next)
+    //     const data = <IDomainContext<IClient>>{ context: 'new', from: next, params: this.bottomSheetParams }
+    //     this.router.navigate(['home', 'client-detail'], { state: data})
+    //   }
+    // })
+    const data = <IDomainContext<IClientCreate>>{ context: 'new', from: { projectId: this.entitySvc.getProjectId() }, params: this.bottomSheetParams }
+    this.router.navigate(['home', 'client-detail'], { state: data })
+  }
+  editClient(id: string): void {
+    this.entitySvc.readById(id).subscribe(next => {
+      const data = <IDomainContext<IClient>>{ context: 'edit', from: next, params: this.bottomSheetParams }
+      this.router.navigate(['home', 'client-detail'], { state: data })
+    })
   }
 }
