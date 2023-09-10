@@ -22,5 +22,7 @@ public interface CurrentUserService {
 
     Set<ProjectId> getTenantIds();
 
+    ProjectId getViewProjectId();
+
     Set<PermissionId> getPermissionIds();
 }

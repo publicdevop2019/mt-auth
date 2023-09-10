@@ -13,7 +13,7 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { ClientComponent } from '../client/client.component';
 import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IClientCreate } from 'src/app/misc/interface';
 import { MatDialog } from '@angular/material/dialog';
 import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';
 import { switchMap } from 'rxjs/operators';
@@ -148,19 +148,21 @@ export class MyClientsComponent extends TenantSummaryEntityComponent<IClient, IC
     return input.filter((e, i) => i !== 0);
   }
   createNewClient() {
-    const dialogRef = this.dialog.open(ClientCreateDialogComponent, { data: {} });
-    dialogRef.afterClosed().subscribe(next => {
-      if (next !== undefined) {
-        Logger.debugObj('client basic info',next)
-        const data = <IDomainContext<IClient>>{ context: 'new', from: next, params: this.bottomSheetParams }
-        this.router.navigate(['home', 'client-detail'], { state: data})
-      }
-    })
+    // const dialogRef = this.dialog.open(ClientCreateDialogComponent, { data: {} });
+    // dialogRef.afterClosed().subscribe(next => {
+    //   if (next !== undefined) {
+    //     Logger.debugObj('client basic info',next)
+    //     const data = <IDomainContext<IClient>>{ context: 'new', from: next, params: this.bottomSheetParams }
+    //     this.router.navigate(['home', 'client-detail'], { state: data})
+    //   }
+    // })
+    const data = <IDomainContext<IClientCreate>>{ context: 'new', from: { projectId: this.entitySvc.getProjectId() }, params: this.bottomSheetParams }
+    this.router.navigate(['home', 'client-detail'], { state: data })
   }
   editClient(id: string): void {
     this.entitySvc.readById(id).subscribe(next => {
       const data = <IDomainContext<IClient>>{ context: 'edit', from: next, params: this.bottomSheetParams }
-      this.router.navigate(['home', 'client-detail'], { state: data})
+      this.router.navigate(['home', 'client-detail'], { state: data })
     })
   }
 }

@@ -104,8 +104,8 @@ export class ClientComponent implements OnDestroy {
     if (this.data.context === 'new') {
       const createData = this.router.getCurrentNavigation().extras.state as IDomainContext<IClientCreate>
       this.fis.formGroups[this.formId].get('projectId').setValue(createData.from.projectId)
-      this.fis.formGroups[this.formId].get('name').setValue(createData.from.name)
-      this.fis.formGroups[this.formId].get('frontOrBackApp').setValue(createData.from.type)
+      // this.fis.formGroups[this.formId].get('name').setValue(createData.from.name)
+      // this.fis.formGroups[this.formId].get('frontOrBackApp').setValue(createData.from.type)
     }
     if (this.data.context === 'edit') {
       const var0: Observable<any>[] = [];

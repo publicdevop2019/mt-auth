@@ -8,8 +8,6 @@ import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.jwt.JwtUtility;
-import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -27,6 +25,7 @@ import org.springframework.web.context.annotation.RequestScope;
 public class JwtCurrentUserService implements CurrentUserService {
 
     public static final String TENANT_IDS = "tenantIds";
+    public static final String VIEW_TENANT_ID = "viewTenantId";
     @Autowired
     private UserJwt userJwt;
 
@@ -89,6 +88,13 @@ public class JwtCurrentUserService implements CurrentUserService {
         List<String> ids = JwtUtility.getField(TENANT_IDS, jwt);
         return ids == null ? Collections.emptySet() :
             ids.stream().map(ProjectId::new).collect(Collectors.toSet());
+    }
+
+    @Override
+    public ProjectId getViewProjectId() {
+        String jwt = userJwt.get();
+        String id = JwtUtility.getField(VIEW_TENANT_ID, jwt);
+        return id == null ? null : new ProjectId(id);
     }
 
     @Override

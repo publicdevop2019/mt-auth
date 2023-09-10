@@ -2,29 +2,34 @@
 /* light mode */
 /* @import '~@angular/material/prebuilt-themes/indigo-pink.css'; */
 @import '~@angular/material/prebuilt-themes/deeppurple-amber.css';
+
 /* dark mode */
 /* @import '~@angular/material/prebuilt-themes/pink-bluegrey.css'; */
 /* @import '~@angular/material/prebuilt-themes/purple-green.css'; */
-body { 
-    font-family: Roboto, Arial, sans-serif;
-    margin: 0;
-  }
-.centered{
+body {
+  font-family: Roboto, Arial, sans-serif;
+  margin: 0;
+}
+
+.centered {
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
   vertical-align: middle;
 }
-.nav-back{
+
+.nav-back {
   text-align: left !important;
   padding-left: 0px !important;
   margin-bottom: 10px !important;
   margin-top: 10px !important;
 }
+
 .mat-expansion-panel {
   border-radius: 0px !important;
 }
+
 /* .mat-stepper-horizontal, .mat-stepper-vertical {
   background-color: #fafafa;
 } */
@@ -32,20 +37,25 @@ body {
 table {
   width: 100%;
 }
+
 .mat-form-field {
   font-size: 14px;
   width: 100%;
 }
+
 .table-container {
-  overflow: auto; 
+  overflow: auto;
 }
-td, th {
+
+td,
+th {
   padding-right: 10px;
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
   padding-right: 8px !important;
 }
+
 /* end of table */
 
 .mat-bottom-sheet-container-medium {
@@ -68,49 +78,68 @@ td, th {
   width: 96vw;
   height: 80vh !important;
 }
+
 .mat-bottom-sheet-container {
   min-width: 96vw;
 }
-.flex-row-space-between{
-  display: flex; 
+
+.flex-row-space-between {
+  display: flex;
   flex-direction: row;
   justify-content: space-between;
 }
-.fix-height{
+
+.fix-height {
   height: 80vh !important;
 }
-.app-btn{
+
+.app-btn {
   width: 100%;
 }
-.table-icon{
+
+.table-icon {
   width: 25px;
   cursor: pointer;
 }
+
 th.mat-sort-header-sorted {
   color: black;
 }
+
 .mat-chip-list-wrapper {
   flex-wrap: nowrap !important;
   display: block !important;
   margin: 0px !important;
 }
+
 .mat-menu-panel {
   max-height: 300px !important;
 }
+
 .mat-form-field-infix {
   width: auto !important;
 }
+
 .marker-boarder .form-body {
   margin-bottom: 24px !important;
   border-left: 2px solid #673ab7 !important;
 }
-.mat-menu-panel{
+
+.mat-menu-panel {
   overflow-x: hidden !important;
 }
+
 .mat-menu-panel {
-  max-width: 372px !important; 
+  max-width: 372px !important;
 }
+
 .mat-menu-content:not(:empty) {
   padding-top: 0px !important;
   padding-bottom: 0px !important;
+}
+
+.default-background {
+  max-width: 960px;
+  margin: 0px auto;
+  padding: 20px 24px 50px 24px;
 }

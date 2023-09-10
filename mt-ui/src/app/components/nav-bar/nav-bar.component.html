@@ -111,30 +111,33 @@
             [opened]="navSideBar()" (opened)="openedSideBar()" (closed)="closedSideBar()"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
             <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
-            *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
-            <mat-expansion-panel-header>
-                <mat-panel-title style="font-weight: 600;">
-                    {{'AUTH_CENTER'| translate}}
-                </mat-panel-title>
-            </mat-expansion-panel-header>
+                *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
+                <mat-expansion-panel-header>
+                    <mat-panel-title style="font-weight: 600;">
+                        {{'AUTH_CENTER'| translate}}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-nav-list>
+                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                        *ngFor="let nav of menuMgmt">
+                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">{{nav.icon}}</mat-icon>
+                        {{nav.display| translate}}
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-expansion-panel>
             <mat-nav-list>
-                <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                    [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                    *ngFor="let nav of menuMgmt">
-                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                    {{nav.display| translate}}
-                </mat-list-item>
-            </mat-nav-list>
-        </mat-expansion-panel>
-            <mat-nav-list>
-                <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                    style="font-size: 14px;" [queryParams]="nav.params" *ngFor="let nav of menuTop">
-                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px"
-                        *ngIf="nav.icon">{{nav.icon}}</mat-icon>{{nav.display|
+                <mat-list-item mat-list-item [routerLink]="'welcome'" routerLinkActive="nav-active"
+                    style="font-size: 14px;">
+                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px">home</mat-icon>{{'WELCOME'|
                     translate}}
                 </mat-list-item>
+                <mat-list-item mat-list-item [routerLink]="'new-project'" routerLinkActive="nav-active"
+                    style="font-size: 14px;">
+                    <mat-icon style="padding-right:8px" color="primary">add_box</mat-icon>{{'REGISTER_MY_PROJECT'| translate}}
+                </mat-list-item>
             </mat-nav-list>
-            <ng-container *ngIf="projectSvc.viewProject">
+            <ng-container *ngIf="projectSvc.viewProject && projectSvc.viewProject.id">
                 <mat-nav-list>
                     <ng-container *ngFor="let nav of menuTenant">
                         <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/'+nav.link"
@@ -149,21 +152,21 @@
                 </mat-nav-list>
             </ng-container>
             <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')"
-            (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
-            <mat-expansion-panel-header>
-                <mat-panel-title>
-                    <mat-icon fontSet="material-icons-outlined">code</mat-icon>
-                    {{'ENDPOINT_CENTER'| translate}}
-                </mat-panel-title>
-            </mat-expansion-panel-header>
-            <mat-nav-list>
-                <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
-                    [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
-                    *ngFor="let nav of menuEp">
-                    {{nav.display| translate}}
-                </mat-list-item>
-            </mat-nav-list>
-        </mat-expansion-panel>
+                (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
+                <mat-expansion-panel-header>
+                    <mat-panel-title>
+                        <mat-icon fontSet="material-icons-outlined">code</mat-icon>
+                        {{'ENDPOINT_CENTER'| translate}}
+                    </mat-panel-title>
+                </mat-expansion-panel-header>
+                <mat-nav-list>
+                    <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
+                        [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
+                        *ngFor="let nav of menuEp">
+                        {{nav.display| translate}}
+                    </mat-list-item>
+                </mat-nav-list>
+            </mat-expansion-panel>
         </mat-sidenav>
 
         <mat-sidenav-content [style.padding-left.px]="mobileQuery.matches ? 15 : 30"

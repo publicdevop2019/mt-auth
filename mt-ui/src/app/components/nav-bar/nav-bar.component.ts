@@ -184,22 +184,6 @@ export class NavBarComponent implements OnInit {
       },
     },
   ];
-  menuTop: INavElement[] = [
-    {
-      link: 'welcome',
-      display: 'WELCOME',
-      icon: 'home',
-      params: {
-      },
-    },
-    {
-      link: 'new-project',
-      display: 'REGISTER_MY_PROJECT',
-      icon: 'add_box',
-      params: {
-      },
-    },
-  ];
   menuEp: INavElement[] = [
     {
       link: 'api-center',
@@ -314,7 +298,11 @@ export class NavBarComponent implements OnInit {
       this.httpProxySvc.refreshToken(next).subscribe(newToken => {
         this.httpProxySvc.currentUserAuthInfo = newToken;
         this.projectSvc.viewProject = this.projectSvc.totalProjects.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
-        this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+        this.projectSvc.findUiPermission(next).subscribe(next => {
+          this.projectSvc.permissionDetail.next(next);
+          Logger.debug("view project {}", this.projectSvc.viewProject)
+          this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+        })
       })
     })
   }

@@ -148,9 +148,9 @@ export interface IUpdatePwdCommand {
     currentPwd: string;
 }
 export interface IClientCreate {
-    name: string;
+    name?: string;
     projectId: string;
-    type: string
+    type?: string
 }
 export interface IClient extends IIdName {
     name: string;

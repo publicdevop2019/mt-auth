@@ -21,16 +21,8 @@ import org.springframework.stereotype.Service;
 public class PermissionCheckService {
     public void canAccess(Set<ProjectId> ids, String permissionName) {
         Validator.notNull(ids);
+        Validator.notEmpty(ids);
         Analytics permissionAnalytics = Analytics.start(Analytics.Type.PERMISSION_CHECK);
-        if (ids == null) {
-            throw new DefinedRuntimeException("no project id found", "1027",
-                HttpResponseCode.FORBIDDEN);
-        }
-        Set<ProjectId> collect = ids.stream().filter(Objects::nonNull).collect(Collectors.toSet());
-        if (collect.size() == 0) {
-            throw new DefinedRuntimeException("no project id found", "1028",
-                HttpResponseCode.FORBIDDEN);
-        }
         checkIfOwnsProject(ids);
         //second check if it has read client access to current project
         PermissionQuery permissionQuery = PermissionQuery

@@ -36,6 +36,16 @@ export const FORM_CONFIG: IForm = {
             }
         },
         {
+            "type": "text",
+            "display": true,
+            "label": "ENTER_CLIENT_DESCRIPTION",
+            "key": "description",
+            "position": {
+                "row": "3",
+                "column": "0"
+            },
+        },
+        {
             "type": "radio",
             "display": true,
             "label": "SELECT_APP_TYPE_1",
@@ -50,16 +60,6 @@ export const FORM_CONFIG: IForm = {
                 { label: 'TYPE_FRONTEND_APP', value: 'FRONTEND_APP'},
             ],
             required: true,
-        },
-        {
-            "type": "text",
-            "display": true,
-            "label": "ENTER_DESCRIPTION",
-            "key": "description",
-            "position": {
-                "row": "3",
-                "column": "0"
-            },
         },
         {
             "type": "text",
