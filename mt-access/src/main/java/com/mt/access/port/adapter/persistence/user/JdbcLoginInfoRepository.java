@@ -9,7 +9,6 @@ import com.mt.common.domain.model.sql.DatabaseUtility;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Instant;
-import java.util.Collections;
 import java.util.Optional;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -17,11 +16,25 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public class JdbcLoginInfoRepository implements LoginInfoRepository {
+
+    private static final String UPDATE_LAST_LOGIN_SQL =
+        "UPDATE login_info li SET li.login_at  = ?, li.ip_address = ?, li.agent = ? WHERE li.domain_id = ?";
+    private static final String INSERT_SQL = "INSERT INTO login_info " +
+        "(" +
+        "id, " +
+        "login_at, " +
+        "domain_id, " +
+        "ip_address, " +
+        "agent" +
+        ") VALUES" +
+        "(?,?,?,?,?)";
+    private static final String FIND_BY_DOMAIN_ID_SQL = "SELECT * FROM login_info li WHERE li.domain_id = ?";
+
     @Override
     public Optional<LoginInfo> query(UserId userId) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                "SELECT * FROM login_info li WHERE li.domain_id = ?",
+                FIND_BY_DOMAIN_ID_SQL,
                 new Object[] {userId.getDomainId()},
                 new ResultSetExtractor<Object>() {
                     @Override
@@ -45,15 +58,7 @@ public class JdbcLoginInfoRepository implements LoginInfoRepository {
     @Override
     public void add(LoginInfo info) {
         CommonDomainRegistry.getJdbcTemplate()
-            .update("INSERT INTO login_info " +
-                    "(" +
-                    "id, " +
-                    "login_at, " +
-                    "domain_id, " +
-                    "ip_address, " +
-                    "agent" +
-                    ") VALUES" +
-                    "(?,?,?,?,?)",
+            .update(INSERT_SQL,
                 info.getId(),
                 info.getLoginAt(),
                 info.getUserId().getDomainId(),
@@ -67,10 +72,8 @@ public class JdbcLoginInfoRepository implements LoginInfoRepository {
         long loginAt = Instant.now().toEpochMilli();
         String ipAddress = command.getIpAddress();
         String agent = command.getAgent();
-        String sql =
-            "UPDATE login_info li SET li.login_at  = ?, li.ip_address = ?, li.agent = ? WHERE li.domain_id = ?";
         int update = CommonDomainRegistry.getJdbcTemplate()
-            .update(sql, loginAt, ipAddress, agent, userId.getDomainId());
+            .update(UPDATE_LAST_LOGIN_SQL, loginAt, ipAddress, agent, userId.getDomainId());
         DatabaseUtility.checkUpdate(update);
     }
 }

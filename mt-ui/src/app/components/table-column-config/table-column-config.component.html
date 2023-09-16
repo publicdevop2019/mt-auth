@@ -1,4 +1,6 @@
-<mat-icon style="cursor: pointer;" [matMenuTriggerFor]="more">settings</mat-icon>
+<div style="width: 24px; height: 24px;">
+    <mat-icon style="cursor: pointer;" [matMenuTriggerFor]="more">settings</mat-icon>
+</div>
 <mat-menu #more="matMenu">
     <ng-template matMenuContent>
         <div  style="padding: 8px;" (click)="handleClick($event)">

@@ -62,7 +62,7 @@ public class EndpointMgmtRepresentation {
         if (cacheProfileId != null) {
             Optional<CacheProfile> cacheFetched =
                 DomainRegistry.getCacheProfileRepository()
-                    .query(new CacheProfileQuery(cacheProfileId))
+                    .query(CacheProfileQuery.internalQuery(cacheProfileId))
                     .findFirst();
             this.cacheConfig = new CacheConfig(cacheFetched.get());
         }

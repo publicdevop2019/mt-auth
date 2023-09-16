@@ -2,16 +2,12 @@ package com.mt.access.application.cache_profile;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_CACHE_PROFILE;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_CACHE_PROFILE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_CACHE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_CACHE;
-import static com.mt.access.domain.model.permission.Permission.EDIT_CORS;
 import static com.mt.access.domain.model.permission.Permission.VIEW_CACHE;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
-import com.mt.access.application.cache_profile.command.PatchCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
 import com.mt.access.application.cache_profile.representation.CacheProfileCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -44,7 +40,7 @@ public class CacheProfileApplicationService {
                 ProjectId projectId1 = new ProjectId(projectId);
                 DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
                 SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
-                    .query(new CacheProfileQuery(queryParam, pageParam, config));
+                    .query(CacheProfileQuery.tenantQuery(queryParam, pageParam, config));
                 return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
             });
     }
@@ -82,49 +78,27 @@ public class CacheProfileApplicationService {
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_CACHE);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
-            CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId, cacheProfileId);
+            CacheProfileQuery cacheProfileQuery =
+                CacheProfileQuery.tenantQuery(projectId, cacheProfileId);
             Optional<CacheProfile> cacheProfile1 =
                 DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
-            cacheProfile1.ifPresent(e -> e.update(
-                command.getName(),
-                command.getDescription(),
-                CommonUtility.map(command.getCacheControl(), CacheControlValue::valueOfLabel),
-                command.getExpires(),
-                command.getMaxAge(),
-                command.getSmaxAge(),
-                command.getVary(),
-                command.getAllowCache(),
-                command.getEtag(),
-                command.getWeakValidation(), context
-            ));
+            cacheProfile1.ifPresent(old -> {
+                CacheProfile updated = old.update(
+                    command.getName(),
+                    command.getDescription(),
+                    CommonUtility.map(command.getCacheControl(), CacheControlValue::valueOfLabel),
+                    command.getExpires(),
+                    command.getMaxAge(),
+                    command.getSmaxAge(),
+                    command.getVary(),
+                    command.getAllowCache(),
+                    command.getEtag(),
+                    command.getWeakValidation(), context
+                );
+                DomainRegistry.getCacheProfileRepository().update(old, updated);
+            });
             return null;
         }, CACHE_PROFILE);
-    }
-
-    @AuditLog(actionName = PATCH_TENANT_CACHE_PROFILE)
-    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CORS);
-        CacheProfileId cacheProfileId = new CacheProfileId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                CacheProfileQuery cacheProfileQuery =
-                    new CacheProfileQuery(projectId1, cacheProfileId);
-                Optional<CacheProfile> cacheProfile =
-                    DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
-                if (cacheProfile.isPresent()) {
-                    CacheProfile original = cacheProfile.get();
-                    PatchCacheProfileCommand beforePatch = new PatchCacheProfileCommand(original);
-                    PatchCacheProfileCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, PatchCacheProfileCommand.class);
-                    original.updateNameAndDescription(
-                        afterPatch.getName(),
-                        afterPatch.getDescription()
-                    );
-                }
-                return null;
-            }, CACHE_PROFILE);
     }
 
     @AuditLog(actionName = DELETE_TENANT_CACHE_PROFILE)
@@ -133,18 +107,19 @@ public class CacheProfileApplicationService {
         DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CACHE);
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
-            CacheProfileQuery cacheProfileQuery = new CacheProfileQuery(projectId1, cacheProfileId);
+            CacheProfileQuery cacheProfileQuery =
+                CacheProfileQuery.tenantQuery(projectId1, cacheProfileId);
             Optional<CacheProfile> cacheProfile =
                 DomainRegistry.getCacheProfileRepository().query(cacheProfileQuery).findFirst();
-            cacheProfile.ifPresent(e -> {
-                e.removeAllReference(context);
-                DomainRegistry.getCacheProfileRepository().remove(e);
+            cacheProfile.ifPresent(tobeRemoved -> {
+                tobeRemoved.removeAllReference(context);
+                DomainRegistry.getCacheProfileRepository().remove(tobeRemoved);
                 DomainRegistry.getAuditService()
                     .storeAuditAction(DELETE_TENANT_CACHE_PROFILE,
-                        e);
+                        tobeRemoved);
                 DomainRegistry.getAuditService()
                     .logUserAction(log, DELETE_TENANT_CACHE_PROFILE,
-                        e);
+                        tobeRemoved);
             });
             return null;
         }, CACHE_PROFILE);

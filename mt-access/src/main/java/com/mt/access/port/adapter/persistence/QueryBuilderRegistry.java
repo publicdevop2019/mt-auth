@@ -1,6 +1,5 @@
 package com.mt.access.port.adapter.persistence;
 
-import com.mt.access.port.adapter.persistence.cache_profile.SpringDataJpaCacheProfileRepository;
 import com.mt.access.port.adapter.persistence.client.SpringDataJpaClientRepository;
 import com.mt.access.port.adapter.persistence.cors_profile.SpringDataJpaCorsProfileRepository;
 import com.mt.access.port.adapter.persistence.endpoint.SpringDataJpaEndpointRepository;
@@ -33,9 +32,6 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaCorsProfileRepository.JpaCriteriaApiCorsProfileAdaptor
         corsProfileAdaptor;
-    @Getter
-    private static SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor
-        cacheProfileAdaptor;
     @Getter
     private static SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor;
     @Getter
@@ -80,12 +76,6 @@ public class QueryBuilderRegistry {
     public void setJpaCriteriaApiPermissionAdaptor(
         SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor) {
         QueryBuilderRegistry.permissionAdaptor = permissionAdaptor;
-    }
-
-    @Autowired
-    public void setJpaCriteriaApiCacheProfileAdaptor(
-        SpringDataJpaCacheProfileRepository.JpaCriteriaApiCacheProfileAdaptor cacheProfileAdaptor) {
-        QueryBuilderRegistry.cacheProfileAdaptor = cacheProfileAdaptor;
     }
 
 

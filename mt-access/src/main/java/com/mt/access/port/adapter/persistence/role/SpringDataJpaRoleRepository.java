@@ -6,7 +6,7 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.RoleRepository;
 import com.mt.access.domain.model.role.Role_;
-import com.mt.access.port.adapter.persistence.BatchInsertPermission;
+import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -76,25 +76,25 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                     ps.setString(14, role.getType().name());
                 });
         //for mapped tables
-        List<BatchInsertPermission> commonPermList = new ArrayList<>();
-        List<BatchInsertPermission> apiPermList = new ArrayList<>();
-        List<BatchInsertPermission> extPermList = new ArrayList<>();
+        List<BatchInsertKeyValue> commonPermList = new ArrayList<>();
+        List<BatchInsertKeyValue> apiPermList = new ArrayList<>();
+        List<BatchInsertKeyValue> extPermList = new ArrayList<>();
         roles.forEach(e -> {
             if (Checker.notNullOrEmpty(e.getCommonPermissionIds())) {
-                List<BatchInsertPermission> collect = e.getCommonPermissionIds().stream()
-                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                List<BatchInsertKeyValue> collect = e.getCommonPermissionIds().stream()
+                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 commonPermList.addAll(collect);
             }
             if (Checker.notNullOrEmpty(e.getApiPermissionIds())) {
-                List<BatchInsertPermission> collect = e.getApiPermissionIds().stream()
-                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                List<BatchInsertKeyValue> collect = e.getApiPermissionIds().stream()
+                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 apiPermList.addAll(collect);
             }
             if (Checker.notNullOrEmpty(e.getExternalPermissionIds())) {
-                List<BatchInsertPermission> collect = e.getExternalPermissionIds().stream()
-                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                List<BatchInsertKeyValue> collect = e.getExternalPermissionIds().stream()
+                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 extPermList.addAll(collect);
             }
@@ -109,7 +109,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                         "(?,?)", commonPermList, commonPermList.size(),
                     (ps, perm) -> {
                         ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getDomainId());
+                        ps.setString(2, perm.getValue());
                     });
         }
         if (apiPermList.size() > 0) {
@@ -122,7 +122,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                         "(?,?)", apiPermList, apiPermList.size(),
                     (ps, perm) -> {
                         ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getDomainId());
+                        ps.setString(2, perm.getValue());
                     });
         }
         if (extPermList.size() > 0) {
@@ -135,7 +135,7 @@ public interface SpringDataJpaRoleRepository extends RoleRepository, JpaReposito
                         "(?,?)", extPermList, extPermList.size(),
                     (ps, perm) -> {
                         ps.setLong(1, perm.getId());
-                        ps.setString(2, perm.getDomainId());
+                        ps.setString(2, perm.getValue());
                     });
         }
     }

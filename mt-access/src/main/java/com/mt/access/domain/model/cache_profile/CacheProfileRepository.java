@@ -17,4 +17,6 @@ public interface CacheProfileRepository {
     void remove(CacheProfile cacheProfile);
 
     SumPagedRep<CacheProfile> query(CacheProfileQuery cacheProfileQuery);
+
+    void update(CacheProfile e, CacheProfile update);
 }

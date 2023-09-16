@@ -16,14 +16,17 @@ import org.springframework.data.annotation.CreatedDate;
 public class AuditRecord {
     @Id
     @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     protected Long id;
+    @Getter
     private String actionName;
     @Column(columnDefinition = "TEXT")
+    @Getter
     private String detail;
     @CreatedDate
     @Getter
     private Long actionAt;
+    @Getter
     private String actionBy;
 
     public AuditRecord(String actionName, String actionBy, String detail) {

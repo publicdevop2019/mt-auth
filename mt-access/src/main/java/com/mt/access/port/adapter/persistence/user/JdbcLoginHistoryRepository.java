@@ -13,23 +13,27 @@ import java.util.Set;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 @Repository
 public class JdbcLoginHistoryRepository implements LoginHistoryRepository {
+
+    private static final String INSERT_SQL = "INSERT INTO login_history " +
+        "(" +
+        "id, " +
+        "login_at, " +
+        "domain_id, " +
+        "ip_address, " +
+        "agent, " +
+        "project_id" +
+        ") VALUES" +
+        "(?,?,?,?,?,?)";
+    private static final String GET_LATEST_100_SQL =
+        "SELECT * FROM login_history lh WHERE lh.domain_id = ? ORDER BY lh.login_at DESC LIMIT 100";
+
     @Override
     public void add(LoginHistory info) {
         CommonDomainRegistry.getJdbcTemplate()
-            .update("INSERT INTO login_history " +
-                    "(" +
-                    "id, " +
-                    "login_at, " +
-                    "domain_id, " +
-                    "ip_address, " +
-                    "agent, " +
-                    "project_id" +
-                    ") VALUES" +
-                    "(?,?,?,?,?,?)",
+            .update(INSERT_SQL,
                 info.getId(),
                 info.getLoginAt(),
                 info.getUserId().getDomainId(),
@@ -43,7 +47,7 @@ public class JdbcLoginHistoryRepository implements LoginHistoryRepository {
     public Set<LoginHistory> getLast100Login(UserId userId) {
         Object query = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                "SELECT * FROM login_history lh WHERE lh.domain_id = ? ORDER BY lh.login_at DESC LIMIT 100",
+                GET_LATEST_100_SQL,
                 new Object[] {userId.getDomainId()},
                 new ResultSetExtractor<Object>() {
                     @Override

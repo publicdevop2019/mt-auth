@@ -7,7 +7,7 @@ import com.mt.access.domain.model.permission.PermissionQuery;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.Permission_;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.port.adapter.persistence.BatchInsertPermission;
+import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.access.port.adapter.persistence.QueryBuilderRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -139,11 +138,11 @@ public interface SpringDataJpaPermissionRepository
                     ps.setString(14, permission.getType().name());
                 });
         //for linked tables
-        List<BatchInsertPermission> linkedPermList = new ArrayList<>();
+        List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
         permissions.forEach(e -> {
             if (Checker.notNullOrEmpty(e.getLinkedApiPermissionIds())) {
-                List<BatchInsertPermission> collect = e.getLinkedApiPermissionIds().stream()
-                    .map(ee -> new BatchInsertPermission(e.getId(), ee.getDomainId())).collect(
+                List<BatchInsertKeyValue> collect = e.getLinkedApiPermissionIds().stream()
+                    .map(ee -> new BatchInsertKeyValue(e.getId(), ee.getDomainId())).collect(
                         Collectors.toList());
                 linkedPermList.addAll(collect);
             }
@@ -157,7 +156,7 @@ public interface SpringDataJpaPermissionRepository
                     "(?,?)", linkedPermList, linkedPermList.size(),
                 (ps, permission) -> {
                     ps.setLong(1, permission.getId());
-                    ps.setString(2, permission.getDomainId());
+                    ps.setString(2, permission.getValue());
                 });
     }
 

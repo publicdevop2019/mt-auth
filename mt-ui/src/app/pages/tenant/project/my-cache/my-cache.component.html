@@ -8,9 +8,9 @@
         *ngIf="extractResult(canDo('CREATE_CACHE')) |async ">{{'ADD'|translate}}</button>
 </div>
 <ng-container *ngIf="extractResult(canDo('VIEW_CACHE'))|async">
-    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
-    </app-search>
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px; margin-right: 12px;"
+        (click)="doRefresh()">{{'REFRESH'|translate}}</button>
         <app-table-column-config [formId]="formId"></app-table-column-config>
     </div>
     <div>
@@ -27,17 +27,14 @@
                 <ng-container matColumnDef="description">
                     <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
-                        <app-editable-field [inputValue]="row.description"
-                            (newValue)="doPatch(row.id,$event,'description')">
-                        </app-editable-field>
+                        {{row.description}}
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
-                        <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
-                        </app-editable-field>
+                        {{row.name}}
                     </td>
                 </ng-container>
 

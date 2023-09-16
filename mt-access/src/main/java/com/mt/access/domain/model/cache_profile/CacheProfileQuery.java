@@ -6,85 +6,61 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.ToString;
 
 @Getter
 @ToString
 public class CacheProfileQuery extends QueryCriteria {
-    private static final String ID = "id";
     private static final String PROJECT_ID = "projectIds";
     private Set<CacheProfileId> ids;
-    private CacheProfileSort sort;
     private ProjectId projectId;
 
-    public CacheProfileQuery(String queryParam, String pageParam, String config) {
-        updateQueryParam(queryParam);
+    public static CacheProfileQuery tenantQuery(String queryParam, String pageParam,
+                                                String config) {
+        return new CacheProfileQuery(queryParam, pageParam, config);
+    }
+
+    public static CacheProfileQuery tenantQuery(ProjectId projectId,
+                                                CacheProfileId cacheProfileId) {
+        return new CacheProfileQuery(projectId, cacheProfileId);
+    }
+
+    public static CacheProfileQuery internalQuery(Set<CacheProfileId> ids) {
+        return new CacheProfileQuery(ids);
+    }
+
+    public static CacheProfileQuery internalQuery(CacheProfileId id) {
+        return new CacheProfileQuery(Collections.singleton(id));
+    }
+
+    private CacheProfileQuery(String queryParam, String pageParam, String config) {
+        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, PROJECT_ID);
+        Optional.ofNullable(stringStringMap.get(PROJECT_ID))
+            .ifPresent(e -> projectId = new ProjectId(e));
         Validator.notNull(projectId);
         setPageConfig(PageConfig.limited(pageParam, 40));
         setQueryConfig(new QueryConfig(config));
-        setSort(pageConfig);
     }
 
-    public CacheProfileQuery(CacheProfileId id) {
-        Validator.notNull(id);
-        this.ids = Collections.singleton(id);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        setSort(pageConfig);
-    }
-
-    public CacheProfileQuery(Set<CacheProfileId> collect) {
-        Validator.notNull(collect);
-        Validator.noNullMember(collect);
-        this.ids = collect;
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        setSort(pageConfig);
-    }
-
-    public CacheProfileQuery(ProjectId projectId, CacheProfileId cacheProfileId) {
+    private CacheProfileQuery(ProjectId projectId, CacheProfileId cacheProfileId) {
         Validator.notNull(cacheProfileId);
         Validator.notNull(projectId);
         this.ids = Collections.singleton(cacheProfileId);
         this.projectId = projectId;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        setSort(pageConfig);
     }
 
-    private void setSort(PageConfig pageConfig) {
-        this.sort = CacheProfileSort.byId(pageConfig.isSortOrderAsc());
-    }
-
-    private void updateQueryParam(String queryParam) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-            ID, PROJECT_ID);
-        Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> ids =
-            Arrays.stream(e.split("\\.")).map(CacheProfileId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(PROJECT_ID))
-            .ifPresent(e -> projectId = new ProjectId(e));
-    }
-
-    @Getter
-    public static class CacheProfileSort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        public CacheProfileSort(boolean sortOrderAsc) {
-            this.isAsc = sortOrderAsc;
-        }
-
-        public static CacheProfileSort byId(boolean sortOrderAsc) {
-            CacheProfileSort cacheProfileSort = new CacheProfileSort(sortOrderAsc);
-            cacheProfileSort.byId = true;
-            return cacheProfileSort;
-        }
+    private CacheProfileQuery(Set<CacheProfileId> ids) {
+        Validator.notNull(ids);
+        Validator.noNullMember(ids);
+        this.ids = ids;
+        setPageConfig(PageConfig.defaultConfig());
+        setQueryConfig(QueryConfig.skipCount());
     }
 }

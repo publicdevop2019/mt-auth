@@ -321,7 +321,7 @@ public class CrossDomainValidationService {
             DomainRegistry.getEndpointRepository().getCacheProfileIds();
         Set<CacheProfile> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getCacheProfileRepository().query(e),
-                new CacheProfileQuery(cacheProfileIds));
+                CacheProfileQuery.internalQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
             context
                 .append(new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CACHE_PROFILE"));

@@ -10,7 +10,6 @@ public class AuditActionName {
     public static final String DELETE_TENANT_CORS_PROFILE = "DELETE_TENANT_CORS_PROFILE";
     public static final String CREATE_TENANT_CACHE_PROFILE = "CREATE_TENANT_CACHE_PROFILE";
     public static final String UPDATE_TENANT_CACHE_PROFILE = "UPDATE_TENANT_CACHE_PROFILE";
-    public static final String PATCH_TENANT_CACHE_PROFILE = "PATCH_TENANT_CACHE_PROFILE";
     public static final String DELETE_TENANT_CACHE_PROFILE = "DELETE_TENANT_CACHE_PROFILE";
     public static final String CREATE_TENANT_ENDPOINT = "CREATE_TENANT_ENDPOINT";
     public static final String UPDATE_TENANT_ENDPOINT = "UPDATE_TENANT_ENDPOINT";
