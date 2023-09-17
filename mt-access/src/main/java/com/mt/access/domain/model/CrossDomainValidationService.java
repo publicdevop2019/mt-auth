@@ -248,7 +248,7 @@ public class CrossDomainValidationService {
             DomainRegistry.getEndpointRepository().getCorsProfileIds();
         Set<CorsProfile> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().query(e),
-                new CorsProfileQuery(corsProfileIds));
+                CorsProfileQuery.internalQuery(corsProfileIds));
         if (allByQuery.size() != corsProfileIds.size()) {
             context
                 .append(new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CORS_PROFILE"));

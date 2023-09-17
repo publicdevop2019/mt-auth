@@ -12,6 +12,7 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,7 +31,6 @@ import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Slf4j
 @Entity
@@ -96,7 +96,28 @@ public class CorsProfile extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
     }
 
-    public void update(
+    public static CorsProfile fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                              Long modifiedAt, String modifiedBy, Integer version,
+                                              Boolean allowCredentials, CorsProfileId domainId,
+                                              String description, Long maxAge, String name,
+                                              ProjectId projectId) {
+        CorsProfile corsProfile = new CorsProfile();
+        corsProfile.setId(id);
+        corsProfile.setCreatedAt(createdAt);
+        corsProfile.setCreatedBy(createdBy);
+        corsProfile.setModifiedAt(modifiedAt);
+        corsProfile.setModifiedBy(modifiedBy);
+        corsProfile.setVersion(version);
+        corsProfile.setAllowCredentials(allowCredentials);
+        corsProfile.setCorsId(domainId);
+        corsProfile.setDescription(description);
+        corsProfile.setMaxAge(maxAge);
+        corsProfile.setName(name);
+        corsProfile.setProjectId(projectId);
+        return corsProfile;
+    }
+
+    public CorsProfile update(
         String name,
         String description,
         Set<String> allowedHeaders,
@@ -106,25 +127,28 @@ public class CorsProfile extends Auditable {
         Long maxAge,
         TransactionContext context
     ) {
-        CorsProfile original =
+        CorsProfile updated =
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
-        //exclude name and description from comparison and bypass setter check
-        original.name = null;
-        original.description = null;
-        setName(name);
-        setDescription(description);
-        setAllowedHeaders(allowedHeaders);
-        setAllowCredentials(allowCredentials);
-        setAllowOrigin(allowOrigin);
-        setExposedHeaders(exposedHeaders);
-        setMaxAge(maxAge);
-        CorsProfile afterUpdate =
-            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CorsProfile.class);
-        afterUpdate.name = null;
-        afterUpdate.description = null;
-        if (!original.equals(afterUpdate)) {
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setAllowedHeaders(allowedHeaders);
+        updated.setAllowCredentials(allowCredentials);
+        updated.setAllowOrigin(allowOrigin);
+        updated.setExposedHeaders(exposedHeaders);
+        updated.setMaxAge(maxAge);
+        if (this.keyFieldChanged(updated)) {
             context.append(new CorsProfileUpdated(this));
         }
+        return updated;
+    }
+
+    private boolean keyFieldChanged(CorsProfile o) {
+        return
+            !Objects.equals(allowCredentials, o.allowCredentials) ||
+                !Objects.equals(exposedHeaders, o.exposedHeaders) ||
+                !Objects.equals(allowedHeaders, o.allowedHeaders) ||
+                !Objects.equals(maxAge, o.maxAge) ||
+                !Objects.equals(allowOrigin, o.allowOrigin);
     }
 
     public void update(

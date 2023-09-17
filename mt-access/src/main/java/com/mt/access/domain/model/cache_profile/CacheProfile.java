@@ -31,6 +31,7 @@ import lombok.extern.slf4j.Slf4j;
 @NoArgsConstructor
 @Getter
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class CacheProfile extends Auditable {
 
     private String name;
@@ -285,7 +286,7 @@ public class CacheProfile extends Auditable {
         context.append(new CacheProfileRemoved(this));
     }
 
-    public boolean keyFieldsChanged(CacheProfile o) {
+    private boolean keyFieldsChanged(CacheProfile o) {
         return
             !Objects.equals(allowCache, o.allowCache) ||
                 !Objects.equals(cacheControl, o.cacheControl) ||
@@ -294,36 +295,5 @@ public class CacheProfile extends Auditable {
                 !Objects.equals(smaxAge, o.smaxAge) ||
                 !Objects.equals(vary, o.vary) && Objects.equals(etag, o.etag) ||
                 !Objects.equals(weakValidation, o.weakValidation);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        if (!super.equals(o)) {
-            return false;
-        }
-        CacheProfile that = (CacheProfile) o;
-        return Objects.equals(name, that.name) &&
-            Objects.equals(description, that.description) &&
-            Objects.equals(cacheProfileId, that.cacheProfileId) &&
-            Objects.equals(allowCache, that.allowCache) &&
-            Objects.equals(cacheControl, that.cacheControl) &&
-            Objects.equals(expires, that.expires) &&
-            Objects.equals(maxAge, that.maxAge) &&
-            Objects.equals(smaxAge, that.smaxAge) &&
-            Objects.equals(vary, that.vary) && Objects.equals(etag, that.etag) &&
-            Objects.equals(weakValidation, that.weakValidation) &&
-            Objects.equals(projectId, that.projectId);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), name, description, cacheProfileId, allowCache,
-            cacheControl, expires, maxAge, smaxAge, vary, etag, weakValidation, projectId);
     }
 }

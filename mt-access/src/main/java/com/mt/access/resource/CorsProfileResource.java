@@ -89,18 +89,4 @@ public class CorsProfileResource {
             .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
-
-    @PatchMapping(path = "projects/{projectId}/cors/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> tenantPatch(
-        @PathVariable String projectId,
-        @PathVariable(name = "id") String id,
-        @RequestBody JsonPatch patch,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCorsProfileApplicationService()
-            .tenantPatch(projectId, id, patch, changeId);
-        return ResponseEntity.ok().build();
-    }
 }

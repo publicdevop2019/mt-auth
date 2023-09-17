@@ -55,7 +55,11 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
         this.doSearch({ value: '', resetPage: true })
       }
     })
+    const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
+      this.doRefresh()
+    })
     this.subs.add(sub);
+    this.subs.add(sub2);
     this.initTableSetting();
   }
   openBottomSheet(id?: string, clone?: boolean): void {
@@ -80,5 +84,8 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
   }
   removeFirst(input: string[]) {
     return input.filter((e, i) => i !== 0);
+  }
+  doRefresh() {
+    this.doSearch({ value: '', resetPage: false })
   }
 }

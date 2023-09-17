@@ -204,36 +204,6 @@ public class TenantCorsValidationTest{
     }
 
     @ParameterizedTest
-    @ArgumentsSource(NameArgs.class)
-    public void validation_patch_name(String name, HttpStatus status) {
-        Cors cors = CorsUtility.createValidCors();
-        ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(HttpUtility.getId(response2));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        patchCommand.setValue(name);
-        ResponseEntity<Void> response1 =
-            CorsUtility.patchTenantCache(tenantContext, cors, patchCommand);
-        Assertions.assertEquals(status, response1.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(DescriptionArgs.class)
-    public void validation_patch_description(String description, HttpStatus status) {
-        Cors cors = CorsUtility.createValidCors();
-        ResponseEntity<Void> response2 = CorsUtility.createTenantCors(tenantContext, cors);
-        cors.setId(HttpUtility.getId(response2));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        patchCommand.setValue(description);
-        ResponseEntity<Void> response3 =
-            CorsUtility.patchTenantCache(tenantContext, cors, patchCommand);
-        Assertions.assertEquals(status, response3.getStatusCode());
-    }
-
-    @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Cors cors = CorsUtility.createValidCors();

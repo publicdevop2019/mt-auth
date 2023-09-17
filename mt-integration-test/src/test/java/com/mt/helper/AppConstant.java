@@ -10,11 +10,11 @@ public class AppConstant {
     public static final String CLIENT_ID_TEST_ID = "0C8B00CSATJ6";
     public static final String COMMON_CLIENT_SECRET = "root";
     public static final String EMPTY_CLIENT_SECRET = "";
-    public static final String ACCOUNT_USERNAME_ADMIN = "superadmin@sample.com";
+    public static final String ACCOUNT_USERNAME_ADMIN = "admin@sample.com";
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_MALL_ADMIN = "mall@sample.com";
     public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
-    public static final String ACCOUNT_USERNAME_USER = "testuser1@sample.com";
+    public static final String ACCOUNT_USERNAME_USER = "user1@sample.com";
     public static final String ACCOUNT_PASSWORD_USER = "Password1!";
     public static final String SVC_NAME_AUTH = "/auth-svc";
     public static final String SVC_NAME_TEST = "/test-svc";

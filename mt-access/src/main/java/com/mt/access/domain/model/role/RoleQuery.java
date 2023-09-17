@@ -5,6 +5,7 @@ import static com.mt.access.domain.model.role.Role.PROJECT_ADMIN;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -28,7 +29,6 @@ public class RoleQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
     private static final String PARENT_ID = "parentId";
-    private static final String PROJECT_ID = "projectIds";
     private static final String TYPES = "types";
     private RoleSort sort;
     private Set<RoleId> ids;
@@ -42,7 +42,7 @@ public class RoleQuery extends QueryCriteria {
 
     public RoleQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID, PROJECT_ID, TYPES);
+            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID, AppConstant.QUERY_PROJECT_IDS, TYPES);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(
             e -> ids = Arrays.stream(e.split("\\.")).map(RoleId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(NAME))
@@ -55,7 +55,7 @@ public class RoleQuery extends QueryCriteria {
                     parentId = new RoleId(e);
                 }
             });
-        Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> projectIds =
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS)).ifPresent(e -> projectIds =
             Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {
             if (e.contains(".")) {

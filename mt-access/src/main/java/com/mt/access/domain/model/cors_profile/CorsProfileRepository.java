@@ -13,6 +13,8 @@ public interface CorsProfileRepository {
 
     void add(CorsProfile corsProfile);
 
+    void update(CorsProfile old, CorsProfile updated);
+
     void remove(CorsProfile corsProfile);
 
     SumPagedRep<CorsProfile> query(CorsProfileQuery endpointQuery);

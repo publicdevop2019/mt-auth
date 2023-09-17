@@ -13,6 +13,7 @@ import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.cors_profile.CorsProfileQuery;
 import com.mt.access.domain.model.cors_profile.Origin;
 import com.mt.access.domain.model.endpoint.Endpoint;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -68,7 +69,8 @@ public class EndpointMgmtRepresentation {
         }
         if (corsProfileId != null) {
             Optional<CorsProfile> corsFetched =
-                DomainRegistry.getCorsProfileRepository().query(new CorsProfileQuery(corsProfileId))
+                DomainRegistry.getCorsProfileRepository().query(CorsProfileQuery.internalQuery(
+                        Collections.singleton(corsProfileId)))
                     .findFirst();
             this.corsConfig = new CorsConfig(corsFetched.get());
         }

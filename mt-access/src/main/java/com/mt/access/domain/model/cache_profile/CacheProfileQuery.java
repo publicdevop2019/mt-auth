@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.cache_profile;
 
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -16,7 +17,6 @@ import lombok.ToString;
 @Getter
 @ToString
 public class CacheProfileQuery extends QueryCriteria {
-    private static final String PROJECT_ID = "projectIds";
     private Set<CacheProfileId> ids;
     private ProjectId projectId;
 
@@ -39,8 +39,9 @@ public class CacheProfileQuery extends QueryCriteria {
     }
 
     private CacheProfileQuery(String queryParam, String pageParam, String config) {
-        Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam, PROJECT_ID);
-        Optional.ofNullable(stringStringMap.get(PROJECT_ID))
+        Map<String, String> stringStringMap =
+            QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS);
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
             .ifPresent(e -> projectId = new ProjectId(e));
         Validator.notNull(projectId);
         setPageConfig(PageConfig.limited(pageParam, 40));

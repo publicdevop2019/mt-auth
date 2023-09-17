@@ -2,15 +2,12 @@ package com.mt.access.application.cors_profile;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_CORS_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_CORS_PROFILE;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_CORS_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_CORS_PROFILE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_CORS;
 import static com.mt.access.domain.model.permission.Permission.EDIT_CORS;
 import static com.mt.access.domain.model.permission.Permission.VIEW_CORS;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.cors_profile.command.CorsProfileCreateCommand;
-import com.mt.access.application.cors_profile.command.CorsProfilePatchCommand;
 import com.mt.access.application.cors_profile.command.CorsProfileUpdateCommand;
 import com.mt.access.application.cors_profile.representation.CorsProfileRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -41,7 +38,7 @@ public class CorsProfileApplicationService {
             ProjectId projectId = new ProjectId(projectId1);
             DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_CORS);
             SumPagedRep<CorsProfile> query = DomainRegistry.getCorsProfileRepository()
-                .query(new CorsProfileQuery(queryParam, pageParam, config));
+                .query(CorsProfileQuery.tenantQuery(queryParam, pageParam, config));
             return new SumPagedRep<>(query, CorsProfileRepresentation::new);
         }));
     }
@@ -77,19 +74,22 @@ public class CorsProfileApplicationService {
         CorsProfileId corsProfileId = new CorsProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CorsProfileQuery corsProfileQuery =
-                new CorsProfileQuery(projectId, corsProfileId);
+                CorsProfileQuery.tenantQuery(projectId, corsProfileId);
             Optional<CorsProfile> corsProfile =
                 DomainRegistry.getCorsProfileRepository().query(corsProfileQuery).findFirst();
-            corsProfile.ifPresent(e -> e.update(
-                command.getName(),
-                command.getDescription(),
-                command.getAllowedHeaders(),
-                command.getAllowCredentials(),
-                CommonUtility.map(command.getAllowOrigin(), Origin::new),
-                command.getExposedHeaders(),
-                command.getMaxAge(),
-                context
-            ));
+            corsProfile.ifPresent(e -> {
+                CorsProfile update = e.update(
+                    command.getName(),
+                    command.getDescription(),
+                    command.getAllowedHeaders(),
+                    command.getAllowCredentials(),
+                    CommonUtility.map(command.getAllowOrigin(), Origin::new),
+                    command.getExposedHeaders(),
+                    command.getMaxAge(),
+                    context
+                );
+                DomainRegistry.getCorsProfileRepository().update(e, update);
+            });
             return null;
         }, CORS_PROFILE);
     }
@@ -101,7 +101,7 @@ public class CorsProfileApplicationService {
         CorsProfileId corsProfileId = new CorsProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CorsProfileQuery corsProfileQuery =
-                new CorsProfileQuery(projectId1, corsProfileId);
+                CorsProfileQuery.tenantQuery(projectId1, corsProfileId);
             Optional<CorsProfile> corsProfile =
                 DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
                     .findFirst();
@@ -119,29 +119,4 @@ public class CorsProfileApplicationService {
         }, CORS_PROFILE);
     }
 
-    @AuditLog(actionName = PATCH_TENANT_CORS_PROFILE)
-    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CORS);
-        CorsProfileId corsProfileId = new CorsProfileId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                CorsProfileQuery corsProfileQuery = new CorsProfileQuery(projectId1, corsProfileId);
-                Optional<CorsProfile> corsProfile =
-                    DomainRegistry.getCorsProfileRepository().query(corsProfileQuery)
-                        .findFirst();
-                if (corsProfile.isPresent()) {
-                    CorsProfile original = corsProfile.get();
-                    CorsProfilePatchCommand beforePatch = new CorsProfilePatchCommand(original);
-                    CorsProfilePatchCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, CorsProfilePatchCommand.class);
-                    original.update(
-                        afterPatch.getName(),
-                        afterPatch.getDescription()
-                    );
-                }
-                return null;
-            }, CORS_PROFILE);
-    }
 }

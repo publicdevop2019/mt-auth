@@ -515,38 +515,6 @@ public class TenantCacheValidationTest{
     }
 
     @ParameterizedTest
-    @ArgumentsSource(NameArgs.class)
-    public void validation_patch_name(String name, HttpStatus status) {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(HttpUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        //null
-        patchCommand.setValue(name);
-        ResponseEntity<Void> cache =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(status, cache.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(DescriptionArgs.class)
-    public void validation_patch_description(String description, HttpStatus status) {
-        Cache cacheObj = CacheUtility.getValidNoCache();
-        ResponseEntity<Void> tenantCache = CacheUtility.createTenantCache(tenantContext, cacheObj);
-        cacheObj.setId(HttpUtility.getId(tenantCache));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        //null
-        patchCommand.setValue(description);
-        ResponseEntity<Void> cache =
-            CacheUtility.patchTenantCache(tenantContext, cacheObj, patchCommand);
-        Assertions.assertEquals(status, cache.getStatusCode());
-    }
-
-    @ParameterizedTest
     @ArgumentsSource(ProjectIdArgs.class)
     public void validation_update_project_id(String projectId, HttpStatus status) {
         Cache cacheObj = CacheUtility.getValidNoCache();

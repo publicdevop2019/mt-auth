@@ -6,6 +6,7 @@ import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.cors_profile.CorsProfileId;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
@@ -30,7 +31,6 @@ public class EndpointQuery extends QueryCriteria {
     public static final String RESOURCE_ID = "resourceId";
     public static final String PATH = "path";
     public static final String METHOD = "method";
-    public static final String PROJECT_IDS = "projectIds";
     public static final String PERMISSION_IDS = "permissionId";
     private Set<EndpointId> endpointIds;
     private Set<PermissionId> permissionIds;
@@ -157,7 +157,7 @@ public class EndpointQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-            ID, RESOURCE_ID, PATH, METHOD, PROJECT_IDS, PERMISSION_IDS);
+            ID, RESOURCE_ID, PATH, METHOD, AppConstant.QUERY_PROJECT_IDS, PERMISSION_IDS);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e -> {
             endpointIds =
                 Arrays.stream(e.split("\\.")).map(EndpointId::new).collect(Collectors.toSet());
@@ -166,7 +166,7 @@ public class EndpointQuery extends QueryCriteria {
             clientIds =
                 Arrays.stream(e.split("\\.")).map(ClientId::new).collect(Collectors.toSet());
         });
-        Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> {
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS)).ifPresent(e -> {
             projectIds =
                 Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet());
         });
