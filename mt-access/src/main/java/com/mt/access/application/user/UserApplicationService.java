@@ -253,22 +253,23 @@ public class UserApplicationService {
         User user = DomainRegistry.getUserRepository().get(userId);
         if (user.getUserAvatar() != null) {
             String value = user.getUserAvatar().getValue();
-            return ApplicationServiceRegistry.getImageApplicationService().queryById(value);
+            return ApplicationServiceRegistry.getImageApplicationService()
+                .queryById(new ImageId(value));
         } else {
             return Optional.empty();
         }
     }
 
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
-        ImageId imageId =
-            ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
-        CommonDomainRegistry.getTransactionService()
-            .transactionalEvent((context) -> {
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                ImageId imageId =
+                    ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 User user = DomainRegistry.getUserRepository().get(userId);
                 user.setUserAvatar(new UserAvatar(imageId));
+                return imageId;
             });
-        return imageId;
     }
 
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,
@@ -321,12 +322,14 @@ public class UserApplicationService {
         );
     }
 
-    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId, ProjectId loginProjectId) {
+    private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId,
+                                 ProjectId loginProjectId) {
         UserLoginRequest userLoginRequest =
             new UserLoginRequest(ipAddress, userId, agentInfo);
         CommonDomainRegistry.getTransactionService()
             .transactionalEvent(
-                (context) -> DomainRegistry.getUserService().updateLastLogin(userLoginRequest, loginProjectId));
+                (context) -> DomainRegistry.getUserService()
+                    .updateLastLogin(userLoginRequest, loginProjectId));
     }
 
 }

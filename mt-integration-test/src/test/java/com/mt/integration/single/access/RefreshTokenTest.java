@@ -136,7 +136,7 @@ public class RefreshTokenTest {
         clientRaw.setResourceIndicator(true);
         clientRaw.setAccessTokenValiditySeconds(60);
         clientRaw.setRefreshTokenValiditySeconds(1000);
-        clientRaw.setPath(RandomUtility.randomStringNoNum());
+        clientRaw.setPath(RandomUtility.randomStringNoNum(10));
         clientRaw.setExternalUrl(RandomUtility.randomLocalHostUrl());
         ResponseEntity<Void> client = ClientUtility.createTenantClient(tenantContext, clientRaw);
         clientRaw.setId(HttpUtility.getId(client));

@@ -9,17 +9,16 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
-@Entity
-@Table
 public class ValidationResult {
-    @Id
     @Setter(AccessLevel.PROTECTED)
-    @Getter(AccessLevel.PRIVATE)
+    @Getter
     private Long id;
 
-    @Column(name = "failure_count", columnDefinition = "TINYINT")
+    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private Integer failureCount = 0;
-    @Column(name = "notify_admin", columnDefinition = "BIT", length = 1)
+    @Getter
+    @Setter(AccessLevel.PRIVATE)
     private Boolean notifyAdmin = false;
 
     private ValidationResult() {
@@ -28,6 +27,15 @@ public class ValidationResult {
 
     public static ValidationResult create() {
         return new ValidationResult();
+    }
+
+    public static ValidationResult fromDatabaseRow(Long id, Integer failureCount,
+                                                   Boolean notifyAdmin) {
+        ValidationResult result = new ValidationResult();
+        result.setId(id);
+        result.setFailureCount(failureCount);
+        result.setNotifyAdmin(notifyAdmin);
+        return result;
     }
 
     public void resetFailureCount() {

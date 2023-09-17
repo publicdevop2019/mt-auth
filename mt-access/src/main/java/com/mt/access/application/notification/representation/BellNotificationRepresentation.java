@@ -2,14 +2,13 @@ package com.mt.access.application.notification.representation;
 
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
-import java.io.Serializable;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class BellNotificationRepresentation implements Serializable {
+public class BellNotificationRepresentation {
     private Long date;
     private String title;
     private String id;

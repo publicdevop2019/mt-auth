@@ -6,7 +6,6 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
-import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
@@ -21,7 +20,6 @@ import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -42,29 +40,29 @@ public class NotificationApplicationService {
     @Value("${mt.common.instance-id}")
     private Long instanceId;
 
-    public SumPagedRep<Notification> queryBell(String queryParam, String pageParam,
-                                               String skipCount) {
+    public SumPagedRep<Notification> mgmtQueryBell(String queryParam, String pageParam,
+                                                   String skipCount) {
         NotificationQuery notificationQuery =
-            new NotificationQuery(NotificationType.BELL, queryParam, pageParam, skipCount);
+            NotificationQuery.queryMgmtBell(queryParam, pageParam, skipCount);
         return DomainRegistry.getNotificationRepository()
             .notificationsOfQuery(notificationQuery);
     }
 
-    public SumPagedRep<Notification> mgmtQuery(String queryParam, String pageParam,
-                                               String skipCount) {
+    public SumPagedRep<Notification> mgmtQuery(String pageParam,
+                                               String skipConfig) {
         NotificationQuery notificationQuery =
-            new NotificationQuery(queryParam, pageParam, skipCount);
+            NotificationQuery.queryMgmt(pageParam, skipConfig);
         return DomainRegistry.getNotificationRepository()
             .notificationsOfQuery(notificationQuery);
     }
 
-    public SumPagedRep<Notification> userQuery(String queryParam, String pageParam,
-                                               String skipCount) {
-        NotificationQuery notificationQuery =
-            NotificationQuery.queryForUser(queryParam, pageParam, skipCount,
+    public SumPagedRep<Notification> userQueryBell(String queryParam, String pageParam,
+                                                   String skipCount) {
+        NotificationQuery query =
+            NotificationQuery.queryUserBell(queryParam, pageParam, skipCount,
                 DomainRegistry.getCurrentUserService().getUserId());
         return DomainRegistry.getNotificationRepository()
-            .notificationsOfQuery(notificationQuery);
+            .notificationsOfQuery(query);
     }
 
     public void userAckBell(String id) {
@@ -98,6 +96,7 @@ public class NotificationApplicationService {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
+
     public void handle(ProjectOnboardingComplete event) {
         log.info("handle new project onboarding complete event, project id {}",
             event.getDomainId().getDomainId());
@@ -165,9 +164,8 @@ public class NotificationApplicationService {
                         DomainRegistry.getWsPushNotificationService()
                             .notifyMgmt(event.value());
                     }
-                    Notification notification = DomainRegistry.getNotificationRepository()
-                        .get(new NotificationId(event.getDomainId().getDomainId()));
-                    notification.markAsDelivered();
+                    DomainRegistry.getNotificationRepository()
+                        .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                     return null;
                 }, NOTIFICATION + "_" + instanceId);
 
@@ -188,9 +186,8 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
-                Notification notification = DomainRegistry.getNotificationRepository()
-                    .get(new NotificationId(event.getDomainId().getDomainId()));
-                notification.markAsDelivered();
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;
             }, NOTIFICATION);
 
@@ -207,9 +204,8 @@ public class NotificationApplicationService {
                 DomainRegistry.getEmailNotificationService()
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
-                Notification notification = DomainRegistry.getNotificationRepository()
-                    .get(new NotificationId(event.getDomainId().getDomainId()));
-                notification.markAsDelivered();
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;
             }, NOTIFICATION);
     }

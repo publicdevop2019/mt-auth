@@ -106,7 +106,7 @@ public class CrossDomainValidationService {
         } else {
             validationResult.increaseFailureCount();
         }
-        DomainRegistry.getValidationResultRepository().add(validationResult);
+        DomainRegistry.getValidationResultRepository().createOrUpdate(validationResult);
         log.debug("end of validate existing data");
     }
 

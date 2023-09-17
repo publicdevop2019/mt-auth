@@ -16,57 +16,26 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Entity
-@Table(name = "cors_profile")
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class CorsProfile extends Auditable {
     private static final Pattern HEADER_NAME_REGEX = Pattern.compile("^[a-zA-Z-]+$");
     private String name;
     private String description;
-    @Embedded
     private CorsProfileId corsId;
     private Boolean allowCredentials;
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "allowed_header_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "allowed_header")
     private Set<String> allowedHeaders = new LinkedHashSet<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "cors_origin_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "allowed_origin")
-    @Convert(converter = Origin.OriginConverter.class)
     private Set<Origin> allowOrigin = new LinkedHashSet<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "exposed_header_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "exposed_header")
     private Set<String> exposedHeaders = new LinkedHashSet<>();
     private Long maxAge;
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId",
-            column = @Column(name = "projectId", updatable = false, nullable = false))
-    })
     private ProjectId projectId;
 
     private CorsProfile() {

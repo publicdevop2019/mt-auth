@@ -27,7 +27,7 @@
                     {{row.descriptions[0]|translate}}
                 </ng-container>
                 <ng-container *ngIf="row.title!=='SYSTEM_VALIDATION_FAILED'">
-                    {{row.descriptions.join(',')}}
+                    {{row.descriptions && row.descriptions.join(',')}}
                 </ng-container>
             </td>
         </ng-container>

@@ -501,9 +501,6 @@ CREATE TABLE `image` (
   `id` bigint NOT NULL,
   `created_at` bigint NOT NULL,
   `created_by` varchar(255) NOT NULL,
-  `modified_at` bigint NOT NULL,
-  `modified_by` varchar(255) NOT NULL,
-  `version` int NOT NULL,
   `content_type` varchar(255) NOT NULL,
   `domain_id` varchar(255) NOT NULL,
   `original_name` varchar(255) NOT NULL,
@@ -651,11 +648,6 @@ DROP TABLE IF EXISTS `notification`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `notification` (
   `id` bigint NOT NULL,
-  `created_at` bigint NOT NULL,
-  `created_by` varchar(255) NOT NULL,
-  `modified_at` bigint NOT NULL,
-  `modified_by` varchar(255) NOT NULL,
-  `version` int NOT NULL,
   `descriptions` varchar(255) DEFAULT NULL,
   `domain_id` varchar(255) NOT NULL,
   `timestamp` bigint NOT NULL,

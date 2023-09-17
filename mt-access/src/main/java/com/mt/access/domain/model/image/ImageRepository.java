@@ -1,9 +1,9 @@
 package com.mt.access.domain.model.image;
 
-import com.mt.common.domain.model.restful.SumPagedRep;
+import java.util.Optional;
 
 public interface ImageRepository {
-    SumPagedRep<Image> query(ImageQuery query);
+    Optional<Image> query(ImageId id);
 
     void add(Image image);
 }
