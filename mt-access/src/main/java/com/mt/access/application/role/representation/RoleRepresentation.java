@@ -78,7 +78,7 @@ public class RoleRepresentation {
         if (role.getCommonPermissionIds() != null && !role.getCommonPermissionIds().isEmpty()) {
             Set<Permission> allByQuery =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .query(e), new PermissionQuery(role.getCommonPermissionIds()));
+                    .query(e),  PermissionQuery.internalQuery(role.getCommonPermissionIds()));
 
             Set<PermissionDetail> collect =
                 allByQuery.stream().map(e -> new PermissionDetail(e.getPermissionId(), e.getName()))
@@ -89,7 +89,7 @@ public class RoleRepresentation {
         if (role.getApiPermissionIds() != null && !role.getApiPermissionIds().isEmpty()) {
             Set<Permission> allByQuery =
                 QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .query(e), new PermissionQuery(role.getApiPermissionIds()));
+                    .query(e), PermissionQuery.internalQuery(role.getApiPermissionIds()));
             Set<EndpointId> collect1 =
                 allByQuery.stream().filter(e -> !e.getName().equalsIgnoreCase(API_ACCESS))
                     .map(e -> new EndpointId(e.getName()))

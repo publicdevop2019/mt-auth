@@ -16,6 +16,7 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -27,7 +28,6 @@ import java.util.stream.Stream;
 import javax.annotation.Nullable;
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
-import javax.persistence.Cacheable;
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -42,7 +42,7 @@ import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 @Slf4j
 @Table
 @Entity
@@ -85,6 +85,7 @@ public class Permission extends Auditable {
     public static final String ADMIN_MGMT = "ADMIN_MGMT";
     public static final Set<String> reservedName = new HashSet<>();
     public static final Set<String> reservedUIPermissionName = new HashSet<>();
+    private static final String DEFAULT_AUTO_ACTOR = "SYSTEM";
 
     static {
         reservedName.add(API_ACCESS);
@@ -164,6 +165,31 @@ public class Permission extends Auditable {
     private Permission() {
     }
 
+    public static Permission fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                             Long modifiedAt, String modifiedBy,
+                                             Integer version,
+                                             String name, PermissionId domainId,
+                                             PermissionId permissionId, ProjectId projectId,
+                                             Boolean shared, Boolean systemCreate,
+                                             ProjectId tenantId, PermissionType type) {
+        Permission permission = new Permission();
+        permission.setId(id);
+        permission.setCreatedAt(createdAt);
+        permission.setCreatedBy(createdBy);
+        permission.setModifiedAt(modifiedAt);
+        permission.setModifiedBy(modifiedBy);
+        permission.setVersion(version);
+        permission.setName(name);
+        permission.setPermissionId(domainId);
+        permission.setParentId(permissionId);
+        permission.setProjectId(projectId);
+        permission.setShared(shared);
+        permission.setSystemCreate(systemCreate);
+        permission.setTenantId(tenantId);
+        permission.setType(type);
+        return permission;
+    }
+
     private void setParentId(PermissionId parentId) {
         this.parentId = parentId;
     }
@@ -226,6 +252,11 @@ public class Permission extends Auditable {
             linkedApiPermissionId == null ? null : Collections.singleton(linkedApiPermissionId));
         permission.setShared(false);
         permission.setSystemCreate(true);
+        long milli = Instant.now().toEpochMilli();
+        permission.setCreatedAt(milli);
+        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedAt(milli);
+        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -259,6 +290,11 @@ public class Permission extends Auditable {
         permission.setType(PermissionType.COMMON);
         permission.setShared(false);
         permission.setSystemCreate(true);
+        long milli = Instant.now().toEpochMilli();
+        permission.setCreatedAt(milli);
+        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedAt(milli);
+        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -286,6 +322,11 @@ public class Permission extends Auditable {
         permission.setParentId(parentId);
         permission.setShared(shared);
         permission.setSystemCreate(true);
+        long milli = Instant.now().toEpochMilli();
+        permission.setCreatedAt(milli);
+        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedAt(milli);
+        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -297,6 +338,11 @@ public class Permission extends Auditable {
                                           @Nullable Set<PermissionId> linkedApiPermissionId) {
         Permission permission = new Permission();
         permission.setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        long milli = Instant.now().toEpochMilli();
+        permission.setCreatedAt(milli);
+        permission.setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        permission.setModifiedAt(milli);
+        permission.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
         permission.setPermissionId(permissionId);
         permission.setLinkedApiPermissionIds(linkedApiPermissionId);
         permission.setParentId(parentId);
@@ -595,7 +641,7 @@ public class Permission extends Auditable {
     public static void addNewEndpoint(ProjectId projectId, EndpointId endpointId,
                                       PermissionId permissionId, boolean shared) {
         Optional<Permission> apiRoot = DomainRegistry.getPermissionRepository()
-            .query(new PermissionQuery(projectId, API_ACCESS)).findFirst();
+            .query(PermissionQuery.internalQuery(projectId, API_ACCESS)).findFirst();
         apiRoot.ifPresent(e -> {
             Permission apiPermission = Permission
                 .autoCreateForEndpoint(projectId, permissionId, endpointId.getDomainId(),
@@ -604,10 +650,15 @@ public class Permission extends Auditable {
         });
     }
 
-    public void replace(String name, Set<PermissionId> permissionIds) {
-        updateName(name);
-        setLinkedApiPermissionIds(permissionIds);
+    public Permission update(String name, Set<PermissionId> permissionIds) {
+        Permission updated =
+            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, Permission.class);
+        updated.updateName(name);
+        updated.setLinkedApiPermissionIds(permissionIds);
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
         new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
+        return updated;
     }
 
     private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
@@ -629,11 +680,6 @@ public class Permission extends Auditable {
         setName(name);
     }
 
-    public void patch(String name) {
-        updateName(name);
-        new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
-    }
-
     public void remove(TransactionContext context) {
         if (Objects.equals(PermissionType.API, this.type)) {
             throw new DefinedRuntimeException("api type cannot be changed",
@@ -650,12 +696,15 @@ public class Permission extends Auditable {
         context.append(new PermissionRemoved(this));
     }
 
-    public void removeApiPermission(PermissionId permissionId) {
-        if (!linkedApiPermissionIds.isEmpty()) {
-            Set<PermissionId> collect =
-                linkedApiPermissionIds.stream().filter(e -> !e.equals(permissionId)).collect(
-                    Collectors.toSet());
-            setLinkedApiPermissionIds(collect);
-        }
+    public boolean sameAs(Permission that) {
+        return Objects.equals(name, that.name) &&
+            Objects.equals(parentId, that.parentId) &&
+            Objects.equals(permissionId, that.permissionId) &&
+            Objects.equals(linkedApiPermissionIds, that.linkedApiPermissionIds) &&
+            Objects.equals(projectId, that.projectId) &&
+            Objects.equals(tenantId, that.tenantId) &&
+            Objects.equals(shared, that.shared) && type == that.type &&
+            Objects.equals(systemCreate, that.systemCreate);
     }
+
 }

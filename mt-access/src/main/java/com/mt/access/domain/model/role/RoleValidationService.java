@@ -39,7 +39,7 @@ public class RoleValidationService {
         if (commonPermissionIds != null && !commonPermissionIds.isEmpty()) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    new PermissionQuery(commonPermissionIds));
+                    PermissionQuery.internalQuery(commonPermissionIds));
             Set<ProjectId> permProjectIds =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (permProjectIds.size() != 1) {
@@ -58,7 +58,7 @@ public class RoleValidationService {
         if (apiPermissionIds != null && !apiPermissionIds.isEmpty()) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    new PermissionQuery(apiPermissionIds));
+                    PermissionQuery.internalQuery(apiPermissionIds));
             Set<ProjectId> collect =
                 permissions.stream().map(Permission::getProjectId).collect(Collectors.toSet());
             if (collect.size() != 1) {
@@ -108,7 +108,7 @@ public class RoleValidationService {
         if (permissionIds != null && !permissionIds.isEmpty()) {
             Set<Permission> allByQuery = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    new PermissionQuery(permissionIds, type));
+                    PermissionQuery.internalQuery(permissionIds, type));
             if (log.isDebugEnabled() && allByQuery.size() != permissionIds.size()) {
                 Set<PermissionId> collect =
                     allByQuery.stream().map(Permission::getPermissionId)

@@ -2,7 +2,6 @@ package com.mt.access.port.adapter.persistence;
 
 import com.mt.access.port.adapter.persistence.client.SpringDataJpaClientRepository;
 import com.mt.access.port.adapter.persistence.endpoint.SpringDataJpaEndpointRepository;
-import com.mt.access.port.adapter.persistence.permission.SpringDataJpaPermissionRepository;
 import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectRepository;
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
@@ -38,9 +37,6 @@ public class QueryBuilderRegistry {
     @Getter
     private static SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor
         userRelationAdaptor;
-    @Getter
-    private static SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor
-        permissionAdaptor;
 
 
     @Autowired
@@ -67,13 +63,6 @@ public class QueryBuilderRegistry {
         SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor) {
         QueryBuilderRegistry.roleAdaptor = roleAdaptor;
     }
-
-    @Autowired
-    public void setJpaCriteriaApiPermissionAdaptor(
-        SpringDataJpaPermissionRepository.JpaCriteriaApiPermissionAdaptor permissionAdaptor) {
-        QueryBuilderRegistry.permissionAdaptor = permissionAdaptor;
-    }
-
 
     @Autowired
     public void setEndpointQueryBuilder(

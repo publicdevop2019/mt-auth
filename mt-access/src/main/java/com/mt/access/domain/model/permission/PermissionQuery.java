@@ -9,7 +9,6 @@ import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,14 +26,11 @@ public class PermissionQuery extends QueryCriteria {
     private static final String NAME = "name";
     private static final String PARENT_ID_LITERAL = "parentId";
     private static final String TYPES = "types";
-    private PermissionSort sort;
     private Set<PermissionId> ids;
 
     private Set<ProjectId> projectIds;
     @Setter
     private Set<ProjectId> tenantIds;
-    @Setter
-    private Set<PermissionId> linkedApiPermissionIds;
     private PermissionId parentId;
     private Boolean parentIdNull;
     @Setter
@@ -46,46 +42,33 @@ public class PermissionQuery extends QueryCriteria {
         updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
-        this.sort = PermissionSort.byId(true);
     }
 
-    public PermissionQuery(PermissionId permissionId) {
-        ids = Collections.singleton(permissionId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = PermissionSort.byId(true);
+    public static PermissionQuery internalQuery(Set<PermissionId> permissionIds) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setIds(permissionIds);
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.countRequired());
+        return permissionQuery;
     }
 
-    public PermissionQuery(Set<PermissionId> permissionIds) {
-        setIds(permissionIds);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = PermissionSort.byId(true);
+    public static PermissionQuery internalQuery(Set<PermissionId> permissionIds,
+                                                PermissionType type) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.setIds(permissionIds);
+        permissionQuery.types = Collections.singleton(type);
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.countRequired());
+        return permissionQuery;
     }
 
-    public PermissionQuery(Set<PermissionId> permissionIds, PermissionType type) {
-        setIds(permissionIds);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = PermissionSort.byId(true);
-        this.types = Collections.singleton(type);
-    }
-
-    public PermissionQuery(ProjectId projectId, String name) {
-        projectIds = new HashSet<>();
-        projectIds.add(projectId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = PermissionSort.byId(true);
-        this.names = Collections.singleton(name);
-    }
-
-    public PermissionQuery(PermissionId permissionId, ProjectId projectId) {
-        projectIds = Collections.singleton(projectId);
-        ids = Collections.singleton(permissionId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = PermissionSort.byId(true);
+    public static PermissionQuery internalQuery(ProjectId projectId, String name) {
+        PermissionQuery permissionQuery = new PermissionQuery();
+        permissionQuery.projectIds = Collections.singleton(projectId);
+        permissionQuery.names = Collections.singleton(name);
+        permissionQuery.setPageConfig(PageConfig.defaultConfig());
+        permissionQuery.setQueryConfig(QueryConfig.countRequired());
+        return permissionQuery;
     }
 
     public static PermissionQuery uiPermissionQuery(ProjectId projectId, Set<String> names) {
@@ -95,7 +78,6 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.setPageConfig(
             PageConfig.limited("num:0,size:" + names.size(), names.size()));
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
-        permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.names = names;
         return permissionQuery;
     }
@@ -117,7 +99,6 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.tenantIds = tenantIds;
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
-        permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.names = Collections.singleton(permissionName);
         return permissionQuery;
     }
@@ -138,27 +119,16 @@ public class PermissionQuery extends QueryCriteria {
         permissionQuery.setIds(subPermissionIds);
         permissionQuery.setPageConfig(PageConfig.limited(pageParam, 50));
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
-        permissionQuery.sort = PermissionSort.byId(true);
         permissionQuery.shared = true;
         return permissionQuery;
     }
 
-    public static PermissionQuery tenantQuery(ProjectId tenantId, PermissionId parentId) {
+    public static PermissionQuery tenantQuery(ProjectId tenantId, PermissionId permissionId) {
         PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.setTenantIds(Collections.singleton(tenantId));
-        permissionQuery.setIds(Collections.singleton(parentId));
+        permissionQuery.projectIds = Collections.singleton(tenantId);
+        permissionQuery.setIds(Collections.singleton(permissionId));
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.skipCount());
-        permissionQuery.sort = PermissionSort.byId(true);
-        return permissionQuery;
-    }
-
-    public static PermissionQuery linkedApiPermission(PermissionId permissionId) {
-        PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.setLinkedApiPermissionIds(Collections.singleton(permissionId));
-        permissionQuery.setPageConfig(PageConfig.defaultConfig());
-        permissionQuery.setQueryConfig(QueryConfig.skipCount());
-        permissionQuery.sort = PermissionSort.byId(true);
         return permissionQuery;
     }
 
@@ -169,7 +139,8 @@ public class PermissionQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL, AppConstant.QUERY_PROJECT_IDS, TYPES);
+            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL,
+                AppConstant.QUERY_PROJECT_IDS, TYPES);
         Optional.ofNullable(stringStringMap.get(ID))
             .ifPresent(e -> setIds(
                 Arrays.stream(e.split("\\.")).map(PermissionId::new)
@@ -185,8 +156,9 @@ public class PermissionQuery extends QueryCriteria {
                     parentId = new PermissionId(e);
                 }
             });
-        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS)).ifPresent(e -> projectIds =
-            Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
+            .ifPresent(e -> projectIds =
+                Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {
             if (e.contains(".")) {
                 types = Arrays.stream(e.split("\\.")).map(ee -> {
@@ -197,21 +169,5 @@ public class PermissionQuery extends QueryCriteria {
                 types = Collections.singleton(PermissionType.valueOf(e.toUpperCase()));
             }
         });
-    }
-
-    @Getter
-    public static class PermissionSort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        public PermissionSort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static PermissionSort byId(boolean isAsc) {
-            PermissionSort userSort = new PermissionSort(isAsc);
-            userSort.byId = true;
-            return userSort;
-        }
     }
 }

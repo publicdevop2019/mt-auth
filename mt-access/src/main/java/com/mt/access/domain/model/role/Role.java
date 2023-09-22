@@ -187,7 +187,7 @@ public class Role extends Auditable {
         if (commonPermissionIds != null && commonPermissionIds.size() > 0) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    new PermissionQuery(commonPermissionIds));
+                    PermissionQuery.internalQuery(commonPermissionIds));
             //add linked api permission
             linkedApiPermission =
                 permissions.stream().flatMap(e -> e.getLinkedApiPermissionIds().stream())

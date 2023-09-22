@@ -160,7 +160,7 @@ public class CrossDomainValidationService {
             securedEp.stream().map(Endpoint::getPermissionId).collect(Collectors.toSet());
         Set<Permission> storedP = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                new PermissionQuery(mappedPId));
+                PermissionQuery.internalQuery(mappedPId));
         if (storedP.size() != mappedPId.size()) {
             context
                 .append(
