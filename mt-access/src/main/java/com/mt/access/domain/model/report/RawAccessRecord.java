@@ -49,6 +49,23 @@ public class RawAccessRecord {
         this.uuid = recordAsMap.get("uuid");
     }
 
+    public static RawAccessRecord fromDatabaseRow(Long id, String name, String instanceId,
+                                                  String recordId, String record, Boolean isRequest,
+                                                  Boolean processed, Boolean isResponse,
+                                                  String uuid) {
+        RawAccessRecord rawAccessRecord = new RawAccessRecord();
+        rawAccessRecord.setId(id);
+        rawAccessRecord.name = name;
+        rawAccessRecord.instanceId = instanceId;
+        rawAccessRecord.recordId = recordId;
+        rawAccessRecord.record = record;
+        rawAccessRecord.isRequest = isRequest;
+        rawAccessRecord.isResponse = isResponse;
+        rawAccessRecord.uuid = uuid;
+        rawAccessRecord.processed = processed;
+        return rawAccessRecord;
+    }
+
     public Map<String, String> getRecordAsMap() {
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         String[] split = record.split(",");

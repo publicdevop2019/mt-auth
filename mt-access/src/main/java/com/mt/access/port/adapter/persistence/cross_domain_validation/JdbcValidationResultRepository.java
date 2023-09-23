@@ -41,23 +41,23 @@ public class JdbcValidationResultRepository implements ValidationResultRepositor
     }
 
     @Override
-    public void createOrUpdate(ValidationResult result) {
-        Optional<ValidationResult> query = query();
-        if (query.isEmpty()) {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(INSERT_SQL,
-                    result.getId(),
-                    result.getFailureCount(),
-                    result.getNotifyAdmin()
-                );
-        } else {
-            CommonDomainRegistry.getJdbcTemplate()
-                .update(UPDATE_SQL,
-                    result.getFailureCount(),
-                    result.getNotifyAdmin(),
-                    result.getId()
-                );
-        }
+    public void create(ValidationResult result) {
+        CommonDomainRegistry.getJdbcTemplate()
+            .update(INSERT_SQL,
+                result.getId(),
+                result.getFailureCount(),
+                result.getNotifyAdmin()
+            );
+    }
+
+    @Override
+    public void update(ValidationResult result) {
+        CommonDomainRegistry.getJdbcTemplate()
+            .update(UPDATE_SQL,
+                result.getFailureCount(),
+                result.getNotifyAdmin(),
+                result.getId()
+            );
     }
 
     private static class RowMapper implements ResultSetExtractor<List<ValidationResult>> {

@@ -16,7 +16,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 
 public class DatabaseUtility {
     public static void checkUpdate(Integer rowCount) {
-        if (!Checker.equals(rowCount, 1)) {
+        checkUpdate(rowCount, 1);
+    }
+
+    public static void checkUpdate(Integer rowCount, Integer expected) {
+        if (!Checker.equals(rowCount, expected)) {
             throw new DefinedRuntimeException("db update failed, expected 1 but got " + rowCount,
                 "0064", HttpResponseCode.INTERNAL_SERVER_ERROR);
         }

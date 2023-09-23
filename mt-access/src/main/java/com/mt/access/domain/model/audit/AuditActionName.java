@@ -18,9 +18,6 @@ public class AuditActionName {
     public static final String CREATE_TENANT_PERMISSION = "CREATE_TENANT_PERMISSION";
     public static final String UPDATE_TENANT_PERMISSION = "UPDATE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PROJECT = "CREATE_TENANT_PROJECT";
-    public static final String PATCH_TENANT_PROJECT = "PATCH_TENANT_PROJECT";
-    public static final String DELETE_TENANT_PROJECT = "DELETE_TENANT_PROJECT";
-    public static final String UPDATE_TENANT_PROJECT = "UPDATE_TENANT_PROJECT";
     public static final String CREATE_SUB_REQUEST = "CREATE_SUB_REQUEST";
     public static final String APPROVE_SUB_REQUEST = "APPROVE_SUB_REQUEST";
     public static final String CANCEL_SUB_REQUEST = "CANCEL_SUB_REQUEST";

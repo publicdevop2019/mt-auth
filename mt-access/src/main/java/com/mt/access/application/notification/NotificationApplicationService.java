@@ -265,12 +265,12 @@ public class NotificationApplicationService {
         sendBellNotification(event.getId(), notification);
     }
 
-    private void sendBellNotification(Long eventId, Notification notification1) {
+    private void sendBellNotification(Long eventId, Notification notification) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(eventId.toString(), (context) -> {
-                DomainRegistry.getNotificationRepository().add(notification1);
+                DomainRegistry.getNotificationRepository().add(notification);
                 context
-                    .append(new SendBellNotificationEvent(notification1));
+                    .append(new SendBellNotificationEvent(notification));
                 return null;
             }, NOTIFICATION);
     }

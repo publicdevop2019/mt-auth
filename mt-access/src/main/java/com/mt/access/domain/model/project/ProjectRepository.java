@@ -9,8 +9,6 @@ public interface ProjectRepository {
 
     SumPagedRep<Project> query(ProjectQuery projectQuery);
 
-    void remove(Project e);
-
     default Project get(ProjectId id){
         Project project = query(id);
         Validator.notNull(project);

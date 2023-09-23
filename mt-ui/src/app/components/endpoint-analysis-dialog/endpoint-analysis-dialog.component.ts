@@ -60,13 +60,13 @@ export class EndpointAnalysisComponent implements OnInit {
       if (key === 'AUTH_REQUIRED_REQ_COUNT')
         return this.result.authenticationRequiredRequestCount
       if (key === 'AVG_RESP_SIZE')
-        return this.result.averageResponseSize
+        return (this.result.averageResponseSize || 0)
       if (key === 'AVG_RT')
-        return this.result.averageRoundTimeInMili+'ms'
+        return (this.result.averageRoundTimeInMili || 0) + 'ms'
       if (key === 'BAD_REQ_COUNT')
         return this.result.badRequestCount
       if (key === 'FAILURE_RESP_COUNT')
-        return this.result.failureResponseRate+'%'
+        return this.result.failureResponseRate + '%'
       if (key === 'INTER_SVR_COUNT')
         return this.result.internalServerErrorCount
       if (key === 'SVC_UNAVAILABLE_COUNT')

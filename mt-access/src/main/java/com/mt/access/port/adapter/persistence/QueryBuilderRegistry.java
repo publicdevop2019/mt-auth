@@ -2,7 +2,6 @@ package com.mt.access.port.adapter.persistence;
 
 import com.mt.access.port.adapter.persistence.client.SpringDataJpaClientRepository;
 import com.mt.access.port.adapter.persistence.endpoint.SpringDataJpaEndpointRepository;
-import com.mt.access.port.adapter.persistence.project.SpringDataJpaProjectRepository;
 import com.mt.access.port.adapter.persistence.revoke_token.RedisRevokeTokenRepository;
 import com.mt.access.port.adapter.persistence.role.SpringDataJpaRoleRepository;
 import com.mt.access.port.adapter.persistence.sub_request.SpringDataJpaSubRequestRepository;
@@ -28,8 +27,6 @@ public class QueryBuilderRegistry {
     private static SpringDataJpaEndpointRepository.JpaCriteriaApiEndpointAdapter
         endpointQueryBuilder;
     @Getter
-    private static SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor;
-    @Getter
     private static SpringDataJpaRoleRepository.JpaCriteriaApiRoleAdaptor roleAdaptor;
     @Getter
     private static SpringDataJpaSubRequestRepository.JpaCriteriaApiSubRequestAdaptor
@@ -49,13 +46,6 @@ public class QueryBuilderRegistry {
     public void setJpaCriteriaApiUserRelationAdaptor(
         SpringDataJpaUserRelationRepository.JpaCriteriaApiUserRelationAdaptor userRelationAdaptor) {
         QueryBuilderRegistry.userRelationAdaptor = userRelationAdaptor;
-    }
-
-
-    @Autowired
-    public void setJpaCriteriaApiProjectAdaptor(
-        SpringDataJpaProjectRepository.JpaCriteriaApiProjectAdaptor projectAdaptor) {
-        QueryBuilderRegistry.projectAdaptor = projectAdaptor;
     }
 
     @Autowired

@@ -73,6 +73,27 @@ public class FormattedAccessRecord {
         this.responseContentSize = Integer.parseInt(recordAsMap1.get(CONTENT_LENGTH));
     }
 
+    public static FormattedAccessRecord fromDatabaseRow(Long id, EndpointId endpointId,
+                                                        Long requestAt,
+                                                        String path, String clientIp, UserId userId,
+                                                        ProjectId projectId, String method,
+                                                        Long responseAt, Integer responseCode,
+                                                        Integer responseContentSize) {
+        FormattedAccessRecord record = new FormattedAccessRecord();
+        record.setId(id);
+        record.setClientIp(clientIp);
+        record.endpointId = endpointId;
+        record.requestAt = requestAt;
+        record.path = path;
+        record.userId = userId;
+        record.projectId = projectId;
+        record.method = method;
+        record.responseAt = responseAt;
+        record.responseCode = responseCode;
+        record.responseContentSize = responseContentSize;
+        return record;
+    }
+
     private void setClientIp(String clientIp) {
         this.clientIp = clientIp.replace("_", ":");
     }

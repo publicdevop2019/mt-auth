@@ -99,7 +99,7 @@ public class Notification {
         timestamp = event.getTimestamp();
         title = CrossDomainValidationService.ValidationFailedEvent.name;
         type = NotificationType.BELL;
-        descriptions.add(event.getMessage());
+        descriptions.addAll(event.getMessage());
     }
 
     public Notification(UserMfaNotificationEvent event) {

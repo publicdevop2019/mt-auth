@@ -7,10 +7,12 @@ import com.mt.common.domain.model.restful.query.QueryConfig;
 import com.mt.common.domain.model.restful.query.QueryCriteria;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Validator;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -40,10 +42,13 @@ public class CacheProfileQuery extends QueryCriteria {
 
     private CacheProfileQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS);
+            QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS,
+                AppConstant.QUERY_ID);
         Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
             .ifPresent(e -> projectId = new ProjectId(e));
         Validator.notNull(projectId);
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_ID)).ifPresent(e -> ids =
+            Arrays.stream(e.split("\\.")).map(CacheProfileId::new).collect(Collectors.toSet()));
         setPageConfig(PageConfig.limited(pageParam, 40));
         setQueryConfig(new QueryConfig(config));
     }

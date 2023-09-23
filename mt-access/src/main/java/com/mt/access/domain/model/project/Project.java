@@ -6,14 +6,14 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Validator;
-import javax.persistence.Cacheable;
+import java.time.Instant;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 @EqualsAndHashCode(callSuper = true)
 @Table
 @Entity
@@ -32,7 +32,26 @@ public class Project extends Auditable {
         this.projectId = projectId;
         setName(name);
         this.setCreatedBy(userId.getDomainId());
+        long milli = Instant.now().toEpochMilli();
+        this.setCreatedAt(milli);
+        this.setModifiedAt(milli);
+        this.setModifiedBy(userId.getDomainId());
         context.append(new StartNewProjectOnboarding(this));
+    }
+
+    public static Project fromDatabaseRow(Long id, Long createAt, String createdBy, Long modifiedAt,
+                                          String modifiedBy, Integer version,
+                                          String name, ProjectId domainId) {
+        Project project = new Project();
+        project.setId(id);
+        project.setCreatedAt(createAt);
+        project.setCreatedBy(createdBy);
+        project.setModifiedAt(modifiedAt);
+        project.setModifiedBy(modifiedBy);
+        project.setVersion(version);
+        project.setName(name);
+        project.projectId = domainId;
+        return project;
     }
 
     private void setName(String name) {
@@ -40,7 +59,4 @@ public class Project extends Auditable {
         this.name = name;
     }
 
-    public void replace(String name) {
-        this.name = name;
-    }
 }

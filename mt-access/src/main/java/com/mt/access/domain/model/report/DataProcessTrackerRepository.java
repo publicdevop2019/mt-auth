@@ -1,10 +1,11 @@
 package com.mt.access.domain.model.report;
 
-import java.util.Set;
+import java.util.Optional;
 
 public interface DataProcessTrackerRepository {
-    DataProcessTracker get();
+    Optional<DataProcessTracker> get();
 
-    void update(DataProcessTracker tracker,
-                Set<RawAccessRecord> requests);
+    void update(DataProcessTracker tracker);
+
+    void add(DataProcessTracker tracker);
 }

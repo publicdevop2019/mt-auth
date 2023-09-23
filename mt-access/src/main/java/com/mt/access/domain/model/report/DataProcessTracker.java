@@ -12,8 +12,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DataProcessTracker {
     @Id
-    private final Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
+    private Long id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
     @Version
     private Integer version;
     private Long lastProcessedId;
+
+    public static DataProcessTracker fromDatabaseRow(Long id, Long lastProcessId,
+                                                     Integer version) {
+        DataProcessTracker tracker = new DataProcessTracker();
+        tracker.id = id;
+        tracker.setLastProcessedId(lastProcessId);
+        tracker.setVersion(version);
+        return tracker;
+    }
 }
