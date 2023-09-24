@@ -30,7 +30,6 @@ public class RoleQuery extends QueryCriteria {
     private static final String NAME = "name";
     private static final String PARENT_ID = "parentId";
     private static final String TYPES = "types";
-    private RoleSort sort;
     private Set<RoleId> ids;
     private RoleId parentId;
     private Boolean parentIdNull;
@@ -38,11 +37,11 @@ public class RoleQuery extends QueryCriteria {
     private Set<String> names;
     private Set<ProjectId> tenantIds;
     private Set<RoleType> types;
-    private PermissionId referredPermissionId;
 
     public RoleQuery(String queryParam, String pageParam, String config) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID, AppConstant.QUERY_PROJECT_IDS, TYPES);
+            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID, AppConstant.QUERY_PROJECT_IDS,
+                TYPES);
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(
             e -> ids = Arrays.stream(e.split("\\.")).map(RoleId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(NAME))
@@ -55,8 +54,9 @@ public class RoleQuery extends QueryCriteria {
                     parentId = new RoleId(e);
                 }
             });
-        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS)).ifPresent(e -> projectIds =
-            Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
+        Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
+            .ifPresent(e -> projectIds =
+                Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
         Optional.ofNullable(stringStringMap.get(TYPES)).ifPresent(e -> {
             if (e.contains(".")) {
                 types = Arrays.stream(e.split("\\.")).map(ee -> {
@@ -69,30 +69,12 @@ public class RoleQuery extends QueryCriteria {
         });
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
-        this.sort = RoleSort.byId(true);
-    }
-
-    public RoleQuery(RoleId projectId) {
-        ids = new HashSet<>();
-        ids.add(projectId);
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
-    }
-
-    public RoleQuery(ProjectId projectId, RoleId parentId) {
-        projectIds = Collections.singleton(projectId);
-        this.parentId = parentId;
-        setPageConfig(PageConfig.defaultConfig());
-        setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public RoleQuery(Set<RoleId> roleIds) {
         ids = roleIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public RoleQuery(RoleId roleId, ProjectId projectId) {
@@ -100,7 +82,6 @@ public class RoleQuery extends QueryCriteria {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public RoleQuery(ProjectId projectId, String roleName) {
@@ -108,21 +89,18 @@ public class RoleQuery extends QueryCriteria {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public RoleQuery(ProjectId projectId) {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public RoleQuery(RoleType type) {
         this.types = Collections.singleton(type);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = RoleSort.byId(true);
     }
 
     public static RoleQuery projectDefaultRoleQuery() {
@@ -133,7 +111,6 @@ public class RoleQuery extends QueryCriteria {
         roleQuery.types = roleTypes;
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
         return roleQuery;
     }
 
@@ -145,7 +122,6 @@ public class RoleQuery extends QueryCriteria {
         roleQuery.names = Collections.singleton(clientId.getDomainId());
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
         return roleQuery;
     }
 
@@ -153,7 +129,6 @@ public class RoleQuery extends QueryCriteria {
         RoleQuery roleQuery = new RoleQuery();
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
         return roleQuery;
     }
 
@@ -161,34 +136,8 @@ public class RoleQuery extends QueryCriteria {
         RoleQuery roleQuery = new RoleQuery();
         roleQuery.setPageConfig(PageConfig.defaultConfig());
         roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
         roleQuery.names = Collections.singleton(PROJECT_ADMIN);
         roleQuery.tenantIds = Collections.singleton(tenantProjectId);
         return roleQuery;
-    }
-
-    public static RoleQuery referredPermissions(PermissionId permissionId) {
-        RoleQuery roleQuery = new RoleQuery();
-        roleQuery.setPageConfig(PageConfig.defaultConfig());
-        roleQuery.setQueryConfig(QueryConfig.skipCount());
-        roleQuery.sort = RoleSort.byId(true);
-        roleQuery.referredPermissionId = permissionId;
-        return roleQuery;
-    }
-
-    @Getter
-    public static class RoleSort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        public RoleSort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static RoleSort byId(boolean isAsc) {
-            RoleSort userSort = new RoleSort(isAsc);
-            userSort.byId = true;
-            return userSort;
-        }
     }
 }

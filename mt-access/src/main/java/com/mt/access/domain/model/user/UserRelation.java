@@ -8,8 +8,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.access.port.adapter.persistence.ProjectIdConverter;
-import com.mt.access.port.adapter.persistence.RoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -25,57 +23,22 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Slf4j
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
-@Entity
 @NoArgsConstructor
 @Getter
-@NamedQuery(name = "findEmailLike", query = "SELECT ur FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
-@NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @EqualsAndHashCode(callSuper = true)
 public class UserRelation extends Auditable {
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "userId"))
-    })
     private UserId userId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
-    })
     private ProjectId projectId;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "role")
-    @Convert(converter = RoleIdConverter.class)
-    private Set<RoleId> standaloneRoles;
+    private Set<RoleId> standaloneRoles = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "tenant")
-    @Convert(converter = ProjectIdConverter.class)
-    private Set<ProjectId> tenantIds;
+    private Set<ProjectId> tenantIds = new HashSet<>();
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
         super();
@@ -132,6 +95,21 @@ public class UserRelation extends Auditable {
         return userRelation2;
     }
 
+    public static UserRelation fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                               Long modifiedAt, String modifiedBy, Integer version,
+                                               ProjectId projectId, UserId userId) {
+        UserRelation userRelation = new UserRelation();
+        userRelation.setId(id);
+        userRelation.setCreatedAt(createdAt);
+        userRelation.setCreatedBy(createdBy);
+        userRelation.setModifiedAt(modifiedAt);
+        userRelation.setModifiedBy(modifiedBy);
+        userRelation.setVersion(version);
+        userRelation.projectId = projectId;
+        userRelation.userId = userId;
+        return userRelation;
+    }
+
     private void setStandaloneRoles(Set<RoleId> roleIds) {
         if (Checker.notNull(roleIds)) {
             Validator.notEmpty(roleIds);
@@ -180,7 +158,9 @@ public class UserRelation extends Auditable {
         }
     }
 
-    public void tenantUpdate(Set<String> roles) {
+    public UserRelation tenantUpdate(Set<String> roles) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         //TODO move to validator
         Validator.notNull(roles);
         Validator.notEmpty(roles);
@@ -205,16 +185,25 @@ public class UserRelation extends Auditable {
             removeDefaultUser.stream().map(Role::getTenantId).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         //update tenant list based on role selected
-        setStandaloneRoles(
+        update.setStandaloneRoles(
             roles.stream().map(RoleId::new)
                 .collect(Collectors.toSet()));
         if (collect1.isEmpty()) {
-            setTenantIds(null);
+            update.setTenantIds(null);
         }
+        return update;
     }
 
     @Override
     public String toString() {
         return CommonDomainRegistry.getCustomObjectSerializer().serialize(this);
     }
+
+    public boolean sameAs(UserRelation updated) {
+        return Objects.equals(userId, updated.userId) &&
+            Objects.equals(projectId, updated.projectId) &&
+            Objects.equals(standaloneRoles, updated.standaloneRoles) &&
+            Objects.equals(tenantIds, updated.tenantIds);
+    }
+
 }

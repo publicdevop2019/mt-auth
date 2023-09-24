@@ -114,27 +114,6 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "mgmt/users/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patch(
-        @PathVariable(name = "id") String id,
-        @RequestBody JsonPatch command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getUserApplicationService().patch(id, command, changeId);
-        return ResponseEntity.ok().build();
-    }
-
-    @PatchMapping(path = "mgmt/users")
-    public ResponseEntity<Void> patchBatch(
-        @RequestBody List<PatchCommand> patch,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
-    ) {
-        ApplicationServiceRegistry.getUserApplicationService().patchBatch(patch, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping(path = "users/pwd")
     public ResponseEntity<Void> updatePassword(
         @RequestBody UserUpdatePasswordCommand command,

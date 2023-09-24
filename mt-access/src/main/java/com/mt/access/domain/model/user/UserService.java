@@ -53,15 +53,6 @@ public class UserService {
             .append(new UserPasswordChanged(user.getUserId()));
     }
 
-    public void batchLock(List<PatchCommand> commands, TransactionContext context) {
-        if (Boolean.TRUE.equals(commands.get(0).getValue())) {
-            commands.stream().map(e -> new UserId(e.getPath().split("/")[1])).forEach(e -> {
-                context.append(new UserGetLocked(e));
-            });
-        }
-        DomainRegistry.getUserRepository().batchLock(commands);
-    }
-
     public void updateLastLogin(UserLoginRequest command, ProjectId loginProjectId) {
         UserId userId = command.getUserId();
         Optional<LoginInfo> loginInfo = DomainRegistry.getLoginInfoRepository().query(userId);

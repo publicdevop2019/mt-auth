@@ -6,9 +6,7 @@ import javax.persistence.Embeddable;
 import lombok.Data;
 
 @Data
-@Embeddable
 public class UserAvatar {
-    @Column(name = "avatar_link")
     private String value;
 
     private UserAvatar() {

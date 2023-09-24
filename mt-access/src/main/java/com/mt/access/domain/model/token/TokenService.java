@@ -103,7 +103,7 @@ public class TokenService {
                 DomainRegistry.getRoleRepository().query(roleId);
             projectId = clientDetails.getProjectId();
             permissionIds = byId.getTotalPermissionIds();
-            log.debug("creating token");
+            log.debug("creating client token");
             return createJwtToken(
                 projectId,
                 clientDetails.getAccessTokenValiditySeconds(),

@@ -33,4 +33,6 @@ public interface UserRelationRepository {
     void removeAll(Set<UserRelation> allByQuery);
 
     Set<UserId> getUserIds();
+
+    void update(UserRelation relation, UserRelation userRelation);
 }

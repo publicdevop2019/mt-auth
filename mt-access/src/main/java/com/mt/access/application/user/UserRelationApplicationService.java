@@ -148,7 +148,8 @@ public class UserRelationApplicationService {
                 UserRelation relation =
                     DomainRegistry.getUserRelationRepository()
                         .get(new UserId(userId), projectId);
-                relation.tenantUpdate(command.getRoles());
+                UserRelation userRelation = relation.tenantUpdate(command.getRoles());
+                DomainRegistry.getUserRelationRepository().update(relation, userRelation);
                 return null;
             }, USER_RELATION);
     }

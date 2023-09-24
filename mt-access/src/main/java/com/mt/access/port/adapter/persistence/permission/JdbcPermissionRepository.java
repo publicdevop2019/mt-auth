@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
@@ -92,7 +93,8 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "p.modified_at = ? ," +
         "p.modified_by = ?, " +
         "p.version = ?, " +
-        "p.name = ? " +
+        "p.name = ?, " +
+        "p.parent_id = ? " +
         "WHERE p.id = ? AND p.version = ? ";
 
     @Override
@@ -342,6 +344,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                 updated.getModifiedBy(),
                 updated.getVersion() + 1,
                 updated.getName(),
+                Optional.ofNullable(updated.getParentId()).map(DomainId::getDomainId).orElse(null),
                 updated.getId(),
                 updated.getVersion()
             );

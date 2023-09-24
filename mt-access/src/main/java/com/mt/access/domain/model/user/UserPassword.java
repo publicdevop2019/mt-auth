@@ -17,14 +17,14 @@ public class UserPassword {
     private String password;
 
     public UserPassword(String password) {
-        setPassword(password);
+        setRawPassword(password);
     }
 
-    public void setPasswordWithoutEncrypt(String rawPassword) {
+    public void setPassword(String rawPassword) {
         this.password = rawPassword;
     }
 
-    private void setPassword(String rawPassword) {
+    private void setRawPassword(String rawPassword) {
         Validator.notNull(rawPassword);
         Validator.notBlank(rawPassword);
         Validator.lessThanOrEqualTo(rawPassword, 16);

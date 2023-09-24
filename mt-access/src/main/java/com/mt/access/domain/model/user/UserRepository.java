@@ -41,8 +41,6 @@ public interface UserRepository {
 
     void remove(User user1);
 
-    void batchLock(List<PatchCommand> commands);
-
     long countTotal();
 
     Set<UserId> getIds();
@@ -64,4 +62,6 @@ public interface UserRepository {
         Validator.notNull(user);
         return user;
     }
+
+    void update(User old, User update);
 }

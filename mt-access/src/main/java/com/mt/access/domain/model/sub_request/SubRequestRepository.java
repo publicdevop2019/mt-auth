@@ -30,4 +30,6 @@ public interface SubRequestRepository {
     SumPagedRep<SubRequest> getSubscription(SubRequestQuery query);
 
     Set<EndpointId> getSubscribeEndpointIds(ProjectId projectId);
+
+    void update(SubRequest old, SubRequest update);
 }

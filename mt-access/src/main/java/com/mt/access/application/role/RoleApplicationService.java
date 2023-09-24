@@ -2,15 +2,12 @@ package com.mt.access.application.role;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ROLE;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
 import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
 import static com.mt.access.domain.model.permission.Permission.VIEW_ROLE;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.role.command.RoleCreateCommand;
-import com.mt.access.application.role.command.RolePatchCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.application.role.representation.RoleCardRepresentation;
 import com.mt.access.application.role.representation.RoleRepresentation;
@@ -75,12 +72,13 @@ public class RoleApplicationService {
     }
 
     public RoleRepresentation query(String projectId, String id) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context) -> {
-            ProjectId projectId1 = new ProjectId(projectId);
-            DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
-            Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
-            return new RoleRepresentation(role);
-        });
+        return CommonDomainRegistry.getTransactionService()
+            .returnedTransactionalEvent((context) -> {
+                ProjectId projectId1 = new ProjectId(projectId);
+                DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
+                Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
+                return new RoleRepresentation(role);
+            });
     }
 
 
@@ -94,34 +92,12 @@ public class RoleApplicationService {
                 Optional<Role> first =
                     DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
                 first.ifPresent(e -> {
-                    e.replace(command, context);
-                    DomainRegistry.getRoleRepository().add(e);
+                    Role replace = e.replace(command, context);
+                    DomainRegistry.getRoleRepository().update(e, replace);
                 });
                 return null;
             }, ROLE);
     }
-
-    @AuditLog(actionName = PATCH_TENANT_ROLE)
-    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
-        RoleId roleId = new RoleId(id);
-        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
-                Optional<Role> first =
-                    DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
-                first.ifPresent(e -> {
-                    RolePatchCommand beforePatch = new RolePatchCommand(e);
-                    RolePatchCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, RolePatchCommand.class);
-                    e.patch(afterPatch.getName(), afterPatch.getDescription());
-                    DomainRegistry.getRoleRepository().add(e);
-                });
-                return null;
-            }, ROLE);
-    }
-
 
     @AuditLog(actionName = DELETE_TENANT_ROLE)
     public void tenantRemove(String projectId, String id, String changeId) {
@@ -198,15 +174,12 @@ public class RoleApplicationService {
      */
     public void handle(PermissionRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotentMsg(event.getId().toString(), (context) -> {
+            .idempotent(event.getId().toString(), (context) -> {
                 log.debug("handle permission removed event");
                 PermissionId permissionId = new PermissionId(event.getDomainId().getDomainId());
-                Set<Role> allByQuery = QueryUtility.getAllByQuery(
-                    (query) -> DomainRegistry.getRoleRepository().query(query),
-                    RoleQuery.referredPermissions(permissionId));
-                allByQuery.forEach(e -> e.removePermission(permissionId));
+                DomainRegistry.getRoleRepository().removeReferredPermissionId(permissionId);
                 return null;
-            }, (cmd) -> null, ROLE);
+            }, ROLE);
     }
 
     /**

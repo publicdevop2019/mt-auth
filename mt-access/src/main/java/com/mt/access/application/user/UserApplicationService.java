@@ -2,19 +2,15 @@ package com.mt.access.application.user;
 
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_DELETE_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_LOCK_USER;
-import static com.mt.access.domain.model.audit.AuditActionName.MGMT_PATCH_BATCH_USER;
-import static com.mt.access.domain.model.audit.AuditActionName.MGMT_PATCH_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_FORGET_PWD;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_RESET_PWD;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PWD;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UpdateUserCommand;
 import com.mt.access.application.user.command.UserCreateCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
-import com.mt.access.application.user.command.UserPatchingCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
 import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.command.UserUpdateProfileCommand;
@@ -50,11 +46,9 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
-import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -124,12 +118,12 @@ public class UserApplicationService {
         User user = DomainRegistry.getUserRepository().get(userId);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                user.lockUser(
+                User user1 = user.lockUser(
                     command.getLocked(), context
                 );
+                DomainRegistry.getUserRepository().update(user, user1);
                 return null;
             }, USER);
-        DomainRegistry.getUserRepository().add(user);
     }
 
     public String create(UserCreateCommand command, String operationId) {
@@ -171,40 +165,6 @@ public class UserApplicationService {
             throw new DefinedRuntimeException("default user cannot be deleted", "1021",
                 HttpResponseCode.BAD_REQUEST);
         }
-    }
-
-
-    @AuditLog(actionName = MGMT_PATCH_USER)
-    public void patch(String id, JsonPatch command, String changeId) {
-        DomainRegistry.getAuditService()
-            .logUserAction(log, MGMT_PATCH_USER,
-                command);
-        UserId userId = new UserId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                User user = DomainRegistry.getUserRepository().get(userId);
-                UserPatchingCommand beforePatch = new UserPatchingCommand(user);
-                UserPatchingCommand afterPatch =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .applyJsonPatch(command, beforePatch, UserPatchingCommand.class);
-                user.lockUser(
-                    afterPatch.getLocked(), context
-                );
-                return null;
-            }, USER);
-    }
-
-
-    @AuditLog(actionName = MGMT_PATCH_BATCH_USER)
-    public void patchBatch(List<PatchCommand> commands, String changeId) {
-        DomainRegistry.getAuditService()
-            .logUserAction(log, MGMT_PATCH_BATCH_USER,
-                commands);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                DomainRegistry.getUserService().batchLock(commands, context);
-                return null;
-            }, USER);
     }
 
 
@@ -267,7 +227,8 @@ public class UserApplicationService {
                     ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 User user = DomainRegistry.getUserRepository().get(userId);
-                user.setUserAvatar(new UserAvatar(imageId));
+                User updated = user.updateUserAvatar(new UserAvatar(imageId));
+                DomainRegistry.getUserRepository().update(user, updated);
                 return imageId;
             });
     }
@@ -313,11 +274,12 @@ public class UserApplicationService {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
         CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                 User user = DomainRegistry.getUserRepository().get(userId);
-                user.update(
+                User update = user.update(
                     new UserMobile(command.getCountryCode(), command.getMobileNumber()),
                     command.getUsername() != null ? new UserName(command.getUsername()) : null,
                     command.getLanguage()
                 );
+                DomainRegistry.getUserRepository().update(user, update);
             }
         );
     }

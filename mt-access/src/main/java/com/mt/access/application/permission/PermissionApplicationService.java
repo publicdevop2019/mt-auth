@@ -29,6 +29,7 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.Objects;
@@ -127,7 +128,9 @@ public class PermissionApplicationService {
                             DomainRegistry.getPermissionService()
                                 .tenantFindPermissionIds(command.getLinkedApiIds(),
                                     permissionQuery.getProjectIds());
-                        Permission update = old.update(command.getName(), permissionIds);
+                        Permission update = old.update(command.getName(),
+                            Checker.isNull(command.getProjectId()) ? null :
+                                new ProjectId(command.getProjectId()), permissionIds);
                         DomainRegistry.getPermissionRepository().update(old, update);
                     });
                 return null;
@@ -195,7 +198,8 @@ public class PermissionApplicationService {
     public void handle(SecureEndpointCreated event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle endpoint created event with permission id {}", event.getPermissionId().getDomainId());
+                log.debug("handle endpoint created event with permission id {}",
+                    event.getPermissionId().getDomainId());
                 EndpointId endpointId = new EndpointId(event.getDomainId().getDomainId());
                 PermissionId permissionId = event.getPermissionId();
                 ProjectId projectId = event.getProjectId();
@@ -214,7 +218,8 @@ public class PermissionApplicationService {
     public void handle(SecureEndpointRemoved event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("handle secured endpoint remove event, permission id {}", event.getPermissionId().getDomainId());
+                log.debug("handle secured endpoint remove event, permission id {}",
+                    event.getPermissionId().getDomainId());
                 DomainRegistry.getPermissionService()
                     .cleanRelated(event.getPermissionId(), context);
                 return null;

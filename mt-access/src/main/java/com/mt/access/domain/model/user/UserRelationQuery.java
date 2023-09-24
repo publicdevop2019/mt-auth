@@ -24,8 +24,6 @@ public class UserRelationQuery extends QueryCriteria {
     private static final String PROJECT_ID = "projectIds";
     private static final String EMAIL_LIKE = "emailLike";
     @Getter
-    private Sort sort;
-    @Getter
     private String emailLike;
     @Getter
     private Set<UserId> userIds;
@@ -47,7 +45,6 @@ public class UserRelationQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(EMAIL_LIKE)).ifPresent(e -> emailLike = e);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
-        this.sort = Sort.byId(true);
     }
 
     public UserRelationQuery(UserId userId) {
@@ -55,7 +52,6 @@ public class UserRelationQuery extends QueryCriteria {
         userIds.add(userId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
     }
 
     public static UserRelationQuery findTenantAdmin(RoleId tenantAdminRole, String pageConfig) {
@@ -64,23 +60,6 @@ public class UserRelationQuery extends QueryCriteria {
         userRelationQuery.roleId = tenantAdminRole;
         userRelationQuery.pageConfig = PageConfig.limited(pageConfig, 1000);
         userRelationQuery.queryConfig = QueryConfig.countRequired();
-        userRelationQuery.sort = Sort.byId(true);
         return userRelationQuery;
-    }
-
-    @Getter
-    public static class Sort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        public Sort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static Sort byId(boolean isAsc) {
-            Sort userSort = new Sort(isAsc);
-            userSort.byId = true;
-            return userSort;
-        }
     }
 }

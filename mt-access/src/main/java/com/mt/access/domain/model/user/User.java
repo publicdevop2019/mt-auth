@@ -12,14 +12,8 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.util.Arrays;
+import java.util.Objects;
 import javax.annotation.Nullable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -28,50 +22,44 @@ import lombok.Setter;
 /**
  * user aggregate.
  */
-@Embeddable
-@Entity
-@Table(name = "user_")
 @EqualsAndHashCode(callSuper = true)
 public class User extends Auditable {
     private static final String[] ROOT_ACCOUNTS = {"0U8AZTODP4H0"};
+
     @Setter(AccessLevel.PRIVATE)
-    @Embedded
     @Getter
     private UserEmail email;
-    @Embedded
+
     @Getter
     @Setter
     private UserPassword password;
-    @Embedded
+
     @Getter
     @Setter
     private UserMobile mobile;
-    @Embedded
+
     @Getter
     @Setter
-    @Nullable
     private UserAvatar userAvatar;
-    @Embedded
+
     @Getter
     @Setter
     private UserName userName;
+
     @Getter
     @Setter
-    @Enumerated(EnumType.STRING)
     private Language language;
-    @Embedded
+
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;
-    @Column
+
     @Getter
     private Boolean locked;
 
     @Getter
-    @Embedded
     private PasswordResetCode pwdResetToken;
     @Getter
-    @Embedded
     private MfaInfo mfaInfo;
 
     private User(UserEmail userEmail, UserPassword password, UserId userId, UserMobile mobile) {
@@ -84,6 +72,33 @@ public class User extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
+                                       String modifiedBy, Integer version,
+                                       UserEmail email, Boolean locked, UserPassword userPassword,
+                                       PasswordResetCode passwordResetCode, UserId domainId,
+                                       UserName userName,
+                                       UserMobile userMobile, UserAvatar userAvatar,
+                                       Language language, MfaInfo mfaInfo) {
+        User user = new User();
+        user.setId(id);
+        user.setCreatedAt(createdAt);
+        user.setCreatedBy(createdBy);
+        user.setModifiedAt(modifiedAt);
+        user.setModifiedBy(modifiedBy);
+        user.setVersion(version);
+        user.setEmail(email);
+        user.setLocked(locked);
+        user.setPassword(userPassword);
+        user.pwdResetToken = passwordResetCode;
+        user.setUserId(domainId);
+        user.setUserName(userName);
+        user.setMobile(userMobile);
+        user.setUserAvatar(userAvatar);
+        user.setLanguage(language);
+        user.mfaInfo = mfaInfo;
+        return user;
     }
 
     private void setLocked(Boolean locked) {
@@ -117,32 +132,54 @@ public class User extends Auditable {
     }
 
 
-    public void lockUser(Boolean locked, TransactionContext context) {
+    public User lockUser(Boolean locked, TransactionContext context) {
+        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         if (Arrays.stream(ROOT_ACCOUNTS)
-            .anyMatch(e -> e.equalsIgnoreCase(this.userId.getDomainId()))) {
+            .anyMatch(e -> e.equalsIgnoreCase(user.userId.getDomainId()))) {
             throw new DefinedRuntimeException("root account cannot be locked", "1062",
                 HttpResponseCode.BAD_REQUEST);
         }
         context.append(new UserGetLocked(userId));
-        setLocked(locked);
+        user.setLocked(locked);
+        return user;
     }
 
-    public void update(UserMobile mobile,
+    public User update(UserMobile mobile,
                        @Nullable UserName userName,
                        @Nullable Language language) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         if (userName != null) {
-            if (this.userName != null && this.userName.getValue() != null
-                && !this.userName.equals(userName)) {
+            if (update.userName != null && update.userName.getValue() != null
+                && !update.userName.equals(userName)) {
                 throw new DefinedRuntimeException("username can only be set once", "1063",
                     HttpResponseCode.BAD_REQUEST);
             }
-            this.userName = userName;
+            update.userName = userName;
         }
         if (language != null) {
-            this.language = language;
+            update.language = language;
         }
-        if (!this.mobile.equals(mobile)) {
-            this.mobile = mobile;
+        if (!update.mobile.equals(mobile)) {
+            update.mobile = mobile;
         }
+        return update;
+    }
+
+    public User updateUserAvatar(UserAvatar userAvatar) {
+        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        user.setUserAvatar(userAvatar);
+        return user;
+    }
+
+    public boolean sameAs(User update) {
+        return Objects.equals(email, update.email) &&
+            Objects.equals(password, update.password) &&
+            Objects.equals(mobile, update.mobile) &&
+            Objects.equals(userAvatar, update.userAvatar) &&
+            Objects.equals(userName, update.userName) && language == update.language &&
+            Objects.equals(userId, update.userId) &&
+            Objects.equals(locked, update.locked) &&
+            Objects.equals(pwdResetToken, update.pwdResetToken) &&
+            Objects.equals(mfaInfo, update.mfaInfo);
     }
 }

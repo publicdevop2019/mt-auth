@@ -44,8 +44,6 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-@Table
-@Entity
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class Permission extends Auditable {
@@ -85,7 +83,6 @@ public class Permission extends Auditable {
     public static final String ADMIN_MGMT = "ADMIN_MGMT";
     public static final Set<String> reservedName = new HashSet<>();
     public static final Set<String> reservedUIPermissionName = new HashSet<>();
-    private static final String DEFAULT_AUTO_ACTOR = "SYSTEM";
 
     static {
         reservedName.add(API_ACCESS);
@@ -126,39 +123,15 @@ public class Permission extends Auditable {
     }
 
     private String name;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "parentId"))
-    })
     private PermissionId parentId;
 
-    @Embedded
     private PermissionId permissionId;
 
-    @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(
-        name = "linked_permission_ids_map",
-        joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"),
-        uniqueConstraints = @UniqueConstraint(columnNames = {"id", "domainId"})
-    )
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))
-    })
     private Set<PermissionId> linkedApiPermissionIds = new LinkedHashSet<>();
 
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
-    })
     private ProjectId projectId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
-    })
     private ProjectId tenantId;
     private Boolean shared;
-    @Enumerated(EnumType.STRING)
     private PermissionType type;
     private Boolean systemCreate;
 
@@ -254,9 +227,9 @@ public class Permission extends Auditable {
         permission.setSystemCreate(true);
         long milli = Instant.now().toEpochMilli();
         permission.setCreatedAt(milli);
-        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         permission.setModifiedAt(milli);
-        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -292,9 +265,9 @@ public class Permission extends Auditable {
         permission.setSystemCreate(true);
         long milli = Instant.now().toEpochMilli();
         permission.setCreatedAt(milli);
-        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         permission.setModifiedAt(milli);
-        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -324,9 +297,9 @@ public class Permission extends Auditable {
         permission.setSystemCreate(true);
         long milli = Instant.now().toEpochMilli();
         permission.setCreatedAt(milli);
-        permission.setCreatedBy(DEFAULT_AUTO_ACTOR);
+        permission.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         permission.setModifiedAt(milli);
-        permission.setModifiedBy(DEFAULT_AUTO_ACTOR);
+        permission.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         new PermissionValidator(new HttpValidationNotificationHandler(), permission).validate();
         return permission;
     }
@@ -434,7 +407,7 @@ public class Permission extends Auditable {
         Permission p21 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_ROLE,
                 roleMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8IZU2J4F0P"), new PermissionId("0Y8HKE2QAIVF"),
+                Stream.of(new PermissionId("0Y8HKE2QAIVF"),
                         new PermissionId("0Y8HKE24FWUI"))
                     .collect(Collectors.toSet()));
         Permission p22 = Permission
@@ -463,7 +436,7 @@ public class Permission extends Auditable {
         Permission p29 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_PERMISSION,
                 permissionMgmtId, tenantId, Stream
-                    .of(new PermissionId("0Y8HLUWKQEJ1"), new PermissionId("0Y8HLUWOH91P"),
+                    .of(new PermissionId("0Y8HLUWKQEJ1"),
                         new PermissionId("0Y8HLUWMX2BX")).collect(Collectors.toSet()));
         //user mgmt related permission
         PermissionId positionMgmtId = new PermissionId();
@@ -531,7 +504,7 @@ public class Permission extends Auditable {
         Permission p43 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_CACHE,
                 cacheMgmtId, tenantId,
-                Stream.of(new PermissionId("0Y8OKQGIRTHW"), new PermissionId("0Y8OKQGFNG2C"),
+                Stream.of(new PermissionId("0Y8OKQGFNG2C"),
                         new PermissionId("0Y8OKQGD5JPW"))
                     .collect(Collectors.toSet()));
         Permission p44 = Permission
@@ -650,10 +623,11 @@ public class Permission extends Auditable {
         });
     }
 
-    public Permission update(String name, Set<PermissionId> permissionIds) {
+    public Permission update(String name, ProjectId projectId, Set<PermissionId> permissionIds) {
         Permission updated =
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, Permission.class);
         updated.updateName(name);
+        updated.setProjectId(projectId);
         updated.setLinkedApiPermissionIds(permissionIds);
         updated.setModifiedAt(Instant.now().toEpochMilli());
         updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());

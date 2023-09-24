@@ -23,13 +23,10 @@ public class AuditActionName {
     public static final String CANCEL_SUB_REQUEST = "CANCEL_SUB_REQUEST";
     public static final String REJECT_SUB_REQUEST = "REJECT_SUB_REQUEST";
     public static final String CREATE_TENANT_ROLE = "CREATE_TENANT_ROLE";
-    public static final String PATCH_TENANT_ROLE = "PATCH_TENANT_ROLE";
     public static final String UPDATE_TENANT_ROLE = "UPDATE_TENANT_ROLE";
     public static final String DELETE_TENANT_ROLE = "DELETE_TENANT_ROLE";
     public static final String MGMT_LOCK_USER = "MGMT_LOCK_USER";
     public static final String MGMT_DELETE_USER = "MGMT_DELETE_USER";
-    public static final String MGMT_PATCH_USER = "MGMT_PATCH_USER";
-    public static final String MGMT_PATCH_BATCH_USER = "MGMT_PATCH_BATCH_USER";
     public static final String USER_UPDATE_PWD = "USER_UPDATE_PWD";
     public static final String USER_FORGET_PWD = "USER_FORGET_PWD";
     public static final String USER_RESET_PWD = "USER_RESET_PWD";

@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.role;
 
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
@@ -34,4 +35,7 @@ public interface RoleRepository {
 
     Optional<Role> queryClientRoot(ProjectId projectId);
 
+    void update(Role old, Role updated);
+
+    void removeReferredPermissionId(PermissionId permissionId);
 }
