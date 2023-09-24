@@ -43,7 +43,7 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
         "project_id, " +
         "user_id" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?)";
     private static final String INSERT_ROLE_MAP = "INSERT INTO user_relation_role_map " +
         "(" +
         "id, " +

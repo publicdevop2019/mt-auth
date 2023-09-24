@@ -11,6 +11,7 @@ import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
 import javax.annotation.Nullable;
@@ -72,6 +73,11 @@ public class User extends Auditable {
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         DomainRegistry.getUserValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(userId.getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(userId.getDomainId());
     }
 
     public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,

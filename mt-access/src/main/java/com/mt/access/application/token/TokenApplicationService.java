@@ -135,9 +135,12 @@ public class TokenApplicationService {
             }
         }
         AtomicReference<JwtToken> token = new AtomicReference<>();
+        log.debug("end of all checks");
         CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-            token.set(
-                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails));
+            log.debug("inside transaction");
+            JwtToken grant =
+                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
+            token.set(grant);
         });
         return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
     }

@@ -236,6 +236,7 @@ public class UserApplicationService {
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,
                                       String username, @Nullable String mfaCode,
                                       @Nullable String mfaId, ProjectId loginProjectId) {
+        log.debug("before get user id");
         UserEmail userEmail = new UserEmail(username);
         UserId userId =
             DomainRegistry.getUserRepository().getUserId(userEmail);

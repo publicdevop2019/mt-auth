@@ -18,6 +18,7 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
@@ -58,6 +59,11 @@ public class UserRelation extends Auditable {
         this.standaloneRoles.add(roleId);
         this.userId = creator;
         this.projectId = projectId;
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(userId.getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(userId.getDomainId());
     }
 
     public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator,
@@ -67,25 +73,30 @@ public class UserRelation extends Auditable {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
             .query(creator, authProjectId);
-        UserRelation userRelation;
+        UserRelation rootRelation;
         if (byUserIdAndProjectId.isPresent()) {
-            userRelation = byUserIdAndProjectId.get();
-            if (userRelation.tenantIds == null) {
-                userRelation.tenantIds = new HashSet<>();
-            }
-            userRelation.tenantIds.add(tenantId);
-            userRelation.standaloneRoles.add(adminRoleId);
+            rootRelation = byUserIdAndProjectId.get();
+            UserRelation updated = rootRelation.updateTenantAndRole(tenantId, adminRoleId);
+            DomainRegistry.getUserRelationRepository().update(rootRelation, updated);
         } else {
-            userRelation = new UserRelation(adminRoleId, creator, authProjectId, tenantId);
+            rootRelation = new UserRelation(adminRoleId, creator, authProjectId, tenantId);
+            DomainRegistry.getUserRelationRepository().add(rootRelation);
         }
-        DomainRegistry.getUserRelationRepository().add(userRelation);
         //to target project
-        UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
-        DomainRegistry.getUserRelationRepository().add(userRelation2);
+        UserRelation tenantRelation = new UserRelation(userRoleId, creator, tenantId);
+        DomainRegistry.getUserRelationRepository().add(tenantRelation);
         Project project = DomainRegistry.getProjectRepository().get(tenantId);
         context
             .append(new ProjectOnboardingComplete(project));
         log.debug("end of onboarding new project");
+    }
+
+    private UserRelation updateTenantAndRole(ProjectId tenantId, RoleId adminRoleId) {
+        UserRelation updated =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.tenantIds.add(tenantId);
+        updated.standaloneRoles.add(adminRoleId);
+        return updated;
     }
 
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,
