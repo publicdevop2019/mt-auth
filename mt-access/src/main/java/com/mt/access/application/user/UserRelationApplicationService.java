@@ -163,10 +163,11 @@ public class UserRelationApplicationService {
                 ProjectId projectId2 = new ProjectId(MT_AUTH_PROJECT_ID);
                 UserId userId = new UserId(rawUserId);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-                UserRelation userRelation =
+                UserRelation current =
                     checkCondition(userId, tenantProjectId, projectId2, true);
-                userRelation.addTenantAdmin(tenantProjectId, tenantAdminRoleId);
-                DomainRegistry.getUserRelationRepository().add(userRelation);
+                UserRelation updated =
+                    current.addTenantAdmin(tenantProjectId, tenantAdminRoleId);
+                DomainRegistry.getUserRelationRepository().update(current, updated);
                 return null;
             }, USER_RELATION);
     }
@@ -182,8 +183,9 @@ public class UserRelationApplicationService {
                 UserRelation userRelation =
                     checkCondition(userId, tenantProjectId, projectId2, false);
                 RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-                userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
-                DomainRegistry.getUserRelationRepository().add(userRelation);
+                UserRelation update =
+                    userRelation.removeTenantAdmin(tenantProjectId, tenantAdminRoleId);
+                DomainRegistry.getUserRelationRepository().update(userRelation, update);
                 return null;
             }, USER_RELATION);
     }

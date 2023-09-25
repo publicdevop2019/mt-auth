@@ -4,6 +4,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.persistence.Embeddable;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Embeddable
 @NoArgsConstructor
-public class UserPassword {
+public class UserPassword  implements Serializable {
     @Getter
     private String password;
 

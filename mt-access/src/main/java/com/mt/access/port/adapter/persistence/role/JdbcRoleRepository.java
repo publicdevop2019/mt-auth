@@ -94,7 +94,7 @@ public class JdbcRoleRepository implements RoleRepository {
             "LEFT JOIN role_api_permission_map rapm ON rapm.id = r.id " +
             "LEFT JOIN role_external_permission_map repm ON repm.id = r.id " +
             "WHERE r.domain_id = ? ";
-    private static final String COUNT_PROJECT_CREATED_TOTAL = "SELECT COUNT(*) FROM role r " +
+    private static final String COUNT_PROJECT_CREATED_TOTAL = "SELECT COUNT(*) AS count FROM role r " +
         "WHERE r.project_id = ? AND r.type = 'USER'";
     private static final String FIND_PROJECT_ROOT_SQL = "SELECT r.*, " +
         "rcpm.permission AS common_permission, " +

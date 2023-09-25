@@ -46,4 +46,15 @@ public class ChangeRecord {
     public static String getForwardChangeId(String changeId) {
         return changeId.replace(BACKWARD_SUFFIX, "");
     }
+
+    public static ChangeRecord fromDatabaseRow(Long id, String changeId, String entityType,
+                                               Boolean emptyOpt, String returnValue) {
+        ChangeRecord changeRecord = new ChangeRecord();
+        changeRecord.setId(id);
+        changeRecord.setChangeId(changeId);
+        changeRecord.setEntityType(entityType);
+        changeRecord.setEmptyOpt(emptyOpt);
+        changeRecord.setReturnValue(returnValue);
+        return changeRecord;
+    }
 }

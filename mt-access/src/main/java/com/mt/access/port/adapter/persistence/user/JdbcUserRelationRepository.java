@@ -93,10 +93,10 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
     private static final String FIND_EMAIL_LIKE_SQL =
         "SELECT temp.*, m1.role, m2.tenant " +
             "FROM (" +
-            "SELECT * FROM user_relation ur " +
+            "SELECT ur.* FROM user_relation ur " +
             "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
             "WHERE u.email LIKE ? AND ur.project_id = ? ORDER BY ur.id ASC LIMIT ? OFFSET ? " +
-            ") AS temp" +
+            ") AS temp " +
             "LEFT JOIN user_relation_role_map m1 ON m1.id = temp.id " +
             "LEFT JOIN user_relation_tenant_map m2 ON m2.id = temp.id ";
     private static final String COUNT_EMAIL_LIKE_SQL =

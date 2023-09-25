@@ -147,26 +147,32 @@ public class UserRelation extends Auditable {
         CommonUtility.updateCollection(this.tenantIds, tenantIds, () -> this.tenantIds = tenantIds);
     }
 
-    public void addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
-        if (getStandaloneRoles() == null) {
+    public UserRelation addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (update.getStandaloneRoles() == null) {
             HashSet<RoleId> roleIds = new HashSet<>();
-            setStandaloneRoles(roleIds);
+            update.setStandaloneRoles(roleIds);
         }
-        getStandaloneRoles().add(tenantAdminRoleId);
-        if (getTenantIds() == null) {
+        update.getStandaloneRoles().add(tenantAdminRoleId);
+        if (update.getTenantIds() == null) {
             HashSet<ProjectId> projectIds = new HashSet<>();
-            setTenantIds(projectIds);
+            update.setTenantIds(projectIds);
         }
-        getTenantIds().add(tenantProjectId);
+        update.getTenantIds().add(tenantProjectId);
+        return update;
     }
 
-    public void removeTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
-        if (getStandaloneRoles() != null) {
-            getStandaloneRoles().remove(tenantAdminRoleId);
+    public UserRelation removeTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (update.getStandaloneRoles() != null) {
+            update.getStandaloneRoles().remove(tenantAdminRoleId);
         }
-        if (getTenantIds() != null) {
-            getTenantIds().remove(tenantProjectId);
+        if (update.getTenantIds() != null) {
+            update.getTenantIds().remove(tenantProjectId);
         }
+        return update;
     }
 
     public UserRelation tenantUpdate(Set<String> roles) {

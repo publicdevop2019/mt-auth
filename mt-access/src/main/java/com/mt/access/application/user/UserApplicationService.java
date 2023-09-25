@@ -177,7 +177,6 @@ public class UserApplicationService {
                 DomainRegistry.getUserService()
                     .updatePassword(user, new CurrentPassword(command.getCurrentPwd()),
                         new UserPassword(command.getPassword()), context);
-                DomainRegistry.getUserRepository().add(user);
                 return null;
             }, USER);
     }

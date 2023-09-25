@@ -9,4 +9,6 @@ public interface DomainEventRepository {
     StoredEvent getById(long id);
 
     SumPagedRep<StoredEvent> query(StoredEventQuery storedEventQuery);
+
+    void update(StoredEvent old, StoredEvent update);
 }

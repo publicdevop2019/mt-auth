@@ -1,16 +1,15 @@
 package com.mt.access.domain.model.user;
 
+import java.io.Serializable;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-@Embeddable
 @EqualsAndHashCode
-public class MfaId {
+public class MfaId  implements Serializable {
     @Getter
-    @Column(name = "mfa_id")
     private final String value;
 
     public MfaId() {

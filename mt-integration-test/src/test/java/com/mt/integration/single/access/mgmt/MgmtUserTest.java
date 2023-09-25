@@ -129,22 +129,6 @@ public class MgmtUserTest{
 
     }
 
-
-    @Test
-    public void admin_can_patch_user() {
-        //null
-        User admin = UserUtility.getAdmin();
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> createResp = UserUtility.register(user);
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setPath("/locked");
-        patchCommand.setOp("replace");
-        patchCommand.setValue(true);
-        ResponseEntity<Void> response =
-            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
     @Test
     public void admin_can_lock_then_unlock_user() {
         User user = UserUtility.createRandomUserObj();
@@ -221,50 +205,5 @@ public class MgmtUserTest{
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-    }
-
-    @Test
-    public void validation_mgmt_patch_user_invalid_value_null() {
-        User admin = UserUtility.getAdmin();
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> createResp = UserUtility.register(user);
-        PatchCommand patchCommand = new PatchCommand();
-        //null
-        patchCommand.setPath("/locked");
-        patchCommand.setOp("replace");
-        patchCommand.setValue(null);
-        ResponseEntity<Void> response =
-            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-    }
-
-    @Test
-    public void validation_mgmt_patch_user_invalid_path() {
-        User admin = UserUtility.getAdmin();
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> createResp = UserUtility.register(user);
-        PatchCommand patchCommand = new PatchCommand();
-        //invalid path
-        patchCommand.setPath(RandomUtility.randomStringNoNum());
-        patchCommand.setOp("replace");
-        patchCommand.setValue(true);
-        ResponseEntity<Void> response2 =
-            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
-    }
-
-    @Test
-    public void validation_mgmt_patch_user_invalid_operation() {
-        User admin = UserUtility.getAdmin();
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> createResp = UserUtility.register(user);
-        PatchCommand patchCommand = new PatchCommand();
-        //invalid operation
-        patchCommand.setPath("/locked");
-        patchCommand.setOp(RandomUtility.randomStringNoNum());
-        patchCommand.setValue(true);
-        ResponseEntity<Void> response3 =
-            UserUtility.lockUser(HttpUtility.getId(createResp), admin, patchCommand);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 }

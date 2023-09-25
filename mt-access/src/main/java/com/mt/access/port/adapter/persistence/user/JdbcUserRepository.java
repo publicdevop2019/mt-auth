@@ -78,7 +78,7 @@ public class JdbcUserRepository implements UserRepository {
     private static final String QUERY_LOGIN_USER_BY_ID_SQL =
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.domain_id = ?";
     public static final String QUERY_USER_BY_EMAIL =
-        "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?";
+        "SELECT * FROM user_ u WHERE u.email = ?";
     private static final String UPDATE_SQL = "UPDATE user_ u SET " +
         "u.modified_at = ? ," +
         "u.modified_by = ?, " +

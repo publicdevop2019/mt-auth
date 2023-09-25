@@ -1,6 +1,8 @@
 package com.mt.access.domain.model.user;
 
-public enum Language {
+import java.io.Serializable;
+
+public enum Language  implements Serializable {
     ENGLISH,
     MANDARIN;
 }
