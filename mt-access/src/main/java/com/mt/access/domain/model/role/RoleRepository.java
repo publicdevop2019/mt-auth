@@ -12,18 +12,25 @@ public interface RoleRepository {
 
     void addAll(Set<Role> role);
 
+    Set<PermissionId> findCommonPermission(Role role);
+
+    Set<PermissionId> findApiPermission(Role role);
+
+    Set<PermissionId> findExtPermission(Role role);
+
     SumPagedRep<Role> query(RoleQuery roleQuery);
 
     void remove(Role e);
 
     Role query(RoleId id);
 
-    default Role get(RoleId id){
+    default Role get(RoleId id) {
         Role byId = query(id);
         Validator.notNull(byId);
         return byId;
     }
-    default Role get(ProjectId projectId, RoleId id){
+
+    default Role get(ProjectId projectId, RoleId id) {
         Role role = query(new RoleQuery(id, projectId)).findFirst().orElse(null);
         Validator.notNull(role);
         return role;

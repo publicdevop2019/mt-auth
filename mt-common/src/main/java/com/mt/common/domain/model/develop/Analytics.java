@@ -110,6 +110,7 @@ public class Analytics {
         EVENT_START_PUBLISH("event_start_publish", 50L),
         IDEMPOTENT_CHECK("idempotent_check", 1000L),
         DOMAIN_LOGIC("domain_logic", 3000L),
+        PARSE_DB_RESULT("parse_db_result", 1000L),
         DEFAULT("default", 0L),
         HANGING_TX("hanging_tx", 1000L),
         DOMAIN_LOGIC_AND_IDEMPOTENT_ENTITY("domain_logic_and_idempotent_record", 3500L),

@@ -10,9 +10,9 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.port.adapter.persistence.BatchInsertKeyValue;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
+import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.restful.query.PageConfig;
 import com.mt.common.domain.model.sql.DatabaseUtility;
 import com.mt.common.domain.model.validate.Checker;
 import java.sql.ResultSet;
@@ -25,10 +25,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @Repository
 public class JdbcRoleRepository implements RoleRepository {
 
@@ -85,37 +88,20 @@ public class JdbcRoleRepository implements RoleRepository {
     private static final String FIND_PROJECT_IDS =
         "SELECT DISTINCT r.project_id FROM role r";
     private static final String FIND_BY_DOMAIN_ID_SQL =
-        "SELECT r.*, " +
-            "rcpm.permission AS common_permission, " +
-            "rapm.permission AS api_permission, " +
-            "repm.permission AS ext_permission " +
-            "FROM role r " +
-            "LEFT JOIN role_common_permission_map rcpm ON rcpm.id = r.id " +
-            "LEFT JOIN role_api_permission_map rapm ON rapm.id = r.id " +
-            "LEFT JOIN role_external_permission_map repm ON repm.id = r.id " +
-            "WHERE r.domain_id = ? ";
-    private static final String COUNT_PROJECT_CREATED_TOTAL = "SELECT COUNT(*) AS count FROM role r " +
-        "WHERE r.project_id = ? AND r.type = 'USER'";
-    private static final String FIND_PROJECT_ROOT_SQL = "SELECT r.*, " +
-        "rcpm.permission AS common_permission, " +
-        "rapm.permission AS api_permission, " +
-        "repm.permission AS ext_permission " +
-        "FROM role r " +
-        "LEFT JOIN role_common_permission_map rcpm ON rcpm.id = r.id " +
-        "LEFT JOIN role_api_permission_map rapm ON rapm.id = r.id " +
-        "LEFT JOIN role_external_permission_map repm ON repm.id = r.id " +
-        "WHERE r.type = 'CLIENT_ROOT' AND r.project_id = ?";
+        "SELECT * FROM role r WHERE r.domain_id = ? ";
+    private static final String FIND_COMMON_PERMISSION = "SELECT m.permission " +
+        "FROM role_common_permission_map m WHERE m.id = ?";
+    private static final String FIND_API_PERMISSION = "SELECT m.permission " +
+        "FROM role_api_permission_map m WHERE m.id = ?";
+    private static final String FIND_EXT_PERMISSION = "SELECT m.permission " +
+        "FROM role_external_permission_map m WHERE m.id = ?";
+    private static final String COUNT_PROJECT_CREATED_TOTAL =
+        "SELECT COUNT(*) AS count FROM role r " +
+            "WHERE r.project_id = ? AND r.type = 'USER'";
+    private static final String FIND_PROJECT_ROOT_SQL =
+        "SELECT * FROM role r WHERE r.type = 'CLIENT_ROOT' AND r.project_id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL =
-        "SELECT temp.*, " +
-            "rcpm.permission AS common_permission, " +
-            "rapm.permission AS api_permission, " +
-            "repm.permission AS ext_permission " +
-            "FROM " +
-            "(SELECT * FROM role r WHERE %s ORDER BY r.id ASC LIMIT ? OFFSET ?) " +
-            "AS temp " +
-            "LEFT JOIN role_common_permission_map rcpm ON rcpm.id = temp.id " +
-            "LEFT JOIN role_api_permission_map rapm ON rapm.id = temp.id " +
-            "LEFT JOIN role_external_permission_map repm ON repm.id = temp.id";
+        "SELECT * FROM role r WHERE %s ORDER BY r.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM role r WHERE %s";
     private static final String UPDATE_SQL = "UPDATE role r SET " +
@@ -276,6 +262,36 @@ public class JdbcRoleRepository implements RoleRepository {
     }
 
     @Override
+    public Set<PermissionId> findCommonPermission(Role role) {
+        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(FIND_COMMON_PERMISSION,
+                new PermissionIdRowMapper(),
+                role.getId()
+            );
+        return new HashSet<>(data);
+    }
+
+    @Override
+    public Set<PermissionId> findApiPermission(Role role) {
+        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(FIND_API_PERMISSION,
+                new PermissionIdRowMapper(),
+                role.getId()
+            );
+        return new HashSet<>(data);
+    }
+
+    @Override
+    public Set<PermissionId> findExtPermission(Role role) {
+        List<PermissionId> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(FIND_EXT_PERMISSION,
+                new PermissionIdRowMapper(),
+                role.getId()
+            );
+        return new HashSet<>(data);
+    }
+
+    @Override
     public SumPagedRep<Role> query(RoleQuery query) {
         List<String> whereClause = new ArrayList<>();
         if (Checker.notNullOrEmpty(query.getIds())) {
@@ -348,14 +364,15 @@ public class JdbcRoleRepository implements RoleRepository {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
+        JdbcTemplate jdbcTemplate = CommonDomainRegistry.getJdbcTemplate();
         Long count;
         if (args.isEmpty()) {
-            count = CommonDomainRegistry.getJdbcTemplate()
+            count = jdbcTemplate
                 .query(finalCountQuery,
                     new DatabaseUtility.ExtractCount()
                 );
         } else {
-            count = CommonDomainRegistry.getJdbcTemplate()
+            count = jdbcTemplate
                 .query(finalCountQuery,
                     new DatabaseUtility.ExtractCount(),
                     args.toArray()
@@ -363,8 +380,7 @@ public class JdbcRoleRepository implements RoleRepository {
         }
         args.add(query.getPageConfig().getPageSize());
         args.add(query.getPageConfig().getOffset());
-
-        List<Role> data = CommonDomainRegistry.getJdbcTemplate()
+        List<Role> data = jdbcTemplate
             .query(finalDataQuery,
                 new RowMapper(),
                 args.toArray()
@@ -602,20 +618,24 @@ public class JdbcRoleRepository implements RoleRepository {
                     list.add(role);
                     currentId = dbId;
                 }
-                Set<PermissionId> linkedApiPermissionIds = role.getApiPermissionIds();
-                String apiPId = rs.getString("api_permission");
-                if (Checker.notNull(apiPId)) {
-                    linkedApiPermissionIds.add(new PermissionId(apiPId));
-                }
-                Set<PermissionId> commonPermissionIds = role.getCommonPermissionIds();
-                String apiCId = rs.getString("common_permission");
-                if (Checker.notNull(apiCId)) {
-                    commonPermissionIds.add(new PermissionId(apiCId));
-                }
-                Set<PermissionId> externalPermissionIds = role.getExternalPermissionIds();
-                String apiEId = rs.getString("ext_permission");
-                if (Checker.notNull(apiEId)) {
-                    externalPermissionIds.add(new PermissionId(apiEId));
+            } while (rs.next());
+            return list;
+        }
+    }
+
+    private static class PermissionIdRowMapper implements ResultSetExtractor<List<PermissionId>> {
+
+        @Override
+        public List<PermissionId> extractData(ResultSet rs)
+            throws SQLException, DataAccessException {
+            if (!rs.next()) {
+                return Collections.emptyList();
+            }
+            List<PermissionId> list = new ArrayList<>();
+            do {
+                String idRaw = rs.getString("permission");
+                if (Checker.notNull(idRaw)) {
+                    list.add(new PermissionId(idRaw));
                 }
             } while (rs.next());
             return list;
