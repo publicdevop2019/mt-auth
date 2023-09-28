@@ -45,61 +45,52 @@ public class EndpointQuery extends QueryCriteria {
     private Boolean isShared;
     @Setter(AccessLevel.PRIVATE)
     private Boolean isSecured;
-    private EndpointSort endpointSort;
     private Set<CacheProfileId> cacheProfileIds;
 
     public EndpointQuery() {
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(EndpointId endpointId) {
         endpointIds = new HashSet<>(List.of(endpointId));
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(String queryParam, String pageParam, String config) {
         updateQueryParam(queryParam);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(String pageParam) {
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(ClientId domainId) {
         clientIds = Collections.singleton(domainId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(CorsProfileId corsProfileId) {
         corsProfileIds = Collections.singleton(corsProfileId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(CacheProfileId profileId) {
         this.cacheProfileIds = Collections.singleton(profileId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(Set<EndpointId> collect1) {
         endpointIds = collect1;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(EndpointId endpointId, ProjectId projectId) {
@@ -107,7 +98,6 @@ public class EndpointQuery extends QueryCriteria {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        setEndpointSort(pageConfig);
     }
 
     public EndpointQuery(String queryParam, ProjectId projectId) {
@@ -115,7 +105,6 @@ public class EndpointQuery extends QueryCriteria {
         projectIds = Collections.singleton(projectId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
-        setEndpointSort(pageConfig);
     }
 
     public static EndpointQuery permissionQuery(Set<PermissionId> externalPermissions) {
@@ -123,7 +112,6 @@ public class EndpointQuery extends QueryCriteria {
         endpointQuery.permissionIds = externalPermissions;
         endpointQuery.setPageConfig(PageConfig.defaultConfig());
         endpointQuery.setQueryConfig(QueryConfig.countRequired());
-        endpointQuery.setEndpointSort(endpointQuery.pageConfig);
         return endpointQuery;
     }
 
@@ -133,7 +121,6 @@ public class EndpointQuery extends QueryCriteria {
         endpointQuery.projectIds = tenantIds;
         endpointQuery.setPageConfig(PageConfig.defaultConfig());
         endpointQuery.setQueryConfig(QueryConfig.countRequired());
-        endpointQuery.setEndpointSort(endpointQuery.pageConfig);
         return endpointQuery;
     }
 
@@ -176,57 +163,5 @@ public class EndpointQuery extends QueryCriteria {
         });
         Optional.ofNullable(stringStringMap.get(PATH)).ifPresent(e -> path = e);
         Optional.ofNullable(stringStringMap.get(METHOD)).ifPresent(e -> method = e);
-    }
-
-    private void setEndpointSort(PageConfig pageConfig) {
-        if (pageConfig.getSortBy().equalsIgnoreCase(ID)) {
-            this.endpointSort = EndpointSort.byId(pageConfig.isSortOrderAsc());
-        }
-        if (pageConfig.getSortBy().equalsIgnoreCase(RESOURCE_ID)) {
-            this.endpointSort = EndpointSort.byResourceId(pageConfig.isSortOrderAsc());
-        }
-        if (pageConfig.getSortBy().equalsIgnoreCase(PATH)) {
-            this.endpointSort = EndpointSort.byPath(pageConfig.isSortOrderAsc());
-        }
-        if (pageConfig.getSortBy().equalsIgnoreCase(METHOD)) {
-            this.endpointSort = EndpointSort.byMethod(pageConfig.isSortOrderAsc());
-        }
-    }
-
-    @Getter
-    public static class EndpointSort {
-        private final Boolean isAsc;
-        private Boolean byId;
-        private Boolean byClientId;
-        private Boolean byMethod;
-        private Boolean byPath;
-
-        private EndpointSort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static EndpointSort byId(boolean isAsc) {
-            EndpointSort endpointSort = new EndpointSort(isAsc);
-            endpointSort.byId = true;
-            return endpointSort;
-        }
-
-        public static EndpointSort byResourceId(boolean isAsc) {
-            EndpointSort endpointSort = new EndpointSort(isAsc);
-            endpointSort.byClientId = true;
-            return endpointSort;
-        }
-
-        public static EndpointSort byMethod(boolean isAsc) {
-            EndpointSort endpointSort = new EndpointSort(isAsc);
-            endpointSort.byMethod = true;
-            return endpointSort;
-        }
-
-        public static EndpointSort byPath(boolean isAsc) {
-            EndpointSort endpointSort = new EndpointSort(isAsc);
-            endpointSort.byPath = true;
-            return endpointSort;
-        }
     }
 }

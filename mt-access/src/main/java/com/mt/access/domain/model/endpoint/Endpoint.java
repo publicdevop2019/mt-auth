@@ -10,6 +10,7 @@ import com.mt.access.domain.model.endpoint.event.SecureEndpointCreated;
 import com.mt.access.domain.model.endpoint.event.SecureEndpointRemoved;
 import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -19,30 +20,22 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.springframework.http.HttpMethod;
 
 @EqualsAndHashCode(callSuper = true)
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"clientId", "path", "method"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
@@ -50,58 +43,35 @@ public class Endpoint extends Auditable {
     private static final Set<String> HTTP_METHODS =
         Arrays.stream(HttpMethod.values()).map(Enum::name).collect(
             Collectors.toSet());
+
     static {
         HTTP_METHODS.add("WEB_SOCKET");
     }
+
     private static final Pattern PATH_REGEX =
         Pattern.compile("^[a-z\\-/*]*$");
-    @Column(name = "secured")
     private Boolean secured;
 
     private String description;
     private String name;
 
-    @Column(name = "websocket")
     private Boolean websocket;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "cors_profile_id"))
-    })
     private CorsProfileId corsProfileId;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "permission_id"))
-    })
     private PermissionId permissionId;
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "cache_profile_id"))
-    })
     private CacheProfileId cacheProfileId;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId",
-            column = @Column(name = "clientId"))
-    })
     private ClientId clientId;
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId",
-            column = @Column(name = "projectId"))
-    })
     private ProjectId projectId;
 
     private String path;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
     private EndpointId endpointId;
 
@@ -109,10 +79,8 @@ public class Endpoint extends Auditable {
 
     private Boolean csrfEnabled;
 
-    @Column
     private Boolean shared;
 
-    @Column
     private Boolean external;
 
     private Integer replenishRate;
@@ -128,7 +96,8 @@ public class Endpoint extends Auditable {
                     String path, EndpointId endpointId, String method,
                     Boolean secured, Boolean websocket, Boolean csrfEnabled,
                     CorsProfileId corsProfileId, Boolean shared,
-                    Boolean external, Integer replenishRate, Integer burstCapacity, TransactionContext context
+                    Boolean external, Integer replenishRate, Integer burstCapacity,
+                    TransactionContext context
     ) {
         super();
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
@@ -143,12 +112,17 @@ public class Endpoint extends Auditable {
         setMethod(method);
         setCsrfEnabled(csrfEnabled);
         setCorsProfileId(corsProfileId);
-        setEndpointCatalogOnCreation(shared, secured, external,context);
+        setEndpointCatalogOnCreation(shared, secured, external, context);
         initExpired();
         setReplenishRate(replenishRate);
         setBurstCapacity(burstCapacity);
         context.append(new EndpointCollectionModified());
         validate(new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
     }
 
     public static Endpoint addNewEndpoint(
@@ -161,7 +135,47 @@ public class Endpoint extends Auditable {
     ) {
         return new Endpoint(clientId, projectId, cacheProfileId, name, description, path,
             endpointId, method, secured, websocket, csrfEnabled, corsProfileId, shared, external,
-            replenishRate, burstCapacity,context);
+            replenishRate, burstCapacity, context);
+    }
+
+    public static Endpoint fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                           Long modifiedAt, String modifiedBy, Integer version,
+                                           CacheProfileId cacheProfileId, ClientId clientId,
+                                           CorsProfileId corsProfileId, Boolean csrfEnabled,
+                                           String description, EndpointId domainId,
+                                           Boolean websocket, String method, String name,
+                                           String path, PermissionId permissionId,
+                                           ProjectId projectId,
+                                           Boolean secured, Boolean shared, String expireReason,
+                                           Boolean expired, Boolean external, Integer replenishRate,
+                                           Integer burstCapacity) {
+        Endpoint endpoint = new Endpoint();
+        endpoint.setId(id);
+        endpoint.setCreatedAt(createdAt);
+        endpoint.setCreatedBy(createdBy);
+        endpoint.setModifiedAt(modifiedAt);
+        endpoint.setModifiedBy(modifiedBy);
+        endpoint.setVersion(version);
+        endpoint.setCacheProfileId(cacheProfileId);
+        endpoint.setClientId(clientId);
+        endpoint.setCorsProfileId(corsProfileId);
+        endpoint.setCsrfEnabled(csrfEnabled);
+        endpoint.setDescription(description);
+        endpoint.setEndpointId(domainId);
+        endpoint.setWebsocket(websocket);
+        endpoint.setMethod(method);
+        endpoint.setName(name);
+        endpoint.path = path;
+        endpoint.setPermissionId(permissionId);
+        endpoint.setProjectId(projectId);
+        endpoint.setSecured(secured);
+        endpoint.setShared(shared);
+        endpoint.expireReason = expireReason;
+        endpoint.expired = expired;
+        endpoint.setExternal(external);
+        endpoint.setReplenishRate(replenishRate);
+        endpoint.setBurstCapacity(burstCapacity);
+        return endpoint;
     }
 
     private void setCsrfEnabled(Boolean csrfEnabled) {
@@ -198,27 +212,31 @@ public class Endpoint extends Auditable {
         }
     }
 
-    public void update(
+    public Endpoint update(
         CacheProfileId cacheProfileId,
         String name, String description, String path, String method,
         Boolean csrfEnabled, CorsProfileId corsProfileId,
         Integer replenishRate,
         Integer burstCapacity
     ) {
-        if (expired) {
+        Endpoint updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (updated.expired) {
             throw new DefinedRuntimeException("expired endpoint cannot be updated", "1041",
                 HttpResponseCode.BAD_REQUEST);
         }
-        setName(name);
-        setDescription(description);
-        setCacheProfileId(cacheProfileId);
-        setPath(path);
-        setMethod(method);
-        setCsrfEnabled(csrfEnabled);
-        setCorsProfileId(corsProfileId);
-        setReplenishRate(replenishRate);
-        setBurstCapacity(burstCapacity);
-        validate(new HttpValidationNotificationHandler());
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setCacheProfileId(cacheProfileId);
+        updated.setPath(path);
+        updated.setMethod(method);
+        updated.setCsrfEnabled(csrfEnabled);
+        updated.setCorsProfileId(corsProfileId);
+        updated.setReplenishRate(replenishRate);
+        updated.setBurstCapacity(burstCapacity);
+        updated.validate(new HttpValidationNotificationHandler());
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        return updated;
     }
 
     private void setDescription(String description) {
@@ -226,7 +244,8 @@ public class Endpoint extends Auditable {
         this.description = description;
     }
 
-    private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external, TransactionContext context) {
+    private void setEndpointCatalogOnCreation(Boolean shared, Boolean secured, Boolean external,
+                                              TransactionContext context) {
         if (Boolean.TRUE.equals(secured)) {
             permissionId = new PermissionId();
         }
@@ -336,31 +355,65 @@ public class Endpoint extends Auditable {
         (new EndpointValidator(this, handler)).validate();
     }
 
-    public void expire(String expireReason, TransactionContext context) {
+    public Endpoint expire(String expireReason, TransactionContext context) {
         Validator.validRequiredString(1, 50, expireReason);
-        if (this.expired) {
+        Endpoint updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (updated.expired) {
             throw new DefinedRuntimeException("endpoint can only expire once", "1042",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (!this.external) {
+        if (!updated.external) {
             throw new DefinedRuntimeException("internal endpoint cannot be expired", "1043",
                 HttpResponseCode.BAD_REQUEST);
         }
-        if (this.shared) {
-            this.expired = true;
-            this.expireReason = expireReason;
+        if (updated.shared) {
+            updated.expired = true;
+            updated.expireReason = expireReason;
             context.append(new EndpointExpired(this));
         } else {
             throw new DefinedRuntimeException("only shared endpoint can be expired", "1044",
                 HttpResponseCode.BAD_REQUEST);
         }
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        return updated;
     }
 
-    public void removeCorsRef() {
-        this.corsProfileId = null;
+    public Endpoint removeCorsRef() {
+        Endpoint updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.corsProfileId = null;
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        return updated;
     }
 
-    public void removeCacheProfileRef() {
-        this.cacheProfileId = null;
+    public Endpoint removeCacheProfileRef() {
+        Endpoint updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.cacheProfileId = null;
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        return updated;
+    }
+
+    public boolean sameAs(Endpoint o) {
+        return Objects.equals(secured, o.secured) &&
+            Objects.equals(description, o.description) &&
+            Objects.equals(name, o.name) &&
+            Objects.equals(websocket, o.websocket) &&
+            Objects.equals(corsProfileId, o.corsProfileId) &&
+            Objects.equals(permissionId, o.permissionId) &&
+            Objects.equals(cacheProfileId, o.cacheProfileId) &&
+            Objects.equals(clientId, o.clientId) &&
+            Objects.equals(projectId, o.projectId) &&
+            Objects.equals(path, o.path) &&
+            Objects.equals(endpointId, o.endpointId) &&
+            Objects.equals(method, o.method) &&
+            Objects.equals(csrfEnabled, o.csrfEnabled) &&
+            Objects.equals(shared, o.shared) &&
+            Objects.equals(external, o.external) &&
+            Objects.equals(replenishRate, o.replenishRate) &&
+            Objects.equals(burstCapacity, o.burstCapacity) &&
+            Objects.equals(expired, o.expired) &&
+            Objects.equals(expireReason, o.expireReason);
     }
 }

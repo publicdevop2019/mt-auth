@@ -214,8 +214,8 @@ public class EndpointApplicationService {
         ProjectId projectId = new ProjectId(command.getProjectId());
         ClientId clientId = new ClientId(command.getResourceId());
         DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
-        if(DomainRegistry.getEndpointRepository()
-            .checkDuplicate(clientId, command.getPath(), command.getMethod())){
+        if (DomainRegistry.getEndpointRepository()
+            .checkDuplicate(clientId, command.getPath(), command.getMethod())) {
             throw new DefinedRuntimeException("duplicate endpoint", "1092",
                 HttpResponseCode.BAD_REQUEST);
         }
@@ -271,7 +271,7 @@ public class EndpointApplicationService {
             .idempotent(changeId, (context) -> {
                 Endpoint endpoint =
                     DomainRegistry.getEndpointRepository().get(endpointId);
-                endpoint.update(
+                Endpoint update = endpoint.update(
                     command.getCacheProfileId() != null
                         ?
                         new CacheProfileId(command.getCacheProfileId()) : null,
@@ -286,8 +286,8 @@ public class EndpointApplicationService {
                     command.getReplenishRate(),
                     command.getBurstCapacity()
                 );
+                DomainRegistry.getEndpointRepository().update(endpoint, update);
                 context.append(new EndpointCollectionModified());
-                DomainRegistry.getEndpointRepository().add(endpoint);
                 return null;
             }, ENDPOINT);
         log.debug("end of update endpoint");
@@ -333,7 +333,7 @@ public class EndpointApplicationService {
                     EndpointPatchCommand afterPatch =
                         CommonDomainRegistry.getCustomObjectSerializer()
                             .applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
-                    original.update(
+                    Endpoint update = original.update(
                         original.getCacheProfileId(),
                         afterPatch.getName(),
                         afterPatch.getDescription(),
@@ -344,6 +344,7 @@ public class EndpointApplicationService {
                         original.getReplenishRate(),
                         original.getBurstCapacity()
                     );
+                    DomainRegistry.getEndpointRepository().update(original, update);
                     context.append(new EndpointCollectionModified());
                 }
                 return null;
@@ -370,7 +371,8 @@ public class EndpointApplicationService {
             .idempotent(changeId, (context) -> {
                 Endpoint endpoint =
                     DomainRegistry.getEndpointRepository().get(endpointId);
-                endpoint.expire(command.getExpireReason(), context);
+                Endpoint expire = endpoint.expire(command.getExpireReason(), context);
+                DomainRegistry.getEndpointRepository().update(endpoint, expire);
                 return null;
             }, ENDPOINT);
     }
@@ -398,7 +400,10 @@ public class EndpointApplicationService {
                     (query) -> DomainRegistry.getEndpointRepository().query(query),
                     new EndpointQuery(new CorsProfileId(deserialize.getDomainId().getDomainId())));
                 if (!allByQuery.isEmpty()) {
-                    allByQuery.forEach(Endpoint::removeCorsRef);
+                    allByQuery.forEach(e -> {
+                        Endpoint endpoint = e.removeCorsRef();
+                        DomainRegistry.getEndpointRepository().update(e, endpoint);
+                    });
                     context
                         .append(new EndpointCollectionModified());
                 }
@@ -439,7 +444,10 @@ public class EndpointApplicationService {
                 if (!allByQuery.isEmpty()) {
                     context
                         .append(new EndpointCollectionModified());
-                    allByQuery.forEach(Endpoint::removeCacheProfileRef);
+                    allByQuery.forEach(e -> {
+                        Endpoint endpoint = e.removeCacheProfileRef();
+                        DomainRegistry.getEndpointRepository().update(e, endpoint);
+                    });
                 }
                 return null;
             }, ENDPOINT);

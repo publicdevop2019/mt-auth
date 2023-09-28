@@ -364,15 +364,14 @@ public class JdbcRoleRepository implements RoleRepository {
             args.addAll(
                 query.getTypes().stream().map(Enum::name).collect(Collectors.toSet()));
         }
-        JdbcTemplate jdbcTemplate = CommonDomainRegistry.getJdbcTemplate();
         Long count;
         if (args.isEmpty()) {
-            count = jdbcTemplate
+            count = CommonDomainRegistry.getJdbcTemplate()
                 .query(finalCountQuery,
                     new DatabaseUtility.ExtractCount()
                 );
         } else {
-            count = jdbcTemplate
+            count = CommonDomainRegistry.getJdbcTemplate()
                 .query(finalCountQuery,
                     new DatabaseUtility.ExtractCount(),
                     args.toArray()
@@ -380,7 +379,7 @@ public class JdbcRoleRepository implements RoleRepository {
         }
         args.add(query.getPageConfig().getPageSize());
         args.add(query.getPageConfig().getOffset());
-        List<Role> data = jdbcTemplate
+        List<Role> data = CommonDomainRegistry.getJdbcTemplate()
             .query(finalDataQuery,
                 new RowMapper(),
                 args.toArray()
