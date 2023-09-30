@@ -36,7 +36,7 @@ public class ClientValidator {
             //hibernate will create redirectDetail with empty values after read from DB even no such information
             //below logic is added to avoid this failure
             if (Checker.notNull(client.getRedirectDetail().getAutoApprove()) ||
-                Checker.notEmpty(client.getRedirectDetail().getRedirectUrls())) {
+                Checker.notEmpty(client.getRedirectDetail().getRedirectUrls(client))) {
                 handler
                     .handleError("redirect details and authorization grant must both exist");
             }

@@ -207,6 +207,7 @@ public class ClientApplicationService {
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
                     );
+                    DomainRegistry.getClientRepository().add(client);
                     return client.getClientId().getDomainId();
                 }, CLIENT
             );
@@ -226,7 +227,7 @@ public class ClientApplicationService {
                     DomainRegistry.getClientRepository().query(clientQuery).findFirst();
                 if (optionalClient.isPresent()) {
                     Client client = optionalClient.get();
-                    client.replace(
+                    Client replace = client.replace(
                         command.getName(),
                         command.getClientSecret(),
                         command.getPath(),
@@ -246,7 +247,7 @@ public class ClientApplicationService {
                             new ExternalUrl(command.getExternalUrl()) : null,
                         context
                     );
-                    DomainRegistry.getClientRepository().add(client);
+                    DomainRegistry.getClientRepository().update(client, replace);
                 }
                 return null;
             }, CLIENT);
@@ -296,7 +297,7 @@ public class ClientApplicationService {
                     ClientPatchCommand beforePatch = new ClientPatchCommand(original);
                     ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer()
                         .applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
-                    original.replace(
+                    Client replace = original.replace(
                         afterPatch.getName(),
                         null,
                         afterPatch.getPath(),
@@ -311,6 +312,7 @@ public class ClientApplicationService {
                             original.getTokenDetail().getRefreshTokenValiditySeconds()),
                         context
                     );
+                    DomainRegistry.getClientRepository().update(original, replace);
                 }
                 return null;
             }, CLIENT);
@@ -335,14 +337,16 @@ public class ClientApplicationService {
                 //remove deleted client from resource_map
                 DomainId domainId = event.getDomainId();
                 ClientId removedClientId = new ClientId(domainId.getDomainId());
-                Set<Client> allByQuery = QueryUtility.getAllByQuery(
+                //for all ref client for revoke
+                Set<Client> refClients = QueryUtility.getAllByQuery(
                     (query) -> DomainRegistry.getClientRepository().query(query),
                     ClientQuery.resourceIds(removedClientId));
-                allByQuery.forEach(e -> e.removeResource(removedClientId));
-                Set<ClientId> collect =
-                    allByQuery.stream().map(Client::getClientId).collect(Collectors.toSet());
-                collect.add(removedClientId);
-                context.append(new ClientResourceCleanUpCompleted(collect));
+                Set<ClientId> refClientIds =
+                    refClients.stream().map(Client::getClientId).collect(Collectors.toSet());
+                refClientIds.add(removedClientId);
+                context.append(new ClientResourceCleanUpCompleted(refClientIds));
+                //delete all ref
+                DomainRegistry.getClientRepository().removeRef(removedClientId);
                 return null;
             }, CLIENT);
     }

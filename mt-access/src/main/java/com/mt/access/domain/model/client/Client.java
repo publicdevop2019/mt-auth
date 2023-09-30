@@ -22,40 +22,27 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Cacheable;
-import javax.persistence.CollectionTable;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.lang.ObjectUtils;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @EqualsAndHashCode(callSuper = true)
-@Entity
 @NoArgsConstructor
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"path"}))
 public class Client extends Auditable {
+    @Getter
+    private boolean isCreate = false;
     private static final String MT_ACCESS_ID = "0C8AZTODP4HT";
     private static final String MT_PROXY_ID = "0C8AZYTQ5W5C";
     private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
@@ -71,35 +58,17 @@ public class Client extends Auditable {
         reservedClientIds.add(new ClientId(MT_UI_LOGIN_ID));
     }
 
-    @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "resources_map", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"), uniqueConstraints = @UniqueConstraint(columnNames = {
-        "id", "domainId"}))
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
     private Set<ClientId> resources = new LinkedHashSet<>();
 
-    @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @CollectionTable(name = "external_resources_map", joinColumns = @JoinColumn(name = "id", referencedColumnName = "id"), uniqueConstraints = @UniqueConstraint(columnNames = {
-        "id", "domainId"}))
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(updatable = false, nullable = false))})
     private Set<ClientId> externalResources = new LinkedHashSet<>();
 
     @Setter(AccessLevel.PRIVATE)
     @Getter
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))})
     private ProjectId projectId;
 
     @Getter
-    @Embedded
-    @AttributeOverrides({@AttributeOverride(name = "domainId", column = @Column(name = "roleId"))})
     private RoleId roleId;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
     @Getter
     private ClientId clientId;
@@ -111,9 +80,6 @@ public class Client extends Auditable {
     private String path;
 
     @Getter
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "value", column = @Column(name = "externalUrl"))})
     private ExternalUrl externalUrl;
 
     @Getter
@@ -122,31 +88,22 @@ public class Client extends Auditable {
     @Getter
     private String description;
 
-    @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "client_type_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "type")
-    @Enumerated(EnumType.STRING)
     private Set<ClientType> types = new LinkedHashSet<>();
 
     @Getter
-    @Column(name = "accessible_")
     private Boolean accessible;
 
-    @Getter
     @Embedded
     private RedirectDetail redirectDetail;
 
-    @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "client_grant_type_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "grant_type")
-    @Enumerated(EnumType.STRING)
     private Set<GrantType> grantTypes = new LinkedHashSet<>();
 
-    @Embedded
     @Getter
     private TokenDetail tokenDetail;
+    private boolean resourceLoaded = false;
+    private boolean externalResourceLoaded = false;
+    private boolean grantTypeLoaded = false;
+    private boolean typeLoaded = false;
 
     public Client(ClientId clientId, ProjectId projectId, String name, String path,
                   @Nullable String secret, String description, Boolean accessible,
@@ -154,6 +111,7 @@ public class Client extends Auditable {
                   Set<String> redirectUrls, Boolean autoApprove, Set<ClientType> types,
                   ExternalUrl externalUrl, TransactionContext context) {
         super();
+        isCreate = true;
         setClientId(clientId);
         setProjectId(projectId);
         setResources(resources, context);
@@ -171,8 +129,44 @@ public class Client extends Auditable {
         //set id last so we know it's new object
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
         context.append(new ClientCreated(this));
-        DomainRegistry.getClientRepository().add(this);
         validate(new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+    }
+
+    public static Client fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
+                                         String modifiedBy, Integer version,
+                                         Boolean accessible, Boolean autoApprove, ClientId domainId,
+                                         String description, String name, String path,
+                                         ProjectId projectId, RoleId roleId, String secret,
+                                         Integer accessTokenValiditySeconds,
+                                         Integer refreshTokenValiditySeconds,
+                                         ExternalUrl externalUrl) {
+        Client client = new Client();
+        client.setId(id);
+        client.setCreatedAt(createdAt);
+        client.setCreatedBy(createdBy);
+        client.setModifiedAt(modifiedAt);
+        client.setModifiedBy(modifiedBy);
+        client.setVersion(version);
+        client.accessible = accessible;
+        if (Checker.notNull(autoApprove)) {
+            client.redirectDetail = RedirectDetail.fromDatabaseRow(autoApprove);
+        }
+        client.setDescription(description);
+        client.setName(name);
+        client.path = path;
+        client.setClientId(domainId);
+        client.setProjectId(projectId);
+        client.roleId = roleId;
+        client.secret = secret;
+        client.externalUrl = externalUrl;
+        client.tokenDetail =
+            new TokenDetail(accessTokenValiditySeconds, refreshTokenValiditySeconds);
+        return client;
     }
 
     private void setExternalUrl(ExternalUrl externalUrl, TransactionContext context) {
@@ -205,8 +199,8 @@ public class Client extends Auditable {
             //this will create unnecessary update to DB
             //below logic is added to avoid this update
             if (Checker.isNull(this.redirectDetail.getAutoApprove()) &&
-                (Checker.isNull(this.redirectDetail.getRedirectUrls()) ||
-                    Checker.isEmpty(this.redirectDetail.getRedirectUrls()))) {
+                (Checker.isNull(this.redirectDetail.getRedirectUrls(this)) ||
+                    Checker.isEmpty(this.redirectDetail.getRedirectUrls(this)))) {
                 return;
             }
             this.redirectDetail = redirectDetail;
@@ -284,7 +278,8 @@ public class Client extends Auditable {
         this.path = path;
     }
 
-    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate, TransactionContext context) {
+    private void setGrantTypes(Set<GrantType> grantTypes, boolean isCreate,
+                               TransactionContext context) {
         Validator.notNull(grantTypes);
         Validator.notEmpty(grantTypes);
         if (!isCreate) {
@@ -335,10 +330,6 @@ public class Client extends Auditable {
         this.accessible = accessible;
     }
 
-    public void removeResource(ClientId clientId) {
-        this.resources.remove(clientId);
-    }
-
     private void setResources(Set<ClientId> resources, TransactionContext context) {
         if (Checker.notNull(resources)) {
             Validator.lessThanOrEqualTo(resources, 10);
@@ -358,35 +349,59 @@ public class Client extends Auditable {
         }
     }
 
-    public void replace(String name, String secret, String path, String description,
-                        Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
-                        TokenDetail tokenDetail, Set<String> redirectUrl, Boolean autoApprove,
-                        ExternalUrl externalUrl, TransactionContext context) {
-        setPath(path, context);
-        setResources(resources, context);
-        setAccessible(accessible, context);
-        updateSecret(secret,context);
-        setGrantTypes(grantTypes, false, context);
-        setTokenDetail(tokenDetail, context);
-        setName(name);
-        setDescription(description);
-        setRedirectDetail(redirectUrl, autoApprove);
-        setExternalUrl(externalUrl, context);
-        validate(new HttpValidationNotificationHandler());
+    public Client replace(String name, String secret, String path, String description,
+                          Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
+                          TokenDetail tokenDetail, Set<String> redirectUrl, Boolean autoApprove,
+                          ExternalUrl externalUrl, TransactionContext context) {
+        //load everything to avoid error
+        if (Checker.notNull(getRedirectDetail())) {
+            getRedirectDetail().getRedirectUrls(this);
+        }
+        getGrantTypes();
+        getTypes();
+        getResources();
+        getExternalResources();
+        Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.setPath(path, context);
+        updated.setResources(resources, context);
+        updated.setAccessible(accessible, context);
+        updated.updateSecret(secret, context);
+        updated.setGrantTypes(grantTypes, false, context);
+        updated.setTokenDetail(tokenDetail, context);
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setRedirectDetail(redirectUrl, autoApprove);
+        updated.setExternalUrl(externalUrl, context);
+        updated.validate(new HttpValidationNotificationHandler());
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        return updated;
     }
 
-    public void replace(String name, String secret, String path, String description,
-                        Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
-                        TokenDetail tokenDetail, TransactionContext context) {
-        setName(name);
-        setDescription(description);
-        setPath(path, context);
-        setResources(resources, context);
-        setAccessible(accessible, context);
-        updateSecret(secret,context);
-        setGrantTypes(grantTypes, false, context);
-        setTokenDetail(tokenDetail, context);
-        validate(new HttpValidationNotificationHandler());
+    public Client replace(String name, String secret, String path, String description,
+                          Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
+                          TokenDetail tokenDetail, TransactionContext context) {
+        //load everything to avoid error
+        if (Checker.notNull(getRedirectDetail())) {
+            getRedirectDetail().getRedirectUrls(this);
+        }
+        getGrantTypes();
+        getTypes();
+        getResources();
+        getExternalResources();
+        Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setPath(path, context);
+        updated.setResources(resources, context);
+        updated.setAccessible(accessible, context);
+        updated.updateSecret(secret, context);
+        updated.setGrantTypes(grantTypes, false, context);
+        updated.setTokenDetail(tokenDetail, context);
+        updated.validate(new HttpValidationNotificationHandler());
+        updated.setModifiedAt(Instant.now().toEpochMilli());
+        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        return updated;
     }
 
     @Override
@@ -465,5 +480,77 @@ public class Client extends Auditable {
             DomainRegistry.getClientValidationService()
                 .validate(this, new HttpValidationNotificationHandler());
         }
+    }
+
+    public Set<ClientId> getResources() {
+        if (isCreate) {
+            return resources;
+        }
+        if (!resourceLoaded) {
+            resources = DomainRegistry.getClientRepository().getResources(this.getId());
+            resourceLoaded = true;
+        }
+        return resources;
+    }
+
+    public Set<ClientId> getExternalResources() {
+        if (isCreate) {
+            return externalResources;
+        }
+        if (!externalResourceLoaded) {
+            externalResources =
+                DomainRegistry.getClientRepository().getExternalResources(this.getId());
+            externalResourceLoaded = true;
+        }
+        return externalResources;
+    }
+
+    public Set<GrantType> getGrantTypes() {
+        if (isCreate) {
+            return grantTypes;
+        }
+        if (!grantTypeLoaded) {
+            grantTypes =
+                DomainRegistry.getClientRepository().getGrantType(this.getId());
+            grantTypeLoaded = true;
+        }
+        return grantTypes;
+    }
+
+    public Set<ClientType> getTypes() {
+        if (isCreate) {
+            return types;
+        }
+        if (!typeLoaded) {
+            types =
+                DomainRegistry.getClientRepository().getType(this.getId());
+            typeLoaded = true;
+        }
+        return types;
+    }
+
+    public boolean sameAs(Client o) {
+        return Objects.equals(getResources(), o.getResources()) &&
+            Objects.equals(getExternalResources(), o.getExternalResources()) &&
+            Objects.equals(projectId, o.projectId) &&
+            Objects.equals(roleId, o.roleId) &&
+            Objects.equals(clientId, o.clientId) &&
+            Objects.equals(name, o.name) &&
+            Objects.equals(path, o.path) &&
+            Objects.equals(externalUrl, o.externalUrl) &&
+            Objects.equals(secret, o.secret) &&
+            Objects.equals(description, o.description) &&
+            Objects.equals(getTypes(), o.getTypes()) &&
+            Objects.equals(accessible, o.accessible) &&
+            Objects.equals(getRedirectDetail(), o.getRedirectDetail()) &&
+            Objects.equals(getGrantTypes(), o.getGrantTypes()) &&
+            Objects.equals(tokenDetail, o.tokenDetail);
+    }
+
+    public RedirectDetail getRedirectDetail() {
+        if (Checker.notNull(redirectDetail)) {
+            redirectDetail.getRedirectUrls(this);
+        }
+        return redirectDetail;
     }
 }

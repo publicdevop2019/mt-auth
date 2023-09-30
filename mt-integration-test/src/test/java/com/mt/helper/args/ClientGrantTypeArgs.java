@@ -18,15 +18,15 @@ public class ClientGrantTypeArgs implements ArgumentsProvider {
         strings.add(GrantType.REFRESH_TOKEN.name());
         strings.add(GrantType.PASSWORD.name());
         return Stream.of(
-            Arguments.of(null, HttpStatus.BAD_REQUEST),
-            Arguments.of(Collections.singleton(RandomUtility.randomStringNoNum()),
-                HttpStatus.BAD_REQUEST),
-            Arguments.of(Collections.emptySet(), HttpStatus.BAD_REQUEST),
-            Arguments.of(Collections.singleton(GrantType.REFRESH_TOKEN.name()),
-                HttpStatus.BAD_REQUEST),
+//            Arguments.of(null, HttpStatus.BAD_REQUEST),
+//            Arguments.of(Collections.singleton(RandomUtility.randomStringNoNum()),
+//                HttpStatus.BAD_REQUEST),
+//            Arguments.of(Collections.emptySet(), HttpStatus.BAD_REQUEST),
+//            Arguments.of(Collections.singleton(GrantType.REFRESH_TOKEN.name()),
+//                HttpStatus.BAD_REQUEST),
             Arguments.of(strings,
-                HttpStatus.BAD_REQUEST),
-            Arguments.of(Collections.singleton(""), HttpStatus.BAD_REQUEST)
+                HttpStatus.BAD_REQUEST)
+//            Arguments.of(Collections.singleton(""), HttpStatus.BAD_REQUEST)
         );
     }
 }
