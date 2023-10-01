@@ -6,12 +6,10 @@ import com.mt.common.infrastructure.CommonUtility;
 import java.io.Serializable;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @NoArgsConstructor
 @EqualsAndHashCode
 public class RedirectDetail implements Serializable {

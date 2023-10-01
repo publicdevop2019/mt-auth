@@ -1,30 +1,18 @@
 package com.mt.common.domain.model.idempotent;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
 
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"changeId", "entityType"}))
 @Data
 public class ChangeRecord {
     public static final String BACKWARD_SUFFIX = "_cancel";
-    @Id
     @Setter(AccessLevel.PRIVATE)
     private Long id;
-    @Column(nullable = false)
     private String changeId;
-    @Column(nullable = false)
     private String entityType;
-    @Column
     private String returnValue;
-    @Column
     private Boolean emptyOpt;
 
     private ChangeRecord() {

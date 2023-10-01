@@ -7,23 +7,17 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @EqualsAndHashCode(callSuper = true)
-@Table
-@Entity
 @NoArgsConstructor
 @Getter
 public class Project extends Auditable {
 
     private String name;
 
-    @Embedded
     private ProjectId projectId;
 
     public Project(ProjectId projectId, String name, UserId userId, TransactionContext context) {

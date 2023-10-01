@@ -6,11 +6,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;
@@ -27,7 +22,6 @@ import lombok.Setter;
 @Data
 @NoArgsConstructor
 public class LoginOAuthClient {
-    @Id
     @Getter(AccessLevel.PRIVATE)
     private Long id;
 
@@ -41,13 +35,8 @@ public class LoginOAuthClient {
     private ProjectId projectId;
 
     @Getter
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "roleId"))
-    })
     private RoleId roleId;
 
-    @Embedded
     @Getter
     private ClientId clientId;
 

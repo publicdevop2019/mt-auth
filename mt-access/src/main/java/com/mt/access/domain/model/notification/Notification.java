@@ -12,7 +12,6 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
@@ -23,7 +22,6 @@ import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
-import javax.persistence.Id;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -32,7 +30,6 @@ import lombok.Setter;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class Notification {
-    @Id
     @Setter
     @Getter
     protected Long id;

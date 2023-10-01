@@ -1,14 +1,6 @@
 package com.mt.access.domain.model.operation_cool_down;
 
 import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.Table;
-import javax.persistence.Version;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Getter;

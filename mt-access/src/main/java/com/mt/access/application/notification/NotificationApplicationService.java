@@ -30,7 +30,6 @@ import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -153,26 +152,21 @@ public class NotificationApplicationService {
      * @param event send bell notification event
      */
     public void handle(SendBellNotificationEvent event) {
-        try {
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(event.getId().toString(), (context) -> {
-                    log.debug("sending bell notifications with {}", event.getTitle());
-                    if (event.getUserId() != null) {
-                        DomainRegistry.getWsPushNotificationService()
-                            .notifyUser(event.value(), event.getUserId());
-                    } else {
-                        DomainRegistry.getWsPushNotificationService()
-                            .notifyMgmt(event.value());
-                    }
-                    DomainRegistry.getNotificationRepository()
-                        .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
-                    return null;
-                }, NOTIFICATION + "_" + instanceId);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (context) -> {
+                log.debug("sending bell notifications with {}", event.getTitle());
+                if (event.getUserId() != null) {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyUser(event.value(), event.getUserId());
+                } else {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyMgmt(event.value());
+                }
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
+                return null;
+            }, NOTIFICATION + "_" + instanceId);
 
-        } catch (ObjectOptimisticLockingFailureException exception) {
-            log.warn(
-                "ignore optimistic lock exception when sending bell notification on purpose");
-        }
 
     }
 

@@ -3,7 +3,6 @@ package com.mt.access.domain.model.cors_profile;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
-import javax.persistence.AttributeConverter;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -27,24 +26,6 @@ public class Origin implements Serializable {
         } else {
             throw new DefinedRuntimeException("invalid origin value", "1039",
                 HttpResponseCode.BAD_REQUEST);
-        }
-    }
-
-    public static class OriginConverter implements AttributeConverter<Origin, String> {
-        @Override
-        public String convertToDatabaseColumn(Origin origin) {
-            if (origin == null) {
-                return null;
-            }
-            return origin.value;
-        }
-
-        @Override
-        public Origin convertToEntityAttribute(String origin) {
-            if (origin == null || origin.isBlank()) {
-                return null;
-            }
-            return new Origin(origin);
         }
     }
 }

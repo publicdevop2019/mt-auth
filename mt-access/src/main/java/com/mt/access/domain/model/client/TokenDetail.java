@@ -3,12 +3,10 @@ package com.mt.access.domain.model.client;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import javax.persistence.Embeddable;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-@Embeddable
+
 @NoArgsConstructor
 @Getter
 @EqualsAndHashCode

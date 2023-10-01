@@ -4,10 +4,6 @@ import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,17 +12,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.MDC;
 
-@Entity
-@Table
 @Getter
 @NoArgsConstructor
 @Data
 @Setter(AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class StoredEvent implements Serializable {
-    @Lob
     private String eventBody;
-    @Id
     private Long id;
     private Long timestamp;
     private String name;

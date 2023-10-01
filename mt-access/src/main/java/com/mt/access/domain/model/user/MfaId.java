@@ -2,8 +2,6 @@ package com.mt.access.domain.model.user;
 
 import java.io.Serializable;
 import java.util.UUID;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 

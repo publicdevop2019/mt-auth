@@ -2,11 +2,9 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import javax.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @NoArgsConstructor
 public class UserEmail implements Serializable {
     @Getter

@@ -3,12 +3,9 @@ package com.mt.access.domain.model.user;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-@Embeddable
 @EqualsAndHashCode
 public class PasswordResetCode  implements Serializable {
     @Getter

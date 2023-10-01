@@ -1,9 +1,7 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 

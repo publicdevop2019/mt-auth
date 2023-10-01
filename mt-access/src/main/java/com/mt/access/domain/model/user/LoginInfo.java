@@ -2,27 +2,18 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.time.Instant;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-@Entity
-@Table(name = "login_info")
 @NoArgsConstructor
 @EqualsAndHashCode
 public class LoginInfo {
-    @Id
     @Setter(AccessLevel.PROTECTED)
     @Getter
     protected Long id;
-    @Embedded
     @Getter
     @Setter(AccessLevel.PRIVATE)
     private UserId userId;

@@ -30,7 +30,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.Nullable;
-import javax.persistence.Embedded;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -93,7 +92,6 @@ public class Client extends Auditable {
     @Getter
     private Boolean accessible;
 
-    @Embedded
     private RedirectDetail redirectDetail;
 
     private Set<GrantType> grantTypes = new LinkedHashSet<>();

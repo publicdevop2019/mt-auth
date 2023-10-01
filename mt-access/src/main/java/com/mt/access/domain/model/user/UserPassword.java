@@ -7,11 +7,9 @@ import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @NoArgsConstructor
 public class UserPassword  implements Serializable {
     @Getter

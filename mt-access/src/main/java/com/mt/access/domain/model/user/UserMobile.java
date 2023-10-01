@@ -6,7 +6,6 @@ import com.mt.common.domain.model.validate.Validator;
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.Column;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
@@ -14,10 +13,8 @@ import lombok.Getter;
 public class UserMobile implements Serializable {
     private static final Pattern COUNTRY_CODE_REGEX = Pattern.compile("^[0-9]{1,3}$");
     private static final Pattern MOBILE_NUMBER_REGEX = Pattern.compile("^[0-9]{10,11}$");
-    @Column
     @Getter
     String countryCode;
-    @Column
     @Getter
     String mobileNumber;
 

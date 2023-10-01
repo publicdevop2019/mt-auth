@@ -3,7 +3,6 @@ package com.mt.access.domain.model.role;
 import static com.mt.access.domain.model.role.Role.PROJECT_ADMIN;
 
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.model.restful.query.PageConfig;

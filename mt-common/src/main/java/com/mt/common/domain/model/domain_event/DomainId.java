@@ -3,8 +3,6 @@ package com.mt.common.domain.model.domain_event;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.MappedSuperclass;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -15,11 +13,9 @@ import lombok.Setter;
  * can be any form e.g. test@test.com or 0CABCEDFGHI
  * it serve as an identifier in a domain
  */
-@MappedSuperclass
 @EqualsAndHashCode
 public class DomainId implements Serializable {
     @Getter
-    @Column(unique = true, updatable = false, nullable = false)
     @Setter(AccessLevel.PROTECTED)
     private String domainId;
 

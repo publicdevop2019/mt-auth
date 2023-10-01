@@ -5,12 +5,6 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.IOException;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -24,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @EqualsAndHashCode
 public class Image {
-    @Id
     @Setter
     @Getter
     protected Long id;
@@ -34,7 +27,6 @@ public class Image {
     @Getter
     @Setter
     private Long createdAt;
-    @Embedded
     private ImageId imageId;
     @Setter
     @Getter
