@@ -26,9 +26,10 @@ public class JobApplicationService {
 
     public void resetJob(String id) {
         CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-            JobDetail byId = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
-            Validator.notNull(byId);
-            byId.reset();
+            JobDetail current = CommonDomainRegistry.getJobRepository().getById(new JobId(id));
+            Validator.notNull(current);
+            JobDetail update = current.reset();
+            CommonDomainRegistry.getJobRepository().update(current, update);
         });
     }
 
