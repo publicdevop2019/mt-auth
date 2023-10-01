@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
- * hibernate projection entity
+ * projection entity
  * 1. used for oauth login
  * 2. read only
  * 3. eager load

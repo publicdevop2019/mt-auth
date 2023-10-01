@@ -26,12 +26,6 @@
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>8.16</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.hibernate</groupId>-->
-<!--            <artifactId>hibernate-jpamodelgen</artifactId>-->
-<!--            <version>5.4.26.Final</version>-->
-<!--            <scope>compile</scope>-->
-<!--        </dependency>-->
         <!--start of eureka server-->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -103,22 +97,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-data-jpa</artifactId>-->
-<!--            <version>2.1.4.RELEASE</version>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.16</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.github.java-json-tools</groupId>-->
-<!--            <artifactId>json-patch</artifactId>-->
-<!--            <version>1.12</version>-->
-<!--        </dependency>-->
         <!-- https://mvnrepository.com/artifact/com.rabbitmq/amqp-client -->
         <dependency>
             <groupId>com.rabbitmq</groupId>

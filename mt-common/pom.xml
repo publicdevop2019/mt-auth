@@ -84,7 +84,6 @@
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
         </dependency>
-        <!--  hibernate criteria api metamodel-->
         <dependency>
             <groupId>org.redisson</groupId>
             <artifactId>redisson</artifactId>
