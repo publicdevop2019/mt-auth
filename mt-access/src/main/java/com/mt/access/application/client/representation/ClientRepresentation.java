@@ -17,6 +17,7 @@ public class ClientRepresentation {
     private String id;
 
     private String name;
+    private String projectId;
 
     private String path;
 
@@ -51,7 +52,7 @@ public class ClientRepresentation {
         grantTypeEnums.addAll(client.getGrantTypes());
         accessTokenValiditySeconds = client.accessTokenValiditySeconds();
         if (client.getRedirectDetail() != null) {
-            registeredRedirectUri = client.getRedirectDetail().getRedirectUrls().stream()
+            registeredRedirectUri = client.getRedirectDetail().getRedirectUrls(client).stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
         refreshTokenValiditySeconds = client.refreshTokenValiditySeconds();
@@ -69,6 +70,7 @@ public class ClientRepresentation {
         version = client.getVersion();
         clientSecret = "masked";
         hasSecret = true;
+        projectId = client.getProjectId().getDomainId();
         types = new HashSet<>();//avoid lazy load
         types.addAll(client.getTypes());
 

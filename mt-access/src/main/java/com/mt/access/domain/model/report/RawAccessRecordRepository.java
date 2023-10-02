@@ -9,4 +9,6 @@ public interface RawAccessRecordRepository {
     Set<RawAccessRecord> getResponseForUuid(Set<String> collect);
 
     void addAll(Set<RawAccessRecord> records);
+
+    void updateAllToProcessed(Set<RawAccessRecord> foundedRecords);
 }

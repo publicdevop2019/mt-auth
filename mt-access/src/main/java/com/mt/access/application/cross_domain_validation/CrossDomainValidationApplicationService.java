@@ -23,9 +23,10 @@ public class CrossDomainValidationApplicationService {
     }
 
     public void reset() {
-        CommonDomainRegistry.getTransactionService().transactionalEvent(context -> {
-            DomainRegistry.getValidationResultRepository().query().ifPresent(
-                ValidationResult::resetFailureCount);
-        });
+        CommonDomainRegistry.getTransactionService().transactionalEvent(
+            context -> DomainRegistry.getValidationResultRepository().query().ifPresent(e -> {
+                ValidationResult reset = e.reset();
+                DomainRegistry.getValidationResultRepository().update(reset);
+            }));
     }
 }

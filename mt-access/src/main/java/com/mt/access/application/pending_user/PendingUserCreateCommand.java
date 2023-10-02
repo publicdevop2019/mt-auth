@@ -1,11 +1,10 @@
 package com.mt.access.application.pending_user;
 
-import java.io.Serializable;
+import com.mt.access.domain.model.client.ClientId;
 import lombok.Data;
 
 @Data
-public class PendingUserCreateCommand implements Serializable {
-    private static final long serialVersionUID = 1;
+public class PendingUserCreateCommand {
     private String email;
-
+    private ClientId clientId;
 }

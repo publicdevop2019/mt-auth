@@ -1,7 +1,6 @@
 package com.mt.access.domain.model.client;
 
 
-import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import org.springframework.util.StringUtils;
 
@@ -32,14 +31,8 @@ public class ClientValidator {
         }
         if ((!client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE) &&
             client.getRedirectDetail() != null)) {
-            //TODO find better fix
-            //hibernate will create redirectDetail with empty values after read from DB even no such information
-            //below logic is added to avoid this failure
-            if (Checker.notNull(client.getRedirectDetail().getAutoApprove()) ||
-                Checker.notEmpty(client.getRedirectDetail().getRedirectUrls())) {
-                handler
-                    .handleError("redirect details and authorization grant must both exist");
-            }
+            handler
+                .handleError("redirect details and authorization grant must both exist");
         }
     }
 

@@ -7,13 +7,6 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface ClientRepository {
-    /**
-     * special method for login only,
-     * eager load everything
-     * @param clientId client
-     * @return client used for login
-     */
-    LoginOAuthClient getForLogin(ClientId clientId);
 
     default Client get(ClientId clientId) {
         Client client = query(clientId);
@@ -45,4 +38,18 @@ public interface ClientRepository {
     long countTotal();
 
     long countProjectTotal(ProjectId projectId);
+
+    Set<ClientId> getResources(Long id);
+
+    Set<ClientId> getExternalResources(Long id);
+
+    Set<GrantType> getGrantType(Long id);
+
+    Set<ClientType> getType(Long id);
+
+    Set<RedirectUrl> getRedirectUrls(Long id);
+
+    void update(Client old, Client update);
+
+    void removeRef(ClientId removedClientId);
 }

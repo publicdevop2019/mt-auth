@@ -12,7 +12,6 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
@@ -21,43 +20,34 @@ import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
-import com.mt.common.domain.model.sql.converter.StringSetConverter;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Entity
-@Table
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class Notification extends Auditable {
-    //field is used by sql statement
-    private final Boolean ack = false;
-    @Embedded
+public class Notification {
+    @Setter
+    @Getter
+    protected Long id;
+    @Setter(AccessLevel.PRIVATE)
+    private Boolean ack = false;
+    @Setter(AccessLevel.PRIVATE)
     private NotificationId notificationId;
+    @Setter(AccessLevel.PRIVATE)
     private Long timestamp;
-    @Convert(converter = StringSetConverter.class)
-    private final LinkedHashSet<String> descriptions = new LinkedHashSet<>();
-    @Enumerated(EnumType.STRING)
+    @Setter(AccessLevel.PRIVATE)
+    private LinkedHashSet<String> descriptions = new LinkedHashSet<>();
+    @Setter(AccessLevel.PRIVATE)
     private NotificationType type;
-    @Enumerated(EnumType.STRING)
+    @Setter(AccessLevel.PRIVATE)
     private NotificationStatus status = NotificationStatus.PENDING;
+    @Setter(AccessLevel.PRIVATE)
     private String title;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "user_id"))
-    })
+    @Setter(AccessLevel.PRIVATE)
     private UserId userId;
 
     public Notification(HangingTxDetected deserialize) {
@@ -106,7 +96,7 @@ public class Notification extends Auditable {
         timestamp = event.getTimestamp();
         title = CrossDomainValidationService.ValidationFailedEvent.name;
         type = NotificationType.BELL;
-        descriptions.add(event.getMessage());
+        descriptions.addAll(event.getMessage());
     }
 
     public Notification(UserMfaNotificationEvent event) {
@@ -245,7 +235,21 @@ public class Notification extends Auditable {
 
     }
 
-    public void markAsDelivered() {
-        this.status = NotificationStatus.DELIVERED;
+    public static Notification fromDatabaseRow(Long id, LinkedHashSet<String> descriptions,
+                                               NotificationId domainId, Long timestamp,
+                                               String title, Boolean ack,
+                                               NotificationType type, NotificationStatus status,
+                                               UserId userId) {
+        Notification notification = new Notification();
+        notification.setId(id);
+        notification.setDescriptions(descriptions);
+        notification.setNotificationId(domainId);
+        notification.setTimestamp(timestamp);
+        notification.setTitle(title);
+        notification.setAck(ack);
+        notification.setType(type);
+        notification.setStatus(status);
+        notification.setUserId(userId);
+        return notification;
     }
 }

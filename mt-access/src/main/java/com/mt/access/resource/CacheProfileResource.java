@@ -75,20 +75,6 @@ public class CacheProfileResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "projects/{projectId}/cache/{id}", consumes = "application/json-patch+json")
-    public ResponseEntity<Void> patch(
-        @PathVariable String projectId,
-        @PathVariable(name = "id") String id,
-        @RequestBody JsonPatch command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getCacheProfileApplicationService()
-            .tenantPatch(projectId, id, command, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @DeleteMapping(path = "projects/{projectId}/cache/{id}")
     public ResponseEntity<Void> delete(
         @PathVariable String projectId,

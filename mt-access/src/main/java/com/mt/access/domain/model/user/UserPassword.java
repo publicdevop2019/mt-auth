@@ -4,27 +4,26 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.persistence.Embeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Embeddable
 @NoArgsConstructor
-public class UserPassword {
+public class UserPassword  implements Serializable {
     @Getter
     private String password;
 
     public UserPassword(String password) {
-        setPassword(password);
+        setRawPassword(password);
     }
 
-    public void setPasswordWithoutEncrypt(String rawPassword) {
+    public void setPassword(String rawPassword) {
         this.password = rawPassword;
     }
 
-    private void setPassword(String rawPassword) {
+    private void setRawPassword(String rawPassword) {
         Validator.notNull(rawPassword);
         Validator.notBlank(rawPassword);
         Validator.lessThanOrEqualTo(rawPassword, 16);

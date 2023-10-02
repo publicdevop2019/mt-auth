@@ -34,14 +34,6 @@ public class MgmtUtilityTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
-    @Test
-    public void can_clean_cache() {
-        RestTemplate restTemplate = TestContext.getRestTemplate();
-        ResponseEntity<Void> exchange =
-            restTemplate.exchange(AppConstant.ACCESS_URL + "/cache/clean", HttpMethod.POST, null,
-                Void.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-    }
 
     @Test
     public void can_get_registry() {

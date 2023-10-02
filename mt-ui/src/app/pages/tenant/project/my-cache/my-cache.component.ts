@@ -55,11 +55,18 @@ export class MyCacheComponent extends TenantSummaryEntityComponent<ICacheProfile
         this.doSearch({ value: '', resetPage: true })
       }
     })
-    this.subs.add(sub);
     this.initTableSetting();
+    const sub2=this.deviceSvc.refreshSummary.subscribe(() => {
+      this.doRefresh()
+    })
+    this.subs.add(sub);
+    this.subs.add(sub2);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
+  }
+  doRefresh() {
+    this.doSearch({ value: '', resetPage: false })
   }
   getData(id: string) {
     return this.dataSource.data.find(e => e.id === id)

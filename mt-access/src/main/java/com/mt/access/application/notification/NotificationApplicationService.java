@@ -6,7 +6,6 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
-import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
@@ -21,7 +20,6 @@ import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.develop.RecordElapseTime;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
@@ -32,7 +30,6 @@ import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -42,29 +39,29 @@ public class NotificationApplicationService {
     @Value("${mt.common.instance-id}")
     private Long instanceId;
 
-    public SumPagedRep<Notification> queryBell(String queryParam, String pageParam,
-                                               String skipCount) {
+    public SumPagedRep<Notification> mgmtQueryBell(String queryParam, String pageParam,
+                                                   String skipCount) {
         NotificationQuery notificationQuery =
-            new NotificationQuery(NotificationType.BELL, queryParam, pageParam, skipCount);
+            NotificationQuery.queryMgmtBell(queryParam, pageParam, skipCount);
         return DomainRegistry.getNotificationRepository()
             .notificationsOfQuery(notificationQuery);
     }
 
-    public SumPagedRep<Notification> mgmtQuery(String queryParam, String pageParam,
-                                               String skipCount) {
+    public SumPagedRep<Notification> mgmtQuery(String pageParam,
+                                               String skipConfig) {
         NotificationQuery notificationQuery =
-            new NotificationQuery(queryParam, pageParam, skipCount);
+            NotificationQuery.queryMgmt(pageParam, skipConfig);
         return DomainRegistry.getNotificationRepository()
             .notificationsOfQuery(notificationQuery);
     }
 
-    public SumPagedRep<Notification> userQuery(String queryParam, String pageParam,
-                                               String skipCount) {
-        NotificationQuery notificationQuery =
-            NotificationQuery.queryForUser(queryParam, pageParam, skipCount,
+    public SumPagedRep<Notification> userQueryBell(String queryParam, String pageParam,
+                                                   String skipCount) {
+        NotificationQuery query =
+            NotificationQuery.queryUserBell(queryParam, pageParam, skipCount,
                 DomainRegistry.getCurrentUserService().getUserId());
         return DomainRegistry.getNotificationRepository()
-            .notificationsOfQuery(notificationQuery);
+            .notificationsOfQuery(query);
     }
 
     public void userAckBell(String id) {
@@ -98,6 +95,7 @@ public class NotificationApplicationService {
         Notification notification = new Notification(event);
         sendBellNotification(event.getId(), notification);
     }
+
     public void handle(ProjectOnboardingComplete event) {
         log.info("handle new project onboarding complete event, project id {}",
             event.getDomainId().getDomainId());
@@ -154,27 +152,21 @@ public class NotificationApplicationService {
      * @param event send bell notification event
      */
     public void handle(SendBellNotificationEvent event) {
-        try {
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(event.getId().toString(), (context) -> {
-                    log.debug("sending bell notifications with {}", event.getTitle());
-                    if (event.getUserId() != null) {
-                        DomainRegistry.getWsPushNotificationService()
-                            .notifyUser(event.value(), event.getUserId());
-                    } else {
-                        DomainRegistry.getWsPushNotificationService()
-                            .notifyMgmt(event.value());
-                    }
-                    Notification notification = DomainRegistry.getNotificationRepository()
-                        .get(new NotificationId(event.getDomainId().getDomainId()));
-                    notification.markAsDelivered();
-                    return null;
-                }, NOTIFICATION + "_" + instanceId);
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (context) -> {
+                log.debug("sending bell notifications with {}", event.getTitle());
+                if (event.getUserId() != null) {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyUser(event.value(), event.getUserId());
+                } else {
+                    DomainRegistry.getWsPushNotificationService()
+                        .notifyMgmt(event.value());
+                }
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
+                return null;
+            }, NOTIFICATION + "_" + instanceId);
 
-        } catch (ObjectOptimisticLockingFailureException exception) {
-            log.warn(
-                "ignore optimistic lock exception when sending bell notification on purpose");
-        }
 
     }
 
@@ -188,9 +180,8 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getSmsNotificationService()
                     .notify(event.getMobile(), event.getCode());
-                Notification notification = DomainRegistry.getNotificationRepository()
-                    .get(new NotificationId(event.getDomainId().getDomainId()));
-                notification.markAsDelivered();
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;
             }, NOTIFICATION);
 
@@ -207,9 +198,8 @@ public class NotificationApplicationService {
                 DomainRegistry.getEmailNotificationService()
                     .notify(event.getEmail(), event.getTemplateUrl(), event.getSubject(),
                         event.getParams());
-                Notification notification = DomainRegistry.getNotificationRepository()
-                    .get(new NotificationId(event.getDomainId().getDomainId()));
-                notification.markAsDelivered();
+                DomainRegistry.getNotificationRepository()
+                    .markAsDelivered(new NotificationId(event.getDomainId().getDomainId()));
                 return null;
             }, NOTIFICATION);
     }
@@ -269,12 +259,12 @@ public class NotificationApplicationService {
         sendBellNotification(event.getId(), notification);
     }
 
-    private void sendBellNotification(Long eventId, Notification notification1) {
+    private void sendBellNotification(Long eventId, Notification notification) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(eventId.toString(), (context) -> {
-                DomainRegistry.getNotificationRepository().add(notification1);
+                DomainRegistry.getNotificationRepository().add(notification);
                 context
-                    .append(new SendBellNotificationEvent(notification1));
+                    .append(new SendBellNotificationEvent(notification));
                 return null;
             }, NOTIFICATION);
     }

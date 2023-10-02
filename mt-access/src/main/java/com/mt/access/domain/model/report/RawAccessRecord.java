@@ -6,10 +6,6 @@ import com.mt.common.domain.CommonDomainRegistry;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -17,15 +13,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-@Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"name",
-    "instanceId", "recordId"}))
 @Slf4j
 @NoArgsConstructor
 @Getter
 @EqualsAndHashCode
 public class RawAccessRecord {
-    @Id
     @Setter(AccessLevel.PROTECTED)
     protected Long id;
     private String name;
@@ -47,6 +39,23 @@ public class RawAccessRecord {
         this.isRequest = "request".equalsIgnoreCase(recordAsMap.get("type"));
         this.isResponse = "response".equalsIgnoreCase(recordAsMap.get("type"));
         this.uuid = recordAsMap.get("uuid");
+    }
+
+    public static RawAccessRecord fromDatabaseRow(Long id, String name, String instanceId,
+                                                  String recordId, String record, Boolean isRequest,
+                                                  Boolean processed, Boolean isResponse,
+                                                  String uuid) {
+        RawAccessRecord rawAccessRecord = new RawAccessRecord();
+        rawAccessRecord.setId(id);
+        rawAccessRecord.name = name;
+        rawAccessRecord.instanceId = instanceId;
+        rawAccessRecord.recordId = recordId;
+        rawAccessRecord.record = record;
+        rawAccessRecord.isRequest = isRequest;
+        rawAccessRecord.isResponse = isResponse;
+        rawAccessRecord.uuid = uuid;
+        rawAccessRecord.processed = processed;
+        return rawAccessRecord;
     }
 
     public Map<String, String> getRecordAsMap() {

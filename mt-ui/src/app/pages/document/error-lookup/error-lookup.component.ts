@@ -59,7 +59,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1070',explain:'登录：客户端密码错误'},
     {code:'1071',explain:'无法发送email'},
     {code:'1072',explain:'无法识别的query值'},
-    {code:'1073',explain:'无法识别的order by值'},
     {code:'1074',explain:'无法识别的boolean值'},
     {code:'1077',explain:'该项目禁止此改动'},
     {code:'1078',explain:'项目找不到该用户'},

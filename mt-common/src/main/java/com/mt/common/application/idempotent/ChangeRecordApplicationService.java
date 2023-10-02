@@ -9,12 +9,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class ChangeRecordApplicationService {
 
-    public SumPagedRep<ChangeRecord> changeRecords(String queryParam, String pageConfig,
-                                                   String queryConfig) {
-        return CommonDomainRegistry.getChangeRecordRepository()
-            .query(new ChangeRecordQuery(queryParam, pageConfig, queryConfig));
-    }
-
     public ChangeRecord saveChange(String changeId, String aggregate) {
         ChangeRecord changeRecord = ChangeRecord.create(changeId, aggregate);
         CommonDomainRegistry.getChangeRecordRepository().add(changeRecord);

@@ -15,17 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(produces = "application/json")
 public class UtilityResource {
-    /**
-     * clean hibernate second level cache.
-     * this should be executed after manually database change
-     *
-     * @return void
-     */
-    @PostMapping(path = "cache/clean")
-    public ResponseEntity<Void> cleanCache() {
-        CommonDomainRegistry.getHibernateCacheService().clearCache();
-        return ResponseEntity.ok().build();
-    }
 
     /**
      * get eureka registry information.

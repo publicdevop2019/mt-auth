@@ -141,7 +141,6 @@ public class RedisDistributedJobService implements DistributedJobService {
             CommonDomainRegistry.getTransactionService()
                 .transactionalEvent((context) -> {
                     updateJobStatus(finalJobSuccess, job, context);
-                    CommonDomainRegistry.getJobRepository().store(job);
                 });
         }
     }
@@ -158,7 +157,6 @@ public class RedisDistributedJobService implements DistributedJobService {
                     log.error("job {} execute fail, updating status", job.getName(), ex);
                 }
                 updateJobStatus(jobSuccess, job, context);
-                CommonDomainRegistry.getJobRepository().store(job);
             });
     }
 
@@ -197,16 +195,17 @@ public class RedisDistributedJobService implements DistributedJobService {
         return false;
     }
 
-    private static void updateJobStatus(boolean finalJobSuccess, JobDetail jobDetail,
+    private static void updateJobStatus(boolean finalJobSuccess, JobDetail current,
                                         TransactionContext context) {
         if (finalJobSuccess) {
-            jobDetail.executeSuccess();
+            JobDetail updated = current.executeSuccess();
+            CommonDomainRegistry.getJobRepository().update(current, updated);
         } else {
-            DomainEvent domainEvent = jobDetail.handleJobExecutionException();
+            DomainEvent domainEvent = current.handleJobExecutionException();
             if (domainEvent == null) {
                 return;
             }
-            jobDetail.setNotifiedAdmin(true);
+            current.setNotifiedAdmin(true);
             context
                 .append(domainEvent);
         }

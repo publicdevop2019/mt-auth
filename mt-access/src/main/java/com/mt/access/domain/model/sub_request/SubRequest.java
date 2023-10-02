@@ -1,5 +1,6 @@
 package com.mt.access.domain.model.sub_request;
 
+import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.UserId;
@@ -9,60 +10,24 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
+import java.time.Instant;
+import java.util.Objects;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
-@Entity
-@Table
 @Slf4j
 @NoArgsConstructor
 @Getter
-@NamedQuery(name = "getMySubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
-@NamedQuery(name = "getMySubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.createdBy = :createdBy AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
-@NamedQuery(name = "getEpSubscriptions", query = "SELECT en FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0")
-@NamedQuery(name = "getEpSubscriptionsCount", query = "SELECT COUNT(*) FROM SubRequest sr WHERE sr.id IN (SELECT en.id FROM SubRequest as en WHERE en.endpointId IN :endpointIds AND en.subRequestStatus = 'APPROVED' GROUP BY en.endpointId HAVING MAX(en.modifiedAt) > 0)")
 public class SubRequest extends Auditable {
-    @Enumerated(EnumType.STRING)
     private SubRequestStatus subRequestStatus = SubRequestStatus.PENDING;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
-    })
     private ProjectId projectId;
-    @Embedded
     private SubRequestId subRequestId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "endpointId"))
-    })
     private EndpointId endpointId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "endpointProjectId"))
-    })
     private ProjectId endpointProjectId;
     private Integer replenishRate;
     private Integer burstCapacity;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "approvedBy"))
-    })
     private UserId approvedBy;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "rejectedBy"))
-    })
     private UserId rejectionBy;
     private String rejectionReason;
 
@@ -99,6 +64,39 @@ public class SubRequest extends Auditable {
             setPublicEndpointBurstCapacity();
         }
         new SubRequestValidator(this, new HttpValidationNotificationHandler()).validate();
+        long milli = Instant.now().toEpochMilli();
+        this.setCreatedAt(milli);
+        this.setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        this.setModifiedAt(milli);
+        this.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+    }
+
+    public static SubRequest fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                             Long modifiedAt, String modifiedBy, Integer version,
+                                             SubRequestId domainId, Integer replenishRate,
+                                             Integer burstCapacity, UserId approvedBy,
+                                             UserId rejectedBy, ProjectId endpointProjectId,
+                                             String rejectionReason,
+                                             SubRequestStatus subRequestStatus,
+                                             EndpointId endpointId, ProjectId projectId) {
+        SubRequest subRequest = new SubRequest();
+        subRequest.setId(id);
+        subRequest.setCreatedAt(createdAt);
+        subRequest.setCreatedBy(createdBy);
+        subRequest.setModifiedAt(modifiedAt);
+        subRequest.setModifiedBy(modifiedBy);
+        subRequest.setVersion(version);
+        subRequest.subRequestId = domainId;
+        subRequest.replenishRate = replenishRate;
+        subRequest.burstCapacity = burstCapacity;
+        subRequest.approvedBy = approvedBy;
+        subRequest.rejectionBy = rejectedBy;
+        subRequest.endpointProjectId = endpointProjectId;
+        subRequest.rejectionReason = rejectionReason;
+        subRequest.subRequestStatus = subRequestStatus;
+        subRequest.endpointId = endpointId;
+        subRequest.projectId = projectId;
+        return subRequest;
     }
 
     private void setPublicEndpointBurstCapacity() {
@@ -110,21 +108,30 @@ public class SubRequest extends Auditable {
     }
 
 
-    public void update(Integer replenishRate, Integer burstCapacity) {
-        setReplenishRate(replenishRate);
-        setBurstCapacity(burstCapacity);
-        new SubRequestValidator(this, new HttpValidationNotificationHandler()).validate();
+    public SubRequest update(Integer replenishRate, Integer burstCapacity) {
+        SubRequest subRequest =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        subRequest.setReplenishRate(replenishRate);
+        subRequest.setBurstCapacity(burstCapacity);
+        new SubRequestValidator(subRequest, new HttpValidationNotificationHandler()).validate();
+        return subRequest;
     }
 
-    public void approve(UserId userId) {
-        this.subRequestStatus = SubRequestStatus.APPROVED;
-        this.approvedBy = userId;
+    public SubRequest approve(UserId userId) {
+        SubRequest subRequest =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        subRequest.subRequestStatus = SubRequestStatus.APPROVED;
+        subRequest.approvedBy = userId;
+        return subRequest;
     }
 
-    public void reject(String rejectionReason, UserId userId) {
+    public SubRequest reject(String rejectionReason, UserId userId) {
+        SubRequest subRequest =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         this.rejectionBy = userId;
         setRejectionReason(rejectionReason);
         this.subRequestStatus = SubRequestStatus.REJECTED;
+        return subRequest;
     }
 
     private void setRejectionReason(String rejectionReason) {
@@ -145,4 +152,18 @@ public class SubRequest extends Auditable {
         Validator.lessThanOrEqualTo(burstCapacity, 1500);
         this.burstCapacity = burstCapacity;
     }
+
+    public boolean sameAs(SubRequest o) {
+        return subRequestStatus == o.subRequestStatus &&
+            Objects.equals(projectId, o.projectId) &&
+            Objects.equals(subRequestId, o.subRequestId) &&
+            Objects.equals(endpointId, o.endpointId) &&
+            Objects.equals(endpointProjectId, o.endpointProjectId) &&
+            Objects.equals(replenishRate, o.replenishRate) &&
+            Objects.equals(burstCapacity, o.burstCapacity) &&
+            Objects.equals(approvedBy, o.approvedBy) &&
+            Objects.equals(rejectionBy, o.rejectionBy) &&
+            Objects.equals(rejectionReason, o.rejectionReason);
+    }
+
 }

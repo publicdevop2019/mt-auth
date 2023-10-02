@@ -1,9 +1,7 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.common.domain.model.restful.PatchCommand;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -41,8 +39,6 @@ public interface UserRepository {
 
     void remove(User user1);
 
-    void batchLock(List<PatchCommand> commands);
-
     long countTotal();
 
     Set<UserId> getIds();
@@ -64,4 +60,6 @@ public interface UserRepository {
         Validator.notNull(user);
         return user;
     }
+
+    void update(User old, User update);
 }

@@ -7,6 +7,7 @@ import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,17 @@ public class RawAccessRecordProcessService {
     public void process(TransactionContext context) {
         CommonDomainRegistry.getLogService().initTrace();
         log.debug("start of access record ETL job");
-        DataProcessTracker tracker = DomainRegistry.getDataProcessTrackerRepository().get();
+        Optional<DataProcessTracker> trackerStored =
+            DomainRegistry.getDataProcessTrackerRepository().get();
+        DataProcessTracker tracker;
+        boolean newTracker = false;
+        if (trackerStored.isEmpty()) {
+            tracker = new DataProcessTracker();
+            newTracker = true;
+        } else {
+            tracker = trackerStored.get();
+            newTracker = false;
+        }
         log.debug("last process id is {}", tracker.getLastProcessedId());
         Set<RawAccessRecord> totalRecords =
             DomainRegistry.getRawAccessRecordRepository()
@@ -61,8 +72,17 @@ public class RawAccessRecordProcessService {
                 context
                     .append(new RawAccessRecordProcessingWarning(issueIds));
             }
-            DomainRegistry.getDataProcessTrackerRepository().update(tracker, foundedRecords);
+            Optional<Long> reduce =
+                foundedRecords.stream().map(RawAccessRecord::getId).reduce(Math::max);
+            reduce.ifPresent(tracker::setLastProcessedId);
+            log.debug("etl job summary, next tracking id {}", tracker.getLastProcessedId());
+            if (newTracker) {
+                DomainRegistry.getDataProcessTrackerRepository().add(tracker);
+            } else {
+                DomainRegistry.getDataProcessTrackerRepository().update(tracker);
+            }
             DomainRegistry.getFormattedAccessRecordRepository().addAll(records);
+            DomainRegistry.getRawAccessRecordRepository().updateAllToProcessed(foundedRecords);
             log.debug("etl job summary, new records to insert count {}", records.size());
         } else {
             log.debug("no data found, ending this ETL job");

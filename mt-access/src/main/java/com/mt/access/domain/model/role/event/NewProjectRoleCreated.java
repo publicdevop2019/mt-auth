@@ -1,11 +1,9 @@
 package com.mt.access.domain.model.role.event;
 
-import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

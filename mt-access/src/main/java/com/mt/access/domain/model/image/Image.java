@@ -1,16 +1,10 @@
 package com.mt.access.domain.model.image;
 
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.IOException;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -19,23 +13,25 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
-@Entity
-@Table(name = "image")
 @Data
 @NoArgsConstructor
 @Slf4j
-@EqualsAndHashCode(callSuper = true)
-public class Image extends Auditable {
-    @Embedded
+@EqualsAndHashCode
+public class Image {
+    @Setter
+    @Getter
+    protected Long id;
+    @Setter
+    @Getter
+    private String createdBy;
+    @Getter
+    @Setter
+    private Long createdAt;
     private ImageId imageId;
     @Setter
     @Getter
-    @Lob
     private byte[] source;
-    @Column
     private String originalName;
-
-    @Column
     private String contentType;
 
     public Image(ImageId id, MultipartFile file, Integer allowedSize, List<String> allowedTypes) {
@@ -50,6 +46,20 @@ public class Image extends Auditable {
             throw new DefinedRuntimeException("error during saving image file", "1045",
                 HttpResponseCode.BAD_REQUEST, e);
         }
+    }
+
+    public static Image fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                        String contentType, ImageId domainId, String originalName,
+                                        byte[] sources) {
+        Image image = new Image();
+        image.setId(id);
+        image.setCreatedAt(createdAt);
+        image.setCreatedBy(createdBy);
+        image.setContentType(contentType);
+        image.setImageId(domainId);
+        image.setOriginalName(originalName);
+        image.setSource(sources);
+        return image;
     }
 
     /**

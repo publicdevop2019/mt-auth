@@ -177,20 +177,4 @@ public class TenantPermissionValidationTest {
         Assertions.assertEquals(status, response1.getStatusCode());
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(NameArgs.class)
-    public void validation_patch_name(String name, HttpStatus httpStatus) {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(HttpUtility.getId(response));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        patchCommand.setValue(name);
-        ResponseEntity<Void> response1 =
-            PermissionUtility.patchTenantPermission(tenantContext, permission, patchCommand);
-        Assertions.assertEquals(httpStatus, response1.getStatusCode());
-    }
-
 }

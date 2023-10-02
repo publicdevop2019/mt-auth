@@ -50,7 +50,7 @@ public class ClientCardRepresentation {
         accessTokenValiditySeconds = client1.accessTokenValiditySeconds();
         description = client1.getDescription();
         if (client1.getRedirectDetail() != null) {
-            registeredRedirectUri = client1.getRedirectDetail().getRedirectUrls().stream()
+            registeredRedirectUri = client1.getRedirectDetail().getRedirectUrls(client1).stream()
                 .map(RedirectUrl::getValue).collect(Collectors.toSet());
         }
         if (client1.getTokenDetail() != null) {

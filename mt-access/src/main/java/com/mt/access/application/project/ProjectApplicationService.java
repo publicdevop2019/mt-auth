@@ -1,15 +1,9 @@
 package com.mt.access.application.project;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_PROJECT;
-import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PROJECT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.project.command.ProjectCreateCommand;
-import com.mt.access.application.project.command.ProjectPatchCommand;
-import com.mt.access.application.project.command.ProjectUpdateCommand;
 import com.mt.access.application.project.representation.DashboardRepresentation;
 import com.mt.access.application.project.representation.ProjectRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -21,13 +15,11 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.ProjectQuery;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Collections;
-import java.util.Optional;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,9 +31,9 @@ public class ProjectApplicationService {
     private static final String PROJECT = "PROJECT";
 
 
-    public SumPagedRep<Project> mgmtQuery(String queryParam, String pageParam,
+    public SumPagedRep<Project> mgmtQuery(String pageParam,
                                           String skipCount) {
-        ProjectQuery projectQuery = new ProjectQuery(queryParam, pageParam, skipCount);
+        ProjectQuery projectQuery = new ProjectQuery(pageParam, skipCount);
         return DomainRegistry.getProjectRepository().query(projectQuery);
     }
 
@@ -59,61 +51,6 @@ public class ProjectApplicationService {
         return new ProjectRepresentation(project, clientCount, epCount, userCount, permissionCount,
             roleCount);
     }
-
-
-    @AuditLog(actionName = UPDATE_TENANT_PROJECT)
-    public void update(String id, ProjectUpdateCommand command, String changeId) {
-        ProjectId projectId = new ProjectId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
-                Optional<Project> first =
-                    DomainRegistry.getProjectRepository().query(new ProjectQuery(projectId))
-                        .findFirst();
-                first.ifPresent(e -> {
-                    e.replace(command.getName());
-                    DomainRegistry.getProjectRepository().add(e);
-                });
-                return null;
-            }, PROJECT);
-    }
-
-
-    @AuditLog(actionName = DELETE_TENANT_PROJECT)
-    public void remove(String id, String changeId) {
-        ProjectId projectId = new ProjectId(id);
-        CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
-            Project project =
-                DomainRegistry.getProjectRepository().get(projectId);
-            DomainRegistry.getProjectRepository().remove(project);
-            DomainRegistry.getAuditService()
-                .storeAuditAction(DELETE_TENANT_PROJECT,
-                    project);
-            DomainRegistry.getAuditService()
-                .logUserAction(log, DELETE_TENANT_PROJECT,
-                    project);
-            return null;
-        }, PROJECT);
-    }
-
-
-    @AuditLog(actionName = PATCH_TENANT_PROJECT)
-    public void patch(String id, JsonPatch command, String changeId) {
-        ProjectId projectId = new ProjectId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                Project project =
-                    DomainRegistry.getProjectRepository().get(projectId);
-                ProjectPatchCommand beforePatch = new ProjectPatchCommand(project);
-                ProjectPatchCommand afterPatch =
-                    CommonDomainRegistry.getCustomObjectSerializer()
-                        .applyJsonPatch(command, beforePatch, ProjectPatchCommand.class);
-                project.replace(
-                    afterPatch.getName()
-                );
-                return null;
-            }, PROJECT);
-    }
-
 
     @AuditLog(actionName = CREATE_TENANT_PROJECT)
     public String tenantCreate(ProjectCreateCommand command, String changeId) {

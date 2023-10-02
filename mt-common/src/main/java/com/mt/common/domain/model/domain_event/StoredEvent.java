@@ -4,10 +4,6 @@ import static com.mt.common.domain.model.constant.AppInfo.TRACE_ID_LOG;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import java.io.Serializable;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -16,17 +12,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.slf4j.MDC;
 
-@Entity
-@Table
 @Getter
 @NoArgsConstructor
 @Data
 @Setter(AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class StoredEvent implements Serializable {
-    @Lob
     private String eventBody;
-    @Id
     private Long id;
     private Long timestamp;
     private String name;
@@ -70,15 +62,47 @@ public class StoredEvent implements Serializable {
         return storedEvent;
     }
 
+    public static StoredEvent fromDatabaseRow(Long id, String domainId, String eventBody,
+                                              Boolean internal, String name, Long timestamp,
+                                              String topic, Boolean send, Boolean routable,
+                                              Boolean rejected, String applicationId,
+                                              String traceId) {
+        StoredEvent storedEvent = new StoredEvent();
+        storedEvent.setId(id);
+        storedEvent.setDomainId(domainId);
+        storedEvent.setEventBody(eventBody);
+        storedEvent.setInternal(internal);
+        storedEvent.setName(name);
+        storedEvent.setTimestamp(timestamp);
+        storedEvent.setTopic(topic);
+        storedEvent.setSend(send);
+        storedEvent.setRoutable(routable);
+        storedEvent.setRejected(rejected);
+        storedEvent.setApplicationId(applicationId);
+        storedEvent.setTraceId(traceId);
+        return storedEvent;
+    }
+
     public void sendToMQ() {
-        this.send = true;
+        StoredEvent storedEvent =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+
+        storedEvent.send = true;
+
+        CommonDomainRegistry.getDomainEventRepository().update(this, storedEvent);
     }
 
     public void markAsUnroutable() {
-        this.routable = false;
+        StoredEvent storedEvent =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        storedEvent.routable = false;
+        CommonDomainRegistry.getDomainEventRepository().update(this, storedEvent);
     }
 
     public void markAsRejected() {
-        this.rejected = true;
+        StoredEvent storedEvent =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        storedEvent.rejected = true;
+        CommonDomainRegistry.getDomainEventRepository().update(this, storedEvent);
     }
 }

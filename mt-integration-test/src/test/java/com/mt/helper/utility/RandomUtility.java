@@ -126,7 +126,7 @@ public class RandomUtility {
     }
 
     public static String randomEmail() {
-        return RandomUtility.randomStringWithNum() + "@gmail.com";
+        return RandomUtility.randomStringWithNum() + "@sample.com";
     }
 
     public static String randomPassword() {

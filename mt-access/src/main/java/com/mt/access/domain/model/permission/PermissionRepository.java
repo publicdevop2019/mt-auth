@@ -7,17 +7,15 @@ import com.mt.common.domain.model.validate.Validator;
 import java.util.Set;
 
 public interface PermissionRepository {
-    void add(Permission role);
+    void add(Permission permission);
 
-    void addAll(Set<Permission> role);
+    void addAll(Set<Permission> permissions);
 
-    SumPagedRep<Permission> query(PermissionQuery roleQuery);
+    SumPagedRep<Permission> query(PermissionQuery permissionQuery);
 
     SumPagedRep<PermissionId> queryPermissionId(PermissionQuery query);
 
     void remove(Permission e);
-
-    void removeAll(Set<Permission> e);
 
     default Permission get(PermissionId id){
         Permission permission = query(id);
@@ -25,12 +23,14 @@ public interface PermissionRepository {
         return permission;
     }
     default Permission get(ProjectId projectId, PermissionId id){
-        PermissionQuery permissionQuery = new PermissionQuery(id, projectId);
+        PermissionQuery permissionQuery = PermissionQuery.tenantQuery(projectId,id);
         Permission permission = query(permissionQuery).findFirst().orElse(null);
         Validator.notNull(permission);
         return permission;
     }
     Permission query(PermissionId id);
+
+    void update(Permission permission, Permission update);
 
     Set<EndpointId> allApiPermissionLinkedEpId();
 
@@ -39,4 +39,6 @@ public interface PermissionRepository {
     Set<PermissionId> getLinkedApiPermissionFor(Set<PermissionId> e);
 
     long countProjectCreateTotal(ProjectId projectId);
+
+    void removeLinkedApiPermission(PermissionId permissionId);
 }

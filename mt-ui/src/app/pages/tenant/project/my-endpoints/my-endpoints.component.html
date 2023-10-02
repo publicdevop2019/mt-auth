@@ -26,7 +26,7 @@
     </div>
     <div>
         <div class="table-container">
-            <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
+            <table mat-table [dataSource]="dataSource">
                 <!-- Checkbox Column -->
                 <ng-container matColumnDef="select">
                     <th mat-header-cell *matHeaderCellDef>
@@ -44,14 +44,14 @@
                 </ng-container>
 
                 <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-copy-field [inputValue]="row.id"></app-copy-field>
                     </td>
                 </ng-container>
 
                 <ng-container matColumnDef="resourceId">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resourceId']|translate}} </th>
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['resourceId']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-page-select-single *ngIf="allClientList"
                             [inputValue]="getOption(row.resourceId,allClientList)" [list]="allClientList"
@@ -60,7 +60,7 @@
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="description">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['description']|translate}} </th>
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-field [inputValue]="row.description"
                             (newValue)="doPatch(row.id,$event,'description')">
@@ -68,7 +68,7 @@
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
                         </app-editable-field>
@@ -76,7 +76,7 @@
                 </ng-container>
 
                 <ng-container matColumnDef="path">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> URL </th>
+                    <th mat-header-cell *matHeaderCellDef> URL </th>
                     <td mat-cell *matCellDef="let row">
                         <app-editable-field [inputValue]="row.path" (newValue)="doPatch(row.id,$event,'path')">
                         </app-editable-field>
@@ -85,7 +85,7 @@
 
 
                 <ng-container matColumnDef="method">
-                    <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['method']|translate}} </th>
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['method']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <ng-container *ngIf="!row.websocket">
                             <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"

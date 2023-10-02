@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 
@@ -23,11 +24,19 @@ export class MessageCenterComponent extends SummaryEntityComponent<IBellNotifica
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis,-2);
+    super(entitySvc, deviceSvc, bottomSheet, fis, -2);
     this.doRefresh();
     this.initTableSetting();
   }
-  doRefresh(){
-    super.doSearch({value:'',resetPage:false})
+  doRefresh() {
+    super.doSearch({ value: '', resetPage: false })
+  }
+  getValidationMsg(mes: string[]) {
+    const msg = (mes || []).filter((e, i) => i > 0)
+    if (Utility.notEmpty(msg)) {
+      return msg.join(", ")
+    } else {
+      return ''
+    }
   }
 }

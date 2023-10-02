@@ -113,13 +113,15 @@ public class SubRequestApplicationService {
      * @param changeId unique change id
      */
     public void update(String id, UpdateSubRequestCommand command, String changeId) {
-        SubRequest byId =
+        SubRequest sub =
             DomainRegistry.getSubRequestRepository().get(new SubRequestId(id));
-        DomainRegistry.getPermissionCheckService().canAccess(byId.getProjectId(), SUB_REQ_MGMT);
-        DomainRegistry.getPermissionCheckService().sameCreatedBy(byId);
+        DomainRegistry.getPermissionCheckService().canAccess(sub.getProjectId(), SUB_REQ_MGMT);
+        DomainRegistry.getPermissionCheckService().sameCreatedBy(sub);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                byId.update(command.getReplenishRate(), command.getBurstCapacity());
+                SubRequest update =
+                    sub.update(command.getReplenishRate(), command.getBurstCapacity());
+                DomainRegistry.getSubRequestRepository().update(sub, update);
                 return null;
             }, SUB_REQUEST);
     }
@@ -165,9 +167,10 @@ public class SubRequestApplicationService {
                 DomainRegistry.getPermissionCheckService()
                     .canAccess(endpointProjectId, SUB_REQ_MGMT);
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                subRequest.approve(userId);
+                SubRequest approve = subRequest.approve(userId);
                 context
                     .append(new SubRequestApprovedEvent(subRequest.getSubRequestId()));
+                DomainRegistry.getSubRequestRepository().update(subRequest, approve);
                 return null;
             }, SUB_REQUEST);
     }
@@ -189,7 +192,8 @@ public class SubRequestApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-                subRequest.reject(command.getRejectionReason(), userId);
+                SubRequest reject = subRequest.reject(command.getRejectionReason(), userId);
+                DomainRegistry.getSubRequestRepository().update(subRequest, reject);
                 return null;
             }, SUB_REQUEST);
     }

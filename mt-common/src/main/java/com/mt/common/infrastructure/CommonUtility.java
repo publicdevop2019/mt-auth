@@ -21,17 +21,9 @@ public class CommonUtility {
             rawIds.stream().map(fn).collect(
                 Collectors.toSet());
     }
-    //TODO find better fix
     /**
      * update DB collection without trigger unnecessary sql update
-     * <p>
-     * hibernate by default create empty set instead null
-     * <p>
-     * when we pass null trying to set value
-     * <p>
-     * it will create unnecessary update to DB
-     * <p>
-     * below logic is added to avoid this update
+     * in case of null and empty collection
      *
      * @param source source collection, if null
      * @param updateTo target collection

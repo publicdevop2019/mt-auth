@@ -8,8 +8,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.infrastructure.AppConstant;
-import com.mt.access.port.adapter.persistence.ProjectIdConverter;
-import com.mt.access.port.adapter.persistence.RoleIdConverter;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -20,62 +18,28 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Slf4j
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"userId", "projectId"}))
-@Entity
 @NoArgsConstructor
 @Getter
-@NamedQuery(name = "findEmailLike", query = "SELECT ur FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
-@NamedQuery(name = "findEmailLikeCount", query = "SELECT COUNT(*) FROM UserRelation AS ur LEFT JOIN User u ON ur.userId = u.userId WHERE u.email.email LIKE :emailLike AND ur.projectId = :projectId")
 @EqualsAndHashCode(callSuper = true)
 public class UserRelation extends Auditable {
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "userId"))
-    })
     private UserId userId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
-    })
     private ProjectId projectId;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_relation_role_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "role")
-    @Convert(converter = RoleIdConverter.class)
-    private Set<RoleId> standaloneRoles;
+    private Set<RoleId> standaloneRoles = new HashSet<>();
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "user_relation_tenant_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "tenant")
-    @Convert(converter = ProjectIdConverter.class)
-    private Set<ProjectId> tenantIds;
+    private Set<ProjectId> tenantIds = new HashSet<>();
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
         super();
@@ -95,6 +59,11 @@ public class UserRelation extends Auditable {
         this.standaloneRoles.add(roleId);
         this.userId = creator;
         this.projectId = projectId;
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(userId.getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(userId.getDomainId());
     }
 
     public static void onboardNewProject(RoleId adminRoleId, RoleId userRoleId, UserId creator,
@@ -104,25 +73,30 @@ public class UserRelation extends Auditable {
         //to mt-auth
         Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
             .query(creator, authProjectId);
-        UserRelation userRelation;
+        UserRelation rootRelation;
         if (byUserIdAndProjectId.isPresent()) {
-            userRelation = byUserIdAndProjectId.get();
-            if (userRelation.tenantIds == null) {
-                userRelation.tenantIds = new HashSet<>();
-            }
-            userRelation.tenantIds.add(tenantId);
-            userRelation.standaloneRoles.add(adminRoleId);
+            rootRelation = byUserIdAndProjectId.get();
+            UserRelation updated = rootRelation.updateTenantAndRole(tenantId, adminRoleId);
+            DomainRegistry.getUserRelationRepository().update(rootRelation, updated);
         } else {
-            userRelation = new UserRelation(adminRoleId, creator, authProjectId, tenantId);
+            rootRelation = new UserRelation(adminRoleId, creator, authProjectId, tenantId);
+            DomainRegistry.getUserRelationRepository().add(rootRelation);
         }
-        DomainRegistry.getUserRelationRepository().add(userRelation);
         //to target project
-        UserRelation userRelation2 = new UserRelation(userRoleId, creator, tenantId);
-        DomainRegistry.getUserRelationRepository().add(userRelation2);
+        UserRelation tenantRelation = new UserRelation(userRoleId, creator, tenantId);
+        DomainRegistry.getUserRelationRepository().add(tenantRelation);
         Project project = DomainRegistry.getProjectRepository().get(tenantId);
         context
             .append(new ProjectOnboardingComplete(project));
         log.debug("end of onboarding new project");
+    }
+
+    private UserRelation updateTenantAndRole(ProjectId tenantId, RoleId adminRoleId) {
+        UserRelation updated =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.tenantIds.add(tenantId);
+        updated.standaloneRoles.add(adminRoleId);
+        return updated;
     }
 
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,
@@ -130,6 +104,21 @@ public class UserRelation extends Auditable {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, authProjectId);
         DomainRegistry.getUserRelationRepository().add(userRelation2);
         return userRelation2;
+    }
+
+    public static UserRelation fromDatabaseRow(Long id, Long createdAt, String createdBy,
+                                               Long modifiedAt, String modifiedBy, Integer version,
+                                               ProjectId projectId, UserId userId) {
+        UserRelation userRelation = new UserRelation();
+        userRelation.setId(id);
+        userRelation.setCreatedAt(createdAt);
+        userRelation.setCreatedBy(createdBy);
+        userRelation.setModifiedAt(modifiedAt);
+        userRelation.setModifiedBy(modifiedBy);
+        userRelation.setVersion(version);
+        userRelation.projectId = projectId;
+        userRelation.userId = userId;
+        return userRelation;
     }
 
     private void setStandaloneRoles(Set<RoleId> roleIds) {
@@ -158,29 +147,37 @@ public class UserRelation extends Auditable {
         CommonUtility.updateCollection(this.tenantIds, tenantIds, () -> this.tenantIds = tenantIds);
     }
 
-    public void addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
-        if (getStandaloneRoles() == null) {
+    public UserRelation addTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (update.getStandaloneRoles() == null) {
             HashSet<RoleId> roleIds = new HashSet<>();
-            setStandaloneRoles(roleIds);
+            update.setStandaloneRoles(roleIds);
         }
-        getStandaloneRoles().add(tenantAdminRoleId);
-        if (getTenantIds() == null) {
+        update.getStandaloneRoles().add(tenantAdminRoleId);
+        if (update.getTenantIds() == null) {
             HashSet<ProjectId> projectIds = new HashSet<>();
-            setTenantIds(projectIds);
+            update.setTenantIds(projectIds);
         }
-        getTenantIds().add(tenantProjectId);
+        update.getTenantIds().add(tenantProjectId);
+        return update;
     }
 
-    public void removeTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
-        if (getStandaloneRoles() != null) {
-            getStandaloneRoles().remove(tenantAdminRoleId);
+    public UserRelation removeTenantAdmin(ProjectId tenantProjectId, RoleId tenantAdminRoleId) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        if (update.getStandaloneRoles() != null) {
+            update.getStandaloneRoles().remove(tenantAdminRoleId);
         }
-        if (getTenantIds() != null) {
-            getTenantIds().remove(tenantProjectId);
+        if (update.getTenantIds() != null) {
+            update.getTenantIds().remove(tenantProjectId);
         }
+        return update;
     }
 
-    public void tenantUpdate(Set<String> roles) {
+    public UserRelation tenantUpdate(Set<String> roles) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         //TODO move to validator
         Validator.notNull(roles);
         Validator.notEmpty(roles);
@@ -205,16 +202,25 @@ public class UserRelation extends Auditable {
             removeDefaultUser.stream().map(Role::getTenantId).filter(Objects::nonNull)
                 .collect(Collectors.toSet());
         //update tenant list based on role selected
-        setStandaloneRoles(
+        update.setStandaloneRoles(
             roles.stream().map(RoleId::new)
                 .collect(Collectors.toSet()));
         if (collect1.isEmpty()) {
-            setTenantIds(null);
+            update.setTenantIds(null);
         }
+        return update;
     }
 
     @Override
     public String toString() {
         return CommonDomainRegistry.getCustomObjectSerializer().serialize(this);
     }
+
+    public boolean sameAs(UserRelation updated) {
+        return Objects.equals(userId, updated.userId) &&
+            Objects.equals(projectId, updated.projectId) &&
+            Objects.equals(standaloneRoles, updated.standaloneRoles) &&
+            Objects.equals(tenantIds, updated.tenantIds);
+    }
+
 }

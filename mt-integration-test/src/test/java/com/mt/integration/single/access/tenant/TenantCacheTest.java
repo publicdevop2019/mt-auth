@@ -10,9 +10,8 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.CacheUtility;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
-import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.HttpUtility;
-import java.util.Objects;
+import com.mt.helper.utility.RandomUtility;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -60,8 +59,10 @@ public class TenantCacheTest {
         Assertions.assertEquals(HttpStatus.OK, cache2.getStatusCode());
 
         ResponseEntity<SumTotal<Cache>> read =
-            CacheUtility.readTenantCacheById(tenantContext, cacheId);
-        Cache cache3 = Objects.requireNonNull(read.getBody()).getData().get(0);
+            CacheUtility.readTenantCache(tenantContext);
+        Cache cache3 =
+            read.getBody().getData().stream().filter(e -> e.getId().equals(cacheId)).findFirst()
+                .get();
         log.debug("body {}", read.getBody());
         Assertions.assertEquals(1, cache3.getVersion().intValue());
         Assertions.assertEquals(newName, cache3.getName());

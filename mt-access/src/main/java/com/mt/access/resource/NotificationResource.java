@@ -41,20 +41,19 @@ public class NotificationResource {
     ) {
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .queryBell(queryParam, pageParam, skipCount);
+                .mgmtQueryBell(queryParam, pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, BellNotificationRepresentation::new));
     }
 
     @GetMapping(path = "mgmt/notifications")
     public ResponseEntity<SumPagedRep<NotificationRepresentation>> mgmtQuery(
-        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
         @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String skipCount
     ) {
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .mgmtQuery(queryParam, pageParam, skipCount);
+                .mgmtQuery(pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, NotificationRepresentation::new));
     }
@@ -69,7 +68,7 @@ public class NotificationResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         SumPagedRep<Notification> notificationsOf =
             ApplicationServiceRegistry.getNotificationApplicationService()
-                .userQuery(queryParam, pageParam, skipCount);
+                .userQueryBell(queryParam, pageParam, skipCount);
         return ResponseEntity
             .ok(new SumPagedRep<>(notificationsOf, BellNotificationRepresentation::new));
     }

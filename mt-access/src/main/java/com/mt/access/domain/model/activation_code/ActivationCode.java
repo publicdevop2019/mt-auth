@@ -2,13 +2,11 @@ package com.mt.access.domain.model.activation_code;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
-import javax.persistence.Embeddable;
 import lombok.Getter;
 
 /**
  * user activation code.
  */
-@Embeddable
 public class ActivationCode {
     @Getter
     private String activationCode;

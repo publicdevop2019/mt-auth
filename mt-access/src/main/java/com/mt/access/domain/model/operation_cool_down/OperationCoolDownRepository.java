@@ -5,7 +5,7 @@ import java.util.Optional;
 public interface OperationCoolDownRepository {
     Optional<OperationCoolDown> query(String executor, OperationType operationType);
 
-    void add(OperationCoolDown message);
+    void add(OperationCoolDown coolDown);
 
     void updateLastOperateAt(OperationCoolDown coolDown);
 }

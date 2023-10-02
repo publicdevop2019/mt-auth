@@ -5,6 +5,7 @@ import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.OAuth2Utility;
+import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.UserUtility;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -62,7 +63,7 @@ public class PasswordFlowTest {
 
     @Test
     public void should_not_get_token_when_user_credentials_are_wrong_even_client_is_valid() {
-        ResponseEntity<?> tokenResponse = UserUtility.login("root2@gmail.com",
+        ResponseEntity<?> tokenResponse = UserUtility.login(RandomUtility.randomEmail(),
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse.getStatusCode());
     }

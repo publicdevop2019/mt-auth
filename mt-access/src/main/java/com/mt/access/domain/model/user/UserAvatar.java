@@ -1,14 +1,11 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.model.image.ImageId;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import java.io.Serializable;
 import lombok.Data;
 
 @Data
-@Embeddable
-public class UserAvatar {
-    @Column(name = "avatar_link")
+public class UserAvatar  implements Serializable {
     private String value;
 
     private UserAvatar() {

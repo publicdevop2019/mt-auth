@@ -35,7 +35,7 @@
                 </div>
                 <div>
                     <div class="table-container">
-                        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
+                        <table mat-table [dataSource]="dataSource">
                             <!-- Checkbox Column -->
                             <ng-container matColumnDef="select">
                                 <th mat-header-cell *matHeaderCellDef>
@@ -54,42 +54,27 @@
                             </ng-container>
 
                             <ng-container matColumnDef="id">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
                                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                                 </td>
                             </ng-container>
 
-                            <ng-container matColumnDef="description">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header>
-                                    {{columnList['description']|translate}} </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <app-editable-field *ngIf="!row.systemCreate" [inputValue]="row.description"
-                                        (newValue)="doPatch(row.id,$event,'description')">
-                                    </app-editable-field>
-                                    <ng-container *ngIf="row.systemCreate">
-                                        {{row.description}}
-                                    </ng-container>
-                                </td>
-                            </ng-container>
-
                             <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
                                     <ng-container *ngIf="row.systemCreate">
                                         {{row.name |translate}}
                                     </ng-container>
                                     <ng-container *ngIf="!row.systemCreate">
-                                        <app-editable-field [inputValue]="row.name"
-                                            (newValue)="doPatch(row.id,$event,'name')">
-                                        </app-editable-field>
+                                        {{row.name}}
                                     </ng-container>
                                 </td>
                             </ng-container>
                             <ng-container matColumnDef="type">
-                                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['type']|translate}}
+                                <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}
                                 </th>
                                 <td mat-cell *matCellDef="let row">
                                     {{row.type|translate}}
@@ -188,14 +173,14 @@
                     </ng-container>
 
                     <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
                             <app-copy-field [inputValue]="row.id"></app-copy-field>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="description">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header>
+                        <th mat-header-cell *matHeaderCellDef>
                             {{columnList['description']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
                             <app-editable-field *ngIf="!row.systemCreate" [inputValue]="row.description"
@@ -208,7 +193,7 @@
                     </ng-container>
 
                     <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}}
+                        <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
                         </th>
                         <td mat-cell *matCellDef="let row">
                             <ng-container *ngIf="row.systemCreate">

@@ -36,11 +36,12 @@ public class ComputePermissionService {
             return Collections.emptySet();
         }
         Set<RoleId> standaloneRoles = userRelation.getStandaloneRoles();
-        log.trace("role id found {}",
+        log.debug("role id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(standaloneRoles));
         Set<Role> nextRoles = QueryUtility.getAllByQuery(
             q -> ApplicationServiceRegistry.getRoleApplicationService().query(q),
             new RoleQuery(standaloneRoles));
+        log.debug("roles retrieved");
         //only get root project user role and default tenant project admin role (if exist)
         if (defaultProject != null) {
             Optional<Role> optionalRole =
@@ -55,12 +56,12 @@ public class ComputePermissionService {
         Set<PermissionId> commonPermissionIds =
             nextRoles.stream().flatMap(e -> e.getCommonPermissionIds().stream())
                 .collect(Collectors.toSet());
-        log.trace("common permission id found {}",
+        log.debug("common permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(commonPermissionIds));
         Set<PermissionId> totalPermissions =
             nextRoles.stream().flatMap(e -> e.getTotalPermissionIds().stream()
             ).collect(Collectors.toSet());
-        log.trace("total permission id found {}",
+        log.debug("total permission id found {}",
             CommonDomainRegistry.getCustomObjectSerializer().serialize(totalPermissions));
         if (!commonPermissionIds.isEmpty()) {
             Set<PermissionId> linkedApiPermissionFor =

@@ -27,14 +27,12 @@ public class StoredEventQuery extends QueryCriteria {
     private Boolean routable;
     private Set<String> domainIds;
     private Set<String> names;
-    private DomainEventSort sort;
     private Boolean rejected;
 
     public StoredEventQuery(String queryParam, String pageParam, String skipCount) {
         setQueryConfig(new QueryConfig(skipCount));
         setPageConfig(PageConfig.limited(pageParam, 200));
         updateQueryParam(queryParam);
-        setSort(pageConfig);
     }
 
     public StoredEventQuery(Set<String> name, String queryParam, String pageParam,
@@ -43,12 +41,10 @@ public class StoredEventQuery extends QueryCriteria {
         setPageConfig(PageConfig.limited(pageParam, 200));
         this.names = name;
         updateQueryParam(queryParam);
-        setSort(pageConfig);
     }
 
     public static StoredEventQuery notSend() {
         StoredEventQuery storedEventQuery = new StoredEventQuery();
-        storedEventQuery.sort = DomainEventSort.byId(true);
         storedEventQuery.send = false;
         storedEventQuery.setPageConfig(PageConfig.defaultConfig());
         storedEventQuery.setQueryConfig(QueryConfig.skipCount());
@@ -71,27 +67,5 @@ public class StoredEventQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(DOMAIN_ID)).ifPresent(e -> {
             this.domainIds = Arrays.stream(e.split("\\.")).collect(Collectors.toSet());
         });
-    }
-
-    private void setSort(PageConfig pageConfig) {
-        if (pageConfig.getSortBy().equalsIgnoreCase("id")) {
-            this.sort = DomainEventSort.byId(pageConfig.isSortOrderAsc());
-        }
-    }
-
-    @Getter
-    public static class DomainEventSort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        private DomainEventSort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static DomainEventSort byId(boolean isAsc) {
-            DomainEventSort skuSort = new DomainEventSort(isAsc);
-            skuSort.byId = true;
-            return skuSort;
-        }
     }
 }

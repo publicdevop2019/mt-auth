@@ -7,7 +7,8 @@ public interface JobRepository {
     Set<JobDetail> getByQuery(JobQuery all);
     Optional<JobDetail> getByName(String name);
 
-    void store(JobDetail jobDetail);
+    void add(JobDetail jobDetail);
+    void update(JobDetail old, JobDetail update);
 
     JobDetail getById(JobId jobId);
 

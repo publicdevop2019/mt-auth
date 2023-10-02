@@ -37,5 +37,9 @@ export class SummaryProjectComponent extends SummaryEntityComponent<IProjectSimp
   ) {
     super(entitySvc, deviceSvc, bottomSheet,fis, 3);
     this.initTableSetting();
+    this.doSearch({ value: '', resetPage: false })
+  }
+  doRefresh() {
+    this.doSearch({ value: '', resetPage: false })
   }
 }

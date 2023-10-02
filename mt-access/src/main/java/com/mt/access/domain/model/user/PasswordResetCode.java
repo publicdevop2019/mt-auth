@@ -2,16 +2,13 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import java.io.Serializable;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
-@Embeddable
 @EqualsAndHashCode
-public class PasswordResetCode {
+public class PasswordResetCode  implements Serializable {
     @Getter
-    @Column(name = "pwd_reset_code")
     private String value;
 
     public PasswordResetCode() {

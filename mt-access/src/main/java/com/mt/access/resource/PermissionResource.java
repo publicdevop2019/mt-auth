@@ -16,12 +16,9 @@ import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
 import com.mt.access.infrastructure.Utility;
-import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -98,7 +95,7 @@ public class PermissionResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         PermissionRepresentation permission =
             ApplicationServiceRegistry.getPermissionApplicationService()
-                .tenantQueryById(projectId, id);
+                .tenantGetById(projectId, id);
         return ResponseEntity.ok(permission);
     }
 
@@ -138,20 +135,5 @@ public class PermissionResource {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         UiPermissionInfo ui = ApplicationServiceRegistry.getPermissionApplicationService().uiQuery(projectId);
         return ResponseEntity.ok(ui);
-    }
-
-    @PatchMapping(path = "projects/{projectId}/permissions/{id}",
-        consumes = "application/json-patch+json")
-    public ResponseEntity<Void> tenantPatch(
-        @PathVariable String projectId,
-        @PathVariable String id,
-        @RequestBody JsonPatch command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getPermissionApplicationService()
-            .tenantPatch(projectId, id, command, changeId);
-        return ResponseEntity.ok().build();
     }
 }

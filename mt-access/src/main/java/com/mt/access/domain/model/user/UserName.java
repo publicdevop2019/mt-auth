@@ -2,14 +2,11 @@ package com.mt.access.domain.model.user;
 
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
-import javax.persistence.Column;
-import javax.persistence.Embeddable;
+import java.io.Serializable;
 import lombok.Data;
 
 @Data
-@Embeddable
-public class UserName {
-    @Column(name = "username")
+public class UserName  implements Serializable {
     private String value;
 
     private UserName() {

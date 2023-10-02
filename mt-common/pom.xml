@@ -5,11 +5,11 @@
 
     <groupId>com.github.publicdevop2019</groupId>
     <artifactId>mt-common</artifactId>
-    <version>1.2.2</version>
+    <version>2.0.0</version>
     <packaging>jar</packaging>
     <name>mt-common</name>
     <url>https://github.com/publicdevop2019/mt-auth</url>
-    <description>common utility shared by mt microservices</description>
+    <description>common utility</description>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -46,10 +46,6 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-redis</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
@@ -59,13 +55,17 @@
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>2.1.4.RELEASE</version>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.16</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.github.java-json-tools</groupId>
@@ -83,12 +83,6 @@
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
             <version>1.7</version>
-        </dependency>
-        <!--  hibernate criteria api metamodel-->
-        <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-jpamodelgen</artifactId>
-            <version>5.4.26.Final</version>
         </dependency>
         <dependency>
             <groupId>org.redisson</groupId>

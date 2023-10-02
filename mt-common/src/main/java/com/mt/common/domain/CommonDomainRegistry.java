@@ -1,7 +1,6 @@
 package com.mt.common.domain;
 
 
-import com.mt.common.domain.model.cache.HibernateCacheService;
 import com.mt.common.domain.model.constant.ApplicationInfoService;
 import com.mt.common.domain.model.domain_event.DomainEventRepository;
 import com.mt.common.domain.model.domain_event.SagaEventStreamService;
@@ -25,8 +24,6 @@ public class CommonDomainRegistry {
     private static CustomObjectSerializer customObjectSerializer;
     @Getter
     private static SagaEventStreamService eventStreamService;
-    @Getter
-    private static HibernateCacheService hibernateCacheService;
     @Getter
     private static ChangeRecordRepository changeRecordRepository;
     @Getter
@@ -72,11 +69,6 @@ public class CommonDomainRegistry {
     @Autowired
     public void setJobService(DistributedJobService jobService) {
         CommonDomainRegistry.jobService = jobService;
-    }
-
-    @Autowired
-    public void setHibernateCacheService(HibernateCacheService hibernateCacheService) {
-        CommonDomainRegistry.hibernateCacheService = hibernateCacheService;
     }
 
     @Autowired

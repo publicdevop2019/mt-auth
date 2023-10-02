@@ -21,7 +21,6 @@ import lombok.ToString;
 @ToString
 public class SubRequestQuery extends QueryCriteria {
     private static final String TYPE = "type";
-    private final Sort sort;
     private Set<SubRequestId> ids;
     private Set<EndpointId> epIds;
     private UserId createdBy;
@@ -33,20 +32,17 @@ public class SubRequestQuery extends QueryCriteria {
         ids.add(id);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
     }
 
     private SubRequestQuery(UserId creatorUserId, String pageParam) {
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
         this.createdBy = creatorUserId;
     }
 
     private SubRequestQuery(String pageParam) {
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
     }
 
     public SubRequestQuery(String queryParam, String pageParam) {
@@ -76,43 +72,20 @@ public class SubRequestQuery extends QueryCriteria {
         }
         setPageConfig(PageConfig.limited(pageParam, 50));
         setQueryConfig(QueryConfig.countRequired());
-        this.sort = Sort.byId(true);
     }
 
     public SubRequestQuery(Set<EndpointId> epIds) {
         this.epIds = epIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
-        this.sort = Sort.byId(true);
     }
 
     public static SubRequestQuery mySubscriptions(String pageParam) {
         return new SubRequestQuery(DomainRegistry.getCurrentUserService().getUserId(), pageParam);
     }
 
-    public static SubRequestQuery internalSubscriptions(String pageParam) {
-        return new SubRequestQuery(pageParam);
-    }
-
-
     public enum SubRequestQueryType {
         MY_REQUEST,
         PENDING_APPROVAL,
-    }
-
-    @Getter
-    public static class Sort {
-        private final Boolean isAsc;
-        private Boolean byId;
-
-        public Sort(boolean isAsc) {
-            this.isAsc = isAsc;
-        }
-
-        public static Sort byId(boolean isAsc) {
-            Sort userSort = new Sort(isAsc);
-            userSort.byId = true;
-            return userSort;
-        }
     }
 }

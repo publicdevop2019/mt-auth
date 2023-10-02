@@ -1,16 +1,12 @@
 package com.mt.access.domain.model.user;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Embedded;
+import java.io.Serializable;
 import lombok.Getter;
 
-@Embeddable
-public class MfaInfo {
+public class MfaInfo  implements Serializable {
     @Getter
-    @Embedded
     private MfaCode code;
     @Getter
-    @Embedded
     private MfaId id;
 
     public static MfaInfo create() {

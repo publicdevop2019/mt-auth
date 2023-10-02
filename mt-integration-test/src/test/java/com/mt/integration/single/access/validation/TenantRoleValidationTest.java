@@ -291,38 +291,4 @@ public class TenantRoleValidationTest {
             RoleUtility.updateTenantRole(tenantContext, role);
         Assertions.assertEquals(httpStatus, response1.getStatusCode());
     }
-
-    @ParameterizedTest
-    @ArgumentsSource(NameArgs.class)
-    public void validation_patch_name(String name, HttpStatus httpStatus) {
-        //create role
-        Role role = RoleUtility.createRandomValidRoleObj();
-        ResponseEntity<Void> response =
-            RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(HttpUtility.getId(response));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/name");
-        patchCommand.setValue(name);
-        ResponseEntity<Void> response1 =
-            RoleUtility.patchTenantRole(tenantContext, role, patchCommand);
-        Assertions.assertEquals(httpStatus, response1.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(DescriptionArgs.class)
-    public void validation_patch_description(String description, HttpStatus httpStatus) {
-        //create role
-        Role role = RoleUtility.createRandomValidRoleObj();
-        ResponseEntity<Void> response =
-            RoleUtility.createTenantRole(tenantContext, role);
-        role.setId(HttpUtility.getId(response));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        patchCommand.setValue(description);
-        ResponseEntity<Void> response1 =
-            RoleUtility.patchTenantRole(tenantContext, role, patchCommand);
-        Assertions.assertEquals(httpStatus, response1.getStatusCode());
-    }
 }

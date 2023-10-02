@@ -5,5 +5,7 @@ import java.util.Optional;
 public interface ValidationResultRepository {
     Optional<ValidationResult> query();
 
-    void add(ValidationResult result);
+    void create(ValidationResult result);
+
+    void update(ValidationResult result);
 }

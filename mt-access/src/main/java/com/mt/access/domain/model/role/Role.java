@@ -10,7 +10,7 @@ import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.access.domain.model.role.event.NewProjectRoleCreated;
 import com.mt.access.domain.model.user.UserId;
-import com.mt.access.port.adapter.persistence.PermissionIdConverter;
+import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -21,7 +21,7 @@ import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
-import java.util.Collections;
+import java.time.Instant;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -30,31 +30,15 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Cacheable;
-import javax.persistence.Column;
-import javax.persistence.Convert;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Slf4j
-@Table
-@Entity
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class Role extends Auditable {
+    private boolean isCreate = false;
     public static final String PROJECT_USER = "PROJECT_USER";
     public static final String PROJECT_ADMIN = "PROJECT_ADMIN";
     public static final String CLIENT_ROOT = "CLIENT_ROOT";
@@ -70,42 +54,17 @@ public class Role extends Auditable {
 
     private String description;
 
-    @Embedded
     private RoleId roleId;
 
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "role_common_permission_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "permission")
-    @Convert(converter = PermissionIdConverter.class)
     private Set<PermissionId> commonPermissionIds = new LinkedHashSet<>();
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "role_api_permission_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "permission")
-    @Convert(converter = PermissionIdConverter.class)
+    private boolean commonPermissionIdsLoaded = false;
     private Set<PermissionId> apiPermissionIds = new LinkedHashSet<>();
-
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "role_external_permission_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "permission")
-    @Convert(converter = PermissionIdConverter.class)
+    private boolean apiPermissionIdsLoaded = false;
     private Set<PermissionId> externalPermissionIds = new LinkedHashSet<>();
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "projectId"))
-    })
+    private boolean extPermissionIdsLoaded = false;
     private ProjectId projectId;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "tenantId"))
-    })
     private ProjectId tenantId;
-    @Enumerated(EnumType.STRING)
     private RoleType type;
-    @Embedded
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId", column = @Column(name = "parentId"))
-    })
     private RoleId parentId;
     private Boolean systemCreate;
 
@@ -117,6 +76,7 @@ public class Role extends Auditable {
                                        RoleType type, @Nullable RoleId parentId,
                                        @Nullable ProjectId tenantId) {
         Role role = new Role();
+        role.isCreate = true;
         role.setProjectId(projectId);
         role.setRoleId(roleId);
         role.setName(name);
@@ -127,6 +87,12 @@ public class Role extends Auditable {
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         DomainRegistry.getRoleValidationService()
             .validate(true, role, new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        role.setCreatedAt(milli);
+        role.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        role.setModifiedAt(milli);
+        role.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+
         return role;
     }
 
@@ -135,6 +101,7 @@ public class Role extends Auditable {
                                             Set<PermissionId> linkedPermissionIds, RoleId parentId,
                                             ProjectId tenantId) {
         Role role = new Role();
+        role.isCreate = true;
         role.setProjectId(projectId);
         role.setRoleId(roleId);
         role.setName(Role.PROJECT_ADMIN);
@@ -147,12 +114,18 @@ public class Role extends Auditable {
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         DomainRegistry.getRoleValidationService()
             .validate(true, role, new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        role.setCreatedAt(milli);
+        role.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        role.setModifiedAt(milli);
+        role.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
         return role;
     }
 
     public static Role newClient(ProjectId projectId, RoleId roleId, String name, RoleId parentId
     ) {
         Role role = new Role();
+        role.isCreate = true;
         role.setProjectId(projectId);
         role.setRoleId(roleId);
         role.setName(name);
@@ -162,6 +135,12 @@ public class Role extends Auditable {
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         DomainRegistry.getRoleValidationService()
             .validate(false, role, new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        role.setCreatedAt(milli);
+        role.setCreatedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+        role.setModifiedAt(milli);
+        role.setModifiedBy(AppConstant.DEFAULT_AUTO_ACTOR);
+
         return role;
     }
 
@@ -175,6 +154,7 @@ public class Role extends Auditable {
                                            Set<PermissionId> externalPermissionIds,
                                            TransactionContext context) {
         Role role = new Role();
+        role.isCreate = true;
         role.setSystemCreate(false);
         role.setProjectId(projectId);
         role.setRoleId(roleId);
@@ -187,7 +167,7 @@ public class Role extends Auditable {
         if (commonPermissionIds != null && commonPermissionIds.size() > 0) {
             Set<Permission> permissions = QueryUtility
                 .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
-                    new PermissionQuery(commonPermissionIds));
+                    PermissionQuery.internalQuery(commonPermissionIds));
             //add linked api permission
             linkedApiPermission =
                 permissions.stream().flatMap(e -> e.getLinkedApiPermissionIds().stream())
@@ -221,6 +201,11 @@ public class Role extends Auditable {
         new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
         DomainRegistry.getRoleValidationService()
             .validate(false, role, new HttpValidationNotificationHandler());
+        long milli = Instant.now().toEpochMilli();
+        role.setCreatedAt(milli);
+        role.setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        role.setModifiedAt(milli);
+        role.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
         return role;
     }
 
@@ -260,20 +245,40 @@ public class Role extends Auditable {
         log.debug("end of creating new project roles");
     }
 
-    public Set<PermissionId> getCommonPermissionIds() {
-        return commonPermissionIds == null ? Collections.emptySet() : commonPermissionIds;
+    public static Role fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
+                                       String modifiedBy, Integer version,
+                                       String name, String description, RoleId domainId,
+                                       RoleId parentId, ProjectId projectId,
+                                       Boolean systemCreate,
+                                       ProjectId tenantId, RoleType type) {
+        Role role = new Role();
+        role.setId(id);
+        role.setCreatedAt(createdAt);
+        role.setCreatedBy(createdBy);
+        role.setModifiedAt(modifiedAt);
+        role.setModifiedBy(modifiedBy);
+        role.setVersion(version);
+        role.setName(name);
+        role.setDescription(description);
+        role.setRoleId(domainId);
+        role.setParentId(parentId);
+        role.setProjectId(projectId);
+        role.setSystemCreate(systemCreate);
+        role.setTenantId(tenantId);
+        role.setType(type);
+        return role;
     }
 
     public Set<PermissionId> getTotalPermissionIds() {
         Set<PermissionId> objects = new HashSet<>();
-        if (apiPermissionIds != null) {
-            objects.addAll(apiPermissionIds);
+        if (getApiPermissionIds() != null) {
+            objects.addAll(getApiPermissionIds());
         }
-        if (commonPermissionIds != null) {
-            objects.addAll(commonPermissionIds);
+        if (getCommonPermissionIds() != null) {
+            objects.addAll(getCommonPermissionIds());
         }
-        if (externalPermissionIds != null) {
-            objects.addAll(externalPermissionIds);
+        if (getExternalPermissionIds() != null) {
+            objects.addAll(getExternalPermissionIds());
         }
         return objects;
     }
@@ -287,26 +292,30 @@ public class Role extends Auditable {
      *
      * @param command update command
      */
-    public void replace(RoleUpdateCommand command, TransactionContext context) {
+    public Role replace(RoleUpdateCommand command, TransactionContext context) {
         Validator.notNull(command.getType());
+        Role update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, Role.class);
         if (command.getType().equals(UpdateType.BASIC)) {
-            updateName(command.getName());
-            setDescription(command.getDescription());
-            if (Checker.isFalse(getSystemCreate()) && command.getParentId() != null) {
-                this.parentId = new RoleId(command.getParentId());
+            update.updateName(command.getName());
+            update.setDescription(command.getDescription());
+            if (Checker.isFalse(update.getSystemCreate()) && command.getParentId() != null) {
+                update.parentId = new RoleId(command.getParentId());
             }
         } else if (command.getType().equals(UpdateType.API_PERMISSION)) {
-            setApiPermissionIds(true,
+            update.setApiPermissionIds(true,
                 CommonUtility.map(command.getApiPermissionIds(), PermissionId::new));
-            setExternalPermissionIds(
+            update.setExternalPermissionIds(
                 CommonUtility.map(command.getExternalPermissionIds(), PermissionId::new), context);
         } else if (command.getType().equals(UpdateType.COMMON_PERMISSION)) {
-            setCommonPermissionIds(false,
+            update.setCommonPermissionIds(false,
                 CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new));
         }
-        new RoleValidator(new HttpValidationNotificationHandler(), this).validate();
+        new RoleValidator(new HttpValidationNotificationHandler(), update).validate();
         DomainRegistry.getRoleValidationService()
-            .validate(false, this, new HttpValidationNotificationHandler());
+            .validate(false, update, new HttpValidationNotificationHandler());
+        update.setModifiedAt(Instant.now().toEpochMilli());
+        update.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        return update;
     }
 
     private void setApiPermissionIds(boolean isNewProjectOnboarding,
@@ -406,20 +415,50 @@ public class Role extends Auditable {
         DomainRegistry.getRoleRepository().remove(this);
     }
 
-    public void patch(String name, String description) {
-        updateName(name);
-        setDescription(description);
+    public boolean sameAs(Role updated) {
+        return Objects.equals(name, updated.name) &&
+            Objects.equals(description, updated.description) &&
+            Objects.equals(roleId, updated.roleId) &&
+            Objects.equals(commonPermissionIds, updated.commonPermissionIds) &&
+            Objects.equals(apiPermissionIds, updated.apiPermissionIds) &&
+            Objects.equals(externalPermissionIds, updated.externalPermissionIds) &&
+            Objects.equals(projectId, updated.projectId) &&
+            Objects.equals(tenantId, updated.tenantId) && type == updated.type &&
+            Objects.equals(parentId, updated.parentId) &&
+            Objects.equals(systemCreate, updated.systemCreate);
     }
 
-    public void removePermission(PermissionId permissionId) {
-        if (this.externalPermissionIds != null) {
-            this.externalPermissionIds.remove(permissionId);
+    public Set<PermissionId> getApiPermissionIds() {
+        if(isCreate){
+            return apiPermissionIds;
         }
-        if (this.commonPermissionIds != null) {
-            this.commonPermissionIds.remove(permissionId);
+        if (Checker.isFalse(this.apiPermissionIdsLoaded)) {
+            this.apiPermissionIds = DomainRegistry.getRoleRepository().findApiPermission(this);
+            this.apiPermissionIdsLoaded = true;
         }
-        if (this.apiPermissionIds != null) {
-            this.apiPermissionIds.remove(permissionId);
+        return apiPermissionIds;
+    }
+
+    public Set<PermissionId> getExternalPermissionIds() {
+        if(isCreate){
+            return externalPermissionIds;
         }
+        if (Checker.isFalse(this.extPermissionIdsLoaded)) {
+            this.externalPermissionIds = DomainRegistry.getRoleRepository().findExtPermission(this);
+            this.extPermissionIdsLoaded = true;
+        }
+        return externalPermissionIds;
+    }
+
+    public Set<PermissionId> getCommonPermissionIds() {
+        if(isCreate){
+            return commonPermissionIds;
+        }
+        if (Checker.isFalse(this.commonPermissionIdsLoaded)) {
+            this.commonPermissionIds =
+                DomainRegistry.getRoleRepository().findCommonPermission(this);
+            this.commonPermissionIdsLoaded = true;
+        }
+        return commonPermissionIds;
     }
 }

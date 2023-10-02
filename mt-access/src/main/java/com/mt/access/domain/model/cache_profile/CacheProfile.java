@@ -12,20 +12,10 @@ import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
+import java.time.Instant;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.Column;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -33,33 +23,25 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * cache configuration for http.
  */
-@EqualsAndHashCode(callSuper = true)
-@Entity
-@Table
 @Slf4j
 @NoArgsConstructor
 @Getter
 @ToString
+@EqualsAndHashCode(callSuper = true)
 public class CacheProfile extends Auditable {
 
     private String name;
     private String description;
 
-    @Embedded
     private CacheProfileId cacheProfileId;
 
     private Boolean allowCache;
 
     @Getter
-    @ElementCollection(fetch = FetchType.LAZY)
-    @JoinTable(name = "cache_control_map", joinColumns = @JoinColumn(name = "id"))
-    @Column(name = "cache_control")
-    @Enumerated(EnumType.STRING)
     private Set<CacheControlValue> cacheControl = new LinkedHashSet<>();
     /**
      * HTTP header contains the date/time after which the response is considered expired.
@@ -88,12 +70,7 @@ public class CacheProfile extends Auditable {
 
     private Boolean weakValidation;
 
-    @Embedded
     @Setter(AccessLevel.PRIVATE)
-    @AttributeOverrides({
-        @AttributeOverride(name = "domainId",
-            column = @Column(name = "projectId", updatable = false, nullable = false))
-    })
     private ProjectId projectId;
 
     /**
@@ -127,6 +104,11 @@ public class CacheProfile extends Auditable {
         ProjectId projectId
     ) {
         super();
+        long epochMilli = Instant.now().toEpochMilli();
+        setCreatedAt(epochMilli);
+        setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
+        setModifiedAt(epochMilli);
+        setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
         setName(name);
         setDescription(description);
         setAllowCache(allowCache);
@@ -143,6 +125,36 @@ public class CacheProfile extends Auditable {
         validate(new HttpValidationNotificationHandler());
         DomainRegistry.getCacheProfileValidationService()
             .validate(this, new HttpValidationNotificationHandler());
+    }
+
+    public static CacheProfile fromDatabaseRow(Long id, Long createAt, String createBy,
+                                               Long modifiedAt,
+                                               String modifiedBy, Integer version,
+                                               Boolean allowCache,
+                                               CacheProfileId domainId, String description,
+                                               Boolean etag,
+                                               Long expires, Long maxAge, String name, Long smaxAge,
+                                               String vary, Boolean weakValidation,
+                                               ProjectId projectId) {
+        CacheProfile cacheProfile = new CacheProfile();
+        cacheProfile.setId(id);
+        cacheProfile.setCreatedAt(createAt);
+        cacheProfile.setCreatedBy(createBy);
+        cacheProfile.setModifiedAt(modifiedAt);
+        cacheProfile.setModifiedBy(modifiedBy);
+        cacheProfile.setVersion(version);
+        cacheProfile.setAllowCache(allowCache);
+        cacheProfile.setCacheProfileId(domainId);
+        cacheProfile.setDescription(description);
+        cacheProfile.setEtag(etag);
+        cacheProfile.setExpires(expires);
+        cacheProfile.setMaxAge(maxAge);
+        cacheProfile.setName(name);
+        cacheProfile.setSmaxAge(smaxAge);
+        cacheProfile.setVary(vary);
+        cacheProfile.setWeakValidation(weakValidation);
+        cacheProfile.setProjectId(projectId);
+        return cacheProfile;
     }
 
     private void setWeakValidation(Boolean weakValidation) {
@@ -206,7 +218,7 @@ public class CacheProfile extends Auditable {
     }
 
     /**
-     * update CacheProfile.
+     * immutable update, return new updated CacheProfile.
      *
      * @param name           profile name
      * @param description    profile description
@@ -218,8 +230,9 @@ public class CacheProfile extends Auditable {
      * @param allowCache     whether cache is allowed
      * @param etag           value of etag
      * @param weakValidation whether weak validation
+     * @return updated {@code CacheProfile}
      */
-    public void update(
+    public CacheProfile update(
         String name,
         String description,
         Set<CacheControlValue> cacheControl,
@@ -232,35 +245,31 @@ public class CacheProfile extends Auditable {
         Boolean weakValidation,
         TransactionContext context
     ) {
-        CacheProfile original =
+        CacheProfile updated =
             CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CacheProfile.class);
-        //exclude name and description from comparison and bypass setter check
-        setName(name);
-        setDescription(description);
-        setCacheControl(cacheControl);
-        setExpires(expires);
-        setMaxAge(maxAge);
-        setSmaxAge(smaxAge);
-        setVary(vary);
-        setEtag(etag);
-        setWeakValidation(weakValidation);
-        setAllowCache(allowCache);
-        CacheProfile afterUpdate =
-            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, CacheProfile.class);
-        original.name = null;
-        original.description = null;
-        afterUpdate.name = null;
-        afterUpdate.description = null;
-        log.debug("original hashcode is {}, updated hashcode is{}", original.hashCode(),
-            afterUpdate.hashCode());
-        if (!afterUpdate.equals(original)) {
+
+        updated.setName(name);
+        updated.setDescription(description);
+        updated.setCacheControl(cacheControl);
+        updated.setExpires(expires);
+        updated.setMaxAge(maxAge);
+        updated.setSmaxAge(smaxAge);
+        updated.setVary(vary);
+        updated.setEtag(etag);
+        updated.setWeakValidation(weakValidation);
+        updated.setAllowCache(allowCache);
+
+        if (this.keyFieldsChanged(updated)) {
             log.debug("domain object updated");
             context.append(new CacheProfileUpdated(this));
         }
-        validate(new HttpValidationNotificationHandler());
+
+        updated.validate(new HttpValidationNotificationHandler());
         DomainRegistry.getCacheProfileValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
+            .validate(updated, new HttpValidationNotificationHandler());
+        return updated;
     }
+
 
     private void setCacheControl(Set<CacheControlValue> cacheControl) {
         Validator.validOptionalCollection(9, cacheControl);
@@ -277,8 +286,14 @@ public class CacheProfile extends Auditable {
         context.append(new CacheProfileRemoved(this));
     }
 
-    public void updateNameAndDescription(String name, String description) {
-        setName(name);
-        setDescription(description);
+    private boolean keyFieldsChanged(CacheProfile o) {
+        return
+            !Objects.equals(allowCache, o.allowCache) ||
+                !Objects.equals(cacheControl, o.cacheControl) ||
+                !Objects.equals(expires, o.expires) ||
+                !Objects.equals(maxAge, o.maxAge) ||
+                !Objects.equals(smaxAge, o.smaxAge) ||
+                !Objects.equals(vary, o.vary) && Objects.equals(etag, o.etag) ||
+                !Objects.equals(weakValidation, o.weakValidation);
     }
 }

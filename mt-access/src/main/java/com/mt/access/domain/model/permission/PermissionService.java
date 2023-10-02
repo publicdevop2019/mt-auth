@@ -38,10 +38,6 @@ public class PermissionService {
         Permission permission = DomainRegistry.getPermissionRepository().get(permissionId);
         permission.secureEndpointRemoveCleanUp(context);
         //clean linked api permission
-        //TODO this is more effective with direct SQL query
-        Set<Permission> allByQuery =
-            QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                .query(e), PermissionQuery.linkedApiPermission(permissionId));
-        allByQuery.forEach(e-> e.removeApiPermission(permissionId));
+        DomainRegistry.getPermissionRepository().removeLinkedApiPermission(permissionId);
     }
 }

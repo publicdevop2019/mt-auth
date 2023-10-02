@@ -20,4 +20,6 @@ public interface NotificationRepository {
     }
 
     Notification query(NotificationId notificationId);
+
+    void markAsDelivered(NotificationId notificationId);
 }

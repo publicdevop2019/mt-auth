@@ -1,7 +1,7 @@
 package com.mt.access.application.token;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
+import com.mt.access.application.client.representation.ClientOAuth2Representation;
 import com.mt.access.application.token.representation.JwtTokenRepresentation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -109,7 +109,7 @@ public class TokenApplicationService {
         } else {
             userDetails = null;
         }
-        ClientSpringOAuth2Representation clientDetails =
+        ClientOAuth2Representation clientDetails =
             ApplicationServiceRegistry.getClientApplicationService()
                 .loadClientByClientId(clientId);
         if (clientDetails == null) {
@@ -135,9 +135,12 @@ public class TokenApplicationService {
             }
         }
         AtomicReference<JwtToken> token = new AtomicReference<>();
+        log.debug("end of all checks");
         CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-            token.set(
-                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails));
+            log.debug("inside transaction");
+            JwtToken grant =
+                DomainRegistry.getTokenService().grant(parameters, clientDetails, userDetails);
+            token.set(grant);
         });
         return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
     }
@@ -161,7 +164,7 @@ public class TokenApplicationService {
                 HttpResponseCode.BAD_REQUEST);
         }
 
-        ClientSpringOAuth2Representation client =
+        ClientOAuth2Representation client =
             ApplicationServiceRegistry.getClientApplicationService()
                 .loadClientByClientId(clientId);
 

@@ -2,13 +2,10 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPasswordChanged;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
-import com.mt.common.domain.model.restful.PatchCommand;
-import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +19,8 @@ public class UserService {
             throw new DefinedRuntimeException("wrong password", "1000",
                 HttpResponseCode.BAD_REQUEST);
         }
-        user.setPassword(password);
-        DomainRegistry.getUserRepository().add(user);
+        User updated = user.updatePassword(password);
+        DomainRegistry.getUserRepository().update(user, updated);
         context
             .append(new UserPasswordChanged(user.getUserId()));
     }
@@ -31,8 +28,8 @@ public class UserService {
     public void forgetPassword(UserEmail email, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
-        user.setPwdResetToken(passwordResetToken, context);
-        DomainRegistry.getUserRepository().add(user);
+        User user1 = user.setPwdResetToken(passwordResetToken, context);
+        DomainRegistry.getUserRepository().update(user, user1);
 
     }
 
@@ -47,19 +44,10 @@ public class UserService {
             throw new DefinedRuntimeException("token mismatch", "1004",
                 HttpResponseCode.BAD_REQUEST);
         }
-        user.setPassword(newPassword);
-        DomainRegistry.getUserRepository().add(user);
+        User user1 = user.updatePassword(newPassword);
+        DomainRegistry.getUserRepository().update(user, user1);
         context
             .append(new UserPasswordChanged(user.getUserId()));
-    }
-
-    public void batchLock(List<PatchCommand> commands, TransactionContext context) {
-        if (Boolean.TRUE.equals(commands.get(0).getValue())) {
-            commands.stream().map(e -> new UserId(e.getPath().split("/")[1])).forEach(e -> {
-                context.append(new UserGetLocked(e));
-            });
-        }
-        DomainRegistry.getUserRepository().batchLock(commands);
     }
 
     public void updateLastLogin(UserLoginRequest command, ProjectId loginProjectId) {

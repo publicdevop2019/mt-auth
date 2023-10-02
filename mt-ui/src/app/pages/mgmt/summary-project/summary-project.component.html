@@ -1,8 +1,8 @@
 <h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'PROJECT_DASHBOARD' |translate}}</h2>
-<app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
-</app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:end;">
-    <app-table-column-config [formId]="formId" ></app-table-column-config>
+<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+    <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px; margin-right: 12px;"
+    (click)="doRefresh()">{{'REFRESH'|translate}}</button>
+    <app-table-column-config [formId]="formId"></app-table-column-config>
 </div>
 <div >
     <div class="table-container">

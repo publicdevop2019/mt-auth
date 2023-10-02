@@ -4,14 +4,12 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import java.io.Serializable;
-import javax.persistence.MappedSuperclass;
 
 /**
  * Generated domain id,
  * format: domain code (app number + first domain letter) + unique long radix value
  * e.g 0U8HPG93IED3
  */
-@MappedSuperclass
 public abstract class GeneratedDomainId extends DomainId implements Serializable {
     protected GeneratedDomainId() {
         super();

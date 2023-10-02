@@ -1,6 +1,7 @@
 package com.mt.access.application.report.representation;
 
 import com.mt.access.domain.model.report.EndpointReport;
+import com.mt.common.domain.model.validate.Checker;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import lombok.Data;
@@ -21,7 +22,9 @@ public class EndpointReportRepresentation {
 
     public EndpointReportRepresentation(EndpointReport report) {
         endpointId = report.getEndpointId().getDomainId();
-        averageRoundTimeInMili = String.valueOf(report.getAverageSuccessRoundTimeInMili());
+        averageRoundTimeInMili =
+            Checker.isNull(report.getAverageSuccessRoundTimeInMili()) ?
+                null : String.valueOf(report.getAverageSuccessRoundTimeInMili());
         totalInvokeCount = String.valueOf(report.getTotalInvokeCount());
         BigDecimal up = new BigDecimal(report.getFailureResponseCount().get());
         BigDecimal divisor = new BigDecimal(report.getTotalInvokeCount());
@@ -37,6 +40,7 @@ public class EndpointReportRepresentation {
         internalServerErrorCount = report.getInternalServerErrorCount().toString();
         serviceUnavailableErrorCount = report.getServiceUnavailableErrorCount().toString();
         notModifiedRequestCount = report.getNotModifiedRequestCount().toString();
-        averageResponseSize = String.valueOf(report.getAverageResponseSize());
+        averageResponseSize = Checker.isNull(report.getAverageResponseSize()) ? null :
+            String.valueOf(report.getAverageResponseSize());
     }
 }
