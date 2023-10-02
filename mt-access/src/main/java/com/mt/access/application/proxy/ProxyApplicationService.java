@@ -22,8 +22,6 @@ public class ProxyApplicationService {
     }
 
     public CheckSumRepresentation checkSumValue() {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             return DomainRegistry.getProxyService().checkSumValue();
-        }));
     }
 }

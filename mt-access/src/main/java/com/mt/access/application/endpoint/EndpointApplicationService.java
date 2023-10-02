@@ -81,8 +81,6 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
                     .query(new EndpointQuery(pageParam));
                 List<EndpointProxyCacheRepresentation> collect =
@@ -91,7 +89,6 @@ public class EndpointApplicationService {
                 EndpointProxyCacheRepresentation.updateDetail(collect);
                 return new SumPagedRep<>(collect,
                     endpoints.getTotalItemCount());
-            });
     }
 
     /**
@@ -107,14 +104,12 @@ public class EndpointApplicationService {
 
     public SumPagedRep<EndpointCardRepresentation> tenantQuery(String queryParam, String pageParam,
                                                                String config) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
             DomainRegistry.getPermissionCheckService()
                 .canAccess(endpointQuery.getProjectIds(), VIEW_API);
             SumPagedRep<Endpoint> rep2 =
                 DomainRegistry.getEndpointRepository().query(endpointQuery);
             return updateDetail(rep2);
-        }));
     }
 
     private static SumPagedRep<EndpointCardRepresentation> updateDetail(
@@ -140,7 +135,6 @@ public class EndpointApplicationService {
     public SumPagedRep<EndpointSharedCardRepresentation> marketQuery(String queryParam,
                                                                      String pageParam,
                                                                      String config) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
             SumPagedRep<Endpoint> query =
                 DomainRegistry.getEndpointRepository().query(endpointQuery);
@@ -148,7 +142,6 @@ public class EndpointApplicationService {
                 new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
             updateDetail(rep.getData());
             return rep;
-        }));
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
@@ -185,19 +178,15 @@ public class EndpointApplicationService {
     public SumPagedRep<EndpointCardRepresentation> mgmtQuery(String queryParam, String pageParam,
                                                              String config) {
 
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
             SumPagedRep<Endpoint> rep =
                 DomainRegistry.getEndpointRepository().query(endpointQuery);
             return updateDetail(rep);
-        }));
     }
 
     public EndpointMgmtRepresentation mgmtQueryById(String id) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             Endpoint endpoint = DomainRegistry.getEndpointRepository().get(new EndpointId(id));
             return new EndpointMgmtRepresentation(endpoint);
-        }));
     }
 
     public Endpoint tenantQueryById(String projectId, String id) {

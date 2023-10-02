@@ -25,7 +25,6 @@ import com.mt.access.domain.model.user.UserRelation;
 import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.access.domain.model.user.event.UserDeleted;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
@@ -48,16 +47,13 @@ public class UserRelationApplicationService {
     }
 
     public UserTenantRepresentation tenantUser(String projectId, String userId) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
-
-            ProjectId projectId1 = new ProjectId(projectId);
-            DomainRegistry.getPermissionCheckService()
-                .canAccess(projectId1, VIEW_TENANT_USER);
-            UserRelation relation =
-                DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
-            User user = DomainRegistry.getUserRepository().get(relation.getUserId());
-            return new UserTenantRepresentation(relation, user);
-        }));
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(projectId1, VIEW_TENANT_USER);
+        UserRelation relation =
+            DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
+        User user = DomainRegistry.getUserRepository().get(relation.getUserId());
+        return new UserTenantRepresentation(relation, user);
     }
 
 
@@ -116,24 +112,18 @@ public class UserRelationApplicationService {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(projectId.getDomainId() + "_onboard_user" + userId.getDomainId(),
                 (context) -> {
-                    //TODO check why nested transactions
-                    UserRelation userRelation1 =
-                        CommonDomainRegistry.getTransactionService()
-                            .returnedTransactionalEvent((innerContext) -> {
-                                Optional<Role> first =
-                                    DomainRegistry.getRoleRepository()
-                                        .query(new RoleQuery(projectId, PROJECT_USER))
-                                        .findFirst();
-                                if (first.isEmpty()) {
-                                    throw new DefinedRuntimeException(
-                                        "unable to find default user role for project",
-                                        "1024",
-                                        HttpResponseCode.BAD_REQUEST);
-                                }
-                                return UserRelation.initNewUser(first.get().getRoleId(), userId,
-                                    projectId);
-                            });
-                    userRelation.set(userRelation1);
+                    Optional<Role> first =
+                        DomainRegistry.getRoleRepository()
+                            .query(new RoleQuery(projectId, PROJECT_USER))
+                            .findFirst();
+                    if (first.isEmpty()) {
+                        throw new DefinedRuntimeException(
+                            "unable to find default user role for project",
+                            "1024",
+                            HttpResponseCode.BAD_REQUEST);
+                    }
+                    userRelation.set(
+                        UserRelation.initNewUser(first.get().getRoleId(), userId, projectId));
                     return null;
                 }, USER_RELATION);
         return userRelation.get();

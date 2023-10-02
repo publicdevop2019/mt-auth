@@ -57,9 +57,6 @@ public class RoleApplicationService {
 
     public SumPagedRep<RoleCardRepresentation> query(String queryParam, String pageParam,
                                                      String skipCount) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
-
                 RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
                 DomainRegistry.getPermissionCheckService()
                     .canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
@@ -68,17 +65,13 @@ public class RoleApplicationService {
                     new SumPagedRep<>(query, RoleCardRepresentation::new);
                 updateName(roleCardRepresentationSumPagedRep);
                 return roleCardRepresentationSumPagedRep;
-            });
     }
 
     public RoleRepresentation query(String projectId, String id) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 ProjectId projectId1 = new ProjectId(projectId);
                 DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
                 Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
                 return new RoleRepresentation(role);
-            });
     }
 
 

@@ -34,13 +34,11 @@ public class CorsProfileApplicationService {
     public SumPagedRep<CorsProfileRepresentation> tenantQuery(String projectId1, String queryParam,
                                                               String pageParam,
                                                               String config) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             ProjectId projectId = new ProjectId(projectId1);
             DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_CORS);
             SumPagedRep<CorsProfile> query = DomainRegistry.getCorsProfileRepository()
                 .query(CorsProfileQuery.tenantQuery(queryParam, pageParam, config));
             return new SumPagedRep<>(query, CorsProfileRepresentation::new);
-        }));
     }
 
     @AuditLog(actionName = CREATE_TENANT_CORS_PROFILE)

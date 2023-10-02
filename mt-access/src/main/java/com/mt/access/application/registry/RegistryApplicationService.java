@@ -20,8 +20,6 @@ public class RegistryApplicationService {
     private EurekaClient discoveryClient;
 
     public List<RegistryCardRepresentation> getInfo() {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 List<Application> registeredApplications =
                     discoveryClient.getApplications().getRegisteredApplications();
                 List<RegistryCardRepresentation> collect =
@@ -40,6 +38,5 @@ public class RegistryApplicationService {
                             e.setName(ee.getName());
                         }));
                 return collect;
-            });
     }
 }

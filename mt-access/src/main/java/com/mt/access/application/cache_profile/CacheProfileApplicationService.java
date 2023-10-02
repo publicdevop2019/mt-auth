@@ -18,7 +18,6 @@ import com.mt.access.domain.model.cache_profile.CacheProfileId;
 import com.mt.access.domain.model.cache_profile.CacheProfileQuery;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.infrastructure.CommonUtility;
 import java.util.Optional;
@@ -35,14 +34,11 @@ public class CacheProfileApplicationService {
                                                                    String queryParam,
                                                                    String pageParam,
                                                                    String config) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
-                ProjectId projectId1 = new ProjectId(projectId);
-                DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
-                SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
-                    .query(CacheProfileQuery.tenantQuery(queryParam, pageParam, config));
-                return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
-            });
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
+        SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
+            .query(CacheProfileQuery.tenantQuery(queryParam, pageParam, config));
+        return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
     }
 
     @AuditLog(actionName = CREATE_TENANT_CACHE_PROFILE)

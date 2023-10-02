@@ -220,8 +220,6 @@ public class UserApplicationService {
     }
 
     public ImageId createProfileAvatar(MultipartFile file, String changeId) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 ImageId imageId =
                     ApplicationServiceRegistry.getImageApplicationService().create(changeId, file);
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
@@ -229,7 +227,6 @@ public class UserApplicationService {
                 User updated = user.updateUserAvatar(new UserAvatar(imageId));
                 DomainRegistry.getUserRepository().update(user, updated);
                 return imageId;
-            });
     }
 
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,

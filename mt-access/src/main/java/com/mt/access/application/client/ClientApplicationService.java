@@ -56,8 +56,6 @@ public class ClientApplicationService {
 
     public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
                                                              String configParam) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
                 DomainRegistry.getPermissionCheckService()
                     .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
@@ -67,7 +65,6 @@ public class ClientApplicationService {
                     new SumPagedRep<>(clients, ClientCardRepresentation::new);
                 updateDetails(rep.getData());
                 return rep;
-            });
     }
 
     private static void updateDetails(List<ClientCardRepresentation> data) {
@@ -117,21 +114,16 @@ public class ClientApplicationService {
     }
 
     public ClientRepresentation tenantQueryById(String clientId, String projectId) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 ProjectId projectId1 = new ProjectId(projectId);
                 DomainRegistry.getPermissionCheckService()
                     .canAccess(projectId1, VIEW_CLIENT);
                 Client client =
                     DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
                 return new ClientRepresentation(client);
-            });
     }
 
     public SumPagedRep<ClientCardRepresentation> mgmtQuery(String queryParam, String pagingParam,
                                                            String configParam) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent(context -> {
                 ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
                 SumPagedRep<Client> clients =
                     DomainRegistry.getClientRepository().query(clientQuery);
@@ -139,7 +131,6 @@ public class ClientApplicationService {
                     new SumPagedRep<>(clients, ClientCardRepresentation::new);
                 updateDetails(rep.getData());
                 return rep;
-            });
     }
 
     /**
@@ -160,11 +151,8 @@ public class ClientApplicationService {
     }
 
     public ClientRepresentation mgmtQueryById(String id) {
-        return CommonDomainRegistry.getTransactionService()
-            .returnedTransactionalEvent((context) -> {
                 Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
                 return new ClientRepresentation(client);
-            });
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {

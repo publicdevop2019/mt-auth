@@ -101,14 +101,12 @@ public class PermissionApplicationService {
     }
 
     public PermissionRepresentation tenantGetById(String projectId, String id) {
-        return CommonDomainRegistry.getTransactionService().returnedTransactionalEvent((context -> {
             ProjectId projectId1 = new ProjectId(projectId);
             DomainRegistry.getPermissionCheckService()
                 .canAccess(projectId1, VIEW_PERMISSION);
             Permission permission =
                 DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
             return new PermissionRepresentation(permission);
-        }));
     }
 
 
