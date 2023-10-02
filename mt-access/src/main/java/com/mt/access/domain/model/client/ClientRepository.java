@@ -7,13 +7,6 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface ClientRepository {
-    /**
-     * special method for login only,
-     * eager load everything
-     * @param clientId client
-     * @return client used for login
-     */
-    LoginOAuthClient getForLogin(ClientId clientId);
 
     default Client get(ClientId clientId) {
         Client client = query(clientId);

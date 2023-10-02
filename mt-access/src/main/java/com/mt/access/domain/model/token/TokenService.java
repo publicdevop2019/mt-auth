@@ -5,7 +5,7 @@ import static com.mt.access.domain.model.ticket.TicketInfo.USER_ID;
 import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
+import com.mt.access.application.client.representation.ClientOAuth2Representation;
 import com.mt.access.application.user.representation.UserSpringRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
@@ -61,7 +61,7 @@ public class TokenService {
     private static final String PROJECT_ID = "projectId";
 
     public JwtToken grant(Map<String, String> parameters,
-                          ClientSpringOAuth2Representation clientDetails,
+                          ClientOAuth2Representation clientDetails,
                           UserSpringRepresentation userDetails) {
         String scope = parameters.get("scope");
         if ("client_credentials".equalsIgnoreCase(parameters.get("grant_type"))
@@ -83,7 +83,7 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantToken(ClientSpringOAuth2Representation clientDetails,
+    private JwtToken grantToken(ClientOAuth2Representation clientDetails,
                                 @Nullable UserSpringRepresentation userDetails,
                                 Set<String> scope) {
         final boolean isClient = Checker.isNull(userDetails);
@@ -189,7 +189,7 @@ public class TokenService {
         }
     }
 
-    private JwtToken grantAuthorizationCode(ClientSpringOAuth2Representation clientDetails,
+    private JwtToken grantAuthorizationCode(ClientOAuth2Representation clientDetails,
                                             String code,
                                             String redirectUrl) {
         Validator.notNull(code);
@@ -224,7 +224,7 @@ public class TokenService {
         );
     }
 
-    private JwtToken grantRefreshToken(ClientSpringOAuth2Representation clientDetails,
+    private JwtToken grantRefreshToken(ClientOAuth2Representation clientDetails,
                                        String refreshToken, @Nullable ProjectId viewTenantId) {
         UserId userId = new UserId(JwtUtility.getUserId(refreshToken));
         Set<PermissionId> permissionIds = new HashSet<>();

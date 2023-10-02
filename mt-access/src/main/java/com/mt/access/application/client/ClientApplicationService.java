@@ -15,14 +15,13 @@ import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
 import com.mt.access.application.client.representation.ClientRepresentation;
-import com.mt.access.application.client.representation.ClientSpringOAuth2Representation;
+import com.mt.access.application.client.representation.ClientOAuth2Representation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.client.ExternalUrl;
-import com.mt.access.domain.model.client.LoginOAuthClient;
 import com.mt.access.domain.model.client.TokenDetail;
 import com.mt.access.domain.model.client.event.ClientAsResourceDeleted;
 import com.mt.access.domain.model.client.event.ClientResourceCleanUpCompleted;
@@ -318,17 +317,17 @@ public class ClientApplicationService {
             }, CLIENT);
     }
 
-    public ClientSpringOAuth2Representation loadClientByClientId(String id) {
+    public ClientOAuth2Representation loadClientByClientId(String id) {
         Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
         log.debug("loading client by id started");
-        LoginOAuthClient client =
-            DomainRegistry.getClientRepository().getForLogin(new ClientId(id));
+        Client client =
+            DomainRegistry.getClientRepository().query(new ClientId(id));
         log.debug("loading client by id end");
         start.stop();
         if (client == null) {
             return null;
         }
-        return new ClientSpringOAuth2Representation(client);
+        return new ClientOAuth2Representation(client);
     }
 
     public void handle(ClientAsResourceDeleted event) {

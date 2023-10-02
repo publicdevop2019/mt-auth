@@ -1,8 +1,8 @@
 package com.mt.access.application.client.representation;
 
+import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.client.GrantType;
-import com.mt.access.domain.model.client.LoginOAuthClient;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.role.RoleId;
 import java.util.Set;
@@ -11,7 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 @Setter
-public class ClientSpringOAuth2Representation {
+public class ClientOAuth2Representation {
     private ClientId clientId;
     @Getter
     private ProjectId projectId;
@@ -26,7 +26,7 @@ public class ClientSpringOAuth2Representation {
     private Set<String> resourceIds;
     private Boolean autoApprove;
 
-    public ClientSpringOAuth2Representation(LoginOAuthClient client) {
+    public ClientOAuth2Representation(Client client) {
         setClientId(client.getClientId());
         setProjectId(client.getProjectId());
         setRoleId(client.getRoleId());

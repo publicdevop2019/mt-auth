@@ -23,12 +23,14 @@ import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
 import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
@@ -540,5 +542,24 @@ public class Client extends Auditable {
             redirectDetail.getRedirectUrls(this);
         }
         return redirectDetail;
+    }
+
+
+    public int getRefreshTokenValiditySeconds() {
+        if (grantTypes.contains(GrantType.PASSWORD)
+            &&
+            grantTypes.contains(GrantType.REFRESH_TOKEN)) {
+            return getTokenDetail().getRefreshTokenValiditySeconds();
+        }
+        return 0;
+    }
+
+    public Set<String> getRegisteredRedirectUri() {
+        if (grantTypes.contains(GrantType.AUTHORIZATION_CODE)) {
+            return getRedirectDetail().getRedirectUrls(this).stream().map(RedirectUrl::getValue)
+                .collect(Collectors.toSet());
+        }
+        return Collections.emptySet();
+
     }
 }
