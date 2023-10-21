@@ -11,10 +11,10 @@ import com.mt.helper.pojo.GrantType;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.TestUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.Collections;
@@ -34,10 +34,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantClientTest{
+public class TenantClientTest {
     private static TenantContext tenantContext;
+
     @BeforeAll
     public static void beforeAll() {
         tenantContext = TestHelper.beforeAllTenant(log);
@@ -95,29 +97,6 @@ public class TenantClientTest{
     }
 
     @Test
-    public void tenant_client_password_will_not_change_when_update_value_empty() {
-        Client client = ClientUtility.createValidBackendClient();
-        client.setVersion(0);
-        client.setGrantTypeEnums(Collections.singleton(GrantType.PASSWORD.name()));
-        client.setAccessTokenValiditySeconds(60);
-        String oldSecret = client.getClientSecret();
-        ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
-        client.setClientSecret(" ");
-        client.setId(HttpUtility.getId(client1));
-        ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
-
-        Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        client.setClientSecret(oldSecret);
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getTenantPasswordToken(
-                client,
-                tenantContext.getCreator(), tenantContext);
-        Assertions.assertEquals(HttpStatus.OK, tokenResponse1.getStatusCode());
-        Assertions.assertNotNull(tokenResponse1.getBody().getValue());
-
-    }
-
-    @Test
     public void tenant_create_client_then_update_it_to_be_resource() {
         Client client = ClientUtility.createValidBackendClient();
         client.setVersion(0);
@@ -143,7 +122,7 @@ public class TenantClientTest{
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> client1 = ClientUtility.createTenantClient(tenantContext, client);
         client.setId(HttpUtility.getId(client1));
-        client.setClientSecret(" ");
+        client.setClientSecret(client.getClientSecret());
         client.setTypes(Collections.singleton(ClientType.FRONTEND_APP.name()));
         ResponseEntity<Void> client2 = ClientUtility.updateTenantClient(tenantContext, client);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
@@ -332,7 +311,7 @@ public class TenantClientTest{
         ResponseEntity<Void> exchange1 =
             ClientUtility.updateTenantClient(tenantContext, clientAsResource);
         Assertions.assertEquals(HttpStatus.OK, exchange1.getStatusCode());
-        Thread.sleep(5*1000);
+        Thread.sleep(5 * 1000);
         //clientAsNonResource can not access endpoint both access token
         ResponseEntity<String> exchange2 = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.GET, request, String.class);
@@ -375,7 +354,7 @@ public class TenantClientTest{
         ResponseEntity<Void> client2 =
             ClientUtility.deleteTenantClient(tenantContext, randomClient);
         Assertions.assertEquals(HttpStatus.OK, client2.getStatusCode());
-        Thread.sleep(5*1000);
+        Thread.sleep(5 * 1000);
         //wait sometime and read endpoint again
         randomEndpointObj.setId(endpointId);
         ResponseEntity<Endpoint> endpointResponseEntity =
@@ -407,11 +386,12 @@ public class TenantClientTest{
         String login = UserUtility.login(tenantContext.getCreator());
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(tenantContext.getProject().getId(),
-                tenantContext.getLoginClientId(), login, AppConstant.TEST_REDIRECT_URL);
+                tenantContext.getLoginClient().getId(), login, AppConstant.TEST_REDIRECT_URL);
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
-                AppConstant.TEST_REDIRECT_URL, tenantContext.getLoginClientId(), "");
+                AppConstant.TEST_REDIRECT_URL, tenantContext.getLoginClient().getId(),
+                tenantContext.getLoginClient().getClientSecret());
         Assertions.assertEquals(HttpStatus.OK, oAuth2AuthorizationToken.getStatusCode());
     }
 }

@@ -287,7 +287,7 @@ public class TenantClientValidationTest{
     }
 
     @Test
-    public void validation_update_secret_type_is_backend_and_secret_is_missing_then_secret_will_not_change() {
+    public void validation_update_secret_is_required() {
         Client client = ClientUtility.createValidBackendClient();
         ResponseEntity<Void> response1 =
             ClientUtility.createTenantClient(tenantContext, client);
@@ -298,7 +298,7 @@ public class TenantClientValidationTest{
         client.setClientSecret(null);
         ResponseEntity<Void> response4 =
             ClientUtility.updateTenantClient(tenantContext, client);
-        Assertions.assertEquals(HttpStatus.OK, response4.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
     }
 
     @Test

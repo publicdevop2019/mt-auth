@@ -79,7 +79,7 @@
     </mat-menu>
     <mat-menu #account="matMenu">
         <div style="margin: 8px 16px;">
-            <div style="display: flex; margin: 0px 8px 0px 0px;">
+            <div style="display: flex;justify-content: space-evenly;">
                 <div style="height: 36px; width: 36px; display: flex; justify-content: center; align-items: center;">
                     <img *ngIf="avatar" mat-card-avatar [src]="avatar"
                         style="height: 24px; width: 24px; border-radius: 50%;" />
@@ -89,7 +89,7 @@
                 </div>
                 <div style="font-size: 14px; color: #673ab7; line-height: 36px; font-weight: 700;">{{name}}</div>
             </div>
-            <div style="margin-left: -12px;">
+            <div>
                 <button mat-menu-item [routerLink]="'my-profile'">
                     <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
                     <span> {{'MY_PROFILE'|translate}}</span>
@@ -110,14 +110,15 @@
         <mat-sidenav #snav [mode]="mobileQuery.matches ? 'over' : 'side'" [fixedInViewport]="mobileQuery.matches"
             [opened]="navSideBar()" (opened)="openedSideBar()" (closed)="closedSideBar()"
             [fixedTopGap]="deviceSvc.topBar" style="width: 256px;">
+            <!-- start of admin panel -->
             <mat-expansion-panel (opened)="openedHandler('admin_nav')" (closed)="closedHander('admin_nav')"
                 *ngIf="hasAuth()" [expanded]="navExpand('admin_nav')">
-                <mat-expansion-panel-header>
+                <mat-expansion-panel-header style="padding-left: 16px;">
                     <mat-panel-title style="font-weight: 600;">
                         {{'AUTH_CENTER'| translate}}
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <mat-nav-list>
+                <mat-nav-list style="padding-top: 0px;">
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                         [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
                         *ngFor="let nav of menuMgmt">
@@ -126,40 +127,17 @@
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
-            <mat-nav-list>
-                <mat-list-item mat-list-item [routerLink]="'welcome'" routerLinkActive="nav-active"
-                    style="font-size: 14px;">
-                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px">home</mat-icon>{{'WELCOME'|
-                    translate}}
-                </mat-list-item>
-                <mat-list-item mat-list-item [routerLink]="'new-project'" routerLinkActive="nav-active"
-                    style="font-size: 14px;">
-                    <mat-icon style="padding-right:8px" color="primary">add_box</mat-icon>{{'REGISTER_MY_PROJECT'| translate}}
-                </mat-list-item>
-            </mat-nav-list>
-            <ng-container *ngIf="projectSvc.viewProject && projectSvc.viewProject.id">
-                <mat-nav-list>
-                    <ng-container *ngFor="let nav of menuTenant">
-                        <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/'+nav.link"
-                            routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                            [queryParams]="preserveURLQueryParams(nav)"
-                            *appRequireP="getPermissionId(projectSvc.viewProject.id,nav.authName) | async">
-                            <mat-icon fontSet="material-icons-outlined"
-                                style="padding-right:8px;">{{nav.icon}}</mat-icon>
-                            {{nav.display| translate}}
-                        </mat-list-item>
-                    </ng-container>
-                </mat-nav-list>
-            </ng-container>
+            <!-- end of admin panel -->
+            <!-- start of shared api -->
             <mat-expansion-panel *ngIf="hasTenants()" (opened)="openedHandler('api_nav')"
                 (closed)="closedHander('api_nav')" [expanded]="navExpand('api_nav')">
-                <mat-expansion-panel-header>
-                    <mat-panel-title>
+                <mat-expansion-panel-header style="padding-left: 16px;">
+                    <mat-panel-title style="align-items: center;">
                         <mat-icon fontSet="material-icons-outlined">code</mat-icon>
-                        {{'ENDPOINT_CENTER'| translate}}
+                        <div style="margin-left: 8px;">{{'ENDPOINT_CENTER'| translate}}</div>
                     </mat-panel-title>
                 </mat-expansion-panel-header>
-                <mat-nav-list>
+                <mat-nav-list style="padding-top: 0px;">
                     <mat-list-item mat-list-item [routerLink]="nav.link" routerLinkActive="nav-active"
                         [preserveFragment]="true" style="font-size: 14px;" [queryParams]="preserveURLQueryParams(nav)"
                         *ngFor="let nav of menuEp">
@@ -167,6 +145,98 @@
                     </mat-list-item>
                 </mat-nav-list>
             </mat-expansion-panel>
+            <!-- end of shared api -->
+            <mat-nav-list style="padding-top: 0px;">
+                <mat-list-item mat-list-item [routerLink]="'welcome'" routerLinkActive="nav-active"
+                    style="font-size: 14px;">
+                    <mat-icon fontSet="material-icons-outlined" style="padding-right:8px">home</mat-icon>{{'WELCOME'|
+                    translate}}
+                </mat-list-item>
+                <mat-list-item mat-list-item (click)="openNewProject()"
+                    style="font-size: 14px;">
+                    <mat-icon style="padding-right:8px" color="primary">add_box</mat-icon>{{'REGISTER_MY_PROJECT'|
+                    translate}}
+                </mat-list-item>
+            </mat-nav-list>
+            <!-- start of tenant nav list -->
+            <ng-container *ngIf="projectSvc.viewProject && projectSvc.viewProject.id">
+                <mat-nav-list style="padding-top: 0px;">
+                    <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-project'"
+                        routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, projectPermissions) | async">
+                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">trending_up</mat-icon>
+                        {{'MY_PROJECT'| translate}}
+                    </mat-list-item>
+                    <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-client'"
+                        routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, clientPermissions) | async">
+                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">apps</mat-icon>
+                        {{'MY_CLIENTS'| translate}}
+                    </mat-list-item>
+                    <mat-expansion-panel (opened)="openedHandler('ep_nav')" (closed)="closedHander('ep_nav')"
+                        [expanded]="navExpand('ep_nav')"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, epPermissions) | async">
+                        <mat-expansion-panel-header style="padding-left: 16px;">
+                            <mat-panel-title style="align-items: center;">
+                                <mat-icon fontSet="material-icons-outlined">api</mat-icon>
+                                <div style="margin-left: 8px;">{{'MY_API'| translate}}</div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <mat-nav-list style="padding-top: 0px;">
+                            <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-api'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
+                                {{'MY_API'| translate}}
+                            </mat-list-item>
+                            <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-cors'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                                *appRequireP="getPermissionId(projectSvc.viewProject.id, corsPermissions) | async">
+                                {{'MY_CORS'| translate}}
+                            </mat-list-item>
+                            <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-cache'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                                *appRequireP="getPermissionId(projectSvc.viewProject.id, cachePermissions) | async">
+                                {{'MY_CACHE'| translate}}
+                            </mat-list-item>
+                        </mat-nav-list>
+                    </mat-expansion-panel>
+                    <mat-expansion-panel (opened)="openedHandler('p_nav')" (closed)="closedHander('p_nav')"
+                        [expanded]="navExpand('p_nav')"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, epPermissions) | async">
+                        <mat-expansion-panel-header style="padding-left: 16px;">
+                            <mat-panel-title style="align-items: center;">
+                                <mat-icon fontSet="material-icons-outlined">policy</mat-icon>
+                                <div style="margin-left: 8px;">{{'MY_AUTHORIZATION'| translate}}</div>
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <mat-nav-list style="padding-top: 0px;">
+                            <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-permission'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
+                                {{'MY_PERMISSION_DASHBOARD'| translate}}
+                            </mat-list-item>
+                            <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-role'"
+                                routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                                *appRequireP="getPermissionId(projectSvc.viewProject.id, corsPermissions) | async">
+                                {{'MY_ROLE_DASHBOARD'| translate}}
+                            </mat-list-item>
+                        </mat-nav-list>
+                    </mat-expansion-panel>
+                    <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-user'"
+                        routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, userPermissions) | async">
+                        <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">people</mat-icon>
+                        {{'MY_USER_DASHBOARD'| translate}}
+                    </mat-list-item>
+                    <mat-list-item mat-list-item [routerLink]="projectSvc.viewProject.id+'/my-admin'"
+                        routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
+                        *appRequireP="getPermissionId(projectSvc.viewProject.id, adminPermissions) | async">
+                        <mat-icon fontSet="material-icons-outlined"
+                            style="padding-right:8px;">admin_panel_settings</mat-icon>
+                        {{'MY_ADMIN_DASHBOARD'| translate}}
+                    </mat-list-item>
+
+                </mat-nav-list>
+            </ng-container>
+            <!-- end of tenant nav list -->
         </mat-sidenav>
 
         <mat-sidenav-content [style.padding-left.px]="mobileQuery.matches ? 15 : 30"

@@ -81,7 +81,6 @@ const routes: Routes = [
       { path: 'revoke-token', component: SummaryRevokeTokenComponent },
       { path: 'cache-mgmt', component: CacheControlComponent },
       { path: 'my-profile', component: MyProfileComponent },
-      { path: 'new-project', component: NewProjectComponent },
       { path: 'api-center', component: ApiCenterComponent },
       { path: 'my-sub-request', component: MyRequestsComponent },
       { path: 'pending-sub-request', component: MyApprovalComponent },

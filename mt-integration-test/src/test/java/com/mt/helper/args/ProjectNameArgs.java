@@ -14,7 +14,7 @@ public class ProjectNameArgs implements ArgumentsProvider {
             Arguments.of("", HttpStatus.BAD_REQUEST),
             Arguments.of("  ", HttpStatus.BAD_REQUEST),
             Arguments.of("<", HttpStatus.BAD_REQUEST),
-            Arguments.of("01", HttpStatus.BAD_REQUEST),
+            Arguments.of("01", HttpStatus.OK),
             Arguments.of("012345678901234567890123456789012345678901234567890123456789"
                 , HttpStatus.BAD_REQUEST)
         );

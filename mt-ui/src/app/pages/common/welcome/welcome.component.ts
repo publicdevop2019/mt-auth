@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
+import { NewProjectComponent } from '../new-project/new-project.component';
 
 @Component({
   selector: 'app-welcome',
@@ -9,7 +11,7 @@ import { ProjectService } from 'src/app/services/project.service';
 })
 export class WelcomeComponent implements OnInit {
 
-  constructor(public projectSvc: ProjectService, private router: Router) { }
+  constructor(public projectSvc: ProjectService, private router: Router, public dialog: MatDialog) { }
 
   ngOnInit(): void {
   }
@@ -27,5 +29,8 @@ export class WelcomeComponent implements OnInit {
   }
   goToEndpoint() {
     this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-api']);
+  }
+  openNewProject() {
+    this.dialog.open(NewProjectComponent, { data: {} });
   }
 }

@@ -46,7 +46,7 @@ public class SameUserLoginPerformanceTest {
             log.info("start of user login");
             ResponseEntity<DefaultOAuth2AccessToken> oAuth2PasswordToken = OAuth2Utility
                 .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID,
-                    AppConstant.EMPTY_CLIENT_SECRET,
+                    AppConstant.COMMON_CLIENT_SECRET,
                     user.getEmail(),
                     user.getPassword());
             if (oAuth2PasswordToken.getStatusCode().is4xxClientError()) {

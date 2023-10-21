@@ -1,10 +1,12 @@
 package com.mt.helper.utility;
 
 
+import static com.mt.helper.AppConstant.COMMON_CLIENT_SECRET;
 import static com.mt.helper.AppConstant.USER_MGMT;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.TenantContext;
+import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.PendingUser;
 import com.mt.helper.pojo.Project;
@@ -86,7 +88,7 @@ public class UserUtility {
     public static ResponseEntity<Void> register(User user) {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         createPendingUser(user);
         return enterActivationCode(user, registerTokenResponse.getBody().getValue());
     }
@@ -134,7 +136,7 @@ public class UserUtility {
     public static ResponseEntity<Void> createPendingUser(User user) {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         PendingUser pendingUser = new PendingUser();
         return createPendingUser(user, registerTokenResponse.getBody().getValue(), pendingUser);
     }
@@ -161,14 +163,14 @@ public class UserUtility {
     public static ResponseEntity<DefaultOAuth2AccessToken> login(String username,
                                                                  String userPwd) {
         return OAuth2Utility
-            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 username,
                 userPwd);
     }
 
     public static String login(User user) {
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2PasswordToken = OAuth2Utility
-            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+            .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 user.getEmail(),
                 user.getPassword());
         String token = oAuth2PasswordToken.getBody().getValue();
@@ -220,15 +222,15 @@ public class UserUtility {
      * create user whom login to tenant project
      *
      * @param project  tenant project
-     * @param clientId sso client id
+     * @param client sso client
      * @return user logged in
      */
-    public static User userLoginToTenant(Project project, String clientId) {
+    public static User userLoginToTenant(Project project, Client client) {
         //create new user then login to created project
         User tenantUser = createUser();
         String user1Token = login(tenantUser);
         ResponseEntity<String> codeResponse =
-            OAuth2Utility.authorizeLogin(project.getId(), clientId, user1Token,
+            OAuth2Utility.authorizeLogin(project.getId(), client.getId(), user1Token,
                 AppConstant.TEST_REDIRECT_URL);
         if (!codeResponse.getStatusCode().is2xxSuccessful()) {
             log.info("authorize failed with status code {}", codeResponse.getStatusCode().value());
@@ -237,7 +239,7 @@ public class UserUtility {
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
             OAuth2Utility.getOAuth2AuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
-                AppConstant.TEST_REDIRECT_URL, clientId, "");
+                AppConstant.TEST_REDIRECT_URL, client.getId(), client.getClientSecret());
         if (!oAuth2AuthorizationToken.getStatusCode().is2xxSuccessful()) {
             log.info("get token failed with status code {}",
                 oAuth2AuthorizationToken.getStatusCode().value());

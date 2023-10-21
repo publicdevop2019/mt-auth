@@ -57,7 +57,7 @@ public class TenantAdminTest{
     public void tenant_can_add_admin() {
         //create new tenant user
         User tenantUser = UserUtility.userLoginToTenant(tenantContext.getProject(),
-            tenantContext.getLoginClientId());
+            tenantContext.getLoginClient());
         //record before add
         ResponseEntity<SumTotal<ProjectAdmin>> exchange3 =
             AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());
@@ -78,7 +78,7 @@ public class TenantAdminTest{
     public void tenant_can_remove_admin() {
         //create new tenant user
         User tenantUser = UserUtility.userLoginToTenant(tenantContext.getProject(),
-            tenantContext.getLoginClientId());
+            tenantContext.getLoginClient());
         //record before remove
         ResponseEntity<SumTotal<ProjectAdmin>> exchange3 =
             AdminUtility.readAdmin(tenantContext.getCreator(), tenantContext.getProject());

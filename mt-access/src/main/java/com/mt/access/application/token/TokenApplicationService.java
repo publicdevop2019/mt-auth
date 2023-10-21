@@ -116,10 +116,7 @@ public class TokenApplicationService {
             throw new DefinedRuntimeException("client not found", "1091",
                 HttpResponseCode.UNAUTHORIZED);
         }
-        if (!DomainRegistry.getEncryptionService()
-            .compare(clientSecret,
-                clientDetails.getClientSecret())
-        ) {
+        if (!Checker.equals(clientSecret, clientDetails.getClientSecret())) {
             throw new DefinedRuntimeException("wrong client password", "1070",
                 HttpResponseCode.UNAUTHORIZED);
         }

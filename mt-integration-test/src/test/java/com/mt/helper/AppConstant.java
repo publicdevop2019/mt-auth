@@ -8,8 +8,7 @@ public class AppConstant {
     public static final String CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID = "0C8AZTODP4H8";
     public static final String CLIENT_ID_RESOURCE_ID = "0C8AZTODP4I0";
     public static final String CLIENT_ID_TEST_ID = "0C8B00CSATJ6";
-    public static final String COMMON_CLIENT_SECRET = "root";
-    public static final String EMPTY_CLIENT_SECRET = "";
+    public static final String COMMON_CLIENT_SECRET = "97b29ceb-c445-4178-bb95-84755f14cba6";
     public static final String ACCOUNT_USERNAME_ADMIN = "admin@sample.com";
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_MALL_ADMIN = "mall@sample.com";

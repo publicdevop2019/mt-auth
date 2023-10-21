@@ -286,7 +286,6 @@ public class ClientApplicationService {
                         .applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
                     Client replace = original.replace(
                         afterPatch.getName(),
-                        null,
                         afterPatch.getPath(),
                         afterPatch.getDescription(),
                         afterPatch.getResourceIndicator(),

@@ -288,7 +288,7 @@ public class Client extends Auditable {
     }
 
     private void setName(String name) {
-        Validator.validRequiredString(5, 50, name);
+        Validator.validRequiredString(1, 50, name);
         this.name = name.trim();
     }
 
@@ -368,7 +368,7 @@ public class Client extends Auditable {
         return updated;
     }
 
-    public Client replace(String name, String secret, String path, String description,
+    public Client replace(String name, String path, String description,
                           Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
                           TokenDetail tokenDetail, TransactionContext context) {
         //load everything to avoid error
@@ -385,7 +385,6 @@ public class Client extends Auditable {
         updated.setPath(path, context);
         updated.setResources(resources, context);
         updated.setAccessible(accessible, context);
-        updated.updateSecret(secret, context);
         updated.setGrantTypes(grantTypes, false, context);
         updated.setTokenDetail(tokenDetail, context);
         updated.validate(new HttpValidationNotificationHandler());
@@ -399,26 +398,21 @@ public class Client extends Auditable {
         (new ClientValidator(this, handler)).validate();
     }
 
-    // for create
+    //for create
     private void initSecret(String secret) {
-        Validator.notNull(types);
-        if (types.contains(ClientType.FRONTEND_APP)) {
-            secret = EMPTY_SECRET;
-        }
         Validator.notNull(secret);
-        this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
+        Validator.notBlank(secret);
+        this.secret = secret;
     }
 
     //for update
     private void updateSecret(String secret, TransactionContext context) {
-        if (secret != null && !secret.isBlank()) {
-            Validator.notNull(types);
+        Validator.notNull(secret);
+        Validator.notBlank(secret);
+        if (!Checker.equals(secret, this.secret)) {
             context
                 .append(new ClientSecretChanged(clientId));
-            if (types.contains(ClientType.FRONTEND_APP)) {
-                secret = EMPTY_SECRET;
-            }
-            this.secret = DomainRegistry.getEncryptionService().encryptedValue(secret);
+            this.secret = secret;
         }
     }
 

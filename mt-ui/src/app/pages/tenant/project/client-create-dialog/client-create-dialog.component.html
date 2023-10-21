@@ -1,0 +1,60 @@
+<div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+    <div style="font-size: 24px; font-weight: 500;">{{'CREATE_CLIENT'|translate}}</div>
+    <button mat-button (click)="dismiss($event)">
+        <mat-icon>close </mat-icon>
+    </button>
+</div>
+<form [formGroup]="createClientFormGroup">
+    <mat-form-field>
+        <mat-label>{{'ENTER_CLIENT_NAME'| translate}}</mat-label>
+        <input matInput formControlName="name" required>
+        <mat-error>{{nameErrorMsg | translate}}</mat-error>
+    </mat-form-field>
+    <div style="margin-bottom: 8px; margin-top: 4px;">{{'SELECT_APP_TYPE_1'|translate}}<span
+            class="mat-required">*</span></div>
+    <mat-error style="font-size: 10px; margin-top: -4px;">{{typeErrorMsg | translate}}</mat-error>
+    <mat-radio-group formControlName="type">
+        <div style="display: flex; flex-direction: row;">
+            <mat-card
+                style="margin: 4px 8px 4px 0px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                (click)="createClientFormGroup.get('type').setValue('FRONTEND_APP')">
+                <div style="display: flex; justify-content: center;">
+                    <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">javascript</mat-icon>
+                </div>
+                <div style="font-size: 14px; flex: 1;">
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'SPA_MSG_1'|translate}}
+                    </div>
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'SPA_MSG_2'|translate}}
+                    </div>
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'SPA_MSG_3'|translate}}
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    <mat-radio-button value="FRONTEND_APP"></mat-radio-button>
+                </div>
+            </mat-card>
+            <mat-card
+                style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                (click)="createClientFormGroup.get('type').setValue('BACKEND_APP')">
+                <div style="display: flex; justify-content: center;">
+                    <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">view_cozy</mat-icon>
+                </div>
+                <div style="font-size: 14px; flex: 1;">
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'WEB_MSG_1'|translate}}
+                    </div>
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'WEB_MSG_2'|translate}}
+                    </div>
+                    <div style="text-align: center; margin-top: 16px; margin-bottom: 16px;">{{'WEB_MSG_3'|translate}}
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: center;">
+                    <mat-radio-button value="BACKEND_APP"></mat-radio-button>
+                </div>
+            </mat-card>
+        </div>
+    </mat-radio-group>
+</form>
+<div style="display: flex; justify-content: end; align-items: center; margin-top: 16px;">
+    <button mat-raised-button (click)="dismiss($event)" style="margin-right: 16px;">{{'CANCEL'|translate}}</button>
+    <button mat-raised-button color="primary" (click)="create()">{{'CREATE'|translate}}</button>
+</div>

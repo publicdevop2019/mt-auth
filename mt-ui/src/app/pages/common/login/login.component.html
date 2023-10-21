@@ -33,7 +33,7 @@
                         <a class="register-login-msg-link" (click)="context='REGISTER'">{{'REGISTER'| translate}}</a>
                     </div>
                     <div class="register-email">
-                        <mat-form-field *ngIf="!isRegister" style="flex: 1;">
+                        <mat-form-field style="flex: 1;">
                             <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
                             <input matInput formControlName="email" autocomplete="username" name="username">
                             <mat-error>{{loginEmailErrorMsg | translate}}</mat-error>

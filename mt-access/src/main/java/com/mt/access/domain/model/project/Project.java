@@ -49,7 +49,7 @@ public class Project extends Auditable {
     }
 
     private void setName(String name) {
-        Validator.validRequiredString(5, 50, name);
+        Validator.validRequiredString(1, 50, name);
         this.name = name;
     }
 

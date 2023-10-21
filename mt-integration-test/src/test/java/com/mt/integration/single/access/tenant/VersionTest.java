@@ -80,7 +80,7 @@ public class VersionTest {
     @Test
     public void client_version_will_not_increase() {
         Client client = ClientUtility.createValidBackendClient();
-        client.setClientSecret(" ");
+        client.setClientSecret(client.getClientSecret());
         ResponseEntity<Void> tenantClient =
             ClientUtility.createTenantClient(tenantContext, client);
         client.setId(HttpUtility.getId(tenantClient));

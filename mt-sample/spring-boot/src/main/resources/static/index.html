@@ -10,6 +10,7 @@
         const authorizeClientId = "0C8OMAMM2QDC";
         const clientCreClientId = "0C8OMAMBGNWG";
         const passwordClientId = "0C8OMAMTVNY8";
+        const commonSecret = "97b29ceb-c445-4178-bb95-84755f14cba6";
         // const apiUrlPrefix = "http://localhost:8111"
         // const authorizeServerUrlPrefix = "http://localhost:4300";
         const authorizeServerUrlPrefix = "https://www.letsauth.cloud";
@@ -40,7 +41,7 @@
         }
         function clientCredentialLogin(clientId) {
             const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
             const formData = new FormData();
             formData.append('grant_type', 'client_credentials');
             formData.append('scope', 'not_used');
@@ -57,7 +58,7 @@
         }
         function getToken(projectId, clientId, code) {
             const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
             const formData = new FormData();
             formData.append('grant_type', 'authorization_code');
             formData.append('code', code);
@@ -77,7 +78,7 @@
         }
         function getPasswordToken(projectId, clientId) {
             const myHeaders = new Headers();
-            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':'));
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
             const formData = new FormData();
             formData.append('grant_type', 'password');
             formData.append('username', document.getElementById('username').value);
@@ -110,56 +111,56 @@
 <body>
     <div>
         <h1 style="padding-left: 24px;">使用场景</h1>
-            <div style="padding: 24px; padding-top: 0px;">
+        <div style="padding: 24px; padding-top: 0px;">
+            <div>
+                <h2>1. 获取客户端权限 OAuth2模式: Client Credential</h2>
+                <button onclick="clientCredentialLogin(clientCreClientId)">获取Token</button>
+            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <div>
+                <h2>2. 用户SSO(单点登录)获取演示项目权限 OAuth2模式:Authorization Code </h2>
+                <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
+            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <div>
+                <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
                 <div>
-                    <h2>1. 获取客户端权限 OAuth2模式: Client Credential</h2>
-                    <button onclick="clientCredentialLogin(clientCreClientId)">获取Token</button>
+                    <label>Username</label>
+                    <input name="username" id="username" />
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input name="password" type="password" id="password" />
+                </div>
+                <div>
+                    <label>MFA Token(选填)</label>
+                    <input name="mfa" id="mfa_code" />
+                    <input name="mfa" id="mfa_id" hidden />
+                </div>
+                <div>
+                    <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
                 </div>
             </div>
-            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-                <div>
-                    <h2>2. 用户SSO(单点登录)获取演示项目权限 OAuth2模式:Authorization Code </h2>
-                    <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
-                </div>
-            </div>
-            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-                <div>
-                    <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
-                    <div>
-                        <label>Username</label>
-                        <input name="username" id="username" />
-                    </div>
-                    <div>
-                        <label>Password</label>
-                        <input name="password" type="password" id="password" />
-                    </div>
-                    <div>
-                        <label>MFA Token(选填)</label>
-                        <input name="mfa" id="mfa_code" />
-                        <input name="mfa" id="mfa_id" hidden />
-                    </div>
-                    <div>
-                        <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
-                    </div>
-                </div>
-            </div>
-            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-                <h2>Token 值</h2>
-                <div id="token"></div>
-            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <h2>Token 值</h2>
+            <div id="token"></div>
+        </div>
     </div>
     <div>
         <h1 style="padding-left: 24px;">演示API调用</h1>
-            <div style="padding: 24px; padding-top: 0px;">
-                <div>
-                    <h2>1. 调用公共API</h2>
-                    <button onclick="callPublicApi()">调用</button>
-                </div>
+        <div style="padding: 24px; padding-top: 0px;">
+            <div>
+                <h2>1. 调用公共API</h2>
+                <button onclick="callPublicApi()">调用</button>
             </div>
-            <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
-                <h2>返回值</h2>
-                <div id="output"></div>
-            </div>
+        </div>
+        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+            <h2>返回值</h2>
+            <div id="output"></div>
+        </div>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
