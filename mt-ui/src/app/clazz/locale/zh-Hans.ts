@@ -456,7 +456,7 @@ export const zhHans = {
     "EXPIRE_REASON": "原因",
     "STATUS_EXPIRED": "已过期，原因：",
     "SUBSCRIBER_ENDPOINT_EXPIRE": "您所订阅的API已过期",
-    "ENDPOINT_CENTER": "共享API",
+    "ENDPOINT_CENTER": "API市场",
     "BASIC_EP_INFO": "基本信息",
     "CATALOG_EP_INFO": "分类",
     "SECURITY_EP_INFO": "安全",
@@ -526,7 +526,7 @@ export const zhHans = {
     "AGENT": "设备",
     "DASHBOARD": "概览",
     "TOTOAL_PROJECTS_REGISTERED": "注册项目总数",
-    "TOTOAL_CLIENTS_REGISTERED": "注册应用总数",
+    "TOTOAL_CLIENTS_REGISTERED": "自建应用总数",
     "TOTOAL_EP_REGISTERED": "注册API总数",
     "TOTOAL_SHARED_EP_REGISTERED": "注册共享API总数",
     "TOTOAL_PUBLIC_EP_REGISTERED": "注册公共API总数",
@@ -595,4 +595,5 @@ export const zhHans = {
     "AUTH_PROPERTIES": "认证配置",
     "ROUTE_PROPERTIES": "路由配置",
     "TOKEN_PROPERTIES": "Token配置",
+    "MY_API_NAV": "API管理",
 }

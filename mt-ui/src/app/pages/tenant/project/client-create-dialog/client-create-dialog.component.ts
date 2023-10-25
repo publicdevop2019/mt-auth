@@ -7,6 +7,7 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { DialogData } from '../../../../components/batch-update-cors/batch-update-cors.component';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Utility } from 'src/app/misc/utility';
 
 @Component({
   selector: 'app-client-create-dialog',
@@ -18,7 +19,7 @@ export class ClientCreateDialogComponent {
   nameErrorMsg: string = undefined;
   typeErrorMsg: string = undefined;
   createClientFormGroup = new FormGroup({
-    name: new FormControl('我的应用', []),
+    name: new FormControl('我的应用' + Utility.getRandomString().substring(0,3), []),
     type: new FormControl('BACKEND_APP', []),
   });
   constructor(

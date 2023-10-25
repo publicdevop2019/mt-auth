@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Logger } from 'src/app/misc/logger';
+import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 
 @Component({
   selector: 'app-client',
@@ -60,6 +61,7 @@ export class ClientComponent {
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: Router,
+    public interceptor: CustomHttpInterceptor
   ) {
     this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IClient>
     if (this.data === undefined) {
@@ -101,7 +103,7 @@ export class ClientComponent {
     this.fg.get('refreshToken').valueChanges.subscribe((next) => {
       if (next) {
         this.fg.get('refreshTokenValiditySeconds').enable()
-      }else{
+      } else {
         this.fg.get('refreshTokenValiditySeconds').disable()
       }
     })
@@ -114,8 +116,14 @@ export class ClientComponent {
       this.fg.get('accessTokenValiditySeconds').setValue(120)
       this.fg.get('refreshToken').setValue(true)
       this.fg.get('refreshTokenValiditySeconds').setValue(1200)
-      this.fg.get('registeredRedirectUri').setValue('http://localhost:3000')
+      this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
       this.fg.get('clientSecret').setValue(Utility.getChangeId())
+      if (createData.from.type === 'BACKEND_APP') {
+        this.fg.get('resourceIndicator').setValue(true)
+        this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '')+'-svc')
+        this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
+
+      }
     }
     if (this.data.context === 'edit') {
       const var0: Observable<any>[] = [];
@@ -159,13 +167,6 @@ export class ClientComponent {
       resourceId: this.data.from.resourceIds,
     }
     this.fg.patchValue(value)
-  }
-  getResourceIds() {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IClient>(this.clientSvc.entityRepo, num, size, `resourceIndicator:1`, by, order, header)
-      }
-    } as IQueryProvider
   }
   convertToPayload(): IClient {
     let formGroup = this.fg;
@@ -229,7 +230,10 @@ export class ClientComponent {
   create() {
     this.enableError = true
     if (this.validateCreateForm()) {
-      this.clientSvc.create(this.convertToPayload(), this.changeId)
+      this.httpProxySvc.createEntity(this.clientSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
+        !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
+        this.goToClientDashboard()
+    });
     }
   }
 
