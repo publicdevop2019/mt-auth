@@ -62,7 +62,10 @@ export class Utility {
     public static noEmptyString(input: string) {
         return input ? input : null
     }
-    public static getChangeId() {
+    public static getChangeId() :string{
         return UUID();
+    }
+    public static getRandomString() :string{
+        return Utility.getChangeId().replace(new RegExp(/[\d-]/g), '')
     }
 }

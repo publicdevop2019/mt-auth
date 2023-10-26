@@ -30,11 +30,11 @@ public class TenantUtility {
             ClientUtility.createTenantClient(tenantContext, ssoLoginClient);
         ssoLoginClient.setId(HttpUtility.getId(tenantClient));
         log.info("project client created, id {}", ssoLoginClient.getId());
-        User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
+        User user1 = UserUtility.userLoginToTenant(project, ssoLoginClient);
         log.info("created user {}", user1.getEmail());
-        User user2 = UserUtility.userLoginToTenant(project, ssoLoginClient.getId());
+        User user2 = UserUtility.userLoginToTenant(project, ssoLoginClient);
         log.info("created user {}", user2.getEmail());
-        tenantContext.setLoginClientId(ssoLoginClient.getId());
+        tenantContext.setLoginClient(ssoLoginClient);
         tenantContext.setUsers(new ArrayList<>());
         tenantContext.getUsers().add(user1);
         tenantContext.getUsers().add(user2);

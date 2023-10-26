@@ -297,7 +297,7 @@ public class UserValidationTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         UserUtility.createPendingUser(user);
         //null
         user.setEmail(null);
@@ -337,7 +337,7 @@ public class UserValidationTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         UserUtility.createPendingUser(user);
         //null
         ResponseEntity<Void> response =
@@ -377,7 +377,7 @@ public class UserValidationTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         UserUtility.createPendingUser(user);
         //null
         user.setCountryCode(null);
@@ -414,7 +414,7 @@ public class UserValidationTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         UserUtility.createPendingUser(user);
         //null
         user.setCountryCode(null);
@@ -465,7 +465,7 @@ public class UserValidationTest{
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         UserUtility.createPendingUser(user);
         //null
         user.setPassword(null);
@@ -514,7 +514,7 @@ public class UserValidationTest{
     public void validation_forget_pwd_email() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         HttpHeaders headers = new HttpHeaders();
@@ -567,7 +567,7 @@ public class UserValidationTest{
     public void validation_reset_pwd_email() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
@@ -634,7 +634,7 @@ public class UserValidationTest{
     public void validation_reset_pwd_token() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);
@@ -712,7 +712,7 @@ public class UserValidationTest{
     public void validation_reset_pwd_password() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);

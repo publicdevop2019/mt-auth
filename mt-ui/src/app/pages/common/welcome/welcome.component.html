@@ -33,7 +33,7 @@
             <mat-card-subtitle>{{'WELCOME_STEP_1_SUB'|translate}}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-actions align="end">
-            <button mat-button color="primary" [routerLink]="'../new-project'">
+            <button mat-button color="primary" (click)="openNewProject()">
                 <div style="display: flex;justify-content: right; align-items: center;">
                     <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_1_ACTION'|translate}}</div>
                     <mat-icon

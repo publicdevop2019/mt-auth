@@ -58,7 +58,7 @@ public class DifUserLoginPerformanceTest {
 
             ResponseEntity<DefaultOAuth2AccessToken> response = OAuth2Utility
                 .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID,
-                    AppConstant.EMPTY_CLIENT_SECRET,
+                    AppConstant.COMMON_CLIENT_SECRET,
                     user.getEmail(),
                     user.getPassword());
 

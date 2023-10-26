@@ -86,7 +86,7 @@ public class UserTest {
     public void user_forget_password() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         User user = UserUtility.createRandomUserObj();
         UserUtility.register(user);

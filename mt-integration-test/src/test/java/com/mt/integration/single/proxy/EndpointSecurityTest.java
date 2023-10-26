@@ -65,7 +65,7 @@ public class EndpointSecurityTest {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
             .getOAuth2ClientCredentialToken(
                 AppConstant.CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         ResponseEntity<Void> pendingUser =
             UserUtility.createPendingUser(user, value, new PendingUser());

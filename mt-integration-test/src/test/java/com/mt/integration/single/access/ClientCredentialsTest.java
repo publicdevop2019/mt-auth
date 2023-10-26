@@ -43,7 +43,7 @@ public class ClientCredentialsTest{
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
             OAuth2Utility.getOAuth2WithClient(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
                 AppConstant.CLIENT_ID_REGISTER_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertNotNull(tokenResponse.getBody().getValue());
 
     }
@@ -53,7 +53,7 @@ public class ClientCredentialsTest{
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
             OAuth2Utility.getOAuth2WithClient(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
                 AppConstant.CLIENT_ID_OAUTH2_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                "invalid_client_secret");
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
 
     }

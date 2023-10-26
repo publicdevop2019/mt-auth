@@ -5,7 +5,6 @@ import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.User;
-import com.mt.helper.utility.AdminUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
 import com.mt.helper.utility.UserUtility;
@@ -51,7 +50,7 @@ public class RevokeTokenTest {
         //before client get blacklisted, client is able to access auth server none token endpoint
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
             OAuth2Utility.getOAuth2PasswordToken(
-                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer1 = tokenResponse1.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
@@ -87,7 +86,7 @@ public class RevokeTokenTest {
         Thread.sleep(1000);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
             OAuth2Utility.getOAuth2PasswordToken(
-                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
@@ -136,7 +135,7 @@ public class RevokeTokenTest {
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse =
             OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.OK, refreshTokenResponse.getStatusCode());
 
         //blacklist user account
@@ -160,7 +159,7 @@ public class RevokeTokenTest {
 
         ResponseEntity<DefaultOAuth2AccessToken> refreshTokenResponse2 =
             OAuth2Utility.getRefreshTokenResponse(refreshToken, AppConstant.CLIENT_ID_LOGIN_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, refreshTokenResponse2.getStatusCode());
         //after resourceOwner obtain new token, access is permitted
         //add thread sleep to prevent token get revoked and generate within a second

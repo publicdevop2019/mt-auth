@@ -68,8 +68,7 @@ public class ClientRepresentation {
             externalUrl = client.getExternalUrl().getValue();
         }
         version = client.getVersion();
-        clientSecret = "masked";
-        hasSecret = true;
+        clientSecret = client.getSecret();
         projectId = client.getProjectId().getDomainId();
         types = new HashSet<>();//avoid lazy load
         types.addAll(client.getTypes());

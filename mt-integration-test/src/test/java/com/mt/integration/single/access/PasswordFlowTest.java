@@ -55,7 +55,7 @@ public class PasswordFlowTest {
     public void get_access_token_only_for_clients_without_refresh_configured() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
             OAuth2Utility.getOAuth2WithUser(AppConstant.GRANT_TYPE_PASSWORD,
-                AppConstant.CLIENT_ID_TEST_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.CLIENT_ID_TEST_ID, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertNotNull(tokenResponse.getBody().getValue());
         Assertions.assertNull(tokenResponse.getBody().getRefreshToken());
@@ -73,7 +73,7 @@ public class PasswordFlowTest {
         ResponseEntity<?> tokenResponse = OAuth2Utility.getOAuth2WithUser(
             AppConstant.GRANT_TYPE_PASSWORD,
             "0C000001",
-            AppConstant.EMPTY_CLIENT_SECRET, AppConstant.ACCOUNT_USERNAME_ADMIN,
+            AppConstant.COMMON_CLIENT_SECRET, AppConstant.ACCOUNT_USERNAME_ADMIN,
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
     }
@@ -82,7 +82,7 @@ public class PasswordFlowTest {
     public void should_not_get_token_when_user_credentials_are_valid_and_client_is_valid_but_grant_type_is_wrong() {
         ResponseEntity<?> tokenResponse =
             OAuth2Utility.getOAuth2WithUser(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
-                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.EMPTY_CLIENT_SECRET,
+                AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
                 AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST,tokenResponse.getStatusCode());
     }

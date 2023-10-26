@@ -17,7 +17,6 @@ public class ClientValidator {
         accessAndType();
         encryptedSecret();
         tokenAndGrantType();
-        typeAndGrantType();
         redirectAndGrantType();
         pathAndType();
         externalUrlAndType();
@@ -57,14 +56,6 @@ public class ClientValidator {
                         .handleError("refresh token validity seconds requires refresh grant");
                 }
             }
-        }
-    }
-
-    private void typeAndGrantType() {
-        if (client.getGrantTypes().contains(GrantType.AUTHORIZATION_CODE)
-            &&
-            !client.getTypes().contains(ClientType.FRONTEND_APP)) {
-            handler.handleError("only frontend client allows authorization code grant");
         }
     }
 

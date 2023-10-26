@@ -1,6 +1,7 @@
 import { MediaMatcher } from '@angular/cdk/layout';
 import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,6 +10,7 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Logger } from 'src/app/misc/logger';
 import { Utility, createImageFromBlob, logout } from 'src/app/misc/utility';
+import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -110,6 +112,14 @@ export class NavBarComponent implements OnInit {
     },
 
   ];
+  epPermissions = ['CREATE_API', 'EDIT_API', 'VIEW_API']
+  cachePermissions = ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE']
+  corsPermissions = ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS']
+  clientPermissions = ['CREATE_CLIENT', 'EDIT_CLIENT', 'VIEW_CLIENT']
+  projectPermissions = ['VIEW_PROJECT_INFO', 'EDIT_PROJECT_INFO']
+  userPermissions = ['EDIT_TENANT_USER', 'VIEW_TENANT_USER']
+  rolePermissions = ['CREATE_ROLE', 'EDIT_ROLE', 'VIEW_ROLE']
+  adminPermissions = ['VIEW_PROJECT_INFO']
   menuTenant: INavElement[] = [
     {
       link: 'my-project',
@@ -124,14 +134,6 @@ export class NavBarComponent implements OnInit {
       display: 'MY_CLIENTS',
       icon: 'apps',
       authName: ['CREATE_CLIENT', 'EDIT_CLIENT', 'VIEW_CLIENT'],
-      params: {
-      },
-    },
-    {
-      link: 'my-api',
-      display: 'MY_API',
-      icon: 'api',
-      authName: ['CREATE_API', 'EDIT_API', 'VIEW_API'],
       params: {
       },
     },
@@ -156,22 +158,6 @@ export class NavBarComponent implements OnInit {
       display: 'MY_USER_DASHBOARD',
       icon: 'people',
       authName: ['EDIT_TENANT_USER', 'VIEW_TENANT_USER'],
-      params: {
-      },
-    },
-    {
-      link: 'my-cors',
-      display: 'MY_CORS',
-      icon: 'strikethrough_s',
-      authName: ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS'],
-      params: {
-      },
-    },
-    {
-      link: 'my-cache',
-      display: 'MY_CACHE',
-      icon: 'cached',
-      authName: ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE'],
       params: {
       },
     },
@@ -231,7 +217,8 @@ export class NavBarComponent implements OnInit {
     public translate: TranslateService,
     public deviceSvc: DeviceService,
     public msgSvc: MessageService,
-    public userMsgSvc: UserMessageService
+    public userMsgSvc: UserMessageService,
+    public dialog: MatDialog
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
     this._mobileQueryListener = () => changeDetectorRef.detectChanges();
@@ -267,13 +254,13 @@ export class NavBarComponent implements OnInit {
   ngOnInit() {
     this.projectSvc.findTenantProjects(0, 40).subscribe(next => {
       this.projectSvc.totalProjects = next.data;
-      if(this.projectSvc.totalProjects && this.projectSvc.totalProjects.length>0){
+      if (this.projectSvc.totalProjects && this.projectSvc.totalProjects.length > 0) {
         Logger.trace("view tenant id {}", this.httpProxySvc.currentUserAuthInfo.viewTenantId)
         this.projectSvc.viewProject = next.data.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
         Logger.debug("view project is {}", this.projectSvc.viewProject)
         this.switchProjectForm.get('viewTenantId').setValue(this.projectSvc.viewProject.id, { emitEvent: false })
         this.totalProjectsOptions = this.projectSvc.totalProjects.map(e => { return { value: e.id, label: e.name } as IOption })
-        
+
         this.projectSvc.findUiPermission(this.projectSvc.viewProject.id).subscribe(next => {
           this.projectSvc.permissionDetail.next(next);
         })
@@ -348,10 +335,13 @@ export class NavBarComponent implements OnInit {
   openDoc() {
     window.open('./docs', '_blank').focus();
   }
-  firstLetter(name:string){
-    if(!name){
+  firstLetter(name: string) {
+    if (!name) {
       return '';
     }
-    return name.substring(0,1).toUpperCase()
+    return name.substring(0, 1).toUpperCase()
+  }
+  openNewProject() {
+    this.dialog.open(NewProjectComponent, { data: {} });
   }
 }

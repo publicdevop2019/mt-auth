@@ -143,3 +143,20 @@ th.mat-sort-header-sorted {
   margin: 0px auto;
   padding: 20px 24px 50px 24px;
 }
+
+.mat-expansion-panel-header.mat-expanded {
+  height: 48px;
+}
+
+/* for nav bar */
+.mat-expansion-panel-body {
+  padding: 0 24px 8px !important;
+}
+
+.mat-required {
+  color: #f44336;
+  padding-left: 4px;
+}
+.text-disabled{
+  color: rgba(0,0,0,.54);
+}

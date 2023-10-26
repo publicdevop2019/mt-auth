@@ -34,17 +34,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcClientRepository implements ClientRepository {
 
-    private static final String SELECT_CLIENT =
-        "SELECT c.accessible_, c.auto_approve, c.domain_id, c.description, c.name, c.path, " +
-            "c.project_id, c.role_id, c.secret, c.access_token_validity_seconds, c.refresh_token_validity_seconds, c.external_url, cgtm.grant_type AS grant_type, " +
-            "ctm.type AS type, crum.redirect_url AS redirect_url, rm.domain_id AS resource_id, erm.domain_id AS external_resource_id " +
-            "FROM client c " +
-            "LEFT JOIN client_grant_type_map cgtm ON c.id = cgtm.id " +
-            "LEFT JOIN client_type_map ctm ON c.id = ctm.id " +
-            "LEFT JOIN client_redirect_url_map crum ON c.id = crum.id " +
-            "LEFT JOIN resources_map rm ON c.id = rm.id " +
-            "LEFT JOIN external_resources_map erm ON c.id = erm.id " +
-            "WHERE c.domain_id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL =
         "SELECT * FROM client c WHERE %s ORDER BY c.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
@@ -374,7 +363,7 @@ public class JdbcClientRepository implements ClientRepository {
         }
         if (Checker.notNull(query.getResourceFlag())) {
             String byParentId =
-                query.getResourceFlag() ? "c.accessible = true" : "c.accessible = false";
+                query.getResourceFlag() ? "c.accessible_ = true" : "c.accessible_ = false";
             whereClause.add(byParentId);
         }
         if (Checker.notNull(query.getName())) {

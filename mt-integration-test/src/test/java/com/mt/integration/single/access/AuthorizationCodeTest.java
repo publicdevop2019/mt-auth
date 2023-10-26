@@ -55,7 +55,7 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken =
             OAuth2Utility
                 .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
-                    AppConstant.CLIENT_ID_OM_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                    AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
         Assertions.assertNotNull(authorizationToken.getBody());
         log.debug("token is {}", authorizationToken.getBody().getValue());
@@ -74,7 +74,7 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
             .getOAuth2AuthorizationToken(UUID.randomUUID().toString(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI,
-                AppConstant.CLIENT_ID_OM_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
@@ -88,7 +88,7 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
             .getOAuth2AuthorizationToken(code, UUID.randomUUID().toString(),
                 AppConstant.CLIENT_ID_OM_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
@@ -102,7 +102,7 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken =
             OAuth2Utility.getOAuth2WithCode(
                 AppConstant.GRANT_TYPE_PASSWORD, code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
-                AppConstant.CLIENT_ID_OM_ID, AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
@@ -116,7 +116,7 @@ public class AuthorizationCodeTest {
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
             .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_LOGIN_ID,
-                AppConstant.EMPTY_CLIENT_SECRET);
+                AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
 
     }
