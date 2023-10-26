@@ -4,7 +4,7 @@
         </div>
         <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_ENDPOINT_SUB'|translate}}</div>
     </div>
-    <button mat-fab color="primary" (click)="openBottomSheet()"
+    <button mat-fab color="primary" (click)="createNewEndpoint()"
         *ngIf="extractResult(canDo('CREATE_API')) |async ">{{'ADD'|translate}}</button>
 </div>
 <ng-container *ngIf="extractResult(canDo('VIEW_API'))|async">

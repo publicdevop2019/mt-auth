@@ -135,7 +135,8 @@ import { UserNotificationComponent } from './pages/common/user-notification/user
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
-import { ClientCreateDialogComponent } from './pages/tenant/project/client-create-dialog/client-create-dialog.component';
+import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
+import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -219,6 +220,7 @@ import { ClientCreateDialogComponent } from './pages/tenant/project/client-creat
     ErrorLookupComponent,
     DashboardComponent,
     ClientCreateDialogComponent,
+    EndpointCreateDialogComponent,
 
   ],
   imports: [
