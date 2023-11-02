@@ -53,7 +53,7 @@
             </mat-card>
             <mat-card
                 style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
-                (click)="fg.get('type').setValue('PUBLIC_APP')">
+                (click)="fg.get('type').setValue('PUBLIC_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">lock_open</mat-icon>
                 </div>
@@ -66,12 +66,12 @@
                     </div>
                 </div>
                 <div style="display: flex; justify-content: center;">
-                    <mat-radio-button value="PUBLIC_APP"></mat-radio-button>
+                    <mat-radio-button value="PUBLIC_API"></mat-radio-button>
                 </div>
             </mat-card>
             <mat-card
                 style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
-                (click)="fg.get('type').setValue('API_PRIVATE')">
+                (click)="fg.get('type').setValue('PRIVATE_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">visibility_off</mat-icon>
                 </div>
@@ -84,7 +84,7 @@
                     </div>
                 </div>
                 <div style="display: flex; justify-content: center;">
-                    <mat-radio-button value="API_PRIVATE"></mat-radio-button>
+                    <mat-radio-button value="PRIVATE_API"></mat-radio-button>
                 </div>
             </mat-card>
         </div>

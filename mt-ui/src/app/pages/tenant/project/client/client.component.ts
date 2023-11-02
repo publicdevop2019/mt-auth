@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
@@ -12,7 +12,6 @@ import { IClient, IClientCreate } from 'src/app/misc/interface';
 import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
-import { Logger } from 'src/app/misc/logger';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 
 @Component({

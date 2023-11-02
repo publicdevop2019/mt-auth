@@ -20,7 +20,7 @@ export class EndpointCreateDialogComponent {
   nameErrorMsg: string = undefined;
   typeErrorMsg: string = undefined;
   fg = new FormGroup({
-    name: new FormControl('我的API' + Utility.getRandomString().substring(0,3), []),
+    name: new FormControl('我的API_' + Utility.getRandomString().substring(0,3), []),
     type: new FormControl('PROTECTED_NONE_SHARED_API', []),
   });
   constructor(

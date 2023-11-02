@@ -100,12 +100,10 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       this.columnList = b.result ? {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         resourceId: 'PARENT_CLIENT',
         path: 'URL',
         method: 'METHOD',
         edit: 'EDIT',
-        clone: 'CLONE',
         delete: 'DELETE',
         expire: 'EXPIRE',
         expireReason: 'EXPIRE_REASON',
@@ -113,7 +111,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       } : {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         resourceId: 'PARENT_CLIENT',
         path: 'URL',
         method: 'METHOD',
@@ -138,7 +135,12 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       }
     })
   }
-
+  editEndpoint(id: string): void {
+    this.entitySvc.readById(id).subscribe(next => {
+      const data = <IDomainContext<IEndpoint>>{ context: 'edit', from: next, params: this.params }
+      this.router.navigate(['home', 'endpoint-detail'], { state: data })
+    })
+  }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
