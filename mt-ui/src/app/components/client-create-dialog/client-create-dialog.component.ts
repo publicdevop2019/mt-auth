@@ -4,7 +4,7 @@ import { FormInfoService } from 'mt-form-builder';
 import { Validator } from 'src/app/misc/validator';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
-import { DialogData } from '../../../../components/batch-update-cors/batch-update-cors.component';
+import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Utility } from 'src/app/misc/utility';

@@ -1,46 +1,152 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="goToEndpointDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
-</div>
-<mat-horizontal-stepper >
-    <mat-step label="{{'CATALOG_EP_INFO'|translate}}"> 
-        <div style="width: 200px;">
-            <lib-factory [formId]="formId"></lib-factory>
-        </div>
-        <mat-card *ngIf="isExternal===false" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'INTERNAL_PRIVATE_NOTE'|translate}}</div>
-        </mat-card>
-        <mat-card *ngIf="isExternal===true && isSecured===false" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'EXTERNAL_PUBLIC_NOTE'|translate}}</div>
-        </mat-card>
-        <mat-card *ngIf="isExternal===true && isSecured===true" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'EXTERNAL_PROTECTED_NOTE'|translate}}</div>
-        </mat-card>
-        <mat-card *ngIf="isShared===true" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'EXTERNAL_SHARED_PUBLIC_NOTE'|translate}}</div>
-        </mat-card>
-    </mat-step>
-    <mat-step label="{{'BASIC_EP_INFO'|translate}}">
-            <lib-factory [formId]="basicFormId"></lib-factory>
-    </mat-step>
-    <mat-step label="{{'SECURITY_EP_INFO'|translate}}">
-        <lib-factory [formId]="secureFormId"></lib-factory>
-    </mat-step>
-    <mat-step label="{{'PERFORMANCE_EP_INFO'|translate}}">
-        <lib-factory [formId]="performanceFormId"></lib-factory>
-        <mat-card *ngIf="performanceWarnning" style="display: flex; align-items: center; margin-bottom: 8px;">
-            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-            <div>{{'SHARED_RATE_LIMIT_MSG'|translate}}</div>
-        </mat-card>
-    </mat-step>
-</mat-horizontal-stepper>
+    <form [formGroup]="fg">
+        <div style="display: flex; flex-direction: row; align-items: center; margin-bottom: 24px;">
+            <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">{{getIcon()}}</mat-icon>
+            <div style="margin-left: 16px;">
+                <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+                    {{fg.get('name').value}}
+                </div>
+                <div style="font-size: 14px;" class="text-disabled">
+                    {{fg.get('type').value | translate}}
+                </div>
+            </div>
 
-<button mat-raised-button color="primary" *ngIf="data.context === 'edit'" class="app-btn"
-    (click)="update()">{{'UPDATE'|translate}}</button>
-<button mat-raised-button color="primary" class="app-btn" (click)="create()"
-    *ngIf="data.context === 'clone' || data.context === 'new'">{{'CREATE'|translate}}</button>
+        </div>
+        <mat-tab-group>
+            <mat-tab label="{{'BASIC_ENDPOINT_SETTING'|translate}}">
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'BASIC_CLIENT_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+                            <input matInput formControlName="name">
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px;">{{nameErrorMsg|translate}}</div>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_RESOURCE_ID'|translate}}<span class="mat-required">*</span></mat-label>
+                            <mat-select formControlName="resourceId">
+                                <mat-option *ngFor="let option of options" [value]="option.value">
+                                    {{option.label}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px">{{resourceIdErrorMsg|translate}}
+                        </div>
+                        <div style="margin-bottom: 12px;">
+                            <label>{{'IS_WEBSOCKET'|translate}}<span class="mat-required">*</span></label>
+                            <div style="margin-top: 8px;">
+                                <mat-radio-group formControlName="isWebsocket">
+                                    <mat-radio-button value="yes" style="margin-right: 12px;">{{'YES' |
+                                        translate}}</mat-radio-button>
+                                    <mat-radio-button value="no">{{'NO' | translate}}</mat-radio-button>
+                                </mat-radio-group>
+                                <div style="font-size: 12px; color: red; margin-top: 4px;">
+                                    {{websocketErrorMsg|translate}}
+                                </div>
+                            </div>
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_METHOD'|translate}}</mat-label>
+                            <mat-select formControlName="method">
+                                <mat-option value="GET">
+                                    {{'HTTP_GET'|translate}}
+                                </mat-option>
+                                <mat-option value="POST">
+                                    {{'HTTP_POST'|translate}}
+                                </mat-option>
+                                <mat-option value="PUT">
+                                    {{'HTTP_PUT'|translate}}
+                                </mat-option>
+                                <mat-option value="DELETE">
+                                    {{'HTTP_DELETE'|translate}}
+                                </mat-option>
+                                <mat-option value="PATCH">
+                                    {{'HTTP_PATCH'|translate}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{methodErrorMsg|translate}}
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_ENDPOINT'| translate}}<span class="mat-required">*</span></mat-label>
+                            <input matInput formControlName="path">
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{pathErrorMsg|translate}}</div>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_DESCRIPTION'| translate}}</mat-label>
+                            <textarea matInput formControlName="description"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'SECURITY_EP_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="csrf">
+                                {{'CSRF_ENABLED'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="cors">
+                                {{'CORS_ENABLED'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_CORS_PROFILE'|translate}}</mat-label>
+                            <mat-select formControlName="corsProfile" multiple>
+                                <mat-option *ngFor="let option of corsOptions" [value]="option.value">
+                                    {{option.label}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{corsIdErrorMsg|translate}}</div>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'PERFORMANCE_EP_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_CACHE_PROFILE'|translate}}</mat-label>
+                            <mat-select formControlName="cacheProfile" multiple>
+                                <mat-option *ngFor="let option of cacheOptions" [value]="option.value">
+                                    {{option.label}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'REPLENISH_RATE'| translate}}<span class="mat-required">*</span></mat-label>
+                            <input matInput formControlName="replenishRate">
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{replenishRateErrorMsg|translate}}
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'BURST_CAPACITY'| translate}}<span class="mat-required">*</span></mat-label>
+                            <input matInput formControlName="burstCapacity">
+                        </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{burstCapacityErrorMsg|translate}}
+                        </div>
+                        <mat-card *ngIf="performanceWarnning"
+                            style="display: flex; align-items: center; margin-bottom: 8px; margin-top: 12px;">
+                            <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+                            <div>{{'SHARED_RATE_LIMIT_MSG'|translate}}</div>
+                        </mat-card>
+                    </div>
+                </div>
+
+            </mat-tab>
+        </mat-tab-group>
+        <div style="display: flex; justify-content: center; margin-top: 36px;">
+            <button mat-raised-button color="primary" (click)="update()" style="width: 150px;"
+                *ngIf="data.context === 'edit'">{{'UPDATE'|translate}}</button>
+            <button mat-raised-button color="primary" (click)="create()" style="width: 150px;"
+                *ngIf="data.context === 'new' || data.context === 'clone'">{{'CREATE'|translate}}</button>
+
+        </div>
+    </form>
+</div>

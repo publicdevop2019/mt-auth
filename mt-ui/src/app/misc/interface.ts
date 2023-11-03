@@ -24,6 +24,11 @@ export interface ICorsProfile extends IIdBasedEntity {
     exposedHeaders: string[];
     maxAge: number;
 }
+export interface IEndpointCreate{
+    name: string;
+    type: string;
+    projectId: string;
+}
 export interface IEndpoint extends IIdBasedEntity {
     resourceId: string;
     resourceName?: string;

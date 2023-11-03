@@ -10,7 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatOptionModule } from '@angular/material/core';
+import { ErrorStateMatcher, MatOptionModule, ShowOnDirtyErrorStateMatcher } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -135,7 +135,8 @@ import { UserNotificationComponent } from './pages/common/user-notification/user
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
-import { ClientCreateDialogComponent } from './pages/tenant/project/client-create-dialog/client-create-dialog.component';
+import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
+import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -219,6 +220,7 @@ import { ClientCreateDialogComponent } from './pages/tenant/project/client-creat
     ErrorLookupComponent,
     DashboardComponent,
     ClientCreateDialogComponent,
+    EndpointCreateDialogComponent,
 
   ],
   imports: [
@@ -318,6 +320,10 @@ import { ClientCreateDialogComponent } from './pages/tenant/project/client-creat
       provide: HTTP_INTERCEPTORS,
       useClass: OfflineInterceptor,
       multi: true
+    },
+    {
+      provide: ErrorStateMatcher,
+      useClass: ShowOnDirtyErrorStateMatcher
     },
     HttpProxyService, MgmtClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]

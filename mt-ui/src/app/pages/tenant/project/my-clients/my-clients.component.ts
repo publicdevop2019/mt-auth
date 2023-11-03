@@ -10,7 +10,7 @@ import { IClient, IClientCreate } from 'src/app/misc/interface';
 import { IDomainContext, ISumRep } from 'src/app/clazz/summary.component';
 import { map, take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
-import { ClientCreateDialogComponent } from 'src/app/pages/tenant/project/client-create-dialog/client-create-dialog.component';
+import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';
 import { Logger } from 'src/app/misc/logger';
 import { Observable, Subscription, combineLatest } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';

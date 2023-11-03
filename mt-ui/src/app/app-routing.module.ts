@@ -46,6 +46,7 @@ import { UserNotificationComponent } from './pages/common/user-notification/user
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
+import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -91,6 +92,7 @@ const routes: Routes = [
       { path: 'sys-message-center', component: SummaryNotificationComponent },
       { path: 'dashboard', component: DashboardComponent },
       { path: 'client-detail', component: ClientComponent },
+      { path: 'endpoint-detail', component: EndpointComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-cache', component: MyCacheComponent },

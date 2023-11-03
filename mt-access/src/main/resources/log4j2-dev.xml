@@ -48,7 +48,7 @@
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>
-        <Logger name="org.springframework.web" level="info" additivity="false">
+        <Logger name="org.springframework.web" level="debug" additivity="false">
             <appender-ref ref="console"/>
             <appender-ref ref="fileLogger"/>
         </Logger>

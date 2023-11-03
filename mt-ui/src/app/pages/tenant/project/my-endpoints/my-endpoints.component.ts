@@ -1,7 +1,7 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { filter, map, switchMap, take } from 'rxjs/operators';
@@ -19,6 +19,8 @@ import { ProjectService } from 'src/app/services/project.service';
 import { EndpointComponent } from '../endpoint/endpoint.component';
 import { IEndpoint } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-create-dialog/endpoint-create-dialog.component';
+import { IDomainContext } from 'src/app/clazz/summary.component';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -27,6 +29,7 @@ import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
 export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
   public formId = "myApiTableColumnConfig";
   columnList: any = {};
+  params = {};
   sheetComponent = EndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
   public allClientList: IOption[];
@@ -58,8 +61,15 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     public fis: FormInfoService,
     public dialog: MatDialog,
     public route: ActivatedRoute,
+    private router: Router,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
+    const sub = this.projectId.subscribe(id => {
+      this.clientSvc.setProjectId(id)
+      this.params['projectId'] = id;
+      if (this.dataSource)
+        this.dataSource.data = []
+    });
     const sub2 = this.canDo('VIEW_API').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
@@ -84,16 +94,16 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       }
     })
     this.subs.add(sub4);
+    this.subs.add(sub2);
+    this.subs.add(sub);
     const sub3 = this.canDo('EDIT_API').subscribe(b => {
       this.columnList = b.result ? {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         resourceId: 'PARENT_CLIENT',
         path: 'URL',
         method: 'METHOD',
         edit: 'EDIT',
-        clone: 'CLONE',
         delete: 'DELETE',
         expire: 'EXPIRE',
         expireReason: 'EXPIRE_REASON',
@@ -101,7 +111,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
       } : {
         id: 'ID',
         name: 'NAME',
-        description: 'DESCRIPTION',
         resourceId: 'PARENT_CLIENT',
         path: 'URL',
         method: 'METHOD',
@@ -116,9 +125,26 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     super.updateSummaryData(next);
     this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
   }
+
+  createNewEndpoint() {
+    const dialogRef = this.dialog.open(EndpointCreateDialogComponent, { data: {} });
+    dialogRef.afterClosed().subscribe(next => {
+      if (next !== undefined) {
+        const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: this.params }
+        this.router.navigate(['home', 'endpoint-detail'], { state: data })
+      }
+    })
+  }
+  editEndpoint(id: string): void {
+    this.entitySvc.readById(id).subscribe(next => {
+      const data = <IDomainContext<IEndpoint>>{ context: 'edit', from: next, params: this.params }
+      this.router.navigate(['home', 'endpoint-detail'], { state: data })
+    })
+  }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
+  //TODO keep it for now until batch operation added
   batchOperation() {
     this.dialog.open(BatchUpdateCorsComponent, {
       width: '500px',
