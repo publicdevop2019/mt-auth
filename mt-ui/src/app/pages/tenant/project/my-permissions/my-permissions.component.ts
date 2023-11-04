@@ -74,7 +74,7 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     private authSvc: AuthService,
   ) {
     super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 5);
-    (!this.authSvc.advancedMode) && this.deviceSvc.refreshSummary.subscribe(() => {
+    this.deviceSvc.refreshSummary.subscribe(() => {
       const search = {
         value: 'types:COMMON,parentId:null',
         resetPage: false
@@ -115,10 +115,6 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
         id: 'ID',
         name: 'NAME',
         type: 'TYPE',
-      }
-      if (!this.authSvc.advancedMode) {
-        delete temp.clone
-        delete temp.type
       }
       this.columnList = temp
       this.initTableSetting();

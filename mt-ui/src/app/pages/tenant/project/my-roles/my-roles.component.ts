@@ -121,10 +121,6 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<INewRole, INe
         tenantId: 'TENANT_ID',
         roleType: 'TYPE',
       }
-      if (!this.authSvc.advancedMode) {
-        delete temp.clone
-        delete temp.roleType
-      }
       if (next[0] !== '0P8HE307W6IO') {
         delete temp.tenantId
       }
