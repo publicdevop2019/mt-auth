@@ -98,7 +98,7 @@
                         </div>
                         <mat-form-field>
                             <mat-label>{{'SELECT_CORS_PROFILE'|translate}}</mat-label>
-                            <mat-select formControlName="corsProfile" multiple>
+                            <mat-select formControlName="corsProfile">
                                 <mat-option *ngFor="let option of corsOptions" [value]="option.value">
                                     {{option.label}}
                                 </mat-option>
@@ -113,7 +113,7 @@
                     <div style="width: 536px;">
                         <mat-form-field>
                             <mat-label>{{'SELECT_CACHE_PROFILE'|translate}}</mat-label>
-                            <mat-select formControlName="cacheProfile" multiple>
+                            <mat-select formControlName="cacheProfile">
                                 <mat-option *ngFor="let option of cacheOptions" [value]="option.value">
                                     {{option.label}}
                                 </mat-option>
