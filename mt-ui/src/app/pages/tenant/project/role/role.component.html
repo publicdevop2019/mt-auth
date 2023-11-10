@@ -1,52 +1,65 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="goToRoleDashboard()" mat-button style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
-</div>
-<ng-container *ngIf="data.context === 'clone' || data.context === 'new'">
-    <lib-factory [formId]="formId"></lib-factory>
-    <h4>{{'SELECT_PERMISIONS'|translate}}</h4>
-    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="commonPermissionFg">
-    </app-dynamic-tree>
-    <h4>{{'SELECT_API_PERMISIONS'|translate}}</h4>
-    <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg">
-    </app-dynamic-tree>
-    <lib-factory [formId]="formIdShared"></lib-factory>
-    <button mat-raised-button color="primary" class="app-btn" (click)="create()">{{'CREATE'|translate}}</button>
-</ng-container>
-<ng-container *ngIf="data.context === 'edit'">
+    <div style="font-size: 24px; margin: 16px 0px;">{{fg.get('name').value}}</div>
+    <div style="font-size: 16px; margin-bottom: 32px;"><span
+            style="margin-right: 8px;">{{'ID'|translate}}</span><span>{{fg.get('id').value}}</span></div>
     <mat-tab-group mat-align-tabs="start" dynamicHeight>
-        <mat-tab label="{{'BASIC_INFO'|translate}}"  #basicTab>
-            <div style="margin-top: 16px;">
-                <lib-factory [formId]="formId"></lib-factory>
+        <mat-tab label="{{'BASIC_INFO'|translate}}" [formGroup]="fg">
+            <div style="margin-top: 32px; width: 536px;">
+                <mat-form-field>
+                    <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+                    <input matInput formControlName="name">
+                    <mat-error>{{nameErrorMsg | translate}}</mat-error>
+                </mat-form-field>
+                <mat-form-field>
+                    <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
+                    <textarea matInput formControlName="description"></textarea>
+                </mat-form-field>
+                <app-paginated-select [fg]="fg" [label]="'PARENT_ID'|translate" [key]="'parentId'"
+                    [loadElements]="getParents()" style="flex: 1;" [options]="parentOptions">
+                </app-paginated-select>
+            </div>
+            <div style="display: flex;justify-content: start; margin-top: 32px;">
+                <button mat-raised-button style="width: 100px;" color="primary" class="app-btn"
+                    (click)="update()">{{'UPDATE'|translate}}</button>
             </div>
         </mat-tab>
-        <mat-tab label="{{'COMMON_PERMISSIONS'|translate}}" #commonTab>
-            <div style="margin-top: 16px;">
-                <mat-chip-list >
-                    <mat-chip *ngFor="let e of commonPermissions()" [removable]="true">
-                        {{parseId(e)}}
-                        <mat-icon matChipRemove (click)="commonRemove(e)">cancel</mat-icon>
-                    </mat-chip>
-                </mat-chip-list>
-                <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="commonPermissionFg" #treeCommon
-                   ></app-dynamic-tree>
+        <mat-tab label="{{'TAB_PERMISSIONS'|translate}}">
+            <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px;">
+                <div style="margin: 32px 0px 16px 0px;">{{"ROLE_PERMISSION_NOTE"|translate}}</div>
+                <div>
+                    <button mat-raised-button style="width: 100px;" color="primary" class="app-btn"
+                    (click)="addPermission()">{{'ADD_PERMISSION'|translate}}</button>
+                </div>
             </div>
-        </mat-tab>
-        <mat-tab label="{{'API_PERMISSIONS'|translate}}" #apiTab>
-            <div style="margin-top: 16px;">
-                <mat-chip-list >
-                    <mat-chip *ngFor="let e of apiPermissions()" [removable]="true">
-                        {{parseId(e)}}
-                        <mat-icon matChipRemove (click)="apiRemove(e)">cancel</mat-icon>
-                    </mat-chip>
-                </mat-chip-list>
-                <app-dynamic-tree [loadRoot]="loadRootApi" [loadChildren]="loadChildrenApi" [fg]="apiPermissionFg"
-                   ></app-dynamic-tree>
-                <lib-factory [formId]="formIdShared"></lib-factory>
+            <div class="table-container">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{columnList['name']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.name}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{columnList['type']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.type | translate}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon (click)="removePerm(row)" [color]="'warn'">delete_outline</mat-icon>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                </table>
             </div>
         </mat-tab>
     </mat-tab-group>
-    <button mat-raised-button color="primary" *ngIf="data.context === 'edit'" class="app-btn"
-        (click)="update()">{{'UPDATE'|translate}}</button>
-</ng-container>
+</div>

@@ -64,7 +64,7 @@ import { TableColumnConfigComponent } from './components/table-column-config/tab
 import { TreeNodeDirective } from './directive/tree-node.directive';
 import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
 import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
-import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.component';
+import { ApiCenterComponent } from './components/market/api-center/api-center.component';
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
@@ -79,7 +79,6 @@ import { MyPermissionsComponent } from './pages/tenant/project/my-permissions/my
 import { MyProjectComponent } from './pages/tenant/project/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/project/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.component';
-import { PermissionComponent } from './pages/tenant/project/permission/permission.component';
 import { RoleComponent } from './pages/tenant/project/role/role.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
@@ -123,10 +122,10 @@ import { DesignComponent } from './pages/document/design/design.component';
 import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
-import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-request/subscribe-request.component';
-import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
-import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
-import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
+import { SubscribeRequestComponent } from './components/market/subscribe-request/subscribe-request.component';
+import { MyRequestsComponent } from './components/market/my-requests/my-requests.component';
+import { MyApprovalComponent } from './components/market/my-approval/my-approval.component';
+import { MySubscriptionsComponent } from './components/market/my-subscriptions/my-subscriptions.component';
 import { EnterReasonDialogComponent } from './components/enter-reason-dialog/enter-reason-dialog.component';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
@@ -137,6 +136,9 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
+import { PaginatedSelectComponent } from './components/paginated-select/paginated-select.component';
+import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
+import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -194,7 +196,6 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     MyProjectComponent,
     SummaryProjectComponent,
     MyAdminComponent,
-    PermissionComponent,
     MyUsersComponent,
     UserComponent,
     NotFoundComponent,
@@ -221,7 +222,9 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     DashboardComponent,
     ClientCreateDialogComponent,
     EndpointCreateDialogComponent,
-
+    PaginatedSelectComponent,
+    RoleCreateDialogComponent,
+    AddPermissionDialogComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -276,7 +279,6 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     MgmtEndpointComponent,
     MgmtClientComponent,
     EndpointComponent,
-    PermissionComponent,
     MgmtUserComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

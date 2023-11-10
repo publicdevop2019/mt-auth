@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
-import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.component';
+import { ApiCenterComponent } from './components/market/api-center/api-center.component';
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
@@ -39,14 +39,15 @@ import { LunchComponent } from './pages/document/deploy/deploy.component';
 import { DesignComponent } from './pages/document/design/design.component';
 import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
-import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
-import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
-import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
+import { MySubscriptionsComponent } from './components/market/my-subscriptions/my-subscriptions.component';
+import { MyRequestsComponent } from './components/market/my-requests/my-requests.component';
+import { MyApprovalComponent } from './components/market/my-approval/my-approval.component';
 import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
+import { RoleComponent } from './pages/tenant/project/role/role.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -93,7 +94,7 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'client-detail', component: ClientComponent },
       { path: 'endpoint-detail', component: EndpointComponent },
-      { path: ':id/my-client', component: MyClientsComponent },
+      { path: 'role-detail', component: RoleComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-cache', component: MyCacheComponent },
       { path: ':id/my-cors', component: MyCorsComponent },

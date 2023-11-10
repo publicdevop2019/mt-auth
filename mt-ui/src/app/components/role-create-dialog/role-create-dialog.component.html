@@ -1,0 +1,23 @@
+<div style="width: 400px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+        <div style="font-size: 24px; font-weight: 500;">{{'CREATE_ENDPOINT'|translate}}</div>
+        <button mat-button (click)="dismiss($event)">
+            <mat-icon>close </mat-icon>
+        </button>
+    </div>
+    <form [formGroup]="fg">
+        <mat-form-field>
+            <mat-label>{{'NAME'| translate}}</mat-label>
+            <input matInput formControlName="name" required>
+            <mat-error>{{nameErrorMsg | translate}}</mat-error>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
+            <input matInput formControlName="description">
+        </mat-form-field>
+    </form>
+    <div style="display: flex; justify-content: end; align-items: center; margin-top: 16px;">
+        <button mat-raised-button (click)="dismiss($event)" style="margin-right: 16px;">{{'CANCEL'|translate}}</button>
+        <button mat-raised-button color="primary" (click)="create()">{{'CREATE'|translate}}</button>
+    </div>
+</div>

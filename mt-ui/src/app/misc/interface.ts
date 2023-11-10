@@ -93,6 +93,11 @@ export interface IPermission extends IIdBasedEntity {
     linkedApiPermissionIds?: string[]
     type?: "COMMON" | 'API' | 'PROJECT'
 }
+export interface IRoleLinkedPermission {
+    id: string
+    name: string
+    type?: "COMMON" | 'API' | 'PROJECT'
+}
 export interface IProjectSimple extends IIdBasedEntity {
     name: string
     createdBy?: string,
