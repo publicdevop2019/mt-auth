@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { EntityCommonService } from '../clazz/entity.common-service';
-import { ISubRequest } from '../components/market/subscribe-request/subscribe-request.component';
+import { ISubRequest } from '../pages/tenant/market/subscribe-request/subscribe-request.component';
 import { DeviceService } from './device.service';
 import { HttpProxyService } from './http-proxy.service';
 import { CustomHttpInterceptor } from './interceptors/http.interceptor';
