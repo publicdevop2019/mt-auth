@@ -1,7 +1,7 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable } from 'rxjs';
+import { combineLatest, Observable, Subscription } from 'rxjs';
 import { IDomainContext } from 'src/app/clazz/summary.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -26,7 +26,7 @@ interface IPermTable {
   templateUrl: './role.component.html',
   styleUrls: ['./role.component.css']
 })
-export class RoleComponent {
+export class RoleComponent implements OnDestroy {
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
     name: new FormControl(''),
@@ -50,7 +50,8 @@ export class RoleComponent {
     name: 'NAME',
     type: 'TYPE',
     delete: 'DELETE',
-  }
+  };
+  subs: Subscription = new Subscription()
   constructor(
     public roleSvc: MyRoleService,
     public epSvc: EndpointService,
@@ -77,11 +78,11 @@ export class RoleComponent {
     }
     this.fg.valueChanges.subscribe(next => {
       if (this.allowError) {
-        this.validateCreateForm()
+        this.validateForm()
       }
     })
     this.reusme();
-    this.deviceSvc.refreshSummary.subscribe(() => {
+    const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.roleSvc.readById(this.data.from.id).subscribe(next => {
         Logger.debug('reload view')
         this.data.from = next;
@@ -89,6 +90,11 @@ export class RoleComponent {
         this.dataSource = new MatTableDataSource(this.aggregate.permissionDetails || []);
       })
     })
+    this.subs.add(sub2)
+  }
+  ngOnDestroy(): void {
+    //prevent memory leak
+    this.subs.unsubscribe()
   }
   goToHome() {
     this.router.navigate(['home'])
@@ -158,19 +164,6 @@ export class RoleComponent {
     this.fg.get('apiPermissionIds').setValue(this.aggregate.apiPermissionIds);
     this.fg.get('commonPermissionIds').setValue(this.aggregate.commonPermissionIds);
   }
-  convertToPayload(): IRole {
-    return {
-      id: this.fg.get('id').value,//value is ignored
-      name: this.fg.get('name').value,
-      parentId: this.fg.get('parentId').value || null,
-      projectId: this.roleSvc.getProjectId(),
-      commonPermissionIds: this.fg.get('commonPermissionIds').value || [],
-      apiPermissionIds: this.fg.get('apiPermissionIds').value || [],
-      externalPermissionIds: this.fg.get('sharedApi').value ? this.fg.get('sharedApi').value : [],
-      description: this.fg.get('description').value ? this.fg.get('description').value : null,
-      version: this.aggregate && this.aggregate.version//value is ignored
-    }
-  }
   convertToUpdateBasicPayload(): any {
     const formGroup = this.fg;
     let type = ''
@@ -214,14 +207,14 @@ export class RoleComponent {
       }
     }
   }
-  private validateCreateForm() {
+  private validateForm() {
     const var0 = Validator.exist(this.fg.get('name').value)
     this.nameErrorMsg = var0.errorMsg
     return !var0.errorMsg
   }
   update() {
     this.allowError = true;
-    if (this.validateCreateForm()) {
+    if (this.validateForm()) {
       this.roleSvc.update(this.aggregate.id, this.convertToUpdateBasicPayload(), this.changeId)
     }
   }
@@ -232,12 +225,6 @@ export class RoleComponent {
         this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
       }
     })
-  }
-  create() {
-    this.allowError = true;
-    if (this.validateCreateForm()) {
-      this.roleSvc.create(this.convertToPayload(), this.changeId)
-    }
   }
   goToRoleDashboard() {
     this.router.navigate(['home', this.data.params['projectId'], 'my-role'])

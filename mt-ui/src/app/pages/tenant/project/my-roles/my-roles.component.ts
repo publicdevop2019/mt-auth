@@ -15,6 +15,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { IRoleLinkedPermission } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 export interface IRole extends IIdBasedEntity {
   name: string,
   originalName?: string,
@@ -50,7 +51,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     },
   ]
   constructor(
-    public entitySvc: MyRoleService,
+    public roleSvc: MyRoleService,
     public authSvc: AuthService,
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
@@ -62,14 +63,17 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     private router: Router,
     public dialog: MatDialog,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
+    super(route, projectSvc, httpSvc, roleSvc, deviceSvc, bottomSheet, fis, 2);
     const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: 'types:USER', resetPage: true })
       }
     });
+    const sub3 = this.deviceSvc.refreshSummary.subscribe(() => {
+      this.doSearch({ value: 'types:USER', resetPage: true })
+    })
     const sub = combineLatest([this.projectId, this.canDo('EDIT_ROLE')]).subscribe(next => {
-      this.entitySvc.setProjectId(next[0]);
+      this.roleSvc.setProjectId(next[0]);
       this.params['projectId'] = next[0];
       const temp = next[1].result ? {
         name: 'NAME',
@@ -85,6 +89,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     })
     this.subs.add(sub2)
     this.subs.add(sub)
+    this.subs.add(sub3)
   }
   ngOnDestroy(): void {
     this.fis.reset(this.formId)
@@ -101,15 +106,29 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     const dialogRef = this.dialog.open(RoleCreateDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        const data = <IDomainContext<IRole>>{ context: 'new', from: next, params: this.params }
-        this.router.navigate(['home', 'role-detail'], { state: data })
+        this.httpProxySvc.createEntity(this.roleSvc.entityRepo, this.convertToPayload(next.name, next.description), Utility.getChangeId()
+        ).subscribe(id => {
+          this.editRole(id)
+        });
       }
     })
   }
   editRole(id: string) {
-    this.entitySvc.readById(id).subscribe(next => {
+    this.roleSvc.readById(id).subscribe(next => {
       const data = <IDomainContext<IRole>>{ context: 'edit', from: next, params: this.params }
       this.router.navigate(['home', 'role-detail'], { state: data })
     })
+  }
+  convertToPayload(name: string, description: string): IRole {
+    return {
+      id: '',
+      name: name,
+      description: Utility.hasValue(description) ? description : undefined,
+      projectId: this.roleSvc.getProjectId(),
+      commonPermissionIds: [],
+      apiPermissionIds: [],
+      externalPermissionIds: [],
+      version: 0
+    }
   }
 }

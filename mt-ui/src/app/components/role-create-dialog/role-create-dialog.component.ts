@@ -1,11 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 
@@ -47,7 +44,6 @@ export class RoleCreateDialogComponent {
     const result = this.validateCreateDialogForm()
     if (result) {
       this.dialogRef.close({
-        projectId: this.psv.viewProject.id,
         name: this.fg.get('name').value,
         description: this.fg.get('description').value,
       })
