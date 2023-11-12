@@ -33,16 +33,6 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
   columnList: any = {};
   parentIdOption = [];
   apiOptions = [];
-  searchConfigs: ISearchConfig[] = [
-    {
-      searchLabel: 'ID',
-      searchValue: 'id',
-      type: 'text',
-      multiple: {
-        delimiter: '.'
-      }
-    },
-  ]
   constructor(
     public entitySvc: MyPermissionService,
     public epSvc: MyEndpointService,
@@ -72,10 +62,12 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     })
     const sub3 = this.canDo('EDIT_PERMISSION').subscribe(b => {
       const temp = b.result ? {
+        id: 'ID',
         name: 'PERM_NAME',
         type: 'TYPE',
         delete: 'DELETE',
       } : {
+        id: 'ID',
         name: 'PERM_NAME',
         type: 'TYPE',
       }
