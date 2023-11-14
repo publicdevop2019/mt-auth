@@ -7,13 +7,13 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MyRoleService } from 'src/app/services/my-role.service';
 import { RoleComponent } from '../../tenant/project/role/role.component';
-import { INewRole } from '../../tenant/project/my-roles/my-roles.component';
+import { IRole } from '../../tenant/project/my-roles/my-roles.component';
 @Component({
   selector: 'app-summary-role',
   templateUrl: './summary-role.component.html',
   styleUrls: ['./summary-role.component.css']
 })
-export class SummaryRoleComponent extends SummaryEntityComponent<INewRole, INewRole> implements OnDestroy {
+export class SummaryRoleComponent extends SummaryEntityComponent<IRole, IRole> implements OnDestroy {
   public formId = "roleTableColumnConfig";
   columnList = {
     id: 'ID',

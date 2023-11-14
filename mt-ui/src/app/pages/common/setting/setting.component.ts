@@ -14,11 +14,5 @@ export class SettingComponent implements OnInit {
 
   ngOnInit() {
   }
-  public toggleMode() {
-    this.authSvc.advancedMode = !this.authSvc.advancedMode;
-  }
-  public isAdvancedMode() {
-    return this.authSvc.advancedMode;
-  }
 
 }

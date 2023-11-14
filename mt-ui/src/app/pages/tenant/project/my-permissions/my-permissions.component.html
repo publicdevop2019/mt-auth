@@ -1,238 +1,88 @@
-<div style="display: flex; justify-content: space-between; margin-top: 16px;">
-    <div>
+<div class="default-background">
+    <div style="margin-top: 16px;">
         <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
-            {{'MY_PERMISSION_DASHBOARD'|translate}}
+            {{'ADD_NEW_PERMISSION'|translate}}
         </div>
         <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_PERM_SUB'|translate}}
         </div>
     </div>
-    <button mat-fab color="primary" (click)="openBottomSheet()"
-        *ngIf="extractResult(canDo('CREATE_PERMISSION')) |async ">{{'ADD'|translate}}</button>
-</div>
-<ng-container *ngIf="extractResult(canDo('VIEW_PERMISSION'))|async">
-    <mat-tab-group *ngIf="authSvc.advancedMode">
-        <mat-tab label="{{'COMMON_PERMISSION'|translate}}">
-            <div style="width: 230px; margin-top: 16px;">
-                <lib-factory [formId]="viewFormId"></lib-factory>
-            </div>
-            <ng-container *ngIf="viewType==='LIST_VIEW'">
-                <app-search (search)="doSearchWrapperCommon($event)" [searchConfigs]="searchConfigs"
-                    [emitEvent]="false">
-                </app-search>
-                <div
-                    style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content: space-between;">
-                    <section>
-                        <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-                                style="margin-right: 16px;" (click)="showOptions()">
-                                {{'BATCH_OPERATION'|translate}}
-                            </mat-slide-toggle>
-                            <ng-container *ngIf="batchUpdate.checked">
-                                <button mat-raised-button color="primary"
-                                    (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
-                            </ng-container> -->
-                    </section>
-                    <app-table-column-config [formId]="formId"></app-table-column-config>
+    <form [formGroup]="fg"
+        style="display: flex; flex-direction: row;align-items: center; justify-content: space-between;">
+        <div style="display: flex; flex: 1; margin-right: 36px;">
+            <div style="flex: 1;">
+                <mat-form-field >
+                    <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+                    <input matInput formControlName="name">
+                </mat-form-field>
+                <div style="font-size: 12px; color: red; margin-top: -8px;">{{nameErrorMsg|translate}}
                 </div>
-                <div>
-                    <div class="table-container">
-                        <table mat-table [dataSource]="dataSource">
-                            <!-- Checkbox Column -->
-                            <ng-container matColumnDef="select">
-                                <th mat-header-cell *matHeaderCellDef>
-                                    <mat-checkbox (change)="$event ? masterToggle() : null"
-                                        [checked]="selection.hasValue() && isAllSelected()"
-                                        [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                        [aria-label]="checkboxLabel()">
-                                    </mat-checkbox>
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <mat-checkbox (click)="$event.stopPropagation()"
-                                        (change)="$event ? selection.toggle(row) : null"
-                                        [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
-                                    </mat-checkbox>
-                                </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="id">
-                                <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}}
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <app-copy-field [inputValue]="row.id"></app-copy-field>
-                                </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="name">
-                                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    <ng-container *ngIf="row.systemCreate">
-                                        {{row.name |translate}}
-                                    </ng-container>
-                                    <ng-container *ngIf="!row.systemCreate">
-                                        {{row.name}}
-                                    </ng-container>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="type">
-                                <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}
-                                </th>
-                                <td mat-cell *matCellDef="let row">
-                                    {{row.type|translate}}
-                                </td>
-                            </ng-container>
-
-                            <ng-container matColumnDef="edit">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">
-                                    {{columnList['edit']|translate}}</th>
-                                <td mat-cell *matCellDef="let row" class="table-icon">
-                                    <mat-icon *ngIf="!row.systemCreate" (click)="openBottomSheet(row.id)"
-                                        [color]="'primary'">edit</mat-icon>
-                                    <mat-icon *ngIf="row.systemCreate" aria-disabled [color]="'warn'">block</mat-icon>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="clone">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">
-                                    {{columnList['clone']|translate}}</th>
-                                <td mat-cell *matCellDef="let row" class="table-icon"
-                                    style="padding-right: 14px !important; ">
-                                    <mat-icon *ngIf="!row.systemCreate" (click)="doClone(row.id)"
-                                        [color]="'primary'">file_copy</mat-icon>
-                                    <mat-icon *ngIf="row.systemCreate" aria-disabled [color]="'warn'">block</mat-icon>
-                                </td>
-                            </ng-container>
-                            <ng-container matColumnDef="delete">
-                                <th mat-header-cell *matHeaderCellDef class="table-icon">
-                                    {{columnList['delete']|translate}}</th>
-                                <td mat-cell *matCellDef="let row" class="table-icon">
-                                    <mat-icon *ngIf="!row.systemCreate" (click)="doDeleteById(row.id)"
-                                        [color]="'warn'">delete_outline</mat-icon>
-                                    <mat-icon *ngIf="row.systemCreate" aria-disabled [color]="'warn'">block</mat-icon>
-                                </td>
-                            </ng-container>
-                            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-                        </table>
-                    </div>
-
-                    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount"
-                        [pageIndex]="entitySvc.pageNumber" [pageSize]="pageSize" (page)="pageHandler($event)">
-                    </mat-paginator>
-                </div>
-            </ng-container>
-            <div *ngIf="viewType==='DYNAMIC_TREE_VIEW'">
-                <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"></app-dynamic-tree>
-            </div>
-        </mat-tab>
-        <mat-tab label="{{'API_PERMISSION'|translate}}">
-            <div>
-                <div class="table-container">
-                    <table mat-table [dataSource]="apiDataSource">
-                        <ng-container matColumnDef="id">
-                            <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
-                            <td mat-cell *matCellDef="let row">
-                                <app-copy-field [inputValue]="row.id"></app-copy-field>
-                            </td>
-                        </ng-container>
-
-                        <ng-container matColumnDef="name">
-                            <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
-                            <td mat-cell *matCellDef="let row">
-                                {{row.name}}
-                            </td>
-                        </ng-container>
-                        <tr mat-header-row *matHeaderRowDef="displayedApiColumns(); sticky: true"></tr>
-                        <tr mat-row *matRowDef="let row; columns: displayedApiColumns();"></tr>
-                    </table>
-                </div>
-
-                <mat-paginator [showFirstLastButtons]="true" [length]="apiTotoalItemCount" [pageIndex]="apiPageNumber"
-                    [pageSize]="apiPageSize" (page)="apiPageHandler($event)">
-                </mat-paginator>
-            </div>
-        </mat-tab>
-    </mat-tab-group>
-    <ng-container *ngIf="!authSvc.advancedMode">
-        <div>
-            <div class="table-container">
-                <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-                    <!-- Checkbox Column -->
-                    <ng-container matColumnDef="select">
-                        <th mat-header-cell *matHeaderCellDef>
-                            <mat-checkbox (change)="$event ? masterToggle() : null"
-                                [checked]="selection.hasValue() && isAllSelected()"
-                                [indeterminate]="selection.hasValue() && !isAllSelected()"
-                                [aria-label]="checkboxLabel()">
-                            </mat-checkbox>
-                        </th>
-                        <td mat-cell *matCellDef="let row">
-                            <mat-checkbox (click)="$event.stopPropagation()"
-                                (change)="$event ? selection.toggle(row) : null" [checked]="selection.isSelected(row)"
-                                [aria-label]="checkboxLabel(row)">
-                            </mat-checkbox>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
-                        <td mat-cell *matCellDef="let row">
-                            <app-copy-field [inputValue]="row.id"></app-copy-field>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="description">
-                        <th mat-header-cell *matHeaderCellDef>
-                            {{columnList['description']|translate}} </th>
-                        <td mat-cell *matCellDef="let row">
-                            <app-editable-field *ngIf="!row.systemCreate" [inputValue]="row.description"
-                                (newValue)="doPatch(row.id,$event,'description')">
-                            </app-editable-field>
-                            <ng-container *ngIf="row.systemCreate">
-                                {{row.description}}
-                            </ng-container>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
-                        </th>
-                        <td mat-cell *matCellDef="let row">
-                            <ng-container *ngIf="row.systemCreate">
-                                {{row.name |translate}}
-                            </ng-container>
-                            <ng-container *ngIf="!row.systemCreate">
-                                <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
-                                </app-editable-field>
-                            </ng-container>
-                        </td>
-                    </ng-container>
-
-                    <ng-container matColumnDef="edit">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}
-                        </th>
-                        <td mat-cell *matCellDef="let row" class="table-icon">
-                            <mat-icon *ngIf="!row.systemCreate" (click)="openBottomSheet(row.id)"
-                                [color]="'primary'">edit</mat-icon>
-                            <mat-icon *ngIf="row.systemCreate" aria-disabled [color]="'warn'">block</mat-icon>
-                        </td>
-                    </ng-container>
-                    <ng-container matColumnDef="delete">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}
-                        </th>
-                        <td mat-cell *matCellDef="let row" class="table-icon">
-                            <mat-icon *ngIf="!row.systemCreate" (click)="doDeleteById(row.id)"
-                                [color]="'warn'">delete_outline</mat-icon>
-                            <mat-icon *ngIf="row.systemCreate" aria-disabled [color]="'warn'">block</mat-icon>
-                        </td>
-                    </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-                </table>
             </div>
 
-            <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-                [pageSize]="pageSize" (page)="pageHandler($event)">
-            </mat-paginator>
+            <app-paginated-select [fg]="fg" [label]="'ENTER_PARENT_ID'|translate" [key]="'parentId'"
+                [loadElements]="getParentPerm()" style="margin: 0px 24px;flex: 1;">
+            </app-paginated-select>
+            <app-paginated-select [fg]="fg" [label]="'SELECT_API'|translate" [key]="'apiId'" multiple="true"
+                [loadElements]="getEndpoints()" style="flex: 1;">
+            </app-paginated-select>
         </div>
-    </ng-container>
+        <button mat-raised-button color="primary" *ngIf="extractResult(canDo('CREATE_PERMISSION')) |async " (click)="create()">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <mat-icon>add</mat-icon>
+                <div>{{'ADD'|translate}}</div>
+            </div>
+        </button>
+    </form>
+    <ng-container *ngIf="extractResult(canDo('VIEW_PERMISSION'))|async">
+        <div style="margin: 16px 0px 24px 0px">
+            <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
+                {{'MY_PERMISSION_DASHBOARD'|translate}}
+            </div>
+            <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'PERM_LIST_SUB'|translate}}
+            </div>
+        </div>
+        <div class="table-container">
+            <table mat-table [dataSource]="dataSource">
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.id"></app-copy-field>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                        <ng-container *ngIf="row.systemCreate">
+                            {{row.name |translate}}
+                        </ng-container>
+                        <ng-container *ngIf="!row.systemCreate">
+                            {{row.name}}
+                        </ng-container>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}
+                    </th>
+                    <td mat-cell *matCellDef="let row">
+                        {{row.type|translate}}
+                    </td>
+                </ng-container>
 
-</ng-container>
+                <ng-container matColumnDef="delete">
+                    <th mat-header-cell *matHeaderCellDef class="table-icon">
+                        {{columnList['delete']|translate}}</th>
+                    <td mat-cell *matCellDef="let row" class="table-icon">
+                        <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
+                    </td>
+                </ng-container>
+                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+            </table>
+        </div>
+
+        <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
+            [pageSize]="pageSize" (page)="pageHandler($event)">
+        </mat-paginator>
+    </ng-container>
+</div>

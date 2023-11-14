@@ -79,7 +79,6 @@ import { MyPermissionsComponent } from './pages/tenant/project/my-permissions/my
 import { MyProjectComponent } from './pages/tenant/project/my-project/my-project.component';
 import { MyRolesComponent } from './pages/tenant/project/my-roles/my-roles.component';
 import { MyUsersComponent } from './pages/tenant/project/my-users/my-users.component';
-import { PermissionComponent } from './pages/tenant/project/permission/permission.component';
 import { RoleComponent } from './pages/tenant/project/role/role.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
@@ -137,6 +136,9 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
+import { PaginatedSelectComponent } from './components/paginated-select/paginated-select.component';
+import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
+import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -194,7 +196,6 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     MyProjectComponent,
     SummaryProjectComponent,
     MyAdminComponent,
-    PermissionComponent,
     MyUsersComponent,
     UserComponent,
     NotFoundComponent,
@@ -221,7 +222,9 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     DashboardComponent,
     ClientCreateDialogComponent,
     EndpointCreateDialogComponent,
-
+    PaginatedSelectComponent,
+    RoleCreateDialogComponent,
+    AddPermissionDialogComponent
   ],
   imports: [
     BrowserAnimationsModule,
@@ -276,7 +279,6 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
     MgmtEndpointComponent,
     MgmtClientComponent,
     EndpointComponent,
-    PermissionComponent,
     MgmtUserComponent,
     OperationConfirmDialogComponent,
     ObjectDetailComponent,

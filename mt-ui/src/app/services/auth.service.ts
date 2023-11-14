@@ -14,12 +14,6 @@ export class AuthService implements CanActivateChild, CanActivate {
   public loginFormValue: FormGroup;
   public loginNextUrl: string;
   public mfaId: string;
-  public get advancedMode() {
-    return localStorage.getItem('advancedMode') === 'true'
-  }
-  public set advancedMode(next: boolean) {
-    localStorage.setItem('advancedMode', next + '')
-  }
   public get currentUser() {
     if (!this.currentUser$) {
       this.currentUser$ = this.httpProxy.getMyProfile().pipe(

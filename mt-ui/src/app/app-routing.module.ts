@@ -19,7 +19,6 @@ import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.com
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
-import { NewProjectComponent } from './pages/common/new-project/new-project.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
 import { MyAdminComponent } from './pages/tenant/project/my-admin/my-admin.component';
@@ -47,6 +46,7 @@ import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
+import { RoleComponent } from './pages/tenant/project/role/role.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -93,7 +93,7 @@ const routes: Routes = [
       { path: 'dashboard', component: DashboardComponent },
       { path: 'client-detail', component: ClientComponent },
       { path: 'endpoint-detail', component: EndpointComponent },
-      { path: ':id/my-client', component: MyClientsComponent },
+      { path: 'role-detail', component: RoleComponent },
       { path: ':id/my-client', component: MyClientsComponent },
       { path: ':id/my-cache', component: MyCacheComponent },
       { path: ':id/my-cors', component: MyCorsComponent },

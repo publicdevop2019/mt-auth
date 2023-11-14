@@ -1,0 +1,13 @@
+<mat-form-field [formGroup]="fg">
+  <mat-label>{{label}}</mat-label>
+  <mat-select [multiple]="multiple" formControlName="{{key}}">
+    <mat-option [value]="el.value" *ngFor="let el of options">{{el.label}}
+    </mat-option>
+    <mat-option *ngIf="!allLoaded && !loading ">
+      <div #ghostRef>
+        <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="40">
+        </mat-progress-spinner>
+      </div>
+    </mat-option>
+  </mat-select>
+</mat-form-field>

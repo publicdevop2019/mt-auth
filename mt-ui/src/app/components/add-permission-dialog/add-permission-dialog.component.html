@@ -1,0 +1,37 @@
+<div style="width: 400px;" [formGroup]="fg">
+    <div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+        <div style="font-size: 24px; font-weight: 500;">{{'ADD_PERMISSION'|translate}}</div>
+        <button mat-button (click)="close($event)">
+            <mat-icon>close </mat-icon>
+        </button>
+    </div>
+    <mat-form-field>
+        <mat-label>{{'SELECT_PERM_TYPE'|translate}}</mat-label>
+        <mat-select formControlName="type">
+            <mat-option [value]="'COMMON_PERMISSIONS'">
+                {{'COMMON_PERMISSIONS'|translate}}
+            </mat-option>
+            <mat-option [value]="'API_PERMISSIONS'">
+                {{'API_PERMISSIONS'|translate}}
+            </mat-option>
+            <mat-option [value]="'EXTERNAL_PERMISSION'">
+                {{'EXTERNAL_PERMISSION'|translate}}
+            </mat-option>
+        </mat-select>
+    </mat-form-field>
+    <app-paginated-select [fg]="fg" *ngIf="fg.get('type').value === 'COMMON_PERMISSIONS'" [label]="'PLS_SELECT'|translate" [key]="'commonPermissionIds'"
+        [multiple]="true" [loadElements]="getCommonPermissions()" style="flex: 1;" [options]="commonOptions">
+    </app-paginated-select>
+    <app-paginated-select [fg]="fg" *ngIf="fg.get('type').value === 'API_PERMISSIONS'" [label]="'PLS_SELECT'|translate" [key]="'apiPermissionIds'"
+        [multiple]="true" [loadElements]="getApiPermissions()" style="flex: 1;" [options]="apiOptions">
+    </app-paginated-select>
+    <app-paginated-select [fg]="fg" *ngIf="fg.get('type').value === 'EXTERNAL_PERMISSION'" [label]="'PLS_SELECT'|translate" [key]="'sharedApi'"
+        [multiple]="true" [loadElements]="getShared()" style="flex: 1;" [options]="sharedApiOptions">
+    </app-paginated-select>
+    <div *ngIf="permErrorMsg" style="font-size: 12px; color: red; margin-top: -8px;">{{permErrorMsg|translate}}</div>
+    <div style="display: flex; justify-content: end;">
+        <button mat-raised-button color="primary" (click)="dismiss($event)">
+            <div>{{'ADD'|translate}}</div>
+        </button>
+    </div>
+</div>
