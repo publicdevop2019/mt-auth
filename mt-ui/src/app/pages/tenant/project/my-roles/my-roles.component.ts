@@ -1,7 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { combineLatest } from 'rxjs';
 import { IDomainContext, IIdBasedEntity } from 'src/app/clazz/summary.component';
@@ -16,6 +15,8 @@ import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { IRoleLinkedPermission } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { ActivatedRoute } from '@angular/router';
 export interface IRole extends IIdBasedEntity {
   name: string,
   originalName?: string,
@@ -59,11 +60,11 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     public httpSvc: HttpProxyService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
-    public route: ActivatedRoute,
-    private router: Router,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
     public dialog: MatDialog,
   ) {
-    super(route, projectSvc, httpSvc, roleSvc, deviceSvc, bottomSheet, fis, 2);
+    super(router, route, projectSvc, httpSvc, roleSvc, bottomSheet, fis);
     const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: 'types:USER', resetPage: true })
@@ -72,10 +73,10 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     const sub3 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.doSearch({ value: 'types:USER', resetPage: true })
     })
-    const sub = combineLatest([this.projectId, this.canDo('EDIT_ROLE')]).subscribe(next => {
-      this.roleSvc.setProjectId(next[0]);
-      this.params['projectId'] = next[0];
-      const temp = next[1].result ? {
+    this.roleSvc.setProjectId(this.route.getProjectId());
+    this.params['projectId'] = this.route.getProjectId();
+    const sub = combineLatest([this.canDo('EDIT_ROLE')]).subscribe(next => {
+      const temp = next[0].result ? {
         name: 'NAME',
         description: 'DESCRIPTION',
         edit: 'EDIT',
@@ -116,7 +117,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
   editRole(id: string) {
     this.roleSvc.readById(id).subscribe(next => {
       const data = <IDomainContext<IRole>>{ context: 'edit', from: next, params: this.params }
-      this.router.navigate(['home', 'role-detail'], { state: data })
+      this.route.navProjectRolesDetail(data)
     })
   }
   convertToPayload(name: string, description: string): IRole {

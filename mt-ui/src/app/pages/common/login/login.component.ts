@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Utility } from 'src/app/misc/utility';
@@ -13,6 +13,7 @@ import { LanguageService } from 'src/app/services/language.service';
 import { IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -74,7 +75,7 @@ export class LoginComponent {
   constructor(
     public langSvc: LanguageService,
     public httpProxy: HttpProxyService,
-    private route: Router,
+    private route: RouterWrapperService,
     public dialog: MatDialog,
     private router: ActivatedRoute,
     public translate: TranslateService,
@@ -142,10 +143,10 @@ export class LoginComponent {
           this.authSvc.loginFormValue = this.loginForm;
           this.authSvc.loginNextUrl = this.nextUrl;
           this.authSvc.mfaId = (next as IMfaResponse).mfaId;
-          this.route.navigate(['/mfa'], { queryParams: this.router.snapshot.queryParams });
+          this.route.navMfa({ queryParams: this.router.snapshot.queryParams });
         } else {
           this.httpProxy.currentUserAuthInfo = next as ITokenResponse;
-          this.route.navigate([this.nextUrl], { queryParams: this.router.snapshot.queryParams });
+          this.route.navTo(this.nextUrl, { queryParams: this.router.snapshot.queryParams });
         }
       })
     }

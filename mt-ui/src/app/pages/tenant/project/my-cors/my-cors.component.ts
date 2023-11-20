@@ -13,6 +13,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ICorsProfile } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-my-cors',
   templateUrl: './my-cors.component.html',
@@ -45,11 +46,12 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
-    public route: ActivatedRoute,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
+    super(router, route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
     const sub = this.canDo('VIEW_CORS').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })

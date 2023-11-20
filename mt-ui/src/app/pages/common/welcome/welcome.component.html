@@ -51,7 +51,7 @@
             <mat-card-subtitle>{{'WELCOME_STEP_2_SUB'|translate}}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-actions align="end">
-            <button mat-button color="primary" (click)="goToClient()">
+            <button mat-button color="primary" (click)="router.navProjectClientsDashboard()">
                 <div style="display: flex;justify-content: right; align-items: center;">
                     <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_2_ACTION'|translate}}</div>
                     <mat-icon
@@ -69,7 +69,7 @@
             <mat-card-subtitle>{{'WELCOME_STEP_3_SUB'|translate}}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-actions align="end">
-            <button mat-button color="primary" (click)="goToEndpoint()">
+            <button mat-button color="primary" (click)="router.navProjectApiDashboard()()">
                 <div style="display: flex;justify-content: right; align-items: center;">
                     <div style="font-size: 12px; margin-right: 8px;">{{'WELCOME_STEP_3_ACTION'|translate}}</div>
                     <mat-icon

@@ -1,13 +1,13 @@
-import { Router } from '@angular/router';
 import { HttpProxyService } from '../services/http-proxy.service';
 import * as UUID from 'uuid/v1';
 import { APP_CONSTANT } from './constant';
+import { RouterWrapperService } from '../services/router-wrapper';
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");
     if (parts.length == 2) return parts.pop().split(";").shift();
 }
-export function logout(router?: Router, httpProxy?: HttpProxyService) {
+export function logout(router?: RouterWrapperService, httpProxy?: HttpProxyService) {
     if (httpProxy) {
         httpProxy.clearLogoutCheck()
     }
@@ -18,7 +18,7 @@ export function logout(router?: Router, httpProxy?: HttpProxyService) {
     localStorage.removeItem('jwt');
     document.cookie = "jwt=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/"
     if (router) {
-        const params = router.routerState.snapshot.root.queryParams;
+        const params = router.getParam();
         const queryBinded: string[] = [];
         Object.keys(params).forEach(k => {
             queryBinded.push(k + "=" + params[k]);

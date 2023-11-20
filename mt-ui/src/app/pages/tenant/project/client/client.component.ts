@@ -9,10 +9,10 @@ import { MyClientService } from 'src/app/services/my-client.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { IClient, IClientCreate } from 'src/app/misc/interface';
-import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-client',
@@ -59,12 +59,12 @@ export class ClientComponent {
     public clientSvc: MyClientService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
-    public router: Router,
+    public router: RouterWrapperService,
     public interceptor: CustomHttpInterceptor
   ) {
-    this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IClient>
+    this.data = this.router.getData() as IDomainContext<IClient>
     if (this.data === undefined) {
-      this.goToHome()
+      this.router.navProjectHome()
     }
     clientSvc.setProjectId(this.data.from.projectId)
     this.fg.valueChanges.subscribe(() => {
@@ -107,7 +107,7 @@ export class ClientComponent {
       }
     })
     if (this.data.context === 'new') {
-      const createData = this.router.getCurrentNavigation().extras.state as IDomainContext<IClientCreate>
+      const createData = this.data as IDomainContext<IClientCreate>
       this.fg.get('projectId').setValue(createData.from.projectId)
       this.fg.get('frontOrBackApp').setValue(createData.from.type)
       this.fg.get('name').setValue(createData.from.name)
@@ -220,18 +220,12 @@ export class ClientComponent {
       this.clientSvc.update(this.data.from.id, this.convertToPayload(), this.changeId)
     }
   }
-  goToClientDashboard() {
-    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-client'])
-  }
-  goToHome() {
-    this.router.navigate(['home'])
-  }
   create() {
     this.enableError = true
     if (this.validateCreateForm()) {
       this.httpProxySvc.createEntity(this.clientSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
         !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
-        this.goToClientDashboard()
+        this.router.navProjectClientsDashboard()
     });
     }
   }

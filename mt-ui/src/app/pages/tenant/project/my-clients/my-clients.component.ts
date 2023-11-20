@@ -1,6 +1,5 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -16,6 +15,7 @@ import { Observable, Subscription, combineLatest } from 'rxjs';
 import { MatTableDataSource } from '@angular/material/table';
 import { PageEvent } from '@angular/material/paginator';
 import { Utility } from 'src/app/misc/utility';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-my-clients',
@@ -24,7 +24,6 @@ import { Utility } from 'src/app/misc/utility';
 })
 export class MyClientsComponent implements OnDestroy {
   columnList: any = {};
-  projectId = this.route.paramMap.pipe(map(e => e.get('id')))
   dataSource: MatTableDataSource<IClient>;
   totoalItemCount = 0;
   pageSize = 10;
@@ -37,17 +36,11 @@ export class MyClientsComponent implements OnDestroy {
     public httpSvc: HttpProxyService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public route: ActivatedRoute,
-    private router: Router,
+    private router: RouterWrapperService,
     public dialog: MatDialog,
   ) {
-    const sub = this.projectId.subscribe(id => {
-      this.clientSvc.setProjectId(id)
-      this.params['projectId'] = id;
-      if (this.dataSource)
-        this.dataSource.data = []
-    });
-    this.subs.add(sub);
+    this.clientSvc.setProjectId(this.router.getProjectId())
+    this.params['projectId'] = this.router.getProjectId();
     const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.doSearch();
     });
@@ -71,14 +64,14 @@ export class MyClientsComponent implements OnDestroy {
       if (next !== undefined) {
         Logger.debugObj('client basic info', next)
         const data = <IDomainContext<IClientCreate>>{ context: 'new', from: next, params: this.params }
-        this.router.navigate(['home', 'client-detail'], { state: data })
+        this.router.navProjectClientsDetail({ state: data })
       }
     })
   }
   editClient(id: string): void {
     this.clientSvc.readById(id).subscribe(next => {
       const data = <IDomainContext<IClient>>{ context: 'edit', from: next, params: this.params }
-      this.router.navigate(['home', 'client-detail'], { state: data })
+      this.router.navProjectClientsDetail({ state: data })
     })
   }
   removeFirst(input: string[]) {
@@ -86,7 +79,7 @@ export class MyClientsComponent implements OnDestroy {
   }
   //TODO refactor, move to utility
   canDo(...name: string[]) {
-    return combineLatest([this.projectId, this.projectSvc.permissionDetail]).pipe(map(e => {
+    return combineLatest([this.router.getProjectId(), this.projectSvc.permissionDetail]).pipe(map(e => {
       this.clientSvc.setProjectId(e[0])
       return this.hasPermission(e[1], e[0], name)
     }))

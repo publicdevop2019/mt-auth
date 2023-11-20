@@ -5,13 +5,11 @@ import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-s
 import { MatPaginator, PageEvent } from '@angular/material/paginator';
 import { Sort } from '@angular/material/sort';
 import { MatTableDataSource } from '@angular/material/table';
-import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
-import { DeviceService } from 'src/app/services/device.service';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';
 import { ISearchEvent, SearchComponent } from '../components/search/search.component';
@@ -22,6 +20,8 @@ import { IIdBasedEntity, IDomainContext, ISumRep } from './summary.component';
 import { TenantEntityService } from './tenant-entity.service';
 import { Utility } from '../misc/utility';
 import { TABLE_SETTING_KEY } from '../misc/constant';
+import { RouterWrapperService } from '../services/router-wrapper';
+import { ActivatedRoute } from '@angular/router';
 @Directive()
 export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T> implements OnDestroy {
   sheetComponent: ComponentType<any>;
@@ -33,7 +33,6 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   queryKey: string = undefined;
   dataSource: MatTableDataSource<T>;
   totoalItemCount = 0;
-  pageSizeOffset = 0;
   pageSize = 0;
   sortBy: string = undefined;
   sortOrder: string = undefined;
@@ -41,45 +40,38 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
   @ViewChild(SearchComponent, { static: true }) searcher: SearchComponent;
   selection = new SelectionModel<T>(true, []);
-  projectId = this.route.paramMap.pipe(map(e => e.get('id')))
   constructor(
-    protected route: ActivatedRoute,
+    protected router: ActivatedRoute,
+    protected route: RouterWrapperService,
     protected projectSvc: ProjectService,
     protected httpSvc: HttpProxyService,
     protected entitySvc: TenantEntityService<T, S>,
-    protected deviceSvc: DeviceService,
     protected bottomSheet: MatBottomSheet,
     protected fis: FormInfoService,
-    protected _pageSizeOffset: number,
     protected skipInitialLoad?: boolean
   ) {
-    this.pageSizeOffset = _pageSizeOffset;
     this.initUrlRelatedValues();
-    const sub = this.projectId.subscribe(id => {
-      this.entitySvc.setProjectId(id)
-      this.bottomSheetParams['projectId'] = id;
-      if (this.dataSource)
-        this.dataSource.data = []
-    });
-    this.subs.add(sub);
+    this.entitySvc.setProjectId(route.getProjectId())
+    this.bottomSheetParams['projectId'] = route.getProjectId();
+    if (this.dataSource)
+      this.dataSource.data = []
   }
 
   canDo(...name: string[]) {
-    return combineLatest([this.projectId, this.projectSvc.permissionDetail]).pipe(map(e => {
-      this.entitySvc.setProjectId(e[0])
-      return this.hasPermission(e[1], e[0], name)
+    return combineLatest([this.projectSvc.permissionDetail]).pipe(map(e => {
+      return this.hasPermission(e[0], this.route.getProjectId(), name)
     }))
   }
   initUrlRelatedValues() {
-    this.entitySvc.pageNumber = this.getPageNum(this.deviceSvc.getParams().page);
-    this.pageSize = this.getPageSize(this.deviceSvc.getParams().page);
+    this.entitySvc.pageNumber = this.getPageNum(this.route.getParams(this.router).page);
+    this.pageSize = this.getPageSize(this.route.getParams(this.router).page);
     if (this.pageSize === -1) {
       this.pageSize = this.getDefaultPageSize();
-      this.deviceSvc.updateURLQueryParamPageAndSort(this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
+      this.route.updateURLQueryParamPageAndSort(this.router, this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
     }
     if (this.entitySvc.pageNumber === -1) {
       this.entitySvc.pageNumber = 0;
-      this.deviceSvc.updateURLQueryParamPageAndSort(this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
+      this.route.updateURLQueryParamPageAndSort(this.router, this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
     }
   }
   private getPageNum(input: string): number {
@@ -149,13 +141,13 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
   }
   pageHandler(e: PageEvent) {
     this.entitySvc.pageNumber = e.pageIndex;
-    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
+    this.route.updateURLQueryParamBeforeSearch(this.router, this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
       this.updateSummaryData(next);
     });
   }
   protected getDefaultPageSize() {
-    return this.pageSize = (this.deviceSvc.pageSize - this.pageSizeOffset) > 0 ? (this.deviceSvc.pageSize - this.pageSizeOffset) : 1;
+    return this.pageSize = 10;
   }
   protected setPageSize(size: number) {
     this.pageSize = size;
@@ -234,7 +226,7 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
         this.sortOrder = undefined;
       }
     }
-    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
+    this.route.updateURLQueryParamBeforeSearch(this.router, this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
       this.updateSummaryData(next);
     })

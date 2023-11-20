@@ -14,6 +14,7 @@ import { of } from 'rxjs';
 import { CacheComponent } from '../cache/cache.component';
 import { ICacheProfile, ICorsProfile } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-my-cache',
   templateUrl: './my-cache.component.html',
@@ -45,18 +46,19 @@ export class MyCacheComponent extends TenantSummaryEntityComponent<ICacheProfile
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
-    public route: ActivatedRoute,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
+    super(router, route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
     const sub = this.canDo('VIEW_CACHE').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
       }
     })
     this.initTableSetting();
-    const sub2=this.deviceSvc.refreshSummary.subscribe(() => {
+    const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.doRefresh()
     })
     this.subs.add(sub);

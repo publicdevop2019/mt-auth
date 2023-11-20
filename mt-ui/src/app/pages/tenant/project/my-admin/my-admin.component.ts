@@ -15,6 +15,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyAdminService } from 'src/app/services/my-admin.service';
 import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-my-admin',
@@ -46,15 +47,13 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
     public httpSvc: HttpProxyService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public route: ActivatedRoute,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
     public cdRef: ChangeDetectorRef,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 0);
-    const sub = this.projectId.subscribe(id => {
-      this.userSvc.setProjectId(id)
-      this.doRefresh();
-    });
-    this.subs.add(sub);
+    super(router,route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
+    this.userSvc.setProjectId(this.route.getProjectId())
+    this.doRefresh();
     this.initTableSetting()
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []

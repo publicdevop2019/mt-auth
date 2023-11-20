@@ -3,19 +3,20 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { Logger } from 'src/app/misc/logger';
-import { Utility, createImageFromBlob, logout } from 'src/app/misc/utility';
+import { createImageFromBlob, logout } from 'src/app/misc/utility';
 import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { UserMessageService } from 'src/app/services/user-message.service';
 export interface INavElement {
   link: string;
@@ -213,7 +214,7 @@ export class NavBarComponent implements OnInit {
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     public route: ActivatedRoute,
-    public router: Router,
+    public router: RouterWrapperService,
     public translate: TranslateService,
     public deviceSvc: DeviceService,
     public msgSvc: MessageService,
@@ -288,7 +289,7 @@ export class NavBarComponent implements OnInit {
         this.projectSvc.findUiPermission(next).subscribe(next => {
           this.projectSvc.permissionDetail.next(next);
           Logger.debug("view project {}", this.projectSvc.viewProject)
-          this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+          this.router.navProjectHome();//avoid blank view when previous tenant project open
         })
       })
     })
@@ -308,7 +309,7 @@ export class NavBarComponent implements OnInit {
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;
-    if (this.router.url.includes(input.link)) {
+    if (this.router.getUrl().includes(input.link)) {
       return {
         ...input.params,
         ...var0

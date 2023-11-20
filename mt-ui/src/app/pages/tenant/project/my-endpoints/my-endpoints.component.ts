@@ -1,10 +1,9 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
-import { filter, map, switchMap, take } from 'rxjs/operators';
+import { filter, switchMap } from 'rxjs/operators';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { Utility, uniqueObject } from 'src/app/misc/utility';
 import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
@@ -21,6 +20,9 @@ import { IEndpoint } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
 import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-create-dialog/endpoint-create-dialog.component';
 import { IDomainContext } from 'src/app/clazz/summary.component';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { ActivatedRoute } from '@angular/router';
+import { Logger } from 'src/app/misc/logger';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -50,7 +52,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     },
   ]
   searchConfigs: ISearchConfig[] = []
-  projectIdSubject = this.route.paramMap.pipe(map(e => e.get('id')))
   constructor(
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
@@ -60,19 +61,16 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     public clientSvc: MyClientService,
     public fis: FormInfoService,
     public dialog: MatDialog,
-    public route: ActivatedRoute,
-    private router: Router,
+    public route: RouterWrapperService,
+    public router: ActivatedRoute,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub = this.projectId.subscribe(id => {
-      this.clientSvc.setProjectId(id)
-      this.params['projectId'] = id;
-      if (this.dataSource)
-        this.dataSource.data = []
-    });
+    super(router,route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
+    this.clientSvc.setProjectId(this.route.getProjectId())
+    this.params['projectId'] = this.route.getProjectId();
     const sub2 = this.canDo('VIEW_API').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
+        Logger.debug(this.entitySvc.getProjectId())
       }
     })
     const sub4 = this.canDo('VIEW_API', 'VIEW_CLIENT').subscribe(b => {
@@ -95,7 +93,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     })
     this.subs.add(sub4);
     this.subs.add(sub2);
-    this.subs.add(sub);
     const sub3 = this.canDo('EDIT_API').subscribe(b => {
       this.columnList = b.result ? {
         id: 'ID',
@@ -131,14 +128,14 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
         const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: this.params }
-        this.router.navigate(['home', 'endpoint-detail'], { state: data })
+        this.route.navProjectEndpointDetail(data)
       }
     })
   }
   editEndpoint(id: string): void {
     this.entitySvc.readById(id).subscribe(next => {
       const data = <IDomainContext<IEndpoint>>{ context: 'edit', from: next, params: this.params }
-      this.router.navigate(['home', 'endpoint-detail'], { state: data })
+      this.route.navProjectEndpointDetail(data)
     })
   }
   getOption(value: string, options: IOption[]) {
@@ -165,6 +162,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     })
   }
   viewReport(id: string) {
-    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.projectId } });
+    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectId() } });
   }
 }

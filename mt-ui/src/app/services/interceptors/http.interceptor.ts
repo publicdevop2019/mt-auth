@@ -1,14 +1,14 @@
-import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHandler, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Router } from '@angular/router';
 import { Observable, throwError, BehaviorSubject } from 'rxjs';
-import { catchError, switchMap, mergeMap, retry, filter, take, finalize, tap } from 'rxjs/operators';
+import { catchError, switchMap, filter, take, finalize, tap } from 'rxjs/operators';
 import { HttpProxyService } from '../http-proxy.service';
 import { TranslateService } from '@ngx-translate/core';
 import { getCookie, logout } from '../../misc/utility';
 import { ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
+import { RouterWrapperService } from '../router-wrapper';
 /**
  * use refresh token if call failed
  */
@@ -16,7 +16,7 @@ import { Logger } from 'src/app/misc/logger';
 export class CustomHttpInterceptor implements HttpInterceptor {
   private _errorStatus: number[] = [500, 503, 502, 504];
   private refreshTokenSubject: BehaviorSubject<any> = new BehaviorSubject<any>(null);
-  constructor(private router: Router, private _httpProxy: HttpProxyService, private _snackBar: MatSnackBar, private translate: TranslateService) { }
+  constructor(private router: RouterWrapperService, private _httpProxy: HttpProxyService, private _snackBar: MatSnackBar, private translate: TranslateService) { }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<any> {
     if (this._httpProxy.currentUserAuthInfo && this._httpProxy.currentUserAuthInfo.access_token)
       if (

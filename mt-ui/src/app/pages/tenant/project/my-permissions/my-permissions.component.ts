@@ -14,6 +14,7 @@ import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-my-permissions',
@@ -41,9 +42,10 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     public httpSvc: HttpProxyService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
-    public route: ActivatedRoute,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 0);
+    super(router, route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
     this.deviceSvc.refreshSummary.subscribe(() => {
       const search = {
         value: 'types:COMMON',
@@ -51,10 +53,8 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       }
       this.doSearch(search);
     })
-    const sub = this.projectId.subscribe(next => {
-      this.entitySvc.setProjectId(next);
-      this.epSvc.setProjectId(next);
-    });
+    this.entitySvc.setProjectId(this.route.getProjectId());
+    this.epSvc.setProjectId(this.route.getProjectId());
     const sub2 = this.canDo('VIEW_PERMISSION').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: 'types:COMMON', resetPage: true })
@@ -74,7 +74,6 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       this.columnList = temp
       this.initTableSetting();
     })
-    this.subs.add(sub)
     this.subs.add(sub2)
     this.subs.add(sub3)
     this.fg.valueChanges.subscribe(() => {

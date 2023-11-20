@@ -11,12 +11,12 @@ import { SharedPermissionService } from 'src/app/services/shared-permission.serv
 import { IRole } from '../my-roles/my-roles.component';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
-import { Router } from '@angular/router';
 import { MatTableDataSource } from '@angular/material/table';
 import { Logger } from 'src/app/misc/logger';
 import { MatDialog } from '@angular/material/dialog';
 import { AddPermissionDialogComponent } from 'src/app/components/add-permission-dialog/add-permission-dialog.component';
 import { DeviceService } from 'src/app/services/device.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 interface IPermTable {
   id: string,
   name: string, type: string
@@ -59,13 +59,13 @@ export class RoleComponent implements OnDestroy {
     public httpProxySvc: HttpProxyService,
     public sharedPermSvc: SharedPermissionService,
     public cdr: ChangeDetectorRef,
-    public router: Router,
+    public router: RouterWrapperService,
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
-    this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IRole>
+    this.data = this.router.getData().extras.state as IDomainContext<IRole>
     if (this.data === undefined) {
-      this.goToHome()
+      this.router.navProjectHome()
     }
     this.aggregate = this.data.from;
     this.permissoinSvc.setProjectId(this.data.params['projectId'])
@@ -95,9 +95,6 @@ export class RoleComponent implements OnDestroy {
   ngOnDestroy(): void {
     //prevent memory leak
     this.subs.unsubscribe()
-  }
-  goToHome() {
-    this.router.navigate(['home'])
   }
   getParents(): IQueryProvider {
     return {
@@ -225,9 +222,6 @@ export class RoleComponent implements OnDestroy {
         this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
       }
     })
-  }
-  goToRoleDashboard() {
-    this.router.navigate(['home', this.data.params['projectId'], 'my-role'])
   }
   displayedColumns() {
     return ['name', 'type', 'delete']

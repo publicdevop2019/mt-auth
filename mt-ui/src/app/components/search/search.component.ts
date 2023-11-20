@@ -1,6 +1,7 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { interval, Observable, Subscription } from 'rxjs';
@@ -8,6 +9,7 @@ import { debounce, filter } from 'rxjs/operators';
 import { IClient } from 'src/app/misc/interface';
 import { DeviceService } from 'src/app/services/device.service';
 import { ResourceService } from 'src/app/services/resource.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 export interface ISearchEvent {
   value: string,
   key?: string,//see below
@@ -125,6 +127,8 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
     fb: FormBuilder,
     public translateSvc: TranslateService,
     private deviceSvc: DeviceService,
+    private router: RouterWrapperService,
+    private route: ActivatedRoute,
     public resourceSvc: ResourceService,
     private componentFactoryResolver: ComponentFactoryResolver,
   ) {
@@ -193,8 +197,8 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
     }
   }
   private updateSearchValueBasedOnUrl() {
-    const urlQuery = this.deviceSvc.getParams().query;
-    const key = this.deviceSvc.getParams().key;
+    const urlQuery = this.router.getParams(this.route).query;
+    const key = this.router.getParams(this.route).key;
     if (urlQuery) {
       const splittedQuery = urlQuery.split(":");
       if (splittedQuery.length > 1) {

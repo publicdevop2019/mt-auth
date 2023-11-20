@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { NewProjectComponent } from '../new-project/new-project.component';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-welcome',
@@ -11,7 +11,8 @@ import { NewProjectComponent } from '../new-project/new-project.component';
 })
 export class WelcomeComponent implements OnInit {
 
-  constructor(public projectSvc: ProjectService, private router: Router, public dialog: MatDialog) { }
+  constructor(public projectSvc: ProjectService, 
+    public router: RouterWrapperService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
   }
@@ -23,12 +24,6 @@ export class WelcomeComponent implements OnInit {
   }
   hasProject() {
     return this.projectSvc.totalProjects.length > 0
-  }
-  goToClient() {
-    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-client']);
-  }
-  goToEndpoint() {
-    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-api']);
   }
   openNewProject() {
     this.dialog.open(NewProjectComponent, { data: {} });

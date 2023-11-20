@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { FormInfoService } from 'mt-form-builder';
 import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
@@ -13,10 +12,10 @@ import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
-import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -70,12 +69,12 @@ export class EndpointComponent {
     public cacheSvc: MyCacheService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
-    public router: Router,
+    public router: RouterWrapperService,
     public interceptor: CustomHttpInterceptor
   ) {
-    this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IEndpoint>
+    this.data = this.router.getData() as IDomainContext<IEndpoint>
     if (this.data === undefined) {
-      this.goToHome()
+      this.router.navProjectHome()
     }
     clientSvc.setProjectId(this.data.params['projectId'])
     corsSvc.setProjectId(this.data.params['projectId'])
@@ -142,7 +141,7 @@ export class EndpointComponent {
       }
     })
     if (this.data.context === 'new') {
-      const createData = this.router.getCurrentNavigation().extras.state as IDomainContext<IEndpointCreate>
+      const createData = this.router.getData() as IDomainContext<IEndpointCreate>
       this.fg.get('projectId').setValue(createData.from.projectId)
       this.fg.get('name').setValue(createData.from.name)
       this.fg.get('type').setValue(createData.from.type)
@@ -243,9 +242,6 @@ export class EndpointComponent {
       version: this.data.from && this.data.from.version
     }
   }
-  goToHome() {
-    this.router.navigate(['home'])
-  }
   update() {
     this.allowError = true;
     if (this.validateForm()) {
@@ -258,7 +254,7 @@ export class EndpointComponent {
     if (this.validateForm()) {
       this.httpProxySvc.createEntity(this.endpointSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
         !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
-        this.goToEndpointDashboard()
+        this.router.navProjectEndpointDashboard()
       });
     }
   }
@@ -321,9 +317,6 @@ export class EndpointComponent {
     return result;
   }
 
-  goToEndpointDashboard() {
-    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-api'])
-  }
   getIcon() {
     if (this.fg.get('type').value === 'PROTECTED_NONE_SHARED_API') {
       return 'verified_user'

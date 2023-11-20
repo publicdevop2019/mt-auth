@@ -12,6 +12,7 @@ import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { UserComponent } from '../user/user.component';
 import { IProjectUser } from 'src/app/misc/interface';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-my-users',
   templateUrl: './my-users.component.html',
@@ -19,7 +20,7 @@ import { IProjectUser } from 'src/app/misc/interface';
 })
 export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser, IProjectUser> implements OnDestroy {
   public formId = "myUserTableColumnConfig";
-  columnList :any={};
+  columnList: any = {};
   sheetComponent = UserComponent;
   public roleList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
@@ -48,15 +49,16 @@ export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
     public projectSvc: ProjectService,
-    public route: ActivatedRoute,
+    public router: ActivatedRoute,
+    public route: RouterWrapperService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
+    super(router, route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
     const sub1 = this.canDo('EDIT_TENANT_USER').subscribe(b => {
-      this.columnList = b.result? {
+      this.columnList = b.result ? {
         id: 'ID',
         email: 'EMAIL',
         edit: 'EDIT',
-      }:{
+      } : {
         id: 'ID',
         email: 'EMAIL',
       }
