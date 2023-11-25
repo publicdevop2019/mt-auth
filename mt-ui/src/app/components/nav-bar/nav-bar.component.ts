@@ -35,77 +35,77 @@ export class NavBarComponent implements OnInit {
   mobileQuery: MediaQueryList;
   menuMgmt: INavElement[] = [
     {
-      link: 'dashboard',
+      link: 'mgmt/insights',
       display: 'DASHBOARD',
       icon: 'dashboard',
       params: {
       },
     },
     {
-      link: 'registry',
+      link: 'mgmt/registry',
       display: 'REGISTRY_STATUS',
       icon: 'receipt',
       params: {
       },
     },
     {
-      link: 'jobs',
+      link: 'mgmt/jobs',
       display: 'JOB_STATUS',
       icon: 'work_history',
       params: {
       },
     },
     {
-      link: 'projects',
+      link: 'mgmt/projects',
       display: 'PROJECT_DASHBOARD',
       icon: 'blur_on',
       params: {
       },
     },
     {
-      link: 'clients',
+      link: 'mgmt/clients',
       display: 'CLIENT_DASHBOARD',
       icon: 'apps',
       params: {
       },
     },
     {
-      link: 'api-profiles',
+      link: 'mgmt/endpoints',
       display: 'SECURITY_PROFILE_DASHBOARD',
       icon: 'mediation',
       params: {
       },
     },
     {
-      link: 'mgmt-user',
+      link: 'mgmt/users',
       display: 'USER_DASHBOARD',
       icon: 'people',
       params: {
       },
     },
     {
-      link: 'revoke-token',
+      link: 'mgmt/tokens',
       display: 'REVOKE_TOKEN_DASHBOARD',
       icon: 'stars',
       params: {
       },
     },
     {
-      link: 'cache-mgmt',
+      link: 'mgmt/proxy-cache',
       display: 'CACHE_DASHBOARD',
       icon: 'cached',
       params: {
       },
     },
     {
-      link: 'events-access',
+      link: 'mgmt/events',
       display: 'EVENT_DASHBOARD',
       icon: 'event_available',
       params: {
       },
     },
     {
-      link: 'sys-message-center',
+      link: 'mgmt/notification',
       display: 'SYSTEM_MESSAGE_DASHBOARD',
       icon: 'email',
       params: {

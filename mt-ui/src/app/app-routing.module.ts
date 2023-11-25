@@ -10,12 +10,8 @@ import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-clie
 import { MyCorsComponent } from './pages/tenant/project/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
 import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-message.component';
-import { SummaryOrgComponent } from './pages/mgmt/summary-org/summary-org.component';
-import { SummaryPermissionComponent } from './pages/mgmt/summary-permission/summary-permission.component';
-import { SummaryPositionComponent } from './pages/mgmt/summary-position/summary-position.component';
 import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
 import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
-import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
@@ -64,45 +60,44 @@ const routes: Routes = [
   },
   { path: 'authorize', component: AuthorizeComponent, canActivate: [AuthService] },
   {
-    path: 'home', component: NavBarComponent, canActivateChild: [AuthService],
+    path: '', component: NavBarComponent, canActivateChild: [AuthService],
     children: [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
-      { path: 'projects', component: SummaryProjectComponent },
-      { path: 'registry', component: RegistryComponent },
-      { path: 'jobs', component: JobComponent },
-      { path: 'clients', component: SummaryClientComponent },
-      { path: 'mgmt-user', component: SummaryResourceOwnerComponent },
-      { path: 'api-profiles', component: SummaryEndpointComponent },
-      { path: 'role-profiles', component: SummaryRoleComponent },
-      { path: 'events-access', component: SummaryStoredEventAccessComponent },
-      { path: 'settings', component: SettingComponent },
-      { path: 'message-center', component: MessageCenterComponent },
-      { path: 'user-notification', component: UserNotificationComponent },
-      { path: 'revoke-token', component: SummaryRevokeTokenComponent },
-      { path: 'cache-mgmt', component: CacheControlComponent },
+      
+      { path: 'mgmt/insights', component: DashboardComponent },
+      { path: 'mgmt/projects', component: SummaryProjectComponent },
+      { path: 'mgmt/registry', component: RegistryComponent },
+      { path: 'mgmt/jobs', component: JobComponent },
+      { path: 'mgmt/clients', component: SummaryClientComponent },
+      { path: 'mgmt/users', component: SummaryResourceOwnerComponent },
+      { path: 'mgmt/endpoints', component: SummaryEndpointComponent },
+      { path: 'mgmt/events', component: SummaryStoredEventAccessComponent },
+      { path: 'mgmt/notification', component: SummaryNotificationComponent },
+      { path: 'mgmt/tokens', component: SummaryRevokeTokenComponent },
+      { path: 'mgmt/notification/bell', component: MessageCenterComponent },
+      { path: 'mgmt/proxy-cache', component: CacheControlComponent },
+
+      { path: 'user/user-notification', component: UserNotificationComponent },
+      { path: 'user/settings', component: SettingComponent },
       { path: 'my-profile', component: MyProfileComponent },
       { path: 'api-center', component: ApiCenterComponent },
       { path: 'my-sub-request', component: MyRequestsComponent },
       { path: 'pending-sub-request', component: MyApprovalComponent },
       { path: 'my-subs', component: MySubscriptionsComponent },
-      { path: 'org-profiles', component: SummaryOrgComponent },
-      { path: 'permission-profiles', component: SummaryPermissionComponent },
-      { path: 'position-profiles', component: SummaryPositionComponent },
-      { path: 'sys-message-center', component: SummaryNotificationComponent },
-      { path: 'dashboard', component: DashboardComponent },
       { path: 'client-detail', component: ClientComponent },
       { path: 'endpoint-detail', component: EndpointComponent },
       { path: 'role-detail', component: RoleComponent },
-      { path: ':id/my-client', component: MyClientsComponent },
-      { path: ':id/my-cache', component: MyCacheComponent },
-      { path: ':id/my-cors', component: MyCorsComponent },
-      { path: ':id/my-api', component: MyApisComponent },
-      { path: ':id/my-permission', component: MyPermissionsComponent },
-      { path: ':id/my-role', component: MyRolesComponent },
-      { path: ':id/my-project', component: MyProjectComponent },
-      { path: ':id/my-user', component: MyUsersComponent },
-      { path: ':id/my-admin', component: MyAdminComponent },
+
+      { path: 'projects/:id/insights', component: MyProjectComponent },
+      { path: 'projects/:id/clients', component: MyClientsComponent },
+      { path: 'projects/:id/endpoints', component: MyApisComponent },
+      { path: 'projects/:id/cache-configs', component: MyCacheComponent },
+      { path: 'projects/:id/cors-configs', component: MyCorsComponent },
+      { path: 'projects/:id/permissions', component: MyPermissionsComponent },
+      { path: 'projects/:id/roles', component: MyRolesComponent },
+      { path: 'projects/:id/users', component: MyUsersComponent },
+      { path: 'projects/:id/admins', component: MyAdminComponent },
       { path: '**', component: NotFoundComponent }
     ]
   },

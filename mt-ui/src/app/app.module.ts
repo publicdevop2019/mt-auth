@@ -35,7 +35,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { FormInfoService, MtFormBuilderModule } from 'mt-form-builder';
-import { environment } from '../environments/environment';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CustomLoader } from './clazz/locale/custom-loader';
@@ -103,12 +102,8 @@ import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-clie
 import { MyCorsComponent } from './pages/tenant/project/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
 import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-message.component';
-import { SummaryOrgComponent } from './pages/mgmt/summary-org/summary-org.component';
-import { SummaryPermissionComponent } from './pages/mgmt/summary-permission/summary-permission.component';
-import { SummaryPositionComponent } from './pages/mgmt/summary-position/summary-position.component';
 import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
 import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
-import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
 import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
@@ -174,7 +169,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     RequirePermissionDirective,
     CardNotificationComponent,
     SearchComponent,
-    SummaryRoleComponent,
     RoleComponent,
     CorsComponent,
     MyCorsComponent,
@@ -186,9 +180,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     MyProfileComponent,
     NewProjectComponent,
     ApiCenterComponent,
-    SummaryOrgComponent,
-    SummaryPermissionComponent,
-    SummaryPositionComponent,
     MyClientsComponent,
     MyApisComponent,
     MyRolesComponent,

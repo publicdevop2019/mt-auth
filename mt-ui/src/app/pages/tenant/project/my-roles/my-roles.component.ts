@@ -73,8 +73,8 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     const sub3 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.doSearch({ value: 'types:USER', resetPage: true })
     })
-    this.roleSvc.setProjectId(this.route.getProjectId());
-    this.params['projectId'] = this.route.getProjectId();
+    this.roleSvc.setProjectId(this.route.getProjectIdFromUrl());
+    this.params['projectId'] = this.route.getProjectIdFromUrl();
     const sub = combineLatest([this.canDo('EDIT_ROLE')]).subscribe(next => {
       const temp = next[0].result ? {
         name: 'NAME',

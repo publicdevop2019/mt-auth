@@ -39,8 +39,9 @@ export class MyClientsComponent implements OnDestroy {
     private router: RouterWrapperService,
     public dialog: MatDialog,
   ) {
-    this.clientSvc.setProjectId(this.router.getProjectId())
-    this.params['projectId'] = this.router.getProjectId();
+    this.clientSvc.setProjectId(this.router.getProjectIdFromUrl())
+    Logger.debug(this.clientSvc.getProjectId())
+    this.params['projectId'] = this.router.getProjectIdFromUrl();
     const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
       this.doSearch();
     });
@@ -79,9 +80,8 @@ export class MyClientsComponent implements OnDestroy {
   }
   //TODO refactor, move to utility
   canDo(...name: string[]) {
-    return combineLatest([this.router.getProjectId(), this.projectSvc.permissionDetail]).pipe(map(e => {
-      this.clientSvc.setProjectId(e[0])
-      return this.hasPermission(e[1], e[0], name)
+    return combineLatest([this.projectSvc.permissionDetail]).pipe(map(e => {
+      return this.hasPermission(e[0], this.router.getProjectIdFromUrl(), name)
     }))
   }
   //TODO refactor, move to utility
@@ -89,6 +89,7 @@ export class MyClientsComponent implements OnDestroy {
     return result.pipe(map(e => e.result))
   }
   doSearch() {
+    Logger.debug(this.clientSvc.entityRepo)
     this.clientSvc.readEntityByQuery(this.clientSvc.pageNumber, this.pageSize, undefined, undefined, undefined).subscribe(next => {
       this.updateSummaryData(next);
     })

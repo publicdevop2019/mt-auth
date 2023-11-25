@@ -5,6 +5,7 @@ import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
+import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
@@ -12,6 +13,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/event-filter.config';
 import { DeviceService } from 'src/app/services/device.service';
 import { OverlayService } from 'src/app/services/overlay.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
 export interface IStoredEvent {
   id: string,
@@ -60,14 +62,16 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
   ];
   constructor(
     public entitySvc: StoredEventAccessService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
+    public device: DeviceService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
     private overlay: Overlay,
     private overlaySvc: OverlayService,
     fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 1);
+    super(entitySvc, activated, router, bottomSheet, fis, 1);
     this.fis.init(FORM_CONFIG, this.filterFormId)
     this.initTableSetting();
     this.fis.formGroups[this.filterFormId].get('filterBy').setValue('all')
@@ -86,7 +90,7 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
         this.entitySvc.entityRepo = this.entitySvc.eventRepo;
       }
       this.entitySvc.pageNumber = 0;
-      this.deviceSvc.refreshSummary.next();
+      this.device.refreshSummary.next();
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {

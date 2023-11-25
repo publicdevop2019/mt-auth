@@ -53,8 +53,8 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       }
       this.doSearch(search);
     })
-    this.entitySvc.setProjectId(this.route.getProjectId());
-    this.epSvc.setProjectId(this.route.getProjectId());
+    this.entitySvc.setProjectId(this.route.getProjectIdFromUrl());
+    this.epSvc.setProjectId(this.route.getProjectIdFromUrl());
     const sub2 = this.canDo('VIEW_PERMISSION').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: 'types:COMMON', resetPage: true })

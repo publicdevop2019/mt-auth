@@ -51,15 +51,15 @@ export class TenantSummaryEntityComponent<T extends IIdBasedEntity, S extends T>
     protected skipInitialLoad?: boolean
   ) {
     this.initUrlRelatedValues();
-    this.entitySvc.setProjectId(route.getProjectId())
-    this.bottomSheetParams['projectId'] = route.getProjectId();
+    this.entitySvc.setProjectId(route.getProjectIdFromUrl())
+    this.bottomSheetParams['projectId'] = route.getProjectIdFromUrl();
     if (this.dataSource)
       this.dataSource.data = []
   }
 
   canDo(...name: string[]) {
     return combineLatest([this.projectSvc.permissionDetail]).pipe(map(e => {
-      return this.hasPermission(e[0], this.route.getProjectId(), name)
+      return this.hasPermission(e[0], this.route.getProjectIdFromUrl(), name)
     }))
   }
   initUrlRelatedValues() {

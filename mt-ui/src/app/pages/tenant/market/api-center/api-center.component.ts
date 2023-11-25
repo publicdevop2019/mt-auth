@@ -11,6 +11,8 @@ import { SharedEndpointService } from 'src/app/services/shared-endpoint.service'
 import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
 import { IEndpoint } from 'src/app/misc/interface';
 import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { ActivatedRoute } from '@angular/router';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
@@ -50,13 +52,15 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
   searchConfigs: ISearchConfig[] = this.initSearchConfig
   constructor(
     public entitySvc: SharedEndpointService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
+    public device: DeviceService,
     public bottomSheet: MatBottomSheet,
     public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
+    super(entitySvc, activated, router, bottomSheet, fis, 3);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

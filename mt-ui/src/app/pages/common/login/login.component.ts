@@ -27,7 +27,7 @@ export class LoginComponent {
   public set hasLoginSuccessfully(next: boolean) {
     localStorage.setItem('success_login', next + '')
   }
-  nextUrl: string = '/home';
+  nextUrl: string = '/' + RouterWrapperService.HOME_URL;
 
   loginEmailErrorMsg: string = undefined;
   loginPwdErrorMsg: string = undefined;
@@ -86,7 +86,7 @@ export class LoginComponent {
     this.router.queryParamMap.subscribe(queryMaps => {
       if (queryMaps.get('redirect_uri') !== null) {
         /** get  authorize party info */
-        this.nextUrl = '/authorize';
+        this.nextUrl = '/' + RouterWrapperService.AUTHORIZE_URL;
       }
     });
     if (localStorage.getItem('home_notification') !== 'true') {

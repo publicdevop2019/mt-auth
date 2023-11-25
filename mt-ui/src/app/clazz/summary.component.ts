@@ -17,6 +17,8 @@ import { ISearchEvent, SearchComponent } from '../components/search/search.compo
 import { FORM_TABLE_COLUMN_CONFIG } from '../form-configs/table-column.config';
 import { Utility } from '../misc/utility';
 import { TABLE_SETTING_KEY } from '../misc/constant';
+import { RouterWrapperService } from '../services/router-wrapper';
+import { ActivatedRoute } from '@angular/router';
 export interface IIdBasedEntity {
   id: string;
   version: number
@@ -65,7 +67,8 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   selection = new SelectionModel<T>(true, []);
   constructor(
     protected entitySvc: IEntityService<T, S>,
-    protected deviceSvc: DeviceService,
+    protected activeRouter: ActivatedRoute,
+    protected router: RouterWrapperService,
     protected bottomSheet: MatBottomSheet,
     protected fis: FormInfoService,
     protected _pageSizeOffset: number,
@@ -74,17 +77,17 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
     this.pageSizeOffset = _pageSizeOffset;
     this.initUrlRelatedValues();
   }
-  
+
   initUrlRelatedValues() {
-    this.entitySvc.pageNumber = this.getPageNum(this.deviceSvc.getParams().page);
-    this.pageSize = this.getPageSize(this.deviceSvc.getParams().page);
+    this.entitySvc.pageNumber = this.getPageNum(this.router.getParams(this.activeRouter).page);
+    this.pageSize = this.getPageSize(this.router.getParams(this.activeRouter).page);
     if (this.pageSize === -1) {
       this.pageSize = this.getDefaultPageSize();
-      this.deviceSvc.updateURLQueryParamPageAndSort(this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
+      this.router.updateURLQueryParamPageAndSort(this.activeRouter, this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
     }
     if (this.entitySvc.pageNumber === -1) {
       this.entitySvc.pageNumber = 0;
-      this.deviceSvc.updateURLQueryParamPageAndSort(this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
+      this.router.updateURLQueryParamPageAndSort(this.activeRouter, this.entitySvc.pageNumber, this.pageSize, this.sortBy, this.sortOrder)
     }
   }
   private getPageNum(input: string): number {
@@ -154,13 +157,13 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   }
   pageHandler(e: PageEvent) {
     this.entitySvc.pageNumber = e.pageIndex;
-    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
+    this.router.updateURLQueryParamBeforeSearch(this.activeRouter, this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
       this.updateSummaryData(next);
     });
   }
   protected getDefaultPageSize() {
-    return this.pageSize = (this.deviceSvc.pageSize - this.pageSizeOffset) > 0 ? (this.deviceSvc.pageSize - this.pageSizeOffset) : 1;
+    return this.pageSize = 10;
   }
   protected setPageSize(size: number) {
     this.pageSize = size;
@@ -243,7 +246,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
         this.sortOrder = undefined;
       }
     }
-    this.deviceSvc.updateURLQueryParamBeforeSearch(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
+    this.router.updateURLQueryParamBeforeSearch(this.activeRouter, this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder, this.queryKey);
     this.entitySvc.readEntityByQuery(this.entitySvc.pageNumber, this.pageSize, this.queryString, this.sortBy, this.sortOrder).subscribe(next => {
       this.updateSummaryData(next);
     })
@@ -251,7 +254,7 @@ export class SummaryEntityComponent<T extends IIdBasedEntity, S extends T> imple
   private getIdQuery(ids: string[]): string {
     return 'id:' + ids.join(".")
   }
-  protected initTableSetting(){
+  protected initTableSetting() {
     const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
     const settingKey = deepCopy.inputs[0].key;
     const options = this.getColumnLabelValue();

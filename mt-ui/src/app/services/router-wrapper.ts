@@ -5,6 +5,8 @@ import { Logger } from '../misc/logger';
     providedIn: 'root'
 })
 export class RouterWrapperService {
+    public static HOME_URL = 'welcome'
+    public static AUTHORIZE_URL = 'authorize'
     constructor(private router: Router) {
     }
     public getUrl() {
@@ -16,7 +18,7 @@ export class RouterWrapperService {
     public getParam() {
         return this.router.routerState.snapshot.root.queryParams;
     }
-    public getProjectId() {
+    public getProjectIdFromUrl() {
         return this.router.url.split('/')[2];
     }
     public navMfa(params: NavigationExtras) {
@@ -32,22 +34,22 @@ export class RouterWrapperService {
         this.router.navigate([url], params);
     }
     public navProjectHome() {
-        this.router.navigate(['/home']);
+        this.router.navigate(['/' + RouterWrapperService.HOME_URL]);
     }
     public navProjectAnalytics() {
 
     }
     public navProjectClientsDashboard() {
-        this.router.navigate(['home', this.getProjectId(), 'my-client']);
+        this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-client']);
     }
     public navProjectClientsDetail(data: any) {
-        this.router.navigate(['home', 'client-detail'], { state: data });
+        this.router.navigate([RouterWrapperService.HOME_URL, 'client-detail'], { state: data });
     }
     public navProjectEndpointDashboard() {
-        this.router.navigate(['home', this.getProjectId(), 'my-api']);
+        this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-api']);
     }
     public navProjectEndpointDetail(data: any) {
-        this.router.navigate(['home', 'endpoint-detail'], { state: data });
+        this.router.navigate([RouterWrapperService.HOME_URL, 'endpoint-detail'], { state: data });
     }
     public navProjectCorsDashboard() {
 
@@ -62,10 +64,10 @@ export class RouterWrapperService {
 
     }
     public navProjectRolesDetail(data: any) {
-        this.router.navigate(['home', 'role-detail'], { state: data });
+        this.router.navigate([RouterWrapperService.HOME_URL, 'role-detail'], { state: data });
     }
     public navProjectUsersDashboard() {
-        this.router.navigate(['home', this.getProjectId(), 'my-role']);
+        this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-role']);
     }
     public navProjectAdminDashboard() {
 

@@ -10,6 +10,8 @@ import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtClientComponent } from '../client/client.component';
 import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
 import { IClient } from 'src/app/misc/interface';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { ActivatedRoute } from '@angular/router';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
@@ -80,10 +82,11 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   constructor(
     public entitySvc: MgmtClientService,
     public fis: FormInfoService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
     public bottomSheet: MatBottomSheet,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
+    super(entitySvc, activated, router, bottomSheet, fis, 3);
     this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IClient>) {

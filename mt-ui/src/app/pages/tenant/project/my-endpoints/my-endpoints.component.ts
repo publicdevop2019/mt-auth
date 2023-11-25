@@ -65,8 +65,8 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     public router: ActivatedRoute,
   ) {
     super(router,route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
-    this.clientSvc.setProjectId(this.route.getProjectId())
-    this.params['projectId'] = this.route.getProjectId();
+    this.clientSvc.setProjectId(this.route.getProjectIdFromUrl())
+    this.params['projectId'] = this.route.getProjectIdFromUrl();
     const sub2 = this.canDo('VIEW_API').subscribe(b => {
       if (b.result) {
         this.doSearch({ value: '', resetPage: true })
@@ -162,6 +162,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     })
   }
   viewReport(id: string) {
-    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectId() } });
+    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectIdFromUrl() } });
   }
 }

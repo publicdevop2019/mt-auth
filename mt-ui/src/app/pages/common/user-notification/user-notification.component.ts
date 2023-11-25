@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { DeviceService } from 'src/app/services/device.service';
-import { IBellNotification, MessageService } from 'src/app/services/message.service';
+import { IBellNotification } from 'src/app/services/message.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { UserMessageService } from 'src/app/services/user-message.service';
 
 @Component({
@@ -20,15 +21,16 @@ export class UserNotificationComponent extends SummaryEntityComponent<IBellNotif
   }
   constructor(
     public entitySvc: UserMessageService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis,-2);
+    super(entitySvc, activated, router, bottomSheet, fis, -2);
     this.doRefresh();
     this.initTableSetting();
   }
-  doRefresh(){
-    super.doSearch({value:'',resetPage:false})
+  doRefresh() {
+    super.doSearch({ value: '', resetPage: false })
   }
 }

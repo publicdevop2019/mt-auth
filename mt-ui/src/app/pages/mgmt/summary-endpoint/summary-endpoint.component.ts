@@ -13,6 +13,8 @@ import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
 import { IEndpoint } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { ActivatedRoute } from '@angular/router';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
@@ -60,13 +62,14 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
   ]
   constructor(
     public entitySvc: EndpointService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
     public bottomSheet: MatBottomSheet,
     public clientSvc: MgmtClientService,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
+    super(entitySvc, activated,router, bottomSheet, fis, 3);
       this.initTableSetting();
   }
   updateSummaryData(next: ISumRep<IEndpoint>) {

@@ -25,7 +25,7 @@ export class MyProjectComponent implements OnDestroy {
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
   ) {
-    this.projectSvc.getMyProject(this.router.getProjectId()).subscribe(next => {
+    this.projectSvc.getMyProject(this.router.getProjectIdFromUrl()).subscribe(next => {
       this.data = next;
     })
   }

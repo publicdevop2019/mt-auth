@@ -12,6 +12,8 @@ import { UserService } from 'src/app/services/user.service';
 import { MgmtUserComponent } from '../mgmt-user/mgmt-user.component';
 import { IAuthUser } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { ActivatedRoute } from '@angular/router';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
@@ -49,12 +51,13 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthU
   ]
   constructor(
     public entitySvc: UserService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
     public fis: FormInfoService,
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 2);
+    super(entitySvc,activated, router, bottomSheet,fis, 2);
     this.initTableSetting();
   }
   revokeResourceOwnerToken(id: string) {

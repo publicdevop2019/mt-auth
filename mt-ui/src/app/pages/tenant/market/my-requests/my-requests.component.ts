@@ -5,6 +5,8 @@ import { IIdBasedEntity, SummaryEntityComponent } from 'src/app/clazz/summary.co
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
 import { ISubRequest, SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
+import { ActivatedRoute } from '@angular/router';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 export interface IMySubReq extends ISubRequest {
   endpointName: string,
   projectName: string,
@@ -35,14 +37,16 @@ export class MyRequestsComponent extends SummaryEntityComponent<IMySubReq, IMySu
   sheetComponent = SubscribeRequestComponent;
   constructor(
     public entitySvc: MySubRequestService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
+    public device: DeviceService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 0);
+    super(entitySvc, activated,router, bottomSheet, fis, 0);
     //manually handle search since no search component is here
     this.doSearch({ value: 'type:my_request', key: 'type', resetPage: false });
-    const sub = this.deviceSvc.refreshSummary.subscribe(() => {
+    const sub = this.device.refreshSummary.subscribe(() => {
       this.doSearch({ value: 'type:my_request', key: 'type', resetPage: false })
     })
     this.subs.add(sub)

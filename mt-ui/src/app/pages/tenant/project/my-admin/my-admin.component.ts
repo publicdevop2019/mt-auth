@@ -52,7 +52,7 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
     public cdRef: ChangeDetectorRef,
   ) {
     super(router,route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
-    this.userSvc.setProjectId(this.route.getProjectId())
+    this.userSvc.setProjectId(this.route.getProjectIdFromUrl())
     this.doRefresh();
     this.initTableSetting()
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {

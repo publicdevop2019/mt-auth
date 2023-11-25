@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
-import { DeviceService } from 'src/app/services/device.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-summary-message',
@@ -20,11 +21,12 @@ export class MessageCenterComponent extends SummaryEntityComponent<IBellNotifica
   }
   constructor(
     public entitySvc: MessageService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, -2);
+    super(entitySvc,activated, router, bottomSheet, fis, -2);
     this.doRefresh();
     this.initTableSetting();
   }

@@ -8,6 +8,8 @@ import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dial
 import { DeviceService } from 'src/app/services/device.service';
 import { MySubRequestService } from 'src/app/services/my-sub-request.service';
 import { IMySubReq } from '../my-requests/my-requests.component';
+import { ActivatedRoute } from '@angular/router';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-my-approval',
@@ -27,15 +29,17 @@ export class MyApprovalComponent extends SummaryEntityComponent<IMySubReq, IMySu
   }
   constructor(
     public entitySvc: MySubRequestService,
-    public deviceSvc: DeviceService,
+    public activated: ActivatedRoute,
+    public router: RouterWrapperService,
+    public device: DeviceService,
     public bottomSheet: MatBottomSheet,
     public fis: FormInfoService,
     public dialog: MatDialog
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 0);
+    super(entitySvc,activated, router, bottomSheet, fis, 0);
     //manually handle search since no search component is here
     this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false });
-    const sub = this.deviceSvc.refreshSummary.subscribe(() => {
+    const sub = this.device.refreshSummary.subscribe(() => {
       this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false })
     })
     this.subs.add(sub)
