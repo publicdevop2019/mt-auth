@@ -20,7 +20,6 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
   styleUrls: ['./client.component.css']
 })
 export class ClientComponent {
-  formId: string;
   enableError: boolean = false;
 
   nameErrorMsg: string = undefined;
@@ -33,7 +32,8 @@ export class ClientComponent {
   clientSecretErrorMsg: string = undefined;
 
   changeId: string = Utility.getChangeId();
-  data: IDomainContext<IClient>;
+  data: IClient;
+  context: 'NEW' | 'EDIT' = 'NEW';
   options: IOption[] = []
   resourceNum: number = 0
   resourceSize: number = 50
@@ -62,11 +62,19 @@ export class ClientComponent {
     public router: RouterWrapperService,
     public interceptor: CustomHttpInterceptor
   ) {
-    this.data = this.router.getData() as IDomainContext<IClient>
-    if (this.data === undefined) {
-      this.router.navProjectHome()
+    clientSvc.setProjectId(this.router.getProjectIdFromUrl())
+    const clientId = this.router.getClientIdFromUrl();
+    if (clientId === 'template') {
+      if (this.router.getData() === undefined) {
+        this.router.navProjectHome()
+      }
+      this.data = (this.router.getData() as IDomainContext<IClient>).from
+    } else {
+      this.context = 'EDIT'
+      this.clientSvc.readById(clientId).subscribe(next => {
+        this.data = next
+      })
     }
-    clientSvc.setProjectId(this.data.from.projectId)
     this.fg.valueChanges.subscribe(() => {
       if (this.enableError) {
         this.validateUpdateForm()
@@ -106,28 +114,28 @@ export class ClientComponent {
         this.fg.get('refreshTokenValiditySeconds').disable()
       }
     })
-    if (this.data.context === 'new') {
-      const createData = this.data as IDomainContext<IClientCreate>
-      this.fg.get('projectId').setValue(createData.from.projectId)
-      this.fg.get('frontOrBackApp').setValue(createData.from.type)
-      this.fg.get('name').setValue(createData.from.name)
+    if (this.context === 'NEW') {
+      const createData = this.data as IClientCreate
+      this.fg.get('projectId').setValue(createData.projectId)
+      this.fg.get('frontOrBackApp').setValue(createData.type)
+      this.fg.get('name').setValue(createData.name)
       this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])
       this.fg.get('accessTokenValiditySeconds').setValue(120)
       this.fg.get('refreshToken').setValue(true)
       this.fg.get('refreshTokenValiditySeconds').setValue(1200)
       this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
       this.fg.get('clientSecret').setValue(Utility.getChangeId())
-      if (createData.from.type === 'BACKEND_APP') {
+      if (createData.type === 'BACKEND_APP') {
         this.fg.get('resourceIndicator').setValue(true)
-        this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '')+'-svc')
+        this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '') + '-svc')
         this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
 
       }
     }
-    if (this.data.context === 'edit') {
+    if (this.context === 'EDIT') {
       const var0: Observable<any>[] = [];
-      if (this.data.from.resourceIds && this.data.from.resourceIds.length > 0) {
-        var0.push(this.clientSvc.readEntityByQuery(0, this.data.from.resourceIds.length, 'id:' + this.data.from.resourceIds.join('.')))
+      if (this.data.resourceIds && this.data.resourceIds.length > 0) {
+        var0.push(this.clientSvc.readEntityByQuery(0, this.data.resourceIds.length, 'id:' + this.data.resourceIds.join('.')))
       }
       if (var0.length === 0) {
         this.resume()
@@ -135,7 +143,7 @@ export class ClientComponent {
         combineLatest(var0).pipe(take(1))
           .subscribe(next => {
             let count = -1;
-            if (this.data.from.resourceIds && this.data.from.resourceIds.length > 0) {
+            if (this.data.resourceIds && this.data.resourceIds.length > 0) {
               count++;
               const nextOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
               this.options = nextOptions;
@@ -145,29 +153,46 @@ export class ClientComponent {
       }
     };
   }
-  resume(): void {
-    const grantType = this.data.from.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token);
+
+  update() {
+    this.enableError = true
+    if (this.validateUpdateForm()) {
+      this.clientSvc.update(this.data.id, this.convertToPayload(), this.changeId)
+    }
+  }
+  create() {
+    this.enableError = true
+    if (this.validateCreateForm()) {
+      this.httpProxySvc.createEntity(this.clientSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
+        !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
+        this.router.navProjectClientsDashboard()
+      });
+    }
+  }
+  private resume(): void {
+    const grantType = this.data.grantTypeEnums.filter(e => e !== grantTypeEnums.refresh_token);
     const value = {
-      id: this.data.from.id,
-      projectId: this.data.from.projectId,
-      path: this.data.from.path ? this.data.from.path : '',
-      externalUrl: this.data.from.externalUrl ? this.data.from.externalUrl : '',
-      clientSecret: this.data.from.clientSecret,
-      name: this.data.from.name,
-      description: this.data.from.description || '',
-      frontOrBackApp: this.data.from.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
+      id: this.data.id,
+      projectId: this.data.projectId,
+      path: this.data.path ? this.data.path : '',
+      externalUrl: this.data.externalUrl ? this.data.externalUrl : '',
+      clientSecret: this.data.clientSecret,
+      name: this.data.name,
+      description: this.data.description || '',
+      frontOrBackApp: this.data.types.filter(e => [CLIENT_TYPE.frontend_app, CLIENT_TYPE.backend_app].includes(e))[0],
       grantType: grantType,
-      registeredRedirectUri: this.data.from.registeredRedirectUri ? this.data.from.registeredRedirectUri.join(',') : '',
-      refreshToken: this.data.from.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),
-      resourceIndicator: this.data.from.resourceIndicator,
-      autoApprove: this.data.from.autoApprove,
-      accessTokenValiditySeconds: this.data.from.accessTokenValiditySeconds,
-      refreshTokenValiditySeconds: this.data.from.refreshTokenValiditySeconds,
-      resourceId: this.data.from.resourceIds,
+      registeredRedirectUri: this.data.registeredRedirectUri ? this.data.registeredRedirectUri.join(',') : '',
+      refreshToken: this.data.grantTypeEnums.find(e => e === grantTypeEnums.refresh_token),
+      resourceIndicator: this.data.resourceIndicator,
+      autoApprove: this.data.autoApprove,
+      accessTokenValiditySeconds: this.data.accessTokenValiditySeconds,
+      refreshTokenValiditySeconds: this.data.refreshTokenValiditySeconds,
+      resourceId: this.data.resourceIds,
     }
     this.fg.patchValue(value)
   }
-  convertToPayload(): IClient {
+
+  private convertToPayload(): IClient {
     let formGroup = this.fg;
     let grants: grantTypeEnums[] = [];
     const types: CLIENT_TYPE[] = [];
@@ -191,7 +216,7 @@ export class ClientComponent {
         resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
         registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
         autoApprove: (formGroup.get('grantType').value as string[]).find(e => e === grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
-        version: this.data.from && this.data.from.version,
+        version: this.data && this.data.version,
         projectId: formGroup.get('projectId').value
       }
     }
@@ -210,26 +235,10 @@ export class ClientComponent {
       resourceIds: formGroup.get('resourceId').value ? formGroup.get('resourceId').value as string[] : [],
       registeredRedirectUri: formGroup.get('registeredRedirectUri').value ? (formGroup.get('registeredRedirectUri').value as string).split(',') : null,
       autoApprove: (formGroup.get('grantType').value as string[]).find(e => e === grantTypeEnums.authorization_code) ? !!formGroup.get('autoApprove').value : null,
-      version: this.data.from && this.data.from.version,
+      version: this.data && this.data.version,
       projectId: formGroup.get('projectId').value
     }
   }
-  update() {
-    this.enableError = true
-    if (this.validateUpdateForm()) {
-      this.clientSvc.update(this.data.from.id, this.convertToPayload(), this.changeId)
-    }
-  }
-  create() {
-    this.enableError = true
-    if (this.validateCreateForm()) {
-      this.httpProxySvc.createEntity(this.clientSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
-        !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
-        this.router.navProjectClientsDashboard()
-    });
-    }
-  }
-
   private validateUpdateForm() {
     const var0 = Validator.exist(this.fg.get('name').value)
     this.nameErrorMsg = var0.errorMsg;

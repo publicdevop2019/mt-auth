@@ -115,10 +115,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
     })
   }
   editRole(id: string) {
-    this.roleSvc.readById(id).subscribe(next => {
-      const data = <IDomainContext<IRole>>{ context: 'edit', from: next, params: this.params }
-      this.route.navProjectRolesDetail(data)
-    })
+    this.route.navProjectRolesDetail(id)
   }
   convertToPayload(name: string, description: string): IRole {
     return {

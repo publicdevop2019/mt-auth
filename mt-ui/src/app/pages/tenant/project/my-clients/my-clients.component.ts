@@ -65,15 +65,12 @@ export class MyClientsComponent implements OnDestroy {
       if (next !== undefined) {
         Logger.debugObj('client basic info', next)
         const data = <IDomainContext<IClientCreate>>{ context: 'new', from: next, params: this.params }
-        this.router.navProjectClientsDetail({ state: data })
+        this.router.navProjectNewClientsDetail({ state: data })
       }
     })
   }
   editClient(id: string): void {
-    this.clientSvc.readById(id).subscribe(next => {
-      const data = <IDomainContext<IClient>>{ context: 'edit', from: next, params: this.params }
-      this.router.navProjectClientsDetail({ state: data })
-    })
+    this.router.navProjectClientsDetail(id)
   }
   removeFirst(input: string[]) {
     return input.filter((e, i) => i !== 0);

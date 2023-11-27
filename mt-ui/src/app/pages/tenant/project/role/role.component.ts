@@ -2,7 +2,6 @@ import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, Subscription } from 'rxjs';
-import { IDomainContext } from 'src/app/clazz/summary.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyPermissionService } from 'src/app/services/my-permission.service';
@@ -39,8 +38,7 @@ export class RoleComponent implements OnDestroy {
   public allowError = false;
   public changeId = Utility.getChangeId();
   public nameErrorMsg: string;
-  public data: IDomainContext<IRole>
-  aggregate: IRole;
+  public data: IRole
   parentOptions: IOption[] = []
   commonOptions: IOption[] = []
   apiOptions: IOption[] = []
@@ -63,31 +61,28 @@ export class RoleComponent implements OnDestroy {
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
-    this.data = this.router.getData().extras.state as IDomainContext<IRole>
-    if (this.data === undefined) {
-      this.router.navProjectHome()
-    }
-    this.aggregate = this.data.from;
-    this.permissoinSvc.setProjectId(this.data.params['projectId'])
-    this.sharedPermSvc.setProjectId(this.data.params['projectId'])
-    this.roleSvc.setProjectId(this.data.params['projectId'])
+    const roleId = this.router.getRoleIdFromUrl()
+    this.permissoinSvc.setProjectId(this.router.getProjectIdFromUrl())
+    this.sharedPermSvc.setProjectId(this.router.getProjectIdFromUrl())
+    this.roleSvc.setProjectId(this.router.getProjectIdFromUrl())
+
+    this.roleSvc.readById(roleId).subscribe(next => {
+      this.data = next
+      this.fg.get('name').setValue(this.data.name)
+      this.fg.get('description').setValue(this.data.description)
+      this.reusme();
+    })
     this.dataSource = new MatTableDataSource([])
-    if (this.data.context === 'new') {
-      this.fg.get('name').setValue(this.data.from.name)
-      this.fg.get('description').setValue(this.data.from.description)
-    }
     this.fg.valueChanges.subscribe(next => {
       if (this.allowError) {
         this.validateForm()
       }
     })
-    this.reusme();
     const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.roleSvc.readById(this.data.from.id).subscribe(next => {
+      this.roleSvc.readById(this.data.id).subscribe(next => {
         Logger.debug('reload view')
-        this.data.from = next;
-        this.aggregate = next;
-        this.dataSource = new MatTableDataSource(this.aggregate.permissionDetails || []);
+        this.data = next;
+        this.dataSource = new MatTableDataSource(this.data.permissionDetails || []);
       })
     })
     this.subs.add(sub2)
@@ -125,41 +120,38 @@ export class RoleComponent implements OnDestroy {
     } as IQueryProvider
   }
   reusme(): void {
-    if (this.data.context === 'edit') {
-      this.dataSource = new MatTableDataSource(this.aggregate.permissionDetails || []);
-      Logger.debug(this.aggregate.permissionDetails)
-      if (this.aggregate.parentId || (this.aggregate.externalPermissionIds && this.aggregate.externalPermissionIds.length > 0)) {
-        let var0: Observable<any>[] = [];
-        if (this.aggregate.parentId) {
-          var0.push(this.roleSvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.parentId))
-        }
-        if ((this.aggregate.externalPermissionIds && this.aggregate.externalPermissionIds.length > 0)) {
-          var0.push(this.sharedPermSvc.readEntityByQuery(0, 1, 'id:' + this.aggregate.externalPermissionIds.join('.')))
-        }
-        combineLatest(var0).subscribe(next => {
-          if (this.aggregate.parentId) {
-            this.parentOptions = next[0].data.map(e => <IOption>{ label: e.name, value: e.id });
-            if (next.length > 1) {
-              this.sharedApiOptions = next[1].data.map(e => <IOption>{ label: e.name, value: e.id })
-            }
-          } else {
+    this.dataSource = new MatTableDataSource(this.data.permissionDetails || []);
+    if (this.data.parentId || (this.data.externalPermissionIds && this.data.externalPermissionIds.length > 0)) {
+      let var0: Observable<any>[] = [];
+      if (this.data.parentId) {
+        var0.push(this.roleSvc.readEntityByQuery(0, 1, 'id:' + this.data.parentId))
+      }
+      if ((this.data.externalPermissionIds && this.data.externalPermissionIds.length > 0)) {
+        var0.push(this.sharedPermSvc.readEntityByQuery(0, 1, 'id:' + this.data.externalPermissionIds.join('.')))
+      }
+      combineLatest(var0).subscribe(next => {
+        if (this.data.parentId) {
+          this.parentOptions = next[0].data.map(e => <IOption>{ label: e.name, value: e.id });
+          if (next.length > 1) {
             this.sharedApiOptions = next[1].data.map(e => <IOption>{ label: e.name, value: e.id })
           }
-          this.resumeForm()
-        })
-      } else {
+        } else {
+          this.sharedApiOptions = next[1].data.map(e => <IOption>{ label: e.name, value: e.id })
+        }
         this.resumeForm()
-      }
+      })
+    } else {
+      this.resumeForm()
     }
   }
   resumeForm() {
-    this.fg.get('id').setValue(this.aggregate.id)
-    this.fg.get('name').setValue(this.aggregate.name)
-    this.fg.get('parentId').setValue(this.aggregate.parentId)
-    this.fg.get('description').setValue(this.aggregate.description ? this.aggregate.description : '')
-    this.fg.get('sharedApi').setValue(this.aggregate.externalPermissionIds);
-    this.fg.get('apiPermissionIds').setValue(this.aggregate.apiPermissionIds);
-    this.fg.get('commonPermissionIds').setValue(this.aggregate.commonPermissionIds);
+    this.fg.get('id').setValue(this.data.id)
+    this.fg.get('name').setValue(this.data.name)
+    this.fg.get('parentId').setValue(this.data.parentId)
+    this.fg.get('description').setValue(this.data.description ? this.data.description : '')
+    this.fg.get('sharedApi').setValue(this.data.externalPermissionIds);
+    this.fg.get('apiPermissionIds').setValue(this.data.apiPermissionIds);
+    this.fg.get('commonPermissionIds').setValue(this.data.commonPermissionIds);
   }
   convertToUpdateBasicPayload(): any {
     const formGroup = this.fg;
@@ -167,10 +159,10 @@ export class RoleComponent implements OnDestroy {
     type = 'BASIC'
     return {
       type: type,
-      name: this.aggregate.systemCreate ? this.aggregate.originalName : formGroup.get('name').value,
+      name: this.data.systemCreate ? this.data.originalName : formGroup.get('name').value,
       parentId: formGroup.get('parentId').value || null,
       description: formGroup.get('description').value ? formGroup.get('description').value : null,
-      version: this.aggregate && this.aggregate.version
+      version: this.data && this.data.version
     }
   }
   convertToUpdatePermissionPayload(sourceType: 'COMMON_PERMISSIONS' | 'API_PERMISSIONS' | 'EXTERNAL_PERMISSION',
@@ -180,27 +172,27 @@ export class RoleComponent implements OnDestroy {
       type = 'API_PERMISSION'
       return {
         type: type,
-        apiPermissionIds: isAdd ? [...this.data.from.apiPermissionIds, ...ids]
-          : this.data.from.apiPermissionIds.filter(e => !ids.includes(e)),
-        externalPermissionIds: this.data.from.externalPermissionIds,
-        version: this.aggregate && this.aggregate.version
+        apiPermissionIds: isAdd ? [...this.data.apiPermissionIds, ...ids]
+          : this.data.apiPermissionIds.filter(e => !ids.includes(e)),
+        externalPermissionIds: this.data.externalPermissionIds,
+        version: this.data && this.data.version
       }
     } else if (sourceType === 'EXTERNAL_PERMISSION') {
       type = 'API_PERMISSION'
       return {
         type: type,
-        apiPermissionIds: this.data.from.apiPermissionIds,
-        externalPermissionIds: isAdd ? [...this.data.from.externalPermissionIds, ...ids]
-          : this.data.from.externalPermissionIds.filter(e => !ids.includes(e)),
-        version: this.aggregate && this.aggregate.version
+        apiPermissionIds: this.data.apiPermissionIds,
+        externalPermissionIds: isAdd ? [...this.data.externalPermissionIds, ...ids]
+          : this.data.externalPermissionIds.filter(e => !ids.includes(e)),
+        version: this.data && this.data.version
       }
     } else if (sourceType === 'COMMON_PERMISSIONS') {
       type = 'COMMON_PERMISSION'
       return {
         type: type,
-        commonPermissionIds: isAdd ? [...this.data.from.commonPermissionIds, ...ids]
-          : this.data.from.commonPermissionIds.filter(e => !ids.includes(e)),
-        version: this.aggregate && this.aggregate.version
+        commonPermissionIds: isAdd ? [...this.data.commonPermissionIds, ...ids]
+          : this.data.commonPermissionIds.filter(e => !ids.includes(e)),
+        version: this.data && this.data.version
       }
     }
   }
@@ -212,14 +204,14 @@ export class RoleComponent implements OnDestroy {
   update() {
     this.allowError = true;
     if (this.validateForm()) {
-      this.roleSvc.update(this.aggregate.id, this.convertToUpdateBasicPayload(), this.changeId)
+      this.roleSvc.update(this.data.id, this.convertToUpdateBasicPayload(), this.changeId)
     }
   }
   addPermission() {
     const dialogRef = this.dialog.open(AddPermissionDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
+        this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
       }
     })
   }
@@ -228,11 +220,11 @@ export class RoleComponent implements OnDestroy {
   };
   removePerm(row: IPermTable) {
     if (row.type === 'COMMON') {
-      this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
+      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'API') {
-      this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload('API_PERMISSIONS', [row.id], false), this.changeId)
+      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('API_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'SHARED') {
-      this.roleSvc.update(this.aggregate.id, this.convertToUpdatePermissionPayload('EXTERNAL_PERMISSION', [row.id], false), this.changeId)
+      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('EXTERNAL_PERMISSION', [row.id], false), this.changeId)
     }
   }
 }

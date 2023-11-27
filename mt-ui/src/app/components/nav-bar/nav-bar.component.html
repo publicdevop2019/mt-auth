@@ -62,7 +62,7 @@
         </ng-container>
     </mat-menu>
     <mat-menu #userMenu="matMenu">
-        <button mat-menu-item [routerLink]="'user-notification'">
+        <button mat-menu-item [routerLink]="'user/notification/bell'">
             <mat-icon fontSet="material-icons-outlined">notifications_none</mat-icon>
             <span> {{'USER_MESSAGE'|translate}}</span>
         </button>
@@ -90,15 +90,15 @@
                 <div style="font-size: 14px; color: #673ab7; line-height: 36px; font-weight: 700;">{{name}}</div>
             </div>
             <div>
-                <button mat-menu-item [routerLink]="'my-profile'">
+                <button mat-menu-item [routerLink]="'user/profile'">
                     <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
                     <span> {{'MY_PROFILE'|translate}}</span>
                 </button>
-                <button mat-menu-item [routerLink]="'settings'">
+                <button mat-menu-item [routerLink]="'user/setting'">
                     <mat-icon fontSet="material-icons-outlined">settings</mat-icon>
                     <span> {{'SYSTEM_SETTINGS'|translate}}</span>
                 </button>
-                <button mat-menu-item [routerLink]="'user-notification'" (click)="doLogout()">
+                <button mat-menu-item (click)="doLogout()">
                     <mat-icon fontSet="material-icons-outlined">exit_to_app</mat-icon>
                     <span> {{'LOGOUT'|translate}}</span>
                 </button>

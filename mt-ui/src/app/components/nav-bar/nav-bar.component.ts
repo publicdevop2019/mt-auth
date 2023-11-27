@@ -173,28 +173,28 @@ export class NavBarComponent implements OnInit {
   ];
   menuEp: INavElement[] = [
     {
-      link: 'api-center',
+      link: 'market',
       display: 'API_CENTER',
       icon: 'store',
       params: {
       },
     },
     {
-      link: 'my-sub-request',
+      link: 'requests',
       display: 'MY_SUB_REQUEST',
       icon: 'shopping_cart',
       params: {
       },
     },
     {
-      link: 'pending-sub-request',
+      link: 'approval',
       display: 'PENDING_SUB_REQUEST',
       icon: 'checklist',
       params: {
       },
     },
     {
-      link: 'my-subs',
+      link: 'subscriptions',
       display: 'MY_SUBS',
       icon: 'subscriptions',
       params: {
