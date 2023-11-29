@@ -13,6 +13,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { Logger } from 'src/app/misc/logger';
 
 @Component({
   selector: 'app-client',
@@ -64,6 +65,7 @@ export class ClientComponent {
   ) {
     clientSvc.setProjectId(this.router.getProjectIdFromUrl())
     const clientId = this.router.getClientIdFromUrl();
+    Logger.debug(clientId)
     if (clientId === 'template') {
       if (this.router.getData() === undefined) {
         this.router.navProjectHome()
@@ -72,7 +74,25 @@ export class ClientComponent {
     } else {
       this.context = 'EDIT'
       this.clientSvc.readById(clientId).subscribe(next => {
-        this.data = next
+        this.data = next;
+        const var0: Observable<any>[] = [];
+        if (this.data.resourceIds && this.data.resourceIds.length > 0) {
+          var0.push(this.clientSvc.readEntityByQuery(0, this.data.resourceIds.length, 'id:' + this.data.resourceIds.join('.')))
+        }
+        if (var0.length === 0) {
+          this.resume()
+        } else {
+          combineLatest(var0).pipe(take(1))
+            .subscribe(next => {
+              let count = -1;
+              if (this.data.resourceIds && this.data.resourceIds.length > 0) {
+                count++;
+                const nextOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
+                this.options = nextOptions;
+              }
+              this.resume()
+            })
+        }
       })
     }
     this.fg.valueChanges.subscribe(() => {
@@ -132,26 +152,6 @@ export class ClientComponent {
 
       }
     }
-    if (this.context === 'EDIT') {
-      const var0: Observable<any>[] = [];
-      if (this.data.resourceIds && this.data.resourceIds.length > 0) {
-        var0.push(this.clientSvc.readEntityByQuery(0, this.data.resourceIds.length, 'id:' + this.data.resourceIds.join('.')))
-      }
-      if (var0.length === 0) {
-        this.resume()
-      } else {
-        combineLatest(var0).pipe(take(1))
-          .subscribe(next => {
-            let count = -1;
-            if (this.data.resourceIds && this.data.resourceIds.length > 0) {
-              count++;
-              const nextOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-              this.options = nextOptions;
-            }
-            this.resume()
-          })
-      }
-    };
   }
 
   update() {

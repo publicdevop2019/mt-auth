@@ -143,9 +143,9 @@
         </mat-tab-group>
         <div style="display: flex; justify-content: center; margin-top: 36px;">
             <button mat-raised-button color="primary" (click)="update()" style="width: 150px;"
-                *ngIf="data.context === 'edit'">{{'UPDATE'|translate}}</button>
+                *ngIf="context === 'EDIT'">{{'UPDATE'|translate}}</button>
             <button mat-raised-button color="primary" (click)="create()" style="width: 150px;"
-                *ngIf="data.context === 'new' || data.context === 'clone'">{{'CREATE'|translate}}</button>
+                *ngIf="context === 'NEW'">{{'CREATE'|translate}}</button>
 
         </div>
     </form>

@@ -128,15 +128,12 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
         const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: this.params }
-        this.route.navProjectEndpointDetail(data)
+        this.route.navProjectNewEndpointDetail(data)
       }
     })
   }
   editEndpoint(id: string): void {
-    this.entitySvc.readById(id).subscribe(next => {
-      const data = <IDomainContext<IEndpoint>>{ context: 'edit', from: next, params: this.params }
-      this.route.navProjectEndpointDetail(data)
-    })
+    this.route.navProjectEndpointDetail(id)
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

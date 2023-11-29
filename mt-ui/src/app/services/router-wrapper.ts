@@ -27,6 +27,9 @@ export class RouterWrapperService {
     public getClientIdFromUrl() {
         return this.router.url.split('/')[4];
     }
+    public getEndpointIdFromUrl() {
+        return this.router.url.split('/')[4];
+    }
     public navMfa(params: NavigationExtras) {
         this.router.navigate(['/mfa'], params);
     }
@@ -45,8 +48,14 @@ export class RouterWrapperService {
     public navProjectAnalytics() {
 
     }
+    public navClientsDashboard(projectId: string) {
+        this.router.navigate(['projects', projectId, 'clients']);
+    }
+    public navEndpointDashboard(projectId: string) {
+        this.router.navigate(['projects', projectId, 'endpoints']);
+    }
     public navProjectClientsDashboard() {
-        this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-client']);
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'clients']);
     }
     public navProjectClientsDetail(id: string) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'clients', id]);
@@ -55,10 +64,13 @@ export class RouterWrapperService {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'clients', 'template'], { state: data });
     }
     public navProjectEndpointDashboard() {
-        this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-api']);
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints']);
     }
-    public navProjectEndpointDetail(data: any) {
-        this.router.navigate([RouterWrapperService.HOME_URL, 'endpoint-detail'], { state: data });
+    public navProjectEndpointDetail(id: string) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints',id]);
+    }
+    public navProjectNewEndpointDetail(data: any) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints','template'], { state: data });
     }
     public navProjectCorsDashboard() {
 

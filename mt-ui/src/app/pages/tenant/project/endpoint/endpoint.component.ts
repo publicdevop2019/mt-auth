@@ -35,7 +35,7 @@ export class EndpointComponent {
   corsIdErrorMsg: string = undefined;
 
   performanceWarnning: boolean = false;
-  data: IDomainContext<IEndpoint>;
+  data: IEndpoint;
   options: IOption[] = []
   corsOptions: IOption[] = []
   cacheOptions: IOption[] = []
@@ -62,6 +62,8 @@ export class EndpointComponent {
   corsPageSize = 10;
   cachePageNum = 0;
   cachePageSize = 10;
+
+  context: 'NEW' | 'EDIT' = 'NEW';
   constructor(
     public endpointSvc: MyEndpointService,
     public clientSvc: MyClientService,
@@ -72,15 +74,37 @@ export class EndpointComponent {
     public router: RouterWrapperService,
     public interceptor: CustomHttpInterceptor
   ) {
-    this.data = this.router.getData() as IDomainContext<IEndpoint>
-    if (this.data === undefined) {
-      this.router.navProjectHome()
+    clientSvc.setProjectId(this.router.getProjectIdFromUrl())
+    corsSvc.setProjectId(this.router.getProjectIdFromUrl())
+    cacheSvc.setProjectId(this.router.getProjectIdFromUrl())
+    const endpointId = this.router.getEndpointIdFromUrl();
+    if (endpointId === 'template') {
+      if (this.router.getData() === undefined) {
+        this.router.navProjectHome()
+      }
+      this.data = (this.router.getData() as IDomainContext<IEndpoint>).from
+    } else {
+      this.context = 'EDIT'
+      this.endpointSvc.readById(endpointId).subscribe(next => {
+        this.data = next;
+        if (this.data.shared) {
+          this.fg.get('type').setValue('PROTECTED_SHARED_API')
+        } else {
+          if (!this.data.external) {
+            this.fg.get('type').setValue('API_PRIVATE')
+          } else {
+            if (this.data.secured) {
+              this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
+            } else {
+              this.fg.get('type').setValue('PUBLIC_APP')
+            }
+          }
+        }
+        this.resume();
+      })
     }
-    clientSvc.setProjectId(this.data.params['projectId'])
-    corsSvc.setProjectId(this.data.params['projectId'])
-    cacheSvc.setProjectId(this.data.params['projectId'])
     this.httpProxySvc.readEntityByQuery<IClient>(this.clientSvc.entityRepo,
-      this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.data.params['projectId']},resourceIndicator:1`)
+      this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
       .subscribe(next => {
         this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
@@ -140,62 +164,46 @@ export class EndpointComponent {
         this.fg.get('corsProfile').disable()
       }
     })
-    if (this.data.context === 'new') {
-      const createData = this.router.getData() as IDomainContext<IEndpointCreate>
-      this.fg.get('projectId').setValue(createData.from.projectId)
-      this.fg.get('name').setValue(createData.from.name)
-      this.fg.get('type').setValue(createData.from.type)
-    }
-    else if (this.data.context === 'edit') {
-      if (this.data.from.shared) {
-        this.fg.get('type').setValue('PROTECTED_SHARED_API')
-      } else {
-        if (!this.data.from.external) {
-          this.fg.get('type').setValue('API_PRIVATE')
-        } else {
-          if (this.data.from.secured) {
-            this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
-          } else {
-            this.fg.get('type').setValue('PUBLIC_APP')
-          }
-        }
-      }
-      this.resume();
+    if (this.context === 'NEW') {
+      const createData = this.router.getData() as IEndpointCreate
+      this.fg.get('projectId').setValue(createData.projectId)
+      this.fg.get('name').setValue(createData.name)
+      this.fg.get('type').setValue(createData.type)
     }
   }
   resume(): void {
-    if (this.data.context === 'edit') {
+    if (this.context === 'EDIT') {
       const var0: Observable<any>[] = [];
-      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.resourceId))
-      if (this.data.from.corsProfileId) {
-        var0.push(this.corsSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.corsProfileId))
+      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.resourceId))
+      if (this.data.corsProfileId) {
+        var0.push(this.corsSvc.readEntityByQuery(0, 1, 'id:' + this.data.corsProfileId))
       }
-      if (this.data.from.cacheProfileId) {
-        var0.push(this.cacheSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.cacheProfileId))
+      if (this.data.cacheProfileId) {
+        var0.push(this.cacheSvc.readEntityByQuery(0, 1, 'id:' + this.data.cacheProfileId))
       }
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
           this.options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
-          if (this.data.from.corsProfileId) {
+          if (this.data.corsProfileId) {
             count++;
             this.corsOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
           }
-          if (this.data.from.cacheProfileId) {
+          if (this.data.cacheProfileId) {
             count++;
             this.cacheOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
           }
-          this.fg.patchValue(this.data.from);
-          this.fg.get("csrf").setValue(this.data.from.csrfEnabled);
-          this.fg.get("replenishRate").setValue(this.data.from.replenishRate);
-          this.fg.get("burstCapacity").setValue(this.data.from.burstCapacity);
-          this.fg.get("isWebsocket").setValue(this.data.from.websocket ? 'yes' : 'no');
-          if (this.data.from.corsProfileId) {
+          this.fg.patchValue(this.data);
+          this.fg.get("csrf").setValue(this.data.csrfEnabled);
+          this.fg.get("replenishRate").setValue(this.data.replenishRate);
+          this.fg.get("burstCapacity").setValue(this.data.burstCapacity);
+          this.fg.get("isWebsocket").setValue(this.data.websocket ? 'yes' : 'no');
+          if (this.data.corsProfileId) {
             this.fg.get("cors").setValue(true);
-            this.fg.get("corsProfile").setValue(this.data.from.corsProfileId);
+            this.fg.get("corsProfile").setValue(this.data.corsProfileId);
           }
-          if (this.data.from.cacheProfileId) {
-            this.fg.get("cacheProfile").setValue(this.data.from.cacheProfileId);
+          if (this.data.cacheProfileId) {
+            this.fg.get("cacheProfile").setValue(this.data.cacheProfileId);
           }
         })
 
@@ -239,14 +247,14 @@ export class EndpointComponent {
       cacheProfileId: this.fg.get('method').value === 'GET' ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
       replenishRate: isWs ? null : +this.fg.get("replenishRate").value,
       burstCapacity: isWs ? null : +this.fg.get("burstCapacity").value,
-      version: this.data.from && this.data.from.version
+      version: this.data && this.data.version
     }
   }
   update() {
     this.allowError = true;
     if (this.validateForm()) {
       const payload = this.convertToPayload()
-      this.endpointSvc.update(this.data.from.id, payload, this.changeId)
+      this.endpointSvc.update(this.data.id, payload, this.changeId)
     }
   }
   create() {

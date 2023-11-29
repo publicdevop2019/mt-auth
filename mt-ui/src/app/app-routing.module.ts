@@ -78,13 +78,15 @@ const routes: Routes = [
       { path: 'mgmt/notification/bell', component: MessageCenterComponent },
       { path: 'mgmt/proxy-cache', component: CacheControlComponent },
 
-      { path: 'user/notification/bell', component: UserNotificationComponent },
-      { path: 'user/setting', component: SettingComponent },
-      { path: 'user/profile', component: MyProfileComponent },
       { path: 'market', component: ApiCenterComponent },
       { path: 'requests', component: MyRequestsComponent },
       { path: 'approval', component: MyApprovalComponent },
       { path: 'subscriptions', component: MySubscriptionsComponent },
+
+      { path: 'user/notification/bell', component: UserNotificationComponent },
+      { path: 'user/setting', component: SettingComponent },
+      { path: 'user/profile', component: MyProfileComponent },
+      
       { path: 'projects/:id/clients/template', component: ClientComponent },
       { path: 'projects/:id/clients/:clientId', component: ClientComponent },
       { path: 'projects/:id/endpoints/template', component: EndpointComponent },
