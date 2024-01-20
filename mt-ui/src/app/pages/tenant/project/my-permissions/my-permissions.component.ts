@@ -1,27 +1,27 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ActivatedRoute } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
+import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyPermissionService } from 'src/app/services/my-permission.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { IEndpoint, IPermission } from 'src/app/misc/interface';
 import { FormGroup, FormControl } from '@angular/forms';
 import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { PermissionHelper } from 'src/app/clazz/permission-helper';
+import { BannerService } from 'src/app/services/banner.service';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-my-permissions',
   templateUrl: './my-permissions.component.html',
   styleUrls: ['./my-permissions.component.css']
 })
-export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermission, IPermission> implements OnDestroy {
+export class MyPermissionsComponent {
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   public changeId = Utility.getChangeId();
   public allowError = false;
   public nameErrorMsg: string = undefined;
@@ -31,37 +31,28 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     parentId: new FormControl(''),
     apiId: new FormControl([]),
   });
-  columnList: any = {};
+  columnList: any = {
+    id: 'ID',
+    name: 'PERM_NAME',
+    type: 'TYPE',
+  };
   parentIdOption = [];
   apiOptions = [];
+  public tableSource: TableHelper<IPermission> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'types:COMMON');
+  public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
-    public entitySvc: MyPermissionService,
-    public epSvc: MyEndpointService,
     public projectSvc: ProjectService,
-    public deviceSvc: DeviceService,
     public httpSvc: HttpProxyService,
-    public fis: FormInfoService,
-    public bottomSheet: MatBottomSheet,
-    public router: ActivatedRoute,
+    public bannerSvc: BannerService,
     public route: RouterWrapperService,
   ) {
-    super(router, route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
-    this.deviceSvc.refreshSummary.subscribe(() => {
-      const search = {
-        value: 'types:COMMON',
-        resetPage: false
-      }
-      this.doSearch(search);
-    })
-    this.entitySvc.setProjectId(this.route.getProjectIdFromUrl());
-    this.epSvc.setProjectId(this.route.getProjectIdFromUrl());
-    const sub2 = this.canDo('VIEW_PERMISSION').subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_PERMISSION').pipe(take(1)).subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: 'types:COMMON', resetPage: true })
+        this.tableSource.loadPage(0)
       }
     })
-    const sub3 = this.canDo('EDIT_PERMISSION').subscribe(b => {
-      const temp = b.result ? {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_PERMISSION').pipe(take(1)).subscribe(b => {
+      this.columnList = b.result ? {
         id: 'ID',
         name: 'PERM_NAME',
         type: 'TYPE',
@@ -71,39 +62,25 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
         name: 'PERM_NAME',
         type: 'TYPE',
       }
-      this.columnList = temp
-      this.initTableSetting();
+      this.tableSource.columnConfig = this.columnList;
     })
-    this.subs.add(sub2)
-    this.subs.add(sub3)
     this.fg.valueChanges.subscribe(() => {
       if (this.allowError) {
         this.validateCreateForm()
       }
     })
   }
-  ngOnDestroy() {
-    this.fis.reset(this.formId)
-    super.ngOnDestroy()
-  };
-  doSearchWrapperCommon(config: ISearchEvent) {
-    config.value = "types:COMMON"
-    this.doSearch(config)
-  }
-  displayedApiColumns() {
-    return ['id', 'name']
-  };
   getParentPerm(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IPermission>(this.entitySvc.entityRepo, num, size, `types:COMMON`, by, order, header)
+        return this.httpSvc.readEntityByQuery<IPermission>(this.url, num, size, `types:COMMON`, by, order, header)
       }
     } as IQueryProvider
   }
   getEndpoints(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IEndpoint>(this.epSvc.entityRepo, num, size, query, by, order, header)
+        return this.httpSvc.readEntityByQuery<IEndpoint>(this.epUrl, num, size, query, by, order, header)
       }
     } as IQueryProvider
   }
@@ -112,7 +89,7 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
       id: '',//value is ignored
       parentId: this.fg.get('parentId').value ? this.fg.get('parentId').value : null,
       name: this.fg.get('name').value,
-      projectId: this.entitySvc.getProjectId(),
+      projectId: this.projectId,
       linkedApiIds: this.fg.get('apiId').value || [],
       version: 0
     }
@@ -120,7 +97,12 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
   create() {
     this.allowError = true
     if (this.validateCreateForm()) {
-      this.entitySvc.create(this.convertToPayload(), this.changeId)
+      this.httpSvc.createEntity(this.url, this.convertToPayload(), this.changeId).subscribe(() => {
+        this.bannerSvc.notify(true)
+        this.tableSource.refresh()
+      }, () => {
+        this.bannerSvc.notify(false)
+      })
     }
   }
 
@@ -128,5 +110,13 @@ export class MyPermissionsComponent extends TenantSummaryEntityComponent<IPermis
     const var0 = Validator.exist(this.fg.get('name').value)
     this.nameErrorMsg = var0.errorMsg
     return !var0.errorMsg
+  }
+  public delete(id: string) {
+    this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
+      this.bannerSvc.notify(true)
+      this.tableSource.refresh()
+    }, () => {
+      this.bannerSvc.notify(false)
+    })
   }
 }

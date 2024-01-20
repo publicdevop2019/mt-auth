@@ -36,15 +36,11 @@
     <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
         (click)="doRefresh()">{{'REFRESH'|translate}}</button>
 </div>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:right;">
-    <app-table-column-config [formId]="formId" ></app-table-column-config>
-</div>
 <div >
     <div class="table-container">
-        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-            <!-- Checkbox Column -->
+        <table mat-table [dataSource]="tableSource.dataSource">
             <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.id"></app-copy-field>
                 </td>
@@ -58,7 +54,7 @@
             </ng-container>
 
             <ng-container matColumnDef="name" sticky>
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['name']|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <app-copy-field [inputValue]="row.name"></app-copy-field>
                 </td>
@@ -67,16 +63,16 @@
             <ng-container matColumnDef="delete">
                 <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
-                    <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
+                    <mat-icon (click)="delete(row.id)" [color]="'warn'">delete_outline</mat-icon>
                 </td>
             </ng-container>
 
-            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+            <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
         </table>
     </div>
 
-    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-        [pageSize]="pageSize" (page)="pageHandler($event)">
+    <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
+        [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
     </mat-paginator>
 </div>

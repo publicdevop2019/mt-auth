@@ -60,9 +60,9 @@
                 </table>
             </div>
 
-            <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNumber"
-                [pageSize]="tableSource.pageSize" (page)="tableSource.nextPage($event.pageIndex)">
-            </mat-paginator>
+            <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
+            [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
+        </mat-paginator>
         </div>
     </ng-container>
 </div>

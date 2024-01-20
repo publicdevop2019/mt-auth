@@ -6,7 +6,6 @@ import { IDomainContext } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { FORM_CONFIG } from 'src/app/form-configs/mgmt-user.config';
 import { ILoginHistory, IAuthUser } from 'src/app/misc/interface';
-import { MyRoleService } from 'src/app/services/my-role.service';
 import { UserService } from 'src/app/services/user.service';
 @Component({
   selector: 'app-user',
@@ -25,7 +24,6 @@ export class MgmtUserComponent implements OnDestroy {
   constructor(
     public userSvc: UserService,
     public fis: FormInfoService,
-    public roleSvc: MyRoleService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IAuthUser>,
     public bottomSheetRef: MatBottomSheetRef<MgmtUserComponent>,
   ) {

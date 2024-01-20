@@ -19,7 +19,6 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
   styleUrls: ['./my-users.component.css']
 })
 export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser, IProjectUser> implements OnDestroy {
-  public formId = "myUserTableColumnConfig";
   columnList: any = {};
   sheetComponent = UserComponent;
   public roleList: IOption[] = [];

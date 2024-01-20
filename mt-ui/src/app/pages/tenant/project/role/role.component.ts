@@ -4,8 +4,6 @@ import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.in
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyPermissionService } from 'src/app/services/my-permission.service';
-import { MyRoleService } from 'src/app/services/my-role.service';
 import { SharedPermissionService } from 'src/app/services/shared-permission.service';
 import { IRole } from '../my-roles/my-roles.component';
 import { Validator } from 'src/app/misc/validator';
@@ -16,6 +14,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddPermissionDialogComponent } from 'src/app/components/add-permission-dialog/add-permission-dialog.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 interface IPermTable {
   id: string,
   name: string, type: string
@@ -26,6 +25,8 @@ interface IPermTable {
   styleUrls: ['./role.component.css']
 })
 export class RoleComponent implements OnDestroy {
+  public projectId = this.router.getProjectIdFromUrl()
+  private roleUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ROLES)
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
     name: new FormControl(''),
@@ -50,10 +51,9 @@ export class RoleComponent implements OnDestroy {
     delete: 'DELETE',
   };
   subs: Subscription = new Subscription()
+  private permissionUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
   constructor(
-    public roleSvc: MyRoleService,
     public epSvc: EndpointService,
-    public permissoinSvc: MyPermissionService,
     public httpProxySvc: HttpProxyService,
     public sharedPermSvc: SharedPermissionService,
     public cdr: ChangeDetectorRef,
@@ -62,11 +62,9 @@ export class RoleComponent implements OnDestroy {
     public deviceSvc: DeviceService,
   ) {
     const roleId = this.router.getRoleIdFromUrl()
-    this.permissoinSvc.setProjectId(this.router.getProjectIdFromUrl())
     this.sharedPermSvc.setProjectId(this.router.getProjectIdFromUrl())
-    this.roleSvc.setProjectId(this.router.getProjectIdFromUrl())
 
-    this.roleSvc.readById(roleId).subscribe(next => {
+    this.httpProxySvc.readEntityById<IRole>(this.roleUrl, roleId).subscribe(next => {
       this.data = next
       this.fg.get('name').setValue(this.data.name)
       this.fg.get('description').setValue(this.data.description)
@@ -79,7 +77,7 @@ export class RoleComponent implements OnDestroy {
       }
     })
     const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.roleSvc.readById(this.data.id).subscribe(next => {
+      this.httpProxySvc.readEntityById<IRole>(this.roleUrl, this.data.id).subscribe(next => {
         Logger.debug('reload view')
         this.data = next;
         this.dataSource = new MatTableDataSource(this.data.permissionDetails || []);
@@ -94,7 +92,7 @@ export class RoleComponent implements OnDestroy {
   getParents(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.roleSvc.entityRepo, num, size, `types:PROJECT.USER`, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.roleUrl, num, size, `types:PROJECT.USER`, by, order, header)
       }
     } as IQueryProvider
   }
@@ -108,14 +106,14 @@ export class RoleComponent implements OnDestroy {
   getCommonPermissions(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissoinSvc.entityRepo, num, size, "types:COMMON", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:COMMON", by, order, header)
       }
     } as IQueryProvider
   }
   getApiPermissions(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissoinSvc.entityRepo, num, size, "types:API", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:API", by, order, header)
       }
     } as IQueryProvider
   }
@@ -124,7 +122,7 @@ export class RoleComponent implements OnDestroy {
     if (this.data.parentId || (this.data.externalPermissionIds && this.data.externalPermissionIds.length > 0)) {
       let var0: Observable<any>[] = [];
       if (this.data.parentId) {
-        var0.push(this.roleSvc.readEntityByQuery(0, 1, 'id:' + this.data.parentId))
+        var0.push(this.httpProxySvc.readEntityByQuery(this.roleUrl, 0, 1, 'id:' + this.data.parentId))
       }
       if ((this.data.externalPermissionIds && this.data.externalPermissionIds.length > 0)) {
         var0.push(this.sharedPermSvc.readEntityByQuery(0, 1, 'id:' + this.data.externalPermissionIds.join('.')))
@@ -204,14 +202,14 @@ export class RoleComponent implements OnDestroy {
   update() {
     this.allowError = true;
     if (this.validateForm()) {
-      this.roleSvc.update(this.data.id, this.convertToUpdateBasicPayload(), this.changeId)
+      this.httpProxySvc.updateEntity(this.roleUrl,this.data.id, this.convertToUpdateBasicPayload(), this.changeId)
     }
   }
   addPermission() {
     const dialogRef = this.dialog.open(AddPermissionDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
+        this.httpProxySvc.updateEntity(this.roleUrl,this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
       }
     })
   }
@@ -220,11 +218,11 @@ export class RoleComponent implements OnDestroy {
   };
   removePerm(row: IPermTable) {
     if (row.type === 'COMMON') {
-      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
+      this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'API') {
-      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('API_PERMISSIONS', [row.id], false), this.changeId)
+      this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('API_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'SHARED') {
-      this.roleSvc.update(this.data.id, this.convertToUpdatePermissionPayload('EXTERNAL_PERMISSION', [row.id], false), this.changeId)
+      this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('EXTERNAL_PERMISSION', [row.id], false), this.changeId)
     }
   }
 }

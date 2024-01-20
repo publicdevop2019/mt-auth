@@ -10,14 +10,16 @@ export class TableHelper<T>{
     columnConfig: any;
     proxy: HttpProxyService;
     url: string;
-    constructor(columnConfig: any, pageSize: number, proxy: HttpProxyService, url: string) {
+    query: string;
+    constructor(columnConfig: any, pageSize: number, proxy: HttpProxyService, url: string, query?: string) {
         this.columnConfig = columnConfig;
         this.pageSize = pageSize
         this.proxy = proxy
         this.url = url
+        this.query = query
     }
     loadPage(pageNumber: number) {
-        this.proxy.readEntityByQuery<T>(this.url, pageNumber, this.pageSize).subscribe(next => {
+        this.proxy.readEntityByQuery<T>(this.url, pageNumber, this.pageSize, this.query).subscribe(next => {
             this.updateSummaryData(next);
         })
     }

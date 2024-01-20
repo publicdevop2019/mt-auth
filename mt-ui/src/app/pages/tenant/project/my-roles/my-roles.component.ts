@@ -1,22 +1,17 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
-import { combineLatest } from 'rxjs';
-import { IDomainContext, IIdBasedEntity } from 'src/app/clazz/summary.component';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { RoleComponent } from 'src/app/pages/tenant/project/role/role.component';
 import { RoleCreateDialogComponent } from 'src/app/components/role-create-dialog/role-create-dialog.component';
-import { AuthService } from 'src/app/services/auth.service';
-import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyRoleService } from 'src/app/services/my-role.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { IRoleLinkedPermission } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
-import { ActivatedRoute } from '@angular/router';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { PermissionHelper } from 'src/app/clazz/permission-helper';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { take } from 'rxjs/operators';
 export interface IRole extends IIdBasedEntity {
   name: string,
   originalName?: string,
@@ -37,46 +32,30 @@ export interface IRole extends IIdBasedEntity {
   templateUrl: './my-roles.component.html',
   styleUrls: ['./my-roles.component.css']
 })
-export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole> implements OnDestroy {
-  columnList: any = {};
-  params: any = {};
+export class MyRolesComponent {
+  columnList: any = {
+    name: 'NAME',
+    description: 'DESCRIPTION',
+  }
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ROLES)
+  public tableSource: TableHelper<IRole> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'types:USER');
+  public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   sheetComponent = RoleComponent;
-  searchConfigs: ISearchConfig[] = [
-    {
-      searchLabel: 'ID',
-      searchValue: 'id',
-      type: 'text',
-      multiple: {
-        delimiter: '.'
-      }
-    },
-  ]
   constructor(
-    public roleSvc: MyRoleService,
-    public authSvc: AuthService,
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
-    public deviceSvc: DeviceService,
     public httpSvc: HttpProxyService,
-    public fis: FormInfoService,
-    public bottomSheet: MatBottomSheet,
-    public router: ActivatedRoute,
     public route: RouterWrapperService,
     public dialog: MatDialog,
   ) {
-    super(router, route, projectSvc, httpSvc, roleSvc, bottomSheet, fis);
-    const sub2 = this.canDo('VIEW_ROLE').subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_ROLE').pipe(take(1)).subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: 'types:USER', resetPage: true })
+        this.tableSource.loadPage(0)
       }
-    });
-    const sub3 = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.doSearch({ value: 'types:USER', resetPage: true })
     })
-    this.roleSvc.setProjectId(this.route.getProjectIdFromUrl());
-    this.params['projectId'] = this.route.getProjectIdFromUrl();
-    const sub = combineLatest([this.canDo('EDIT_ROLE')]).subscribe(next => {
-      const temp = next[0].result ? {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_ROLE').pipe(take(1)).subscribe(b => {
+      this.columnList = b.result ? {
         name: 'NAME',
         description: 'DESCRIPTION',
         edit: 'EDIT',
@@ -85,29 +64,17 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
         name: 'NAME',
         description: 'DESCRIPTION',
       }
-      this.columnList = temp;
-      this.initTableSetting();
+      this.tableSource.columnConfig = this.columnList;
     })
-    this.subs.add(sub2)
-    this.subs.add(sub)
-    this.subs.add(sub3)
-  }
-  ngOnDestroy(): void {
-    this.fis.reset(this.formId)
-    super.ngOnDestroy()
   }
   editable(row: IRole) {
     return row.roleType !== 'CLIENT_ROOT' && row.roleType !== 'PROJECT'
-  }
-  doSearchWrapperCommon(config: ISearchEvent) {
-    config.value = "types:USER"
-    this.doSearch(config)
   }
   createNewRole() {
     const dialogRef = this.dialog.open(RoleCreateDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        this.httpProxySvc.createEntity(this.roleSvc.entityRepo, this.convertToPayload(next.name, next.description), Utility.getChangeId()
+        this.httpProxySvc.createEntity(this.url, this.convertToPayload(next.name, next.description), Utility.getChangeId()
         ).subscribe(id => {
           this.editRole(id)
         });
@@ -122,7 +89,7 @@ export class MyRolesComponent extends TenantSummaryEntityComponent<IRole, IRole>
       id: '',
       name: name,
       description: Utility.hasValue(description) ? description : undefined,
-      projectId: this.roleSvc.getProjectId(),
+      projectId: this.projectId,
       commonPermissionIds: [],
       apiPermissionIds: [],
       externalPermissionIds: [],

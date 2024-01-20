@@ -49,5 +49,9 @@ export enum CLIENT_TYPE {
 }
 export const RESOURCE_NAME = {
     CACHE: 'cache',
-    CORS: 'cors'
+    CORS: 'cors',
+    ADMINS: 'admins',
+    PERMISSIONS: 'permissions',
+    ROLES: 'roles',
+    ENDPOINTS: 'endpoints'
 }
