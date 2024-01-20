@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { Logger } from '../misc/logger';
 @Injectable({
     providedIn: 'root'
 })
@@ -13,7 +12,7 @@ export class RouterWrapperService {
         return this.router.url
     }
     public getData() {
-        return this.router.getCurrentNavigation().extras.state
+        return this.router.getCurrentNavigation().extras?.state
     }
     public getParam() {
         return this.router.routerState.snapshot.root.queryParams;
@@ -25,6 +24,12 @@ export class RouterWrapperService {
         return this.router.url.split('/')[4];
     }
     public getClientIdFromUrl() {
+        return this.router.url.split('/')[4];
+    }
+    public getCacheConfigIdFromUrl() {
+        return this.router.url.split('/')[4];
+    }
+    public getCorsConfigIdFromUrl() {
         return this.router.url.split('/')[4];
     }
     public getEndpointIdFromUrl() {
@@ -60,6 +65,27 @@ export class RouterWrapperService {
     public navProjectClientsDetail(id: string) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'clients', id]);
     }
+
+    public navProjectCacheConfigsDashboard() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs']);
+    }
+    public navProjectCacheConfigsDetail(id: string, data: any) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs', id], { state: data });
+    }
+    public navProjectNewCacheConfigsDetail() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs', 'template']);
+    }
+
+    public navProjectCorsConfigsDashboard() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs']);
+    }
+    public navProjectCorsConfigsDetail(id: string, data: any) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', id], { state: data });
+    }
+    public navProjectNewCorsConfigsDetail() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', 'template']);
+    }
+
     public navProjectNewClientsDetail(data: any) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'clients', 'template'], { state: data });
     }
@@ -67,10 +93,10 @@ export class RouterWrapperService {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints']);
     }
     public navProjectEndpointDetail(id: string) {
-        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints',id]);
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints', id]);
     }
     public navProjectNewEndpointDetail(data: any) {
-        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints','template'], { state: data });
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints', 'template'], { state: data });
     }
     public navProjectCorsDashboard() {
 

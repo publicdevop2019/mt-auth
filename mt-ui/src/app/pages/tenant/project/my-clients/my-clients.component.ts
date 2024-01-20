@@ -85,27 +85,7 @@ export class MyClientsComponent implements OnDestroy {
   extractResult(result: Observable<{ result: boolean, projectId: string }>) {
     return result.pipe(map(e => e.result))
   }
-  doSearch() {
-    Logger.debug(this.clientSvc.entityRepo)
-    this.clientSvc.readEntityByQuery(this.clientSvc.pageNumber, this.pageSize, undefined, undefined, undefined).subscribe(next => {
-      this.updateSummaryData(next);
-    })
-  }
-  pageHandler(e: PageEvent) {
-    this.clientSvc.pageNumber = e.pageIndex;
-    this.clientSvc.readEntityByQuery(this.clientSvc.pageNumber, this.pageSize, undefined, undefined, undefined).subscribe(next => {
-      this.updateSummaryData(next);
-    });
-  }
-  protected updateSummaryData(next: ISumRep<IClient>) {
-    if (next.data) {
-      this.dataSource = new MatTableDataSource(next.data);
-      this.totoalItemCount = next.totalItemCount;
-    } else {
-      this.dataSource = new MatTableDataSource([]);
-      this.totoalItemCount = 0;
-    }
-  }
+  //TODO refactor, move to utility
   private hasPermission(permissions: IProjectUiPermission, projectId: string, name: string[]) {
     const pId = permissions.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)
     if (pId.length > 0) {
@@ -118,6 +98,26 @@ export class MyClientsComponent implements OnDestroy {
         result: false,
         projectId: projectId
       }
+    }
+  }
+  doSearch() {
+    this.clientSvc.readEntityByQuery(this.clientSvc.pageNumber, this.pageSize).subscribe(next => {
+      this.updateSummaryData(next);
+    })
+  }
+  pageHandler(e: PageEvent) {
+    this.clientSvc.pageNumber = e.pageIndex;
+    this.clientSvc.readEntityByQuery(this.clientSvc.pageNumber, this.pageSize).subscribe(next => {
+      this.updateSummaryData(next);
+    });
+  }
+  protected updateSummaryData(next: ISumRep<IClient>) {
+    if (next.data) {
+      this.dataSource = new MatTableDataSource(next.data);
+      this.totoalItemCount = next.totalItemCount;
+    } else {
+      this.dataSource = new MatTableDataSource([]);
+      this.totoalItemCount = 0;
     }
   }
   ngOnDestroy(): void {

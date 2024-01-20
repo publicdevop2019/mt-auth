@@ -1,6 +1,5 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
+import { Component, Inject } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
 import { Validator } from 'src/app/misc/validator';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
@@ -27,7 +26,6 @@ export class ClientCreateDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public clientSvc: MyClientService,
     public httpProxySvc: HttpProxyService,
-    public fis: FormInfoService,
     private psv: ProjectService,
   ) {
     this.createClientFormGroup.valueChanges.subscribe(() => {

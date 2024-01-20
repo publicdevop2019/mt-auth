@@ -1,8 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { of } from 'rxjs';
-import { IDomainContext } from 'src/app/clazz/summary.component';
 import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
@@ -12,7 +10,6 @@ import { ActivatedRoute } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ICorsProfile } from 'src/app/misc/interface';
-import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-my-cors',
@@ -27,7 +24,6 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     description: 'DESCRIPTION',
     origin: 'CORS_ORIGIN',
     edit: 'EDIT',
-    clone: 'CLONE',
     delete: 'DELETE',
   }
   sheetComponent = CorsComponent;
@@ -64,30 +60,17 @@ export class MyCorsComponent extends TenantSummaryEntityComponent<ICorsProfile, 
     this.subs.add(sub2);
     this.initTableSetting();
   }
-  openBottomSheet(id?: string, clone?: boolean): void {
-    let config = new MatBottomSheetConfig();
-    config.autoFocus = true;
-    config.panelClass = 'fix-height'
-    if (Utility.hasValue(id)) {
-      of(this.dataSource.data.find(e => e.id === id))
-        .subscribe(next => {
-          if (clone) {
-            config.data = <IDomainContext<ICorsProfile>>{ context: 'clone', from: next };
-            this.bottomSheet.open(this.sheetComponent, config);
-          } else {
-            config.data = <IDomainContext<ICorsProfile>>{ context: 'edit', from: next };
-            this.bottomSheet.open(this.sheetComponent, config);
-          }
-        })
-    } else {
-      config.data = <IDomainContext<ICorsProfile>>{ context: 'new', from: undefined, params: {} };
-      this.bottomSheet.open(this.sheetComponent, config);
-    }
-  }
   removeFirst(input: string[]) {
     return input.filter((e, i) => i !== 0);
   }
   doRefresh() {
     this.doSearch({ value: '', resetPage: false })
+  }
+  edit(id: string) {
+    const data = this.dataSource.data.find(e => e.id === id)
+    this.route.navProjectCorsConfigsDetail(id, data)
+  }
+  create() {
+    this.route.navProjectNewCorsConfigsDetail()
   }
 }

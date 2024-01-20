@@ -43,6 +43,8 @@ import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
 import { RoleComponent } from './pages/tenant/project/role/role.component';
+import { CorsComponent } from './pages/tenant/project/cors/cors.component';
+import { CacheComponent } from './pages/tenant/project/cache/cache.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -86,12 +88,15 @@ const routes: Routes = [
       { path: 'user/notification/bell', component: UserNotificationComponent },
       { path: 'user/setting', component: SettingComponent },
       { path: 'user/profile', component: MyProfileComponent },
-      
+
       { path: 'projects/:id/clients/template', component: ClientComponent },
       { path: 'projects/:id/clients/:clientId', component: ClientComponent },
       { path: 'projects/:id/endpoints/template', component: EndpointComponent },
       { path: 'projects/:id/endpoints/:epId', component: EndpointComponent },
       { path: 'projects/:id/roles/:roleId', component: RoleComponent },
+      { path: 'projects/:id/cache-configs/:configId', component: CacheComponent },
+      { path: 'projects/:id/cache-configs/template', component: CacheComponent },
+      { path: 'projects/:id/cors-configs/:configId', component: CorsComponent },
 
       { path: 'projects/:id/insights', component: MyProjectComponent },
       { path: 'projects/:id/clients', component: MyClientsComponent },

@@ -1,17 +1,43 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="router.navProjectCorsConfigsDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <form [formGroup]="fg" style="margin-top: 24px;">
+        <mat-form-field>
+            <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+            <input matInput formControlName="name">
+        </mat-form-field>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{nameErrorMsg|translate}}</div>
+        <mat-form-field>
+            <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
+            <input matInput formControlName="description">
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>{{'MAX_AGE'| translate}}<span class="mat-required">*</span></mat-label>
+            <input matInput formControlName="maxAge">
+        </mat-form-field>
+        <div style="margin-bottom: 12px;">
+            <mat-checkbox formControlName="allowCredentials">{{'ALLOW_CREDENTIAL'|translate}}</mat-checkbox>
+        </div>
+        <mat-form-field>
+            <mat-label>{{'ALLOWED_ORIGIN'| translate}}</mat-label>
+            <textarea matInput formControlName="allowOrigin"></textarea>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>{{'ALLOWED_HEADERS'| translate}}</mat-label>
+            <textarea matInput formControlName="allowedHeaders"></textarea>
+        </mat-form-field>
+        <mat-form-field>
+            <mat-label>{{'EXPOSED_HEADERS'| translate}}</mat-label>
+            <textarea matInput formControlName="exposedHeaders"></textarea>
+        </mat-form-field>
+    </form>
+    <div style="display: flex; justify-content: center; margin-top: 36px;">
+        <button mat-raised-button color="primary" (click)="update()" style="width: 150px;"
+            *ngIf="context === 'EDIT'">{{'UPDATE'|translate}}</button>
+        <button mat-raised-button color="primary" (click)="create()" style="width: 150px;"
+            *ngIf="context === 'NEW'">{{'CREATE'|translate}}</button>
+
+    </div>
 </div>
-<lib-factory [formId]="formId"></lib-factory>
-<div class="form-header">{{'ALLOWED_ORIGIN'|translate}}</div>
-<lib-factory [formId]="originFormId"></lib-factory>
-<div class="form-header">{{'ALLOWED_HEADERS'|translate}}</div>
-<lib-factory [formId]="allowedHeaderFormId"></lib-factory>
-<div class="form-header">{{'EXPOSED_HEADERS'|translate}}</div>
-<lib-factory [formId]="exposedHeaderFormId"></lib-factory>
-<button mat-raised-button color="primary" *ngIf="data.context === 'edit'" class="app-btn"
-    (click)="update()">{{'UPDATE'|translate}}</button>
-<button mat-raised-button color="primary" class="app-btn"
-    (click)="create()"
-    *ngIf="data.context === 'clone' || data.context === 'new'" >{{'CREATE'|translate}}</button>
