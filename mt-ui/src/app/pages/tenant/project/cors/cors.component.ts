@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICorsProfile } from 'src/app/misc/interface';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 @Component({
   selector: 'app-cors',
   templateUrl: './cors.component.html',
@@ -26,11 +27,12 @@ export class CorsComponent {
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
   data: ICorsProfile = undefined;
+  private projectId = this.router.getProjectIdFromUrl()
+  private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
   constructor(
-    public entityService: MyCorsProfileService,
+    public httpSvc: HttpProxyService,
     public router: RouterWrapperService,
   ) {
-    entityService.setProjectId(this.router.getProjectIdFromUrl())
     const configId = this.router.getCorsConfigIdFromUrl();
     if (configId === 'template') {
     } else {
@@ -56,12 +58,12 @@ export class CorsComponent {
   }
   update() {
     if (this.validateForm()) {
-      this.entityService.update(this.data.id, this.convertToPayload(), this.changeId)
+      this.httpSvc.updateEntity(this.corsUrl, this.data.id, this.convertToPayload(), this.changeId)
     }
   }
   create() {
     if (this.validateForm()) {
-      this.entityService.create(this.convertToPayload(), this.changeId)
+      this.httpSvc.createEntity(this.corsUrl, this.convertToPayload(), this.changeId)
     }
   }
   private convertToPayload(): ICorsProfile {

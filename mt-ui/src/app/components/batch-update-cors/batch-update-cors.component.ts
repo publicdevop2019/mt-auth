@@ -4,13 +4,13 @@ import { MatTableDataSource } from "@angular/material/table";
 import { FormInfoService } from "mt-form-builder";
 import { IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
 import { FORM_CONFIG } from "src/app/form-configs/batch-operation.config";
-import { MyCacheService } from "src/app/services/my-cache.service";
-import { MyCorsProfileService } from "src/app/services/my-cors-profile.service";
 import { DeviceService } from "src/app/services/device.service";
 import { EndpointService } from "src/app/services/endpoint.service";
 import { HttpProxyService } from "src/app/services/http-proxy.service";
 import { IEndpoint } from "src/app/misc/interface";
 import { Utility } from "src/app/misc/utility";
+import { RESOURCE_NAME } from "src/app/misc/constant";
+import { RouterWrapperService } from "src/app/services/router-wrapper";
 export interface DialogData {
     data: { id: string, description: string }[]
 }
@@ -24,19 +24,21 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     displayedColumns: string[] = ['id', 'status'];
     dataSource: MatTableDataSource<{ id: string; status: ISTATUS }>;
     batchJobConfirmed: boolean;
+    public projectId = this.route.getProjectIdFromUrl()
+    private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
+    private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
     constructor(
         public dialogRef: MatDialogRef<BatchUpdateCorsComponent>,
-        private corsSvc: MyCorsProfileService,
-        private cacheSvc: MyCacheService,
         private endpointSvc: EndpointService,
         private httpProxySvc: HttpProxyService,
         private deviceSvc: DeviceService,
+        private route: RouterWrapperService,
         @Inject(MAT_DIALOG_DATA) public data: DialogData,
         private fis: FormInfoService
     ) {
         this.fis.queryProvider[this.formId + '_' + 'corsId'] = this.getCorsProfiles();
         this.fis.queryProvider[this.formId + '_' + 'cacheId'] = this.getCacehProfiles();
-        this.fis.init(FORM_CONFIG,this.formId);
+        this.fis.init(FORM_CONFIG, this.formId);
         this.fis.formGroups[this.formId].get('type').valueChanges.subscribe(next => {
             if (next === 'cors') {
                 this.fis.showIfMatch(this.formId, ['corsId'])
@@ -54,14 +56,14 @@ export class BatchUpdateCorsComponent implements OnDestroy {
     getCorsProfiles() {
         return {
             readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-                return this.httpProxySvc.readEntityByQuery(this.corsSvc.entityRepo, num, size, "", by, order, header)
+                return this.httpProxySvc.readEntityByQuery(this.corsUrl, num, size, "", by, order, header)
             }
         } as IQueryProvider
     }
     getCacehProfiles() {
         return {
             readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-                return this.httpProxySvc.readEntityByQuery(this.cacheSvc.entityRepo, num, size, "", by, order, header)
+                return this.httpProxySvc.readEntityByQuery(this.cacheUrl, num, size, "", by, order, header)
             }
         } as IQueryProvider
     }
@@ -77,18 +79,18 @@ export class BatchUpdateCorsComponent implements OnDestroy {
         this.dataSource = new MatTableDataSource(var0);
         var0.forEach(endpoint => {
             this.dataSource.data.find(e => e.id === endpoint.id).status = 'WIP'
-            this.httpProxySvc.readEntityById<IEndpoint>(this.endpointSvc.entityRepo,endpoint.id,{ 'loading': false }).subscribe(next => {
-                const var0=this.fis.formGroups[this.formId].get('type').value
-                if( var0==='cors'){
-                    next.corsProfileId=this.fis.formGroups[this.formId].get('corsId').value
-                }else if(var0==='cache'){
-                    next.cacheProfileId=this.fis.formGroups[this.formId].get('cacheId').value
-                }else{
+            this.httpProxySvc.readEntityById<IEndpoint>(this.endpointSvc.entityRepo, endpoint.id, { 'loading': false }).subscribe(next => {
+                const var0 = this.fis.formGroups[this.formId].get('type').value
+                if (var0 === 'cors') {
+                    next.corsProfileId = this.fis.formGroups[this.formId].get('corsId').value
+                } else if (var0 === 'cache') {
+                    next.cacheProfileId = this.fis.formGroups[this.formId].get('cacheId').value
+                } else {
                     // will not reach
                 }
                 this.httpProxySvc.updateEntityExt(this.endpointSvc.entityRepo, endpoint.id, next, Utility.getChangeId()).subscribe(next => {
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'SUCCESS'
-                },()=>{
+                }, () => {
                     this.dataSource.data.find(e => e.id === endpoint.id).status = 'FAILED'
                 })
             })

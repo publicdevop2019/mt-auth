@@ -29,9 +29,9 @@ spring:
     password:
     pool:
       max-active: 8
-      max-wait: -1
       max-idle: 8
       min-idle: 0
+      max-wait: 5000
     timeout: 30000
 ribbon:
   ReadTimeout: 15000

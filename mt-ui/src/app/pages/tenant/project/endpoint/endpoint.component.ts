@@ -3,8 +3,6 @@ import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
-import { MyCacheService } from 'src/app/services/my-cache.service';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
@@ -16,6 +14,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -64,19 +63,18 @@ export class EndpointComponent {
   cachePageSize = 10;
 
   context: 'NEW' | 'EDIT' = 'NEW';
+  private projectId = this.router.getProjectIdFromUrl()
+  private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
+  private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
   constructor(
     public endpointSvc: MyEndpointService,
     public clientSvc: MyClientService,
-    public corsSvc: MyCorsProfileService,
-    public cacheSvc: MyCacheService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
     public interceptor: CustomHttpInterceptor
   ) {
     clientSvc.setProjectId(this.router.getProjectIdFromUrl())
-    corsSvc.setProjectId(this.router.getProjectIdFromUrl())
-    cacheSvc.setProjectId(this.router.getProjectIdFromUrl())
     const endpointId = this.router.getEndpointIdFromUrl();
     if (endpointId === 'template') {
       if (this.router.getData() === undefined) {
@@ -108,12 +106,12 @@ export class EndpointComponent {
       .subscribe(next => {
         this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
-    this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsSvc.entityRepo,
+    this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsUrl,
       this.corsPageNum, this.corsPageSize)
       .subscribe(next => {
         this.corsOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
-    this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheSvc.entityRepo,
+    this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheUrl,
       this.cachePageNum, this.cachePageSize)
       .subscribe(next => {
         this.cacheOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
@@ -176,10 +174,10 @@ export class EndpointComponent {
       const var0: Observable<any>[] = [];
       var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.resourceId))
       if (this.data.corsProfileId) {
-        var0.push(this.corsSvc.readEntityByQuery(0, 1, 'id:' + this.data.corsProfileId))
+        var0.push(this.httpProxySvc.readEntityByQuery(this.corsUrl, 0, 1, 'id:' + this.data.corsProfileId))
       }
       if (this.data.cacheProfileId) {
-        var0.push(this.cacheSvc.readEntityByQuery(0, 1, 'id:' + this.data.cacheProfileId))
+        var0.push(this.httpProxySvc.readEntityByQuery(this.cacheUrl, 0, 1, 'id:' + this.data.cacheProfileId))
       }
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {

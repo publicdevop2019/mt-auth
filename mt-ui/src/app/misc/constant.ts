@@ -47,3 +47,7 @@ export enum CLIENT_TYPE {
     backend_app = 'BACKEND_APP',
     frontend_app = 'FRONTEND_APP'
 }
+export const RESOURCE_NAME = {
+    CACHE: 'cache',
+    CORS: 'cors'
+}

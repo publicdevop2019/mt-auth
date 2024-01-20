@@ -19,7 +19,7 @@
         *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_CACHE'))|async">
         <div>
             <div class="table-container">
-                <table mat-table [dataSource]="tableSource.data">
+                <table mat-table [dataSource]="tableSource.dataSource">
 
                     <ng-container matColumnDef="id">
                         <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>

@@ -2,9 +2,10 @@ import { Component } from '@angular/core';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICacheProfile } from 'src/app/misc/interface';
-import { MyCacheService } from 'src/app/services/my-cache.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 @Component({
   selector: 'app-cache',
   templateUrl: './cache.component.html',
@@ -13,7 +14,8 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 export class CacheComponent {
   nameErrorMsg: string = undefined;
   allowCacheErrorMsg: string = undefined;
-
+  private projectId = this.router.getProjectIdFromUrl()
+  private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
     name: new FormControl(''),
@@ -45,10 +47,9 @@ export class CacheComponent {
   changeId: string = Utility.getChangeId();
 
   constructor(
-    public entityService: MyCacheService,
+    public httpSvc: HttpProxyService,
     public router: RouterWrapperService,
   ) {
-    entityService.setProjectId(this.router.getProjectIdFromUrl())
     const configId = this.router.getCacheConfigIdFromUrl();
     if (configId === 'template') {
     } else {
@@ -84,13 +85,13 @@ export class CacheComponent {
   update() {
     this.allowError = true
     if (this.validateForm()) {
-      this.entityService.update(this.data.id, this.convertToPayload(), this.changeId)
+      this.httpSvc.updateEntity(this.cacheUrl, this.data.id, this.convertToPayload(), this.changeId)
     }
   }
   create() {
     this.allowError = true
     if (this.validateForm()) {
-      this.entityService.create(this.convertToPayload(), this.changeId)
+      this.httpSvc.createEntity(this.cacheUrl, this.convertToPayload(), this.changeId)
     }
   }
 

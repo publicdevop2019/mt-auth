@@ -119,7 +119,7 @@ export class RouterWrapperService {
     public navProjectAdminDashboard() {
 
     }
-    updateURLQueryParamBeforeSearch(activeRouter: ActivatedRoute, index: number, size: number, query?: string, sortby?: string, sortOrder?: string, key?: string) {
+    public updateURLQueryParamBeforeSearch(activeRouter: ActivatedRoute, index: number, size: number, query?: string, sortby?: string, sortOrder?: string, key?: string) {
         let params: any = { ...activeRouter.snapshot.queryParams };
         let sort = '';
         if (sortby && sortOrder) {
@@ -139,7 +139,7 @@ export class RouterWrapperService {
         const url = this.router.createUrlTree([], { relativeTo: activeRouter, queryParams: params }).toString();
         this.router.navigateByUrl(url);
     }
-    updateURLQueryParamPageAndSort(activeRouter: ActivatedRoute, index: number, size: number, sortby?: string, sortOrder?: string) {
+    public updateURLQueryParamPageAndSort(activeRouter: ActivatedRoute, index: number, size: number, sortby?: string, sortOrder?: string) {
         let params: any = { ...activeRouter.snapshot.queryParams };
         let sort = '';
         if (sortby && sortOrder) {

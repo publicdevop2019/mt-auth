@@ -6,9 +6,8 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { take } from 'rxjs/operators';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
-import { Utility, getUrl } from 'src/app/misc/utility';
-import { environment } from 'src/environments/environment';
-import { APP_CONSTANT } from 'src/app/misc/constant';
+import { Utility } from 'src/app/misc/utility';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { BannerService } from 'src/app/services/banner.service';
 @Component({
   selector: 'app-my-cache',
@@ -16,17 +15,17 @@ import { BannerService } from 'src/app/services/banner.service';
   styleUrls: ['./my-cache.component.css']
 })
 export class MyCacheComponent {
-  projectId = this.route.getProjectIdFromUrl()
-  url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'projects', this.projectId, 'cache']);
-  columnList = {
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
+  public columnList = {
     id: 'ID',
     name: 'NAME',
     description: 'DESCRIPTION',
     edit: 'EDIT',
     delete: 'DELETE',
   }
-  tableSource: TableHelper<ICacheProfile> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
-  permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
+  public tableSource: TableHelper<ICacheProfile> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
+  public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
     public bannerSvc: BannerService,
     public route: RouterWrapperService,
@@ -39,14 +38,14 @@ export class MyCacheComponent {
       }
     })
   }
-  edit(id: string) {
-    const data = this.tableSource.data.data.find(e => e.id === id)
+  public edit(id: string) {
+    const data = this.tableSource.dataSource.data.find(e => e.id === id)
     this.route.navProjectCacheConfigsDetail(id, data)
   }
-  create() {
+  public create() {
     this.route.navProjectNewCacheConfigsDetail()
   }
-  delete(id: string) {
+  public delete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
       this.bannerSvc.notify(true)
       this.tableSource.refresh()

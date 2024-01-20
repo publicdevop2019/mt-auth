@@ -6,8 +6,6 @@ import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
 import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
-import { MyCacheService } from 'src/app/services/my-cache.service';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
@@ -26,8 +24,6 @@ export class MgmtEndpointComponent implements OnDestroy {
   constructor(
     public endpointSvc: EndpointService,
     public clientSvc: MgmtClientService,
-    public corsSvc: MyCorsProfileService,
-    public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
     public fis: FormInfoService,
     @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IMgmtEndpoint>,

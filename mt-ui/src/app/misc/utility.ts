@@ -2,6 +2,7 @@ import { HttpProxyService } from '../services/http-proxy.service';
 import * as UUID from 'uuid/v1';
 import { APP_CONSTANT } from './constant';
 import { RouterWrapperService } from '../services/router-wrapper';
+import { environment } from 'src/environments/environment';
 export function getCookie(name: string): string {
     let value = "; " + document.cookie;
     let parts = value.split("; " + name + "=");
@@ -62,10 +63,14 @@ export class Utility {
     public static noEmptyString(input: string) {
         return input ? input : null
     }
-    public static getChangeId() :string{
+    public static getChangeId(): string {
         return UUID();
     }
-    public static getRandomString() :string{
+    public static getRandomString(): string {
         return Utility.getChangeId().replace(new RegExp(/[\d-]/g), '')
     }
+    public static getProjectResource(projectId: string, resourceName: string) {
+        return getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'projects', projectId, resourceName]);
+    }
+
 }

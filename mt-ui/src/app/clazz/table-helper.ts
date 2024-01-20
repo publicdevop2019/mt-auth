@@ -3,7 +3,7 @@ import { ISumRep } from "./summary.component";
 import { HttpProxyService } from "../services/http-proxy.service";
 
 export class TableHelper<T>{
-    data: MatTableDataSource<T>;
+    dataSource: MatTableDataSource<T>;
     pageNum: number;
     pageSize: number;
     totoalItemCount = 0;
@@ -26,10 +26,10 @@ export class TableHelper<T>{
     }
     private updateSummaryData(next: ISumRep<T>) {
         if (next.data) {
-            this.data = new MatTableDataSource(next.data);
+            this.dataSource = new MatTableDataSource(next.data);
             this.totoalItemCount = next.totalItemCount;
         } else {
-            this.data = new MatTableDataSource([]);
+            this.dataSource = new MatTableDataSource([]);
             this.totoalItemCount = 0;
         }
     }
