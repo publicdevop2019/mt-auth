@@ -53,5 +53,10 @@ export const RESOURCE_NAME = {
     ADMINS: 'admins',
     PERMISSIONS: 'permissions',
     ROLES: 'roles',
-    ENDPOINTS: 'endpoints'
+    ENDPOINTS: 'endpoints',
+    CLIENTS: 'clients',
+    USERS: 'users',
+    SUBSCRIPTIONS_REQUEST: 'subscriptions/requests',
+    SHARED_ENDPOINTS: 'endpoints/shared',
+    SUBSCRIPTIONS: 'subscriptions'
 }

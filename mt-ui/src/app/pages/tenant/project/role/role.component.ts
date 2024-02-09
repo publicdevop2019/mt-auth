@@ -15,6 +15,7 @@ import { AddPermissionDialogComponent } from 'src/app/components/add-permission-
 import { DeviceService } from 'src/app/services/device.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { BannerService } from 'src/app/services/banner.service';
 interface IPermTable {
   id: string,
   name: string, type: string
@@ -59,6 +60,7 @@ export class RoleComponent implements OnDestroy {
     public cdr: ChangeDetectorRef,
     public router: RouterWrapperService,
     public dialog: MatDialog,
+    public banner: BannerService,
     public deviceSvc: DeviceService,
   ) {
     const roleId = this.router.getRoleIdFromUrl()
@@ -202,14 +204,16 @@ export class RoleComponent implements OnDestroy {
   update() {
     this.allowError = true;
     if (this.validateForm()) {
-      this.httpProxySvc.updateEntity(this.roleUrl,this.data.id, this.convertToUpdateBasicPayload(), this.changeId)
+      this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdateBasicPayload(), this.changeId).subscribe(next => {
+        this.banner.notify(next)
+      })
     }
   }
   addPermission() {
     const dialogRef = this.dialog.open(AddPermissionDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        this.httpProxySvc.updateEntity(this.roleUrl,this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
+        this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
       }
     })
   }

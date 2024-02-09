@@ -12,7 +12,6 @@ import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dial
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { EndpointComponent } from '../endpoint/endpoint.component';
@@ -58,14 +57,12 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     public entitySvc: MyEndpointService,
     public deviceSvc: DeviceService,
     public bottomSheet: MatBottomSheet,
-    public clientSvc: MyClientService,
     public fis: FormInfoService,
     public dialog: MatDialog,
     public route: RouterWrapperService,
     public router: ActivatedRoute,
   ) {
     super(router,route, projectSvc, httpSvc, entitySvc, bottomSheet, fis);
-    this.clientSvc.setProjectId(this.route.getProjectIdFromUrl())
     this.params['projectId'] = this.route.getProjectIdFromUrl();
     const sub2 = this.canDo('VIEW_API').subscribe(b => {
       if (b.result) {
@@ -76,7 +73,6 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     const sub4 = this.canDo('VIEW_API', 'VIEW_CLIENT').subscribe(b => {
       if (b.result) {
         //prepare search
-        this.clientSvc.setProjectId(b.projectId)
         this.searchConfigs = [...this.initSearchConfig, {
           searchLabel: 'PARENT_CLIENT',
           searchValue: 'resourceId',

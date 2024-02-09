@@ -1,60 +1,60 @@
-<h2 class="flex-row-space-between">{{'MY_SUBS' |translate}}</h2>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
-<app-table-column-config [formId]="formId" ></app-table-column-config>
-</div>
-<div >
-<div class="table-container">
-    <table mat-table [dataSource]="dataSource">
+<div class="default-background">
+    <h2 class="flex-row-space-between">{{'MY_SUBS' |translate}}</h2>
+    <div class="table-container">
+        <table mat-table [dataSource]="tableSource.dataSource">
 
-        <ng-container matColumnDef="id">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                <app-copy-field [inputValue]="row.id"></app-copy-field>
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="id">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.id"></app-copy-field>
+                </td>
+            </ng-container>
 
-        <ng-container matColumnDef="projectName">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['projectName']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                <app-copy-field [inputValue]="row.projectName"></app-copy-field>
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="projectName">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['projectName']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.projectName"></app-copy-field>
+                </td>
+            </ng-container>
 
-        <ng-container matColumnDef="endpointName">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['endpointName']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                <app-copy-field [inputValue]="row.endpointName"></app-copy-field>
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="endpointName">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['endpointName']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <app-copy-field [inputValue]="row.endpointName"></app-copy-field>
+                </td>
+            </ng-container>
 
-        <ng-container matColumnDef="replenishRate">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['replenishRate']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                {{row.replenishRate}}
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="replenishRate">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['replenishRate']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    {{row.replenishRate}}
+                </td>
+            </ng-container>
 
-        <ng-container matColumnDef="burstCapacity">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['burstCapacity']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                {{row.burstCapacity}}
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="burstCapacity">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['burstCapacity']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    {{row.burstCapacity}}
+                </td>
+            </ng-container>
 
-        <ng-container matColumnDef="endpointStatus">
-            <th mat-header-cell *matHeaderCellDef> {{columnList['endpointStatus']|translate}} </th>
-            <td mat-cell *matCellDef="let row">
-                <mat-icon *ngIf="row.expired" style="padding-right:8px;" [color]="'warn'" matTooltip="{{getReason(row.expireReason)|async}}">error</mat-icon>
-                <mat-icon *ngIf="!row.expired" style="padding-right:8px;" [color]="'primary'">check_circle</mat-icon>
-            </td>
-        </ng-container>
+            <ng-container matColumnDef="endpointStatus">
+                <th mat-header-cell *matHeaderCellDef> {{columnList['endpointStatus']|translate}} </th>
+                <td mat-cell *matCellDef="let row">
+                    <mat-icon *ngIf="row.expired" style="padding-right:8px;" [color]="'warn'"
+                        matTooltip="{{getReason(row.expireReason)|async}}">error</mat-icon>
+                    <mat-icon *ngIf="!row.expired" style="padding-right:8px;"
+                        [color]="'primary'">check_circle</mat-icon>
+                </td>
+            </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-    </table>
-</div>
+            <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+            <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
+        </table>
+    </div>
 
-<mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-    [pageSize]="pageSize" (page)="pageHandler($event)">
-</mat-paginator>
+    <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount"
+        [pageIndex]="tableSource.pageNum" [pageSize]="tableSource.pageSize"
+        (page)="tableSource.loadPage($event.pageIndex)">
+    </mat-paginator>
 </div>

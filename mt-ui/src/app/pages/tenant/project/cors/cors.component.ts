@@ -6,6 +6,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { BannerService } from 'src/app/services/banner.service';
 @Component({
   selector: 'app-cors',
   templateUrl: './cors.component.html',
@@ -32,6 +33,7 @@ export class CorsComponent {
   constructor(
     public httpSvc: HttpProxyService,
     public router: RouterWrapperService,
+    public banner: BannerService,
   ) {
     const configId = this.router.getCorsConfigIdFromUrl();
     if (configId === 'template') {
@@ -58,12 +60,16 @@ export class CorsComponent {
   }
   update() {
     if (this.validateForm()) {
-      this.httpSvc.updateEntity(this.corsUrl, this.data.id, this.convertToPayload(), this.changeId)
+      this.httpSvc.updateEntity(this.corsUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
+        this.banner.notify(next)
+      })
     }
   }
   create() {
     if (this.validateForm()) {
-      this.httpSvc.createEntity(this.corsUrl, this.convertToPayload(), this.changeId)
+      this.httpSvc.createEntity(this.corsUrl, this.convertToPayload(), this.changeId).subscribe(next => {
+        this.banner.notify(!!next)
+      })
     }
   }
   private convertToPayload(): ICorsProfile {

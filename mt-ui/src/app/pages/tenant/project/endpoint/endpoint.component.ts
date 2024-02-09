@@ -4,7 +4,6 @@ import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
 import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
@@ -12,15 +11,17 @@ import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate } from
 import { Logger } from 'src/app/misc/logger';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
-import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { BannerService } from 'src/app/services/banner.service';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
   styleUrls: ['./endpoint.component.css']
 })
 export class EndpointComponent {
+  private projectId = this.router.getProjectIdFromUrl()
+  private clientUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
   changeId: string = Utility.getChangeId();
   allowError: boolean = false;
 
@@ -63,18 +64,15 @@ export class EndpointComponent {
   cachePageSize = 10;
 
   context: 'NEW' | 'EDIT' = 'NEW';
-  private projectId = this.router.getProjectIdFromUrl()
   private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
   private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
   constructor(
     public endpointSvc: MyEndpointService,
-    public clientSvc: MyClientService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
-    public interceptor: CustomHttpInterceptor
+    public banner: BannerService
   ) {
-    clientSvc.setProjectId(this.router.getProjectIdFromUrl())
     const endpointId = this.router.getEndpointIdFromUrl();
     if (endpointId === 'template') {
       if (this.router.getData() === undefined) {
@@ -101,7 +99,7 @@ export class EndpointComponent {
         this.resume();
       })
     }
-    this.httpProxySvc.readEntityByQuery<IClient>(this.clientSvc.entityRepo,
+    this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
       this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
       .subscribe(next => {
         this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
@@ -172,7 +170,7 @@ export class EndpointComponent {
   resume(): void {
     if (this.context === 'EDIT') {
       const var0: Observable<any>[] = [];
-      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.resourceId))
+      var0.push(this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl, 0, 1, 'id:' + this.data.resourceId))
       if (this.data.corsProfileId) {
         var0.push(this.httpProxySvc.readEntityByQuery(this.corsUrl, 0, 1, 'id:' + this.data.corsProfileId))
       }
@@ -259,7 +257,7 @@ export class EndpointComponent {
     this.allowError = true;
     if (this.validateForm()) {
       this.httpProxySvc.createEntity(this.endpointSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
-        !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
+        this.banner.notify(!!next);
         this.router.navProjectEndpointDashboard()
       });
     }

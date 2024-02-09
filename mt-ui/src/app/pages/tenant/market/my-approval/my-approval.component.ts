@@ -1,66 +1,60 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
 import { filter, switchMap } from 'rxjs/operators';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { DeviceService } from 'src/app/services/device.service';
-import { MySubRequestService } from 'src/app/services/my-sub-request.service';
 import { IMySubReq } from '../my-requests/my-requests.component';
-import { ActivatedRoute } from '@angular/router';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
+import { environment } from 'src/environments/environment';
+import { Utility, getUrl } from 'src/app/misc/utility';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { BannerService } from 'src/app/services/banner.service';
 
 @Component({
   selector: 'app-my-approval',
   templateUrl: './my-approval.component.html',
   styleUrls: ['./my-approval.component.css']
 })
-export class MyApprovalComponent extends SummaryEntityComponent<IMySubReq, IMySubReq> implements OnDestroy {
-  public formId = "pendingSubReqTableColumnConfig";
+export class MyApprovalComponent {
+  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
   columnList = {
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',
     endpointName: 'API_NAME',
-    replenishRate: 'REPLENISH_RATE',
-    burstCapacity: 'BURST_CAPACITY',
+    replenishRate: 'REPLENISH_RATE_APPROVE',
+    burstCapacity: 'BURST_CAPACITY_APPROVE',
     approve: 'APPROVE',
     reject: 'REJECT',
   }
+  public tableSource: TableHelper<IMySubReq> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'type:PENDING_APPROVAL');
   constructor(
-    public entitySvc: MySubRequestService,
-    public activated: ActivatedRoute,
     public router: RouterWrapperService,
     public device: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public fis: FormInfoService,
+    public httpSvc: HttpProxyService,
+    public banner: BannerService,
     public dialog: MatDialog
   ) {
-    super(entitySvc,activated, router, bottomSheet, fis, 0);
-    //manually handle search since no search component is here
-    this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false });
-    const sub = this.device.refreshSummary.subscribe(() => {
-      this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false })
-    })
-    this.subs.add(sub)
+    this.tableSource.loadPage(0)
   }
   approve(id: string) {
-    this.entitySvc.approveSubRequest(id).subscribe(() => {
-      this.entitySvc.notify(true)
-      this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false })
+    this.httpSvc.approveSubRequest(id, Utility.getChangeId()).subscribe(() => {
+      this.banner.notify(true)
+      this.tableSource.refresh()
     }, () => {
-      this.entitySvc.notify(false)
+      this.banner.notify(false)
     })
   }
   reject(id: string) {
     const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
-    dialogRef.afterClosed().pipe(filter(e=>e)).pipe(switchMap((e: string) => {
-      return this.entitySvc.rejectSubRequest(id, e)
+    dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((e: string) => {
+      return this.httpSvc.rejectSubRequest(id, Utility.getChangeId(), e)
     })).subscribe(() => {
-      this.entitySvc.notify(true)
-      this.doSearch({ value: 'type:PENDING_APPROVAL', key: 'type', resetPage: false })
+      this.banner.notify(true)
+      this.tableSource.refresh()
     }, () => {
-      this.entitySvc.notify(false)
+      this.banner.notify(false)
     })
   }
 }

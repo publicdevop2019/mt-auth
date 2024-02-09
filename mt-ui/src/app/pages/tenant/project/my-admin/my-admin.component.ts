@@ -11,7 +11,6 @@ import { Logger } from 'src/app/misc/logger';
 import { Utility } from 'src/app/misc/utility';
 import { BannerService } from 'src/app/services/banner.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
@@ -20,7 +19,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
   templateUrl: './my-admin.component.html',
   styleUrls: ['./my-admin.component.css']
 })
-export class MyAdminComponent{
+export class MyAdminComponent {
   private projectId = this.route.getProjectIdFromUrl()
   private adminUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ADMINS)
   email = new FormControl('', []);
@@ -40,13 +39,11 @@ export class MyAdminComponent{
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
   public tableSource: TableHelper<IProjectAdmin> = new TableHelper(this.columnList, 10, this.httpSvc, this.adminUrl);
   constructor(
-    public userSvc: MyUserService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
     public bannerSvc: BannerService,
   ) {
-    this.userSvc.setProjectId(this.route.getProjectIdFromUrl())
     this.tableSource.loadPage(0)
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []
@@ -57,7 +54,7 @@ export class MyAdminComponent{
   }
   private searchAdmin(email: string) {
     this.loading = true;
-    this.userSvc.readEntityByQuery(this.searchPageNumber, this.searchPageSize, email ? ('emailLike:' + email) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
+    this.httpSvc.readEntityByQuery<IProjectAdmin>(this.adminUrl, this.searchPageNumber, this.searchPageSize, email ? ('emailLike:' + email) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
       this.loading = false;
       const temp = result.data.map(e => {
         return <IOption>{
@@ -75,7 +72,6 @@ export class MyAdminComponent{
     })
   }
   doRefresh() {
-    Logger.debug("refreshing admin dashboard")
     this.tableSource.refresh()
   }
   updateEmail(event: InputEvent) {
@@ -108,7 +104,7 @@ export class MyAdminComponent{
     this.newAdmins = this.newAdmins.filter(e => e.value !== item.value)
   }
   doAdd() {
-    this.userSvc.addAdmin(this.newAdmins[0].value as string).subscribe(() => {
+    this.httpSvc.addAdmin(this.projectId, this.newAdmins[0].value as string, Utility.getChangeId()).subscribe(() => {
       this.doRefresh()
     })
   }

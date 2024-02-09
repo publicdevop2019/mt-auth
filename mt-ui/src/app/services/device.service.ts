@@ -8,6 +8,7 @@ import { RouterWrapperService } from './router-wrapper';
 export class DeviceService {
     refreshSummary: Subject<any> = new Subject();
     public operationCancelled = new Subject();
+    public overlayData:any;
     constructor(
         public httpClient: HttpClient,
         private router: RouterWrapperService,

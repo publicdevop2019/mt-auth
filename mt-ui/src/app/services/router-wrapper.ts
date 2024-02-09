@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
+import { IEndpoint } from '../misc/interface';
 @Injectable({
     providedIn: 'root'
 })
@@ -18,22 +19,28 @@ export class RouterWrapperService {
         return this.router.routerState.snapshot.root.queryParams;
     }
     public getProjectIdFromUrl() {
-        return this.router.url.split('/')[2];
+        return this.stripeEndingQuery(this.router.url.split('/')[2]);
     }
     public getRoleIdFromUrl() {
-        return this.router.url.split('/')[4];
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
+    }
+    public getUserIdFromUrl() {
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
     public getClientIdFromUrl() {
-        return this.router.url.split('/')[4];
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
     public getCacheConfigIdFromUrl() {
-        return this.router.url.split('/')[4];
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
     public getCorsConfigIdFromUrl() {
-        return this.router.url.split('/')[4];
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
     public getEndpointIdFromUrl() {
-        return this.router.url.split('/')[4];
+        return this.stripeEndingQuery(this.router.url.split('/')[4]);
+    }
+    public getSubRequestIdFromUrl() {
+        return this.stripeEndingQuery(this.router.url.split('/')[2]);
     }
     public navMfa(params: NavigationExtras) {
         this.router.navigate(['/mfa'], params);
@@ -69,8 +76,20 @@ export class RouterWrapperService {
     public navProjectCacheConfigsDashboard() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs']);
     }
+    public navSubRequestDashboard() {
+        this.router.navigate(['requests']);
+    }
+    public navMarket() {
+        this.router.navigate(['market']);
+    }
     public navProjectCacheConfigsDetail(id: string, data: any) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs', id], { state: data });
+    }
+    public navSubscribeRequestDetail(id: string, data: any) {
+        this.router.navigate(['requests', id], { state: data });
+    }
+    public navNewSubscribeRequestDetail(data: IEndpoint) {
+        this.router.navigate(['requests', 'template'], { state: data });
     }
     public navProjectNewCacheConfigsDetail() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cache-configs', 'template']);
@@ -78,6 +97,9 @@ export class RouterWrapperService {
 
     public navProjectCorsConfigsDashboard() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs']);
+    }
+    public navProjectUserDashboard() {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'users']);
     }
     public navProjectCorsConfigsDetail(id: string, data: any) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'cors-configs', id], { state: data });
@@ -112,6 +134,9 @@ export class RouterWrapperService {
     }
     public navProjectRolesDetail(id: string) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'roles', id]);
+    }
+    public navProjectUserDetail(id: string) {
+        this.router.navigate(['projects', this.getProjectIdFromUrl(), 'users', id]);
     }
     public navProjectUsersDashboard() {
         this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-role']);
@@ -158,6 +183,13 @@ export class RouterWrapperService {
             query: activeRouter.snapshot.queryParams.query,
             sort: activeRouter.snapshot.queryParams.sort,
             key: activeRouter.snapshot.queryParams.key
+        }
+    }
+    private stripeEndingQuery(idWithQuery: string) {
+        if (idWithQuery.includes('?')) {
+            return idWithQuery.split('?')[0]
+        } else {
+            return idWithQuery;
         }
     }
 }

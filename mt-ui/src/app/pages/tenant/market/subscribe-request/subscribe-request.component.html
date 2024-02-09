@@ -1,15 +1,31 @@
-<h2 style="display: flex; align-items: center; justify-content: space-between;">
-    <div>{{'SUB_API'|translate}}</div>
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon style="cursor: pointer;">close </mat-icon>
+<div class="default-form-background">
+    <button (click)="router.navSubRequestDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
-</h2>
-<mat-card *ngIf="publicSubNotes" style="display: flex; align-items: center; margin-bottom: 8px;">
-    <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
-    <div>{{'PUBLIC_SUB_NOTES'|translate}}</div>
-</mat-card>
-<lib-factory [formId]="formId"></lib-factory>
-<button *ngIf="data.context==='new'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-    (click)="create()">{{'SUBSCRIBE'|translate}}</button>
-<button *ngIf="data.context==='edit'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-    (click)="update()">{{'UPDATE'|translate}}</button>
+    <mat-card *ngIf="publicSubNotes" style="display: flex; align-items: center; margin-bottom: 8px;">
+        <mat-icon style="padding-right:8px;" [color]="'primary'">error</mat-icon>
+        <div>{{'PUBLIC_SUB_NOTES'|translate}}</div>
+    </mat-card>
+    <form [formGroup]="fg">
+        <app-paginated-select *ngIf="context==='NEW'" [fg]="fg" [label]="'TARGET_PROJECT_NAME'|translate"
+            [key]="'projectId'" [loadElements]="getMyProject()">
+        </app-paginated-select>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{projectIdErrorMsg|translate}}</div>
+        <mat-form-field>
+            <mat-label>{{'REPLENISH_RATE'| translate}}</mat-label>
+            <input matInput formControlName="replenishRate">
+        </mat-form-field>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{replenishRateErrorMsg|translate}}</div>
+        <mat-form-field>
+            <mat-label>{{'BURST_CAPACITY'| translate}}</mat-label>
+            <input matInput formControlName="burstCapacity">
+        </mat-form-field>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{burstCapacityErrorMsg|translate}}</div>
+
+        <button *ngIf="context==='NEW'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+            (click)="create()">{{'SUBSCRIBE'|translate}}</button>
+        <button *ngIf="context==='EDIT'" mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+            (click)="update()">{{'UPDATE'|translate}}</button>
+    </form>
+</div>

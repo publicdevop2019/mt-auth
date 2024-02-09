@@ -1,7 +1,6 @@
 import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
 import { Component, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIcon } from '@angular/material/icon';
@@ -12,7 +11,6 @@ import { ObjectDetailComponent } from 'src/app/components/object-detail/object-d
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { FORM_CONFIG } from 'src/app/form-configs/event-filter.config';
 import { DeviceService } from 'src/app/services/device.service';
-import { OverlayService } from 'src/app/services/overlay.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
 export interface IStoredEvent {
@@ -68,7 +66,6 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     public bottomSheet: MatBottomSheet,
     public dialog: MatDialog,
     private overlay: Overlay,
-    private overlaySvc: OverlayService,
     fis: FormInfoService,
   ) {
     super(entitySvc, activated, router, bottomSheet, fis, 1);
@@ -94,7 +91,7 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {
-    this.overlaySvc.data = data;
+    this.device.overlayData = data;
     let config = new OverlayConfig();
     config.hasBackdrop = true;
     config.positionStrategy = this.overlay.position().global().centerVertically().centerHorizontally();

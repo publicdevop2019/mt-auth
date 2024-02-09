@@ -438,6 +438,8 @@ export const zhHans = {
     "SUBSCRIBE": "订阅",
     "REPLENISH_RATE": "每秒最多请求数，例如：10",
     "BURST_CAPACITY": "瞬时最多请求数，例如：60",
+    "REPLENISH_RATE_APPROVE": "每秒最多请求数",
+    "BURST_CAPACITY_APPROVE": "瞬时最多请求数",
     "SUB_API": "订阅API",
     "SUB_REQ_MGMT": "管理订阅请求",
     "MY_SUB_REQUEST": "我的请求",
@@ -626,4 +628,5 @@ export const zhHans = {
     "SELECT_PERM_TYPE": "选择类型",
     "PERM_ERROR_MSG": "必填",
     "PLS_SELECT": "请选择",
+    "UPDATE_REQUEST": "修改",
 }
