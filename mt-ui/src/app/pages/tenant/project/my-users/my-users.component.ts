@@ -1,10 +1,9 @@
 import { Component } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { UserComponent } from '../user/user.component';
-import { IProjectUser } from 'src/app/misc/interface';
+import { IOption, IProjectUser } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';

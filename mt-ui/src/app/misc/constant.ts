@@ -1,4 +1,4 @@
-import { IOption } from "mt-form-builder/lib/classes/template.interface"
+import { IOption } from "./interface"
 
 export const GRANT_TYPE_LIST = [
     { label: 'CLIENT_CREDENTIALS', value: "CLIENT_CREDENTIALS" },
@@ -57,6 +57,7 @@ export const RESOURCE_NAME = {
     CLIENTS: 'clients',
     USERS: 'users',
     SUBSCRIPTIONS_REQUEST: 'subscriptions/requests',
+    SHARED_PERMISSION: 'permissions/shared',
     SHARED_ENDPOINTS: 'endpoints/shared',
     SUBSCRIPTIONS: 'subscriptions'
 }

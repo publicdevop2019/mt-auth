@@ -9,7 +9,6 @@ import { FormInfoService } from 'mt-form-builder';
 import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable, Subscription } from 'rxjs';
 import { IEditEvent } from 'src/app/components/editable-field/editable-field.component';
-import { DeviceService } from 'src/app/services/device.service';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
 import { IEditListEvent } from '../components/editable-select-multi/editable-select-multi.component';

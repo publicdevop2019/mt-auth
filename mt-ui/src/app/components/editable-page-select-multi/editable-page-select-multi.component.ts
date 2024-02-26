@@ -1,8 +1,8 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { EntityCommonService } from 'src/app/clazz/entity.common-service';
 import { IIdName } from '../editable-page-select-single/editable-page-select-single.component';
 import { IEditListEvent } from '../editable-select-multi/editable-select-multi.component';
+import { IOption } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-editable-page-select-multi',

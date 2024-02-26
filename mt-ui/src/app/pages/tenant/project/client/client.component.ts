@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
@@ -7,7 +6,7 @@ import { CLIENT_TYPE, grantTypeEnums, RESOURCE_NAME } from 'src/app/misc/constan
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { IClient, IClientCreate } from 'src/app/misc/interface';
+import { IClient, IClientCreate, IOption } from 'src/app/misc/interface';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';

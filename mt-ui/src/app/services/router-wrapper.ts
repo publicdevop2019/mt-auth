@@ -79,6 +79,9 @@ export class RouterWrapperService {
     public navSubRequestDashboard() {
         this.router.navigate(['requests']);
     }
+    public navApiMarket() {
+        this.router.navigate(['market']);
+    }
     public navMarket() {
         this.router.navigate(['market']);
     }

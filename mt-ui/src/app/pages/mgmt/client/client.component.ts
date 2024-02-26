@@ -1,13 +1,12 @@
 import { Component, Inject, OnDestroy } from '@angular/core';
 import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { CLIENT_TYPE, grantTypeEnums } from 'src/app/misc/constant';
 import { IDomainContext } from 'src/app/clazz/summary.component';
 import { FORM_CONFIG } from 'src/app/form-configs/client.config';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IOption } from 'src/app/misc/interface';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 
 @Component({

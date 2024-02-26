@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IEndpoint, IPermission } from 'src/app/misc/interface';
+import { IEndpoint, IPermission, IQueryProvider } from 'src/app/misc/interface';
 import { FormGroup, FormControl } from '@angular/forms';
-import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';

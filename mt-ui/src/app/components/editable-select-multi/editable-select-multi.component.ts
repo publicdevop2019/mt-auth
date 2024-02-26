@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption } from 'src/app/misc/interface';
 export interface IEditListEvent {
   original: IOption[],
   next: IOption[]

@@ -2,10 +2,9 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ActivatedRoute } from '@angular/router';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
+import { IOption } from 'src/app/misc/interface';
 import { IRevokeToken, RevokeTokenService } from 'src/app/services/revoke-token.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({

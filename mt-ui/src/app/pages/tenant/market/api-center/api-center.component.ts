@@ -1,8 +1,6 @@
 import { Component } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
-import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
-import { IEndpoint } from 'src/app/misc/interface';
+import { IEndpoint, IOption } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { TableHelper } from 'src/app/clazz/table-helper';
@@ -28,7 +26,6 @@ export class ApiCenterComponent {
     action: 'SUBSCRIBE',
   }
   httpMethodList = CONST_HTTP_METHOD;
-  sheetComponent = SubscribeRequestComponent;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
     {

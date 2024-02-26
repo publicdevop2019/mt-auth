@@ -1,14 +1,13 @@
 import { Component, Inject } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { IRole } from 'src/app/pages/tenant/project/my-roles/my-roles.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { SharedPermissionService } from 'src/app/services/shared-permission.service';
 import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
+import { IOption, IQueryProvider } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-add-permission-dialog',
@@ -18,6 +17,7 @@ import { Utility } from 'src/app/misc/utility';
 export class AddPermissionDialogComponent{
   public projectId = this.route.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
+  private sharedPermUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.SHARED_PERMISSION)
   fg = new FormGroup({
     type: new FormControl({ value: 'COMMON_PERMISSIONS', disabled: false }),
     commonPermissionIds: new FormControl({ value: [], disabled: false }),
@@ -33,13 +33,12 @@ export class AddPermissionDialogComponent{
     public dialogRef: MatDialogRef<AddPermissionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public httpProxySvc: HttpProxyService,
-    public sharedPermSvc: SharedPermissionService,
     public route: RouterWrapperService,
   ) { }
   getShared(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermSvc.entityRepo, num, size, undefined, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermUrl, num, size, undefined, by, order, header)
       }
     } as IQueryProvider
   }

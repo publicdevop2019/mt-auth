@@ -1,6 +1,6 @@
 import { Component, ElementRef, ViewChild, ChangeDetectorRef, Input } from "@angular/core";
-import { FormControl, FormGroup } from "@angular/forms";
-import { IOption, IQueryProvider } from "mt-form-builder/lib/classes/template.interface";
+import { FormGroup } from "@angular/forms";
+import { IOption, IQueryProvider } from "src/app/misc/interface";
 
 @Component({
   selector: 'app-paginated-select',

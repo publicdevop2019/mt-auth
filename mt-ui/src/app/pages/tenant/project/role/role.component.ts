@@ -1,10 +1,8 @@
 import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { SharedPermissionService } from 'src/app/services/shared-permission.service';
 import { IRole } from '../my-roles/my-roles.component';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
@@ -16,6 +14,7 @@ import { DeviceService } from 'src/app/services/device.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { BannerService } from 'src/app/services/banner.service';
+import { IOption, IQueryProvider } from 'src/app/misc/interface';
 interface IPermTable {
   id: string,
   name: string, type: string
@@ -53,10 +52,10 @@ export class RoleComponent implements OnDestroy {
   };
   subs: Subscription = new Subscription()
   private permissionUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
+  private sharedPermUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.SHARED_PERMISSION)
   constructor(
     public epSvc: EndpointService,
     public httpProxySvc: HttpProxyService,
-    public sharedPermSvc: SharedPermissionService,
     public cdr: ChangeDetectorRef,
     public router: RouterWrapperService,
     public dialog: MatDialog,
@@ -64,7 +63,6 @@ export class RoleComponent implements OnDestroy {
     public deviceSvc: DeviceService,
   ) {
     const roleId = this.router.getRoleIdFromUrl()
-    this.sharedPermSvc.setProjectId(this.router.getProjectIdFromUrl())
 
     this.httpProxySvc.readEntityById<IRole>(this.roleUrl, roleId).subscribe(next => {
       this.data = next
@@ -101,7 +99,7 @@ export class RoleComponent implements OnDestroy {
   getShared(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermSvc.entityRepo, num, size, undefined, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermUrl, num, size, undefined, by, order, header)
       }
     } as IQueryProvider
   }
@@ -127,7 +125,7 @@ export class RoleComponent implements OnDestroy {
         var0.push(this.httpProxySvc.readEntityByQuery(this.roleUrl, 0, 1, 'id:' + this.data.parentId))
       }
       if ((this.data.externalPermissionIds && this.data.externalPermissionIds.length > 0)) {
-        var0.push(this.sharedPermSvc.readEntityByQuery(0, 1, 'id:' + this.data.externalPermissionIds.join('.')))
+        var0.push(this.httpProxySvc.readEntityByQuery(this.sharedPermUrl, 0, 1, 'id:' + this.data.externalPermissionIds.join('.')))
       }
       combineLatest(var0).subscribe(next => {
         if (this.data.parentId) {

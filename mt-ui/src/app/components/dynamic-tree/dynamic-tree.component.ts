@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormGroup } from '@angular/forms';
-import { ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 import { Observable } from 'rxjs';
+import { ISumRep } from 'src/app/clazz/summary.component';
 export interface IFlatNode {
   expandable: boolean;
   name: string;

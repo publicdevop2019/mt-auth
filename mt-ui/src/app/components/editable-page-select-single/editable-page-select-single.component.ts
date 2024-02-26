@@ -1,8 +1,8 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { EntityCommonService } from 'src/app/clazz/entity.common-service';
 import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { IEditEvent } from '../editable-field/editable-field.component';
+import { IOption } from 'src/app/misc/interface';
 export interface IIdName extends IIdBasedEntity {
   name: string
 }

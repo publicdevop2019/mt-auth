@@ -1,15 +1,13 @@
 import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { uniqueObject } from 'src/app/misc/utility';
 import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
 import { MgmtClientComponent } from '../client/client.component';
 import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IOption } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { ActivatedRoute } from '@angular/router';
 @Component({

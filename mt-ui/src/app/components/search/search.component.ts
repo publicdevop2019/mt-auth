@@ -3,10 +3,9 @@ import { Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, O
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { interval, Observable, Subscription } from 'rxjs';
 import { debounce, filter } from 'rxjs/operators';
-import { IClient } from 'src/app/misc/interface';
+import { IClient, IOption } from 'src/app/misc/interface';
 import { DeviceService } from 'src/app/services/device.service';
 import { ResourceService } from 'src/app/services/resource.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';

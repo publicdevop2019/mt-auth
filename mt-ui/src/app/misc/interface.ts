@@ -1,6 +1,7 @@
 import { IIdName } from "mt-form-builder/lib/classes/template.interface";
 import { grantTypeEnums, CLIENT_TYPE } from "./constant";
-import { IIdBasedEntity } from "../clazz/summary.component";
+import { IIdBasedEntity, ISumRep } from "../clazz/summary.component";
+import { Observable } from "rxjs";
 
 export interface ICacheProfile extends IIdBasedEntity {
     name: string;
@@ -224,4 +225,11 @@ export interface ICheckSumResponse {
 export interface ICommonServerError {
     errorId: string;
     errors: string[]
+}
+export interface IOption {
+    label: string;
+    value: string;
+}
+export interface IQueryProvider {
+    readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => Observable<ISumRep<IIdName>>;
 }
