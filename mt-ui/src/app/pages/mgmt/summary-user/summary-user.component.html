@@ -2,37 +2,12 @@
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
 </app-search>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: space-between;">
-    <section>
-        <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-            style="margin-right: 16px;" (click)="showOptions()">
-            {{'BATCH_OPERATION'|translate}}
-        </mat-slide-toggle>
-        <ng-container *ngIf="batchUpdate.checked">
-            <button mat-raised-button color="primary" (click)="doBatchLock()"
-                style="margin-right: 16px;">{{'BATCH_LOCK'|translate}}</button>
-            <button mat-raised-button color="primary" (click)="doBatchUnlock()">{{'BATCH_UNLOCK'|translate}}</button>
-        </ng-container> -->
-    </section>
     <app-table-column-config [formId]="formId"  ></app-table-column-config>
 </div>
 <div >
     <div class="table-container">
 
         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-            <!-- Checkbox Column -->
-            <ng-container matColumnDef="select">
-                <th mat-header-cell *matHeaderCellDef>
-                    <mat-checkbox (change)="$event ? masterToggle() : null"
-                        [checked]="selection.hasValue() && isAllSelected()"
-                        [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
-                    </mat-checkbox>
-                </th>
-                <td mat-cell *matCellDef="let row">
-                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-                        [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
-                    </mat-checkbox>
-                </td>
-            </ng-container>
             <ng-container matColumnDef="id" sticky>
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
                 <td mat-cell *matCellDef="let row">

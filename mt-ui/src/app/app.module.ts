@@ -61,7 +61,6 @@ import { ProgressSpinnerComponent } from './components/progress-spinner/progress
 import { SearchComponent } from './components/search/search.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
 import { TreeNodeDirective } from './directive/tree-node.directive';
-import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
 import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.component';
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
@@ -175,7 +174,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     MyCacheComponent,
     CacheComponent,
     SummaryStoredEventAccessComponent,
-    BatchUpdateCorsComponent,
     TableColumnConfigComponent,
     MyProfileComponent,
     NewProjectComponent,
@@ -275,7 +273,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     ObjectDetailComponent,
     RoleComponent,
     CorsComponent,
-    BatchUpdateCorsComponent,
     SubscribeRequestComponent,
     CacheComponent],
   providers: [

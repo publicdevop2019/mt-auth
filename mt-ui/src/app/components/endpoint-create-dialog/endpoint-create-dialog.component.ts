@@ -1,11 +1,10 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 import { ClientCreateDialogComponent } from '../client-create-dialog/client-create-dialog.component';
 
 @Component({
@@ -23,7 +22,6 @@ export class EndpointCreateDialogComponent {
   });
   constructor(
     public dialogRef: MatDialogRef<ClientCreateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public httpProxySvc: HttpProxyService,
     private psv: ProjectService,
   ) {

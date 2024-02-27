@@ -46,14 +46,14 @@
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
                 <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}}
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['id']|translate}}
                     </th>
                     <td mat-cell *matCellDef="let row">
                         <app-copy-field [inputValue]="row.id"></app-copy-field>
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}}
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['name']|translate}}
                     </th>
                     <td mat-cell *matCellDef="let row">
                         <ng-container *ngIf="row.systemCreate">
@@ -65,7 +65,7 @@
                     </td>
                 </ng-container>
                 <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['type']|translate}}
                     </th>
                     <td mat-cell *matCellDef="let row">
                         {{row.type|translate}}
@@ -74,7 +74,7 @@
 
                 <ng-container matColumnDef="delete">
                     <th mat-header-cell *matHeaderCellDef class="table-icon">
-                        {{columnList['delete']|translate}}</th>
+                        {{tableSource.columnConfig['delete']|translate}}</th>
                     <td mat-cell *matCellDef="let row" class="table-icon">
                         <mat-icon (click)="delete(row.id)" [color]="'warn'">delete_outline</mat-icon>
                     </td>

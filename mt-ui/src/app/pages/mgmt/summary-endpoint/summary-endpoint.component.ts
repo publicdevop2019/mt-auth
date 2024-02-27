@@ -4,7 +4,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
 import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
 import { uniqueObject } from 'src/app/misc/utility';
-import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
 import { ISearchConfig } from 'src/app/components/search/search.component';
 import { EndpointService } from 'src/app/services/endpoint.service';
 import { MgmtClientService } from 'src/app/services/mgmt-client.service';
@@ -74,15 +73,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     super.updateSummaryData(next);
     this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
   }
-  getOption(value: string, options: IOption[]) {
-    return options.find(e => e.value == value)
-  }
-  batchOperation() {
-    const dialogRef = this.dialog.open(BatchUpdateCorsComponent, {
-      width: '500px',
-      data: {
-        data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
-      },
-    });
+  getOption(row: IEndpoint) {
+    return <IOption>{ label: row.resourceName, value: row.resourceId }
   }
 }

@@ -2,18 +2,9 @@
 <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
 </app-search>
 <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: space-between;">
-    <section>
-        <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-            style="margin-right: 16px;" (click)="showOptions()">
-            {{'BATCH_OPERATION'|translate}}
-        </mat-slide-toggle>
-        <ng-container *ngIf="batchUpdate.checked">
-            <button mat-raised-button color="primary" (click)="batchOperation()">{{'BATCH_OPERATION_DETAIL'|translate}}</button>
-        </ng-container> -->
-    </section>
-    <app-table-column-config [formId]="formId"  ></app-table-column-config>
+    <app-table-column-config [formId]="formId"></app-table-column-config>
 </div>
-<div >
+<div>
     <div class="table-container">
         <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
             <!-- Checkbox Column -->
@@ -47,17 +38,14 @@
             <ng-container matColumnDef="resourceId">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['resourceId']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-editable-page-select-single *ngIf="allClientList"  [readOnly]="true"
-                        [inputValue]="getOption(row.resourceId,allClientList)" [list]="allClientList" [entitySvc]="clientSvc"
-                        (newValue)="doPatch(row.id,$event,'resourceId')">
+                    <app-editable-page-select-single [readOnly]="true" [inputValue]="getOption(row)">
                     </app-editable-page-select-single>
                 </td>
             </ng-container>
             <ng-container matColumnDef="description">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['description']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.description" 
-                        (newValue)="doPatch(row.id,$event,'description')">
+                    <app-copy-field [inputValue]="row.description" (newValue)="doPatch(row.id,$event,'description')">
                     </app-copy-field>
                 </td>
             </ng-container>
@@ -75,8 +63,8 @@
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['method']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <ng-container *ngIf="!row.websocket">
-                        <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"  [readOnly]="true"
-                            [list]="httpMethodList" (newValue)="doPatch(row.id,$event,'method')">
+                        <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"
+                            [readOnly]="true" [list]="httpMethodList" (newValue)="doPatch(row.id,$event,'method')">
                         </app-editable-select-single>
                     </ng-container>
                     <ng-container *ngIf="row.websocket">

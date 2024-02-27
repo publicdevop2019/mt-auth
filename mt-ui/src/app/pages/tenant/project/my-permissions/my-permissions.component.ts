@@ -30,14 +30,14 @@ export class MyPermissionsComponent {
     parentId: new FormControl(''),
     apiId: new FormControl([]),
   });
-  columnList: any = {
+  private initialColumnList: any = {
     id: 'ID',
     name: 'PERM_NAME',
     type: 'TYPE',
   };
   parentIdOption = [];
   apiOptions = [];
-  public tableSource: TableHelper<IPermission> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'types:COMMON');
+  public tableSource: TableHelper<IPermission> = new TableHelper(this.initialColumnList, 10, this.httpSvc, this.url, 'types:COMMON');
   public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
     public projectSvc: ProjectService,
@@ -51,7 +51,7 @@ export class MyPermissionsComponent {
       }
     })
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_PERMISSION').pipe(take(1)).subscribe(b => {
-      this.columnList = b.result ? {
+      this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         name: 'PERM_NAME',
         type: 'TYPE',
@@ -61,7 +61,6 @@ export class MyPermissionsComponent {
         name: 'PERM_NAME',
         type: 'TYPE',
       }
-      this.tableSource.columnConfig = this.columnList;
     })
     this.fg.valueChanges.subscribe(() => {
       if (this.allowError) {

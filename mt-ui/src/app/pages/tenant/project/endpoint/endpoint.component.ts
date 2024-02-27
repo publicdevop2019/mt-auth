@@ -3,7 +3,6 @@ import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { IDomainContext } from 'src/app/clazz/summary.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate, IOption } from 'src/app/misc/interface';
@@ -21,6 +20,7 @@ import { BannerService } from 'src/app/services/banner.service';
 export class EndpointComponent {
   private projectId = this.router.getProjectIdFromUrl()
   private clientUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   changeId: string = Utility.getChangeId();
   allowError: boolean = false;
 
@@ -66,7 +66,6 @@ export class EndpointComponent {
   private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
   private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
   constructor(
-    public endpointSvc: MyEndpointService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
@@ -80,7 +79,7 @@ export class EndpointComponent {
       this.data = (this.router.getData() as IDomainContext<IEndpoint>).from
     } else {
       this.context = 'EDIT'
-      this.endpointSvc.readById(endpointId).subscribe(next => {
+      this.httpProxySvc.readEntityById<IEndpoint>(this.epUrl, endpointId).subscribe(next => {
         this.data = next;
         if (this.data.shared) {
           this.fg.get('type').setValue('PROTECTED_SHARED_API')
@@ -161,7 +160,7 @@ export class EndpointComponent {
     })
     if (this.context === 'NEW') {
       const createData = this.router.getData() as IEndpointCreate
-      this.fg.get('projectId').setValue(createData.projectId)
+      this.fg.get('projectId').setValue(router.getProjectIdFromUrl())
       this.fg.get('name').setValue(createData.name)
       this.fg.get('type').setValue(createData.type)
     }
@@ -248,14 +247,16 @@ export class EndpointComponent {
   update() {
     this.allowError = true;
     if (this.validateForm()) {
-      const payload = this.convertToPayload()
-      this.endpointSvc.update(this.data.id, payload, this.changeId)
+      this.httpProxySvc.updateEntity(this.epUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
+        this.banner.notify(!!next);
+        this.router.navProjectEndpointDashboard()
+      });
     }
   }
   create() {
     this.allowError = true;
     if (this.validateForm()) {
-      this.httpProxySvc.createEntity(this.endpointSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
+      this.httpProxySvc.createEntity(this.epUrl, this.convertToPayload(), this.changeId).subscribe(next => {
         this.banner.notify(!!next);
         this.router.navProjectEndpointDashboard()
       });

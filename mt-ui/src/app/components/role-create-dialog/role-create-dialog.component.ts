@@ -1,10 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { ProjectService } from 'src/app/services/project.service';
-import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 
 @Component({
   selector: 'app-role-create-dialog',
@@ -20,8 +18,6 @@ export class RoleCreateDialogComponent {
   });
   constructor(
     public dialogRef: MatDialogRef<RoleCreateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    private psv: ProjectService,
   ) {
     this.fg.valueChanges.subscribe(() => {
       if (this.allowError) {

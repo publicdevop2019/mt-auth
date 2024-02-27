@@ -28,7 +28,6 @@ export interface ICorsProfile extends IIdBasedEntity {
 export interface IEndpointCreate{
     name: string;
     type: string;
-    projectId: string;
 }
 export interface IEndpoint extends IIdBasedEntity {
     resourceId: string;
@@ -232,4 +231,7 @@ export interface IOption {
 }
 export interface IQueryProvider {
     readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => Observable<ISumRep<IIdName>>;
+}
+export interface DialogData {
+    data: { id: string, description: string }[]
 }

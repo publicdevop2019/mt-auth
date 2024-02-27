@@ -1,9 +1,8 @@
-import { Component, Inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialogRef } from '@angular/material/dialog';
 import { IRole } from 'src/app/pages/tenant/project/my-roles/my-roles.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
@@ -31,7 +30,6 @@ export class AddPermissionDialogComponent{
   permErrorMsg = undefined;
   constructor(
     public dialogRef: MatDialogRef<AddPermissionDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
     public httpProxySvc: HttpProxyService,
     public route: RouterWrapperService,
   ) { }
