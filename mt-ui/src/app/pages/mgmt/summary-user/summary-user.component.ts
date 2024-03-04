@@ -1,25 +1,17 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { Component } from '@angular/core';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
-import { UserService } from 'src/app/services/user.service';
-import { MgmtUserComponent } from '../mgmt-user/mgmt-user.component';
 import { IAuthUser } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
-import { ActivatedRoute } from '@angular/router';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { BannerService } from 'src/app/services/banner.service';
-import { Logger } from 'src/app/misc/logger';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
 })
-export class SummaryResourceOwnerComponent {
+export class SummaryUserComponent {
   columnList = {
     id: 'ID',
     email: 'EMAIL',
@@ -30,7 +22,6 @@ export class SummaryResourceOwnerComponent {
   }
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_USERS)
   public tableSource: TableHelper<IAuthUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
-  sheetComponent = MgmtUserComponent;
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',

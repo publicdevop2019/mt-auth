@@ -56,9 +56,11 @@ export const RESOURCE_NAME = {
     ENDPOINTS: 'endpoints',
     CLIENTS: 'clients',
     USERS: 'users',
-    MGMT_USERS: 'users',
     SUBSCRIPTIONS_REQUEST: 'subscriptions/requests',
     SHARED_PERMISSION: 'permissions/shared',
     SHARED_ENDPOINTS: 'endpoints/shared',
-    SUBSCRIPTIONS: 'subscriptions'
+    SUBSCRIPTIONS: 'subscriptions',
+    MGMT_USERS: 'users',
+    MGMT_EVENTS: 'events',
+    MGMT_EVENTS_AUDIT: 'events/audit',
 }

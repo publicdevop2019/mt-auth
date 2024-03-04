@@ -13,7 +13,7 @@ import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-mes
 import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
 import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
-import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
+import { SummaryUserComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
@@ -75,7 +75,7 @@ const routes: Routes = [
       { path: 'mgmt/registry', component: RegistryComponent },
       { path: 'mgmt/jobs', component: JobComponent },
       { path: 'mgmt/clients', component: SummaryClientComponent },
-      { path: 'mgmt/users', component: SummaryResourceOwnerComponent },
+      { path: 'mgmt/users', component: SummaryUserComponent },
       { path: 'mgmt/users/:userId', component: MgmtUserComponent },
       { path: 'mgmt/endpoints', component: SummaryEndpointComponent },
       { path: 'mgmt/events', component: SummaryStoredEventAccessComponent },

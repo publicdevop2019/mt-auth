@@ -1,18 +1,18 @@
 import { Overlay, OverlayConfig } from '@angular/cdk/overlay';
 import { ComponentPortal } from '@angular/cdk/portal';
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
+import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatIcon } from '@angular/material/icon';
 import { ActivatedRoute } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TableHelper } from 'src/app/clazz/table-helper';
 import { ObjectDetailComponent } from 'src/app/components/object-detail/object-detail.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { FORM_CONFIG } from 'src/app/form-configs/event-filter.config';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { Logger } from 'src/app/misc/logger';
+import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
-import { StoredEventAccessService } from 'src/app/services/stored-event.service-access';
 export interface IStoredEvent {
   id: string,
   eventBody: string,
@@ -26,11 +26,9 @@ export interface IStoredEvent {
 @Component({
   selector: 'app-summary-stored-event-access',
   templateUrl: './summary-stored-event-access.component.html',
-  styleUrls: ['./summary-stored-event-access.component.css']
+  styleUrls: []
 })
-export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IStoredEvent, IStoredEvent> implements OnDestroy {
-  filterFormId = "authEventFilter";
-  formId = "authEventTableColumnConfig";
+export class SummaryStoredEventAccessComponent {
   columnList = {
     id: 'ID',
     eventBody: 'DETAILS',
@@ -40,6 +38,11 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     internal: 'INTERNAL',
     retry: 'RETRY',
   }
+  public filter = new FormControl('all')
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_EVENTS)
+  private urlDefault = Utility.getMgmtResource(RESOURCE_NAME.MGMT_EVENTS)
+  private urlAudit = Utility.getMgmtResource(RESOURCE_NAME.MGMT_EVENTS_AUDIT)
+  public tableSource: TableHelper<IStoredEvent> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -59,35 +62,24 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     }
   ];
   constructor(
-    public entitySvc: StoredEventAccessService,
     public activated: ActivatedRoute,
     public router: RouterWrapperService,
     public device: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public dialog: MatDialog,
     private overlay: Overlay,
-    fis: FormInfoService,
+    private httpSvc: HttpProxyService,
   ) {
-    super(entitySvc, activated, router, bottomSheet, fis, 1);
-    this.fis.init(FORM_CONFIG, this.filterFormId)
-    this.initTableSetting();
-    this.fis.formGroups[this.filterFormId].get('filterBy').setValue('all')
-    this.fis.formGroups[this.filterFormId].valueChanges.subscribe(next => {
-      if (next.filterBy === 'audit') {
-        this.entitySvc.entityRepo = this.entitySvc.auditRepo;
-        this.entitySvc.queryPrefix = undefined;
-      } else if (next.filterBy === 'rejected') {
-        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-        this.entitySvc.queryPrefix = 'rejected:1';
-      } else if (next.filterBy === 'unroutable') {
-        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
-        this.entitySvc.queryPrefix = 'routable:0';
+    Logger.trace(this.filter.value)
+    this.filter.valueChanges.subscribe(next => {
+      if (next === 'audit') {
+        this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.urlAudit);
+      } else if (next === 'rejected') {
+        this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.urlDefault, 'rejected:1');
+      } else if (next === 'unroutable') {
+        this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.urlDefault, 'routable:0');
       } else {
-        this.entitySvc.queryPrefix = undefined;
-        this.entitySvc.entityRepo = this.entitySvc.eventRepo;
+        this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.urlDefault);
       }
-      this.entitySvc.pageNumber = 0;
-      this.device.refreshSummary.next();
+      this.tableSource.loadPage(0)
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {
@@ -102,9 +94,12 @@ export class SummaryStoredEventAccessComponent extends SummaryEntityComponent<IS
     overlayRef.backdropClick().subscribe(() => {
       overlayRef.dispose();
     })
-
   }
   doRetry(id: string) {
-    this.entitySvc.retry(id).subscribe()
+    this.httpSvc.retry(this.urlDefault, id)
+  }
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);
+    this.tableSource.loadPage(0)
   }
 }

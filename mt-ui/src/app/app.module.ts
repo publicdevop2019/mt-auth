@@ -104,7 +104,7 @@ import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-mes
 import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
 import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
-import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
+import { SummaryUserComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
@@ -140,7 +140,7 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     ClientComponent,
     MgmtUserComponent,
     SummaryClientComponent,
-    SummaryResourceOwnerComponent,
+    SummaryUserComponent,
     NavBarComponent,
     ProgressSpinnerComponent,
     MsgBoxComponent,
