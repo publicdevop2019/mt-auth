@@ -39,6 +39,9 @@ export class RouterWrapperService {
     public getEndpointIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[4]);
     }
+    public getMgmtEndpointIdFromUrl() {
+        return this.stripeEndingQuery(this.router.url.split('/')[3]);
+    }
     public getSubRequestIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[2]);
     }
@@ -140,6 +143,12 @@ export class RouterWrapperService {
     }
     public navProjectUserDetail(id: string) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'users', id]);
+    }
+    public navMgmtUserDetail(id: string) {
+        this.router.navigate(['mgmt', 'users', id]);
+    }
+    public navMgmtUserDashboard() {
+        this.router.navigate(['mgmt', 'users']);
     }
     public navProjectUsersDashboard() {
         this.router.navigate([RouterWrapperService.HOME_URL, this.getProjectIdFromUrl(), 'my-role']);

@@ -2,22 +2,24 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { FormInfoService } from 'mt-form-builder';
-import { filter } from 'rxjs/operators';
 import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { OperationConfirmDialogComponent } from 'src/app/components/operation-confirm-dialog/operation-confirm-dialog.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { UserService } from 'src/app/services/user.service';
 import { MgmtUserComponent } from '../mgmt-user/mgmt-user.component';
-import { IAuthUser, IOption } from 'src/app/misc/interface';
+import { IAuthUser } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { ActivatedRoute } from '@angular/router';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { BannerService } from 'src/app/services/banner.service';
+import { Logger } from 'src/app/misc/logger';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
 })
-export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthUser, IAuthUser> implements OnDestroy {
-  public formId = "userTableColumnConfig";
+export class SummaryResourceOwnerComponent {
   columnList = {
     id: 'ID',
     email: 'EMAIL',
@@ -25,17 +27,17 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthU
     createdAt: 'CREATE_AT',
     edit: 'EDIT',
     token: 'REVOKE_TOKEN',
-    delete: 'DELETE',
   }
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_USERS)
+  public tableSource: TableHelper<IAuthUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   sheetComponent = MgmtUserComponent;
-  public roleList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
       searchValue: 'id',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
     {
@@ -43,36 +45,26 @@ export class SummaryResourceOwnerComponent extends SummaryEntityComponent<IAuthU
       searchValue: 'email',
       type: 'text',
       multiple: {
-        delimiter:'.'
+        delimiter: '.'
       }
     },
   ]
   constructor(
-    public entitySvc: UserService,
-    public activated: ActivatedRoute,
-    public router: RouterWrapperService,
-    public fis: FormInfoService,
-    public bottomSheet: MatBottomSheet,
-    public dialog: MatDialog,
+    public bannerSvc: BannerService,
+    public httpSvc: HttpProxyService,
+    public route: RouterWrapperService,
   ) {
-    super(entitySvc,activated, router, bottomSheet,fis, 2);
-    this.initTableSetting();
   }
-  revokeResourceOwnerToken(id: string) {
-    this.entitySvc.revokeResourceOwnerToken(id);
+  revokeUserToken(id: string) {
+    this.httpSvc.revokeUserToken(id).subscribe(result => {
+      this.bannerSvc.notify(result)
+    })
   }
-  getAuthorityList(inputs: string[]) {
-    
-    return inputs.map(e => <IOption>{ label: this.roleList.find(ee => ee.value === e)?this.roleList.find(ee => ee.value === e).label:'NOT_FOUND', value: e })
+  viewUser(id: string) {
+    this.route.navMgmtUserDetail(id)
   }
-  doBatchLock(){
-    const dialogRef = this.dialog.open(OperationConfirmDialogComponent);
-    let ids = this.selection.selected.map(e => e.id)
-    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'LOCK', Utility.getChangeId()));
-  }
-  doBatchUnlock(){
-    const dialogRef = this.dialog.open(OperationConfirmDialogComponent);
-    let ids = this.selection.selected.map(e => e.id)
-    dialogRef.afterClosed().pipe(filter(result => result)).subscribe(() => this.entitySvc.batchUpdateUserStatus(ids, 'UNLOCK', Utility.getChangeId()));
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.url, config.value);
+    this.tableSource.loadPage(0)
   }
 }

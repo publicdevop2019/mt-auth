@@ -172,15 +172,6 @@ export class HttpProxyService {
     getAvatar() {
         return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };
-    batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo, this.getUserStatusPatch(status, ids), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
     forgetPwd(fg: IForgetPasswordRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');

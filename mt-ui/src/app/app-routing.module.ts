@@ -47,6 +47,7 @@ import { CorsComponent } from './pages/tenant/project/cors/cors.component';
 import { CacheComponent } from './pages/tenant/project/cache/cache.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
 import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-request/subscribe-request.component';
+import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -75,6 +76,7 @@ const routes: Routes = [
       { path: 'mgmt/jobs', component: JobComponent },
       { path: 'mgmt/clients', component: SummaryClientComponent },
       { path: 'mgmt/users', component: SummaryResourceOwnerComponent },
+      { path: 'mgmt/users/:userId', component: MgmtUserComponent },
       { path: 'mgmt/endpoints', component: SummaryEndpointComponent },
       { path: 'mgmt/events', component: SummaryStoredEventAccessComponent },
       { path: 'mgmt/notification', component: SummaryNotificationComponent },

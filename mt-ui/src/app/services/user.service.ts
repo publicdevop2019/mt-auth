@@ -14,21 +14,10 @@ export class UserService extends EntityCommonService<IAuthUser, IAuthUser>{
   constructor(private httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
     super(httpProxy, interceptor, deviceSvc);
   }
-  revokeResourceOwnerToken(id: string): void {
-    this.httpProxy.revokeUserToken(id).subscribe(result => {
-      result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_TOKEN') : this.interceptor.openSnackbar('OPERATION_FAILED');
-    })
-  }
   updateMyPwd(command: IUpdatePwdCommand, changeId: string): void {
     this.httpProxy.updateUserPwd(command, changeId).subscribe(result => {
       result ? this.interceptor.openSnackbar('OPERATION_SUCCESS_LOGIN') : this.interceptor.openSnackbar('OPERATION_FAILED');
       logout(undefined, this.httpProxy)
     });
-  }
-  batchUpdateUserStatus(ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
-    this.httpProxy.batchUpdateUserStatus(this.entityRepo, ids, status, changeId).subscribe(result => {
-      this.notify(result)
-      this.deviceSvc.refreshSummary.next()
-    })
   }
 }

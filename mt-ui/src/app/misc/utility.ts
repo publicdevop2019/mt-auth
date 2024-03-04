@@ -72,5 +72,8 @@ export class Utility {
     public static getProjectResource(projectId: string, resourceName: string) {
         return getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'projects', projectId, resourceName]);
     }
+    public static getMgmtResource(resourceName: string) {
+        return getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'mgmt', resourceName]);
+    }
 
 }

@@ -12,7 +12,7 @@ export interface IRegistryInstance {
   templateUrl: './registry.component.html',
   styleUrls: ['./registry.component.css']
 })
-export class RegistryComponent implements OnInit {
+export class RegistryComponent{
   displayedColumns: string[] = ['id','name', 'count'];
   dataSource: MatTableDataSource<{ id: string; name: string, count: number }> = new MatTableDataSource();
   batchJobConfirmed: boolean;
@@ -21,8 +21,4 @@ export class RegistryComponent implements OnInit {
       this.dataSource.data = next;
     })
   }
-
-  ngOnInit(): void {
-  }
-
 }

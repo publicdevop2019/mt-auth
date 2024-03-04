@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,13 +9,11 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
   templateUrl: './proxy-check.component.html',
   styleUrls: ['./proxy-check.component.css']
 })
-export class CacheControlComponent implements OnInit {
+export class CacheControlComponent{
   displayedColumns: string[] = ['instance', 'value', 'result'];
   private cacheChangeId = Utility.getChangeId();
   dataSource: MatTableDataSource<{ name: string; value: string }>;
   constructor(protected httpProxySvc: HttpProxyService, private _snackBar: MatSnackBar, private translate: TranslateService) { }
-  ngOnInit(): void {
-  }
   sendReloadRequest() {
     this.httpProxySvc.sendReloadRequest(this.cacheChangeId).subscribe(_ => {
       this.openSnackbar('CACHE_RELOAD_MSG_SENT')

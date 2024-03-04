@@ -1,79 +1,81 @@
-
-<h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'JOB_STATUS' |translate}}</h2>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
-  <app-table-column-config [formId]="formId" ></app-table-column-config>
+<div class="default-background">
+  <h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'JOB_STATUS' |translate}}</h2>
+  <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
+    <app-table-column-config [formId]="formId" ></app-table-column-config>
+  </div>
+  
+  <table mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{getName(row)|async}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="lastExecution">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['lastExecution']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':parseDate(row.lastExecution)}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="lastStatus">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['lastStatus']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':(row.lastStatus|translate)}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="type">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{row.type|translate}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="failureCount">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['failureCount']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':row.failureCount}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="failureReason">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['failureReason']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':row.failureReason|translate}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="failureAllowed">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['failureAllowed']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':row.failureAllowed}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="notifiedAdmin">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['notifiedAdmin']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isTemplate(row)?'N/A':(getNotify(row.notifiedAdmin)|translate)}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="minimumIdleTimeAllowed">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['minimumIdleTimeAllowed']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{row.minimumIdleTimeAllowed}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="maxLockAcquireFailureAllowed">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['maxLockAcquireFailureAllowed']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          {{isSingle(row)?'N/A':row.maxLockAcquireFailureAllowed}}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="action">
+        <th mat-header-cell *matHeaderCellDef> {{columnList['action']|translate}} </th>
+        <td mat-cell *matCellDef="let row">
+          <mat-icon (click)="resetJob(row.id)" [color]="'primary'" style="cursor: pointer;">restart_alt</mat-icon>
+        </td>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+    </table>
+    <div style="margin:24px 0px 12px 0px; font-size: 18px;">{{'SYSTEM_DATA_VALIDATION'|translate}}</div>
+    <button mat-raised-button color="primary"
+    (click)="resetValidationJob()">{{'RESET_JOB'|translate}}</button>
 </div>
 
-<table mat-table [dataSource]="dataSource">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{getName(row)|async}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="lastExecution">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['lastExecution']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':parseDate(row.lastExecution)}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="lastStatus">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['lastStatus']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':(row.lastStatus|translate)}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{row.type|translate}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="failureCount">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['failureCount']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':row.failureCount}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="failureReason">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['failureReason']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':row.failureReason|translate}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="failureAllowed">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['failureAllowed']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':row.failureAllowed}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="notifiedAdmin">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['notifiedAdmin']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isTemplate(row)?'N/A':(getNotify(row.notifiedAdmin)|translate)}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="minimumIdleTimeAllowed">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['minimumIdleTimeAllowed']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{row.minimumIdleTimeAllowed}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="maxLockAcquireFailureAllowed">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['maxLockAcquireFailureAllowed']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        {{isSingle(row)?'N/A':row.maxLockAcquireFailureAllowed}}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="action">
-      <th mat-header-cell *matHeaderCellDef> {{columnList['action']|translate}} </th>
-      <td mat-cell *matCellDef="let row">
-        <mat-icon (click)="resetJob(row.id)" [color]="'primary'" style="cursor: pointer;">restart_alt</mat-icon>
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-  </table>
-  <div style="margin:24px 0px 12px 0px; font-size: 18px;">{{'SYSTEM_DATA_VALIDATION'|translate}}</div>
-  <button mat-raised-button color="primary"
-  (click)="resetValidationJob()">{{'RESET_JOB'|translate}}</button>

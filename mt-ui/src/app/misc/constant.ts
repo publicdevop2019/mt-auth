@@ -56,6 +56,7 @@ export const RESOURCE_NAME = {
     ENDPOINTS: 'endpoints',
     CLIENTS: 'clients',
     USERS: 'users',
+    MGMT_USERS: 'users',
     SUBSCRIPTIONS_REQUEST: 'subscriptions/requests',
     SHARED_PERMISSION: 'permissions/shared',
     SHARED_ENDPOINTS: 'endpoints/shared',
