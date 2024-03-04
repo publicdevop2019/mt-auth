@@ -64,4 +64,6 @@ export const RESOURCE_NAME = {
     MGMT_EVENTS: 'events',
     MGMT_EVENTS_AUDIT: 'events/audit',
     MGMT_REVOKE_TOKEN: 'revoke-tokens',
+    MGMT_PROJECTS: 'projects',
+    MGMT_NOTIFICATION: 'notifications',
 }

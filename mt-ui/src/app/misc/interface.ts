@@ -242,3 +242,10 @@ export interface IRevokeToken {
     type: 'Client' | 'User';
     version: number;
 }
+export interface INotification extends IIdBasedEntity {
+    title: string,
+    descriptions: string[],
+    date: number
+    type: string
+    status: string
+}
