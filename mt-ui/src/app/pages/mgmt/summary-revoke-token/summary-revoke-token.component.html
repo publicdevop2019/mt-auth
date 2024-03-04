@@ -1,66 +1,42 @@
-<h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'AUTH_CENTER' |translate}} /
-    {{'REVOKE_TOKEN_DASHBOARD' |translate}} </h2>
-<app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
-</app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
-    <section>
-        <!-- <mat-slide-toggle #batchUpdate class="example-margin" [color]="'accent'" [checked]="'false'"
-            style="margin-right: 16px;" (click)="showOptions()">
-            {{'BATCH_OPERATION'|translate}}
-        </mat-slide-toggle>
-        <ng-container *ngIf="batchUpdate.checked">
-            <button mat-raised-button color="primary" (click)="doBatchDelete()">{{'BATCH_DELETE'|translate}}</button>
-        </ng-container> -->
-    </section>
-    <app-table-column-config [formId]="formId"  ></app-table-column-config>
-</div>
-<div >
-    <div class="table-container">
-        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-            <!-- Checkbox Column -->
-            <ng-container matColumnDef="select">
-                <th mat-header-cell *matHeaderCellDef>
-                    <mat-checkbox (change)="$event ? masterToggle() : null"
-                        [checked]="selection.hasValue() && isAllSelected()"
-                        [indeterminate]="selection.hasValue() && !isAllSelected()" [aria-label]="checkboxLabel()">
-                    </mat-checkbox>
-                </th>
-                <td mat-cell *matCellDef="let row">
-                    <mat-checkbox (click)="$event.stopPropagation()" (change)="$event ? selection.toggle(row) : null"
-                        [checked]="selection.isSelected(row)" [aria-label]="checkboxLabel(row)">
-                    </mat-checkbox>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="targetId">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['targetId']|translate}}</th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.targetId"></app-copy-field>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="issuedAt">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['issuedAt']|translate}}</th>
-                <td mat-cell *matCellDef="let row">
-                    {{row.issuedAt*1000 | date:'short'}}
-                </td>
-            </ng-container>
-            
-            <ng-container matColumnDef="type">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}</th>
-                <td mat-cell *matCellDef="let row">
-                    <mat-chip >
-                        {{'TARGET_'+row.type|translate}}
-                    </mat-chip>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-        </table>
-    </div>
-
-    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-        [pageSize]="pageSize" (page)="pageHandler($event)">
+<div class="default-background">
+    <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'AUTH_CENTER' |translate}} /
+        {{'REVOKE_TOKEN_DASHBOARD' |translate}} </h2>
+    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
+    </app-search>
+    <div >
+        <div class="table-container">
+            <table mat-table [dataSource]="tableSource.dataSource">
+                <ng-container matColumnDef="targetId">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['targetId']|translate}}</th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.targetId"></app-copy-field>
+                    </td>
+                </ng-container>
+    
+                <ng-container matColumnDef="issuedAt">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['issuedAt']|translate}}</th>
+                    <td mat-cell *matCellDef="let row">
+                        {{row.issuedAt*1000 | date:'short'}}
+                    </td>
+                </ng-container>
+                
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}}</th>
+                    <td mat-cell *matCellDef="let row">
+                        <mat-chip >
+                            {{'TARGET_'+row.type|translate}}
+                        </mat-chip>
+                    </td>
+                </ng-container>
+    
+                <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
+            </table>
+        </div>
+    
+        <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount"
+        [pageIndex]="tableSource.pageNum" [pageSize]="tableSource.pageSize"
+        (page)="tableSource.loadPage($event.pageIndex)">
     </mat-paginator>
+    </div>
 </div>

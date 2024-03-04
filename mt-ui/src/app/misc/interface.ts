@@ -25,7 +25,7 @@ export interface ICorsProfile extends IIdBasedEntity {
     exposedHeaders: string[];
     maxAge: number;
 }
-export interface IEndpointCreate{
+export interface IEndpointCreate {
     name: string;
     type: string;
 }
@@ -234,4 +234,11 @@ export interface IQueryProvider {
 }
 export interface DialogData {
     data: { id: string, description: string }[]
+}
+export interface IRevokeToken {
+    id: string;
+    targetId: number;
+    issuedAt: number;
+    type: 'Client' | 'User';
+    version: number;
 }

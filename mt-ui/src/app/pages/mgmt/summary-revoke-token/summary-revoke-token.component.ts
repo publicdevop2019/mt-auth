@@ -1,18 +1,16 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ActivatedRoute } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { IOption } from 'src/app/misc/interface';
-import { IRevokeToken, RevokeTokenService } from 'src/app/services/revoke-token.service';
-import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { Component } from '@angular/core';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { IRevokeToken } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
 @Component({
   selector: 'app-summary-revoke-token',
   templateUrl: './summary-revoke-token.component.html',
-  styleUrls: ['./summary-revoke-token.component.css']
+  styleUrls: []
 })
-export class SummaryRevokeTokenComponent extends SummaryEntityComponent<IRevokeToken, IRevokeToken> implements OnDestroy {
+export class SummaryRevokeTokenComponent {
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'TARGET_ID',
@@ -20,23 +18,19 @@ export class SummaryRevokeTokenComponent extends SummaryEntityComponent<IRevokeT
       type: 'text',
     },
   ]
-  public formId = "tokenTableColumnConfig";
   columnList = {
     targetId: 'TARGET_ID',
     issuedAt: 'ISSUE_AT',
     type: 'TYPE',
   }
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_REVOKE_TOKEN)
+  public tableSource: TableHelper<IRevokeToken> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: RevokeTokenService,
-    public activated: ActivatedRoute,
-    public router: RouterWrapperService,
-    public fis: FormInfoService,
-    protected bottomSheet: MatBottomSheet,
+    private httpSvc: HttpProxyService,
   ) {
-    super(entitySvc, activated,router, bottomSheet,fis,2);
-    this.initTableSetting();
   }
-  getOption(value:string,options:IOption[]){
-    return options.find(e=>e.value==value)
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);
+    this.tableSource.loadPage(0)
   }
 }

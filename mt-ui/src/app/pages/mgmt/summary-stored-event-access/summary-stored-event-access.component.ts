@@ -62,7 +62,6 @@ export class SummaryStoredEventAccessComponent {
     }
   ];
   constructor(
-    public activated: ActivatedRoute,
     public router: RouterWrapperService,
     public device: DeviceService,
     private overlay: Overlay,
