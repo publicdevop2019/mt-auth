@@ -1,6 +1,142 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="router.navMgmtClientDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <form [formGroup]="fg">
+        <div style="display: flex; flex-direction: row; align-items: center; margin-bottom: 24px;">
+            <mat-icon style="height: 64px; width: 64px; font-size: 64px;"
+                color="primary">{{fg.get('frontOrBackApp').value==='FRONTEND_APP'?'javascript':'view_cozy'}}</mat-icon>
+            <div style="margin-left: 16px;">
+                <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+                    {{fg.get('name').value}}
+                </div>
+                <div style="font-size: 14px;" class="text-disabled">
+                    {{fg.get('frontOrBackApp').value|translate}}
+                </div>
+            </div>
+
+        </div>
+        <mat-tab-group>
+            <mat-tab label="{{'BASIC_CLIENT_SETTING'|translate}}">
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'BASIC_CLIENT_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_CLIENT_NAME'| translate}}</mat-label>
+                            <input matInput formControlName="name">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'BASIC_CLIENT_INFO_CLIENT_ID'| translate}}</mat-label>
+                            <input matInput formControlName="id">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_CLIENT_SECRET'| translate}}</mat-label>
+                            <input matInput formControlName="clientSecret">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_CLIENT_DESCRIPTION'| translate}}</mat-label>
+                            <textarea matInput formControlName="description"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'AUTH_PROPERTIES'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_REDIRECT_URI'| translate}}</mat-label>
+                            <input matInput formControlName="registeredRedirectUri">
+                        </mat-form-field>
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="autoApprove">
+                                {{'AUTO_APPROVE_AUTHORIZE_REQUEST'|translate}}
+                            </mat-checkbox>
+                        </div>
+                    </div>
+                </div>
+                <mat-divider *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'"></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;"
+                    *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
+                    <div>{{'ROUTE_PROPERTIES'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_PATH'| translate}}</mat-label>
+                            <input matInput formControlName="path">
+                            <mat-error>{{pathErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_EXTERNAL_URL'| translate}}</mat-label>
+                            <input matInput formControlName="externalUrl">
+                            <mat-error>{{externalUrlErrorMsg | translate}}</mat-error>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'TOKEN_PROPERTIES'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'ACCESS_TOKEN_VALIDITY_SECONDS'| translate}}</mat-label>
+                            <input matInput formControlName="accessTokenValiditySeconds">
+                        </mat-form-field>
+                        <div style="margin-top: 12px;">
+                            <mat-checkbox formControlName="refreshToken">
+                                {{'ADD_REFRESH_TOKEN'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <mat-form-field style="margin-top: 16px;">
+                            <mat-label>{{'REFRESH_TOKEN_VALIDITY_SECONDS'| translate}}</mat-label>
+                            <input matInput formControlName="refreshTokenValiditySeconds">
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'ADVANCED_MODE'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_APP_TYPE_1'|translate}}</mat-label>
+                            <mat-select formControlName="frontOrBackApp">
+                                <mat-option value="BACKEND_APP">
+                                    {{'TYPE_MIXED_APP'|translate}}
+                                </mat-option>
+                                <mat-option value="FRONTEND_APP">
+                                    {{'TYPE_FRONTEND_APP'|translate}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_A_GRANT_TYPE'|translate}}</mat-label>
+                            <mat-select formControlName="grantType" multiple>
+                                <mat-option value="CLIENT_CREDENTIALS">
+                                    {{'CLIENT_CREDENTIALS'|translate}}
+                                </mat-option>
+                                <mat-option value="PASSWORD">
+                                    {{'PASSWORD'|translate}}
+                                </mat-option>
+                                <mat-option value="AUTHORIZATION_CODE">
+                                    {{'AUTHORIZATION_CODE'|translate}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <div style="margin-bottom: 8px;" *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
+                            <mat-checkbox formControlName="resourceIndicator">
+                                {{'SET_AS_RESOURCE'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'PLEASE_SELECT_RESOUCE_ID(S)'|translate}}</mat-label>
+                            <mat-select formControlName="resourceId" multiple>
+                                <mat-option *ngFor="let option of options" [value]="option.value">
+                                    {{option.label}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </mat-tab>
+        </mat-tab-group>
+    </form>
 </div>
-<lib-factory [formId]="formId"></lib-factory>

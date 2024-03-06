@@ -37,7 +37,7 @@ import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/
 import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
 import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
 import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
-import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { UserMessageComponent } from './pages/common/user-message/user-message.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
@@ -48,6 +48,8 @@ import { CacheComponent } from './pages/tenant/project/cache/cache.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
 import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-request/subscribe-request.component';
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
+import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
+import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -75,9 +77,11 @@ const routes: Routes = [
       { path: 'mgmt/registry', component: RegistryComponent },
       { path: 'mgmt/jobs', component: JobComponent },
       { path: 'mgmt/clients', component: SummaryClientComponent },
+      { path: 'mgmt/clients/:clientId', component: MgmtClientComponent },
       { path: 'mgmt/users', component: SummaryUserComponent },
       { path: 'mgmt/users/:userId', component: MgmtUserComponent },
       { path: 'mgmt/endpoints', component: SummaryEndpointComponent },
+      { path: 'mgmt/endpoints/:endpointId', component: MgmtEndpointComponent },
       { path: 'mgmt/events', component: SummaryStoredEventAccessComponent },
       { path: 'mgmt/notification', component: SummaryNotificationComponent },
       { path: 'mgmt/tokens', component: SummaryRevokeTokenComponent },
@@ -91,7 +95,7 @@ const routes: Routes = [
       { path: 'requests/template', component: SubscribeRequestComponent },
       { path: 'requests/:reqId', component: SubscribeRequestComponent },
 
-      { path: 'user/notification/bell', component: UserNotificationComponent },
+      { path: 'user/notification/bell', component: UserMessageComponent },
       { path: 'user/setting', component: SettingComponent },
       { path: 'user/profile', component: MyProfileComponent },
 

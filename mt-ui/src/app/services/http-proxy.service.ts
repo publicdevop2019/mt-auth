@@ -207,7 +207,7 @@ export class HttpProxyService {
             });
         });
     }
-    revokeClientToken(clientId: number): Observable<boolean> {
+    revokeClientToken(clientId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {

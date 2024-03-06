@@ -42,6 +42,9 @@ export class RouterWrapperService {
     public getMgmtEndpointIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[3]);
     }
+    public getMgmtClientIdFromUrl() {
+        return this.stripeEndingQuery(this.router.url.split('/')[3]);
+    }
     public getSubRequestIdFromUrl() {
         return this.stripeEndingQuery(this.router.url.split('/')[2]);
     }
@@ -120,8 +123,20 @@ export class RouterWrapperService {
     public navProjectEndpointDashboard() {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints']);
     }
+    public navMgmtEndpointDashboard() {
+        this.router.navigate(['mgmt', 'endpoints']);
+    }
+    public navMgmtClientDashboard() {
+        this.router.navigate(['mgmt', 'clients']);
+    }
     public navProjectEndpointDetail(id: string) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints', id]);
+    }
+    public navMgmtEndpointDetail(id: string) {
+        this.router.navigate(['mgmt', 'endpoints', id]);
+    }
+    public navMgmtClientDetail(id: string) {
+        this.router.navigate(['mgmt', 'clients', id]);
     }
     public navProjectNewEndpointDetail(data: any) {
         this.router.navigate(['projects', this.getProjectIdFromUrl(), 'endpoints', 'template'], { state: data });

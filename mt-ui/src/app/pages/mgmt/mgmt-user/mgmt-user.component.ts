@@ -9,7 +9,7 @@ import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-user',
   templateUrl: './mgmt-user.component.html',
-  styleUrls: ['./mgmt-user.component.css']
+  styleUrls: []
 })
 export class MgmtUserComponent {
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_USERS)

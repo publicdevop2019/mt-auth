@@ -91,8 +91,6 @@ import { LoadingInterceptor } from './services/interceptors/loading.interceptor'
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
-import { MgmtClientService } from './services/mgmt-client.service';
-import { UserService } from './services/user.service';
 import { CacheComponent } from './pages/tenant/project/cache/cache.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 import { CorsComponent } from './pages/tenant/project/cors/cors.component';
@@ -124,7 +122,7 @@ import { EnterReasonDialogComponent } from './components/enter-reason-dialog/ent
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
-import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { UserMessageComponent } from './pages/common/user-message/user-message.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { LanguageService } from './services/language.service';
@@ -133,6 +131,7 @@ import { EndpointCreateDialogComponent } from './components/endpoint-create-dial
 import { PaginatedSelectComponent } from './components/paginated-select/paginated-select.component';
 import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
+import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -206,14 +205,15 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     EnterReasonDialogComponent,
     EndpointComponent,
     EndpointAnalysisComponent,
-    UserNotificationComponent,
+    UserMessageComponent,
     ErrorLookupComponent,
     DashboardComponent,
     ClientCreateDialogComponent,
     EndpointCreateDialogComponent,
     PaginatedSelectComponent,
     RoleCreateDialogComponent,
-    AddPermissionDialogComponent
+    AddPermissionDialogComponent,
+    ImageUploadComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -315,7 +315,7 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
       provide: ErrorStateMatcher,
       useClass: ShowOnDirtyErrorStateMatcher
     },
-    HttpProxyService, MgmtClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

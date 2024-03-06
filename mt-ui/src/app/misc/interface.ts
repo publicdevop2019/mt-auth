@@ -1,8 +1,11 @@
-import { IIdName } from "mt-form-builder/lib/classes/template.interface";
 import { grantTypeEnums, CLIENT_TYPE } from "./constant";
 import { IIdBasedEntity, ISumRep } from "../clazz/summary.component";
 import { Observable } from "rxjs";
-
+export interface IIdName {
+    id: string;
+    name: string;
+    description?: string;
+}
 export interface ICacheProfile extends IIdBasedEntity {
     name: string;
     description: string;

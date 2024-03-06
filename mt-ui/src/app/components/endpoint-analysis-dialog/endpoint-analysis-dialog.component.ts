@@ -1,8 +1,8 @@
-import { K } from '@angular/cdk/keycodes';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 interface DialogData {
   endpointId: string;
   projectId: string;
@@ -41,14 +41,23 @@ export class EndpointAnalysisComponent implements OnInit {
     { key: 'UNAUTHORIZED_COUNT' },
     { key: 'NOT_MODIFIED_COUNT' },
   ];
-  constructor(public dialogRef: MatDialogRef<EndpointAnalysisComponent>, @Inject(MAT_DIALOG_DATA) public data: DialogData, public entitySvc: MyEndpointService,) {
+  constructor(
+    public dialogRef: MatDialogRef<EndpointAnalysisComponent>, 
+    @Inject(MAT_DIALOG_DATA) public data: DialogData, 
+    public httpProxySvc: HttpProxyService,
+    public route: RouterWrapperService,
+    ) {
   }
   result: IAnalysisResult;
+  public projectId = this.route.getProjectIdFromUrl()
   ngOnInit(): void {
     this.ctrl.valueChanges.subscribe(next => {
       this.result = undefined;
-      this.entitySvc.viewReport(this.data.endpointId, next).subscribe(next => { this.result = next; })
+      this.httpProxySvc.viewEndpointReport(this.projectId,this.data.endpointId,next).subscribe(next => { this.result = next; })
     })
+  }
+  viewReport(id: string,type:string) {
+    return this.httpProxySvc.viewEndpointReport(this.projectId,id,type)
   }
   onDismiss(): void {
     this.dialogRef.close();

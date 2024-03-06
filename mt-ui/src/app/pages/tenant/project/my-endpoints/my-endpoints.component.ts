@@ -6,7 +6,6 @@ import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
@@ -15,6 +14,7 @@ import { IDomainContext } from 'src/app/clazz/summary.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
+import { BannerService } from 'src/app/services/banner.service';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -46,9 +46,9 @@ export class MyApisComponent {
   constructor(
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
-    public entitySvc: MyEndpointService,
     public dialog: MatDialog,
     public route: RouterWrapperService,
+    public banner: BannerService,
   ) {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API').pipe(take(1)).subscribe(b => {
       if (b.result) {
@@ -114,13 +114,16 @@ export class MyApisComponent {
   doExpireById(id: string) {
     const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
     dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((reason: string) => {
-      return this.entitySvc.expireEndpoint(id, reason, Utility.getChangeId())
+      return this.httpSvc.expireEndpoint(this.projectId, id, reason, Utility.getChangeId())
     })).subscribe(() => {
-      this.entitySvc.notify(true)
-      this.entitySvc.refreshPage()
+      this.banner.notify(true)
+      this.tableSource.refresh()
     }, () => {
-      this.entitySvc.notify(false)
+      this.banner.notify(false)
     })
+  }
+  expireEndpoint(id: string, reason: string, changeId: string) {
+    return
   }
   viewReport(id: string) {
     this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectIdFromUrl() } });

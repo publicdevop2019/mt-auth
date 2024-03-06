@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { combineLatest, Observable, Subscription } from 'rxjs';
-import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IRole } from '../my-roles/my-roles.component';
 import { Validator } from 'src/app/misc/validator';
@@ -54,7 +53,6 @@ export class RoleComponent implements OnDestroy {
   private permissionUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
   private sharedPermUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.SHARED_PERMISSION)
   constructor(
-    public epSvc: EndpointService,
     public httpProxySvc: HttpProxyService,
     public cdr: ChangeDetectorRef,
     public router: RouterWrapperService,

@@ -32,8 +32,6 @@ export const CONST_HTTP_METHOD: IOption[] = [
 export const TABLE_SETTING_KEY = 'displayColumns'
 export const APP_CONSTANT = {
     MT_AUTH_ACCESS_PATH: 'auth-svc',
-    MGMT_CLIENT: '/auth-svc/mgmt/clients',
-    MGMT_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown',
     MGMT_RESOURCE_CLIENT_DROPDOWN: '/auth-svc/mgmt/clients/dropdown?query=resourceIndicator:1',
     TENANT_RESOURCE_CLIENT_DROPDOWN: '/clients/dropdown?query=resourceIndicator:1',
 }
@@ -66,4 +64,8 @@ export const RESOURCE_NAME = {
     MGMT_REVOKE_TOKEN: 'revoke-tokens',
     MGMT_PROJECTS: 'projects',
     MGMT_NOTIFICATION: 'notifications',
+    MGMT_BELL_NOTIFICATION: 'notifications/bell',
+    MGMT_CLIENTS: 'clients',
+    MGMT_ENDPOINTS: 'endpoints',
+    USER_BELL_NOTIFICATION: 'notifications/bell',
 }

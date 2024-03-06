@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EndpointMgmtRepresentation {
     private String id;
+    private String name;
     private String description;
     private String resourceId;
     private String resourceName;
@@ -46,6 +47,7 @@ public class EndpointMgmtRepresentation {
     public EndpointMgmtRepresentation(Endpoint endpoint) {
         this.id = endpoint.getEndpointId().getDomainId();
         this.description = endpoint.getDescription();
+        this.name = endpoint.getName();
         this.websocket = endpoint.getWebsocket();
         this.resourceId = endpoint.getClientId().getDomainId();
         this.projectId = endpoint.getProjectId().getDomainId();

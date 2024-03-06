@@ -1,14 +1,21 @@
 <div class="default-background">
-    <h2 class="flex-row-space-between" style="margin-bottom: 0px;">{{'AUTH_CENTER' |translate}} /
-        {{'EVENT_DASHBOARD'|translate}}</h2>
+    <h2 class="flex-row-space-between" style="margin-bottom: 0px;"> {{'EVENT_DASHBOARD'|translate}}</h2>
     <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs"></app-search>
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content:space-between;">
         <div style="width: 450px;">
             <mat-radio-group [formControl]="filter">
-                <mat-radio-button value="all"><div style="margin-right: 20px;">{{'ALL_TYPE'|translate}}</div></mat-radio-button>
-                <mat-radio-button value="audit"><div style="margin-right: 20px;">{{'AUDIT_TYPE'|translate}}</div></mat-radio-button>
-                <mat-radio-button value="rejected"><div style="margin-right: 20px;">{{'REJECTED_TYPE'|translate}}</div></mat-radio-button>
-                <mat-radio-button value="unroutable"><div style="margin-right: 20px;">{{'ROUTE_TYPE'|translate}}</div></mat-radio-button>
+                <mat-radio-button value="all">
+                    <div style="margin-right: 20px;">{{'ALL_TYPE'|translate}}</div>
+                </mat-radio-button>
+                <mat-radio-button value="audit">
+                    <div style="margin-right: 20px;">{{'AUDIT_TYPE'|translate}}</div>
+                </mat-radio-button>
+                <mat-radio-button value="rejected">
+                    <div style="margin-right: 20px;">{{'REJECTED_TYPE'|translate}}</div>
+                </mat-radio-button>
+                <mat-radio-button value="unroutable">
+                    <div style="margin-right: 20px;">{{'ROUTE_TYPE'|translate}}</div>
+                </mat-radio-button>
             </mat-radio-group>
         </div>
     </div>

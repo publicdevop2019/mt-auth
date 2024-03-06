@@ -1,12 +1,195 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="router.navMgmtEndpointDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <form [formGroup]="fg">
+        <div style="display: flex; flex-direction: row; align-items: center; margin-bottom: 24px;">
+            <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">{{getIcon()}}</mat-icon>
+            <div style="margin-left: 16px;">
+                <div style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">
+                    {{fg.get('name').value}}
+                </div>
+                <div style="font-size: 14px;" class="text-disabled">
+                    {{fg.get('type').value | translate}}
+                </div>
+            </div>
+
+        </div>
+        <mat-tab-group>
+            <mat-tab label="{{'BASIC_ENDPOINT_SETTING'|translate}}">
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'BASIC_CLIENT_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <mat-form-field>
+                            <mat-label>{{'NAME'| translate}}</mat-label>
+                            <input matInput formControlName="name">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_RESOURCE_ID'|translate}}</mat-label>
+                            <input matInput formControlName="resourceName">
+                        </mat-form-field>
+                        <div style="margin-bottom: 12px;">
+                            <label style=" color: rgba(0,0,0,.54)">{{'IS_WEBSOCKET'|translate}}</label>
+                            <div style="margin-top: 8px;">
+                                <mat-radio-group formControlName="isWebsocket">
+                                    <mat-radio-button value="yes" style="margin-right: 12px;">{{'YES' |
+                                        translate}}</mat-radio-button>
+                                    <mat-radio-button value="no">{{'NO' | translate}}</mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        </div>
+                        <mat-form-field>
+                            <mat-label>{{'SELECT_METHOD'|translate}}</mat-label>
+                            <mat-select formControlName="method">
+                                <mat-option value="GET">
+                                    {{'HTTP_GET'|translate}}
+                                </mat-option>
+                                <mat-option value="POST">
+                                    {{'HTTP_POST'|translate}}
+                                </mat-option>
+                                <mat-option value="PUT">
+                                    {{'HTTP_PUT'|translate}}
+                                </mat-option>
+                                <mat-option value="DELETE">
+                                    {{'HTTP_DELETE'|translate}}
+                                </mat-option>
+                                <mat-option value="PATCH">
+                                    {{'HTTP_PATCH'|translate}}
+                                </mat-option>
+                            </mat-select>
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_ENDPOINT'| translate}}</mat-label>
+                            <input matInput formControlName="path">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'ENTER_DESCRIPTION'| translate}}</mat-label>
+                            <textarea matInput formControlName="description"></textarea>
+                        </mat-form-field>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'SECURITY_EP_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="csrf">
+                                {{'CSRF_ENABLED'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <div style="margin-bottom: 8px;">
+                            <mat-checkbox formControlName="cors">
+                                {{'CORS_ENABLED'|translate}}
+                            </mat-checkbox>
+                        </div>
+                        <!-- cors -->
+                        <section style="margin-top: 24px;">
+                            <mat-form-field>
+                                <mat-label>{{'MAX_AGE'| translate}}</mat-label>
+                                <input matInput formControlName="corsMaxAge">
+                            </mat-form-field>
+                            <div style="margin-bottom: 12px;">
+                                <mat-checkbox formControlName="allowCredentials">{{'ALLOW_CREDENTIAL'|translate}}</mat-checkbox>
+                            </div>
+                            <mat-form-field>
+                                <mat-label>{{'ALLOWED_ORIGIN'| translate}}</mat-label>
+                                <textarea matInput formControlName="allowOrigin"></textarea>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>{{'ALLOWED_HEADERS'| translate}}</mat-label>
+                                <textarea matInput formControlName="allowedHeaders"></textarea>
+                            </mat-form-field>
+                            <mat-form-field>
+                                <mat-label>{{'EXPOSED_HEADERS'| translate}}</mat-label>
+                                <textarea matInput formControlName="exposedHeaders"></textarea>
+                            </mat-form-field>
+                        </section>
+                    </div>
+                </div>
+                <mat-divider></mat-divider>
+                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
+                    <div>{{'PERFORMANCE_EP_INFO'|translate}}</div>
+                    <div style="width: 536px;">
+                        <!-- cache -->
+                        <section style="margin-top: 24px;">
+                            <div style="display: flex; flex-direction: column;margin-bottom: 24px;">
+                                <label
+                                    style="margin-bottom: 4px; color: rgba(0,0,0,.54)">{{'ENABLE_CACHE'|translate}}</label>
+                                <mat-radio-group formControlName="allowCache">
+                                    <mat-radio-button value="yes"
+                                        style="margin-right: 12px;">{{'YES'|translate}}</mat-radio-button>
+                                    <mat-radio-button value="no">{{'NO'|translate}}</mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                            <ng-container *ngIf="fg.get('allowCache').value==='yes'">
+                                <div>
+                                    <section>
+                                        <label>{{'CACHE_CONTROL_SERVER_HEADER'|translate}}</label>
+                                        <p><mat-checkbox
+                                                formControlName="mustRevalidate">{{'MUST_REVALIDATE'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="noCache">{{'NO_CACHE'|translate}}</mat-checkbox></p>
+                                        <p><mat-checkbox
+                                                formControlName="noStore">{{'NO_STORE'|translate}}</mat-checkbox></p>
+                                        <p><mat-checkbox
+                                                formControlName="noTransform">{{'NO_TRANSFOR'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="public">{{'CACHE_CONTROL_PUBLIC'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="private">{{'CACHE_CONTROL_PRIVATE'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="proxyRevalidate">{{'PROXY_REVALIDATE'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="maxAge">{{'CACHE_CONTROL_MAX_AGE'|translate}}</mat-checkbox>
+                                        </p>
+                                        <p><mat-checkbox
+                                                formControlName="sMaxage">{{'SMAX_AGE'|translate}}</mat-checkbox></p>
+                                    </section>
+                                </div>
+                                <mat-form-field *ngIf="fg.get('maxAge').value">
+                                    <mat-label>{{'MAX_AGE_HEADER'| translate}}</mat-label>
+                                    <input matInput formControlName="maxAgeValue">
+                                </mat-form-field>
+                                <mat-form-field *ngIf="fg.get('sMaxage').value">
+                                    <mat-label>{{'SMAX_AGE_HEADER'| translate}}</mat-label>
+                                    <input matInput formControlName="smaxAgeValue">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'VARY_HEADER'| translate}}</mat-label>
+                                    <input matInput formControlName="vary">
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'EXPIRE_HEADER'| translate}}</mat-label>
+                                    <input matInput formControlName="expires">
+                                </mat-form-field>
+                                <div style="margin-bottom: 12px;">
+                                    <mat-checkbox
+                                        formControlName="etagValidation">{{'ENABLE_ETAG'|translate}}</mat-checkbox>
+                                </div>
+                                <div style="margin-bottom: 12px;" *ngIf="fg.get('etagValidation').value">
+                                    <mat-checkbox
+                                        formControlName="etagType">{{'WEAK_VALIDATION'|translate}}</mat-checkbox>
+                                </div>
+                            </ng-container>
+                        </section>
+                        <mat-form-field>
+                            <mat-label>{{'REPLENISH_RATE'| translate}}</mat-label>
+                            <input matInput formControlName="replenishRate">
+                        </mat-form-field>
+                        <mat-form-field>
+                            <mat-label>{{'BURST_CAPACITY'| translate}}</mat-label>
+                            <input matInput formControlName="burstCapacity">
+                        </mat-form-field>
+                    </div>
+                </div>
+
+            </mat-tab>
+        </mat-tab-group>
+    </form>
 </div>
-<lib-factory [formId]="formId"></lib-factory>
-<div class="form-header">{{'ALLOWED_ORIGIN'|translate}}</div>
-<lib-factory [formId]="originFormId"></lib-factory>
-<div class="form-header">{{'ALLOWED_HEADERS'|translate}}</div>
-<lib-factory [formId]="allowedHeaderFormId"></lib-factory>
-<div class="form-header">{{'EXPOSED_HEADERS'|translate}}</div>
-<lib-factory [formId]="exposedHeaderFormId"></lib-factory>
