@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
-import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
+import { IIdBasedEntity } from 'src/app/misc/interface';
 import { getUrl } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';

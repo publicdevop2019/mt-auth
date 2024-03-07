@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
-import { EntityCommonService } from '../clazz/entity.common-service';
-import { IIdBasedEntity } from '../clazz/summary.component';
 import { HttpProxyService } from './http-proxy.service';
-import { CustomHttpInterceptor } from './interceptors/http.interceptor';
-import { AuthService } from './auth.service';
-import { DeviceService } from './device.service';
 import { Utility } from '../misc/utility';
+import { RESOURCE_NAME } from '../misc/constant';
+import { IIdBasedEntity } from '../misc/interface';
 export interface IBellNotification extends IIdBasedEntity {
     title: string,
     descriptions: string[],
@@ -15,22 +12,20 @@ export interface IBellNotification extends IIdBasedEntity {
 @Injectable({
     providedIn: 'root'
 })
-export class MessageService extends EntityCommonService<IBellNotification, IBellNotification>{
-    private SVC_NAME = '/auth-svc';
-    private ENTITY_NAME = '/mgmt/notifications/bell';
-    entityRepo: string = environment.serverUri + this.SVC_NAME + this.ENTITY_NAME;
-    constructor(public authSvc: AuthService, httpProxy: HttpProxyService, interceptor: CustomHttpInterceptor, deviceSvc: DeviceService) {
-        super(httpProxy, interceptor, deviceSvc);
-    }
+export class MessageService {
+    private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_BELL_NOTIFICATION)
+    constructor(
+        public httpProxy: HttpProxyService,
+    ) { }
     public latestMessage: IBellNotification[] = [];
     dismiss(value: IBellNotification) {
-        this.httpProxySvc.dismissNotification(value.id).subscribe(() => {
+        this.httpProxy.dismissNotification(value.id).subscribe(() => {
             this.latestMessage = this.latestMessage.filter(e => e.id !== value.id)
         })
     }
     pullUnAckMessage() {
         if (environment.mode !== 'offline') {
-            this.readEntityByQuery(0, 200,'unAck:1').subscribe(next => {
+            this.httpProxy.readEntityByQuery<IBellNotification>(this.url, 0, 200, 'unAck:1').subscribe(next => {
                 this.latestMessage = next.data
             });
         }
@@ -41,7 +36,7 @@ export class MessageService extends EntityCommonService<IBellNotification, IBell
     private socket: WebSocket;
     connectToMonitor() {
         if (environment.mode !== 'offline') {
-            this.httpProxySvc.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, Utility.getChangeId()).subscribe(next => {
+            this.httpProxy.createEntity(environment.serverUri + `/auth-svc/tickets/0C8AZTODP4HT`, null, Utility.getChangeId()).subscribe(next => {
                 this.socket = new WebSocket(`${this.getProtocal()}://${this.getPath()}/auth-svc/monitor?jwt=${btoa(next)}`);
                 this.socket.addEventListener('message', (event) => {
                     if (event.data !== '_renew')

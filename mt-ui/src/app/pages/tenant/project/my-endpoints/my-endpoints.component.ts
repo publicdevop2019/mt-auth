@@ -7,10 +7,9 @@ import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dial
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
+import { IDomainContext, IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
 import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-create-dialog/endpoint-create-dialog.component';
-import { IDomainContext } from 'src/app/clazz/summary.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';

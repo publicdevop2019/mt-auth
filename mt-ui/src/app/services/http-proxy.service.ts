@@ -4,7 +4,6 @@ import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ISumRep } from '../clazz/summary.component';
 import { Utility, logout } from '../misc/utility';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
@@ -15,8 +14,7 @@ import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component'
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
-import { Logger } from '../misc/logger';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
 export interface IPatch {
     op: string,
     path: string,

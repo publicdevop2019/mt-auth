@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IDomainContext } from 'src/app/clazz/summary.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate, IOption } from 'src/app/misc/interface';
+import { ICacheProfile, IClient, ICorsProfile, IDomainContext, IEndpoint, IEndpointCreate, IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';

@@ -82,7 +82,6 @@ import { UserComponent } from './pages/tenant/project/user/user.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
 import { DeviceService } from './services/device.service';
-import { EndpointService } from './services/endpoint.service';
 import { HttpProxyService } from './services/http-proxy.service';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { DeleteConfirmHttpInterceptor } from './services/interceptors/delete-confirm.interceptor';
@@ -315,7 +314,7 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
       provide: ErrorStateMatcher,
       useClass: ShowOnDirtyErrorStateMatcher
     },
-    HttpProxyService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, AuthService, CustomHttpInterceptor, FormInfoService, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {

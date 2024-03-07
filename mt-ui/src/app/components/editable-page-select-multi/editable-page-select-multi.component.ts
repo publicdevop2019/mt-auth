@@ -1,8 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { EntityCommonService } from 'src/app/clazz/entity.common-service';
-import { IIdName } from '../editable-page-select-single/editable-page-select-single.component';
 import { IEditListEvent } from '../editable-select-multi/editable-select-multi.component';
-import { IOption } from 'src/app/misc/interface';
+import { IOption, ISumRep } from 'src/app/misc/interface';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-editable-page-select-multi',
@@ -15,7 +14,7 @@ export class EditablePageSelectMultiComponent implements OnInit {
   @Input() list: IOption[] = [];
   @Input() readOnly: boolean = false;
   @Output() newValue: EventEmitter<IEditListEvent> = new EventEmitter();
-  @Input() entitySvc: EntityCommonService<IIdName, IIdName>;
+  @Input() entitySvc: (num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) => Observable<ISumRep<any>>;
   private _visibilityConfig = {
     threshold: 0
   };
@@ -28,7 +27,7 @@ export class EditablePageSelectMultiComponent implements OnInit {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         this.loading = true;
-        this.entitySvc.readEntityByQuery(this.pageNumber, this.pageSize, this.query, undefined, undefined, { 'loading': false }).subscribe(next => {
+        this.entitySvc(this.pageNumber, this.pageSize, this.query, undefined, undefined, { 'loading': false }).subscribe(next => {
           this.loading = false;
           if (next.data.length === 0) {
             this.allLoaded = true;

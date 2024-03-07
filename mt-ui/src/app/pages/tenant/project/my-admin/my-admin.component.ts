@@ -6,11 +6,9 @@ import { debounceTime } from 'rxjs/operators';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { IOption, IProjectAdmin } from 'src/app/misc/interface';
-import { Logger } from 'src/app/misc/logger';
 import { Utility } from 'src/app/misc/utility';
 import { BannerService } from 'src/app/services/banner.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ProjectService } from 'src/app/services/project.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
@@ -38,7 +36,6 @@ export class MyAdminComponent {
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
   public tableSource: TableHelper<IProjectAdmin> = new TableHelper(this.columnList, 10, this.httpSvc, this.adminUrl);
   constructor(
-    public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
     public bannerSvc: BannerService,

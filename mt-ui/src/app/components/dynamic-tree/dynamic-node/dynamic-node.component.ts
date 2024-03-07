@@ -1,9 +1,9 @@
 import { ChangeDetectorRef, Component, ComponentFactoryResolver, Input, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { ISumRep } from 'src/app/clazz/summary.component';
 import { TreeNodeDirective } from '../../../directive/tree-node.directive';
 import { INode } from '../dynamic-tree.component';
+import { ISumRep } from 'mt-form-builder/lib/classes/template.interface';
 
 @Component({
   selector: 'app-dynamic-node',

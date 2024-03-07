@@ -1,8 +1,8 @@
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "src/environments/environment";
-import { ISumRep } from "../clazz/summary.component";
 import { Utility } from "../misc/utility";
 import { Injectable } from "@angular/core";
+import { ISumRep } from "../misc/interface";
 @Injectable({
     providedIn: 'root'
 })

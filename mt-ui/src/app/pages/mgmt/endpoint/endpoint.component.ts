@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { EndpointService } from 'src/app/services/endpoint.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IMgmtEndpoint } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -45,7 +44,6 @@ export class MgmtEndpointComponent {
 
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_ENDPOINTS)
   constructor(
-    public endpointSvc: EndpointService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
   ) {

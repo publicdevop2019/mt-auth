@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IClient, IClientCreate } from 'src/app/misc/interface';
-import { IDomainContext } from 'src/app/clazz/summary.component';
+import { IClient, IClientCreate, IDomainContext } from 'src/app/misc/interface';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';

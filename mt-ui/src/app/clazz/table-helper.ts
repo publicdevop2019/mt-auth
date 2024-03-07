@@ -1,6 +1,6 @@
 import { MatTableDataSource } from "@angular/material/table";
-import { ISumRep } from "./summary.component";
 import { HttpProxyService } from "../services/http-proxy.service";
+import { ISumRep } from "../misc/interface";
 
 export class TableHelper<T>{
     dataSource: MatTableDataSource<T>;

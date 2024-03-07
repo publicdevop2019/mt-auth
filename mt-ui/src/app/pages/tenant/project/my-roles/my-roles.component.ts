@@ -1,11 +1,10 @@
 import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { RoleComponent } from 'src/app/pages/tenant/project/role/role.component';
 import { RoleCreateDialogComponent } from 'src/app/components/role-create-dialog/role-create-dialog.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IRoleLinkedPermission } from 'src/app/misc/interface';
+import { IIdBasedEntity, IRoleLinkedPermission } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';

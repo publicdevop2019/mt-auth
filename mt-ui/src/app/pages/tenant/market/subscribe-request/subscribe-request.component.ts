@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
 import { Logger } from 'src/app/misc/logger';
-import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { Utility, getUrl } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { IEndpoint, IQueryProvider } from 'src/app/misc/interface';
+import { IEndpoint, IIdBasedEntity, IQueryProvider } from 'src/app/misc/interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { environment } from 'src/environments/environment';

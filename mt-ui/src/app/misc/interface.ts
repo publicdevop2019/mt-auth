@@ -1,5 +1,4 @@
 import { grantTypeEnums, CLIENT_TYPE } from "./constant";
-import { IIdBasedEntity, ISumRep } from "../clazz/summary.component";
 import { Observable } from "rxjs";
 export interface IIdName {
     id: string;
@@ -251,4 +250,20 @@ export interface INotification extends IIdBasedEntity {
     date: number
     type: string
     status: string
+}
+export interface IIdBasedEntity {
+    id: string;
+    version: number
+}
+export interface ISumRep<T> {
+    data: T[],
+    totalItemCount: number
+}
+export interface IDomainContext<S> {
+    context: 'clone' | 'new' | 'edit';
+    from: S;
+    params: {}
+}
+export interface IIdName extends IIdBasedEntity {
+    name: string
 }
