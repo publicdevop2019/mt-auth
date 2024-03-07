@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Logger } from 'src/app/misc/logger';
-import { Utility, getUrl } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { IEndpoint, IIdBasedEntity, IQueryProvider } from 'src/app/misc/interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -22,7 +22,7 @@ export interface ISubRequest extends IIdBasedEntity {
   styleUrls: ['./subscribe-request.component.css']
 })
 export class SubscribeRequestComponent {
-  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
   context: 'NEW' | 'EDIT' = 'NEW';
   public publicSubNotes: boolean = false;
   public changeId = Utility.getChangeId();

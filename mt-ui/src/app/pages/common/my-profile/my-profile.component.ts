@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { Utility, createImageFromBlob, logout } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService, IUpdateUser, IUser } from 'src/app/services/http-proxy.service';
 import { IUpdatePwdCommand } from 'src/app/misc/interface';
@@ -58,7 +58,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.httpSvc.uploadFile(fileList.item(0)).subscribe(() => {
         this.authSvc.avatarUpdated$.next()
         this.httpSvc.getAvatar().subscribe(blob => {
-          createImageFromBlob(blob, (reader) => {
+          Utility.createImageFromBlob(blob, (reader) => {
             this.profileFg.get('avatar').setValue(reader.result)
           })
         })
@@ -73,7 +73,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
         this.profileFg.get('username').disable()
       }
       this.httpSvc.getAvatar().subscribe(blob => {
-        createImageFromBlob(blob, (reader) => {
+        Utility.createImageFromBlob(blob, (reader) => {
           this.profileFg.get('avatar').setValue(reader.result)
         })
       })
@@ -118,7 +118,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       }
       this.httpSvc.updateUserPwd(payload, this.changeId).subscribe(result => {
         this.banner.notify(result)
-        logout(undefined, this.httpSvc)
+        Utility.logout(undefined, this.httpSvc)
       });
     }
   }

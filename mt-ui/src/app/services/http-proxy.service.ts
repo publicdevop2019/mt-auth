@@ -4,7 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { Utility, logout } from '../misc/utility';
+import { Utility } from '../misc/utility';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
@@ -81,7 +81,7 @@ export class HttpProxyService {
                 this.expireCheck().subscribe()
             }, (expireAfterSeconds + 31) * 1000)
         } else {
-            logout()
+            Utility.logout()
         }
     }
     clearLogoutCheck() {

@@ -5,15 +5,15 @@ import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/con
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { getUrl } from 'src/app/misc/utility';
 import { environment } from 'src/environments/environment';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
   styleUrls: ['./api-center.component.css']
 })
 export class ApiCenterComponent {
-  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SHARED_ENDPOINTS])
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SHARED_ENDPOINTS])
   public formId = "sharedEndpointTableColumnConfig";
   columnList = {
     id: 'ID',

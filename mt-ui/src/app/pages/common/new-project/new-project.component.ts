@@ -1,7 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { Logger } from 'src/app/misc/logger';
-import { Utility, logout } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICommonServerError, IProjectSimple } from 'src/app/misc/interface';
 import { ProjectService } from 'src/app/services/project.service';
@@ -94,7 +94,7 @@ export class NewProjectComponent {
     return !var0.errorMsg
   }
   doLogout() {
-    logout(undefined, this.httpProxy)
+    Utility.logout(undefined, this.httpProxy)
   }
   dismiss(event: MouseEvent) {
     this.dialogRef.close();

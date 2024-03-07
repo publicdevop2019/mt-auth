@@ -7,7 +7,7 @@ import { IMySubReq } from '../my-requests/my-requests.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
 import { environment } from 'src/environments/environment';
-import { Utility, getUrl } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { BannerService } from 'src/app/services/banner.service';
@@ -18,7 +18,7 @@ import { BannerService } from 'src/app/services/banner.service';
   styleUrls: ['./my-approval.component.css']
 })
 export class MyApprovalComponent {
-  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
   columnList = {
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',

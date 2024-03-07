@@ -4,7 +4,7 @@ import { map } from 'rxjs/operators';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
 import { IIdBasedEntity } from 'src/app/misc/interface';
-import { getUrl } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { environment } from 'src/environments/environment';
@@ -23,7 +23,7 @@ export interface IMySubscription extends IIdBasedEntity {
   styleUrls: ['./my-subscriptions.component.css']
 })
 export class MySubscriptionsComponent {
-  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS])
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS])
   columnList = {
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',

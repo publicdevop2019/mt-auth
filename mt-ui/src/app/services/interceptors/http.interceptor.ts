@@ -5,7 +5,7 @@ import { Observable, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, switchMap, filter, take, finalize, tap } from 'rxjs/operators';
 import { HttpProxyService } from '../http-proxy.service';
 import { TranslateService } from '@ngx-translate/core';
-import { getCookie, logout } from '../../misc/utility';
+import { Utility } from '../../misc/utility';
 import { ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { RouterWrapperService } from '../router-wrapper';
@@ -64,7 +64,7 @@ export class CustomHttpInterceptor implements HttpInterceptor {
           }
           if (req.url.indexOf('oauth/token') > -1 && req.method === 'POST' && req.body && (req.body as FormData).get('grant_type') === 'refresh_token') {
             this.openSnackbar('SESSION_EXPIRED');
-            logout(this.router, this._httpProxy);
+            Utility.logout(this.router, this._httpProxy);
             return throwError(error);
           }
           if (this._httpProxy.refreshInprogress) {
@@ -100,8 +100,8 @@ export class CustomHttpInterceptor implements HttpInterceptor {
           return throwError(error);
         } else if (error.status === 403) {
           //for csrf request, retry 
-          if (getCookie('XSRF-TOKEN')) {
-            req = req.clone({ setHeaders: { 'X-XSRF-TOKEN': getCookie('XSRF-TOKEN') }, withCredentials: true });
+          if (Utility.getCookie('XSRF-TOKEN')) {
+            req = req.clone({ setHeaders: { 'X-XSRF-TOKEN': Utility.getCookie('XSRF-TOKEN') }, withCredentials: true });
           } else {
             this.openSnackbar('ACCESS_IS_NOT_ALLOWED');
             return throwError(error);

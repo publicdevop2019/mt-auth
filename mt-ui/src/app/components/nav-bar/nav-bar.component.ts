@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
-import { createImageFromBlob, logout } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
@@ -296,7 +296,7 @@ export class NavBarComponent implements OnInit {
   }
   getAvatar() {
     this.httpProxySvc.getAvatar().subscribe(blob => {
-      createImageFromBlob(blob, (reader) => {
+      Utility.createImageFromBlob(blob, (reader) => {
         this.avatar = reader.result
       })
     })
@@ -305,7 +305,7 @@ export class NavBarComponent implements OnInit {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
-    logout(undefined, this.httpProxySvc)
+    Utility.logout(undefined, this.httpProxySvc)
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;

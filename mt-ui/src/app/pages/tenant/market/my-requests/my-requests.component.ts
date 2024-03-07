@@ -4,7 +4,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
-import { Utility, getUrl } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { environment } from 'src/environments/environment';
 import { BannerService } from 'src/app/services/banner.service';
 export interface IMySubReq extends ISubRequest {
@@ -24,7 +24,7 @@ export interface IMySubReq extends ISubRequest {
   styleUrls: ['./my-requests.component.css']
 })
 export class MyRequestsComponent {
-  private url = getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
   columnList = {
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',
