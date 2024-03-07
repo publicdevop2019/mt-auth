@@ -33,13 +33,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormInfoService, MtFormBuilderModule } from 'mt-form-builder';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CustomLoader } from './clazz/locale/custom-loader';
-import { enUS } from './clazz/locale/en-US';
-import { zhHans } from './clazz/locale/zh-Hans';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { CardNotificationComponent } from './components/card-notification/card-notification.component';
 import { CopyFieldComponent } from './components/copy-field/copy-field.component';
@@ -124,7 +121,6 @@ import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog
 import { UserMessageComponent } from './pages/common/user-message/user-message.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
-import { LanguageService } from './services/language.service';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
 import { PaginatedSelectComponent } from './components/paginated-select/paginated-select.component';
@@ -250,7 +246,6 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     MatChipsModule,
     MatSortModule,
     MatAutocompleteModule,
-    MtFormBuilderModule,
     OverlayModule,
     MatBadgeModule,
     TranslateModule.forRoot({
@@ -314,24 +309,13 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
       provide: ErrorStateMatcher,
       useClass: ShowOnDirtyErrorStateMatcher
     },
-    HttpProxyService, AuthService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, AuthService, CustomHttpInterceptor, DeviceService],
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService, private langSvc: LanguageService) {
+  constructor(private httpSvc: HttpProxyService) {
     if (this.httpSvc.currentUserAuthInfo) {
       this.httpSvc.updateLogoutTimer()
     }
-    let lang = this.langSvc.currentLanguage()
-    if (lang === 'zhHans')
-      this.fis.i18nLabel = zhHans
-    if (lang === 'enUS')
-      this.fis.i18nLabel = enUS
-    this.translate.onLangChange.subscribe((e) => {
-      if (e.lang === 'zhHans')
-        this.fis.i18nLabel = zhHans
-      if (e.lang === 'enUS')
-        this.fis.i18nLabel = enUS
-    })
   }
 }

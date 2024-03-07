@@ -3,7 +3,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { TreeNodeDirective } from '../../../directive/tree-node.directive';
 import { INode } from '../dynamic-tree.component';
-import { ISumRep } from 'mt-form-builder/lib/classes/template.interface';
+import { ISumRep } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-dynamic-node',
