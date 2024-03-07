@@ -6,7 +6,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
 import { environment } from 'src/environments/environment';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 export interface IMySubReq extends ISubRequest {
   endpointName: string,
   projectName: string,
@@ -36,7 +36,7 @@ export class MyRequestsComponent {
   }
   public tableSource: TableHelper<IMySubReq> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'type:my_request');
   constructor(
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     public router: RouterWrapperService,
     public httpSvc: HttpProxyService,
   ) {
@@ -44,10 +44,10 @@ export class MyRequestsComponent {
   }
   cancel(id: string) {
     this.httpSvc.cancelSubRequest(id, Utility.getChangeId()).subscribe(() => {
-      this.banner.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.banner.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
   public edit(id: string) {

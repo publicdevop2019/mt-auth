@@ -8,7 +8,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IRole } from '../my-roles/my-roles.component';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-user',
   templateUrl: './user.component.html',
@@ -34,7 +34,7 @@ export class UserComponent {
   constructor(
     public routerWrapper: RouterWrapperService,
     public httpSvc: HttpProxyService,
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     public cdr: ChangeDetectorRef
   ) {
     this.loadRoot = this.httpSvc.readEntityByQuery<IRole>(this.roleUrl, 0, 1000, "parentId:null,types:PROJECT.USER").pipe(map(e => {
@@ -73,7 +73,7 @@ export class UserComponent {
   }
   update() {
     this.httpSvc.updateEntity(this.url, this.userId, this.convertToPayload(), this.changeId).subscribe(next=>{
-      this.banner.notify(next)
+      this.deviceSvc.notify(next)
     })
   }
   removeRole(key: string) {

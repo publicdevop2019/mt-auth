@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { filter, switchMap } from 'rxjs/operators';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
-import { DeviceService } from 'src/app/services/device.service';
 import { IMySubReq } from '../my-requests/my-requests.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
@@ -10,7 +9,7 @@ import { environment } from 'src/environments/environment';
 import { Utility } from 'src/app/misc/utility';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-my-approval',
@@ -33,17 +32,17 @@ export class MyApprovalComponent {
     public router: RouterWrapperService,
     public device: DeviceService,
     public httpSvc: HttpProxyService,
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     public dialog: MatDialog
   ) {
     this.tableSource.loadPage(0)
   }
   approve(id: string) {
     this.httpSvc.approveSubRequest(id, Utility.getChangeId()).subscribe(() => {
-      this.banner.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.banner.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
   reject(id: string) {
@@ -51,10 +50,10 @@ export class MyApprovalComponent {
     dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((e: string) => {
       return this.httpSvc.rejectSubRequest(id, Utility.getChangeId(), e)
     })).subscribe(() => {
-      this.banner.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.banner.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 }

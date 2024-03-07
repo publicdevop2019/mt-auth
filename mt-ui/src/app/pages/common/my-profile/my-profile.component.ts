@@ -7,7 +7,7 @@ import { IUpdatePwdCommand } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { Validator } from 'src/app/misc/validator';
 import { FormGroup, FormControl } from '@angular/forms';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-profile',
   templateUrl: './my-profile.component.html',
@@ -36,7 +36,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
   constructor(
     public authSvc: AuthService,
     private httpSvc: HttpProxyService,
-    private banner: BannerService,
+    private deviceSvc: DeviceService,
     private cdr: ChangeDetectorRef,
   ) {
     this.updatePwdFg.valueChanges.subscribe(e => {
@@ -94,9 +94,9 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       language: this.profileFg.get('language').value ? this.profileFg.get('language').value : null,
     }
     this.httpSvc.updateMyProfile(next).subscribe(_ => {
-      this.banner.notify(true)
+      this.deviceSvc.notify(true)
     }, error => {
-      this.banner.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 
@@ -117,7 +117,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
         currentPwd: this.updatePwdFg.get('currentPwd').value
       }
       this.httpSvc.updateUserPwd(payload, this.changeId).subscribe(result => {
-        this.banner.notify(result)
+        this.deviceSvc.notify(result)
         Utility.logout(undefined, this.httpSvc)
       });
     }

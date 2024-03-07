@@ -6,7 +6,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-summary-user',
   templateUrl: './summary-user.component.html',
@@ -41,14 +41,14 @@ export class SummaryUserComponent {
     },
   ]
   constructor(
-    public bannerSvc: BannerService,
+    public deviceSvc: DeviceService,
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
   ) {
   }
   revokeUserToken(id: string) {
     this.httpSvc.revokeUserToken(id).subscribe(result => {
-      this.bannerSvc.notify(result)
+      this.deviceSvc.notify(result)
     })
   }
   viewUser(id: string) {

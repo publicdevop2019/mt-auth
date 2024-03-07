@@ -8,7 +8,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { Utility } from 'src/app/misc/utility';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-cache',
   templateUrl: './my-cache.component.html',
@@ -27,7 +27,7 @@ export class MyCacheComponent {
   public tableSource: TableHelper<ICacheProfile> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
-    public bannerSvc: BannerService,
+    public deviceSvc: DeviceService,
     public route: RouterWrapperService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
@@ -47,10 +47,10 @@ export class MyCacheComponent {
   }
   public delete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
-      this.bannerSvc.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.bannerSvc.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 }

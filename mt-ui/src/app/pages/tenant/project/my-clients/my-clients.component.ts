@@ -11,7 +11,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-my-clients',
@@ -27,7 +27,7 @@ export class MyClientsComponent{
   constructor(
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     private router: RouterWrapperService,
     public dialog: MatDialog,
   ) {
@@ -62,7 +62,7 @@ export class MyClientsComponent{
   }
   doDeleteById(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(next => {
-      this.banner.notify(next)
+      this.deviceSvc.notify(next)
     })
   }
 }

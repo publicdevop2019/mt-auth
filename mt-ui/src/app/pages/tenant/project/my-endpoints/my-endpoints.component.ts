@@ -13,7 +13,7 @@ import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-creat
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
@@ -47,7 +47,7 @@ export class MyApisComponent {
     public httpSvc: HttpProxyService,
     public dialog: MatDialog,
     public route: RouterWrapperService,
-    public banner: BannerService,
+    public banner: DeviceService,
   ) {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API').pipe(take(1)).subscribe(b => {
       if (b.result) {

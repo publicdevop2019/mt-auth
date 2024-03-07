@@ -9,7 +9,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { take } from 'rxjs/operators';
 
 @Component({
@@ -42,7 +42,7 @@ export class MyPermissionsComponent {
   constructor(
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
-    public bannerSvc: BannerService,
+    public deviceSvc: DeviceService,
     public route: RouterWrapperService,
   ) {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_PERMISSION').pipe(take(1)).subscribe(b => {
@@ -96,10 +96,10 @@ export class MyPermissionsComponent {
     this.allowError = true
     if (this.validateCreateForm()) {
       this.httpSvc.createEntity(this.url, this.convertToPayload(), this.changeId).subscribe(() => {
-        this.bannerSvc.notify(true)
+        this.deviceSvc.notify(true)
         this.tableSource.refresh()
       }, () => {
-        this.bannerSvc.notify(false)
+        this.deviceSvc.notify(false)
       })
     }
   }
@@ -111,10 +111,10 @@ export class MyPermissionsComponent {
   }
   public delete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
-      this.bannerSvc.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.bannerSvc.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 }

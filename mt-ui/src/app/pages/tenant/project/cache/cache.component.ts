@@ -6,7 +6,7 @@ import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-cache',
   templateUrl: './cache.component.html',
@@ -49,7 +49,7 @@ export class CacheComponent {
 
   constructor(
     public httpSvc: HttpProxyService,
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     public router: RouterWrapperService,
   ) {
     const configId = this.router.getCacheConfigIdFromUrl();
@@ -88,7 +88,7 @@ export class CacheComponent {
     this.allowError = true
     if (this.validateForm()) {
       this.httpSvc.updateEntity(this.cacheUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next=>{
-        this.banner.notify(next)
+        this.deviceSvc.notify(next)
       })
     }
   }
@@ -96,7 +96,7 @@ export class CacheComponent {
     this.allowError = true
     if (this.validateForm()) {
       this.httpSvc.createEntity(this.cacheUrl, this.convertToPayload(), this.changeId).subscribe(next=>{
-        this.banner.notify(!!next)
+        this.deviceSvc.notify(!!next)
       })
     }
   }

@@ -10,7 +10,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -68,7 +68,7 @@ export class EndpointComponent {
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
-    public banner: BannerService
+    public deviceSvc: DeviceService
   ) {
     const endpointId = this.router.getEndpointIdFromUrl();
     if (endpointId === 'template') {
@@ -247,7 +247,7 @@ export class EndpointComponent {
     this.allowError = true;
     if (this.validateForm()) {
       this.httpProxySvc.updateEntity(this.epUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
-        this.banner.notify(!!next);
+        this.deviceSvc.notify(!!next);
         this.router.navProjectEndpointDashboard()
       });
     }
@@ -256,7 +256,7 @@ export class EndpointComponent {
     this.allowError = true;
     if (this.validateForm()) {
       this.httpProxySvc.createEntity(this.epUrl, this.convertToPayload(), this.changeId).subscribe(next => {
-        this.banner.notify(!!next);
+        this.deviceSvc.notify(!!next);
         this.router.navProjectEndpointDashboard()
       });
     }

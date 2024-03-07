@@ -10,7 +10,7 @@ import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { Logger } from 'src/app/misc/logger';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-client',
@@ -59,7 +59,7 @@ export class ClientComponent {
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
-    public banner: BannerService
+    public deviceSvc: DeviceService
   ) {
     const clientId = this.router.getClientIdFromUrl();
     Logger.debug(clientId)
@@ -155,7 +155,7 @@ export class ClientComponent {
     this.enableError = true
     if (this.validateUpdateForm()) {
       this.httpProxySvc.updateEntity(this.url, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
-        this.banner.notify(next)
+        this.deviceSvc.notify(next)
       })
     }
   }
@@ -163,7 +163,7 @@ export class ClientComponent {
     this.enableError = true
     if (this.validateCreateForm()) {
       this.httpProxySvc.createEntity(this.url, this.convertToPayload(), this.changeId).subscribe(next => {
-        this.banner.notify(!!next);
+        this.deviceSvc.notify(!!next);
         this.router.navProjectClientsDashboard()
       });
     }

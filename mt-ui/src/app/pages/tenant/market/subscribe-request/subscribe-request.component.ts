@@ -7,7 +7,7 @@ import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { environment } from 'src/environments/environment';
 import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { FormGroup, FormControl } from '@angular/forms';
 export interface ISubRequest extends IIdBasedEntity {
@@ -40,7 +40,7 @@ export class SubscribeRequestComponent {
     public router: RouterWrapperService,
     private projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
-    private banner: BannerService,
+    private deviceSvc: DeviceService,
   ) {
     const configId = this.router.getSubRequestIdFromUrl();
     Logger.debug('config id get {}', configId)
@@ -83,7 +83,7 @@ export class SubscribeRequestComponent {
         version: 0
       }
       this.httpProxySvc.createEntity(this.url, payload, this.changeId).subscribe(next => {
-        this.banner.notify(!!next)
+        this.deviceSvc.notify(!!next)
       })
     }
   }
@@ -97,7 +97,7 @@ export class SubscribeRequestComponent {
         version: 0
       }
       this.httpProxySvc.updateEntity(this.url, this.router.getSubRequestIdFromUrl(), payload, this.changeId).subscribe(next => {
-        this.banner.notify(next)
+        this.deviceSvc.notify(next)
       })
     }
   }

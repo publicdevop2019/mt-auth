@@ -5,10 +5,10 @@ import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { ICommonServerError, IProjectSimple } from 'src/app/misc/interface';
 import { ProjectService } from 'src/app/services/project.service';
-import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { MatDialogRef } from '@angular/material/dialog';
 import { FormControl, FormGroup } from '@angular/forms';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-new-project',
@@ -29,7 +29,7 @@ export class NewProjectComponent {
   constructor(
     public dialogRef: MatDialogRef<NewProjectComponent>,
     private projectSvc: ProjectService,
-    public dsvc: DeviceService,
+    public deviceSvc: DeviceService,
     private httpProxy: HttpProxyService
   ) {
     this.fg.valueChanges.subscribe(() => {
@@ -51,7 +51,7 @@ export class NewProjectComponent {
       this.showNotes = false;
       this.systemError = false
       this.disableUserInteraction()
-      this.dsvc.operationCancelled.subscribe((_ => {
+      this.deviceSvc.operationCancelled.subscribe((_ => {
         this.enableUserInteraction()
       }))
       this.projectSvc.create(payload, this.changeId).subscribe(next => {

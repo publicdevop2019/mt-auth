@@ -5,7 +5,7 @@ import { MgmtClientComponent } from '../client/client.component';
 import { APP_CONSTANT, CONST_GRANT_TYPE, RESOURCE_NAME } from 'src/app/misc/constant';
 import { IClient, IOption } from 'src/app/misc/interface';
 import { TableHelper } from 'src/app/clazz/table-helper';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
@@ -76,7 +76,7 @@ export class SummaryClientComponent {
   private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_CLIENTS)
   public tableSource: TableHelper<IClient> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public banner: BannerService,
+    public deviceSvc: DeviceService,
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
   ) {
@@ -84,7 +84,7 @@ export class SummaryClientComponent {
   }
   revokeClientToken(clientId: string) {
     this.httpSvc.revokeClientToken(clientId).subscribe(result => {
-      this.banner.notify(result)
+      this.deviceSvc.notify(result)
     })
   }
   getList(inputs: string[]) {

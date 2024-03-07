@@ -7,7 +7,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { IOption, IProjectAdmin } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
@@ -38,7 +38,7 @@ export class MyAdminComponent {
   constructor(
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
-    public bannerSvc: BannerService,
+    public deviceSvc: DeviceService,
   ) {
     this.tableSource.loadPage(0)
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
@@ -106,10 +106,10 @@ export class MyAdminComponent {
   }
   public delete(id: string) {
     this.httpSvc.deleteEntityById(this.adminUrl, id, Utility.getChangeId()).subscribe(() => {
-      this.bannerSvc.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.bannerSvc.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 }

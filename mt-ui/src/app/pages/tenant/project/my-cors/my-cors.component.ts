@@ -8,7 +8,7 @@ import { Utility } from 'src/app/misc/utility';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { take } from 'rxjs/operators';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-cors',
   templateUrl: './my-cors.component.html',
@@ -31,7 +31,7 @@ export class MyCorsComponent{
     public route: RouterWrapperService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
-    public bannerSvc: BannerService,
+    public deviceSvc: DeviceService,
   ) {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_CORS').pipe(take(1)).subscribe(b => {
       if (b.result) {
@@ -51,10 +51,10 @@ export class MyCorsComponent{
   }
   public delete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
-      this.bannerSvc.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.bannerSvc.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
 }

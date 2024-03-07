@@ -12,7 +12,6 @@ import { Logger } from 'src/app/misc/logger';
 import { Utility } from 'src/app/misc/utility';
 import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
-import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -216,7 +215,6 @@ export class NavBarComponent implements OnInit {
     public route: ActivatedRoute,
     public router: RouterWrapperService,
     public translate: TranslateService,
-    public deviceSvc: DeviceService,
     public msgSvc: MessageService,
     public userMsgSvc: UserMessageService,
     public dialog: MatDialog

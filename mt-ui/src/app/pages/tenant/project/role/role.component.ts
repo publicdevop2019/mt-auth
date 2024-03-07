@@ -6,13 +6,11 @@ import { IRole } from '../my-roles/my-roles.component';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
 import { MatTableDataSource } from '@angular/material/table';
-import { Logger } from 'src/app/misc/logger';
 import { MatDialog } from '@angular/material/dialog';
 import { AddPermissionDialogComponent } from 'src/app/components/add-permission-dialog/add-permission-dialog.component';
-import { DeviceService } from 'src/app/services/device.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { BannerService } from 'src/app/services/banner.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { IOption, IQueryProvider } from 'src/app/misc/interface';
 interface IPermTable {
   id: string,
@@ -57,7 +55,6 @@ export class RoleComponent implements OnDestroy {
     public cdr: ChangeDetectorRef,
     public router: RouterWrapperService,
     public dialog: MatDialog,
-    public banner: BannerService,
     public deviceSvc: DeviceService,
   ) {
     const roleId = this.router.getRoleIdFromUrl()
@@ -74,14 +71,6 @@ export class RoleComponent implements OnDestroy {
         this.validateForm()
       }
     })
-    const sub2 = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.httpProxySvc.readEntityById<IRole>(this.roleUrl, this.data.id).subscribe(next => {
-        Logger.debug('reload view')
-        this.data = next;
-        this.dataSource = new MatTableDataSource(this.data.permissionDetails || []);
-      })
-    })
-    this.subs.add(sub2)
   }
   ngOnDestroy(): void {
     //prevent memory leak
@@ -201,7 +190,7 @@ export class RoleComponent implements OnDestroy {
     this.allowError = true;
     if (this.validateForm()) {
       this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdateBasicPayload(), this.changeId).subscribe(next => {
-        this.banner.notify(next)
+        this.deviceSvc.notify(next)
       })
     }
   }
