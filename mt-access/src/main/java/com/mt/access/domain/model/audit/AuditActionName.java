@@ -26,7 +26,6 @@ public class AuditActionName {
     public static final String UPDATE_TENANT_ROLE = "UPDATE_TENANT_ROLE";
     public static final String DELETE_TENANT_ROLE = "DELETE_TENANT_ROLE";
     public static final String MGMT_LOCK_USER = "MGMT_LOCK_USER";
-    public static final String MGMT_DELETE_USER = "MGMT_DELETE_USER";
     public static final String USER_UPDATE_PWD = "USER_UPDATE_PWD";
     public static final String USER_FORGET_PWD = "USER_FORGET_PWD";
     public static final String USER_RESET_PWD = "USER_RESET_PWD";

@@ -37,8 +37,6 @@ public interface UserRepository {
 
     SumPagedRep<User> query(UserQuery userQuery);
 
-    void remove(User user1);
-
     long countTotal();
 
     Set<UserId> getIds();

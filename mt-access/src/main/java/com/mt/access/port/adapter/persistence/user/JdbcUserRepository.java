@@ -72,7 +72,6 @@ public class JdbcUserRepository implements UserRepository {
         "mfa_code " +
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
-    private static final String DELETE_SQL = "DELETE FROM user_ u WHERE u.id = ?";
     private static final String QUERY_LOGIN_USER_BY_EMAIL_SQL =
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?";
     private static final String QUERY_LOGIN_USER_BY_ID_SQL =
@@ -223,14 +222,6 @@ public class JdbcUserRepository implements UserRepository {
                 args.toArray()
             );
         return new SumPagedRep<>(data, count);
-    }
-
-    @Override
-    public void remove(User user) {
-        CommonDomainRegistry.getJdbcTemplate()
-            .update(DELETE_SQL,
-                user.getId()
-            );
     }
 
     @Override
