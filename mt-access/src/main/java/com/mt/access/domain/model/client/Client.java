@@ -368,31 +368,6 @@ public class Client extends Auditable {
         return updated;
     }
 
-    public Client replace(String name, String path, String description,
-                          Boolean accessible, Set<ClientId> resources, Set<GrantType> grantTypes,
-                          TokenDetail tokenDetail, TransactionContext context) {
-        //load everything to avoid error
-        if (Checker.notNull(getRedirectDetail())) {
-            getRedirectDetail().getRedirectUrls(this);
-        }
-        getGrantTypes();
-        getTypes();
-        getResources();
-        getExternalResources();
-        Client updated = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        updated.setName(name);
-        updated.setDescription(description);
-        updated.setPath(path, context);
-        updated.setResources(resources, context);
-        updated.setAccessible(accessible, context);
-        updated.setGrantTypes(grantTypes, false, context);
-        updated.setTokenDetail(tokenDetail, context);
-        updated.validate(new HttpValidationNotificationHandler());
-        updated.setModifiedAt(Instant.now().toEpochMilli());
-        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
-        return updated;
-    }
-
     @Override
     public void validate(ValidationNotificationHandler handler) {
         (new ClientValidator(this, handler)).validate();

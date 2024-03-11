@@ -3,7 +3,6 @@ public class AuditActionName {
     public static final String DELETE_TENANT_CLIENT = "DELETE_TENANT_CLIENT";
     public static final String CREATE_TENANT_CLIENT = "CREATE_TENANT_CLIENT";
     public static final String UPDATE_TENANT_CLIENT = "UPDATE_TENANT_CLIENT";
-    public static final String PATCH_TENANT_CLIENT = "PATCH_TENANT_CLIENT";
     public static final String CREATE_TENANT_CORS_PROFILE = "CREATE_TENANT_CORS_PROFILE";
     public static final String UPDATE_TENANT_CORS_PROFILE = "UPDATE_TENANT_CORS_PROFILE";
     public static final String DELETE_TENANT_CORS_PROFILE = "DELETE_TENANT_CORS_PROFILE";

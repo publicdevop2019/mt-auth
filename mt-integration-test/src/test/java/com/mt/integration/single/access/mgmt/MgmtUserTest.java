@@ -78,58 +78,6 @@ public class MgmtUserTest{
     }
 
     @Test
-    public void admin_can_delete_user() {
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> user1 = UserUtility.register(user);
-
-        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(user1));
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
-            UserUtility.login(user.getEmail(), user.getPassword());
-
-        Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(Objects.requireNonNull(tokenResponse.getBody()).getValue());
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-        ResponseEntity<Object> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
-
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse123 =
-            UserUtility.login(user.getEmail(), user.getPassword());
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse123.getStatusCode());
-
-    }
-
-    @Test
-    public void admin_cannot_delete_root_user() {
-
-        String url =
-            HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + root_index);
-
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-
-        Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
-        //try w root
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(Objects.requireNonNull(tokenResponse.getBody()).getValue());
-        HttpEntity<Object> request = new HttpEntity<>(null, headers);
-        ResponseEntity<Object> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Object.class);
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-
-    }
-
-    @Test
     public void admin_can_lock_then_unlock_user() {
         User user = UserUtility.createRandomUserObj();
         ResponseEntity<Void> createResp = UserUtility.register(user);

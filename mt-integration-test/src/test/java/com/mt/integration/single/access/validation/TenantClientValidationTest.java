@@ -21,7 +21,6 @@ import com.mt.helper.args.DescriptionArgs;
 import com.mt.helper.args.ProjectIdArgs;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.GrantType;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.HttpUtility;
@@ -41,20 +40,24 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class TenantClientValidationTest{
+public class TenantClientValidationTest {
     private static TenantContext tenantContext;
+
     @BeforeAll
     public static void beforeAll() {
         tenantContext = TestHelper.beforeAllTenant(log);
     }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void validation_create_valid_backend() {
         Client client = ClientUtility.createValidBackendClient();
@@ -511,107 +514,4 @@ public class TenantClientValidationTest{
         Assertions.assertEquals(status, response4.getStatusCode());
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(DescriptionArgs.class)
-    public void validation_patch_description(String description, HttpStatus status) {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/description");
-        patchCommand.setValue(description);
-        ResponseEntity<Void> response2 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response2.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientPathArgs.class)
-    public void validation_patch_path(Client client, String path, HttpStatus status) {
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/path");
-        patchCommand.setValue(path);
-        ResponseEntity<Void> response3 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response3.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientGrantTypeArgs.class)
-    public void validation_patch_grant_type(Set<String> grantTypes, HttpStatus status) {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        Client client1 = ClientUtility.createAuthorizationClientObj();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(HttpUtility.getId(response2));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/grantTypeEnums");
-        patchCommand.setValue(grantTypes);
-        ResponseEntity<Void> response3 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response3.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientTokenSecondArgs.class)
-    public void validation_patch_access_token_validity_second(Integer integer, HttpStatus status) {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/accessTokenValiditySeconds");
-        patchCommand.setValue(integer);
-        ResponseEntity<Void> response2 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response2.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientResourceIdsArgs.class)
-    public void validation_patch_resource_ids(Set<String> ids,
-                                              HttpStatus status) {
-        Client client = ClientUtility.createValidBackendClient();
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/resourceIds");
-        patchCommand.setValue(ids);
-        ResponseEntity<Void> response2 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response2.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ClientResourceIndicatorArgs.class)
-    public void validation_patch_resource_indicator(Client client, Boolean indicator,
-                                                    HttpStatus status) {
-        ResponseEntity<Void> response1 =
-            ClientUtility.createTenantClient(tenantContext, client);
-        client.setId(HttpUtility.getId(response1));
-        Client client1 = ClientUtility.createValidFrontendClient();
-        ResponseEntity<Void> response2 =
-            ClientUtility.createTenantClient(tenantContext, client1);
-        client1.setId(HttpUtility.getId(response2));
-        PatchCommand patchCommand = new PatchCommand();
-        patchCommand.setOp("replace");
-        patchCommand.setPath("/resourceIndicator");
-        patchCommand.setValue(indicator);
-        ResponseEntity<Void> response5 =
-            ClientUtility.patchTenantClient(tenantContext, client, patchCommand);
-        Assertions.assertEquals(status, response5.getStatusCode());
-    }
 }
