@@ -494,58 +494,6 @@ export class HttpProxyService {
             });
         });
     };
-    patchEntityById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityAtomicById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo, this.getPatchPayloadAtomicNum(id, fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditListEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityInputListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditInputListEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchInputListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityBooleanById(entityRepo: string, id: string, fieldName: string, editEvent: IEditBooleanEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        if (typeof editEvent.original === 'undefined' && typeof editEvent.next === 'undefined')
-            return new Observable<boolean>(e => e.next(true));
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchBooleanPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
     getMgmtDashboardInfo() {
         return this._httpClient.get<IMgmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
     }

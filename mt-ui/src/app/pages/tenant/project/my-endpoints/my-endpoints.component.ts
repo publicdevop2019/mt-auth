@@ -121,9 +121,6 @@ export class MyApisComponent {
       this.banner.notify(false)
     })
   }
-  expireEndpoint(id: string, reason: string, changeId: string) {
-    return
-  }
   viewReport(id: string) {
     this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectIdFromUrl() } });
   }

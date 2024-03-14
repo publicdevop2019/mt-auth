@@ -11,7 +11,6 @@ public class AuditActionName {
     public static final String DELETE_TENANT_CACHE_PROFILE = "DELETE_TENANT_CACHE_PROFILE";
     public static final String CREATE_TENANT_ENDPOINT = "CREATE_TENANT_ENDPOINT";
     public static final String UPDATE_TENANT_ENDPOINT = "UPDATE_TENANT_ENDPOINT";
-    public static final String PATCH_TENANT_ENDPOINT = "PATCH_TENANT_ENDPOINT";
     public static final String DELETE_TENANT_ENDPOINT = "DELETE_TENANT_ENDPOINT";
     public static final String DELETE_TENANT_PERMISSION = "DELETE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PERMISSION = "CREATE_TENANT_PERMISSION";

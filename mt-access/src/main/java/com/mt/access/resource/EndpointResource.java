@@ -159,21 +159,6 @@ public class EndpointResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "projects/{projectId}/endpoints/{id}",
-        consumes = "application/json-patch+json")
-    public ResponseEntity<Void> tenantPatch(
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
-        @PathVariable String projectId,
-        @PathVariable(name = "id") String id,
-        @RequestBody JsonPatch patch,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantPatch(projectId, id, patch, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PostMapping(path = "mgmt/endpoints/event/reload")
     public ResponseEntity<Void> mgmtReload(
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
