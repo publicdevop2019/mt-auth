@@ -1,7 +1,7 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild, ElementRef } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { MatChipInputEvent } from '@angular/material/chips';
+import { IOption } from 'src/app/misc/interface';
 export interface IEditInputListEvent {
   original: string[],
   next: string[]

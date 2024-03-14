@@ -1,16 +1,20 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="routerWrapper.navProjectUserDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <mat-form-field  [formGroup]="formGroup">
+        <mat-label>{{'EMAIL'| translate}}</mat-label>
+        <input matInput formControlName="email" readonly>
+    </mat-form-field>
+    <h4 style="margin-bottom: 4px;">{{'SELECT_ROLES'|translate}}</h4>
+    <mat-chip-list>
+        <mat-chip *ngFor="let e of roles()" [removable]="true">
+            {{parseId(e)|translate}}
+            <mat-icon matChipRemove (click)="removeRole(e)">cancel</mat-icon>
+        </mat-chip>
+    </mat-chip-list>
+    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="formGroup"></app-dynamic-tree>
+    <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
+        (click)="update()">{{'UPDATE'|translate}}</button>
 </div>
-<lib-factory [formId]="formId"></lib-factory>
-<h4 style="margin-bottom: 4px;">{{'SELECT_ROLES'|translate}}</h4>
-<mat-chip-list >
-    <mat-chip *ngFor="let e of roles()" [removable]="true">
-        {{parseId(e)|translate}}
-        <mat-icon matChipRemove (click)="removeRole(e)">cancel</mat-icon>
-    </mat-chip>
-</mat-chip-list>
-<app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren"[fg]="formGroup"></app-dynamic-tree>
-<button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-    (click)="update()">{{'UPDATE'|translate}}</button>

@@ -1,7 +1,10 @@
-import { IIdName } from "mt-form-builder/lib/classes/template.interface";
 import { grantTypeEnums, CLIENT_TYPE } from "./constant";
-import { IIdBasedEntity } from "../clazz/summary.component";
-
+import { Observable } from "rxjs";
+export interface IIdName {
+    id: string;
+    name: string;
+    description?: string;
+}
 export interface ICacheProfile extends IIdBasedEntity {
     name: string;
     description: string;
@@ -24,10 +27,9 @@ export interface ICorsProfile extends IIdBasedEntity {
     exposedHeaders: string[];
     maxAge: number;
 }
-export interface IEndpointCreate{
+export interface IEndpointCreate {
     name: string;
     type: string;
-    projectId: string;
 }
 export interface IEndpoint extends IIdBasedEntity {
     resourceId: string;
@@ -224,4 +226,44 @@ export interface ICheckSumResponse {
 export interface ICommonServerError {
     errorId: string;
     errors: string[]
+}
+export interface IOption {
+    label: string;
+    value: string;
+}
+export interface IQueryProvider {
+    readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => Observable<ISumRep<IIdName>>;
+}
+export interface DialogData {
+    data: { id: string, description: string }[]
+}
+export interface IRevokeToken {
+    id: string;
+    targetId: number;
+    issuedAt: number;
+    type: 'Client' | 'User';
+    version: number;
+}
+export interface INotification extends IIdBasedEntity {
+    title: string,
+    descriptions: string[],
+    date: number
+    type: string
+    status: string
+}
+export interface IIdBasedEntity {
+    id: string;
+    version: number
+}
+export interface ISumRep<T> {
+    data: T[],
+    totalItemCount: number
+}
+export interface IDomainContext<S> {
+    context: 'clone' | 'new' | 'edit';
+    from: S;
+    params: {}
+}
+export interface IIdName extends IIdBasedEntity {
+    name: string
 }

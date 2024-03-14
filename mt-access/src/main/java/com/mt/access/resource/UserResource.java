@@ -103,17 +103,6 @@ public class UserResource {
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("mgmt/users/{id}")
-    public ResponseEntity<Void> remove(
-        @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getUserApplicationService().remove(id, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @PutMapping(path = "users/pwd")
     public ResponseEntity<Void> updatePassword(
         @RequestBody UserUpdatePasswordCommand command,

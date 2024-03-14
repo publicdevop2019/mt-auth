@@ -1,69 +1,68 @@
-<div style="display: flex; justify-content: space-between; margin-top: 16px;">
-    <div>
-        <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;"> {{'MY_CACHE'|translate}}
+<div class="default-background">
+    <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+        <div>
+            <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
+                {{'MY_CACHE'|translate}}
+            </div>
+            <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_CACHE_SUB'|translate}}
+            </div>
         </div>
-        <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_CACHE_SUB'|translate}}</div>
+        <button mat-raised-button color="primary" (click)="create()" style="height: 36px;"
+            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_CACHE')) |async ">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <mat-icon>add</mat-icon>
+                <div>{{'ADD'|translate}}</div>
+            </div>
+        </button>
     </div>
-    <button mat-fab color="primary" (click)="openBottomSheet()"
-        *ngIf="extractResult(canDo('CREATE_CACHE')) |async ">{{'ADD'|translate}}</button>
-</div>
-<ng-container *ngIf="extractResult(canDo('VIEW_CACHE'))|async">
-    <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:end;">
-        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px; margin-right: 12px;"
-        (click)="doRefresh()">{{'REFRESH'|translate}}</button>
-        <app-table-column-config [formId]="formId"></app-table-column-config>
-    </div>
-    <div>
-        <div class="table-container">
-            <table mat-table [dataSource]="dataSource">
+    <ng-container
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_CACHE'))|async">
+        <div>
+            <div class="table-container">
+                <table mat-table [dataSource]="tableSource.dataSource">
 
-                <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
-                    <td mat-cell *matCellDef="let row">
-                        <app-copy-field [inputValue]="row.id"></app-copy-field>
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="id">
+                        <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            <app-copy-field [inputValue]="row.id"></app-copy-field>
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="description">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
-                    <td mat-cell *matCellDef="let row">
-                        {{row.description}}
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="description">
+                        <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.description}}
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
-                    <td mat-cell *matCellDef="let row">
-                        {{row.name}}
-                    </td>
-                </ng-container>
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.name}}
+                        </td>
+                    </ng-container>
 
-                <ng-container matColumnDef="edit">
-                    <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
-                    <td mat-cell *matCellDef="let row" class="table-icon">
-                        <mat-icon (click)="openBottomSheet(row.id,false,getData(row.id))" [color]="'primary'">edit
-                        </mat-icon>
-                    </td>
-                </ng-container>
-                <ng-container matColumnDef="clone">
-                    <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['clone']|translate}}</th>
-                    <td mat-cell *matCellDef="let row" class="table-icon" style="padding-right: 14px !important; ">
-                        <mat-icon (click)="doClone(row.id)" [color]="'primary'">file_copy</mat-icon>
-                    </td>
-                </ng-container>
-                <ng-container matColumnDef="delete">
-                    <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
-                    <td mat-cell *matCellDef="let row" class="table-icon">
-                        <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
-                    </td>
-                </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-            </table>
-        </div>
+                    <ng-container matColumnDef="edit">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon (click)="edit(row.id)" [color]="'primary'">edit
+                            </mat-icon>
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon (click)="delete(row.id)" [color]="'warn'">delete_outline</mat-icon>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
+                </table>
+            </div>
 
-        <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-            [pageSize]="pageSize" (page)="pageHandler($event)">
+            <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
+            [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
         </mat-paginator>
-    </div>
-</ng-container>
+        </div>
+    </ng-container>
+</div>

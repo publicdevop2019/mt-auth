@@ -1,35 +1,27 @@
 import { Component } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
-import { DeviceService } from 'src/app/services/device.service';
-import { IBellNotification, MessageService } from 'src/app/services/message.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { IBellNotification } from 'src/app/services/message.service';
 
 @Component({
   selector: 'app-summary-message',
   templateUrl: './summary-message.component.html',
-  styleUrls: ['./summary-message.component.css']
+  styleUrls: []
 })
-export class MessageCenterComponent extends SummaryEntityComponent<IBellNotification, IBellNotification>{
-  public formId = "authMsgTableColumnConfig";
+export class MessageCenterComponent {
   columnList = {
     date: 'DATE',
     title: 'TITLE',
     message: 'MESSAGE',
   }
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_BELL_NOTIFICATION)
+  public tableSource: TableHelper<IBellNotification> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: MessageService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public fis: FormInfoService,
+    public httpSvc: HttpProxyService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, -2);
-    this.doRefresh();
-    this.initTableSetting();
-  }
-  doRefresh() {
-    super.doSearch({ value: '', resetPage: false })
+    this.tableSource.loadPage(0);
   }
   getValidationMsg(mes: string[]) {
     const msg = (mes || []).filter((e, i) => i > 0)

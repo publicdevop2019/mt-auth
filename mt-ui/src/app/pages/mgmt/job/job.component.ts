@@ -1,12 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
-import { FormInfoService } from 'mt-form-builder';
-import { ICheckboxControl } from 'mt-form-builder/lib/classes/template.interface';
 import { map } from 'rxjs/operators';
-import { TABLE_SETTING_KEY } from 'src/app/misc/constant';
-import { Utility } from 'src/app/misc/utility';
-import { FORM_TABLE_COLUMN_CONFIG } from 'src/app/form-configs/table-column.config';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 import { TimeService } from 'src/app/services/time.service';
@@ -26,10 +21,9 @@ export interface IJob {
 @Component({
   selector: 'app-job',
   templateUrl: './job.component.html',
-  styleUrls: ['./job.component.css']
+  styleUrls: []
 })
-export class JobComponent implements OnInit, OnDestroy {
-  public formId = "jobTableColumnConfig";
+export class JobComponent implements OnDestroy {
   columnList = {
     name: 'NAME',
     lastStatus: 'LAST_STATUS',
@@ -44,10 +38,8 @@ export class JobComponent implements OnInit, OnDestroy {
     action: 'JOB_ACTION',
   }
   dataSource: MatTableDataSource<IJob> = new MatTableDataSource();
-  batchJobConfirmed: boolean;
   intervalRef: any;
   constructor(
-    public fis: FormInfoService,
     private interceptor: CustomHttpInterceptor,
     public httpProxy: HttpProxyService,
     private translate: TranslateService,
@@ -57,7 +49,6 @@ export class JobComponent implements OnInit, OnDestroy {
     this.intervalRef = setInterval(() => {
       this.getStatus()
     }, 5000)
-    this.initTableSetting();
   }
   ngOnDestroy(): void {
     clearInterval(this.intervalRef)
@@ -68,8 +59,6 @@ export class JobComponent implements OnInit, OnDestroy {
     }, () => {
       clearInterval(this.intervalRef)
     })
-  }
-  ngOnInit(): void {
   }
   parseDate(value: number) {
     return this.timeSvc.getUserFriendlyTimeDisplay(value)
@@ -113,20 +102,6 @@ export class JobComponent implements OnInit, OnDestroy {
     return Object.keys(this.columnList).map(e => ({ label: this.columnList[e], value: e }))
   }
   displayedColumns() {
-    if (this.fis.formGroups[this.formId]) {
-      const orderKeys = ['select', ...Object.keys(this.columnList)];
-      const value = this.fis.formGroups[this.formId].get(TABLE_SETTING_KEY).value as string[]
-      return orderKeys.filter(e => value.includes(e))
-    } else {
-      return Object.keys(this.columnList)
-    }
+    return Object.keys(this.columnList)
   };
-  private initTableSetting() {
-    const deepCopy = Utility.copyOf(FORM_TABLE_COLUMN_CONFIG)
-    const settingKey = deepCopy.inputs[0].key;
-    const options = this.getColumnLabelValue();
-    (deepCopy.inputs[0] as ICheckboxControl).options = options;
-    this.fis.init(deepCopy, this.formId)
-    this.fis.formGroups[this.formId].get(settingKey).setValue(options.map(e => e.value))
-  }
 }

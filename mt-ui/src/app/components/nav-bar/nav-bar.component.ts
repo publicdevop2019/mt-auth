@@ -3,19 +3,19 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSidenav } from '@angular/material/sidenav';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { Subscription } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
-import { Utility, createImageFromBlob, logout } from 'src/app/misc/utility';
+import { Utility } from 'src/app/misc/utility';
 import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
-import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { UserMessageService } from 'src/app/services/user-message.service';
 export interface INavElement {
   link: string;
@@ -34,77 +34,77 @@ export class NavBarComponent implements OnInit {
   mobileQuery: MediaQueryList;
   menuMgmt: INavElement[] = [
     {
-      link: 'dashboard',
+      link: 'mgmt/insights',
       display: 'DASHBOARD',
       icon: 'dashboard',
       params: {
       },
     },
     {
-      link: 'registry',
+      link: 'mgmt/registry',
       display: 'REGISTRY_STATUS',
       icon: 'receipt',
       params: {
       },
     },
     {
-      link: 'jobs',
+      link: 'mgmt/jobs',
       display: 'JOB_STATUS',
       icon: 'work_history',
       params: {
       },
     },
     {
-      link: 'projects',
+      link: 'mgmt/projects',
       display: 'PROJECT_DASHBOARD',
       icon: 'blur_on',
       params: {
       },
     },
     {
-      link: 'clients',
+      link: 'mgmt/clients',
       display: 'CLIENT_DASHBOARD',
       icon: 'apps',
       params: {
       },
     },
     {
-      link: 'api-profiles',
+      link: 'mgmt/endpoints',
       display: 'SECURITY_PROFILE_DASHBOARD',
       icon: 'mediation',
       params: {
       },
     },
     {
-      link: 'mgmt-user',
+      link: 'mgmt/users',
       display: 'USER_DASHBOARD',
       icon: 'people',
       params: {
       },
     },
     {
-      link: 'revoke-token',
+      link: 'mgmt/tokens',
       display: 'REVOKE_TOKEN_DASHBOARD',
       icon: 'stars',
       params: {
       },
     },
     {
-      link: 'cache-mgmt',
+      link: 'mgmt/proxy-cache',
       display: 'CACHE_DASHBOARD',
       icon: 'cached',
       params: {
       },
     },
     {
-      link: 'events-access',
+      link: 'mgmt/events',
       display: 'EVENT_DASHBOARD',
       icon: 'event_available',
       params: {
       },
     },
     {
-      link: 'sys-message-center',
+      link: 'mgmt/notification',
       display: 'SYSTEM_MESSAGE_DASHBOARD',
       icon: 'email',
       params: {
@@ -172,28 +172,28 @@ export class NavBarComponent implements OnInit {
   ];
   menuEp: INavElement[] = [
     {
-      link: 'api-center',
+      link: 'market',
       display: 'API_CENTER',
       icon: 'store',
       params: {
       },
     },
     {
-      link: 'my-sub-request',
+      link: 'requests',
       display: 'MY_SUB_REQUEST',
       icon: 'shopping_cart',
       params: {
       },
     },
     {
-      link: 'pending-sub-request',
+      link: 'approval',
       display: 'PENDING_SUB_REQUEST',
       icon: 'checklist',
       params: {
       },
     },
     {
-      link: 'my-subs',
+      link: 'subscriptions',
       display: 'MY_SUBS',
       icon: 'subscriptions',
       params: {
@@ -213,9 +213,8 @@ export class NavBarComponent implements OnInit {
     changeDetectorRef: ChangeDetectorRef,
     media: MediaMatcher,
     public route: ActivatedRoute,
-    public router: Router,
+    public router: RouterWrapperService,
     public translate: TranslateService,
-    public deviceSvc: DeviceService,
     public msgSvc: MessageService,
     public userMsgSvc: UserMessageService,
     public dialog: MatDialog
@@ -288,14 +287,14 @@ export class NavBarComponent implements OnInit {
         this.projectSvc.findUiPermission(next).subscribe(next => {
           this.projectSvc.permissionDetail.next(next);
           Logger.debug("view project {}", this.projectSvc.viewProject)
-          this.router.navigate(['/home']);//avoid blank view when previous tenant project open
+          this.router.navProjectHome();//avoid blank view when previous tenant project open
         })
       })
     })
   }
   getAvatar() {
     this.httpProxySvc.getAvatar().subscribe(blob => {
-      createImageFromBlob(blob, (reader) => {
+      Utility.createImageFromBlob(blob, (reader) => {
         this.avatar = reader.result
       })
     })
@@ -304,11 +303,11 @@ export class NavBarComponent implements OnInit {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
-    logout(undefined, this.httpProxySvc)
+    Utility.logout(undefined, this.httpProxySvc)
   }
   preserveURLQueryParams(input: INavElement) {
     const var0 = this.route.snapshot.queryParams;
-    if (this.router.url.includes(input.link)) {
+    if (this.router.getUrl().includes(input.link)) {
       return {
         ...input.params,
         ...var0

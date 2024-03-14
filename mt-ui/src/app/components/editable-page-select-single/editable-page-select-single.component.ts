@@ -1,11 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { EntityCommonService } from 'src/app/clazz/entity.common-service';
-import { IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { IEditEvent } from '../editable-field/editable-field.component';
-export interface IIdName extends IIdBasedEntity {
-  name: string
-}
+import { IOption, ISumRep } from 'src/app/misc/interface';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-editable-page-select-single',
   templateUrl: './editable-page-select-single.component.html',
@@ -30,7 +26,7 @@ export class EditablePageSelectSingleComponent implements OnInit {
   @Input() inputValue: IOption = undefined;
   @Input() list: IOption[] = [];
   @Input() readOnly: boolean = false;
-  @Input() entitySvc: EntityCommonService<IIdName, IIdName>;
+  @Input() entitySvc: (num: number, size: number, query?: string, by?: string, order?: string, headers?: {}) => Observable<ISumRep<any>>;
   @Output() newValue: EventEmitter<IEditEvent> = new EventEmitter();
   displayEdit = 'hidden';
   lockEditIcon = false;
@@ -38,7 +34,7 @@ export class EditablePageSelectSingleComponent implements OnInit {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         this.loading = true;
-        this.entitySvc.readEntityByQuery(this.pageNumber, this.pageSize, undefined, undefined, undefined, { 'loading': false }).subscribe(next => {
+        this.entitySvc(this.pageNumber, this.pageSize, undefined, undefined, undefined, { 'loading': false }).subscribe(next => {
           this.loading = false;
           if (next.data.length === 0) {
             this.allLoaded = true;

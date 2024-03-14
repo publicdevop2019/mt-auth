@@ -1,115 +1,91 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { combineLatest, Observable } from 'rxjs';
-import { take } from 'rxjs/operators';
-import { IDomainContext } from 'src/app/clazz/summary.component';
-import { MGMT_EP_FORM_CONFIG } from 'src/app/form-configs/mgmt-endpoint.config';
-import { MyCacheService } from 'src/app/services/my-cache.service';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
-import { EndpointService } from 'src/app/services/endpoint.service';
+import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MgmtClientService } from 'src/app/services/mgmt-client.service';
-import { ORIGIN_FORM_CONFIG, ALLOWED_HEADERS_FORM_CONFIG, EXPOSED_HEADERS_FORM_CONFIG } from 'src/app/form-configs/cors.config';
 import { IMgmtEndpoint } from 'src/app/misc/interface';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { FormGroup, FormControl } from '@angular/forms';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',
-  styleUrls: ['./endpoint.component.css']
+  styleUrls: []
 })
-export class MgmtEndpointComponent implements OnDestroy {
-  formId: string = 'mgmtApi';
-  originFormId: string = 'originFormId'
-  allowedHeaderFormId: string = 'allowedHeaderFormId'
-  exposedHeaderFormId: string = 'exposedHeaderFormId'
+export class MgmtEndpointComponent {
+  fg = new FormGroup({
+    id: new FormControl({ value: '', disabled: true }),
+    projectId: new FormControl(''),
+    name: new FormControl(''),
+    description: new FormControl(''),
+    type: new FormControl(''),
+    isWebsocket: new FormControl(''),
+    resourceName: new FormControl(''),
+    path: new FormControl(''),
+    method: new FormControl({ value: '', disabled: true }),
+    csrf: new FormControl(''),
+    cors: new FormControl(false),
+    replenishRate: new FormControl(''),
+    burstCapacity: new FormControl(''),
+
+    allowCache: new FormControl(''),
+    cacheControl: new FormControl(''),
+    maxAgeValue: new FormControl(''),
+    smaxAgeValue: new FormControl(''),
+    vary: new FormControl(''),
+    expires: new FormControl(''),
+    etagValidation: new FormControl({ value: false, disabled: false }),
+    etagType: new FormControl(''),
+
+    corsMaxAge: new FormControl(''),
+    allowCredentials: new FormControl(''),
+    allowOrigin: new FormControl(''),
+    allowedHeaders: new FormControl(''),
+    exposedHeaders: new FormControl(''),
+  });
+
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_ENDPOINTS)
   constructor(
-    public endpointSvc: EndpointService,
-    public clientSvc: MgmtClientService,
-    public corsSvc: MyCorsProfileService,
-    public cacheSvc: MyCacheService,
     public httpProxySvc: HttpProxyService,
-    public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IMgmtEndpoint>,
-    public bottomSheetRef: MatBottomSheetRef<MgmtEndpointComponent>,
+    public router: RouterWrapperService,
   ) {
-    this.fis.init(MGMT_EP_FORM_CONFIG, this.formId)
-    this.fis.init(ORIGIN_FORM_CONFIG, this.originFormId)
-    this.fis.init(ALLOWED_HEADERS_FORM_CONFIG, this.allowedHeaderFormId)
-    this.fis.init(EXPOSED_HEADERS_FORM_CONFIG, this.exposedHeaderFormId)
-    this.fis.disableForm(this.formId)
-    this.fis.disableForm(this.originFormId)
-    this.fis.disableForm(this.allowedHeaderFormId)
-    this.fis.disableForm(this.exposedHeaderFormId)
+    this.fg.disable()
     this.resume()
-    if (this.data.from.method?.toLowerCase() === 'get') {
-      this.fis.showIfMatch(this.formId, ['cacheProfile'])
-    } else {
-      this.fis.hideIfMatch(this.formId, ['cacheProfile'])
-    }
-    if (this.data.from.websocket) {
-      this.fis.hideIfMatch(this.formId, ['csrf', 'cors', 'method'])
-    } else {
-      this.fis.showIfMatch(this.formId, ['csrf', 'cors', 'method'])
-    }
-    if (this.data.from.corsConfig) {
-      this.fis.showIfMatch(this.formId, ['corsProfile'])
-    } else {
-      this.fis.hideIfMatch(this.formId, ['corsProfile'])
-    }
-    this.fis.disableIfNotMatch(this.formId, [])
-  }
-  ngOnDestroy(): void {
-    this.fis.reset(this.originFormId)
-    this.fis.reset(this.allowedHeaderFormId)
-    this.fis.reset(this.exposedHeaderFormId)
   }
   resume(): void {
-    if (this.data.from) {
-      const var0: Observable<any>[] = [];
-      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.resourceId))
-      combineLatest(var0).pipe(take(1))
-        .subscribe(next => {
-          let count = 0;
-          const options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id })
-          this.fis.updateOption(this.formId, 'resourceId', options)
-          this.fis.restore(this.formId, this.data.from, true);
-
-          // for cache
-          if (this.data.from.cacheConfig) {
-            this.fis.formGroups[this.formId].get('allowCache').setValue(this.data.from.cacheConfig.allowCache ? 'yes' : 'no')
-            this.fis.formGroups[this.formId].get('cacheControl').setValue(this.data.from.cacheConfig.cacheControl)
-            this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.data.from.cacheConfig.maxAge || '')
-            this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.data.from.cacheConfig.smaxAge || '')
-            this.fis.formGroups[this.formId].get('etagValidation').setValue(this.data.from.cacheConfig.etag)
-            this.fis.formGroups[this.formId].get('etagType').setValue(this.data.from.cacheConfig.weakValidation)
-            this.fis.formGroups[this.formId].get('expires').setValue(this.data.from.cacheConfig.expires ? this.data.from.cacheConfig.expires : '')
-            this.fis.formGroups[this.formId].get('vary').setValue(this.data.from.cacheConfig.vary ? this.data.from.cacheConfig.vary : '')
-            if (this.data.from.cacheConfig.allowCache) {
-              this.fis.showIfMatch(this.formId, ['cacheControl', 'maxAgeValue', 'smaxAgeValue', 'etagValidation', 'etagType', 'expires', 'vary'])
-            }
-          }
-          if (this.data.from.corsConfig) {
-            this.fis.formGroups[this.formId].get('allowCredentials').setValue(this.data.from.corsConfig.credentials)
-            this.fis.formGroups[this.formId].get('corsMaxAge').setValue(this.data.from.corsConfig.maxAge)
-            this.fis.restoreDynamicForm(this.allowedHeaderFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.allowedHeaders, 'allowedHeaders'), this.data.from.corsConfig.allowedHeaders.length)
-            this.fis.restoreDynamicForm(this.originFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.origin, 'allowOrigin'), this.data.from.corsConfig.origin.length)
-            this.fis.restoreDynamicForm(this.exposedHeaderFormId, this.fis.parsePayloadArr(this.data.from.corsConfig.exposedHeaders, 'exposedHeaders'), this.data.from.corsConfig.exposedHeaders.length)
-            this.fis.disableIfNotMatch(this.allowedHeaderFormId, [])
-            this.fis.disableIfNotMatch(this.originFormId, [])
-            this.fis.disableIfNotMatch(this.exposedHeaderFormId, [])
-          }
-
-          this.fis.formGroups[this.formId].get("secured").setValue(this.data.from.secured);
-          this.fis.formGroups[this.formId].get("csrf").setValue(this.data.from.csrfEnabled);
-          this.fis.formGroups[this.formId].get("isWebsocket").setValue(this.data.from.websocket ? 'yes' : 'no');
-        })
-
-    }
+    const endpointId = this.router.getMgmtEndpointIdFromUrl();
+    this.httpProxySvc.readEntityById<IMgmtEndpoint>(this.url, endpointId).subscribe(next => {
+      this.fg.patchValue(next);
+      this.fg.get("csrf").setValue(next.csrfEnabled);
+      this.fg.get("replenishRate").setValue(next.replenishRate);
+      this.fg.get("burstCapacity").setValue(next.burstCapacity);
+      this.fg.get("isWebsocket").setValue(next.websocket ? 'yes' : 'no');
+      if (next.cacheConfig) {
+        this.fg.get("allowCache").setValue(next.cacheConfig.allowCache ? 'yes' : 'no');
+        this.fg.get("cacheControl").setValue(next.cacheConfig.cacheControl);
+        this.fg.get("maxAgeValue").setValue(next.cacheConfig.maxAge);
+        this.fg.get("smaxAgeValue").setValue(next.cacheConfig.smaxAge);
+        this.fg.get("vary").setValue(next.cacheConfig.vary);
+        this.fg.get("expires").setValue(next.cacheConfig.expires);
+        this.fg.get("etagType").setValue(next.cacheConfig.etag);
+      }
+      if (next.corsConfig) {
+        this.fg.get('allowCredentials').setValue(next.corsConfig.credentials)
+        this.fg.get('allowedHeaders').setValue(next.corsConfig.allowedHeaders.join(','))
+        this.fg.get('allowOrigin').setValue(next.corsConfig.origin.join(','))
+        this.fg.get('exposedHeaders').setValue(next.corsConfig.exposedHeaders.join(','))
+        this.fg.get('corsMaxAge').setValue(next.corsConfig.maxAge)
+      }
+    })
   }
-  dismiss(event: MouseEvent) {
-    this.bottomSheetRef.dismiss();
-    event.preventDefault();
+  getIcon() {
+    if (this.fg.get('type').value === 'PROTECTED_NONE_SHARED_API') {
+      return 'verified_user'
+    } else if (this.fg.get('type').value === 'PROTECTED_SHARED_API') {
+      return 'share'
+    } else if (this.fg.get('type').value === 'PUBLIC_API') {
+      return 'lock_open'
+    } else {
+      return 'visibility_off'
+    }
   }
 }
 

@@ -1,8 +1,6 @@
-
-<h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'REGISTRY_STATUS' |translate}}</h2>
-
-
-<table mat-table [dataSource]="dataSource">
+<div class="default-background">
+  <h2 class="flex-row-space-between">{{'AUTH_CENTER' |translate}} / {{'REGISTRY_STATUS' |translate}}</h2>
+  <table mat-table [dataSource]="dataSource">
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef> {{'ID'|translate}} </th>
       <td mat-cell *matCellDef="let row">
@@ -24,3 +22,4 @@
     <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
   </table>
+</div>

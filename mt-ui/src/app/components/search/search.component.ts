@@ -1,13 +1,15 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Component, ComponentFactoryResolver, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, Output, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { interval, Observable, Subscription } from 'rxjs';
 import { debounce, filter } from 'rxjs/operators';
-import { IClient } from 'src/app/misc/interface';
-import { DeviceService } from 'src/app/services/device.service';
-import { ResourceService } from 'src/app/services/resource.service';
+import { IClient, IOption, ISumRep } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { environment } from 'src/environments/environment';
 export interface ISearchEvent {
   value: string,
   key?: string,//see below
@@ -33,7 +35,7 @@ export interface ISearchConfig {
   templateUrl: './search.component.html',
   styleUrls: ['./search.component.css']
 })
-export class SearchComponent implements OnDestroy, OnInit, OnChanges {
+export class SearchComponent implements OnDestroy, OnChanges {
   private _visibilityConfig = {
     threshold: 0
   };
@@ -68,7 +70,7 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
       if (entry.isIntersecting) {
         this.loading = true;
         const config = this.searchLevel1.value as ISearchConfig;
-        this.resourceSvc.getByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
+        this.getByQuery<IClient>(config.resourceUrl, this.pageNumber, this.pageSize, undefined, undefined, { 'loading': false }).subscribe(
           next => {
             this.loading = false;
             if (next.data.length === 0) {
@@ -124,8 +126,9 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
   constructor(
     fb: FormBuilder,
     public translateSvc: TranslateService,
-    private deviceSvc: DeviceService,
-    public resourceSvc: ResourceService,
+    private router: RouterWrapperService,
+    private route: ActivatedRoute,
+    private httpClient: HttpClient,
     private componentFactoryResolver: ComponentFactoryResolver,
   ) {
     this.searchLevel1.valueChanges.subscribe(() => {
@@ -193,8 +196,8 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
     }
   }
   private updateSearchValueBasedOnUrl() {
-    const urlQuery = this.deviceSvc.getParams().query;
-    const key = this.deviceSvc.getParams().key;
+    const urlQuery = this.router.getParams(this.route).query;
+    const key = this.router.getParams(this.route).key;
     if (urlQuery) {
       const splittedQuery = urlQuery.split(":");
       if (splittedQuery.length > 1) {
@@ -271,12 +274,6 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
       this.search.emit({ value: '', resetPage: false });
     }
   }
-  ngOnInit(): void {
-    const sub = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.search.emit({ value: this.getFinalQuery(this.searchLevel1.value, this.searchQuery.value), resetPage: false });
-    })
-    this.subs.add(sub)
-  }
 
   ngOnDestroy(): void {
     this.subs.unsubscribe();
@@ -324,5 +321,32 @@ export class SearchComponent implements OnDestroy, OnInit, OnChanges {
   }
   getAutoCompleteList() {
     return this.searchLevel1.value?.multiple ? this.searchLevel1.value?.source : (this.searchItems.length > 0 ? [] : this.searchLevel1.value?.source);
+  }
+  private getByQuery<T>(resourceUrl: string, num: number, size: number, by?: string, order?: string, headers?: {}) {
+    let headerConfig = new HttpHeaders();
+    headers && Object.keys(headers).forEach(e => {
+      headerConfig = headerConfig.set(e, headers[e] + '')
+    })
+    return this.httpClient.get<ISumRep<T>>(this.getResourceUrl(resourceUrl, this.getPageParam(num, size, by, order)), { headers: headerConfig })
+  }
+  private getResourceUrl(resourceUrl: string, pageConfig: string) {
+    return environment.serverUri + resourceUrl + (resourceUrl.includes('?') ? '&' + pageConfig : '?' + pageConfig)
+  }
+  private getPageParam(pageNumer?: number, pageSize?: number, sortBy?: string, sortOrder?: string): string {
+    let var1: string[] = [];
+    if (Utility.hasValue(pageNumer) && Utility.hasValue(pageSize)) {
+      if (sortBy && sortOrder) {
+        var1.push('num:' + pageNumer)
+        var1.push('size:' + pageSize)
+        var1.push('by:' + sortBy)
+        var1.push('order:' + sortOrder)
+        return "page=" + var1.join(',')
+      } else {
+        var1.push('num:' + pageNumer)
+        var1.push('size:' + pageSize)
+        return "page=" + var1.join(',')
+      }
+    }
+    return ''
   }
 }

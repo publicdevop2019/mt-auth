@@ -2,15 +2,12 @@ package com.mt.access.application.client;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_CLIENT;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_CLIENT;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_CLIENT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_CLIENT;
 import static com.mt.access.domain.model.permission.Permission.CREATE_CLIENT;
 import static com.mt.access.domain.model.permission.Permission.EDIT_CLIENT;
 import static com.mt.access.domain.model.permission.Permission.VIEW_CLIENT;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.client.command.ClientCreateCommand;
-import com.mt.access.application.client.command.ClientPatchCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
@@ -264,41 +261,6 @@ public class ClientApplicationService {
                         throw new DefinedRuntimeException("client cannot be deleted", "1009",
                             HttpResponseCode.BAD_REQUEST);
                     }
-                }
-                return null;
-            }, CLIENT);
-    }
-
-    @AuditLog(actionName = PATCH_TENANT_CLIENT)
-    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CLIENT);
-        ClientId clientId = new ClientId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                ClientQuery clientQuery = new ClientQuery(clientId, projectId1);
-                Optional<Client> client =
-                    DomainRegistry.getClientRepository().query(clientQuery).findFirst();
-                if (client.isPresent()) {
-                    Client original = client.get();
-                    ClientPatchCommand beforePatch = new ClientPatchCommand(original);
-                    ClientPatchCommand afterPatch = CommonDomainRegistry.getCustomObjectSerializer()
-                        .applyJsonPatch(command, beforePatch, ClientPatchCommand.class);
-                    Client replace = original.replace(
-                        afterPatch.getName(),
-                        afterPatch.getPath(),
-                        afterPatch.getDescription(),
-                        afterPatch.getResourceIndicator(),
-                        afterPatch.getResourceIds() != null
-                            ?
-                            afterPatch.getResourceIds().stream().map(ClientId::new)
-                                .collect(Collectors.toSet()) : Collections.emptySet(),
-                        afterPatch.getGrantTypeEnums(),
-                        new TokenDetail(afterPatch.getAccessTokenValiditySeconds(),
-                            original.getTokenDetail().getRefreshTokenValiditySeconds()),
-                        context
-                    );
-                    DomainRegistry.getClientRepository().update(original, replace);
                 }
                 return null;
             }, CLIENT);

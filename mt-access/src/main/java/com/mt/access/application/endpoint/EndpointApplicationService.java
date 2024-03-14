@@ -2,16 +2,13 @@ package com.mt.access.application.endpoint;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ENDPOINT;
-import static com.mt.access.domain.model.audit.AuditActionName.PATCH_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.permission.Permission.CREATE_API;
 import static com.mt.access.domain.model.permission.Permission.EDIT_API;
 import static com.mt.access.domain.model.permission.Permission.VIEW_API;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
-import com.mt.access.application.endpoint.command.EndpointPatchCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
@@ -81,14 +78,14 @@ public class EndpointApplicationService {
     }
 
     public SumPagedRep<EndpointProxyCacheRepresentation> proxyQuery(String pageParam) {
-                SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
-                    .query(new EndpointQuery(pageParam));
-                List<EndpointProxyCacheRepresentation> collect =
-                    endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
-                        .collect(Collectors.toList());
-                EndpointProxyCacheRepresentation.updateDetail(collect);
-                return new SumPagedRep<>(collect,
-                    endpoints.getTotalItemCount());
+        SumPagedRep<Endpoint> endpoints = DomainRegistry.getEndpointRepository()
+            .query(new EndpointQuery(pageParam));
+        List<EndpointProxyCacheRepresentation> collect =
+            endpoints.getData().stream().map(EndpointProxyCacheRepresentation::new)
+                .collect(Collectors.toList());
+        EndpointProxyCacheRepresentation.updateDetail(collect);
+        return new SumPagedRep<>(collect,
+            endpoints.getTotalItemCount());
     }
 
     /**
@@ -104,12 +101,12 @@ public class EndpointApplicationService {
 
     public SumPagedRep<EndpointCardRepresentation> tenantQuery(String queryParam, String pageParam,
                                                                String config) {
-            EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-            DomainRegistry.getPermissionCheckService()
-                .canAccess(endpointQuery.getProjectIds(), VIEW_API);
-            SumPagedRep<Endpoint> rep2 =
-                DomainRegistry.getEndpointRepository().query(endpointQuery);
-            return updateDetail(rep2);
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        SumPagedRep<Endpoint> rep2 =
+            DomainRegistry.getEndpointRepository().query(endpointQuery);
+        return updateDetail(rep2);
     }
 
     private static SumPagedRep<EndpointCardRepresentation> updateDetail(
@@ -135,13 +132,13 @@ public class EndpointApplicationService {
     public SumPagedRep<EndpointSharedCardRepresentation> marketQuery(String queryParam,
                                                                      String pageParam,
                                                                      String config) {
-            EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
-            SumPagedRep<Endpoint> query =
-                DomainRegistry.getEndpointRepository().query(endpointQuery);
-            SumPagedRep<EndpointSharedCardRepresentation> rep =
-                new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
-            updateDetail(rep.getData());
-            return rep;
+        EndpointQuery endpointQuery = EndpointQuery.sharedQuery(queryParam, pageParam, config);
+        SumPagedRep<Endpoint> query =
+            DomainRegistry.getEndpointRepository().query(endpointQuery);
+        SumPagedRep<EndpointSharedCardRepresentation> rep =
+            new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
+        updateDetail(rep.getData());
+        return rep;
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
@@ -178,15 +175,15 @@ public class EndpointApplicationService {
     public SumPagedRep<EndpointCardRepresentation> mgmtQuery(String queryParam, String pageParam,
                                                              String config) {
 
-            EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
-            SumPagedRep<Endpoint> rep =
-                DomainRegistry.getEndpointRepository().query(endpointQuery);
-            return updateDetail(rep);
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        SumPagedRep<Endpoint> rep =
+            DomainRegistry.getEndpointRepository().query(endpointQuery);
+        return updateDetail(rep);
     }
 
     public EndpointMgmtRepresentation mgmtQueryById(String id) {
-            Endpoint endpoint = DomainRegistry.getEndpointRepository().get(new EndpointId(id));
-            return new EndpointMgmtRepresentation(endpoint);
+        Endpoint endpoint = DomainRegistry.getEndpointRepository().get(new EndpointId(id));
+        return new EndpointMgmtRepresentation(endpoint);
     }
 
     public Endpoint tenantQueryById(String projectId, String id) {
@@ -302,39 +299,6 @@ public class EndpointApplicationService {
                     DomainRegistry.getAuditService()
                         .logUserAction(log, DELETE_TENANT_ENDPOINT,
                             endpoint1);
-                }
-                return null;
-            }, ENDPOINT);
-    }
-
-    @AuditLog(actionName = PATCH_TENANT_ENDPOINT)
-    public void tenantPatch(String projectId, String id, JsonPatch command, String changeId) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_API);
-        EndpointId endpointId = new EndpointId(id);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (context) -> {
-                Optional<Endpoint> endpoint = DomainRegistry.getEndpointRepository()
-                    .query(new EndpointQuery(endpointId, projectId1)).findFirst();
-                if (endpoint.isPresent()) {
-                    Endpoint original = endpoint.get();
-                    EndpointPatchCommand beforePatch = new EndpointPatchCommand(original);
-                    EndpointPatchCommand afterPatch =
-                        CommonDomainRegistry.getCustomObjectSerializer()
-                            .applyJsonPatch(command, beforePatch, EndpointPatchCommand.class);
-                    Endpoint update = original.update(
-                        original.getCacheProfileId(),
-                        afterPatch.getName(),
-                        afterPatch.getDescription(),
-                        afterPatch.getPath(),
-                        afterPatch.getMethod(),
-                        original.getCsrfEnabled(),
-                        original.getCorsProfileId(),
-                        original.getReplenishRate(),
-                        original.getBurstCapacity()
-                    );
-                    DomainRegistry.getEndpointRepository().update(original, update);
-                    context.append(new EndpointCollectionModified());
                 }
                 return null;
             }, ENDPOINT);

@@ -1,28 +1,24 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes';
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatMenuTrigger } from '@angular/material/menu';
-import { ActivatedRoute } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { debounceTime } from 'rxjs/operators';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { IProjectAdmin } from 'src/app/misc/interface';
-import { Logger } from 'src/app/misc/logger';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { IOption, IProjectAdmin } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyAdminService } from 'src/app/services/my-admin.service';
-import { MyUserService } from 'src/app/services/my-user.service';
-import { ProjectService } from 'src/app/services/project.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-my-admin',
   templateUrl: './my-admin.component.html',
   styleUrls: ['./my-admin.component.css']
 })
-export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin, IProjectAdmin> implements OnDestroy, OnInit {
-  public formId = "myAdminTableColumnConfig";
+export class MyAdminComponent {
+  private projectId = this.route.getProjectIdFromUrl()
+  private adminUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ADMINS)
   email = new FormControl('', []);
   columnList: any = {
     id: 'ID',
@@ -38,37 +34,23 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
   options: IOption[] = [];
   newAdmins: IOption[] = [];
   @ViewChild(MatMenuTrigger) trigger: MatMenuTrigger;
+  public tableSource: TableHelper<IProjectAdmin> = new TableHelper(this.columnList, 10, this.httpSvc, this.adminUrl);
   constructor(
-    public entitySvc: MyAdminService,
-    public userSvc: MyUserService,
-    public projectSvc: ProjectService,
-    public fis: FormInfoService,
     public httpSvc: HttpProxyService,
+    public route: RouterWrapperService,
     public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public route: ActivatedRoute,
-    public cdRef: ChangeDetectorRef,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 0);
-    const sub = this.projectId.subscribe(id => {
-      this.userSvc.setProjectId(id)
-      this.doRefresh();
-    });
-    this.subs.add(sub);
-    this.initTableSetting()
+    this.tableSource.loadPage(0)
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []
       this.searchPageNumber = 0;
       this.allLoaded = false;
       this.searchAdmin(next)
     });
-    this.deviceSvc.refreshSummary.subscribe(() => {
-      this.doRefresh();
-    })
   }
   private searchAdmin(email: string) {
     this.loading = true;
-    this.userSvc.readEntityByQuery(this.searchPageNumber, this.searchPageSize, email ? ('emailLike:' + email) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
+    this.httpSvc.readEntityByQuery<IProjectAdmin>(this.adminUrl, this.searchPageNumber, this.searchPageSize, email ? ('emailLike:' + email) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
       this.loading = false;
       const temp = result.data.map(e => {
         return <IOption>{
@@ -85,15 +67,8 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
       }
     })
   }
-  ngOnInit(): void {
-  }
   doRefresh() {
-    Logger.debug("refreshing admin dashboard")
-    const search = {
-      value: '',
-      resetPage: false
-    }
-    this.doSearch(search);
+    this.tableSource.refresh()
   }
   updateEmail(event: InputEvent) {
     this.email.setValue((event.target as any).value)
@@ -125,8 +100,16 @@ export class MyAdminComponent extends TenantSummaryEntityComponent<IProjectAdmin
     this.newAdmins = this.newAdmins.filter(e => e.value !== item.value)
   }
   doAdd() {
-    this.userSvc.addAdmin(this.newAdmins[0].value as string).subscribe(() => {
+    this.httpSvc.addAdmin(this.projectId, this.newAdmins[0].value as string, Utility.getChangeId()).subscribe(() => {
       this.doRefresh()
+    })
+  }
+  public delete(id: string) {
+    this.httpSvc.deleteEntityById(this.adminUrl, id, Utility.getChangeId()).subscribe(() => {
+      this.deviceSvc.notify(true)
+      this.tableSource.refresh()
+    }, () => {
+      this.deviceSvc.notify(false)
     })
   }
 }

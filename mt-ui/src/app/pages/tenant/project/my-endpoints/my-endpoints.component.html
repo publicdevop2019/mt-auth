@@ -8,62 +8,55 @@
             </div>
         </div>
         <button mat-raised-button color="primary" (click)="createNewEndpoint()" style="height: 36px;"
-            *ngIf="extractResult(canDo('CREATE_API')) |async ">
+            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_API')) |async">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <mat-icon>add</mat-icon>
                 <div>{{'ADD_API'|translate}}</div>
             </div>
         </button>
     </div>
-    <ng-container *ngIf="extractResult(canDo('VIEW_API'))|async">
+    <ng-container *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_API')) |async">
 
         <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
         </app-search>
-        <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: end;">
-            <app-table-column-config [formId]="formId"></app-table-column-config>
-        </div>
         <div>
             <div class="table-container">
-                <table mat-table [dataSource]="dataSource">
+                <table mat-table [dataSource]="tableSource.dataSource">
                     <ng-container matColumnDef="id">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['id']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
                             <app-copy-field [inputValue]="row.id"></app-copy-field>
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="resourceId">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['resourceId']|translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['resourceId']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
-                            <app-editable-page-select-single *ngIf="allClientList"
-                                [inputValue]="getOption(row.resourceId,allClientList)" [list]="allClientList"
-                                [entitySvc]="clientSvc" (newValue)="doPatch(row.id,$event,'resourceId')" [readOnly]="true">
+                            <app-editable-page-select-single [inputValue]="getOption(row)" [readOnly]="true">
                             </app-editable-page-select-single>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="name">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['name']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
-                            <app-editable-field [inputValue]="row.name" (newValue)="doPatch(row.id,$event,'name')">
-                            </app-editable-field>
+                            {{row.name}}
                         </td>
                     </ng-container>
 
                     <ng-container matColumnDef="path">
                         <th mat-header-cell *matHeaderCellDef> URL </th>
                         <td mat-cell *matCellDef="let row">
-                            <app-editable-field [inputValue]="row.path" (newValue)="doPatch(row.id,$event,'path')">
-                            </app-editable-field>
+                            {{row.path}}
                         </td>
                     </ng-container>
 
 
                     <ng-container matColumnDef="method">
-                        <th mat-header-cell *matHeaderCellDef> {{columnList['method']|translate}} </th>
+                        <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['method']|translate}} </th>
                         <td mat-cell *matCellDef="let row">
                             <ng-container *ngIf="!row.websocket">
-                                <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"
-                                    [list]="httpMethodList" (newValue)="doPatch(row.id,$event,'method')">
+                                <app-editable-select-single [inputValue]="getHttpOption(row.method,httpMethodList)"
+                                    [list]="httpMethodList" [readOnly]="true">
                                 </app-editable-select-single>
                             </ng-container>
                             <ng-container *ngIf="row.websocket">
@@ -73,19 +66,19 @@
                     </ng-container>
 
                     <ng-container matColumnDef="edit">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['edit']|translate}}</th>
                         <td mat-cell *matCellDef="let row" class="table-icon">
                             <mat-icon (click)="editEndpoint(row.id)" [color]="'primary'">edit</mat-icon>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="delete">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['delete']|translate}}</th>
                         <td mat-cell *matCellDef="let row" class="table-icon">
                             <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="expire">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['expire']|translate}}</th>
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['expire']|translate}}</th>
                         <td mat-cell *matCellDef="let row" class="table-icon">
                             <ng-container *ngIf="row.shared">
                                 <mat-icon *ngIf="!row.expired" (click)="doExpireById(row.id)" [color]="'warn'"
@@ -100,7 +93,7 @@
                     </ng-container>
                     <ng-container matColumnDef="expireReason">
                         <th mat-header-cell *matHeaderCellDef class="table-icon">
-                            {{columnList['expireReason']|translate}}
+                            {{tableSource.columnConfig['expireReason']|translate}}
                         </th>
                         <td mat-cell *matCellDef="let row" class="table-icon">
 
@@ -114,19 +107,19 @@
                         </td>
                     </ng-container>
                     <ng-container matColumnDef="report">
-                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['report']|translate}}</th>
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['report']|translate}}</th>
                         <td mat-cell *matCellDef="let row" class="table-icon">
                             <mat-icon (click)="viewReport(row.id)" [color]="'primary'">summarize</mat-icon>
                         </td>
                     </ng-container>
-                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                    <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
                 </table>
             </div>
 
-            <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-                [pageSize]="pageSize" (page)="pageHandler($event)">
-            </mat-paginator>
+            <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
+            [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
+        </mat-paginator>
         </div>
     </ng-container>
 </div>

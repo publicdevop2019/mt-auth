@@ -1,91 +1,95 @@
-<h2 class="flex-row-space-between">{{'API_CENTER' |translate}}</h2>
-<app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
-</app-search>
-<div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: end ">
-    <app-table-column-config [formId]="formId" ></app-table-column-config>
-</div>
-<div >
-    <div class="table-container">
-        <table mat-table [dataSource]="dataSource" matSort (matSortChange)="updateTable($event)">
-
-            <ng-container matColumnDef="id">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['id']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.id"></app-copy-field>
-                </td>
-            </ng-container>
-            <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.name"></app-copy-field>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="projectId">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['projectId']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.projectName"></app-copy-field>
-                </td>
-            </ng-container>
-            <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef > {{columnList['description']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.description"
-                        (newValue)="doPatch(row.id,$event,'description')">
-                    </app-copy-field>
-                </td>
-            </ng-container>
-            <ng-container matColumnDef="type">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <mat-chip-list >
-                        <mat-chip *ngIf="row.secured" color="accent" selected>
-                            {{'PROTECTED_SHARED_ENDPOINT'|translate}}
-                        </mat-chip>
-                        <mat-chip *ngIf="!row.secured">
-                            {{'PUBLIC_SHARED_ENDPOINT'|translate}}
-                        </mat-chip>
-                    </mat-chip-list>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="path">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> URL </th>
-                <td mat-cell *matCellDef="let row">
-                    <app-copy-field [inputValue]="row.path" (newValue)="doPatch(row.id,$event,'path')">
-                    </app-copy-field>
-                </td>
-            </ng-container>
-
-
-            <ng-container matColumnDef="method">
-                <th mat-header-cell *matHeaderCellDef mat-sort-header> {{columnList['method']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
-                    <ng-container *ngIf="!row.websocket">
-                        <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"   [readOnly]="true"
-                            [list]="httpMethodList" (newValue)="doPatch(row.id,$event,'method')">
-                        </app-editable-select-single>
-                    </ng-container>
-                    <ng-container *ngIf="row.websocket">
-                        <span style="margin-left: 16px;">N/A</span>
-                    </ng-container>
-                </td>
-            </ng-container>
-
-            <ng-container matColumnDef="action">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['action']|translate}} </th>
-                <td mat-cell *matCellDef="let row" class="table-icon">
-                    <mat-icon *ngIf="row.shared" (click)="openBottomSheet(row.id)"  [color]="'primary'">subscriptions</mat-icon>
-                    <mat-icon *ngIf="!row.shared" [color]="'warn'">block</mat-icon>
-                </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
-        </table>
+<div class="default-background">
+    <h2 class="flex-row-space-between">{{'API_CENTER' |translate}}</h2>
+    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
+    </app-search>
+    <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: end ">
+        <app-table-column-config [formId]="formId"></app-table-column-config>
     </div>
+    <div>
+        <div class="table-container">
+            <table mat-table [dataSource]="tableSource.dataSource">
 
-    <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-        [pageSize]="pageSize" (page)="pageHandler($event)">
-    </mat-paginator>
+                <ng-container matColumnDef="id">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['id']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.id"></app-copy-field>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.name"></app-copy-field>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="projectId">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['projectId']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.projectName"></app-copy-field>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="description">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['description']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.description"
+                            (newValue)="doPatch(row.id,$event,'description')">
+                        </app-copy-field>
+                    </td>
+                </ng-container>
+                <ng-container matColumnDef="type">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['type']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <mat-chip-list>
+                            <mat-chip *ngIf="row.secured" color="accent" selected>
+                                {{'PROTECTED_SHARED_ENDPOINT'|translate}}
+                            </mat-chip>
+                            <mat-chip *ngIf="!row.secured">
+                                {{'PUBLIC_SHARED_ENDPOINT'|translate}}
+                            </mat-chip>
+                        </mat-chip-list>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="path">
+                    <th mat-header-cell *matHeaderCellDef> URL </th>
+                    <td mat-cell *matCellDef="let row">
+                        <app-copy-field [inputValue]="row.path">
+                        </app-copy-field>
+                    </td>
+                </ng-container>
+
+
+                <ng-container matColumnDef="method">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['method']|translate}} </th>
+                    <td mat-cell *matCellDef="let row">
+                        <ng-container *ngIf="!row.websocket">
+                            <app-editable-select-single [inputValue]="getOption(row.method,httpMethodList)"
+                                [readOnly]="true" [list]="httpMethodList">
+                            </app-editable-select-single>
+                        </ng-container>
+                        <ng-container *ngIf="row.websocket">
+                            <span style="margin-left: 16px;">N/A</span>
+                        </ng-container>
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="action">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['action']|translate}} </th>
+                    <td mat-cell *matCellDef="let row" class="table-icon">
+                        <mat-icon *ngIf="row.shared" (click)="create(row.id)"
+                            [color]="'primary'">subscriptions</mat-icon>
+                        <mat-icon *ngIf="!row.shared" [color]="'warn'">block</mat-icon>
+                    </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
+            </table>
+        </div>
+
+        <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount"
+            [pageIndex]="tableSource.pageNum" [pageSize]="tableSource.pageSize"
+            (page)="tableSource.loadPage($event.pageIndex)">
+        </mat-paginator>
+    </div>
 </div>

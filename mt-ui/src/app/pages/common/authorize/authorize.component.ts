@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { Router, ActivatedRoute } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { IAuthorizeParty } from 'src/app/misc/interface';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
 @Component({
   selector: 'app-authorize',
@@ -11,7 +12,7 @@ import { IAuthorizeParty } from 'src/app/misc/interface';
 })
 export class AuthorizeComponent implements OnInit {
   public authorizeParty: IAuthorizeParty;
-  constructor(public httpProxy: HttpProxyService, private router: Router, private activeRoute: ActivatedRoute) {
+  constructor(public httpProxy: HttpProxyService, private router: RouterWrapperService, private activeRoute: ActivatedRoute) {
     this.activeRoute.queryParamMap.pipe(switchMap((queryMaps) => {
       this.authorizeParty = {
         response_type: queryMaps.get('response_type'),
@@ -36,6 +37,6 @@ export class AuthorizeComponent implements OnInit {
   }
   decline() {
     /** clear authorize party info */
-    this.router.navigate(['/home']);
+    this.router.navProjectHome();
   }
 }

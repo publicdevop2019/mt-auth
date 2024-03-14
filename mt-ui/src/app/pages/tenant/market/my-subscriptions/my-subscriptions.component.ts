@@ -1,45 +1,48 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { Component } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { FormInfoService } from 'mt-form-builder';
 import { map } from 'rxjs/operators';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
+import { IIdBasedEntity } from 'src/app/misc/interface';
+import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
-import { IMySubscription, MySubscriptionsService } from 'src/app/services/my-subscriptions.service';
-
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { environment } from 'src/environments/environment';
+export interface IMySubscription extends IIdBasedEntity {
+  endpointId: string,
+  endpointName: string,
+  projectId: string,
+  projectName: string,
+  replenishRate: number,
+  burstCapacity: number,
+  endpointStatus: string,
+}
 @Component({
   selector: 'app-my-subscriptions',
   templateUrl: './my-subscriptions.component.html',
   styleUrls: ['./my-subscriptions.component.css']
 })
-export class MySubscriptionsComponent extends SummaryEntityComponent<IMySubscription, IMySubscription> implements OnDestroy {
-  public formId = "mySubscriptionTableColumnConfig";
+export class MySubscriptionsComponent {
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS])
   columnList = {
     id: 'ID',
     projectName: 'SUB_PROJECT_NAME',
     endpointName: 'API_NAME',
-    replenishRate: 'REPLENISH_RATE',
-    burstCapacity: 'BURST_CAPACITY',
+    replenishRate: 'REPLENISH_RATE_APPROVE',
+    burstCapacity: 'BURST_CAPACITY_APPROVE',
     endpointStatus: 'ENDPOINT_STATUS',
   }
+  public tableSource: TableHelper<IMySubscription> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: MySubscriptionsService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public fis: FormInfoService,
-    public ts: TranslateService,
+    public device: DeviceService,
+    public translateSvc: TranslateService,
+    public httpSvc: HttpProxyService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 0);
-    //manually handle search since no search component is here
-    this.doSearch({ value: '', key: '', resetPage: false });
-    const sub = this.deviceSvc.refreshSummary.subscribe(() => {
-      this.doSearch({ value: '', key: '', resetPage: false });
-    })
-    this.subs.add(sub)
+    this.tableSource.loadPage(0)
   }
-  getReason(reason:string){
-    return this.ts.get('STATUS_EXPIRED').pipe(map(e=>{
-      return e+reason
+  getReason(reason: string) {
+    return this.translateSvc.get('STATUS_EXPIRED').pipe(map(e => {
+      return e + reason
     }))
   }
 }

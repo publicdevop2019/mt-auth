@@ -1,0 +1,12 @@
+<input #upload type="file" (change)="updateCtrl($event.target.files)" style="display: none;">
+<div *ngIf="isString(value)" class="image-upload-card">
+    <img mat-card-image [src]="value" (click)="upload.click()" class="image-upload-image">
+    <div style="display: flex;width: 100%;justify-content: center;">
+        <mat-icon class="image-upload-icon" color="primary" (click)="updateCtrl()">
+            close
+        </mat-icon>
+    </div>
+</div>
+<div *ngIf="!isString(value)" class="image-upload-empty-card" (click)="upload.click()">
+    <mat-icon class="image-upload-icon">add </mat-icon>
+</div>

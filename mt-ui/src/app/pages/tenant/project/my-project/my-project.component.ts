@@ -4,6 +4,7 @@ import { Subscription } from 'rxjs';
 import { IProjectDashboard } from 'src/app/misc/interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 export interface IMyDashboardInfo {
   totalClients: number;
   totalEndpoint: number;
@@ -18,20 +19,15 @@ export interface IMyDashboardInfo {
 })
 export class MyProjectComponent implements OnDestroy {
   data: IProjectDashboard;
-  public projectId: string;
   private subs: Subscription = new Subscription();
   constructor(
     private projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
-    private route: ActivatedRoute,
+    public router: RouterWrapperService,
   ) {
-    const sub = this.route.paramMap.subscribe(queryMaps => {
-      this.projectId = queryMaps.get('id')
-      this.projectSvc.getMyProject(this.projectId).subscribe(next => {
-        this.data = next;
-      })
-    });
-    this.subs.add(sub)
+    this.projectSvc.getMyProject(this.router.getProjectIdFromUrl()).subscribe(next => {
+      this.data = next;
+    })
   }
 
   ngOnDestroy(): void {

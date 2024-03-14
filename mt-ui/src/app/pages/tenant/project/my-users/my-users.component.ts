@@ -1,25 +1,26 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
+import { Component } from '@angular/core';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyUserService } from 'src/app/services/my-user.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { UserComponent } from '../user/user.component';
-import { IProjectUser } from 'src/app/misc/interface';
+import { IOption, IProjectUser } from 'src/app/misc/interface';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { PermissionHelper } from 'src/app/clazz/permission-helper';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { Utility } from 'src/app/misc/utility';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { take } from 'rxjs/operators';
 @Component({
   selector: 'app-my-users',
   templateUrl: './my-users.component.html',
   styleUrls: ['./my-users.component.css']
 })
-export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser, IProjectUser> implements OnDestroy {
-  public formId = "myUserTableColumnConfig";
-  columnList :any={};
+export class MyUsersComponent {
+  columnList: any = {};
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.USERS)
+  public tableSource: TableHelper<IProjectUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
+  public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   sheetComponent = UserComponent;
   public roleList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
@@ -41,37 +42,31 @@ export class MyUsersComponent extends TenantSummaryEntityComponent<IProjectUser,
     },
   ]
   constructor(
-    public entitySvc: MyUserService,
-    public deviceSvc: DeviceService,
     public httpSvc: HttpProxyService,
-    public fis: FormInfoService,
-    public bottomSheet: MatBottomSheet,
-    public dialog: MatDialog,
     public projectSvc: ProjectService,
-    public route: ActivatedRoute,
+    public route: RouterWrapperService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 2);
-    const sub1 = this.canDo('EDIT_TENANT_USER').subscribe(b => {
-      this.columnList = b.result? {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_TENANT_USER').pipe(take(1)).subscribe(b => {
+      this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         email: 'EMAIL',
         edit: 'EDIT',
-      }:{
+      } : {
         id: 'ID',
         email: 'EMAIL',
       }
-      this.initTableSetting();
     })
-    const sub2 = this.canDo('VIEW_TENANT_USER').subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_TENANT_USER').pipe(take(1)).subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: '', resetPage: true })
+        this.tableSource.loadPage(0)
       }
     })
-    this.subs.add(sub1)
-    this.subs.add(sub2)
   }
-  ngOnDestroy(): void {
-    this.fis.reset(this.formId)
-    super.ngOnDestroy();
+  editUser(id: string) {
+    this.route.navProjectUserDetail(id)
+  }
+  doSearch(config: ISearchEvent) {
+    this.tableSource.query = config.value;
+    this.tableSource.loadPage(0)
   }
 }

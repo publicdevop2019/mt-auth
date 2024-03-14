@@ -4,8 +4,7 @@ import { FormGroup } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
-import { ISumRep } from '../clazz/summary.component';
-import { Utility, logout } from '../misc/utility';
+import { Utility } from '../misc/utility';
 import { IEditBooleanEvent } from '../components/editable-boolean/editable-boolean.component';
 import { IEditEvent } from '../components/editable-field/editable-field.component';
 import { IEditInputListEvent } from '../components/editable-input-multi/editable-input-multi.component';
@@ -15,8 +14,7 @@ import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component'
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
-import { Logger } from '../misc/logger';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
 export interface IPatch {
     op: string,
     path: string,
@@ -83,7 +81,7 @@ export class HttpProxyService {
                 this.expireCheck().subscribe()
             }, (expireAfterSeconds + 31) * 1000)
         } else {
-            logout()
+            Utility.logout()
         }
     }
     clearLogoutCheck() {
@@ -172,15 +170,6 @@ export class HttpProxyService {
     getAvatar() {
         return this._httpClient.get(environment.serverUri + '/auth-svc/users/profile/avatar', { responseType: 'blob', headers: { ignore_400: 'true' } })
     };
-    batchUpdateUserStatus(entityRepo: string, ids: string[], status: 'LOCK' | 'UNLOCK', changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('changeId', changeId)
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo, this.getUserStatusPatch(status, ids), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
     forgetPwd(fg: IForgetPasswordRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
@@ -216,7 +205,7 @@ export class HttpProxyService {
             });
         });
     }
-    revokeClientToken(clientId: number): Observable<boolean> {
+    revokeClientToken(clientId: string): Observable<boolean> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', Utility.getChangeId())
         return new Observable<boolean>(e => {
@@ -505,58 +494,6 @@ export class HttpProxyService {
             });
         });
     };
-    patchEntityById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityAtomicById(entityRepo: string, id: string, fieldName: string, editEvent: IEditEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo, this.getPatchPayloadAtomicNum(id, fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditListEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityInputListById(entityRepo: string, id: string, fieldName: string, editEvent: IEditInputListEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchInputListPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
-    patchEntityBooleanById(entityRepo: string, id: string, fieldName: string, editEvent: IEditBooleanEvent, changeId: string) {
-        let headerConfig = new HttpHeaders();
-        headerConfig = headerConfig.set('Content-Type', 'application/json-patch+json')
-        headerConfig = headerConfig.set('changeId', changeId);
-        if (typeof editEvent.original === 'undefined' && typeof editEvent.next === 'undefined')
-            return new Observable<boolean>(e => e.next(true));
-        return new Observable<boolean>(e => {
-            this._httpClient.patch(entityRepo + '/' + id, this.getPatchBooleanPayload(fieldName, editEvent), { headers: headerConfig }).subscribe(next => {
-                e.next(true)
-            });
-        });
-    }
     getMgmtDashboardInfo() {
         return this._httpClient.get<IMgmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
     }

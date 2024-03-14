@@ -1,38 +1,28 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption, ISumRep } from 'mt-form-builder/lib/classes/template.interface';
-import { filter, map, switchMap, take } from 'rxjs/operators';
-import { TenantSummaryEntityComponent } from 'src/app/clazz/tenant-summary.component';
-import { Utility, uniqueObject } from 'src/app/misc/utility';
-import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
+import { filter, switchMap, take } from 'rxjs/operators';
+import { Utility } from 'src/app/misc/utility';
 import { EndpointAnalysisComponent } from 'src/app/components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dialog/enter-reason-dialog.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { EndpointComponent } from '../endpoint/endpoint.component';
-import { IEndpoint } from 'src/app/misc/interface';
-import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { IDomainContext, IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
+import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
 import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-create-dialog/endpoint-create-dialog.component';
-import { IDomainContext } from 'src/app/clazz/summary.component';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { PermissionHelper } from 'src/app/clazz/permission-helper';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-endpoints',
   templateUrl: './my-endpoints.component.html',
   styleUrls: ['./my-endpoints.component.css']
 })
-export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
-  public formId = "myApiTableColumnConfig";
-  columnList: any = {};
-  params = {};
-  sheetComponent = EndpointComponent;
+export class MyApisComponent {
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   httpMethodList = CONST_HTTP_METHOD;
-  public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -50,35 +40,23 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
     },
   ]
   searchConfigs: ISearchConfig[] = []
-  projectIdSubject = this.route.paramMap.pipe(map(e => e.get('id')))
+  public tableSource: TableHelper<IPermission> = new TableHelper({}, 10, this.httpSvc, this.url);
+  public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
   constructor(
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
-    public entitySvc: MyEndpointService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public clientSvc: MyClientService,
-    public fis: FormInfoService,
     public dialog: MatDialog,
-    public route: ActivatedRoute,
-    private router: Router,
+    public route: RouterWrapperService,
+    public banner: DeviceService,
   ) {
-    super(route, projectSvc, httpSvc, entitySvc, deviceSvc, bottomSheet, fis, 3);
-    const sub = this.projectId.subscribe(id => {
-      this.clientSvc.setProjectId(id)
-      this.params['projectId'] = id;
-      if (this.dataSource)
-        this.dataSource.data = []
-    });
-    const sub2 = this.canDo('VIEW_API').subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API').pipe(take(1)).subscribe(b => {
       if (b.result) {
-        this.doSearch({ value: '', resetPage: true })
+        this.tableSource.loadPage(0)
       }
     })
-    const sub4 = this.canDo('VIEW_API', 'VIEW_CLIENT').subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API', 'VIEW_CLIENT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         //prepare search
-        this.clientSvc.setProjectId(b.projectId)
         this.searchConfigs = [...this.initSearchConfig, {
           searchLabel: 'PARENT_CLIENT',
           searchValue: 'resourceId',
@@ -93,11 +71,8 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         this.searchConfigs = [...this.initSearchConfig]
       }
     })
-    this.subs.add(sub4);
-    this.subs.add(sub2);
-    this.subs.add(sub);
-    const sub3 = this.canDo('EDIT_API').subscribe(b => {
-      this.columnList = b.result ? {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_API').pipe(take(1)).subscribe(b => {
+      this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         name: 'NAME',
         resourceId: 'PARENT_CLIENT',
@@ -115,56 +90,42 @@ export class MyApisComponent extends TenantSummaryEntityComponent<IEndpoint, IEn
         path: 'URL',
         method: 'METHOD',
       }
-      this.initTableSetting();
     })
-    this.subs.add(sub3);
-    this.subs.add(sub2);
-
   }
-  updateSummaryData(next: ISumRep<IEndpoint>) {
-    super.updateSummaryData(next);
-    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
-  }
-
   createNewEndpoint() {
     const dialogRef = this.dialog.open(EndpointCreateDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: this.params }
-        this.router.navigate(['home', 'endpoint-detail'], { state: data })
+        const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: { 'projectId': this.projectId } }
+        this.route.navProjectNewEndpointDetail(data)
       }
     })
   }
   editEndpoint(id: string): void {
-    this.entitySvc.readById(id).subscribe(next => {
-      const data = <IDomainContext<IEndpoint>>{ context: 'edit', from: next, params: this.params }
-      this.router.navigate(['home', 'endpoint-detail'], { state: data })
-    })
+    this.route.navProjectEndpointDetail(id)
   }
-  getOption(value: string, options: IOption[]) {
+  getOption(row: IEndpoint) {
+    return <IOption>{ label: row.resourceName, value: row.resourceId }
+  }
+  getHttpOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
-  }
-  //TODO keep it for now until batch operation added
-  batchOperation() {
-    this.dialog.open(BatchUpdateCorsComponent, {
-      width: '500px',
-      data: {
-        data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
-      },
-    });
   }
   doExpireById(id: string) {
     const dialogRef = this.dialog.open(EnterReasonDialogComponent, { data: {} });
     dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((reason: string) => {
-      return this.entitySvc.expireEndpoint(id, reason, Utility.getChangeId())
+      return this.httpSvc.expireEndpoint(this.projectId, id, reason, Utility.getChangeId())
     })).subscribe(() => {
-      this.entitySvc.notify(true)
-      this.entitySvc.refreshPage()
+      this.banner.notify(true)
+      this.tableSource.refresh()
     }, () => {
-      this.entitySvc.notify(false)
+      this.banner.notify(false)
     })
   }
   viewReport(id: string) {
-    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.projectId } });
+    this.dialog.open(EndpointAnalysisComponent, { data: { endpointId: id, projectId: this.route.getProjectIdFromUrl() } });
+  }
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.url, config.value);
+    this.tableSource.loadPage(0)
   }
 }

@@ -1,5 +1,5 @@
 <div class="default-form-background">
-    <button (click)="goToEndpointDashboard()" mat-button
+    <button (click)="router.navProjectEndpointDashboard()" mat-button
         style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
         <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
@@ -143,9 +143,9 @@
         </mat-tab-group>
         <div style="display: flex; justify-content: center; margin-top: 36px;">
             <button mat-raised-button color="primary" (click)="update()" style="width: 150px;"
-                *ngIf="data.context === 'edit'">{{'UPDATE'|translate}}</button>
+                *ngIf="context === 'EDIT'">{{'UPDATE'|translate}}</button>
             <button mat-raised-button color="primary" (click)="create()" style="width: 150px;"
-                *ngIf="data.context === 'new' || data.context === 'clone'">{{'CREATE'|translate}}</button>
+                *ngIf="context === 'NEW'">{{'CREATE'|translate}}</button>
 
         </div>
     </form>

@@ -33,14 +33,10 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTreeModule } from '@angular/material/tree';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { FormInfoService, MtFormBuilderModule } from 'mt-form-builder';
-import { environment } from '../environments/environment';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CustomLoader } from './clazz/locale/custom-loader';
-import { enUS } from './clazz/locale/en-US';
-import { zhHans } from './clazz/locale/zh-Hans';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { CardNotificationComponent } from './components/card-notification/card-notification.component';
 import { CopyFieldComponent } from './components/copy-field/copy-field.component';
@@ -62,7 +58,6 @@ import { ProgressSpinnerComponent } from './components/progress-spinner/progress
 import { SearchComponent } from './components/search/search.component';
 import { TableColumnConfigComponent } from './components/table-column-config/table-column-config.component';
 import { TreeNodeDirective } from './directive/tree-node.directive';
-import { BatchUpdateCorsComponent } from './components/batch-update-cors/batch-update-cors.component';
 import { MgmtEndpointComponent } from './pages/mgmt/endpoint/endpoint.component';
 import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.component';
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
@@ -83,8 +78,6 @@ import { RoleComponent } from './pages/tenant/project/role/role.component';
 import { UserComponent } from './pages/tenant/project/user/user.component';
 import { WelcomeComponent } from './pages/common/welcome/welcome.component';
 import { AuthService } from './services/auth.service';
-import { DeviceService } from './services/device.service';
-import { EndpointService } from './services/endpoint.service';
 import { HttpProxyService } from './services/http-proxy.service';
 import { CsrfInterceptor } from './services/interceptors/csrf.interceptor';
 import { DeleteConfirmHttpInterceptor } from './services/interceptors/delete-confirm.interceptor';
@@ -93,8 +86,6 @@ import { LoadingInterceptor } from './services/interceptors/loading.interceptor'
 import { OfflineInterceptor } from './services/interceptors/offline.interceptor';
 import { RequestIdHttpInterceptor } from './services/interceptors/request-id.interceptor';
 import { SameRequestHttpInterceptor } from './services/interceptors/same-request.interceptor';
-import { MgmtClientService } from './services/mgmt-client.service';
-import { UserService } from './services/user.service';
 import { CacheComponent } from './pages/tenant/project/cache/cache.component';
 import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 import { CorsComponent } from './pages/tenant/project/cors/cors.component';
@@ -103,14 +94,10 @@ import { SummaryClientComponent } from './pages/mgmt/summary-client/summary-clie
 import { MyCorsComponent } from './pages/tenant/project/my-cors/my-cors.component';
 import { SummaryEndpointComponent } from './pages/mgmt/summary-endpoint/summary-endpoint.component';
 import { MessageCenterComponent } from './pages/mgmt/summary-message/summary-message.component';
-import { SummaryOrgComponent } from './pages/mgmt/summary-org/summary-org.component';
-import { SummaryPermissionComponent } from './pages/mgmt/summary-permission/summary-permission.component';
-import { SummaryPositionComponent } from './pages/mgmt/summary-position/summary-position.component';
 import { SummaryProjectComponent } from './pages/mgmt/summary-project/summary-project.component';
 import { SummaryRevokeTokenComponent } from './pages/mgmt/summary-revoke-token/summary-revoke-token.component';
-import { SummaryRoleComponent } from './pages/mgmt/summary-role/summary-role.component';
 import { SummaryStoredEventAccessComponent } from './pages/mgmt/summary-stored-event-access/summary-stored-event-access.component';
-import { SummaryResourceOwnerComponent } from './pages/mgmt/summary-user/summary-user.component';
+import { SummaryUserComponent } from './pages/mgmt/summary-user/summary-user.component';
 import { MgmtUserComponent } from './pages/mgmt/mgmt-user/mgmt-user.component';
 import { RegistryComponent } from './pages/mgmt/registry/registry.component';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
@@ -130,15 +117,15 @@ import { EnterReasonDialogComponent } from './components/enter-reason-dialog/ent
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
-import { UserNotificationComponent } from './pages/common/user-notification/user-notification.component';
+import { UserMessageComponent } from './pages/common/user-message/user-message.component';
 import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
-import { LanguageService } from './services/language.service';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
 import { PaginatedSelectComponent } from './components/paginated-select/paginated-select.component';
 import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
+import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -146,7 +133,7 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     ClientComponent,
     MgmtUserComponent,
     SummaryClientComponent,
-    SummaryResourceOwnerComponent,
+    SummaryUserComponent,
     NavBarComponent,
     ProgressSpinnerComponent,
     MsgBoxComponent,
@@ -174,21 +161,16 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     RequirePermissionDirective,
     CardNotificationComponent,
     SearchComponent,
-    SummaryRoleComponent,
     RoleComponent,
     CorsComponent,
     MyCorsComponent,
     MyCacheComponent,
     CacheComponent,
     SummaryStoredEventAccessComponent,
-    BatchUpdateCorsComponent,
     TableColumnConfigComponent,
     MyProfileComponent,
     NewProjectComponent,
     ApiCenterComponent,
-    SummaryOrgComponent,
-    SummaryPermissionComponent,
-    SummaryPositionComponent,
     MyClientsComponent,
     MyApisComponent,
     MyRolesComponent,
@@ -217,14 +199,15 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     EnterReasonDialogComponent,
     EndpointComponent,
     EndpointAnalysisComponent,
-    UserNotificationComponent,
+    UserMessageComponent,
     ErrorLookupComponent,
     DashboardComponent,
     ClientCreateDialogComponent,
     EndpointCreateDialogComponent,
     PaginatedSelectComponent,
     RoleCreateDialogComponent,
-    AddPermissionDialogComponent
+    AddPermissionDialogComponent,
+    ImageUploadComponent,
   ],
   imports: [
     BrowserAnimationsModule,
@@ -262,7 +245,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     MatChipsModule,
     MatSortModule,
     MatAutocompleteModule,
-    MtFormBuilderModule,
     OverlayModule,
     MatBadgeModule,
     TranslateModule.forRoot({
@@ -284,7 +266,6 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
     ObjectDetailComponent,
     RoleComponent,
     CorsComponent,
-    BatchUpdateCorsComponent,
     SubscribeRequestComponent,
     CacheComponent],
   providers: [
@@ -327,24 +308,13 @@ import { AddPermissionDialogComponent } from './components/add-permission-dialog
       provide: ErrorStateMatcher,
       useClass: ShowOnDirtyErrorStateMatcher
     },
-    HttpProxyService, MgmtClientService, UserService, AuthService, EndpointService, CustomHttpInterceptor, FormInfoService, DeviceService],
+    HttpProxyService, AuthService, CustomHttpInterceptor],
   bootstrap: [AppComponent]
 })
 export class AppModule {
-  constructor(private translate: TranslateService, private fis: FormInfoService, private httpSvc: HttpProxyService, private langSvc: LanguageService) {
+  constructor(private httpSvc: HttpProxyService) {
     if (this.httpSvc.currentUserAuthInfo) {
       this.httpSvc.updateLogoutTimer()
     }
-    let lang = this.langSvc.currentLanguage()
-    if (lang === 'zhHans')
-      this.fis.i18nLabel = zhHans
-    if (lang === 'enUS')
-      this.fis.i18nLabel = enUS
-    this.translate.onLangChange.subscribe((e) => {
-      if (e.lang === 'zhHans')
-        this.fis.i18nLabel = zhHans
-      if (e.lang === 'enUS')
-        this.fis.i18nLabel = enUS
-    })
   }
 }

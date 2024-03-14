@@ -70,7 +70,7 @@
 # 演示项目
 - [NodeJs](./mt-sample/nodejs)
 - [Spring Boot](./mt-sample/spring-boot)
-# 环境信息
+# 配置
 - 操作系统: Ubuntu  18.04 64bit
 - Java: java version "11.0.14" 2022-01-18 LTS
 - JDK: hirokimatsumoto/alpine-openjdk-11

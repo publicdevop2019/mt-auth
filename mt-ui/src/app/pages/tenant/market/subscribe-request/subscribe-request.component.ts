@@ -1,16 +1,15 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { Component } from '@angular/core';
 import { Logger } from 'src/app/misc/logger';
-import { IDomainContext, IIdBasedEntity } from 'src/app/clazz/summary.component';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { FORM_CONFIG } from 'src/app/form-configs/sub-request.config';
-import { IEndpoint } from 'src/app/misc/interface';
-import { CreateSubRequestService } from 'src/app/services/create-sub-request.service';
+import { IEndpoint, IIdBasedEntity, IQueryProvider } from 'src/app/misc/interface';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
+import { environment } from 'src/environments/environment';
+import { APP_CONSTANT, RESOURCE_NAME } from 'src/app/misc/constant';
+import { DeviceService } from 'src/app/services/device.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { FormGroup, FormControl } from '@angular/forms';
 export interface ISubRequest extends IIdBasedEntity {
   endpointId?: string,
   projectId?: string,
@@ -22,102 +21,114 @@ export interface ISubRequest extends IIdBasedEntity {
   templateUrl: './subscribe-request.component.html',
   styleUrls: ['./subscribe-request.component.css']
 })
-export class SubscribeRequestComponent implements OnDestroy {
-  public formId = 'newSubRequestForm'
+export class SubscribeRequestComponent {
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SUBSCRIPTIONS_REQUEST])
+  context: 'NEW' | 'EDIT' = 'NEW';
   public publicSubNotes: boolean = false;
   public changeId = Utility.getChangeId();
   private allowError: boolean = false;
+  public projectIdErrorMsg: string = undefined;
+  public replenishRateErrorMsg: string = undefined;
+  public burstCapacityErrorMsg: string = undefined;
+  private endpoint: IEndpoint;
+  fg = new FormGroup({
+    projectId: new FormControl(''),
+    replenishRate: new FormControl(''),
+    burstCapacity: new FormControl(''),
+  });
   constructor(
+    public router: RouterWrapperService,
     private projectSvc: ProjectService,
-    private subReqSvc: CreateSubRequestService,
     public httpProxySvc: HttpProxyService,
-    public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<IEndpoint | ISubRequest>,
-    public bottomSheetRef: MatBottomSheetRef<SubscribeRequestComponent>,
+    private deviceSvc: DeviceService,
   ) {
-    this.fis.init(FORM_CONFIG, this.formId)
-    this.fis.queryProvider[this.formId + '_' + 'projectId'] = this.getMyProject();
-    if (data.context === 'new') {
-      if (!(this.data.from as IEndpoint).secured) {
-        this.publicSubNotes = true;
-        this.fis.disableIfMatch(this.formId, ['replenishRate', 'burstCapacity'])
+    const configId = this.router.getSubRequestIdFromUrl();
+    Logger.debug('config id get {}', configId)
+    if (configId === 'template') {
+      if (this.router.getData() === undefined) {
+        this.router.navMarket()
       }
-      this.fis.formGroups[this.formId].valueChanges.subscribe(e => {
+      this.endpoint = (this.router.getData() as IEndpoint)
+      if (!this.endpoint.secured) {
+        this.publicSubNotes = true;
+        this.fg.get('replenishRate').disable()
+        this.fg.get('burstCapacity').disable()
+      }
+      this.fg.valueChanges.subscribe(e => {
         if (this.allowError) {
           this.validateCreateRequestForm()
         }
       })
-    }
-    if (data.context === 'edit') {
-      this.fis.hideIfMatch(this.formId, ['projectId'])
-      this.fis.formGroups[this.formId].valueChanges.subscribe(e => {
+    } else {
+      this.context = 'EDIT'
+      if (this.router.getData() === undefined) {
+        this.router.navSubRequestDashboard()
+      }
+      this.fg.valueChanges.subscribe(e => {
         if (this.allowError) {
           this.validateUpdateRequestForm()
         }
       })
     }
   }
-  ngOnDestroy(): void {
-    this.fis.reset(this.formId)
-  }
   create() {
     this.allowError = true;
     if (this.validateCreateRequestForm()) {
-      const fg = this.fis.formGroups[this.formId]
       const payload = {
         id: '',
-        endpointId: this.data.from.id,
-        projectId: fg.get('projectId').value,
-        replenishRate: +fg.get('replenishRate').value,
-        burstCapacity: +fg.get('burstCapacity').value,
+        endpointId: this.endpoint.id,
+        projectId: this.fg.get('projectId').value,
+        replenishRate: +this.fg.get('replenishRate').value,
+        burstCapacity: +this.fg.get('burstCapacity').value,
         version: 0
       }
-      this.subReqSvc.create(payload, this.changeId)
+      this.httpProxySvc.createEntity(this.url, payload, this.changeId).subscribe(next => {
+        this.deviceSvc.notify(!!next)
+      })
     }
   }
   update() {
     this.allowError = true;
     if (this.validateUpdateRequestForm()) {
-      const fg = this.fis.formGroups[this.formId]
       const payload = {
         id: '',
-        replenishRate: +fg.get('replenishRate').value,
-        burstCapacity: +fg.get('burstCapacity').value,
+        replenishRate: +this.fg.get('replenishRate').value,
+        burstCapacity: +this.fg.get('burstCapacity').value,
         version: 0
       }
-      this.subReqSvc.update(this.data.from.id, payload, this.changeId)
+      this.httpProxySvc.updateEntity(this.url, this.router.getSubRequestIdFromUrl(), payload, this.changeId).subscribe(next => {
+        this.deviceSvc.notify(next)
+      })
     }
   }
 
   private validateCreateRequestForm() {
     Logger.debug('checking create request form')
-    const fg = this.fis.formGroups[this.formId]
-    if ((this.data.from as IEndpoint).secured) {
-      const var0 = Validator.exist(fg.get('projectId').value)
-      this.fis.updateError(this.formId, 'projectId', var0.errorMsg)
+    if (this.endpoint.secured) {
+      const var0 = Validator.exist(this.fg.get('projectId').value)
+      this.projectIdErrorMsg = var0.errorMsg
 
-      Logger.trace('replenishRate value is {}', fg.get('replenishRate').value)
-      const var1 = Validator.exist(fg.get('replenishRate').value)
-      this.fis.updateError(this.formId, 'replenishRate', var1.errorMsg)
+      Logger.trace('replenishRate value is {}', this.fg.get('replenishRate').value)
+      const var1 = Validator.exist(this.fg.get('replenishRate').value)
+      this.replenishRateErrorMsg = var1.errorMsg
 
-      const var2 = Validator.exist(fg.get('burstCapacity').value)
-      this.fis.updateError(this.formId, 'burstCapacity', var2.errorMsg)
+      const var2 = Validator.exist(this.fg.get('burstCapacity').value)
+      this.burstCapacityErrorMsg = var2.errorMsg
       return !var0.errorMsg && !var1.errorMsg && !var2.errorMsg
     } else {
-      const var0 = Validator.exist(fg.get('projectId').value)
-      this.fis.updateError(this.formId, 'projectId', var0.errorMsg)
+      const var0 = Validator.exist(this.fg.get('projectId').value)
+      this.projectIdErrorMsg = var0.errorMsg
       return !var0.errorMsg
     }
   }
 
   private validateUpdateRequestForm() {
     Logger.debug('checking update request form')
-    const fg = this.fis.formGroups[this.formId]
-    const var1 = Validator.exist(fg.get('replenishRate').value)
-    this.fis.updateError(this.formId, 'replenishRate', var1.errorMsg)
+    const var1 = Validator.exist(this.fg.get('replenishRate').value)
+    this.replenishRateErrorMsg = var1.errorMsg
 
-    const var2 = Validator.exist(fg.get('burstCapacity').value)
-    this.fis.updateError(this.formId, 'burstCapacity', var2.errorMsg)
+    const var2 = Validator.exist(this.fg.get('burstCapacity').value)
+    this.burstCapacityErrorMsg = var2.errorMsg
     return !var1.errorMsg && !var2.errorMsg
   }
 
@@ -128,9 +139,7 @@ export class SubscribeRequestComponent implements OnDestroy {
       }
     } as IQueryProvider
   }
-
-  dismiss(event: MouseEvent) {
-    this.bottomSheetRef.dismiss();
-    event.preventDefault();
+  goBack() {
+    this.context === 'EDIT' ? this.router.navSubRequestDashboard() : this.router.navApiMarket()
   }
 }

@@ -1,18 +1,17 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { SummaryEntityComponent } from 'src/app/clazz/summary.component';
+import { Component } from '@angular/core';
+import { TableHelper } from 'src/app/clazz/table-helper';
 import { ISearchConfig } from 'src/app/components/search/search.component';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { IProjectSimple } from 'src/app/misc/interface';
-import { DeviceService } from 'src/app/services/device.service';
-import { ProjectService } from 'src/app/services/project.service';
+import { Utility } from 'src/app/misc/utility';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-summary-project',
   templateUrl: './summary-project.component.html',
-  styleUrls: ['./summary-project.component.css']
+  styleUrls: []
 })
-export class SummaryProjectComponent extends SummaryEntityComponent<IProjectSimple, IProjectSimple> implements OnDestroy {
-  public formId = "projectTableColumnConfig";
+export class SummaryProjectComponent {
   columnList = {
     id: 'ID',
     name: 'NAME',
@@ -29,17 +28,12 @@ export class SummaryProjectComponent extends SummaryEntityComponent<IProjectSimp
       }
     },
   ]
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_PROJECTS)
+  public tableSource: TableHelper<IProjectSimple> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: ProjectService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public fis: FormInfoService,
+    public router: RouterWrapperService,
+    private httpSvc: HttpProxyService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet,fis, 3);
-    this.initTableSetting();
-    this.doSearch({ value: '', resetPage: false })
-  }
-  doRefresh() {
-    this.doSearch({ value: '', resetPage: false })
+    this.tableSource.loadPage(0)
   }
 }

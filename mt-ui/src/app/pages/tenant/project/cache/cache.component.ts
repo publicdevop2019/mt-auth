@@ -1,86 +1,108 @@
-import { Component, Inject, OnDestroy } from '@angular/core';
-import { MatBottomSheetRef, MAT_BOTTOM_SHEET_DATA } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { IDomainContext } from 'src/app/clazz/summary.component';
+import { Component } from '@angular/core';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { FORM_CONFIG } from 'src/app/form-configs/cache.config';
 import { ICacheProfile } from 'src/app/misc/interface';
-import { MyCacheService } from 'src/app/services/my-cache.service';
+import { FormGroup, FormControl } from '@angular/forms';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-cache',
   templateUrl: './cache.component.html',
   styleUrls: ['./cache.component.css']
 })
-export class CacheComponent implements OnDestroy {
-  formId: string='cacheForm';
+export class CacheComponent {
+  nameErrorMsg: string = undefined;
+  allowCacheErrorMsg: string = undefined;
+  private projectId = this.router.getProjectIdFromUrl()
+  private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
+  fg = new FormGroup({
+    id: new FormControl({ value: '', disabled: true }),
+    name: new FormControl(''),
+    description: new FormControl(''),
+    allowCache: new FormControl(''),
+    cacheControl: new FormControl(''),
+    maxAgeValue: new FormControl(''),
+    smaxAgeValue: new FormControl(''),
+    vary: new FormControl(''),
+    expires: new FormControl(''),
+    etagValidation: new FormControl({ value: false, disabled: false }),
+    etagType: new FormControl(''),
+  });
+
+  headerFg = new FormGroup({
+    mustRevalidate: new FormControl({ value: false, disabled: false }),
+    noCache: new FormControl({ value: false, disabled: false }),
+    noStore: new FormControl({ value: false, disabled: false }),
+    noTransform: new FormControl({ value: false, disabled: false }),
+    public: new FormControl({ value: false, disabled: false }),
+    private: new FormControl({ value: false, disabled: false }),
+    proxyRevalidate: new FormControl({ value: false, disabled: false }),
+    maxAge: new FormControl({ value: false, disabled: false }),
+    sMaxage: new FormControl({ value: false, disabled: false }),
+  });
+  data: ICacheProfile = undefined;
+  context: 'NEW' | 'EDIT' = 'NEW';
   allowError: boolean = false;
   changeId: string = Utility.getChangeId();
 
   constructor(
-    public entityService: MyCacheService,
-    public fis: FormInfoService,
-    @Inject(MAT_BOTTOM_SHEET_DATA) public data: IDomainContext<ICacheProfile>,
-    public bottomSheetRef: MatBottomSheetRef<CacheComponent>,
+    public httpSvc: HttpProxyService,
+    public deviceSvc: DeviceService,
+    public router: RouterWrapperService,
   ) {
-    this.fis.init(FORM_CONFIG, this.formId);
-    this.fis.formGroups[this.formId].valueChanges.subscribe(() => {
+    const configId = this.router.getCacheConfigIdFromUrl();
+    if (configId === 'template') {
+    } else {
+      this.context = 'EDIT'
+      if (this.router.getData() === undefined) {
+        this.router.navProjectHome()
+      }
+      this.data = this.router.getData() as ICacheProfile;
+      this.fg.get('id').setValue(this.data.id)
+      this.fg.get('name').setValue(this.data.name)
+      this.fg.get('description').setValue(this.data.description ? this.data.description : '')
+      this.fg.get('allowCache').setValue(this.data.allowCache ? 'yes' : 'no')
+      this.fg.get('cacheControl').setValue(this.data.cacheControl)
+      this.fg.get('maxAgeValue').setValue(this.data.maxAge || '')
+      this.fg.get('smaxAgeValue').setValue(this.data.smaxAge || '')
+      this.fg.get('etagValidation').setValue(this.data.etag)
+      this.fg.get('etagType').setValue(this.data.weakValidation)
+      this.fg.get('expires').setValue(this.data.expires ? this.data.expires : '')
+      this.fg.get('vary').setValue(this.data.vary ? this.data.vary : '')
+    }
+    this.fg.valueChanges.subscribe(() => {
       if (this.allowError) {
         this.validateForm()
       }
     })
-    this.fis.formGroups[this.formId].get('allowCache').valueChanges.subscribe(next => {
-      if (next === 'yes') {
-        this.fis.showIfMatch(this.formId, ['cacheControl', 'vary', 'expires', 'etagValidation']);
-      } else {
-        this.fis.hideIfNotMatch(this.formId, ['name', 'description', 'allowCache']);
-        this.fis.formGroups[this.formId].get('cacheControl').reset([])
-        this.fis.formGroups[this.formId].get('etagValidation').reset(false)
-        this.fis.formGroups[this.formId].get('etagType').reset(false)
-        this.fis.formGroups[this.formId].get('maxAgeValue').reset()
-        this.fis.formGroups[this.formId].get('smaxAgeValue').reset()
-        this.fis.formGroups[this.formId].get('vary').reset()
-        this.fis.formGroups[this.formId].get('expires').reset()
+    this.headerFg.valueChanges.subscribe(() => {
+      if (this.allowError) {
+        this.validateForm()
       }
     })
-    this.fis.formGroups[this.formId].get('cacheControl').valueChanges.subscribe(next => {
-      if (next.includes('max-age')) {
-        this.fis.showIfMatch(this.formId, ['maxAgeValue']);
-      } else {
-        this.fis.hideIfMatch(this.formId, ['maxAgeValue']);
-      }
-      if (next.includes('s-maxage')) {
-        this.fis.showIfMatch(this.formId, ['smaxAgeValue']);
-      } else {
-        this.fis.hideIfMatch(this.formId, ['smaxAgeValue']);
-      }
-    })
-    this.fis.formGroups[this.formId].get('etagValidation').valueChanges.subscribe(next => {
-      if (next) {
-        this.fis.showIfMatch(this.formId, ['etagType']);
-      } else {
-        this.fis.hideIfMatch(this.formId, ['etagType']);
-      }
-    })
-    if (this.data.from) {
-      this.fis.formGroups[this.formId].get('id').setValue(this.data.from.id)
-      this.fis.formGroups[this.formId].get('name').setValue(this.data.from.name)
-      this.fis.formGroups[this.formId].get('description').setValue(this.data.from.description ? this.data.from.description : '')
-      this.fis.formGroups[this.formId].get('allowCache').setValue(this.data.from.allowCache ? 'yes' : 'no')
-      this.fis.formGroups[this.formId].get('cacheControl').setValue(this.data.from.cacheControl)
-      this.fis.formGroups[this.formId].get('maxAgeValue').setValue(this.data.from.maxAge || '')
-      this.fis.formGroups[this.formId].get('smaxAgeValue').setValue(this.data.from.smaxAge || '')
-      this.fis.formGroups[this.formId].get('etagValidation').setValue(this.data.from.etag)
-      this.fis.formGroups[this.formId].get('etagType').setValue(this.data.from.weakValidation)
-      this.fis.formGroups[this.formId].get('expires').setValue(this.data.from.expires ? this.data.from.expires : '')
-      this.fis.formGroups[this.formId].get('vary').setValue(this.data.from.vary ? this.data.from.vary : '')
+  }
+
+  update() {
+    this.allowError = true
+    if (this.validateForm()) {
+      this.httpSvc.updateEntity(this.cacheUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next=>{
+        this.deviceSvc.notify(next)
+      })
     }
   }
-  ngOnDestroy(): void {
-    this.fis.reset(this.formId)
+  create() {
+    this.allowError = true
+    if (this.validateForm()) {
+      this.httpSvc.createEntity(this.cacheUrl, this.convertToPayload(), this.changeId).subscribe(next=>{
+        this.deviceSvc.notify(!!next)
+      })
+    }
   }
-  convertToPayload(): ICacheProfile {
-    let formGroup = this.fis.formGroups[this.formId];
+
+  private convertToPayload(): ICacheProfile {
+    let formGroup = this.fg;
     let cacheControls = (formGroup.get('cacheControl').value as string[])
     let allowCache = formGroup.get('allowCache').value === 'yes';
     return {
@@ -95,33 +117,17 @@ export class CacheComponent implements OnDestroy {
       vary: formGroup.get('vary').value ? formGroup.get('vary').value : null,
       etag: allowCache ? formGroup.get('etagValidation').value : null,
       weakValidation: allowCache ? formGroup.get('etagType').value : null,
-      version: this.data.from && this.data.from.version
+      version: this.data && this.data.version
     }
   }
   private validateForm() {
-    const fg = this.fis.formGroups[this.formId];
+    const fg = this.fg;
     const var0 = Validator.exist(fg.get('name').value)
-    this.fis.updateError(this.formId, 'name', var0.errorMsg)
+    this.nameErrorMsg = var0.errorMsg
 
     const var1 = Validator.exist(fg.get('allowCache').value)
-    this.fis.updateError(this.formId, 'allowCache', var1.errorMsg)
+    this.allowCacheErrorMsg = var1.errorMsg
     return !var0.errorMsg && !var1.errorMsg
   }
 
-  update() {
-    this.allowError = true
-    if (this.validateForm()) {
-      this.entityService.update(this.data.from.id, this.convertToPayload(), this.changeId)
-    }
-  }
-  create() {
-    this.allowError = true
-    if (this.validateForm()) {
-      this.entityService.create(this.convertToPayload(), this.changeId)
-    }
-  }
-  dismiss(event: MouseEvent) {
-    this.bottomSheetRef.dismiss();
-    event.preventDefault();
-  }
 }

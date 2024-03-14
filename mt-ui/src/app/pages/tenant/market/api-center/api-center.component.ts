@@ -1,22 +1,19 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet, MatBottomSheetConfig } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { IDomainContext, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
-import { MgmtClientService } from 'src/app/services/mgmt-client.service';
-import { SharedEndpointService } from 'src/app/services/shared-endpoint.service';
-import { SubscribeRequestComponent } from '../subscribe-request/subscribe-request.component';
-import { IEndpoint } from 'src/app/misc/interface';
-import { CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { Component } from '@angular/core';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { IEndpoint, IOption } from 'src/app/misc/interface';
+import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { environment } from 'src/environments/environment';
+import { Utility } from 'src/app/misc/utility';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
   styleUrls: ['./api-center.component.css']
 })
-export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
+export class ApiCenterComponent {
+  private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SHARED_ENDPOINTS])
   public formId = "sharedEndpointTableColumnConfig";
   columnList = {
     id: 'ID',
@@ -29,7 +26,6 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
     action: 'SUBSCRIBE',
   }
   httpMethodList = CONST_HTTP_METHOD;
-  sheetComponent = SubscribeRequestComponent;
   public allClientList: IOption[];
   private initSearchConfig: ISearchConfig[] = [
     {
@@ -47,26 +43,22 @@ export class ApiCenterComponent extends SummaryEntityComponent<IEndpoint, IEndpo
       source: CONST_HTTP_METHOD
     },
   ]
+  public tableSource: TableHelper<IEndpoint> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   searchConfigs: ISearchConfig[] = this.initSearchConfig
   constructor(
-    public entitySvc: SharedEndpointService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public clientSvc: MgmtClientService,
-    public fis: FormInfoService,
-    public dialog: MatDialog
+    public httpSvc: HttpProxyService,
+    public router: RouterWrapperService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
-  openBottomSheet(id?: string): void {
-    const config = new MatBottomSheetConfig();
-    config.autoFocus = true;
-    config.panelClass = 'fix-height'
-    const endpoint = this.dataSource.data.find(e => e.id === id)!
-    config.data = <IDomainContext<IEndpoint>>{ context: 'new', from: endpoint, params: this.bottomSheetParams };
-    this.bottomSheet.open(this.sheetComponent, config);
+  public create(id: string) {
+    const endpoint = this.tableSource.dataSource.data.find(e => e.id === id)!
+    this.router.navNewSubscribeRequestDetail(endpoint)
+  }
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.columnList, 10, this.httpSvc, this.url, config.value);
+    this.tableSource.loadPage(0)
   }
 }

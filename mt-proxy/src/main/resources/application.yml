@@ -29,10 +29,10 @@ spring:
     password:
     pool:
       max-active: 8
-      max-wait: -1
       max-idle: 8
       min-idle: 0
-    timeout: 30000
+      max-wait: -1
+    timeout: 60000
 ribbon:
   ReadTimeout: 15000
 hystrix:

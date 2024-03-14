@@ -1,11 +1,71 @@
-<div style="display: flex; justify-content: end;">
-    <button mat-button color="primary" (click)="dismiss($event)">
-        <mat-icon>close </mat-icon>
+<div class="default-form-background">
+    <button (click)="router.navProjectCacheConfigsDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+        <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
+    <form [formGroup]="fg" style="margin-top: 24px;">
+        <mat-form-field>
+            <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+            <input matInput formControlName="name">
+        </mat-form-field>
+        <div style="font-size: 12px; color: red; margin-top: -8px;">{{nameErrorMsg|translate}}</div>
+        <mat-form-field>
+            <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
+            <input matInput formControlName="description">
+        </mat-form-field>
+        <div style="display: flex; flex-direction: column;margin-bottom: 24px;">
+            <label style="margin-bottom: 4px;">{{'ENABLE_CACHE'|translate}}<span class="mat-required">*</span></label>
+            <mat-radio-group formControlName="allowCache">
+                <mat-radio-button value="yes" style="margin-right: 12px;">{{'YES'|translate}}</mat-radio-button>
+                <mat-radio-button value="no">{{'NO'|translate}}</mat-radio-button>
+            </mat-radio-group>
+            <div style="font-size: 12px; color: red; margin-top: 4px;">{{allowCacheErrorMsg|translate}}</div>
+        </div>
+        <ng-container *ngIf="fg.get('allowCache').value==='yes'">
+            <div>
+                <section [formGroup]="headerFg">
+                    <label>{{'CACHE_CONTROL_SERVER_HEADER'|translate}}</label>
+                    <p><mat-checkbox formControlName="mustRevalidate">{{'MUST_REVALIDATE'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="noCache">{{'NO_CACHE'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="noStore">{{'NO_STORE'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="noTransform">{{'NO_TRANSFOR'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="public">{{'CACHE_CONTROL_PUBLIC'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="private">{{'CACHE_CONTROL_PRIVATE'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="proxyRevalidate">{{'PROXY_REVALIDATE'|translate}}</mat-checkbox>
+                    </p>
+                    <p><mat-checkbox formControlName="maxAge">{{'CACHE_CONTROL_MAX_AGE'|translate}}</mat-checkbox></p>
+                    <p><mat-checkbox formControlName="sMaxage">{{'SMAX_AGE'|translate}}</mat-checkbox></p>
+                </section>
+            </div>
+            <mat-form-field *ngIf="headerFg.get('maxAge').value">
+                <mat-label>{{'MAX_AGE_HEADER'| translate}}</mat-label>
+                <input matInput formControlName="maxAgeValue">
+            </mat-form-field>
+            <mat-form-field *ngIf="headerFg.get('sMaxage').value">
+                <mat-label>{{'SMAX_AGE_HEADER'| translate}}</mat-label>
+                <input matInput formControlName="smaxAgeValue">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>{{'VARY_HEADER'| translate}}</mat-label>
+                <input matInput formControlName="vary">
+            </mat-form-field>
+            <mat-form-field>
+                <mat-label>{{'EXPIRE_HEADER'| translate}}</mat-label>
+                <input matInput formControlName="expires">
+            </mat-form-field>
+            <div style="margin-bottom: 12px;">
+                <mat-checkbox formControlName="etagValidation">{{'ENABLE_ETAG'|translate}}</mat-checkbox>
+            </div>
+            <div style="margin-bottom: 12px;" *ngIf="fg.get('etagValidation').value">
+                <mat-checkbox formControlName="etagType">{{'WEAK_VALIDATION'|translate}}</mat-checkbox>
+            </div>
+        </ng-container>
+    </form>
+    <div style="display: flex; justify-content: center; margin-top: 36px;">
+        <button mat-raised-button color="primary" (click)="update()" style="width: 150px;"
+            *ngIf="context === 'EDIT'">{{'UPDATE'|translate}}</button>
+        <button mat-raised-button color="primary" (click)="create()" style="width: 150px;"
+            *ngIf="context === 'NEW'">{{'CREATE'|translate}}</button>
+
+    </div>
 </div>
-<lib-factory [formId]="formId"></lib-factory>
-<button mat-raised-button color="primary" *ngIf="data.context === 'edit'" class="app-btn"
-    (click)="update()">{{'UPDATE'|translate}}</button>
-<button mat-raised-button color="primary" class="app-btn"
-    (click)="create()"
-    *ngIf="data.context === 'clone' || data.context === 'new'" >{{'CREATE'|translate}}</button>

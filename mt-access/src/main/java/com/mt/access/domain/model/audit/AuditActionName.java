@@ -3,7 +3,6 @@ public class AuditActionName {
     public static final String DELETE_TENANT_CLIENT = "DELETE_TENANT_CLIENT";
     public static final String CREATE_TENANT_CLIENT = "CREATE_TENANT_CLIENT";
     public static final String UPDATE_TENANT_CLIENT = "UPDATE_TENANT_CLIENT";
-    public static final String PATCH_TENANT_CLIENT = "PATCH_TENANT_CLIENT";
     public static final String CREATE_TENANT_CORS_PROFILE = "CREATE_TENANT_CORS_PROFILE";
     public static final String UPDATE_TENANT_CORS_PROFILE = "UPDATE_TENANT_CORS_PROFILE";
     public static final String DELETE_TENANT_CORS_PROFILE = "DELETE_TENANT_CORS_PROFILE";
@@ -12,7 +11,6 @@ public class AuditActionName {
     public static final String DELETE_TENANT_CACHE_PROFILE = "DELETE_TENANT_CACHE_PROFILE";
     public static final String CREATE_TENANT_ENDPOINT = "CREATE_TENANT_ENDPOINT";
     public static final String UPDATE_TENANT_ENDPOINT = "UPDATE_TENANT_ENDPOINT";
-    public static final String PATCH_TENANT_ENDPOINT = "PATCH_TENANT_ENDPOINT";
     public static final String DELETE_TENANT_ENDPOINT = "DELETE_TENANT_ENDPOINT";
     public static final String DELETE_TENANT_PERMISSION = "DELETE_TENANT_PERMISSION";
     public static final String CREATE_TENANT_PERMISSION = "CREATE_TENANT_PERMISSION";
@@ -26,7 +24,6 @@ public class AuditActionName {
     public static final String UPDATE_TENANT_ROLE = "UPDATE_TENANT_ROLE";
     public static final String DELETE_TENANT_ROLE = "DELETE_TENANT_ROLE";
     public static final String MGMT_LOCK_USER = "MGMT_LOCK_USER";
-    public static final String MGMT_DELETE_USER = "MGMT_DELETE_USER";
     public static final String USER_UPDATE_PWD = "USER_UPDATE_PWD";
     public static final String USER_FORGET_PWD = "USER_FORGET_PWD";
     public static final String USER_RESET_PWD = "USER_RESET_PWD";

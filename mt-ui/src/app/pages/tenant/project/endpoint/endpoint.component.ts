@@ -1,28 +1,25 @@
 import { Component } from '@angular/core';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
 import { combineLatest, Observable } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { IDomainContext } from 'src/app/clazz/summary.component';
-import { MyCacheService } from 'src/app/services/my-cache.service';
-import { MyCorsProfileService } from 'src/app/services/my-cors-profile.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
-import { MyEndpointService } from 'src/app/services/my-endpoint.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { ICacheProfile, IClient, ICorsProfile, IEndpoint, IEndpointCreate } from 'src/app/misc/interface';
+import { ICacheProfile, IClient, ICorsProfile, IDomainContext, IEndpoint, IEndpointCreate, IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
-import { Router } from '@angular/router';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
-import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-endpoint',
   templateUrl: './endpoint.component.html',
   styleUrls: ['./endpoint.component.css']
 })
 export class EndpointComponent {
+  private projectId = this.router.getProjectIdFromUrl()
+  private clientUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CLIENTS)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
   changeId: string = Utility.getChangeId();
   allowError: boolean = false;
 
@@ -36,7 +33,7 @@ export class EndpointComponent {
   corsIdErrorMsg: string = undefined;
 
   performanceWarnning: boolean = false;
-  data: IDomainContext<IEndpoint>;
+  data: IEndpoint;
   options: IOption[] = []
   corsOptions: IOption[] = []
   cacheOptions: IOption[] = []
@@ -63,34 +60,53 @@ export class EndpointComponent {
   corsPageSize = 10;
   cachePageNum = 0;
   cachePageSize = 10;
+
+  context: 'NEW' | 'EDIT' = 'NEW';
+  private cacheUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CACHE)
+  private corsUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.CORS)
   constructor(
-    public endpointSvc: MyEndpointService,
-    public clientSvc: MyClientService,
-    public corsSvc: MyCorsProfileService,
-    public cacheSvc: MyCacheService,
     public projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
-    public router: Router,
-    public interceptor: CustomHttpInterceptor
+    public router: RouterWrapperService,
+    public deviceSvc: DeviceService
   ) {
-    this.data = this.router.getCurrentNavigation().extras.state as IDomainContext<IEndpoint>
-    if (this.data === undefined) {
-      this.goToHome()
+    const endpointId = this.router.getEndpointIdFromUrl();
+    if (endpointId === 'template') {
+      if (this.router.getData() === undefined) {
+        this.router.navProjectHome()
+      }
+      this.data = (this.router.getData() as IDomainContext<IEndpoint>).from
+    } else {
+      this.context = 'EDIT'
+      this.httpProxySvc.readEntityById<IEndpoint>(this.epUrl, endpointId).subscribe(next => {
+        this.data = next;
+        if (this.data.shared) {
+          this.fg.get('type').setValue('PROTECTED_SHARED_API')
+        } else {
+          if (!this.data.external) {
+            this.fg.get('type').setValue('API_PRIVATE')
+          } else {
+            if (this.data.secured) {
+              this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
+            } else {
+              this.fg.get('type').setValue('PUBLIC_APP')
+            }
+          }
+        }
+        this.resume();
+      })
     }
-    clientSvc.setProjectId(this.data.params['projectId'])
-    corsSvc.setProjectId(this.data.params['projectId'])
-    cacheSvc.setProjectId(this.data.params['projectId'])
-    this.httpProxySvc.readEntityByQuery<IClient>(this.clientSvc.entityRepo,
-      this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.data.params['projectId']},resourceIndicator:1`)
+    this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl,
+      this.resourceIdPageNum, this.resourceIdPageSize, `projectIds:${this.router.getProjectIdFromUrl()},resourceIndicator:1`)
       .subscribe(next => {
         this.options = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
-    this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsSvc.entityRepo,
+    this.httpProxySvc.readEntityByQuery<ICorsProfile>(this.corsUrl,
       this.corsPageNum, this.corsPageSize)
       .subscribe(next => {
         this.corsOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
       })
-    this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheSvc.entityRepo,
+    this.httpProxySvc.readEntityByQuery<ICacheProfile>(this.cacheUrl,
       this.cachePageNum, this.cachePageSize)
       .subscribe(next => {
         this.cacheOptions = next.data.map(e => <IOption>{ label: e.name, value: e.id });
@@ -141,62 +157,46 @@ export class EndpointComponent {
         this.fg.get('corsProfile').disable()
       }
     })
-    if (this.data.context === 'new') {
-      const createData = this.router.getCurrentNavigation().extras.state as IDomainContext<IEndpointCreate>
-      this.fg.get('projectId').setValue(createData.from.projectId)
-      this.fg.get('name').setValue(createData.from.name)
-      this.fg.get('type').setValue(createData.from.type)
-    }
-    else if (this.data.context === 'edit') {
-      if (this.data.from.shared) {
-        this.fg.get('type').setValue('PROTECTED_SHARED_API')
-      } else {
-        if (!this.data.from.external) {
-          this.fg.get('type').setValue('API_PRIVATE')
-        } else {
-          if (this.data.from.secured) {
-            this.fg.get('type').setValue('PROTECTED_NONE_SHARED_API')
-          } else {
-            this.fg.get('type').setValue('PUBLIC_APP')
-          }
-        }
-      }
-      this.resume();
+    if (this.context === 'NEW') {
+      const createData = this.router.getData() as IEndpointCreate
+      this.fg.get('projectId').setValue(router.getProjectIdFromUrl())
+      this.fg.get('name').setValue(createData.name)
+      this.fg.get('type').setValue(createData.type)
     }
   }
   resume(): void {
-    if (this.data.context === 'edit') {
+    if (this.context === 'EDIT') {
       const var0: Observable<any>[] = [];
-      var0.push(this.clientSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.resourceId))
-      if (this.data.from.corsProfileId) {
-        var0.push(this.corsSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.corsProfileId))
+      var0.push(this.httpProxySvc.readEntityByQuery<IClient>(this.clientUrl, 0, 1, 'id:' + this.data.resourceId))
+      if (this.data.corsProfileId) {
+        var0.push(this.httpProxySvc.readEntityByQuery(this.corsUrl, 0, 1, 'id:' + this.data.corsProfileId))
       }
-      if (this.data.from.cacheProfileId) {
-        var0.push(this.cacheSvc.readEntityByQuery(0, 1, 'id:' + this.data.from.cacheProfileId))
+      if (this.data.cacheProfileId) {
+        var0.push(this.httpProxySvc.readEntityByQuery(this.cacheUrl, 0, 1, 'id:' + this.data.cacheProfileId))
       }
       combineLatest(var0).pipe(take(1))
         .subscribe(next => {
           let count = 0;
           this.options = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
-          if (this.data.from.corsProfileId) {
+          if (this.data.corsProfileId) {
             count++;
             this.corsOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
           }
-          if (this.data.from.cacheProfileId) {
+          if (this.data.cacheProfileId) {
             count++;
             this.cacheOptions = next[count].data.map(e => <IOption>{ label: e.name, value: e.id });
           }
-          this.fg.patchValue(this.data.from);
-          this.fg.get("csrf").setValue(this.data.from.csrfEnabled);
-          this.fg.get("replenishRate").setValue(this.data.from.replenishRate);
-          this.fg.get("burstCapacity").setValue(this.data.from.burstCapacity);
-          this.fg.get("isWebsocket").setValue(this.data.from.websocket ? 'yes' : 'no');
-          if (this.data.from.corsProfileId) {
+          this.fg.patchValue(this.data);
+          this.fg.get("csrf").setValue(this.data.csrfEnabled);
+          this.fg.get("replenishRate").setValue(this.data.replenishRate);
+          this.fg.get("burstCapacity").setValue(this.data.burstCapacity);
+          this.fg.get("isWebsocket").setValue(this.data.websocket ? 'yes' : 'no');
+          if (this.data.corsProfileId) {
             this.fg.get("cors").setValue(true);
-            this.fg.get("corsProfile").setValue(this.data.from.corsProfileId);
+            this.fg.get("corsProfile").setValue(this.data.corsProfileId);
           }
-          if (this.data.from.cacheProfileId) {
-            this.fg.get("cacheProfile").setValue(this.data.from.cacheProfileId);
+          if (this.data.cacheProfileId) {
+            this.fg.get("cacheProfile").setValue(this.data.cacheProfileId);
           }
         })
 
@@ -240,25 +240,24 @@ export class EndpointComponent {
       cacheProfileId: this.fg.get('method').value === 'GET' ? Utility.noEmptyString(this.fg.get("cacheProfile").value) : null,
       replenishRate: isWs ? null : +this.fg.get("replenishRate").value,
       burstCapacity: isWs ? null : +this.fg.get("burstCapacity").value,
-      version: this.data.from && this.data.from.version
+      version: this.data && this.data.version
     }
-  }
-  goToHome() {
-    this.router.navigate(['home'])
   }
   update() {
     this.allowError = true;
     if (this.validateForm()) {
-      const payload = this.convertToPayload()
-      this.endpointSvc.update(this.data.from.id, payload, this.changeId)
+      this.httpProxySvc.updateEntity(this.epUrl, this.data.id, this.convertToPayload(), this.changeId).subscribe(next => {
+        this.deviceSvc.notify(!!next);
+        this.router.navProjectEndpointDashboard()
+      });
     }
   }
   create() {
     this.allowError = true;
     if (this.validateForm()) {
-      this.httpProxySvc.createEntity(this.endpointSvc.entityRepo, this.convertToPayload(), this.changeId).subscribe(next => {
-        !!next ? this.interceptor.openSnackbar('OPERATION_SUCCESS') : this.interceptor.openSnackbar('OPERATION_FAILED');
-        this.goToEndpointDashboard()
+      this.httpProxySvc.createEntity(this.epUrl, this.convertToPayload(), this.changeId).subscribe(next => {
+        this.deviceSvc.notify(!!next);
+        this.router.navProjectEndpointDashboard()
       });
     }
   }
@@ -321,9 +320,6 @@ export class EndpointComponent {
     return result;
   }
 
-  goToEndpointDashboard() {
-    this.router.navigate(['home', this.projectSvc.viewProject.id, 'my-api'])
-  }
   getIcon() {
     if (this.fg.get('type').value === 'PROTECTED_NONE_SHARED_API') {
       return 'verified_user'

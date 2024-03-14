@@ -180,21 +180,6 @@ public class ClientResource {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping(path = "projects/{projectId}/clients/{id}",
-        consumes = "application/json-patch+json")
-    public ResponseEntity<Void> tenantPatch(
-        @PathVariable String projectId,
-        @PathVariable(name = "id") String id,
-        @RequestBody JsonPatch command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getClientApplicationService()
-            .tenantPatch(projectId, id, command, changeId);
-        return ResponseEntity.ok().build();
-    }
-
     @GetMapping("projects/{projectId}/clients/{id}/autoApprove")
     public ResponseEntity<ClientAutoApproveRepresentation> uiAutoApproveCheck(
         @PathVariable String projectId,

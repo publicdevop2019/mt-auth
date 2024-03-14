@@ -8,7 +8,7 @@
             </div>
         </div>
         <div>
-            <button mat-raised-button color="primary" *ngIf="extractResult(canDo('CREATE_ROLE')) |async "
+            <button mat-raised-button color="primary" *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_ROLE')) |async "
                 (click)="createNewRole()">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <mat-icon>add</mat-icon>
@@ -17,9 +17,9 @@
             </button>
         </div>
     </div>
-    <ng-container *ngIf="extractResult(canDo('VIEW_ROLE'))|async">
+    <ng-container *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_ROLE')) |async ">
         <div class="table-container">
-            <table mat-table [dataSource]="dataSource">
+            <table mat-table [dataSource]="tableSource.dataSource">
                 <ng-container matColumnDef="description">
                     <th mat-header-cell *matHeaderCellDef>
                         {{columnList['description']|translate}}
@@ -62,13 +62,13 @@
                         <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
                     </td>
                 </ng-container>
-                <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
+                <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
             </table>
         </div>
 
-        <mat-paginator [showFirstLastButtons]="true" [length]="totoalItemCount" [pageIndex]="entitySvc.pageNumber"
-            [pageSize]="pageSize" (page)="pageHandler($event)">
-        </mat-paginator>
+        <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
+        [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
+    </mat-paginator>
     </ng-container>
 </div>

@@ -1,25 +1,17 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { uniqueObject } from 'src/app/misc/utility';
-import { BatchUpdateCorsComponent } from 'src/app/components/batch-update-cors/batch-update-cors.component';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
-import { EndpointService } from 'src/app/services/endpoint.service';
-import { MgmtClientService } from 'src/app/services/mgmt-client.service';
-import { MgmtEndpointComponent } from '../endpoint/endpoint.component';
-import { IEndpoint } from 'src/app/misc/interface';
-import { APP_CONSTANT, CONST_HTTP_METHOD } from 'src/app/misc/constant';
+import { Component } from '@angular/core';
+import { Utility } from 'src/app/misc/utility';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { IEndpoint, IOption } from 'src/app/misc/interface';
+import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
-  styleUrls: ['./summary-endpoint.component.css']
+  styleUrls: []
 })
-export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, IEndpoint> implements OnDestroy {
-  public formId = "mgmtEndpointTableColumnConfig";
+export class SummaryEndpointComponent{
   columnList = {
     id: 'ID',
     name: 'NAME',
@@ -29,9 +21,7 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
     method: 'METHOD',
     more: 'MORE',
   }
-  sheetComponent = MgmtEndpointComponent;
   httpMethodList = CONST_HTTP_METHOD;
-  public allClientList: IOption[];
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -58,30 +48,25 @@ export class SummaryEndpointComponent extends SummaryEntityComponent<IEndpoint, 
       source:[]
     }
   ]
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_ENDPOINTS)
+  public tableSource: TableHelper<IEndpoint> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: EndpointService,
-    public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
-    public clientSvc: MgmtClientService,
-    public fis: FormInfoService,
-    public dialog: MatDialog
+    public httpSvc: HttpProxyService,
+    public route: RouterWrapperService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-      this.initTableSetting();
+    this.tableSource.loadPage(0)
   }
-  updateSummaryData(next: ISumRep<IEndpoint>) {
-    super.updateSummaryData(next);
-    this.allClientList = uniqueObject(next.data.map(e => <IOption>{ label: e.resourceName, value: e.resourceId }), 'value');
+  getOption(row: IEndpoint) {
+    return <IOption>{ label: row.resourceName, value: row.resourceId }
   }
-  getOption(value: string, options: IOption[]) {
+  getHttpOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)
   }
-  batchOperation() {
-    const dialogRef = this.dialog.open(BatchUpdateCorsComponent, {
-      width: '500px',
-      data: {
-        data: this.selection.selected.map(e => ({ id: e.id, description: e.description }))
-      },
-    });
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);
+    this.tableSource.loadPage(0)
+  }
+  viewEndpoint(id:string){
+    this.route.navMgmtEndpointDetail(id)
   }
 }

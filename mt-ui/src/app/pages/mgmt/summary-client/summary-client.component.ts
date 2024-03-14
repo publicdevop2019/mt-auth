@@ -1,21 +1,18 @@
-import { Component, OnDestroy } from '@angular/core';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { FormInfoService } from 'mt-form-builder';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
-import { ISumRep, SummaryEntityComponent } from 'src/app/clazz/summary.component';
-import { uniqueObject } from 'src/app/misc/utility';
-import { ISearchConfig } from 'src/app/components/search/search.component';
-import { DeviceService } from 'src/app/services/device.service';
-import { MgmtClientService } from 'src/app/services/mgmt-client.service';
+import { Component } from '@angular/core';
+import { Utility } from 'src/app/misc/utility';
+import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { MgmtClientComponent } from '../client/client.component';
-import { APP_CONSTANT, CONST_GRANT_TYPE } from 'src/app/misc/constant';
-import { IClient } from 'src/app/misc/interface';
+import { APP_CONSTANT, CONST_GRANT_TYPE, RESOURCE_NAME } from 'src/app/misc/constant';
+import { IClient, IOption } from 'src/app/misc/interface';
+import { TableHelper } from 'src/app/clazz/table-helper';
+import { DeviceService } from 'src/app/services/device.service';
+import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
   selector: 'app-summary-client',
   templateUrl: './summary-client.component.html',
 })
-export class SummaryClientComponent extends SummaryEntityComponent<IClient, IClient> implements OnDestroy {
-  public formId = "mgmtClientTableColumnConfig";
+export class SummaryClientComponent {
   columnList = {
     name: 'NAME',
     id: 'ID',
@@ -29,7 +26,6 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
   }
   sheetComponent = MgmtClientComponent;
   public grantTypeList: IOption[] = CONST_GRANT_TYPE;
-  resourceClientList: IOption[] = [];
   searchConfigs: ISearchConfig[] = [
     {
       searchLabel: 'ID',
@@ -77,26 +73,31 @@ export class SummaryClientComponent extends SummaryEntityComponent<IClient, ICli
       source: []
     }
   ]
+  private url = Utility.getMgmtResource(RESOURCE_NAME.MGMT_CLIENTS)
+  public tableSource: TableHelper<IClient> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public entitySvc: MgmtClientService,
-    public fis: FormInfoService,
     public deviceSvc: DeviceService,
-    public bottomSheet: MatBottomSheet,
+    public httpSvc: HttpProxyService,
+    public route: RouterWrapperService,
   ) {
-    super(entitySvc, deviceSvc, bottomSheet, fis, 3);
-    this.initTableSetting();
+    this.tableSource.loadPage(0)
   }
-  updateSummaryData(next: ISumRep<IClient>) {
-    super.updateSummaryData(next);
-    this.resourceClientList = uniqueObject(next.data.filter(ee => ee.resources).flatMap(e => e.resources), 'id').map(e => <IOption>{ label: e.name, value: e.id })
-  }
-  revokeClientToken(clientId: number) {
-    this.entitySvc.revokeClientToken(clientId);
+  revokeClientToken(clientId: string) {
+    this.httpSvc.revokeClientToken(clientId).subscribe(result => {
+      this.deviceSvc.notify(result)
+    })
   }
   getList(inputs: string[]) {
     return inputs.map(e => <IOption>{ label: e, value: e })
   }
-  getResourceList(inputs?: string[]) {
-    return this.resourceClientList.filter(e => inputs?.includes(e.value + ''))
+  getResourceList(inputs?: { name: string, id: string }[]) {
+    return (inputs || []).map(e => ({ label: e.name, value: e.id }))
+  }
+  doSearch(config: ISearchEvent) {
+    this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);
+    this.tableSource.loadPage(0)
+  }
+  view(id: string) {
+    this.route.navMgmtClientDetail(id)
   }
 }

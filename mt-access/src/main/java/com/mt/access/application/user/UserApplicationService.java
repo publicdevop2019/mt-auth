@@ -1,6 +1,5 @@
 package com.mt.access.application.user;
 
-import static com.mt.access.domain.model.audit.AuditActionName.MGMT_DELETE_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_LOCK_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_FORGET_PWD;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_RESET_PWD;
@@ -143,30 +142,6 @@ public class UserApplicationService {
             );
 
     }
-
-    @AuditLog(actionName = MGMT_DELETE_USER)
-    public void remove(String id, String changeId) {
-        UserId userId = new UserId(id);
-        User user = DomainRegistry.getUserRepository().get(userId);
-        if (!DEFAULT_USERID.equals(user.getUserId().getDomainId())) {
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(changeId, (context) -> {
-                    DomainRegistry.getUserRepository().remove(user);
-                    DomainRegistry.getAuditService()
-                        .storeAuditAction(MGMT_DELETE_USER,
-                            user);
-                    DomainRegistry.getAuditService()
-                        .logUserAction(log, MGMT_DELETE_USER,
-                            user);
-                    context.append(new UserDeleted(userId));
-                    return null;
-                }, USER);
-        } else {
-            throw new DefinedRuntimeException("default user cannot be deleted", "1021",
-                HttpResponseCode.BAD_REQUEST);
-        }
-    }
-
 
     @AuditLog(actionName = USER_UPDATE_PWD)
     public void updatePassword(UserUpdatePasswordCommand command, String changeId) {

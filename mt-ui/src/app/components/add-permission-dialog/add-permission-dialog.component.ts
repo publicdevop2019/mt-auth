@@ -1,19 +1,22 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { IOption, IQueryProvider } from 'mt-form-builder/lib/classes/template.interface';
+import { MatDialogRef } from '@angular/material/dialog';
 import { IRole } from 'src/app/pages/tenant/project/my-roles/my-roles.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyPermissionService } from 'src/app/services/my-permission.service';
-import { SharedPermissionService } from 'src/app/services/shared-permission.service';
-import { DialogData } from '../batch-update-cors/batch-update-cors.component';
+import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { RESOURCE_NAME } from 'src/app/misc/constant';
+import { Utility } from 'src/app/misc/utility';
+import { IOption, IQueryProvider } from 'src/app/misc/interface';
 
 @Component({
   selector: 'app-add-permission-dialog',
   templateUrl: './add-permission-dialog.component.html',
   styleUrls: ['./add-permission-dialog.component.css']
 })
-export class AddPermissionDialogComponent implements OnInit {
+export class AddPermissionDialogComponent{
+  public projectId = this.route.getProjectIdFromUrl()
+  private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
+  private sharedPermUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.SHARED_PERMISSION)
   fg = new FormGroup({
     type: new FormControl({ value: 'COMMON_PERMISSIONS', disabled: false }),
     commonPermissionIds: new FormControl({ value: [], disabled: false }),
@@ -27,32 +30,27 @@ export class AddPermissionDialogComponent implements OnInit {
   permErrorMsg = undefined;
   constructor(
     public dialogRef: MatDialogRef<AddPermissionDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    public permissoinSvc: MyPermissionService,
     public httpProxySvc: HttpProxyService,
-    public sharedPermSvc: SharedPermissionService,
+    public route: RouterWrapperService,
   ) { }
-
-  ngOnInit(): void {
-  }
   getShared(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermSvc.entityRepo, num, size, undefined, by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermUrl, num, size, undefined, by, order, header)
       }
     } as IQueryProvider
   }
   getCommonPermissions(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissoinSvc.entityRepo, num, size, "types:COMMON", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.url, num, size, "types:COMMON", by, order, header)
       }
     } as IQueryProvider
   }
   getApiPermissions(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissoinSvc.entityRepo, num, size, "types:API", by, order, header)
+        return this.httpProxySvc.readEntityByQuery<IRole>(this.url, num, size, "types:API", by, order, header)
       }
     } as IQueryProvider
   }

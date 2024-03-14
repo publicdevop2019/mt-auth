@@ -1,13 +1,10 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormGroup, FormControl } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FormInfoService } from 'mt-form-builder';
+import { MatDialogRef } from '@angular/material/dialog';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { MyClientService } from 'src/app/services/my-client.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { DialogData } from '../batch-update-cors/batch-update-cors.component';
 import { ClientCreateDialogComponent } from '../client-create-dialog/client-create-dialog.component';
 
 @Component({
@@ -25,10 +22,7 @@ export class EndpointCreateDialogComponent {
   });
   constructor(
     public dialogRef: MatDialogRef<ClientCreateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData,
-    public clientSvc: MyClientService,
     public httpProxySvc: HttpProxyService,
-    public fis: FormInfoService,
     private psv: ProjectService,
   ) {
     this.fg.valueChanges.subscribe(() => {

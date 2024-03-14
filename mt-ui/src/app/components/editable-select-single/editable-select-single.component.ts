@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { IEditEvent } from '../editable-field/editable-field.component';
-import { IOption } from 'mt-form-builder/lib/classes/template.interface';
+import { IOption } from 'src/app/misc/interface';
 @Component({
   selector: 'app-editable-select-single',
   templateUrl: './editable-select-single.component.html',

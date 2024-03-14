@@ -20,7 +20,6 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1017',explain:'读项目：没有该项目的读权限'},
     {code:'1018',explain:'端口报告查询：报告类型不支持'},
     {code:'1019',explain:'创建客户端：找不到客户端根角色（内部错误）'},
-    {code:'1021',explain:'删除用户：系统默认用户无法被删除'},
     {code:'1024',explain:'租户用户注册：找不到项目默认用户角色'},
     {code:'1025',explain:'新用户注册：激活码错误'},
     {code:'1026',explain:'新用户注册：用户未点击发送注册码'},
