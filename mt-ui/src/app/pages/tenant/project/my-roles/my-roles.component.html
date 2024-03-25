@@ -57,7 +57,7 @@
                     <th mat-header-cell *matHeaderCellDef class="table-icon">
                         {{columnList['delete']|translate}}</th>
                     <td mat-cell *matCellDef="let row" class="table-icon">
-                        <mat-icon *ngIf="editable(row)" (click)="doDeleteById(row.id)" [color]="'warn'">
+                        <mat-icon *ngIf="editable(row)" (click)="doDelete(row.id)" [color]="'warn'">
                             delete_outline</mat-icon>
                         <mat-icon *ngIf="!editable(row)" aria-disabled [color]="'warn'">block</mat-icon>
                     </td>

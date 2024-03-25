@@ -23,6 +23,7 @@ export const zhHans = {
     "UPDATE_PASSWORD": "修改密码",
     "LOGOUT": "登出",
     "ADD": "创建",
+    "ADD_PERM": "添加",
     "ENTER_CLIENT_SECRET": "App Secret",
     "SELECT_A_GRANT_TYPE": "选择授权方式",
     "ENTER_REDIRECT_URI": "登录回调URL",

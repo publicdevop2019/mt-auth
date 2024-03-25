@@ -7,6 +7,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
 import { IOption, IQueryProvider } from 'src/app/misc/interface';
+import { Logger } from 'src/app/misc/logger';
 
 @Component({
   selector: 'app-add-permission-dialog',
@@ -67,6 +68,7 @@ export class AddPermissionDialogComponent{
       this.permErrorMsg = 'PERM_ERROR_MSG'
       return;
     }
+    Logger.debug("perm ids to be added {}",permIds)
     this.dialogRef.close({
       permIds: permIds,
       type: this.fg.get('type').value,

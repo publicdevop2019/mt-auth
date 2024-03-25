@@ -109,7 +109,7 @@ export class MyPermissionsComponent {
     this.nameErrorMsg = var0.errorMsg
     return !var0.errorMsg
   }
-  public delete(id: string) {
+  public doDelete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
       this.deviceSvc.notify(true)
       this.tableSource.refresh()
