@@ -13,7 +13,7 @@ import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
-import com.mt.access.application.endpoint.representation.EndpointRoleRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProtectedRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -142,15 +142,15 @@ public class EndpointApplicationService {
         return rep;
     }
 
-    public SumPagedRep<EndpointRoleRepresentation> tenantRoleQuery(String queryParam,
-                                                                   String pageParam,
-                                                                   String config) {
-        EndpointQuery endpointQuery = EndpointQuery.tenantRoleQuery(queryParam, pageParam, config);
+    public SumPagedRep<EndpointProtectedRepresentation> tenantQueryProtected(String queryParam,
+                                                                             String pageParam,
+                                                                             String config) {
+        EndpointQuery endpointQuery = EndpointQuery.tenantQueryProtected(queryParam, pageParam, config);
         DomainRegistry.getPermissionCheckService()
             .canAccess(endpointQuery.getProjectIds(), VIEW_API);
         SumPagedRep<Endpoint> query =
             DomainRegistry.getEndpointRepository().query(endpointQuery);
-        return new SumPagedRep<>(query, EndpointRoleRepresentation::new);
+        return new SumPagedRep<>(query, EndpointProtectedRepresentation::new);
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {

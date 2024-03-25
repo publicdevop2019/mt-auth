@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -12,7 +12,6 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { DeviceService } from 'src/app/services/device.service';
 import { IOption, IQueryProvider } from 'src/app/misc/interface';
-import { Logger } from 'src/app/misc/logger';
 interface IPermTable {
   id: string,
   name: string, type: string
@@ -77,27 +76,6 @@ export class RoleComponent implements OnDestroy {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IRole>(this.roleUrl, num, size, `types:PROJECT.USER`, by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getShared(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermUrl, num, size, undefined, by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getCommonPermissions(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:COMMON", by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getApiPermissions(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:API", by, order, header)
       }
     } as IQueryProvider
   }

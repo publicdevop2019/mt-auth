@@ -15,7 +15,7 @@ import com.mt.access.application.endpoint.representation.EndpointCardRepresentat
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
-import com.mt.access.application.endpoint.representation.EndpointRoleRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProtectedRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -177,8 +177,8 @@ public class EndpointResource {
         return ResponseEntity.ok(shared);
     }
 
-    @GetMapping(path = "projects/{projectId}/endpoints/role")
-    public ResponseEntity<SumPagedRep<EndpointRoleRepresentation>> tenantRoleQuery(
+    @GetMapping(path = "projects/{projectId}/endpoints/protected")
+    public ResponseEntity<SumPagedRep<EndpointProtectedRepresentation>> tenantRoleQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -187,8 +187,8 @@ public class EndpointResource {
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         queryParam = updateProjectIds(queryParam, projectId);
-        SumPagedRep<EndpointRoleRepresentation> shared = ApplicationServiceRegistry.getEndpointApplicationService()
-            .tenantRoleQuery(queryParam, pageParam, config);
-        return ResponseEntity.ok(shared);
+        SumPagedRep<EndpointProtectedRepresentation> protectedEp = ApplicationServiceRegistry.getEndpointApplicationService()
+            .tenantQueryProtected(queryParam, pageParam, config);
+        return ResponseEntity.ok(protectedEp);
     }
 }

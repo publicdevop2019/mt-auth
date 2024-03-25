@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IEndpoint, IPermission, IQueryProvider } from 'src/app/misc/interface';
+import { IEndpoint, IPermission, IProtectedEndpoint, IQueryProvider } from 'src/app/misc/interface';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
@@ -20,7 +20,7 @@ import { take } from 'rxjs/operators';
 export class MyPermissionsComponent {
   public projectId = this.route.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
-  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS_ROLE)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS_PROTECTED)
   public changeId = Utility.getChangeId();
   public allowError = false;
   public nameErrorMsg: string = undefined;
@@ -78,7 +78,7 @@ export class MyPermissionsComponent {
   getEndpoints(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IEndpoint>(this.epUrl, num, size, query, by, order, header)
+        return this.httpSvc.readEntityByQuery<IProtectedEndpoint>(this.epUrl, num, size, query, by, order, header)
       }
     } as IQueryProvider
   }

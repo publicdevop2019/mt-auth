@@ -51,6 +51,10 @@ export interface IEndpoint extends IIdBasedEntity {
     replenishRate?: number,
     burstCapacity?: number,
 }
+export interface IProtectedEndpoint extends IIdBasedEntity {
+    name: string;
+    permissionId: string;
+}
 export interface IMgmtEndpoint extends IIdBasedEntity {
     resourceId: string;
     resourceName?: string;

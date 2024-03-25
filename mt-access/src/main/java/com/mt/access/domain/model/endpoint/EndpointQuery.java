@@ -142,7 +142,7 @@ public class EndpointQuery extends QueryCriteria {
         return endpointQuery;
     }
 
-    public static EndpointQuery tenantRoleQuery(String queryParam, String pageParam, String config) {
+    public static EndpointQuery tenantQueryProtected(String queryParam, String pageParam, String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
         endpointQuery.updateQueryParam(queryParam);
         endpointQuery.setIsSecured(true);
