@@ -630,4 +630,5 @@ export const zhHans = {
     "PERM_ERROR_MSG": "必填",
     "PLS_SELECT": "请选择",
     "UPDATE_REQUEST": "修改",
+    "API_PRIVATE": "私有API",
 }

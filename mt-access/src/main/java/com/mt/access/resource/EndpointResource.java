@@ -7,7 +7,6 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
@@ -16,6 +15,7 @@ import com.mt.access.application.endpoint.representation.EndpointCardRepresentat
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointRoleRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
@@ -23,7 +23,6 @@ import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -175,6 +174,21 @@ public class EndpointResource {
     ) {
         SumPagedRep<EndpointSharedCardRepresentation> shared = ApplicationServiceRegistry.getEndpointApplicationService()
             .marketQuery(queryParam, pageParam, config);
+        return ResponseEntity.ok(shared);
+    }
+
+    @GetMapping(path = "projects/{projectId}/endpoints/role")
+    public ResponseEntity<SumPagedRep<EndpointRoleRepresentation>> tenantRoleQuery(
+        @PathVariable String projectId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
+        @RequestParam(value = HTTP_PARAM_PAGE, required = false) String pageParam,
+        @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        queryParam = updateProjectIds(queryParam, projectId);
+        SumPagedRep<EndpointRoleRepresentation> shared = ApplicationServiceRegistry.getEndpointApplicationService()
+            .tenantRoleQuery(queryParam, pageParam, config);
         return ResponseEntity.ok(shared);
     }
 }

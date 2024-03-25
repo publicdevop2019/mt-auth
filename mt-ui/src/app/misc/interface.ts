@@ -258,11 +258,6 @@ export interface ISumRep<T> {
     data: T[],
     totalItemCount: number
 }
-export interface IDomainContext<S> {
-    context: 'clone' | 'new' | 'edit';
-    from: S;
-    params: {}
-}
 export interface IIdName extends IIdBasedEntity {
     name: string
 }

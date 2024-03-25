@@ -178,29 +178,29 @@ public class CrossDomainValidationService {
             context.append(event);
             return false;
         }
-        Set<EndpointId> endpointIds =
+        Set<EndpointId> permissionLinkedEpId =
             DomainRegistry.getPermissionRepository().allApiPermissionLinkedEpId();
-        Set<Endpoint> allByQuery = QueryUtility
+        Set<Endpoint> endpoints = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getEndpointRepository().query(e),
-                new EndpointQuery(endpointIds));
-        if (endpointIds.size() != allByQuery.size()) {
+                new EndpointQuery(permissionLinkedEpId));
+        if (permissionLinkedEpId.size() != endpoints.size()) {
 
             ValidationFailedEvent event =
                 new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT");
             Set<EndpointId> foundEpIds =
-                allByQuery.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet());
+                endpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet());
             Set<EndpointId> missing =
-                endpointIds.stream().filter(e -> !foundEpIds.contains(e)).limit(5)
+                permissionLinkedEpId.stream().filter(e -> !foundEpIds.contains(e)).limit(5)
                     .collect(Collectors.toSet());
             event.addMessage(convertDomainIds(missing));
             context.append(event);
             return false;
         }
-        if (allByQuery.stream().anyMatch(e -> !e.getSecured())) {
+        if (endpoints.stream().anyMatch(e -> !e.getSecured())) {
             ValidationFailedEvent event =
                 new ValidationFailedEvent("ENDPOINT_HAS_PERMISSION_MUST_BE_SECURED");
             Set<EndpointId> missing =
-                allByQuery.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
+                endpoints.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
                     .limit(5)
                     .collect(Collectors.toSet());
             event.addMessage(convertDomainIds(missing));

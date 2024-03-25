@@ -13,6 +13,7 @@ import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointRoleRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -139,6 +140,17 @@ public class EndpointApplicationService {
             new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
         updateDetail(rep.getData());
         return rep;
+    }
+
+    public SumPagedRep<EndpointRoleRepresentation> tenantRoleQuery(String queryParam,
+                                                                   String pageParam,
+                                                                   String config) {
+        EndpointQuery endpointQuery = EndpointQuery.tenantRoleQuery(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+        SumPagedRep<Endpoint> query =
+            DomainRegistry.getEndpointRepository().query(endpointQuery);
+        return new SumPagedRep<>(query, EndpointRoleRepresentation::new);
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {

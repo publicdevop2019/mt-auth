@@ -7,7 +7,7 @@ import { EnterReasonDialogComponent } from 'src/app/components/enter-reason-dial
 import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IDomainContext, IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
+import { IEndpoint, IOption, IPermission } from 'src/app/misc/interface';
 import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/constant';
 import { EndpointCreateDialogComponent } from 'src/app/components/endpoint-create-dialog/endpoint-create-dialog.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -47,7 +47,7 @@ export class MyApisComponent {
     public httpSvc: HttpProxyService,
     public dialog: MatDialog,
     public route: RouterWrapperService,
-    public banner: DeviceService,
+    public deviceSvc: DeviceService,
   ) {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API').pipe(take(1)).subscribe(b => {
       if (b.result) {
@@ -96,8 +96,7 @@ export class MyApisComponent {
     const dialogRef = this.dialog.open(EndpointCreateDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        const data = <IDomainContext<IEndpoint>>{ context: 'new', from: next, params: { 'projectId': this.projectId } }
-        this.route.navProjectNewEndpointDetail(data)
+        this.route.navProjectNewEndpointDetail(next)
       }
     })
   }
@@ -115,10 +114,10 @@ export class MyApisComponent {
     dialogRef.afterClosed().pipe(filter(e => e)).pipe(switchMap((reason: string) => {
       return this.httpSvc.expireEndpoint(this.projectId, id, reason, Utility.getChangeId())
     })).subscribe(() => {
-      this.banner.notify(true)
+      this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
-      this.banner.notify(false)
+      this.deviceSvc.notify(false)
     })
   }
   viewReport(id: string) {
@@ -127,5 +126,13 @@ export class MyApisComponent {
   doSearch(config: ISearchEvent) {
     this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.url, config.value);
     this.tableSource.loadPage(0)
+  }
+  public doDelete(id: string) {
+    this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
+      this.deviceSvc.notify(true)
+      this.tableSource.refresh()
+    }, () => {
+      this.deviceSvc.notify(false)
+    })
   }
 }

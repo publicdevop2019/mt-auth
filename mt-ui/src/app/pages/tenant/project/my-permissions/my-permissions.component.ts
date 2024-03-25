@@ -20,7 +20,7 @@ import { take } from 'rxjs/operators';
 export class MyPermissionsComponent {
   public projectId = this.route.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
-  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS_ROLE)
   public changeId = Utility.getChangeId();
   public allowError = false;
   public nameErrorMsg: string = undefined;

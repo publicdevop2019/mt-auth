@@ -142,6 +142,13 @@ public class EndpointQuery extends QueryCriteria {
         return endpointQuery;
     }
 
+    public static EndpointQuery tenantRoleQuery(String queryParam, String pageParam, String config) {
+        EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
+        endpointQuery.updateQueryParam(queryParam);
+        endpointQuery.setIsSecured(true);
+        return endpointQuery;
+    }
+
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
             ID, RESOURCE_ID, PATH, METHOD, AppConstant.QUERY_PROJECT_IDS, PERMISSION_IDS);

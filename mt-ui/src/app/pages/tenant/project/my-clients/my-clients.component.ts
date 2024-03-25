@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IClient, IClientCreate, IDomainContext } from 'src/app/misc/interface';
+import { IClient } from 'src/app/misc/interface';
 import { take } from 'rxjs/operators';
 import { MatDialog } from '@angular/material/dialog';
 import { ClientCreateDialogComponent } from 'src/app/components/client-create-dialog/client-create-dialog.component';
@@ -49,8 +49,7 @@ export class MyClientsComponent{
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
         Logger.debugObj('client basic info', next)
-        const data = <IDomainContext<IClientCreate>>{ context: 'new', from: next, params: {} }
-        this.router.navProjectNewClientsDetail({ state: data })
+        this.router.navProjectNewClientsDetail(next)
       }
     })
   }

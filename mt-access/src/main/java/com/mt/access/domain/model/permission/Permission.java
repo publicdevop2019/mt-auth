@@ -373,7 +373,10 @@ public class Permission extends Auditable {
             .autoCreateForProjectMulti(projectId, new PermissionId(), VIEW_API,
                 apiMgmtId, tenantId, Stream
                     .of(new PermissionId("0Y8MLZDBR4T3"),
-                        new PermissionId("0Y8HHJ47NBDS"), new PermissionId("0Y8HHJ47NBDM"))
+                        new PermissionId("0Y8U1QEXOG06"),
+                        new PermissionId("0Y8HHJ47NBDS"),
+                        new PermissionId("0Y8HHJ47NBDM")
+                    )
                     .collect(Collectors.toSet()));
         Permission p14 = Permission
             .autoCreateForProjectMulti(projectId, new PermissionId(), EDIT_API,
