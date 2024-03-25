@@ -284,6 +284,7 @@ export class NavBarComponent implements OnInit {
       this.httpProxySvc.refreshToken(next).subscribe(newToken => {
         this.httpProxySvc.currentUserAuthInfo = newToken;
         this.projectSvc.viewProject = this.projectSvc.totalProjects.filter(e => e.id === this.httpProxySvc.currentUserAuthInfo.viewTenantId)[0];
+        this.projectSvc.resetPermissionDetails();
         this.projectSvc.findUiPermission(next).subscribe(next => {
           this.projectSvc.permissionDetail.next(next);
           Logger.debug("view project {}", this.projectSvc.viewProject)
@@ -299,7 +300,7 @@ export class NavBarComponent implements OnInit {
       })
     })
   }
-  getPermissionId(projectId: string, name: string[]) {
+  getPermissionId(name: string[]) {
     return this.projectSvc.permissionDetail.pipe(map(_ => _.permissionInfo.filter(e => name.includes(e.name)).map(e => e.id)))
   }
   doLogout() {
