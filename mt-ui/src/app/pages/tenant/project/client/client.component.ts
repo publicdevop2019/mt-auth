@@ -133,7 +133,7 @@ export class ClientComponent {
     })
     if (this.context === 'NEW') {
       const createData = this.data as IClientCreate
-      this.fg.get('projectId').setValue(createData.projectId)
+      this.fg.get('projectId').setValue(this.router.getProjectIdFromUrl())
       this.fg.get('frontOrBackApp').setValue(createData.type)
       this.fg.get('name').setValue(createData.name)
       this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])

@@ -161,7 +161,6 @@ export interface IUpdatePwdCommand {
 }
 export interface IClientCreate {
     name?: string;
-    projectId: string;
     type?: string
 }
 export interface IClient extends IIdName {

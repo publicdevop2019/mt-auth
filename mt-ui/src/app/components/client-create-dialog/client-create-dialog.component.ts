@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Validator } from 'src/app/misc/validator';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { ProjectService } from 'src/app/services/project.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { Utility } from 'src/app/misc/utility';
 
@@ -22,7 +21,6 @@ export class ClientCreateDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ClientCreateDialogComponent>,
     public httpProxySvc: HttpProxyService,
-    private psv: ProjectService,
   ) {
     this.createClientFormGroup.valueChanges.subscribe(() => {
       if (this.allowError) {
@@ -51,7 +49,6 @@ export class ClientCreateDialogComponent {
     const result = this.validateCreateDialogForm()
     if (result) {
       this.dialogRef.close({
-        projectId: this.psv.viewProject.id,
         name: this.createClientFormGroup.get('name').value,
         type: this.createClientFormGroup.get('type').value,
       })

@@ -55,10 +55,12 @@ public class SubRequest extends Auditable {
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         this.projectId = projectId;
         this.endpointId = endpointId;
-        setReplenishRate(replenishRate);
-        setBurstCapacity(burstCapacity);
+
         this.endpointProjectId = endpointProjectId;
-        if (!secured) {
+        if (secured) {
+            setReplenishRate(replenishRate);
+            setBurstCapacity(burstCapacity);
+        } else {
             //public endpoints use default based rate from endpoint owner
             setPublicEndpointReplenishRate();
             setPublicEndpointBurstCapacity();
