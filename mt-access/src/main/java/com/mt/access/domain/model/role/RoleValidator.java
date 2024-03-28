@@ -24,5 +24,8 @@ public class RoleValidator {
                 handler.handleError("reserved names not allowed");
             }
         }
+        if (role.getRoleId().equals(role.getParentId())) {
+            handler.handleError("parent role cannot be same");
+        }
     }
 }
