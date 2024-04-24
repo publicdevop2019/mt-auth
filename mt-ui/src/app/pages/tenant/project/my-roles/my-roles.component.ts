@@ -49,12 +49,12 @@ export class MyRolesComponent {
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_ROLE').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'ROLE_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_ROLE').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'ROLE_MGMT').pipe(take(1)).subscribe(b => {
       this.columnList = b.result ? {
         name: 'NAME',
         description: 'DESCRIPTION',

@@ -26,7 +26,7 @@
             </app-paginated-select>
         </div>
         <button mat-raised-button color="primary"
-            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_PERMISSION')) |async "
+            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'PERMISSION_MGMT')) |async "
             (click)="create()">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <mat-icon>add</mat-icon>
@@ -35,7 +35,7 @@
         </button>
     </form>
     <ng-container
-        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_PERMISSION')) |async ">
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'PERMISSION_MGMT')) |async ">
         <div style="margin: 16px 0px 24px 0px">
             <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
                 {{'MY_PERMISSION_DASHBOARD'|translate}}

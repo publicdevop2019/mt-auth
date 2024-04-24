@@ -9,7 +9,7 @@
             </div>
         </div>
         <button mat-raised-button color="primary" (click)="createNewClient()" style="height: 36px;"
-            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_CLIENT')) |async">
+            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CLIENT_MGMT')) |async">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <mat-icon>add</mat-icon>
                 <div>{{'ADD_CLIENT'|translate}}</div>
@@ -17,7 +17,7 @@
         </button>
     </div>
     <div class="table-container"
-        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_CLIENT')) |async"
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CLIENT_MGMT')) |async"
         style="margin-top: 16px;">
         <table mat-table [dataSource]="tableSource.dataSource">
             <ng-container matColumnDef="name" sticky>

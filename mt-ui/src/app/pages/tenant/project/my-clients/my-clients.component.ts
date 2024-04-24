@@ -31,7 +31,7 @@ export class MyClientsComponent{
     private router: RouterWrapperService,
     public dialog: MatDialog,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_CLIENT').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'CLIENT_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         name: 'NAME',
         types: 'TYPES',

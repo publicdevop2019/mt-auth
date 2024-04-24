@@ -49,12 +49,12 @@ export class MyApisComponent {
     public route: RouterWrapperService,
     public deviceSvc: DeviceService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_API', 'VIEW_CLIENT').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT', 'CLIENT_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         //prepare search
         this.searchConfigs = [...this.initSearchConfig, {
@@ -71,7 +71,7 @@ export class MyApisComponent {
         this.searchConfigs = [...this.initSearchConfig]
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_API').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         name: 'NAME',

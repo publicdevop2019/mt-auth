@@ -41,7 +41,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "modified_by, " +
         "version, " +
         "name, " +
-        "parent_id, " +
         "domain_id, " +
         "project_id, " +
         "shared, " +
@@ -93,8 +92,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "p.modified_at = ? ," +
         "p.modified_by = ?, " +
         "p.version = ?, " +
-        "p.name = ?, " +
-        "p.parent_id = ? " +
+        "p.name = ? " +
         "WHERE p.id = ? AND p.version = ? ";
 
     @Override
@@ -108,9 +106,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
                 permission.getModifiedBy(),
                 0,
                 permission.getName(),
-                permission.getParentId() == null ? null :
-                    permission.getParentId().getDomainId(),
-
                 permission.getPermissionId().getDomainId(),
                 permission.getProjectId().getDomainId(),
                 permission.getShared(),
@@ -149,15 +144,13 @@ public class JdbcPermissionRepository implements PermissionRepository {
                     ps.setString(5, "NOT_HTTP");
                     ps.setLong(6, 0L);
                     ps.setString(7, permission.getName());
-                    ps.setString(8, permission.getParentId() == null ? null :
-                        permission.getParentId().getDomainId());
-                    ps.setString(9, permission.getPermissionId().getDomainId());
-                    ps.setString(10, permission.getProjectId().getDomainId());
-                    ps.setBoolean(11, permission.getShared());
-                    ps.setBoolean(12, permission.getSystemCreate());
-                    ps.setString(13, permission.getTenantId() == null ? null :
+                    ps.setString(8, permission.getPermissionId().getDomainId());
+                    ps.setString(9, permission.getProjectId().getDomainId());
+                    ps.setBoolean(10, permission.getShared());
+                    ps.setBoolean(11, permission.getSystemCreate());
+                    ps.setString(12, permission.getTenantId() == null ? null :
                         permission.getTenantId().getDomainId());
-                    ps.setString(14, permission.getType().name());
+                    ps.setString(13, permission.getType().name());
                 });
         //for linked tables
         List<BatchInsertKeyValue> linkedPermList = new ArrayList<>();
@@ -344,7 +337,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
                 updated.getModifiedBy(),
                 updated.getVersion() + 1,
                 updated.getName(),
-                Optional.ofNullable(updated.getParentId()).map(DomainId::getDomainId).orElse(null),
                 updated.getId(),
                 updated.getVersion()
             );
@@ -482,8 +474,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         rs.getString("name"),
                         new PermissionId(rs.getString("domain_id")),
-                        Checker.notNull(rs.getString("parent_id")) ?
-                            new PermissionId(rs.getString("parent_id")) : null,
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "shared"),
                         DatabaseUtility.getNullableBoolean(rs, "system_create"),

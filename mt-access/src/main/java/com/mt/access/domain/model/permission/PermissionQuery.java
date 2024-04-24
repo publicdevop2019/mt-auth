@@ -62,15 +62,6 @@ public class PermissionQuery extends QueryCriteria {
         return permissionQuery;
     }
 
-    public static PermissionQuery internalQuery(ProjectId projectId, String name) {
-        PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.projectIds = Collections.singleton(projectId);
-        permissionQuery.names = Collections.singleton(name);
-        permissionQuery.setPageConfig(PageConfig.defaultConfig());
-        permissionQuery.setQueryConfig(QueryConfig.countRequired());
-        return permissionQuery;
-    }
-
     public static PermissionQuery uiPermissionQuery(ProjectId projectId, Set<String> names) {
         Validator.notNull(projectId);
         PermissionQuery permissionQuery = new PermissionQuery();

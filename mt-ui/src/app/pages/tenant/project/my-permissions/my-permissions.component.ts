@@ -45,12 +45,12 @@ export class MyPermissionsComponent {
     public deviceSvc: DeviceService,
     public route: RouterWrapperService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_PERMISSION').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'PERMISSION_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_PERMISSION').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'PERMISSION_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         name: 'PERM_NAME',

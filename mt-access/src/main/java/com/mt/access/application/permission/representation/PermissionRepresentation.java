@@ -23,9 +23,6 @@ public class PermissionRepresentation {
         this.name = permission.getName();
         this.type = permission.getType();
         this.systemCreate = permission.getSystemCreate();
-        if (permission.getParentId() != null) {
-            this.parentId = permission.getParentId().getDomainId();
-        }
         if (permission.getLinkedApiPermissionIds() != null) {
             this.linkedApiPermissionIds =
                 permission.getLinkedApiPermissionIds().stream().map(DomainId::getDomainId)

@@ -32,9 +32,6 @@ public class PermissionCardRepresentation {
         this.name = permission.getName();
         this.systemCreate = permission.getSystemCreate();
         this.type = permission.getType();
-        if (permission.getParentId() != null) {
-            this.parentId = permission.getParentId().getDomainId();
-        }
         this.id = permission.getPermissionId().getDomainId();
         if (permission.getTenantId() != null) {
             this.tenantId = permission.getTenantId().getDomainId();

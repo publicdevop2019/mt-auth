@@ -6,14 +6,14 @@
         <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'CREATE_CORS_SUB'|translate}}</div>
     </div>
     <button mat-raised-button color="primary" (click)="create()"  style="height: 36px;"
-        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_CORS')) |async ">
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'API_MGMT')) |async ">
         <div style="display: flex; justify-content: space-between; align-items: center;">
             <mat-icon>add</mat-icon>
             <div>{{'ADD'|translate}}</div>
         </div>
     </button>
 </div>
-<ng-container *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_CORS')) |async ">
+<ng-container *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'API_MGMT')) |async ">
     <div>
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">

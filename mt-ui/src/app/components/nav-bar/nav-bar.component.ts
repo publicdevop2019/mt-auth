@@ -112,20 +112,20 @@ export class NavBarComponent implements OnInit {
     },
 
   ];
-  epPermissions = ['CREATE_API', 'EDIT_API', 'VIEW_API']
-  cachePermissions = ['CREATE_CACHE', 'EDIT_CACHE', 'VIEW_CACHE']
-  corsPermissions = ['CREATE_CORS', 'EDIT_CORS', 'VIEW_CORS']
-  clientPermissions = ['CREATE_CLIENT', 'EDIT_CLIENT', 'VIEW_CLIENT']
-  projectPermissions = ['VIEW_PROJECT_INFO', 'EDIT_PROJECT_INFO']
-  userPermissions = ['EDIT_TENANT_USER', 'VIEW_TENANT_USER']
-  rolePermissions = ['CREATE_ROLE', 'EDIT_ROLE', 'VIEW_ROLE']
-  adminPermissions = ['VIEW_PROJECT_INFO']
+  epPermissions = ['API_MGMT']
+  cachePermissions = ['API_MGMT']
+  corsPermissions = ['API_MGMT']
+  clientPermissions = ['CLIENT_MGMT']
+  projectPermissions = ['PROJECT_INFO_MGMT']
+  userPermissions = ['USER_MGMT']
+  rolePermissions = ['ROLE_MGMT']
+  adminPermissions = ['PROJECT_INFO_MGMT']
   menuTenant: INavElement[] = [
     {
       link: 'my-project',
       display: 'MY_PROJECT',
       icon: 'leaderboard',
-      authName: ['VIEW_PROJECT_INFO', 'EDIT_PROJECT_INFO'],
+      authName: ['PROJECT_INFO_MGMT'],
       params: {
       },
     },
@@ -133,7 +133,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-client',
       display: 'MY_CLIENTS',
       icon: 'apps',
-      authName: ['CREATE_CLIENT', 'EDIT_CLIENT', 'VIEW_CLIENT'],
+      authName: ['CLIENT_MGMT'],
       params: {
       },
     },
@@ -141,7 +141,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-permission',
       display: 'MY_PERMISSION_DASHBOARD',
       icon: 'policy',
-      authName: ['CREATE_PERMISSION', 'EDIT_PERMISSION', 'VIEW_PERMISSION'],
+      authName: ['PERMISSION_MGMT'],
       params: {
       },
     },
@@ -149,7 +149,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-role',
       display: 'MY_ROLE_DASHBOARD',
       icon: 'person',
-      authName: ['CREATE_ROLE', 'EDIT_ROLE', 'VIEW_ROLE'],
+      authName: ['ROLE_MGMT'],
       params: {
       },
     },
@@ -157,7 +157,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-user',
       display: 'MY_USER_DASHBOARD',
       icon: 'people',
-      authName: ['EDIT_TENANT_USER', 'VIEW_TENANT_USER'],
+      authName: ['USER_MGMT'],
       params: {
       },
     },
@@ -165,7 +165,7 @@ export class NavBarComponent implements OnInit {
       link: 'my-admin',
       display: 'MY_ADMIN_DASHBOARD',
       icon: 'admin_panel_settings',
-      authName: ['VIEW_PROJECT_INFO'],
+      authName: ['PROJECT_INFO_MGMT'],
       params: {
       },
     },

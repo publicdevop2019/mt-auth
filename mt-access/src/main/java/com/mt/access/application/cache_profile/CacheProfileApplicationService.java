@@ -3,9 +3,7 @@ package com.mt.access.application.cache_profile;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_CACHE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_CACHE_PROFILE;
-import static com.mt.access.domain.model.permission.Permission.CREATE_CACHE;
-import static com.mt.access.domain.model.permission.Permission.EDIT_CACHE;
-import static com.mt.access.domain.model.permission.Permission.VIEW_CACHE;
+import static com.mt.access.domain.model.permission.Permission.API_MGMT;
 
 import com.mt.access.application.cache_profile.command.CreateCacheProfileCommand;
 import com.mt.access.application.cache_profile.command.ReplaceCacheProfileCommand;
@@ -35,7 +33,7 @@ public class CacheProfileApplicationService {
                                                                    String pageParam,
                                                                    String config) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_CACHE);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, API_MGMT);
         SumPagedRep<CacheProfile> users = DomainRegistry.getCacheProfileRepository()
             .query(CacheProfileQuery.tenantQuery(queryParam, pageParam, config));
         return new SumPagedRep<>(users, CacheProfileCardRepresentation::new);
@@ -45,7 +43,7 @@ public class CacheProfileApplicationService {
     public String tenantCreate(String rawProjectId, CreateCacheProfileCommand command,
                                String changeId) {
         ProjectId projectId = new ProjectId(rawProjectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_CACHE);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, API_MGMT);
         CacheProfileId cacheProfileId = new CacheProfileId();
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfile cacheProfile = new CacheProfile(
@@ -72,7 +70,7 @@ public class CacheProfileApplicationService {
     public void tenantUpdate(String id, ReplaceCacheProfileCommand command, String changeId) {
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         ProjectId projectId = new ProjectId(command.getProjectId());
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_CACHE);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, API_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfileQuery cacheProfileQuery =
                 CacheProfileQuery.tenantQuery(projectId, cacheProfileId);
@@ -100,7 +98,7 @@ public class CacheProfileApplicationService {
     @AuditLog(actionName = DELETE_TENANT_CACHE_PROFILE)
     public void tenantRemove(String projectId, String id, String changeId) {
         ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId1, EDIT_CACHE);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, API_MGMT);
         CacheProfileId cacheProfileId = new CacheProfileId(id);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             CacheProfileQuery cacheProfileQuery =

@@ -1,7 +1,7 @@
 package com.mt.access.application.project;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PROJECT;
-import static com.mt.access.domain.model.permission.Permission.VIEW_PROJECT_INFO;
+import static com.mt.access.domain.model.permission.Permission.PROJECT_INFO_MGMT;
 
 import com.mt.access.application.project.command.ProjectCreateCommand;
 import com.mt.access.application.project.representation.DashboardRepresentation;
@@ -115,7 +115,7 @@ public class ProjectApplicationService {
         //second check has read project access to current project
         PermissionQuery permissionQuery = PermissionQuery
             .ofProjectWithTenantIds(tenantIds,
-                VIEW_PROJECT_INFO);
+                PROJECT_INFO_MGMT);
         Set<PermissionId> allByQuery = QueryUtility
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().queryPermissionId(e),
                 permissionQuery);
