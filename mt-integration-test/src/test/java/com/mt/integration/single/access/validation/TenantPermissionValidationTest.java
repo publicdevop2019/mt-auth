@@ -5,20 +5,18 @@ import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.args.LinkedApiIdArgs;
 import com.mt.helper.args.NameArgs;
-import com.mt.helper.args.PermissionParentIdArgs;
 import com.mt.helper.args.ProjectIdArgs;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
-import com.mt.helper.pojo.PatchCommand;
 import com.mt.helper.pojo.Permission;
 import com.mt.helper.pojo.Project;
 import com.mt.helper.pojo.Role;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.PermissionUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.Utility;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +32,7 @@ import org.junit.jupiter.params.provider.ArgumentsSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
@@ -85,6 +84,7 @@ public class TenantPermissionValidationTest {
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void validation_create_valid() {
         Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
@@ -98,16 +98,6 @@ public class TenantPermissionValidationTest {
     public void validation_create_name(String name, HttpStatus httpStatus) {
         Permission permission = PermissionUtility.createRandomPermissionObj();
         permission.setName(name);
-        ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(httpStatus, response1.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(PermissionParentIdArgs.class)
-    public void validation_create_parent_id(String name, HttpStatus httpStatus) {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        permission.setParentId(name);
         ResponseEntity<Void> response1 =
             PermissionUtility.createTenantPermission(tenantContext, permission);
         Assertions.assertEquals(httpStatus, response1.getStatusCode());

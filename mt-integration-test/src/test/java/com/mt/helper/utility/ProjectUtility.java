@@ -68,13 +68,13 @@ public class ProjectUtility {
         project.setId(HttpUtility.getId(tenantProject));
         TestUtility.createProjectDefaultWait();
         log.info("after default timeout, check project status");
-        ResponseEntity<ProjectStatus> statusCode =
+        ResponseEntity<ProjectStatus> projectStatus =
             checkProjectReady(tenantUser, project);
-        if (!statusCode.getStatusCode().is2xxSuccessful()) {
-            log.info("project status check failed, status {} body {}", statusCode.getStatusCode().value(), statusCode.getBody());
+        if (!projectStatus.getStatusCode().is2xxSuccessful()) {
+            log.info("project status check failed, status {} body {}", projectStatus.getStatusCode().value(), projectStatus.getBody());
         }
-        log.info("project status {}", Objects.requireNonNull(statusCode.getBody()).isStatus());
-        Assertions.assertTrue(statusCode.getBody().isStatus());
+        log.info("project status {}", Objects.requireNonNull(projectStatus.getBody()).isStatus());
+        Assertions.assertTrue(projectStatus.getBody().isStatus());
         return project;
     }
 }

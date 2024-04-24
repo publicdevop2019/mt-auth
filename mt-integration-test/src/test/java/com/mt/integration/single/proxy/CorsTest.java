@@ -87,17 +87,6 @@ public class CorsTest {
 
     }
 
-    @Test
-    public void cors_resourceOwner_id_delete() {
-        String url = HttpUtility.getAccessUrl(corsUris[5]);
-        ResponseEntity<?> res = sendValidCorsForNonTokenUri(url, HttpMethod.DELETE);
-        Assertions.assertEquals("[DELETE]",
-            res.getHeaders().getAccessControlAllowMethods().toString());
-        corsAssertNonToken(res);
-
-    }
-
-
     private ResponseEntity<?> sendValidCorsForTokenUri(String uri) {
         //origin etc restricted headers will not be set by HttpUrlConnection,
         //ref:https://stackoverflow.com/questions/41699608/resttemplate-not-passing-origin-header

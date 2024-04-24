@@ -48,7 +48,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "tenant_id, " +
         "type" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String INSERT_LINKED_PERMISSION_MAP_SQL =
         "INSERT INTO linked_permission_ids_map " +
             "(" +
@@ -72,7 +72,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
     private static final String BATCH_DELETE_LINKED_API_PERMISSION_BY_ID_AND_DOMAIN_ID_SQL =
         "DELETE FROM linked_permission_ids_map lpm WHERE lpm.id = ? AND lpm.domain_id IN (%s)";
     private static final String FIND_ALL_ENDPOINT_ID_USED =
-        "SELECT DISTINCT p.name FROM permission p WHERE p.type='API' and p.parent_id IS NOT NULL";
+        "SELECT DISTINCT p.name FROM permission p WHERE p.type='API'";
     private static final String DYNAMIC_COUNT_QUERY_SQL = "SELECT COUNT(*) AS count FROM permission p WHERE %s";
     private static final String DYNAMIC_DATA_QUERY_SQL =
         "SELECT temp.*, lpm.domain_id AS lp_id FROM " +
@@ -84,7 +84,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "SELECT DISTINCT p.domain_id FROM permission p";
     private static final String COUNT_PROJECT_CREATED_TOTAL =
         "SELECT COUNT(*) AS count FROM permission p " +
-            "WHERE p.project_id = ? and p.type = 'COMMON' and p.parent_id IS NOT NULL";
+            "WHERE p.project_id = ? and p.type = 'COMMON'";
     private static final String FIND_LINKED_API_PERMISSION_FOR_SQL =
         "SELECT lpm.domain_id FROM permission p " +
             "RIGHT JOIN linked_permission_ids_map lpm ON p.id = lpm.id WHERE p.domain_id IN (%s)";
@@ -178,14 +178,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
             String byDomainIds = String.format("p.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNull(query.getParentId())) {
-            String byParentId = "p.parent_id = ?";
-            whereClause.add(byParentId);
-        }
-        if (Checker.notNull(query.getParentIdNull())) {
-            String byParentId = "p.parent_id IS NULL";
-            whereClause.add(byParentId);
-        }
         if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());
             String byProjectIds = String.format("p.project_id IN (%s)", inClause);
@@ -217,10 +209,6 @@ public class JdbcPermissionRepository implements PermissionRepository {
         if (Checker.notNullOrEmpty(query.getIds())) {
             args.addAll(
                 query.getIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
-        }
-        if (Checker.notNull(query.getParentId())) {
-            args.add(
-                query.getParentId().getDomainId());
         }
         if (Checker.notNullOrEmpty(query.getProjectIds())) {
             args.addAll(
