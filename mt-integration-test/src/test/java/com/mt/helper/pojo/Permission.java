@@ -10,7 +10,6 @@ public class Permission {
     private String id;
     private String name;
     private String description;
-    private String parentId;
     private String projectId;
     private Integer version;
     private List<String> linkedApiIds;

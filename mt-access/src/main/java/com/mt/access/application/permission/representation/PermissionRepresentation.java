@@ -11,7 +11,6 @@ import lombok.Data;
 public class PermissionRepresentation {
     private String name;
     private String id;
-    private String parentId;
     private PermissionType type;
     private Boolean systemCreate;
     private Integer version;

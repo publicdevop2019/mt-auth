@@ -362,13 +362,13 @@ public class JdbcClientRepository implements ClientRepository {
             whereClause.add(byDomainIds);
         }
         if (Checker.notNull(query.getResourceFlag())) {
-            String byParentId =
+            String accessible =
                 query.getResourceFlag() ? "c.accessible_ = true" : "c.accessible_ = false";
-            whereClause.add(byParentId);
+            whereClause.add(accessible);
         }
         if (Checker.notNull(query.getName())) {
-            String byParentId = "c.name LIKE ?";
-            whereClause.add(byParentId);
+            String name = "c.name LIKE ?";
+            whereClause.add(name);
         }
         if (Checker.notNullOrEmpty(query.getProjectIds())) {
             String inClause = DatabaseUtility.getInClause(query.getProjectIds().size());

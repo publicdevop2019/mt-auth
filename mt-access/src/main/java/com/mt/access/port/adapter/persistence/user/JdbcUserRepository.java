@@ -175,8 +175,8 @@ public class JdbcUserRepository implements UserRepository {
         if (Checker.notNullOrEmpty(query.getUserEmails())) {
             List<String> orClause = new ArrayList<>();
             query.getUserEmails().forEach(e -> {
-                String byParentId = "u.email LIKE ?";
-                orClause.add(byParentId);
+                String email = "u.email LIKE ?";
+                orClause.add(email);
             });
             String join = String.join(" OR ", orClause);
             whereClause.add(join);
