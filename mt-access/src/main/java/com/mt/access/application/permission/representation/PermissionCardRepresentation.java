@@ -24,7 +24,6 @@ public class PermissionCardRepresentation {
     private String tenantId;
     private String tenantName;
     private String id;
-    private String parentId;
     private Boolean systemCreate;
     private PermissionType type;
 
@@ -42,7 +41,7 @@ public class PermissionCardRepresentation {
         SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
         Set<EndpointId> endpointIds =
-            data.stream().filter(e -> e.type.equals(PermissionType.API) && e.parentId != null)
+            data.stream().filter(e -> e.type.equals(PermissionType.API))
                 .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
         if (endpointIds.size() > 0) {
             Set<Endpoint> allByQuery2 = QueryUtility.getAllByQuery(
@@ -62,7 +61,7 @@ public class PermissionCardRepresentation {
         //update name for root project only
         if (new ProjectId(projectId).equals(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID))) {
             Set<ProjectId> collect = data.stream()
-                .filter(e -> e.type.equals(PermissionType.COMMON) && e.parentId == null &&
+                .filter(e -> e.type.equals(PermissionType.COMMON) &&
                     e.name.contains(ProjectId.getIdPrefix()))
                 .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
             if (collect.size() > 0) {
