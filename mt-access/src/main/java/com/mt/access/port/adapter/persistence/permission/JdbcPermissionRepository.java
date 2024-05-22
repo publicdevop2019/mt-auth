@@ -41,6 +41,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "modified_by, " +
         "version, " +
         "name, " +
+        "description, " +
         "domain_id, " +
         "project_id, " +
         "shared, " +
@@ -48,7 +49,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
         "tenant_id, " +
         "type" +
         ") VALUES " +
-        "(?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        "(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
     private static final String INSERT_LINKED_PERMISSION_MAP_SQL =
         "INSERT INTO linked_permission_ids_map " +
             "(" +
@@ -106,6 +107,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                 permission.getModifiedBy(),
                 0,
                 permission.getName(),
+                permission.getDescription(),
                 permission.getPermissionId().getDomainId(),
                 permission.getProjectId().getDomainId(),
                 permission.getShared(),
@@ -461,6 +463,7 @@ public class JdbcPermissionRepository implements PermissionRepository {
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         rs.getString("name"),
+                        rs.getString("description"),
                         new PermissionId(rs.getString("domain_id")),
                         new ProjectId(rs.getString("project_id")),
                         DatabaseUtility.getNullableBoolean(rs, "shared"),

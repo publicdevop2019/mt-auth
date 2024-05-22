@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class PermissionCreateCommand {
     private String name;
+    private String description;
     private String projectId;
     private List<String> linkedApiIds;
 }

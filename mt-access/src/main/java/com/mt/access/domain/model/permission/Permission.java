@@ -60,6 +60,8 @@ public class Permission extends Auditable {
 
     private String name;
 
+    private String description;
+
     private PermissionId permissionId;
 
     private Set<PermissionId> linkedApiPermissionIds = new LinkedHashSet<>();
@@ -76,7 +78,7 @@ public class Permission extends Auditable {
     public static Permission fromDatabaseRow(Long id, Long createdAt, String createdBy,
                                              Long modifiedAt, String modifiedBy,
                                              Integer version,
-                                             String name, PermissionId domainId,
+                                             String name, String description, PermissionId domainId,
                                              ProjectId projectId,
                                              Boolean shared, Boolean systemCreate,
                                              ProjectId tenantId, PermissionType type) {
@@ -88,6 +90,7 @@ public class Permission extends Auditable {
         permission.setModifiedBy(modifiedBy);
         permission.setVersion(version);
         permission.setName(name);
+        permission.setDescription(description);
         permission.setPermissionId(domainId);
         permission.setProjectId(projectId);
         permission.setShared(shared);
@@ -226,7 +229,7 @@ public class Permission extends Auditable {
     }
 
     public static Permission manualCreate(ProjectId projectId, PermissionId permissionId,
-                                          String name, PermissionType type,
+                                          String name, String description, PermissionType type,
                                           @Nullable ProjectId tenantId,
                                           @Nullable Set<PermissionId> linkedApiPermissionId) {
         Permission permission = new Permission();
@@ -241,6 +244,7 @@ public class Permission extends Auditable {
         permission.setProjectId(projectId);
         permission.setTenantId(tenantId);
         permission.setName(name);
+        permission.setDescription(description);
         permission.setType(type);
         permission.setShared(false);
         permission.setSystemCreate(false);
@@ -253,6 +257,13 @@ public class Permission extends Auditable {
         this.name = name;
     }
 
+    private void setDescription(String description) {
+        Validator.validOptionalString(50, description);
+        if (Checker.notNull(description)) {
+            description = description.trim();
+        }
+        this.description = description;
+    }
     /**
      * create permissions for new project
      *

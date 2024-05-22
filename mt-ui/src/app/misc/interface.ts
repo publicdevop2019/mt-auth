@@ -93,10 +93,11 @@ export interface IMgmtEndpoint extends IIdBasedEntity {
 export interface IPermission extends IIdBasedEntity {
     name: string
     projectId: string
-    parentId: string
+    description: string
     linkedApiIds: string[]
     systemCreate?: boolean
     linkedApiPermissionIds?: string[]
+    linkedApiNames?: string[]
     type?: "COMMON" | 'API' | 'PROJECT'
 }
 export interface IRoleLinkedPermission {

@@ -26,6 +26,7 @@ export class MyPermissionsComponent {
   public nameErrorMsg: string = undefined;
   fg = new FormGroup({
     name: new FormControl(''),
+    description: new FormControl(''),
     projectId: new FormControl(''),
     parentId: new FormControl(''),
     apiId: new FormControl([]),
@@ -33,7 +34,9 @@ export class MyPermissionsComponent {
   private initialColumnList: any = {
     id: 'ID',
     name: 'PERM_NAME',
-    type: 'TYPE',
+    description: 'DESCRIPTION',
+    linkedApi: 'LINKED_API',
+    delete: 'DELETE',
   };
   parentIdOption = [];
   apiOptions = [];
@@ -50,30 +53,11 @@ export class MyPermissionsComponent {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'PERMISSION_MGMT').pipe(take(1)).subscribe(b => {
-      this.tableSource.columnConfig = b.result ? {
-        id: 'ID',
-        name: 'PERM_NAME',
-        type: 'TYPE',
-        delete: 'DELETE',
-      } : {
-        id: 'ID',
-        name: 'PERM_NAME',
-        type: 'TYPE',
-      }
-    })
     this.fg.valueChanges.subscribe(() => {
       if (this.allowError) {
         this.validateCreateForm()
       }
     })
-  }
-  getParentPerm(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IPermission>(this.url, num, size, `types:COMMON`, by, order, header)
-      }
-    } as IQueryProvider
   }
   getEndpoints(): IQueryProvider {
     return {
@@ -85,8 +69,8 @@ export class MyPermissionsComponent {
   convertToPayload(): IPermission {
     return {
       id: '',//value is ignored
-      parentId: this.fg.get('parentId').value ? this.fg.get('parentId').value : null,
       name: this.fg.get('name').value,
+      description: this.fg.get('description').value,
       projectId: this.projectId,
       linkedApiIds: this.fg.get('apiId').value || [],
       version: 0
@@ -116,5 +100,8 @@ export class MyPermissionsComponent {
     }, () => {
       this.deviceSvc.notify(false)
     })
+  }
+  removeFirst(input: string[]) {
+    return input.filter((e, i) => i !== 0);
   }
 }

@@ -44,7 +44,7 @@ public class PermissionApplicationService {
     /**
      * get subscribed endpoint permissions
      *
-     * @param rawProjectId
+     * @param rawProjectId raw project id
      * @param queryParam   query string
      * @param pageParam    page config
      * @return paged permission
@@ -170,7 +170,7 @@ public class PermissionApplicationService {
                             Collections.singleton(projectId));
                 Permission permission = Permission
                     .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                        command.getName(), PermissionType.COMMON,
+                        command.getName(), command.getDescription(), PermissionType.COMMON,
                         null, linkedPermId);
                 DomainRegistry.getPermissionRepository().add(permission);
                 return permissionId.getDomainId();

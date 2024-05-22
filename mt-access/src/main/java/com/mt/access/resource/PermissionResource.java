@@ -6,7 +6,6 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
 import com.mt.access.application.permission.command.PermissionUpdateCommand;
@@ -21,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -67,6 +65,7 @@ public class PermissionResource {
         SumPagedRep<PermissionCardRepresentation> sumPagedRep =
             PermissionCardRepresentation
                 .updateEndpointName(new SumPagedRep<>(rep, PermissionCardRepresentation::new));
+        PermissionCardRepresentation.updateLinkedEndpointName(sumPagedRep);
         return ResponseEntity.ok(PermissionCardRepresentation
             .updateProjectName(projectId, sumPagedRep));
     }
@@ -86,6 +85,7 @@ public class PermissionResource {
             .updateEndpointName(new SumPagedRep<>(rep, PermissionCardRepresentation::new)));
     }
 
+    //@todo remove this
     @GetMapping(path = "projects/{projectId}/permissions/{id}")
     public ResponseEntity<PermissionRepresentation> tenantQuery(
         @PathVariable String projectId,
@@ -99,6 +99,7 @@ public class PermissionResource {
         return ResponseEntity.ok(permission);
     }
 
+    //@todo remove this
     @PutMapping(path = "projects/{projectId}/permissions/{id}")
     public ResponseEntity<Void> tenantUpdate(
         @PathVariable String projectId,
@@ -133,7 +134,8 @@ public class PermissionResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        UiPermissionInfo ui = ApplicationServiceRegistry.getPermissionApplicationService().uiQuery(projectId);
+        UiPermissionInfo ui =
+            ApplicationServiceRegistry.getPermissionApplicationService().uiQuery(projectId);
         return ResponseEntity.ok(ui);
     }
 }

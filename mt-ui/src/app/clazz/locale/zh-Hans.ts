@@ -288,7 +288,7 @@ export const zhHans = {
     "BACKEND_APP": "标准web应用",
     "FRONTEND_APP": "单页web应用",
     "API": "API",
-    "COMMON": "通用",
+    "COMMON": "自定义",
     "PROJECT": "项目",
     "NOT_FOUND": "无法找到该页面",
     "WELCOME": "首页",
@@ -609,4 +609,5 @@ export const zhHans = {
     "PLS_SELECT": "请选择",
     "UPDATE_REQUEST": "修改",
     "API_PRIVATE": "私有API",
+    "LINKED_API": "关联API",
 }

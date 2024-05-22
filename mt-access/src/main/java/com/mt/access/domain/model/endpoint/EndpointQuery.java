@@ -69,8 +69,8 @@ public class EndpointQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public EndpointQuery(ClientId domainId) {
-        clientIds = Collections.singleton(domainId);
+    public EndpointQuery(ClientId clientId) {
+        clientIds = Collections.singleton(clientId);
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.countRequired());
     }
@@ -87,8 +87,8 @@ public class EndpointQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.countRequired());
     }
 
-    public EndpointQuery(Set<EndpointId> collect1) {
-        endpointIds = collect1;
+    public EndpointQuery(Set<EndpointId> endpointIds) {
+        this.endpointIds = endpointIds;
         setPageConfig(PageConfig.defaultConfig());
         setQueryConfig(QueryConfig.skipCount());
     }
