@@ -8,9 +8,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
-import com.mt.access.application.permission.command.PermissionUpdateCommand;
 import com.mt.access.application.permission.representation.PermissionCardRepresentation;
-import com.mt.access.application.permission.representation.PermissionRepresentation;
 import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.permission.Permission;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -83,36 +80,6 @@ public class PermissionResource {
                 .sharedQuery(projectId, queryParam, pageParam);
         return ResponseEntity.ok(PermissionCardRepresentation
             .updateEndpointName(new SumPagedRep<>(rep, PermissionCardRepresentation::new)));
-    }
-
-    //@todo remove this
-    @GetMapping(path = "projects/{projectId}/permissions/{id}")
-    public ResponseEntity<PermissionRepresentation> tenantQuery(
-        @PathVariable String projectId,
-        @PathVariable String id,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        PermissionRepresentation permission =
-            ApplicationServiceRegistry.getPermissionApplicationService()
-                .tenantGetById(projectId, id);
-        return ResponseEntity.ok(permission);
-    }
-
-    //@todo remove this
-    @PutMapping(path = "projects/{projectId}/permissions/{id}")
-    public ResponseEntity<Void> tenantUpdate(
-        @PathVariable String projectId,
-        @PathVariable String id,
-        @RequestBody PermissionUpdateCommand command,
-        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
-    ) {
-        DomainRegistry.getCurrentUserService().setUser(jwt);
-        command.setProjectId(projectId);
-        ApplicationServiceRegistry.getPermissionApplicationService()
-            .tenantUpdate(id, command, changeId);
-        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping(path = "projects/{projectId}/permissions/{id}")

@@ -2,7 +2,7 @@ import { MatTableDataSource } from "@angular/material/table";
 import { HttpProxyService } from "../services/http-proxy.service";
 import { ISumRep } from "../misc/interface";
 
-export class TableHelper<T>{
+export class TableHelper<T> {
     dataSource: MatTableDataSource<T>;
     pageNum: number;
     pageSize: number;
@@ -19,6 +19,7 @@ export class TableHelper<T>{
         this.query = query
     }
     loadPage(pageNumber: number) {
+        this.pageNum = pageNumber;//save for reload
         this.proxy.readEntityByQuery<T>(this.url, pageNumber, this.pageSize, this.query).subscribe(next => {
             this.updateSummaryData(next);
         })

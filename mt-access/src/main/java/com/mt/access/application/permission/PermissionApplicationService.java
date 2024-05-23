@@ -2,14 +2,11 @@ package com.mt.access.application.permission;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PERMISSION;
-import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.permission.Permission.PERMISSION_MGMT;
 import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
-import com.mt.access.application.permission.command.PermissionUpdateCommand;
-import com.mt.access.application.permission.representation.PermissionRepresentation;
 import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -26,7 +23,6 @@ import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.Objects;
@@ -96,42 +92,6 @@ public class PermissionApplicationService {
             .canAccess(permissionQuery.getProjectIds(), PERMISSION_MGMT);
         return DomainRegistry.getPermissionRepository().query(permissionQuery);
     }
-
-    public PermissionRepresentation tenantGetById(String projectId, String id) {
-        ProjectId projectId1 = new ProjectId(projectId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, PERMISSION_MGMT);
-        Permission permission =
-            DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
-        return new PermissionRepresentation(permission);
-    }
-
-
-    @AuditLog(actionName = UPDATE_TENANT_PERMISSION)
-    public void tenantUpdate(String id, PermissionUpdateCommand command, String changeId) {
-        PermissionId permissionId = new PermissionId(id);
-        PermissionQuery permissionQuery =
-            PermissionQuery.tenantQuery(new ProjectId(command.getProjectId()), permissionId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), PERMISSION_MGMT);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
-                DomainRegistry.getPermissionRepository().query(permissionQuery)
-                    .findFirst()
-                    .ifPresent(old -> {
-                        Set<PermissionId> permissionIds =
-                            DomainRegistry.getPermissionService()
-                                .tenantFindPermissionIds(command.getLinkedApiIds(),
-                                    permissionQuery.getProjectIds());
-                        Permission update = old.update(command.getName(),
-                            Checker.isNull(command.getProjectId()) ? null :
-                                new ProjectId(command.getProjectId()), permissionIds);
-                        DomainRegistry.getPermissionRepository().update(old, update);
-                    });
-                return null;
-            }, PERMISSION);
-    }
-
 
     @AuditLog(actionName = DELETE_TENANT_PERMISSION)
     public void tenantRemove(String projectId, String id, String changeId) {

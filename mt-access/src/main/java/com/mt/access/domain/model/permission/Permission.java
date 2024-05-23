@@ -264,6 +264,7 @@ public class Permission extends Auditable {
         }
         this.description = description;
     }
+
     /**
      * create permissions for new project
      *
@@ -285,8 +286,7 @@ public class Permission extends Auditable {
                 Stream.of(
                         new PermissionId("0Y8HHJ47NBDP"), new PermissionId("0Y8HHJ47NBD4"),
                         new PermissionId("0Y8OYY45NEVK"), new PermissionId("0Y8HHJ47NBD6"),
-                        new PermissionId("0Y8HHJ47NBD8"), new PermissionId("0Y8HHJ47NBD7"),
-                        new PermissionId("0Y8HHJ47NBDQ")
+                        new PermissionId("0Y8HHJ47NBD8"), new PermissionId("0Y8HHJ47NBD7")
                     )
                     .collect(Collectors.toSet()));
         //api
@@ -296,12 +296,11 @@ public class Permission extends Auditable {
                     .of(new PermissionId("0Y8MLZDBR4T3"), new PermissionId("0Y8U1QEXOG06"),
                         new PermissionId("0Y8HHJ47NBDS"), new PermissionId("0Y8HHJ47NBDM"),
                         new PermissionId("0Y8HHJ47NBDV"), new PermissionId("0Y8HHJ47NBDN"),
-                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8HHJ47NBDW"),
-                        new PermissionId("0Y8M4UTZLTLI"), new PermissionId("0Y8HHJ47NBDL"),
+                        new PermissionId("0Y8HHJ47NBDO"), new PermissionId("0Y8M4UTZLTLI"),
+                        new PermissionId("0Y8HHJ47NBDL"),
                         //cors apis
                         new PermissionId("0Y8OK4YM1LAW"), new PermissionId("0Y8OK4YXLDEC"),
-                        new PermissionId("0Y8OK4Z1C7X0"), new PermissionId("0Y8OK4YFSUFS"),
-                        new PermissionId("0Y8OK4YRZ3MC"),
+                        new PermissionId("0Y8OK4YFSUFS"), new PermissionId("0Y8OK4YRZ3MC"),
                         //cache apis
                         new PermissionId("0Y8OKQGFNG2C"), new PermissionId("0Y8OKQGD5JPW"),
                         new PermissionId("0Y8OKQG3SFF7"), new PermissionId("0Y8OKQG9PXQM")
@@ -323,8 +322,7 @@ public class Permission extends Auditable {
             .autoCreateForProjectMulti(projectId, new PermissionId(), PERMISSION_MGMT,
                 tenantId,
                 Stream.of(
-                        new PermissionId("0Y8HHJ47NBEV"), new PermissionId("0Y8HLUWG1UJ8"),
-                        new PermissionId("0Y8HHJ47NBEW"), new PermissionId("0Y8HLUWKQEJ1"),
+                        new PermissionId("0Y8HHJ47NBEV"), new PermissionId("0Y8HHJ47NBEW"),
                         new PermissionId("0Y8HLUWMX2BX")
                     )
                     .collect(Collectors.toSet()));
@@ -402,18 +400,6 @@ public class Permission extends Auditable {
         Permission apiPermission = Permission
             .autoCreateForEndpoint(projectId, permissionId, endpointId.getDomainId(), shared);
         DomainRegistry.getPermissionRepository().add(apiPermission);
-    }
-
-    public Permission update(String name, ProjectId projectId, Set<PermissionId> permissionIds) {
-        Permission updated =
-            CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, Permission.class);
-        updated.updateName(name);
-        updated.setProjectId(projectId);
-        updated.setLinkedApiPermissionIds(permissionIds);
-        updated.setModifiedAt(Instant.now().toEpochMilli());
-        updated.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
-        new PermissionValidator(new HttpValidationNotificationHandler(), this).validate();
-        return updated;
     }
 
     private void setLinkedApiPermissionIds(Set<PermissionId> permissionIds) {
