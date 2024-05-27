@@ -13,7 +13,7 @@ import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUp
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
@@ -88,29 +88,29 @@ public class NotificationApplicationService {
 
     public void handle(HangingTxDetected event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(NewUserRegistered event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(ProjectOnboardingComplete event) {
         log.info("handle new project onboarding complete event, project id {}",
             event.getDomainId().getDomainId());
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(ProxyCacheCheckFailedEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(CrossDomainValidationService.ValidationFailedEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(UserMfaNotificationEvent event) {
@@ -154,7 +154,8 @@ public class NotificationApplicationService {
     public void handle(SendBellNotificationEvent event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
-                log.debug("sending bell notifications with {}", event.getTitle());
+                log.debug("sending bell notifications with {}, id {}", event.getTitle(),
+                    event.getDomainId().getDomainId());
                 if (event.getUserId() != null) {
                     DomainRegistry.getWsPushNotificationService()
                         .notifyUser(event.value(), event.getUserId());
@@ -206,7 +207,7 @@ public class NotificationApplicationService {
 
     public void handle(UnrountableMsgReceivedEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     /**
@@ -214,54 +215,55 @@ public class NotificationApplicationService {
      *
      * @param event SubscriberEndpointExpireEvent
      */
-    public void handle(SubscriberEndpointExpireEvent event) {
-        event.getDomainIds().forEach(e -> {
-            Notification notification = new Notification(event, e);
-            sendBellNotification(event.getId(), notification);
+    public void handle(SubscribedEndpointExpireEvent event) {
+        event.getDomainIds().forEach(userId -> {
+            Notification notification = new Notification(event, userId);
+            storeSendBellNotification(event.getId() + "_" + userId.getDomainId(),
+                notification);
         });
     }
 
     public void handle(JobPausedEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(JobNotFoundEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(JobThreadStarvingEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(JobStarvingEvent event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(PendingUserCreated event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
     public void handle(RejectedMsgReceivedEvent event) {
         if (!event.getSourceName().equalsIgnoreCase(SendBellNotificationEvent.name)) {
             //avoid infinite loop when send bell notification got rejected
             Notification notification = new Notification(event);
-            sendBellNotification(event.getId(), notification);
+            storeSendBellNotification(event.getId().toString(), notification);
         }
     }
 
     public void handle(RawAccessRecordProcessingWarning event) {
         Notification notification = new Notification(event);
-        sendBellNotification(event.getId(), notification);
+        storeSendBellNotification(event.getId().toString(), notification);
     }
 
-    private void sendBellNotification(Long eventId, Notification notification) {
+    private void storeSendBellNotification(String uniqueId, Notification notification) {
         CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(eventId.toString(), (context) -> {
+            .idempotent(uniqueId, (context) -> {
                 DomainRegistry.getNotificationRepository().add(notification);
                 context
                     .append(new SendBellNotificationEvent(notification));

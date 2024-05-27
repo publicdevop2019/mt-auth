@@ -444,7 +444,7 @@ export const zhHans = {
     "EXPIRE": "过期",
     "EXPIRE_REASON": "原因",
     "STATUS_EXPIRED": "已过期，原因：",
-    "SUBSCRIBER_ENDPOINT_EXPIRE": "您所订阅的API已过期",
+    "SUBSCRIBED_ENDPOINT_EXPIRE": "您所订阅的API已过期",
     "ENDPOINT_CENTER": "API市场",
     "BASIC_EP_INFO": "基本信息",
     "CATALOG_EP_INFO": "分类",
