@@ -3,15 +3,14 @@ package com.mt.access.application.endpoint;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ENDPOINT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ENDPOINT;
-import static com.mt.access.domain.model.permission.Permission.CREATE_API;
-import static com.mt.access.domain.model.permission.Permission.EDIT_API;
-import static com.mt.access.domain.model.permission.Permission.VIEW_API;
+import static com.mt.access.domain.model.permission.Permission.API_MGMT;
 
 import com.mt.access.application.endpoint.command.EndpointCreateCommand;
 import com.mt.access.application.endpoint.command.EndpointExpireCommand;
 import com.mt.access.application.endpoint.command.EndpointUpdateCommand;
 import com.mt.access.application.endpoint.representation.EndpointCardRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointMgmtRepresentation;
+import com.mt.access.application.endpoint.representation.EndpointProtectedRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointProxyCacheRepresentation;
 import com.mt.access.application.endpoint.representation.EndpointSharedCardRepresentation;
 import com.mt.access.domain.DomainRegistry;
@@ -103,7 +102,7 @@ public class EndpointApplicationService {
                                                                String config) {
         EndpointQuery endpointQuery = new EndpointQuery(queryParam, pageParam, config);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), VIEW_API);
+            .canAccess(endpointQuery.getProjectIds(), API_MGMT);
         SumPagedRep<Endpoint> rep2 =
             DomainRegistry.getEndpointRepository().query(endpointQuery);
         return updateDetail(rep2);
@@ -139,6 +138,18 @@ public class EndpointApplicationService {
             new SumPagedRep<>(query, EndpointSharedCardRepresentation::new);
         updateDetail(rep.getData());
         return rep;
+    }
+
+    public SumPagedRep<EndpointProtectedRepresentation> tenantQueryProtected(String queryParam,
+                                                                             String pageParam,
+                                                                             String config) {
+        EndpointQuery endpointQuery =
+            EndpointQuery.tenantQueryProtected(queryParam, pageParam, config);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(endpointQuery.getProjectIds(), API_MGMT);
+        SumPagedRep<Endpoint> query =
+            DomainRegistry.getEndpointRepository().query(endpointQuery);
+        return new SumPagedRep<>(query, EndpointProtectedRepresentation::new);
     }
 
     private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
@@ -189,7 +200,7 @@ public class EndpointApplicationService {
     public Endpoint tenantQueryById(String projectId, String id) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, VIEW_API);
+            .canAccess(projectId1, API_MGMT);
         return DomainRegistry.getEndpointRepository().get(projectId1, new EndpointId(id));
     }
 
@@ -199,7 +210,7 @@ public class EndpointApplicationService {
         EndpointId endpointId = new EndpointId();
         ProjectId projectId = new ProjectId(command.getProjectId());
         ClientId clientId = new ClientId(command.getResourceId());
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, CREATE_API);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, API_MGMT);
         if (DomainRegistry.getEndpointRepository()
             .checkDuplicate(clientId, command.getPath(), command.getMethod())) {
             throw new DefinedRuntimeException("duplicate endpoint", "1092",
@@ -251,7 +262,7 @@ public class EndpointApplicationService {
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(command.getProjectId()));
         DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+            .canAccess(endpointQuery.getProjectIds(), API_MGMT);
         EndpointId endpointId = new EndpointId(id);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
@@ -284,7 +295,7 @@ public class EndpointApplicationService {
         EndpointQuery endpointQuery =
             new EndpointQuery(new EndpointId(id), new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+            .canAccess(endpointQuery.getProjectIds(), API_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 Optional<Endpoint> endpoint =
@@ -319,7 +330,7 @@ public class EndpointApplicationService {
         EndpointQuery endpointQuery =
             new EndpointQuery(endpointId, new ProjectId(projectId));
         DomainRegistry.getPermissionCheckService()
-            .canAccess(endpointQuery.getProjectIds(), EDIT_API);
+            .canAccess(endpointQuery.getProjectIds(), API_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 Endpoint endpoint =

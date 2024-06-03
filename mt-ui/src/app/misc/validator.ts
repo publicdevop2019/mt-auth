@@ -25,8 +25,11 @@ export class Validator {
             return Result.success()
         }
     }
-    public static notBlank(value: string) {
-        if (value.trim() === '') {
+    public static notBlank(var0: string) {
+        if (var0 === null || var0 === undefined) {
+            return Result.failed('STRING_NOT_BLAND_STRING')
+        }
+        if (var0.trim() === '') {
             return Result.failed('STRING_NOT_BLAND_STRING')
         } else {
             return Result.success()

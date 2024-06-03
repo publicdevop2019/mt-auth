@@ -15,16 +15,19 @@ interface IPermissionOptions {
 @Injectable({
   providedIn: 'root'
 })
-export class ProjectService{
+export class ProjectService {
   public totalProjects: IProjectSimple[] = [];
   public viewProject: IProjectSimple = undefined;
   permissionDetail: ReplaySubject<IProjectUiPermission> = new ReplaySubject();
   constructor(public httpProxy: HttpProxyService) {
   }
+  resetPermissionDetails() {
+    this.permissionDetail = new ReplaySubject();
+  }
   findTenantProjects(num: number, size: number, headers?: {}) {
     return this.httpProxy.readEntityByQuery<IProjectSimple>(environment.serverUri + '/auth-svc/projects/tenant', num, size, undefined, undefined, undefined, headers)
   };
-  findUiPermission(projectId:string) {
+  findUiPermission(projectId: string) {
     return this.httpProxy.getUIPermission(projectId)
   };
   create(s: IProjectSimple, changeId: string) {

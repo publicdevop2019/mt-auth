@@ -6,12 +6,13 @@ import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUp
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
 import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
@@ -52,7 +53,7 @@ public class Notification {
 
     public Notification(HangingTxDetected deserialize) {
         super();
-        id = deserialize.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = deserialize.getTimestamp();
         title = "HANGING_TX";
@@ -62,7 +63,7 @@ public class Notification {
 
     public Notification(NewUserRegistered event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = NewUserRegistered.name;
@@ -72,7 +73,7 @@ public class Notification {
 
     public Notification(ProjectOnboardingComplete event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = ProjectOnboardingComplete.name;
@@ -82,7 +83,7 @@ public class Notification {
 
     public Notification(ProxyCacheCheckFailedEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         type = NotificationType.BELL;
@@ -91,7 +92,7 @@ public class Notification {
 
     public Notification(CrossDomainValidationService.ValidationFailedEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = CrossDomainValidationService.ValidationFailedEvent.name;
@@ -101,7 +102,7 @@ public class Notification {
 
     public Notification(UserMfaNotificationEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = UserMfaNotificationEvent.name;
@@ -110,7 +111,7 @@ public class Notification {
 
     public Notification(UserPwdResetCodeUpdated event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = UserPwdResetCodeUpdated.name;
@@ -119,7 +120,7 @@ public class Notification {
 
     public Notification(PendingUserActivationCodeUpdated event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = PendingUserActivationCodeUpdated.name;
@@ -128,7 +129,7 @@ public class Notification {
 
     public Notification(CrossDomainValidationFailureCheck event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = CrossDomainValidationFailureCheck.name;
@@ -137,7 +138,7 @@ public class Notification {
 
     public Notification(UnrountableMsgReceivedEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = UnrountableMsgReceivedEvent.name;
@@ -147,13 +148,13 @@ public class Notification {
         descriptions.add(event.getSourceName());
     }
 
-    public Notification(SubscriberEndpointExpireEvent event,
+    public Notification(SubscribedEndpointExpireEvent event,
                         DomainId e) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = SubscriberEndpointExpireEvent.name;
+        title = SubscribedEndpointExpireEvent.name;
         type = NotificationType.BELL;
         userId = new UserId(e.getDomainId());
     }
@@ -161,7 +162,7 @@ public class Notification {
 
     public Notification(JobPausedEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = JobPausedEvent.name;
@@ -170,7 +171,7 @@ public class Notification {
 
     public Notification(JobNotFoundEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = JobNotFoundEvent.name;
@@ -180,7 +181,7 @@ public class Notification {
 
     public Notification(JobThreadStarvingEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = JobThreadStarvingEvent.name;
@@ -191,7 +192,7 @@ public class Notification {
 
     public Notification(JobStarvingEvent event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         descriptions.add(event.getJobName());
@@ -201,7 +202,7 @@ public class Notification {
 
     public Notification(PendingUserCreated event) {
         super();
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = event.getName();
@@ -210,7 +211,7 @@ public class Notification {
     }
 
     public Notification(RejectedMsgReceivedEvent event) {
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = RejectedMsgReceivedEvent.name;
@@ -221,7 +222,7 @@ public class Notification {
     }
 
     public Notification(RawAccessRecordProcessingWarning event) {
-        id = event.getId();
+        id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
         title = RawAccessRecordProcessingWarning.name;

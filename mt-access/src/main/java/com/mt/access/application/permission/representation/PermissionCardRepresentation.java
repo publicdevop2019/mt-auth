@@ -1,10 +1,12 @@
 package com.mt.access.application.permission.representation;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.EndpointQuery;
 import com.mt.access.domain.model.permission.Permission;
+import com.mt.access.domain.model.permission.PermissionId;
 import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
@@ -20,22 +22,24 @@ import lombok.Data;
 @Data
 public class PermissionCardRepresentation {
     private String name;
+    private String description;
     private String originalName;
     private String tenantId;
     private String tenantName;
     private String id;
-    private String parentId;
     private Boolean systemCreate;
     private PermissionType type;
+    private List<String> linkedApiNames;
+    @JsonIgnore
+    private Set<PermissionId> linkedApiPermissionIds;
 
     public PermissionCardRepresentation(Permission permission) {
         this.name = permission.getName();
+        this.description = permission.getDescription();
         this.systemCreate = permission.getSystemCreate();
         this.type = permission.getType();
-        if (permission.getParentId() != null) {
-            this.parentId = permission.getParentId().getDomainId();
-        }
         this.id = permission.getPermissionId().getDomainId();
+        this.linkedApiPermissionIds = permission.getLinkedApiPermissionIds();
         if (permission.getTenantId() != null) {
             this.tenantId = permission.getTenantId().getDomainId();
         }
@@ -45,7 +49,7 @@ public class PermissionCardRepresentation {
         SumPagedRep<PermissionCardRepresentation> response) {
         List<PermissionCardRepresentation> data = response.getData();
         Set<EndpointId> endpointIds =
-            data.stream().filter(e -> e.type.equals(PermissionType.API) && e.parentId != null)
+            data.stream().filter(e -> e.type.equals(PermissionType.API))
                 .map(e -> new EndpointId(e.name)).collect(Collectors.toSet());
         if (endpointIds.size() > 0) {
             Set<Endpoint> allByQuery2 = QueryUtility.getAllByQuery(
@@ -65,7 +69,7 @@ public class PermissionCardRepresentation {
         //update name for root project only
         if (new ProjectId(projectId).equals(new ProjectId(AppConstant.MT_AUTH_PROJECT_ID))) {
             Set<ProjectId> collect = data.stream()
-                .filter(e -> e.type.equals(PermissionType.COMMON) && e.parentId == null &&
+                .filter(e -> e.type.equals(PermissionType.COMMON) &&
                     e.name.contains(ProjectId.getIdPrefix()))
                 .map(e -> new ProjectId(e.name)).collect(Collectors.toSet());
             if (collect.size() > 0) {
@@ -91,5 +95,21 @@ public class PermissionCardRepresentation {
             }
         }
         return response;
+    }
+
+    public static void updateLinkedEndpointName(SumPagedRep<PermissionCardRepresentation> rep) {
+        List<PermissionCardRepresentation> data = rep.getData();
+        Set<PermissionId> linkedEpPermissionIds =
+            data.stream().filter(e -> e.type.equals(PermissionType.COMMON))
+                .flatMap(e -> e.getLinkedApiPermissionIds().stream()).collect(Collectors.toSet());
+        if (linkedEpPermissionIds.size() > 0) {
+            Set<Endpoint> allEps = QueryUtility.getAllByQuery(
+                e -> DomainRegistry.getEndpointRepository().query(e),
+                EndpointQuery.permissionQuery(linkedEpPermissionIds));
+            data.forEach(perm -> perm.linkedApiNames = allEps.stream()
+                .filter(e -> perm.getLinkedApiPermissionIds().contains(e.getPermissionId()))
+                .map(Endpoint::getName).collect(
+                    Collectors.toList()));
+        }
     }
 }

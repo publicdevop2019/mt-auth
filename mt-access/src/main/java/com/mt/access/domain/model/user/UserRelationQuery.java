@@ -62,4 +62,13 @@ public class UserRelationQuery extends QueryCriteria {
         userRelationQuery.queryConfig = QueryConfig.countRequired();
         return userRelationQuery;
     }
+
+    public static UserRelationQuery internalAdminQuery(RoleId adminRole) {
+        UserRelationQuery userRelationQuery = new UserRelationQuery();
+        userRelationQuery.projectIds = Collections.singleton(new ProjectId(MT_AUTH_PROJECT_ID));
+        userRelationQuery.roleId = adminRole;
+        userRelationQuery.pageConfig = PageConfig.defaultConfig();
+        userRelationQuery.queryConfig = QueryConfig.countRequired();
+        return userRelationQuery;
+    }
 }

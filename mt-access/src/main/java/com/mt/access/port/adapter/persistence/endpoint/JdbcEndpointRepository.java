@@ -224,25 +224,25 @@ public class JdbcEndpointRepository implements EndpointRepository {
             whereClause.add(byDomainIds);
         }
         if (Checker.notNull(query.getPath())) {
-            String byParentId = "e.path = ?";
-            whereClause.add(byParentId);
+            String path = "e.path = ?";
+            whereClause.add(path);
         }
         if (Checker.notNull(query.getMethod())) {
-            String byParentId = "e.method = ?";
-            whereClause.add(byParentId);
+            String method = "e.method = ?";
+            whereClause.add(method);
         }
         if (Checker.notNull(query.getIsWebsocket())) {
-            String byParentId =
+            String websocket =
                 query.getIsWebsocket() ? "e.websocket = true" : "e.websocket = false";
-            whereClause.add(byParentId);
+            whereClause.add(websocket);
         }
         if (Checker.notNull(query.getIsShared()) && query.getIsShared()) {
             whereClause.add("((e.external = true AND e.secured = false) OR e.shared = true)");
         }
         if (Checker.notNull(query.getIsSecured())) {
-            String byParentId =
+            String secured =
                 query.getIsSecured() ? "e.secured = true" : "e.secured = false";
-            whereClause.add(byParentId);
+            whereClause.add(secured);
         }
 
         String join = String.join(" AND ", whereClause);

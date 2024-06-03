@@ -22,15 +22,7 @@ public interface PermissionRepository {
         Validator.notNull(permission);
         return permission;
     }
-    default Permission get(ProjectId projectId, PermissionId id){
-        PermissionQuery permissionQuery = PermissionQuery.tenantQuery(projectId,id);
-        Permission permission = query(permissionQuery).findFirst().orElse(null);
-        Validator.notNull(permission);
-        return permission;
-    }
     Permission query(PermissionId id);
-
-    void update(Permission permission, Permission update);
 
     Set<EndpointId> allApiPermissionLinkedEpId();
 

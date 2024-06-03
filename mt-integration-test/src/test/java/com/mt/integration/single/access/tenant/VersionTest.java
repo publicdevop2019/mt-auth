@@ -8,6 +8,7 @@ import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Cors;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Permission;
+import com.mt.helper.pojo.ProtectedEndpoint;
 import com.mt.helper.pojo.Role;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.UpdateType;
@@ -227,16 +228,9 @@ public class VersionTest {
         Assertions.assertEquals(HttpStatus.OK, roleResponseEntity.getStatusCode());
         Assertions.assertEquals(1, roleResponseEntity.getBody().getVersion().intValue());
         //update it's api
-        //find root
-        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =
-            PermissionUtility.readTenantPermissionWithQuery(tenantContext,
-                "query=parentId:null,types:API");
-        String permissionId = sumTotalResponseEntity.getBody().getData().get(0).getId();
-        //find api permissions
-        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity2 =
-            PermissionUtility.readTenantPermissionWithQuery(tenantContext,
-                "query=parentId:" + permissionId + ",types:API");
-        String permissionId2 = sumTotalResponseEntity2.getBody().getData().get(0).getId();
+        ResponseEntity<SumTotal<ProtectedEndpoint>> sumTotalResponseEntity2 =
+            EndpointUtility.readTenantProtectedEndpoint(tenantContext);
+        String permissionId2 = sumTotalResponseEntity2.getBody().getData().get(0).getPermissionId();
         role.setApiPermissionIds(Collections.singleton(permissionId2));
         role.setType(UpdateType.API_PERMISSION.name());
         ResponseEntity<Void> response4 =

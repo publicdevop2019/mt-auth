@@ -1,48 +1,20 @@
 # Use cases
-- common
-    - string input
-        - too short
-        - too long
-        - invalid char
-        - empty
-        - blank
-        - null
-- endpoint type
-    - GET
-    - POST
-    - PATCH
-    - PUT
-    - DELETE
-    - websocket
 - tenant
     - project
         - create project
-            - create project with invalid project name
-                - too short
-                - too long
-                - invalid char
-                - empty
-                - blank
-                - null
-            - view project information
+        - view project
     - client
-        - create fronend client
+        - create SPA
             - client credential grant
             - password grant
             - authorization code grant
-        - create backend client
+        - create standard web app
             - client credential grant
             - password grant
         - create resource client then referred by another client
         - update client
-        - patch client
-            - patch name
-            - patch description
-            - patch grant type
-            - patch token validity seconds
-            - patch resources
         - delete client
-            - delete resource client
+            - delete client
         - delete client which has shared endpoints that are subscribed by others
     - endpoint
         - create endpoint

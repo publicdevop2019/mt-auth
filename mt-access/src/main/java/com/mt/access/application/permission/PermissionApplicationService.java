@@ -2,16 +2,11 @@ package com.mt.access.application.permission;
 
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_PERMISSION;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_PERMISSION;
-import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_PERMISSION;
-import static com.mt.access.domain.model.permission.Permission.CREATE_PERMISSION;
-import static com.mt.access.domain.model.permission.Permission.EDIT_PERMISSION;
-import static com.mt.access.domain.model.permission.Permission.VIEW_PERMISSION;
+import static com.mt.access.domain.model.permission.Permission.PERMISSION_MGMT;
 import static com.mt.access.domain.model.permission.Permission.reservedUIPermissionName;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.permission.command.PermissionCreateCommand;
-import com.mt.access.application.permission.command.PermissionUpdateCommand;
-import com.mt.access.application.permission.representation.PermissionRepresentation;
 import com.mt.access.application.permission.representation.UiPermissionInfo;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
@@ -26,10 +21,8 @@ import com.mt.access.domain.model.permission.PermissionType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.project.event.StartNewProjectOnboarding;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.restful.SumPagedRep;
-import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Collections;
 import java.util.Objects;
@@ -47,7 +40,7 @@ public class PermissionApplicationService {
     /**
      * get subscribed endpoint permissions
      *
-     * @param rawProjectId
+     * @param rawProjectId raw project id
      * @param queryParam   query string
      * @param pageParam    page config
      * @return paged permission
@@ -56,7 +49,7 @@ public class PermissionApplicationService {
                                                String pageParam) {
         //get subscribed endpoints
         ProjectId projectId = new ProjectId(rawProjectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, VIEW_PERMISSION);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, PERMISSION_MGMT);
         Set<EndpointId> endpointIds = ApplicationServiceRegistry.getSubRequestApplicationService()
             .internalSubscribedEndpointIds(projectId);
         if (!endpointIds.isEmpty()) {
@@ -96,45 +89,9 @@ public class PermissionApplicationService {
         Validator.notNull(permissionQuery.getProjectIds());
         Validator.notEmpty(permissionQuery.getProjectIds());
         DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), VIEW_PERMISSION);
+            .canAccess(permissionQuery.getProjectIds(), PERMISSION_MGMT);
         return DomainRegistry.getPermissionRepository().query(permissionQuery);
     }
-
-    public PermissionRepresentation tenantGetById(String projectId, String id) {
-            ProjectId projectId1 = new ProjectId(projectId);
-            DomainRegistry.getPermissionCheckService()
-                .canAccess(projectId1, VIEW_PERMISSION);
-            Permission permission =
-                DomainRegistry.getPermissionRepository().get(projectId1, new PermissionId(id));
-            return new PermissionRepresentation(permission);
-    }
-
-
-    @AuditLog(actionName = UPDATE_TENANT_PERMISSION)
-    public void tenantUpdate(String id, PermissionUpdateCommand command, String changeId) {
-        PermissionId permissionId = new PermissionId(id);
-        PermissionQuery permissionQuery =
-            PermissionQuery.tenantQuery(new ProjectId(command.getProjectId()), permissionId);
-        DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId, (change) -> {
-                DomainRegistry.getPermissionRepository().query(permissionQuery)
-                    .findFirst()
-                    .ifPresent(old -> {
-                        Set<PermissionId> permissionIds =
-                            DomainRegistry.getPermissionService()
-                                .tenantFindPermissionIds(command.getLinkedApiIds(),
-                                    permissionQuery.getProjectIds());
-                        Permission update = old.update(command.getName(),
-                            Checker.isNull(command.getProjectId()) ? null :
-                                new ProjectId(command.getProjectId()), permissionIds);
-                        DomainRegistry.getPermissionRepository().update(old, update);
-                    });
-                return null;
-            }, PERMISSION);
-    }
-
 
     @AuditLog(actionName = DELETE_TENANT_PERMISSION)
     public void tenantRemove(String projectId, String id, String changeId) {
@@ -142,7 +99,7 @@ public class PermissionApplicationService {
         PermissionQuery permissionQuery =
             PermissionQuery.tenantQuery(new ProjectId(projectId), permissionId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(permissionQuery.getProjectIds(), EDIT_PERMISSION);
+            .canAccess(permissionQuery.getProjectIds(), PERMISSION_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Optional<Permission> permission =
                 DomainRegistry.getPermissionRepository().query(permissionQuery).findFirst();
@@ -164,7 +121,7 @@ public class PermissionApplicationService {
         PermissionId permissionId = new PermissionId();
         ProjectId projectId = new ProjectId(command.getProjectId());
         DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId, CREATE_PERMISSION);
+            .canAccess(projectId, PERMISSION_MGMT);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (change) -> {
                 Set<PermissionId> linkedPermId =
@@ -173,9 +130,8 @@ public class PermissionApplicationService {
                             Collections.singleton(projectId));
                 Permission permission = Permission
                     .manualCreate(new ProjectId(command.getProjectId()), permissionId,
-                        command.getName(), PermissionType.COMMON,
-                        command.getParentId() != null ? new PermissionId(command.getParentId()) :
-                            null, null, linkedPermId);
+                        command.getName(), command.getDescription(), PermissionType.COMMON,
+                        null, linkedPermId);
                 DomainRegistry.getPermissionRepository().add(permission);
                 return permissionId.getDomainId();
             }, PERMISSION);

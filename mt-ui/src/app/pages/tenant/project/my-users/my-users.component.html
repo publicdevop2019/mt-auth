@@ -12,7 +12,7 @@
     <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
     </app-search>
     <ng-container
-        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_TENANT_USER')) |async">
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'USER_MGMT')) |async">
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
                 <ng-container matColumnDef="id" sticky>

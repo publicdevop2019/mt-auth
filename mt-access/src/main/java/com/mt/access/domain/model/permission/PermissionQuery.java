@@ -24,15 +24,12 @@ import lombok.ToString;
 public class PermissionQuery extends QueryCriteria {
     private static final String ID = "id";
     private static final String NAME = "name";
-    private static final String PARENT_ID_LITERAL = "parentId";
     private static final String TYPES = "types";
     private Set<PermissionId> ids;
 
     private Set<ProjectId> projectIds;
     @Setter
     private Set<ProjectId> tenantIds;
-    private PermissionId parentId;
-    private Boolean parentIdNull;
     @Setter
     private Set<String> names;
     private Set<PermissionType> types;
@@ -57,15 +54,6 @@ public class PermissionQuery extends QueryCriteria {
         PermissionQuery permissionQuery = new PermissionQuery();
         permissionQuery.setIds(permissionIds);
         permissionQuery.types = Collections.singleton(type);
-        permissionQuery.setPageConfig(PageConfig.defaultConfig());
-        permissionQuery.setQueryConfig(QueryConfig.countRequired());
-        return permissionQuery;
-    }
-
-    public static PermissionQuery internalQuery(ProjectId projectId, String name) {
-        PermissionQuery permissionQuery = new PermissionQuery();
-        permissionQuery.projectIds = Collections.singleton(projectId);
-        permissionQuery.names = Collections.singleton(name);
         permissionQuery.setPageConfig(PageConfig.defaultConfig());
         permissionQuery.setQueryConfig(QueryConfig.countRequired());
         return permissionQuery;
@@ -139,8 +127,7 @@ public class PermissionQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, ID, NAME, PARENT_ID_LITERAL,
-                AppConstant.QUERY_PROJECT_IDS, TYPES);
+            QueryUtility.parseQuery(queryParam, ID, NAME, AppConstant.QUERY_PROJECT_IDS, TYPES);
         Optional.ofNullable(stringStringMap.get(ID))
             .ifPresent(e -> setIds(
                 Arrays.stream(e.split("\\.")).map(PermissionId::new)
@@ -148,14 +135,6 @@ public class PermissionQuery extends QueryCriteria {
         Optional.ofNullable(stringStringMap.get(NAME))
             .ifPresent(e -> names = Arrays.stream(e.split("\\."))
                 .collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(PARENT_ID_LITERAL))
-            .ifPresent(e -> {
-                if ("null".equalsIgnoreCase(e)) {
-                    parentIdNull = true;
-                } else {
-                    parentId = new PermissionId(e);
-                }
-            });
         Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
             .ifPresent(e -> projectIds =
                 Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));

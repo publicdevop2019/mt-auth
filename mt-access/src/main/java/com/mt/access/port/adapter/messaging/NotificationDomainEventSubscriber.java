@@ -12,7 +12,7 @@ import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUp
 import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
@@ -137,7 +137,7 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener14() {
-        ListenerHelper.listen(new SubscriberEndpointExpireEvent(),
+        ListenerHelper.listen(new SubscribedEndpointExpireEvent(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event));
     }

@@ -1,7 +1,5 @@
 package com.mt.access.application.role.representation;
 
-import static com.mt.access.domain.model.permission.Permission.API_ACCESS;
-
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
@@ -90,11 +88,9 @@ public class RoleRepresentation {
         }
         if (Checker.notNullOrEmpty(role.getApiPermissionIds())) {
             Set<Permission> permissions =
-                QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
-                    .query(e), PermissionQuery.internalQuery(role.getApiPermissionIds()))
-                    .stream()
-                    .filter(e -> !e.getName().equalsIgnoreCase(API_ACCESS))
-                    .collect(Collectors.toSet());
+                new HashSet<>(
+                    QueryUtility.getAllByQuery(e -> DomainRegistry.getPermissionRepository()
+                        .query(e), PermissionQuery.internalQuery(role.getApiPermissionIds())));
             Set<EndpointId> endpointIds =
                 permissions.stream()
                     .map(e -> new EndpointId(e.getName()))

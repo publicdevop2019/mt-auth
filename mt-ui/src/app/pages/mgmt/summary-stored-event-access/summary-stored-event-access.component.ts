@@ -95,7 +95,9 @@ export class SummaryStoredEventAccessComponent {
     })
   }
   doRetry(id: string) {
-    this.httpSvc.retry(this.urlDefault, id)
+    this.httpSvc.retry(this.urlDefault, id).subscribe(()=>{
+      this.device.notify(true)
+    })
   }
   doSearch(config: ISearchEvent) {
     this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);

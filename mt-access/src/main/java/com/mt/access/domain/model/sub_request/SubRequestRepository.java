@@ -25,7 +25,7 @@ public interface SubRequestRepository {
 
     SubRequest query(SubRequestId id);
 
-    Set<UserId> getEndpointSubscriber(EndpointId endpointId);
+    Set<ProjectId> getSubProjectId(EndpointId endpointId);
 
     SumPagedRep<SubRequest> getSubscription(SubRequestQuery query);
 

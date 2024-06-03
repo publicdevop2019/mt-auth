@@ -51,6 +51,10 @@ export interface IEndpoint extends IIdBasedEntity {
     replenishRate?: number,
     burstCapacity?: number,
 }
+export interface IProtectedEndpoint extends IIdBasedEntity {
+    name: string;
+    permissionId: string;
+}
 export interface IMgmtEndpoint extends IIdBasedEntity {
     resourceId: string;
     resourceName?: string;
@@ -89,10 +93,11 @@ export interface IMgmtEndpoint extends IIdBasedEntity {
 export interface IPermission extends IIdBasedEntity {
     name: string
     projectId: string
-    parentId: string
+    description: string
     linkedApiIds: string[]
     systemCreate?: boolean
     linkedApiPermissionIds?: string[]
+    linkedApiNames?: string[]
     type?: "COMMON" | 'API' | 'PROJECT'
 }
 export interface IRoleLinkedPermission {
@@ -161,7 +166,6 @@ export interface IUpdatePwdCommand {
 }
 export interface IClientCreate {
     name?: string;
-    projectId: string;
     type?: string
 }
 export interface IClient extends IIdName {
@@ -258,11 +262,6 @@ export interface IIdBasedEntity {
 export interface ISumRep<T> {
     data: T[],
     totalItemCount: number
-}
-export interface IDomainContext<S> {
-    context: 'clone' | 'new' | 'edit';
-    from: S;
-    params: {}
 }
 export interface IIdName extends IIdBasedEntity {
     name: string

@@ -23,10 +23,10 @@ public class PermissionService {
             Set<EndpointId> collect =
                 endpointIds.stream().map(EndpointId::new)
                     .collect(Collectors.toSet());
-            Set<Endpoint> allByQuery = QueryUtility.getAllByQuery(
+            Set<Endpoint> endpoints = QueryUtility.getAllByQuery(
                 e -> DomainRegistry.getEndpointRepository().query(e),
                 EndpointQuery.tenantQuery(collect, projectIds));
-            linkedPermId = allByQuery.stream().map(Endpoint::getPermissionId)
+            linkedPermId = endpoints.stream().map(Endpoint::getPermissionId)
                 .collect(Collectors.toSet());
             Validator.sizeEquals(endpointIds, linkedPermId);
         }

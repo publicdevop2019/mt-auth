@@ -8,7 +8,7 @@
             </div>
         </div>
         <button mat-raised-button color="primary" (click)="create()" style="height: 36px;"
-            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CREATE_CACHE')) |async ">
+            *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'API_MGMT')) |async ">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <mat-icon>add</mat-icon>
                 <div>{{'ADD'|translate}}</div>
@@ -16,7 +16,7 @@
         </button>
     </div>
     <ng-container
-        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'VIEW_CACHE'))|async">
+        *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'API_MGMT'))|async">
         <div>
             <div class="table-container">
                 <table mat-table [dataSource]="tableSource.dataSource">

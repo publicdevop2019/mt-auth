@@ -3,16 +3,14 @@ package com.mt.access.application.client;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_CLIENT;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_CLIENT;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_CLIENT;
-import static com.mt.access.domain.model.permission.Permission.CREATE_CLIENT;
-import static com.mt.access.domain.model.permission.Permission.EDIT_CLIENT;
-import static com.mt.access.domain.model.permission.Permission.VIEW_CLIENT;
+import static com.mt.access.domain.model.permission.Permission.CLIENT_MGMT;
 
 import com.mt.access.application.client.command.ClientCreateCommand;
 import com.mt.access.application.client.command.ClientUpdateCommand;
 import com.mt.access.application.client.representation.ClientCardRepresentation;
 import com.mt.access.application.client.representation.ClientDropdownRepresentation;
-import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.application.client.representation.ClientOAuth2Representation;
+import com.mt.access.application.client.representation.ClientRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.audit.AuditLog;
 import com.mt.access.domain.model.client.Client;
@@ -30,7 +28,6 @@ import com.mt.access.domain.model.role.Role;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.role.event.ExternalPermissionUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.develop.Analytics;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -53,15 +50,15 @@ public class ClientApplicationService {
 
     public SumPagedRep<ClientCardRepresentation> tenantQuery(String queryParam, String pagingParam,
                                                              String configParam) {
-                ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-                DomainRegistry.getPermissionCheckService()
-                    .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
-                SumPagedRep<Client> clients =
-                    DomainRegistry.getClientRepository().query(clientQuery);
-                SumPagedRep<ClientCardRepresentation> rep =
-                    new SumPagedRep<>(clients, ClientCardRepresentation::new);
-                updateDetails(rep.getData());
-                return rep;
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(clientQuery.getProjectIds(), CLIENT_MGMT);
+        SumPagedRep<Client> clients =
+            DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<ClientCardRepresentation> rep =
+            new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        updateDetails(rep.getData());
+        return rep;
     }
 
     private static void updateDetails(List<ClientCardRepresentation> data) {
@@ -105,29 +102,29 @@ public class ClientApplicationService {
         ClientQuery clientQuery =
             ClientQuery.dropdownQuery(queryParam, pagingParam, configParam, 1000);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(clientQuery.getProjectIds(), VIEW_CLIENT);
+            .canAccess(clientQuery.getProjectIds(), CLIENT_MGMT);
         SumPagedRep<Client> clients = DomainRegistry.getClientRepository().query(clientQuery);
         return new SumPagedRep<>(clients, ClientDropdownRepresentation::new);
     }
 
     public ClientRepresentation tenantQueryById(String clientId, String projectId) {
-                ProjectId projectId1 = new ProjectId(projectId);
-                DomainRegistry.getPermissionCheckService()
-                    .canAccess(projectId1, VIEW_CLIENT);
-                Client client =
-                    DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
-                return new ClientRepresentation(client);
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(projectId1, CLIENT_MGMT);
+        Client client =
+            DomainRegistry.getClientRepository().get(projectId1, new ClientId(clientId));
+        return new ClientRepresentation(client);
     }
 
     public SumPagedRep<ClientCardRepresentation> mgmtQuery(String queryParam, String pagingParam,
                                                            String configParam) {
-                ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
-                SumPagedRep<Client> clients =
-                    DomainRegistry.getClientRepository().query(clientQuery);
-                SumPagedRep<ClientCardRepresentation> rep =
-                    new SumPagedRep<>(clients, ClientCardRepresentation::new);
-                updateDetails(rep.getData());
-                return rep;
+        ClientQuery clientQuery = new ClientQuery(queryParam, pagingParam, configParam);
+        SumPagedRep<Client> clients =
+            DomainRegistry.getClientRepository().query(clientQuery);
+        SumPagedRep<ClientCardRepresentation> rep =
+            new SumPagedRep<>(clients, ClientCardRepresentation::new);
+        updateDetails(rep.getData());
+        return rep;
     }
 
     /**
@@ -148,8 +145,8 @@ public class ClientApplicationService {
     }
 
     public ClientRepresentation mgmtQueryById(String id) {
-                Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
-                return new ClientRepresentation(client);
+        Client client = DomainRegistry.getClientRepository().get(new ClientId(id));
+        return new ClientRepresentation(client);
     }
 
     public SumPagedRep<Client> proxyQuery(String pagingParam, String configParam) {
@@ -166,7 +163,7 @@ public class ClientApplicationService {
     public String tenantCreate(ClientCreateCommand command, String changeId) {
         ClientId clientId = new ClientId();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(command.getProjectId()), CREATE_CLIENT);
+            .canAccess(new ProjectId(command.getProjectId()), CLIENT_MGMT);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId,
                 (context) -> {
@@ -202,7 +199,7 @@ public class ClientApplicationService {
     public void tenantUpdate(String id, ClientUpdateCommand command, String changeId) {
         ClientId clientId = new ClientId(id);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(command.getProjectId()), EDIT_CLIENT);
+            .canAccess(new ProjectId(command.getProjectId()), CLIENT_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery =
@@ -240,7 +237,7 @@ public class ClientApplicationService {
     @AuditLog(actionName = DELETE_TENANT_CLIENT)
     public void tenantRemove(String projectId, String id, String changeId) {
         ClientId clientId = new ClientId(id);
-        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), EDIT_CLIENT);
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), CLIENT_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 ClientQuery clientQuery = new ClientQuery(clientId, new ProjectId(projectId));

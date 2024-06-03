@@ -15,16 +15,22 @@ import com.mt.access.domain.model.endpoint.Endpoint;
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.endpoint.event.EndpointExpired;
 import com.mt.access.domain.model.project.ProjectId;
+import com.mt.access.domain.model.role.RoleId;
+import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.sub_request.SubRequest;
 import com.mt.access.domain.model.sub_request.SubRequestId;
 import com.mt.access.domain.model.sub_request.SubRequestQuery;
 import com.mt.access.domain.model.sub_request.event.SubRequestApprovedEvent;
-import com.mt.access.domain.model.sub_request.event.SubscriberEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
 import com.mt.access.domain.model.user.UserId;
+import com.mt.access.domain.model.user.UserRelation;
+import com.mt.access.domain.model.user.UserRelationQuery;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -208,11 +214,24 @@ public class SubRequestApplicationService {
             .idempotent(event.getId().toString(), (context) -> {
                 DomainId domainId = event.getDomainId();
                 EndpointId endpointId = new EndpointId(domainId.getDomainId());
-                Set<UserId> subscribers =
-                    DomainRegistry.getSubRequestRepository().getEndpointSubscriber(endpointId);
-                if (!subscribers.isEmpty()) {
+                Set<ProjectId> projectsSubscribed =
+                    DomainRegistry.getSubRequestRepository().getSubProjectId(endpointId);
+                if (!projectsSubscribed.isEmpty()) {
+                    //find project current admins
+                    //@note it could be very slow due to N+1 issue
+                    Set<UserId> allAdmins = projectsSubscribed.stream().flatMap(tenantProjectId -> {
+                        RoleId tenantAdminRoleId =
+                            DomainRegistry.getRoleRepository()
+                                .query(RoleQuery.tenantAdmin(tenantProjectId))
+                                .findFirst().get().getRoleId();
+                        Set<UserRelation> allByQuery = QueryUtility.getAllByQuery(
+                            (q) -> DomainRegistry.getUserRelationRepository()
+                                .query(q),
+                            UserRelationQuery.internalAdminQuery(tenantAdminRoleId));
+                        return allByQuery.stream().map(UserRelation::getUserId);
+                    }).collect(Collectors.toSet());
                     context
-                        .append(new SubscriberEndpointExpireEvent(endpointId, subscribers));
+                        .append(new SubscribedEndpointExpireEvent(endpointId, allAdmins));
                 } else {
                     log.debug("skip sending SubscriberEndpointExpireEvent due to not subscribed");
                 }

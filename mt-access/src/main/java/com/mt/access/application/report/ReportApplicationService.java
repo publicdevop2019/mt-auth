@@ -1,6 +1,6 @@
 package com.mt.access.application.report;
 
-import static com.mt.access.domain.model.permission.Permission.VIEW_API;
+import static com.mt.access.domain.model.permission.Permission.API_MGMT;
 import static com.mt.access.infrastructure.AppConstant.ACCESS_DATA_PROCESSING_JOB_NAME;
 
 import com.mt.access.domain.DomainRegistry;
@@ -12,8 +12,6 @@ import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,8 +19,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -42,7 +38,7 @@ public class ReportApplicationService {
     }
 
     public EndpointReport analyze(String projectId, String endpointRawId, String queryParam) {
-        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), VIEW_API);
+        DomainRegistry.getPermissionCheckService().canAccess(new ProjectId(projectId), API_MGMT);
         EndpointId endpointId = new EndpointId(endpointRawId);
         Map<String, String> type = QueryUtility.parseQuery(queryParam, REPORT_TYPE);
         AtomicReference<EndpointReport> report = new AtomicReference<>();

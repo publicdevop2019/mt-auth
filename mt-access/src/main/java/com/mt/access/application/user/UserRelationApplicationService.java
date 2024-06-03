@@ -3,8 +3,7 @@ package com.mt.access.application.user;
 import static com.mt.access.domain.model.audit.AuditActionName.ADD_TENANT_ADMIN;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ADMIN;
 import static com.mt.access.domain.model.permission.Permission.ADMIN_MGMT;
-import static com.mt.access.domain.model.permission.Permission.EDIT_TENANT_USER;
-import static com.mt.access.domain.model.permission.Permission.VIEW_TENANT_USER;
+import static com.mt.access.domain.model.permission.Permission.USER_MGMT;
 import static com.mt.access.domain.model.role.Role.PROJECT_USER;
 import static com.mt.access.infrastructure.AppConstant.MT_AUTH_PROJECT_ID;
 
@@ -49,7 +48,7 @@ public class UserRelationApplicationService {
     public UserTenantRepresentation tenantUser(String projectId, String userId) {
         ProjectId projectId1 = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(projectId1, VIEW_TENANT_USER);
+            .canAccess(projectId1, USER_MGMT);
         UserRelation relation =
             DomainRegistry.getUserRelationRepository().get(new UserId(userId), projectId1);
         User user = DomainRegistry.getUserRepository().get(relation.getUserId());
@@ -60,7 +59,7 @@ public class UserRelationApplicationService {
     public SumPagedRep<User> tenantUsers(String queryParam, String pageParam, String config) {
         UserRelationQuery userRelationQuery = new UserRelationQuery(queryParam, pageParam, config);
         DomainRegistry.getPermissionCheckService()
-            .canAccess(userRelationQuery.getProjectIds(), VIEW_TENANT_USER);
+            .canAccess(userRelationQuery.getProjectIds(), USER_MGMT);
         SumPagedRep<UserRelation> byQuery =
             DomainRegistry.getUserRelationRepository().query(userRelationQuery);
         if (byQuery.getData().isEmpty()) {
@@ -132,7 +131,7 @@ public class UserRelationApplicationService {
     public void tenantUpdate(String rawProjectId, String userId, UpdateUserRelationCommand command,
                              String changeId) {
         ProjectId projectId = new ProjectId(rawProjectId);
-        DomainRegistry.getPermissionCheckService().canAccess(projectId, EDIT_TENANT_USER);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, USER_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 UserRelation relation =
@@ -224,7 +223,7 @@ public class UserRelationApplicationService {
             throw new DefinedRuntimeException("admin modify is not allowed", "1077",
                 HttpResponseCode.BAD_REQUEST);
         }
-        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, EDIT_TENANT_USER);
+        DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, USER_MGMT);
         if (userId
             .equals(DomainRegistry.getCurrentUserService().getUserId())) {
             throw new DefinedRuntimeException("you can not add/remove yourself", "1079",

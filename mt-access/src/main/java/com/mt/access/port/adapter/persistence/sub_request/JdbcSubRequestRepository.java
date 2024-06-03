@@ -75,7 +75,7 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
             "GROUP BY sr2.endpoint_id HAVING MAX(sr2.modified_at) > 0" +
             ")";
     private static final String FIND_SUBSCRIBER_SQL =
-        "SELECT DISTINCT sr.created_by FROM sub_request sr " +
+        "SELECT DISTINCT sr.project_id FROM sub_request sr " +
             "WHERE sr.endpoint_id = ? and sr.sub_request_status = 'APPROVED'";
     private static final String FIND_SUBSCRIBE_EP_SQL =
         "SELECT DISTINCT sr.endpoint_id FROM sub_request sr " +
@@ -217,16 +217,16 @@ public class JdbcSubRequestRepository implements SubRequestRepository {
     }
 
     @Override
-    public Set<UserId> getEndpointSubscriber(EndpointId endpointId) {
-        List<UserId> data = CommonDomainRegistry.getJdbcTemplate()
+    public Set<ProjectId> getSubProjectId(EndpointId endpointId) {
+        List<ProjectId> data = CommonDomainRegistry.getJdbcTemplate()
             .query(FIND_SUBSCRIBER_SQL,
                 rs -> {
                     if (!rs.next()) {
                         return Collections.emptyList();
                     }
-                    List<UserId> list = new ArrayList<>();
+                    List<ProjectId> list = new ArrayList<>();
                     do {
-                        list.add(new UserId(rs.getString("created_by")));
+                        list.add(new ProjectId(rs.getString("project_id")));
                     } while (rs.next());
                     return list;
                 },

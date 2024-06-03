@@ -161,19 +161,19 @@
                 <mat-nav-list style="padding-top: 0px;">
                     <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/insights'"
                         routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, projectPermissions) | async">
+                        *appRequireP="getPermissionId(projectPermissions) | async">
                         <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">trending_up</mat-icon>
                         {{'MY_PROJECT'| translate}}
                     </mat-list-item>
                     <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/clients'"
                         routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, clientPermissions) | async">
+                        *appRequireP="getPermissionId(clientPermissions) | async">
                         <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">apps</mat-icon>
                         {{'MY_CLIENTS'| translate}}
                     </mat-list-item>
                     <mat-expansion-panel (opened)="openedHandler('ep_nav')" (closed)="closedHander('ep_nav')"
                         [expanded]="navExpand('ep_nav')"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, epPermissions) | async">
+                        *appRequireP="getPermissionId(epPermissions) | async">
                         <mat-expansion-panel-header style="padding-left: 16px;">
                             <mat-panel-title style="align-items: center;">
                                 <mat-icon fontSet="material-icons-outlined">api</mat-icon>
@@ -187,19 +187,19 @@
                             </mat-list-item>
                             <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/cors-configs'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                                *appRequireP="getPermissionId(projectSvc.viewProject.id, corsPermissions) | async">
+                                *appRequireP="getPermissionId(corsPermissions) | async">
                                 {{'MY_CORS'| translate}}
                             </mat-list-item>
                             <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/cache-configs'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                                *appRequireP="getPermissionId(projectSvc.viewProject.id, cachePermissions) | async">
+                                *appRequireP="getPermissionId(cachePermissions) | async">
                                 {{'MY_CACHE'| translate}}
                             </mat-list-item>
                         </mat-nav-list>
                     </mat-expansion-panel>
                     <mat-expansion-panel (opened)="openedHandler('p_nav')" (closed)="closedHander('p_nav')"
                         [expanded]="navExpand('p_nav')"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, epPermissions) | async">
+                        *appRequireP="getPermissionId(epPermissions) | async">
                         <mat-expansion-panel-header style="padding-left: 16px;">
                             <mat-panel-title style="align-items: center;">
                                 <mat-icon fontSet="material-icons-outlined">policy</mat-icon>
@@ -213,20 +213,20 @@
                             </mat-list-item>
                             <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/roles'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                                *appRequireP="getPermissionId(projectSvc.viewProject.id, corsPermissions) | async">
+                                *appRequireP="getPermissionId(corsPermissions) | async">
                                 {{'MY_ROLE_DASHBOARD'| translate}}
                             </mat-list-item>
                         </mat-nav-list>
                     </mat-expansion-panel>
                     <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/users'"
                         routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, userPermissions) | async">
+                        *appRequireP="getPermissionId(userPermissions) | async">
                         <mat-icon fontSet="material-icons-outlined" style="padding-right:8px;">people</mat-icon>
                         {{'MY_USER_DASHBOARD'| translate}}
                     </mat-list-item>
                     <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/admins'"
                         routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
-                        *appRequireP="getPermissionId(projectSvc.viewProject.id, adminPermissions) | async">
+                        *appRequireP="getPermissionId(adminPermissions) | async">
                         <mat-icon fontSet="material-icons-outlined"
                             style="padding-right:8px;">admin_panel_settings</mat-icon>
                         {{'MY_ADMIN_DASHBOARD'| translate}}

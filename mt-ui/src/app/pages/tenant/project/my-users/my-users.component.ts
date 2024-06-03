@@ -46,7 +46,7 @@ export class MyUsersComponent {
     public projectSvc: ProjectService,
     public route: RouterWrapperService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_TENANT_USER').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
         email: 'EMAIL',
@@ -56,7 +56,7 @@ export class MyUsersComponent {
         email: 'EMAIL',
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_TENANT_USER').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
       }

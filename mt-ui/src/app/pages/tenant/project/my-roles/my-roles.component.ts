@@ -11,6 +11,7 @@ import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { take } from 'rxjs/operators';
+import { DeviceService } from 'src/app/services/device.service';
 export interface IRole extends IIdBasedEntity {
   name: string,
   originalName?: string,
@@ -40,20 +41,20 @@ export class MyRolesComponent {
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ROLES)
   public tableSource: TableHelper<IRole> = new TableHelper(this.columnList, 10, this.httpSvc, this.url, 'types:USER');
   public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
-  sheetComponent = RoleComponent;
   constructor(
     public httpProxySvc: HttpProxyService,
     public projectSvc: ProjectService,
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
     public dialog: MatDialog,
+    public deviceSvc: DeviceService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_ROLE').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'ROLE_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
       }
     })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_ROLE').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'ROLE_MGMT').pipe(take(1)).subscribe(b => {
       this.columnList = b.result ? {
         name: 'NAME',
         description: 'DESCRIPTION',
@@ -94,5 +95,13 @@ export class MyRolesComponent {
       externalPermissionIds: [],
       version: 0
     }
+  }
+  public doDelete(id: string) {
+    this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
+      this.deviceSvc.notify(true)
+      this.tableSource.refresh()
+    }, () => {
+      this.deviceSvc.notify(false)
+    })
   }
 }

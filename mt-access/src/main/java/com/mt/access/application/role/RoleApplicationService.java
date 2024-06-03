@@ -3,9 +3,7 @@ package com.mt.access.application.role;
 import static com.mt.access.domain.model.audit.AuditActionName.CREATE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.DELETE_TENANT_ROLE;
 import static com.mt.access.domain.model.audit.AuditActionName.UPDATE_TENANT_ROLE;
-import static com.mt.access.domain.model.permission.Permission.CREATE_ROLE;
-import static com.mt.access.domain.model.permission.Permission.EDIT_ROLE;
-import static com.mt.access.domain.model.permission.Permission.VIEW_ROLE;
+import static com.mt.access.domain.model.permission.Permission.ROLE_MGMT;
 
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
@@ -59,7 +57,7 @@ public class RoleApplicationService {
                                                      String skipCount) {
                 RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
                 DomainRegistry.getPermissionCheckService()
-                    .canAccess(roleQuery.getProjectIds(), VIEW_ROLE);
+                    .canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
                 SumPagedRep<Role> query = DomainRegistry.getRoleRepository().query(roleQuery);
                 SumPagedRep<RoleCardRepresentation> roleCardRepresentationSumPagedRep =
                     new SumPagedRep<>(query, RoleCardRepresentation::new);
@@ -69,7 +67,7 @@ public class RoleApplicationService {
 
     public RoleRepresentation query(String projectId, String id) {
                 ProjectId projectId1 = new ProjectId(projectId);
-                DomainRegistry.getPermissionCheckService().canAccess(projectId1, VIEW_ROLE);
+                DomainRegistry.getPermissionCheckService().canAccess(projectId1, ROLE_MGMT);
                 Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
                 return new RoleRepresentation(role);
     }
@@ -79,7 +77,7 @@ public class RoleApplicationService {
     public void tenantUpdate(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 Optional<Role> first =
@@ -96,7 +94,7 @@ public class RoleApplicationService {
     public void tenantRemove(String projectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
         RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), EDIT_ROLE);
+        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
             Role role = DomainRegistry.getRoleRepository().get(roleId);
             role.remove();
@@ -122,7 +120,7 @@ public class RoleApplicationService {
     public String tenantCreate(RoleCreateCommand command, String changeId) {
         RoleId roleId = new RoleId();
         DomainRegistry.getPermissionCheckService()
-            .canAccess(new ProjectId(command.getProjectId()), CREATE_ROLE);
+            .canAccess(new ProjectId(command.getProjectId()), ROLE_MGMT);
         return CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
                 Role role = Role.createRoleForTenant(

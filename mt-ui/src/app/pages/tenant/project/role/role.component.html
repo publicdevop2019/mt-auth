@@ -1,5 +1,6 @@
 <div class="default-form-background">
-    <button (click)="router.navProjectRolesDashboard()" mat-button style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
+    <button (click)="router.navProjectRolesDashboard()" mat-button
+        style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
         <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
     <div style="font-size: 24px; margin: 16px 0px;">{{fg.get('name').value}}</div>
@@ -28,10 +29,14 @@
         </mat-tab>
         <mat-tab label="{{'TAB_PERMISSIONS'|translate}}">
             <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px;">
-                <div style="margin: 32px 0px 16px 0px;">{{"ROLE_PERMISSION_NOTE"|translate}}</div>
+                <div style="margin: 32px 0px 16px 0px; display: flex; align-items: center;">
+                     <mat-icon [color]="'primary'" style="margin-right: 4px;">info
+                    </mat-icon>
+                    <div>{{"ROLE_PERMISSION_NOTE"|translate}}</div>
+                </div>
                 <div>
                     <button mat-raised-button style="width: 100px;" color="primary" class="app-btn"
-                    (click)="addPermission()">{{'ADD_PERMISSION'|translate}}</button>
+                        (click)="addPermission()">{{'ADD_PERMISSION'|translate}}</button>
                 </div>
             </div>
             <div class="table-container">

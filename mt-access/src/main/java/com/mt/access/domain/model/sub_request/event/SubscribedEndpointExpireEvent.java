@@ -12,18 +12,18 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AuditEvent
-public class SubscriberEndpointExpireEvent extends DomainEvent {
-    public static final String SUBSCRIBER_ENDPOINT_EXPIRE = "subscriber_endpoint_expire";
-    public static final String name = "SUBSCRIBER_ENDPOINT_EXPIRE";
+public class SubscribedEndpointExpireEvent extends DomainEvent {
+    public static final String SUBSCRIBED_ENDPOINT_EXPIRE = "subscribed_endpoint_expire";
+    public static final String name = "SUBSCRIBED_ENDPOINT_EXPIRE";
     private EndpointId endpointId;
 
     {
-        setTopic(SUBSCRIBER_ENDPOINT_EXPIRE);
+        setTopic(SUBSCRIBED_ENDPOINT_EXPIRE);
         setName(name);
 
     }
 
-    public SubscriberEndpointExpireEvent(EndpointId endpointId,
+    public SubscribedEndpointExpireEvent(EndpointId endpointId,
                                          Set<UserId> ids) {
         super(new HashSet<>(ids));
         this.endpointId = endpointId;

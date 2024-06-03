@@ -238,15 +238,6 @@ public class TenantPermissionTest {
     }
 
     @Test
-    public void tenant_can_view_permission_tree() {
-        ResponseEntity<SumTotal<Permission>> response2 =
-            PermissionUtility.readTenantPermissionWithQuery(tenantContext,
-                "query=types:COMMON,parentId:null");
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assertions.assertNotSame(0, response2.getBody().getData().size());
-    }
-
-    @Test
     public void tenant_can_view_permission_detail() {
         Permission permission = PermissionUtility.createRandomPermissionObj();
         ResponseEntity<Void> response =

@@ -5,7 +5,7 @@ import { CLIENT_TYPE, grantTypeEnums, RESOURCE_NAME } from 'src/app/misc/constan
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { Utility } from 'src/app/misc/utility';
 import { Validator } from 'src/app/misc/validator';
-import { IClient, IClientCreate, IDomainContext, IOption } from 'src/app/misc/interface';
+import { IClient, IClientCreate, IOption } from 'src/app/misc/interface';
 import { ProjectService } from 'src/app/services/project.service';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -67,7 +67,24 @@ export class ClientComponent {
       if (this.router.getData() === undefined) {
         this.router.navProjectHome()
       }
-      this.data = (this.router.getData() as IDomainContext<IClient>).from
+      if (this.context === 'NEW') {
+        const createData = (this.router.getData() as IClientCreate)
+        this.fg.get('projectId').setValue(this.router.getProjectIdFromUrl())
+        this.fg.get('frontOrBackApp').setValue(createData.type)
+        this.fg.get('name').setValue(createData.name)
+        this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])
+        this.fg.get('accessTokenValiditySeconds').setValue(120)
+        this.fg.get('refreshToken').setValue(true)
+        this.fg.get('refreshTokenValiditySeconds').setValue(1200)
+        this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
+        this.fg.get('clientSecret').setValue(Utility.getChangeId())
+        if (createData.type === 'BACKEND_APP') {
+          this.fg.get('resourceIndicator').setValue(true)
+          this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '') + '-svc')
+          this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
+  
+        }
+      }
     } else {
       this.context = 'EDIT'
       this.httpProxySvc.readEntityById<IClient>(this.url, clientId).subscribe(next => {
@@ -131,24 +148,6 @@ export class ClientComponent {
         this.fg.get('refreshTokenValiditySeconds').disable()
       }
     })
-    if (this.context === 'NEW') {
-      const createData = this.data as IClientCreate
-      this.fg.get('projectId').setValue(createData.projectId)
-      this.fg.get('frontOrBackApp').setValue(createData.type)
-      this.fg.get('name').setValue(createData.name)
-      this.fg.get('grantType').setValue(['AUTHORIZATION_CODE', 'PASSWORD'])
-      this.fg.get('accessTokenValiditySeconds').setValue(120)
-      this.fg.get('refreshToken').setValue(true)
-      this.fg.get('refreshTokenValiditySeconds').setValue(1200)
-      this.fg.get('registeredRedirectUri').setValue('http://localhost:3000/user-profile')
-      this.fg.get('clientSecret').setValue(Utility.getChangeId())
-      if (createData.type === 'BACKEND_APP') {
-        this.fg.get('resourceIndicator').setValue(true)
-        this.fg.get('path').setValue(Utility.getChangeId().replace(new RegExp(/[\d-]/g), '') + '-svc')
-        this.fg.get('externalUrl').setValue('http://localhost:8080/server-address')
-
-      }
-    }
   }
 
   update() {

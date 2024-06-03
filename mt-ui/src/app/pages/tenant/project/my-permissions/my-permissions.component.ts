@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { IEndpoint, IPermission, IQueryProvider } from 'src/app/misc/interface';
+import { IEndpoint, IPermission, IProtectedEndpoint, IQueryProvider } from 'src/app/misc/interface';
 import { FormGroup, FormControl } from '@angular/forms';
 import { Validator } from 'src/app/misc/validator';
 import { Utility } from 'src/app/misc/utility';
@@ -20,12 +20,13 @@ import { take } from 'rxjs/operators';
 export class MyPermissionsComponent {
   public projectId = this.route.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.PERMISSIONS)
-  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS)
+  private epUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ENDPOINTS_PROTECTED)
   public changeId = Utility.getChangeId();
   public allowError = false;
   public nameErrorMsg: string = undefined;
   fg = new FormGroup({
     name: new FormControl(''),
+    description: new FormControl(''),
     projectId: new FormControl(''),
     parentId: new FormControl(''),
     apiId: new FormControl([]),
@@ -33,7 +34,9 @@ export class MyPermissionsComponent {
   private initialColumnList: any = {
     id: 'ID',
     name: 'PERM_NAME',
-    type: 'TYPE',
+    description: 'DESCRIPTION',
+    linkedApi: 'LINKED_API',
+    delete: 'DELETE',
   };
   parentIdOption = [];
   apiOptions = [];
@@ -45,21 +48,9 @@ export class MyPermissionsComponent {
     public deviceSvc: DeviceService,
     public route: RouterWrapperService,
   ) {
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'VIEW_PERMISSION').pipe(take(1)).subscribe(b => {
+    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'PERMISSION_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)
-      }
-    })
-    this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'EDIT_PERMISSION').pipe(take(1)).subscribe(b => {
-      this.tableSource.columnConfig = b.result ? {
-        id: 'ID',
-        name: 'PERM_NAME',
-        type: 'TYPE',
-        delete: 'DELETE',
-      } : {
-        id: 'ID',
-        name: 'PERM_NAME',
-        type: 'TYPE',
       }
     })
     this.fg.valueChanges.subscribe(() => {
@@ -68,25 +59,18 @@ export class MyPermissionsComponent {
       }
     })
   }
-  getParentPerm(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IPermission>(this.url, num, size, `types:COMMON`, by, order, header)
-      }
-    } as IQueryProvider
-  }
   getEndpoints(): IQueryProvider {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpSvc.readEntityByQuery<IEndpoint>(this.epUrl, num, size, query, by, order, header)
+        return this.httpSvc.readEntityByQuery<IProtectedEndpoint>(this.epUrl, num, size, query, by, order, header)
       }
     } as IQueryProvider
   }
   convertToPayload(): IPermission {
     return {
       id: '',//value is ignored
-      parentId: this.fg.get('parentId').value ? this.fg.get('parentId').value : null,
       name: this.fg.get('name').value,
+      description: this.fg.get('description').value,
       projectId: this.projectId,
       linkedApiIds: this.fg.get('apiId').value || [],
       version: 0
@@ -109,12 +93,15 @@ export class MyPermissionsComponent {
     this.nameErrorMsg = var0.errorMsg
     return !var0.errorMsg
   }
-  public delete(id: string) {
+  public doDelete(id: string) {
     this.httpSvc.deleteEntityById(this.url, id, Utility.getChangeId()).subscribe(() => {
       this.deviceSvc.notify(true)
       this.tableSource.refresh()
     }, () => {
       this.deviceSvc.notify(false)
     })
+  }
+  removeFirst(input: string[]) {
+    return input.filter((e, i) => i !== 0);
   }
 }

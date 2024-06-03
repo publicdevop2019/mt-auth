@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { combineLatest, Observable, Subscription } from 'rxjs';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -41,7 +41,7 @@ export class RoleComponent implements OnDestroy {
   commonOptions: IOption[] = []
   apiOptions: IOption[] = []
   sharedApiOptions: IOption[] = []
-  dataSource: MatTableDataSource<IPermTable>;
+  dataSource: MatTableDataSource<IPermTable> = new MatTableDataSource([]);
   columnList = {
     name: 'NAME',
     type: 'TYPE',
@@ -52,20 +52,16 @@ export class RoleComponent implements OnDestroy {
   private sharedPermUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.SHARED_PERMISSION)
   constructor(
     public httpProxySvc: HttpProxyService,
-    public cdr: ChangeDetectorRef,
     public router: RouterWrapperService,
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
-    const roleId = this.router.getRoleIdFromUrl()
-
-    this.httpProxySvc.readEntityById<IRole>(this.roleUrl, roleId).subscribe(next => {
+    this.httpProxySvc.readEntityById<IRole>(this.roleUrl, this.router.getRoleIdFromUrl()).subscribe(next => {
       this.data = next
       this.fg.get('name').setValue(this.data.name)
       this.fg.get('description').setValue(this.data.description)
       this.reusme();
     })
-    this.dataSource = new MatTableDataSource([])
     this.fg.valueChanges.subscribe(next => {
       if (this.allowError) {
         this.validateForm()
@@ -80,27 +76,6 @@ export class RoleComponent implements OnDestroy {
     return {
       readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
         return this.httpProxySvc.readEntityByQuery<IRole>(this.roleUrl, num, size, `types:PROJECT.USER`, by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getShared(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.sharedPermUrl, num, size, undefined, by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getCommonPermissions(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:COMMON", by, order, header)
-      }
-    } as IQueryProvider
-  }
-  getApiPermissions(): IQueryProvider {
-    return {
-      readByQuery: (num: number, size: number, query?: string, by?: string, order?: string, header?: {}) => {
-        return this.httpProxySvc.readEntityByQuery<IRole>(this.permissionUrl, num, size, "types:API", by, order, header)
       }
     } as IQueryProvider
   }
@@ -198,7 +173,10 @@ export class RoleComponent implements OnDestroy {
     const dialogRef = this.dialog.open(AddPermissionDialogComponent, { data: {} });
     dialogRef.afterClosed().subscribe(next => {
       if (next !== undefined) {
-        this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId)
+        this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload(next.type, next.permIds, true), this.changeId).subscribe(next => {
+          this.deviceSvc.notify(next)
+          this.reloadRole()
+        })
       }
     })
   }
@@ -206,12 +184,25 @@ export class RoleComponent implements OnDestroy {
     return ['name', 'type', 'delete']
   };
   removePerm(row: IPermTable) {
+    let next: Observable<boolean>
     if (row.type === 'COMMON') {
-      this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
+      next = this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('COMMON_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'API') {
       this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('API_PERMISSIONS', [row.id], false), this.changeId)
     } else if (row.type === 'SHARED') {
       this.httpProxySvc.updateEntity(this.roleUrl, this.data.id, this.convertToUpdatePermissionPayload('EXTERNAL_PERMISSION', [row.id], false), this.changeId)
     }
+    next.subscribe(next => {
+      this.deviceSvc.notify(next)
+      this.reloadRole()
+    })
+  }
+  private reloadRole() {
+    this.httpProxySvc.readEntityById<IRole>(this.roleUrl, this.router.getRoleIdFromUrl()).subscribe(next => {
+      this.data = next
+      this.fg.get('name').setValue(this.data.name)
+      this.fg.get('description').setValue(this.data.description)
+      this.reusme();
+    })
   }
 }
