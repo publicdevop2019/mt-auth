@@ -70,7 +70,7 @@ export class MyPermissionsComponent {
     return {
       id: '',//value is ignored
       name: this.fg.get('name').value,
-      description: this.fg.get('description').value,
+      description: this.fg.get('description').value ? this.fg.get('description').value : null,
       projectId: this.projectId,
       linkedApiIds: this.fg.get('apiId').value || [],
       version: 0
