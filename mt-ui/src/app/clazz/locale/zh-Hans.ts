@@ -540,7 +540,7 @@ export const zhHans = {
     "CACHE_MGMT": "管理缓存",
     "REFERENCE_ID": "关联ID",
     "PROJECT_PERMISSION_REMOVED": "项目权限移除",
-    "HOME_NOTIFICAIONT": "beta版本，请勿使用真实个人信息，您的数据将在版本更新时丢失，系统不会发送邮件，短信",
+    "HOME_NOTIFICAIONT": "beta版本，请勿使用真实个人信息，您的数据将可能在版本更新时丢失，系统不会发送真实邮件，短信",
     "WELCOME_MSG_1": "开源不易，您的收藏是对本项目最大的支持！",
     "SYSTEM_MESSAGES": "系统通知",
     "QUICK_START": "新手引导",

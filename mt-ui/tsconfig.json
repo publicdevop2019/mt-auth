@@ -17,6 +17,9 @@
     "typeRoots": [
       "node_modules/@types"
     ],
+    "types": [
+      "gtag.js"
+    ],
     "lib": [
       "es2019",
       "dom"
