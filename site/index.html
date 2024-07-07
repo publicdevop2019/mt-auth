@@ -2,6 +2,7 @@
 <html>
 
 <head lang="zh-Hans">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VD006ERKY"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag("js", new Date()); gtag("config", "G-7VD006ERKY"); </script>
     <style>
         body {
             font-family: Roboto, Arial, sans-serif;
@@ -19,6 +20,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="icon" type="image/x-icon" href="favicon.ico">
     <meta name="theme-color" content="#673ab7">
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          var links = document.querySelectorAll('a');
+          links.forEach(function(link) {
+            link.addEventListener('click', function(event) {
+              event.preventDefault();
+              gtag('event', 'click', {
+                'event_category': 'link',
+                'event_label': link.href,
+                'value': 1
+              });
+              setTimeout(function() {
+                window.location.href = link.href;
+              }, 200);
+            });
+          });
+        });
+      </script>
 </head>
 
 <body>
@@ -87,7 +106,7 @@
             </div>
 
             <li style="display: flex; flex-direction: row; margin: 8px 0px;">
-                <a  href="https://www.letsauth.cloud/login"
+                <a  href="https://github.com/publicdevop2019/mt-auth/tree/main/mt-sample"
                     style="width: 72px;background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
                     <span>快速使用</span>
                 </a>
