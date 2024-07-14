@@ -240,11 +240,28 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    login(email: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
+    loginUsername(username: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
-        formData.append('username', email);
+        formData.append('username', username);
         formData.append('password', pwd);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+    }
+    loginEmail(email: string, code: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        formData.append('grant_type', 'password');
+        formData.append('email', email);
+        formData.append('code', code);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+    }
+    loginMobile(mobileNumber: string, countryCode: string, code: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        formData.append('grant_type', 'password');
+        formData.append('mobile_number', mobileNumber);
+        formData.append('country_code', countryCode);
+        formData.append('code', code);
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
     }

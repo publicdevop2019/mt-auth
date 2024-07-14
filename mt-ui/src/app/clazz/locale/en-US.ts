@@ -1,12 +1,10 @@
 export const enUS = {
-    "REGISTER": "Register",
-    "GET_ACTIVATION_CODE": "Get Activation Code",
+    "GET_CODE": "Get Activation Code",
     "GET_PASSWORD_RESET_TOKEN": "Get Password Reset Token",
     "ACTIVATION_CODE": "activation code",
-    "ENTER_PASSWORD_RESET_TOKEN": "Enter password reset token",
     "ENTER_YOUR_PASSWORD": "Enter your password",
     "CONFIRM_YOUR_PASSWORD": "Confirm your password",
-    "LOGIN": "Login",
+    "LOGIN_OR_REGISTER": "Login / Register",
     "CHANGE_PASSWORD": "Change password",
     "FORGET_PASSWORD": "Forget password ?",
     "GO_BACK_TO_LOGIN": "Go back to login",
@@ -47,7 +45,6 @@ export const enUS = {
     "ENTER_PATH": "Enter path",
     "ENTER_YOUR_CURRENT_PASSWORD": "Enter your current password",
     "ENTER_YOUR_NEW_PASSWORD": "Enter your new password",
-    "REENTER_YOUR_NEW_PASSWORD": "Re-enter your new password",
     "ENTER_NAME": "Enter Name",
     "ENTER_PRICE": "Enter Price",
     "UPLOAD_PRODUCT_IMAGE_SMALL": "Upload product image small",
@@ -629,5 +626,4 @@ export const enUS = {
     "UPDATE_TABLE_COLUMN": "Configuration",
     "SELECT_TO_CHANGE_TABLE_COLUMN": "Select to change displayed columns",
     "MY_ROLE_DASHBOARD": "Roles",
-    "SOURCE_CODE_REPO": "Github",
 }

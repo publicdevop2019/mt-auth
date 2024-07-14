@@ -149,14 +149,17 @@ export interface IProjectAdmin extends IIdBasedEntity {
     name: string;
 }
 export interface IPendingUser {
-    email: string;
-    password?: string;
-    activationCode?: string;
-    mobileNumber?: string;
     countryCode?: string;
+    mobileNumber?: string;
+    email?: string;
+    username?: string;
+    password?: string;
+    code?: string;
 }
 export interface IForgetPasswordRequest {
-    email: string;
+    email?: string;
+    mobileNumber?: string;
+    countryCode?: string;
     token?: string;
     newPassword?: string;
 }
