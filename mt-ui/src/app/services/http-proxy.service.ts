@@ -243,6 +243,7 @@ export class HttpProxyService {
     loginUsername(username: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
+        formData.append('type', 'username');
         formData.append('username', username);
         formData.append('password', pwd);
         formData.append('scope', 'not_used');
@@ -252,6 +253,7 @@ export class HttpProxyService {
         const formData = new FormData();
         formData.append('grant_type', 'password');
         formData.append('email', email);
+        formData.append('type', 'email');
         formData.append('code', code);
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
@@ -259,6 +261,7 @@ export class HttpProxyService {
     loginMobile(mobileNumber: string, countryCode: string, code: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         formData.append('grant_type', 'password');
+        formData.append('type', 'mobile');
         formData.append('mobile_number', mobileNumber);
         formData.append('country_code', countryCode);
         formData.append('code', code);

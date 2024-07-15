@@ -52,7 +52,9 @@ export class LoginComponent {
     mobileCode: new FormControl('', []),
     email: new FormControl('', []),
     emailCode: new FormControl('', []),
-    username: new FormControl('', []),
+    pwdEmailOrUsername: new FormControl('', []),
+    pwdMobileNumber: new FormControl('', []),
+    pwdCountryCode: new FormControl('86', []),
     pwd: new FormControl('', []),
   });
   forgetForm = new FormGroup({
@@ -83,11 +85,11 @@ export class LoginComponent {
         let demoAccount = queryMaps.get('demo')
         this.loginContext = 'USERNAME';
         this.selectedLoginIndex = 2;
-        if(demoAccount==='admin'){
-          this.form.get('username').setValue('admin@sample.com')
+        if (demoAccount === 'admin') {
+          this.form.get('pwdEmailOrUsername').setValue('admin@sample.com')
           this.form.get('pwd').setValue('Password1!')
-        }else{
-          this.form.get('username').setValue('tenant@sample.com')
+        } else {
+          this.form.get('pwdEmailOrUsername').setValue('tenant@sample.com')
           this.form.get('pwd').setValue('Password1!')
         }
         this.loginOrRegister()
@@ -133,7 +135,12 @@ export class LoginComponent {
       } else if (this.loginContext === 'MOBILE') {
         response = this.httpProxy.loginMobile(this.form.get('mobileNum').value, this.form.get('countryCode').value, this.form.get('code').value)
       } else if (this.loginContext === 'USERNAME') {
-        response = this.httpProxy.loginUsername(this.form.get('username').value, this.form.get('pwd').value)
+        if (this.form.get('pwdMobileNumber').value) {
+          let combinedMobile = this.form.get('pwdCountryCode').value + ' ' + this.form.get('pwdMobileNumber').value
+          response = this.httpProxy.loginUsername(combinedMobile, this.form.get('pwd').value)
+        } else {
+          response = this.httpProxy.loginUsername(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value)
+        }
       }
       response.subscribe(next => {
         if ((next as IMfaResponse).mfaId) {
@@ -281,9 +288,15 @@ export class LoginComponent {
       this.form.get('mobileCode').setErrors(var4.errorMsg ? { wrongValue: true } : null);
       return !this.mobileErrorMsg && !this.mobileCodeErrorMsg
     } else if (this.loginContext === 'USERNAME') {
-      const var3 = Validator.exist(this.form.get('username').value)
-      this.usernameErrorMsg = var3.errorMsg;
-      this.form.get('username').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+      const var3 = Validator.exist(this.form.get('pwdEmailOrUsername').value)
+      const var2 = Validator.exist(this.form.get('pwdMobileNumber').value)
+      if (var3.errorMsg && var2.errorMsg) {
+        this.usernameErrorMsg = 'LOGIN_USERNAME_REQUIRED';
+      } else {
+        this.usernameErrorMsg = undefined;
+      }
+      this.form.get('pwdEmailOrUsername').setErrors(this.usernameErrorMsg ? { wrongValue: true } : null);
+      this.form.get('pwdMobileNumber').setErrors(this.usernameErrorMsg ? { wrongValue: true } : null);
       const var4 = Validator.exist(this.form.get('pwd').value)
       this.pwdErrorMsg = var4.errorMsg;
       this.form.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
