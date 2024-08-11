@@ -9,7 +9,7 @@
         <ng-container *ngIf="context !== 'FORGET'">
             <form [formGroup]="form">
                 <mat-tab-group (selectedTabChange)="handleTabChange($event)" [selectedIndex]="selectedLoginIndex">
-                    <mat-tab (click)="loginContext='MOBILE'" label="{{'LOGIN_VIA_MOBILE_CODE'|translate}}">
+                    <mat-tab (click)="loginContext='MOBILE_CODE'" label="{{'LOGIN_VIA_MOBILE_CODE'|translate}}">
                         <div style="display: flex; flex-direction: column; margin-top: 24px;">
                             <div style="display: flex; flex-direction: row;">
                                 <mat-form-field style="margin-right: 8px; width: 100px;">
@@ -49,7 +49,7 @@
                             </div>
                         </div>
                     </mat-tab>
-                    <mat-tab (click)="loginContext='EMAIL'" label="{{'LOGIN_VIA_EMAIL'|translate}}">
+                    <mat-tab (click)="loginContext='EMAIL_CODE'" label="{{'LOGIN_VIA_EMAIL'|translate}}">
                         <div style="display: flex; flex-direction: column; margin-top: 16px;">
                             <div style="display: flex; flex-direction: row;">
                                 <mat-form-field style="flex: 1;">
@@ -141,7 +141,7 @@
                 <button mat-raised-button (click)="loginOrRegister()" style="width: 100%;; margin-top: 24px;"
                     color="primary">{{'LOGIN_OR_REGISTER'|
                     translate}}</button>
-                <div *ngIf="loginContext === 'USERNAME'" style="font-size: 14px; font-weight: 400; margin-top: 12px;">
+                <div *ngIf="loginContext === 'PWD'" style="font-size: 14px; font-weight: 400; margin-top: 12px;">
                     <a (click)="context='FORGET'" class="forget-pwd">{{'FORGET_PASSWORD'| translate}}</a>
                 </div>
             </form>
@@ -152,7 +152,7 @@
                     {{'RESET_PWD'|translate}}
                 </div>
                 <mat-tab-group (selectedTabChange)="handleForgetTabChange($event)" style="margin-top: 12px;">
-                    <mat-tab (click)="loginContext='MOBILE'" label="{{'RESET_VIA_MOBILE_CODE'|translate}}">
+                    <mat-tab (click)="forgetContext='MOBILE'" label="{{'RESET_VIA_MOBILE_CODE'|translate}}">
                         <div style="display: flex; flex-direction: column; margin-top: 24px;">
                             <div style="display: flex; flex-direction: row;">
                                 <mat-form-field style="margin-right: 8px; width: 100px;">
@@ -174,7 +174,7 @@
                             </div>
                         </div>
                     </mat-tab>
-                    <mat-tab (click)="loginContext='EMAIL'" label="{{'RESET_VIA_EMAIL'|translate}}">
+                    <mat-tab (click)="forgetContext='EMAIL'" label="{{'RESET_VIA_EMAIL'|translate}}">
                         <div style="display: flex; flex-direction: column; margin-top: 16px;">
                             <div style="display: flex; flex-direction: row;">
                                 <mat-form-field style="flex: 1;">

@@ -148,13 +148,10 @@ export interface IProjectAdmin extends IIdBasedEntity {
     email: string;
     name: string;
 }
-export interface IPendingUser {
+export interface IVerificationCodeRequest {
     countryCode?: string;
     mobileNumber?: string;
     email?: string;
-    username?: string;
-    password?: string;
-    code?: string;
 }
 export interface IForgetPasswordRequest {
     email?: string;

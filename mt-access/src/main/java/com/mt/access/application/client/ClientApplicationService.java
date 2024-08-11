@@ -263,7 +263,7 @@ public class ClientApplicationService {
             }, CLIENT);
     }
 
-    public ClientOAuth2Representation loadClientByClientId(String id) {
+    public ClientOAuth2Representation getClientBy(String id) {
         Analytics start = Analytics.start(Analytics.Type.LOAD_CLIENT_FOR_LOGIN);
         log.debug("loading client by id started");
         Client client =

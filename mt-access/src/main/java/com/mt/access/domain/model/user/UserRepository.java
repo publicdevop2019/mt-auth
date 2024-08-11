@@ -60,4 +60,8 @@ public interface UserRepository {
     }
 
     void update(User old, User update);
+
+    Optional<UserId> queryUserId(UserMobile userMobile);
+
+    Optional<UserId> queryUserId(UserName username);
 }

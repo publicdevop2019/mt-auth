@@ -8,7 +8,7 @@ import com.mt.access.application.cross_domain_validation.CrossDomainValidationAp
 import com.mt.access.application.endpoint.EndpointApplicationService;
 import com.mt.access.application.image.ImageApplicationService;
 import com.mt.access.application.notification.NotificationApplicationService;
-import com.mt.access.application.pending_user.PendingUserApplicationService;
+import com.mt.access.application.verification_code.VerificationCodeApplicationService;
 import com.mt.access.application.permission.PermissionApplicationService;
 import com.mt.access.application.project.ProjectApplicationService;
 import com.mt.access.application.proxy.ProxyApplicationService;
@@ -42,7 +42,7 @@ public class ApplicationServiceRegistry {
     @Getter
     private static PermissionApplicationService permissionApplicationService;
     @Getter
-    private static PendingUserApplicationService pendingUserApplicationService;
+    private static VerificationCodeApplicationService verificationCodeApplicationService;
     @Getter
     private static UserApplicationService userApplicationService;
     @Getter
@@ -208,9 +208,10 @@ public class ApplicationServiceRegistry {
     }
 
     @Autowired
-    public void setPendingUserApplicationService(
-        PendingUserApplicationService pendingUserApplicationService) {
-        ApplicationServiceRegistry.pendingUserApplicationService = pendingUserApplicationService;
+    public void setVerificationCodeApplicationService(
+        VerificationCodeApplicationService verificationCodeApplicationService) {
+        ApplicationServiceRegistry.verificationCodeApplicationService =
+            verificationCodeApplicationService;
     }
 
 

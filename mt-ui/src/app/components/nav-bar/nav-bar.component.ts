@@ -273,7 +273,7 @@ export class NavBarComponent implements OnInit {
     this.userMsgSvc.pullUnAckMessage()
 
     this.authSvc.currentUser.subscribe(next => {
-      this.name = next.username || next.email
+      this.name = next.username || next.email || next.mobileNumber
     })
     this.sub = this.authSvc.avatarUpdated$.subscribe(() => {
       this.getAvatar()

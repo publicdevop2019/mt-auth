@@ -14,7 +14,7 @@ import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component'
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
 export interface IPatch {
     op: string,
     path: string,
@@ -174,20 +174,24 @@ export class HttpProxyService {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._forgetPwd(this._getToken(token), fg, changeId)))
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) })
+            .pipe(switchMap(token => this._forgetPwd(this._getToken(token), fg, changeId)))
     };
     resetPwd(fg: IForgetPasswordRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._resetPwd(this._getToken(token), fg, changeId)))
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) })
+            .pipe(switchMap(token => this._resetPwd(this._getToken(token), fg, changeId)))
     };
-    activate(payload: IPendingUser, changeId: string): Observable<any> {
+    getCode(payload: IVerificationCodeRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
         let headers = this._getAuthHeader(false);
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers }).pipe(switchMap(token => this._getActivationCode(this._getToken(token), payload, changeId)))
+        headers = headers.set('changeId', changeId)
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers })
+            .pipe(switchMap(token => this._getCode(this._getToken(token), payload, changeId)))
     };
     autoApprove(projectId: string, clientId: string): Observable<boolean> {
         return new Observable<boolean>(e => {
@@ -240,45 +244,104 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    loginUsername(username: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
+    loginMobilePwd(mobileNumber: string, countryCode: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
-        formData.append('type', 'username');
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', mobileNumber);
+        formData.append('country_code', countryCode);
+        formData.append('password', pwd);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    loginEmailPwd(email: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', email);
+        formData.append('password', pwd);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    loginUsernamePwd(username: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
         formData.append('username', username);
         formData.append('password', pwd);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    loginEmail(email: string, code: string): Observable<ITokenResponse | IMfaResponse> {
+    loginEmail(email: string, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
         formData.append('email', email);
-        formData.append('type', 'email');
+        formData.append('type', 'email_w_code');
         formData.append('code', code);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    loginMobile(mobileNumber: string, countryCode: string, code: string): Observable<ITokenResponse | IMfaResponse> {
+    loginMobile(mobileNumber: string, countryCode: string, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
-        formData.append('type', 'mobile');
+        formData.append('type', 'mobile_w_code');
         formData.append('mobile_number', mobileNumber);
         formData.append('country_code', countryCode);
         formData.append('code', code);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    mfaLogin(loginFG: FormGroup, code: string, id: string): Observable<ITokenResponse | IMfaResponse> {
+    mfaLoginMobilePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
-        formData.append('username', loginFG.get('email').value);
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', loginFG.get('pwdMobileNumber').value);
+        formData.append('country_code', loginFG.get('pwdCountryCode').value);
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
         formData.append('mfa_code', code);
         formData.append('mfa_id', id);
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    register(registerFG: IPendingUser, changeId: string): Observable<any> {
+    mfaLoginEmailPwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginUsernamePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
+        formData.append('username', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    register(registerFG: IVerificationCodeRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
@@ -301,15 +364,15 @@ export class HttpProxyService {
     private _getToken(res: ITokenResponse): string {
         return res.access_token;
     }
-    private _createUser(token: string, registerFG: IPendingUser, changeId: string): Observable<any> {
+    private _createUser(token: string, registerFG: IVerificationCodeRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
         return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users', registerFG, { headers: headers })
     }
-    private _getActivationCode(token: string, payload: IPendingUser, changeId: string): Observable<any> {
+    private _getCode(token: string, payload: IVerificationCodeRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
-        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/pending-users', payload, { headers: headers })
+        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/verification-code', payload, { headers: headers })
     }
     private _resetPwd(token: string, registerFG: IForgetPasswordRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);

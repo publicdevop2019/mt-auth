@@ -30,7 +30,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
   currentPwdErrorMsg: string;
   newPwdErrorMsg: string;
   confirmPwdErrorMsg: string;
-  subs: Subscription;
+  subs: Subscription=new Subscription();
   changeId = Utility.getChangeId()
   private hasSubmitted: boolean = false;
   constructor(

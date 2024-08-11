@@ -5,13 +5,13 @@ import com.mt.access.domain.model.user.UserPassword;
 import lombok.Data;
 
 @Data
-public class UserSpringRepresentation {
+public class UserTokenRepresentation {
     private String id;
     private String password;
     private UserPassword userPassword;
     private Boolean locked;
 
-    public UserSpringRepresentation(LoginUser user) {
+    public UserTokenRepresentation(LoginUser user) {
         id = user.getUserId().getDomainId();
         password = user.getPassword().getPassword();
         userPassword = user.getPassword();

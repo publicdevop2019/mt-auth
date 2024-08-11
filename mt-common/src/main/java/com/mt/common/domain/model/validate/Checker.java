@@ -2,6 +2,7 @@ package com.mt.common.domain.model.validate;
 
 import java.util.Collection;
 import java.util.Objects;
+import javax.annotation.Nullable;
 import org.apache.commons.validator.routines.EmailValidator;
 
 public class Checker {
@@ -51,5 +52,13 @@ public class Checker {
 
     public static boolean isEmail(String email) {
         return EmailValidator.getInstance().isValid(email);
+    }
+
+    public static boolean isBlank(@Nullable String str) {
+        return Checker.isNull(str) || "".equalsIgnoreCase(str.trim());
+    }
+
+    public static boolean notBlank(@Nullable String str) {
+        return !isBlank(str);
     }
 }

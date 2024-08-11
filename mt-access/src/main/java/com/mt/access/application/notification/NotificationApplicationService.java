@@ -6,11 +6,12 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
+import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
-import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
-import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
@@ -131,11 +132,21 @@ public class NotificationApplicationService {
         sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
     }
 
-    public void handle(PendingUserActivationCodeUpdated event) {
+    public void handle(VerificationCodeUpdated event) {
         Notification notification = new Notification(event);
-        SendEmailNotificationEvent sendEmailNotificationEvent =
-            new SendEmailNotificationEvent(event, notification);
-        sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
+        if(NotificationType.EMAIL.equals(notification.getType())){
+            SendEmailNotificationEvent sendEmailNotificationEvent =
+                new SendEmailNotificationEvent(event, notification);
+            sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
+        }else{
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(event.getId().toString(), (context) -> {
+                    DomainRegistry.getNotificationRepository().add(notification);
+                    context
+                        .append(new SendSmsNotificationEvent(event, notification));
+                    return null;
+                }, NOTIFICATION);
+        }
     }
 
     public void handle(CrossDomainValidationFailureCheck event) {
@@ -243,7 +254,7 @@ public class NotificationApplicationService {
         storeSendBellNotification(event.getId().toString(), notification);
     }
 
-    public void handle(PendingUserCreated event) {
+    public void handle(VerificationCodeCreated event) {
         Notification notification = new Notification(event);
         storeSendBellNotification(event.getId().toString(), notification);
     }

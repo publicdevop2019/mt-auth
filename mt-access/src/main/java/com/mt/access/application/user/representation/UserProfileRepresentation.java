@@ -2,6 +2,7 @@ package com.mt.access.application.user.representation;
 
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.User;
+import com.mt.common.domain.model.validate.Checker;
 import javax.annotation.Nullable;
 import lombok.Data;
 
@@ -25,7 +26,7 @@ public class UserProfileRepresentation {
     public UserProfileRepresentation(User user,
                                      @Nullable LoginInfo loginInfo) {
         this.id = user.getUserId().getDomainId();
-        this.email = user.getEmail().getEmail();
+        this.email = Checker.notNull(user.getEmail()) ? user.getEmail().getEmail() : null;
         this.createdAt = user.getCreatedAt();
         if (loginInfo != null) {
             lastLoginAt = loginInfo.getLoginAt();

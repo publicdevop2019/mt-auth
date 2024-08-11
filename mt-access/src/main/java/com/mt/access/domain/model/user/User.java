@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -10,7 +9,6 @@ import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
@@ -71,13 +69,44 @@ public class User extends Auditable {
         setLocked(Boolean.FALSE);
         setMobile(mobile);
         setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        DomainRegistry.getUserValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
         long milli = Instant.now().toEpochMilli();
         setCreatedAt(milli);
         setCreatedBy(userId.getDomainId());
         setModifiedAt(milli);
         setModifiedBy(userId.getDomainId());
+    }
+
+    private User(UserId userId, UserMobile mobile) {
+        super();
+        setMobile(mobile);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserMobile mobile, UserPassword password) {
+        super();
+        setMobile(mobile);
+        setPassword(password);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserEmail email) {
+        super();
+        setEmail(email);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserEmail email, UserPassword password) {
+        super();
+        setEmail(email);
+        setPassword(password);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserName username, UserPassword password) {
+        super();
+        setUserName(username);
+        setPassword(password);
+        initNewUserParams(userId);
     }
 
     public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
@@ -105,6 +134,26 @@ public class User extends Auditable {
         user.setLanguage(language);
         user.mfaInfo = mfaInfo;
         return user;
+    }
+
+    public static User newUser(UserMobile mobile, UserId userId) {
+        return new User(userId, mobile);
+    }
+
+    public static User newUser(UserMobile mobile, UserPassword password, UserId userId) {
+        return new User(userId, mobile, password);
+    }
+
+    public static User newUser(UserEmail email, UserId userId) {
+        return new User(userId, email);
+    }
+
+    public static User newUser(UserEmail email, UserPassword password, UserId userId) {
+        return new User(userId, email, password);
+    }
+
+    public static User newUser(UserName username, UserPassword password, UserId userId) {
+        return new User(userId, username, password);
     }
 
     private void setLocked(Boolean locked) {
@@ -196,4 +245,16 @@ public class User extends Auditable {
         user.setPassword(password);
         return user;
     }
+
+    private void initNewUserParams(UserId userId) {
+        setUserId(userId);
+        setLocked(Boolean.FALSE);
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(userId.getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(userId.getDomainId());
+    }
+
 }

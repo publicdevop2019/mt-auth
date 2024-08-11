@@ -8,8 +8,8 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
-import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
-import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
@@ -101,7 +101,7 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener8() {
-        ListenerHelper.listen(new PendingUserActivationCodeUpdated(),
+        ListenerHelper.listen(new VerificationCodeUpdated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event), 10);
     }
@@ -166,7 +166,7 @@ public class NotificationDomainEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     protected void listener18() {
-        ListenerHelper.listen(new PendingUserCreated(),
+        ListenerHelper.listen(new VerificationCodeCreated(),
             (event) -> ApplicationServiceRegistry.getNotificationApplicationService()
                 .handle(event), 10);
     }

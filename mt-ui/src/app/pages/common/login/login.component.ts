@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { EmailValidator, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,7 +9,7 @@ import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
-import { IForgetPasswordRequest, IMfaResponse, IOption, IPendingUser, ITokenResponse } from 'src/app/misc/interface';
+import { IForgetPasswordRequest, IMfaResponse, IOption, IVerificationCodeRequest, ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -22,8 +22,8 @@ import { Observable } from 'rxjs';
 })
 export class LoginComponent {
   hide = true;
-  context: 'REGISTER' | 'LOGIN' | 'FORGET' = 'LOGIN'
-  loginContext: 'EMAIL' | 'USERNAME' | 'MOBILE' = 'MOBILE';
+  context: 'LOGIN' | 'FORGET' = 'LOGIN'
+  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'MOBILE_CODE';
   selectedLoginIndex = 0;
   forgetContext: 'EMAIL' | 'MOBILE' = 'MOBILE';
   nextUrl: string = '/' + RouterWrapperService.HOME_URL;
@@ -46,6 +46,7 @@ export class LoginComponent {
   registerChangeId = Utility.getChangeId();
   tokenChangeId = Utility.getChangeId();
   resetChangeId = Utility.getChangeId();
+  loginId = Utility.getChangeId();
   form = new FormGroup({
     countryCode: new FormControl('86', []),
     mobileNumber: new FormControl('', []),
@@ -83,7 +84,7 @@ export class LoginComponent {
       if (queryMaps.get('demo') !== null) {
         Logger.debug('demo mode')
         let demoAccount = queryMaps.get('demo')
-        this.loginContext = 'USERNAME';
+        this.loginContext = 'PWD';
         this.selectedLoginIndex = 2;
         if (demoAccount === 'admin') {
           this.form.get('pwdEmailOrUsername').setValue('admin@sample.com')
@@ -130,16 +131,19 @@ export class LoginComponent {
     this.enableError = true;
     if (this.validateForm()) {
       let response: Observable<ITokenResponse | IMfaResponse>;
-      if (this.loginContext === 'EMAIL') {
-        response = this.httpProxy.loginEmail(this.form.get('email').value, this.form.get('code').value)
-      } else if (this.loginContext === 'MOBILE') {
-        response = this.httpProxy.loginMobile(this.form.get('mobileNum').value, this.form.get('countryCode').value, this.form.get('code').value)
-      } else if (this.loginContext === 'USERNAME') {
+      if (this.loginContext === 'EMAIL_CODE') {
+        response = this.httpProxy.loginEmail(this.form.get('email').value, this.form.get('emailCode').value,this.loginId)
+      } else if (this.loginContext === 'MOBILE_CODE') {
+        response = this.httpProxy.loginMobile(this.form.get('mobileNumber').value, this.form.get('countryCode').value, this.form.get('mobileCode').value,this.loginId)
+      } else if (this.loginContext === 'PWD') {
         if (this.form.get('pwdMobileNumber').value) {
-          let combinedMobile = this.form.get('pwdCountryCode').value + ' ' + this.form.get('pwdMobileNumber').value
-          response = this.httpProxy.loginUsername(combinedMobile, this.form.get('pwd').value)
+          response = this.httpProxy.loginMobilePwd(this.form.get('pwdMobileNumber').value, this.form.get('pwdCountryCode').value, this.form.get('pwd').value,this.loginId)
         } else {
-          response = this.httpProxy.loginUsername(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value)
+          if ((this.form.get('pwdEmailOrUsername').value as string).includes("@")) {
+            response = this.httpProxy.loginEmailPwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+          } else {
+            response = this.httpProxy.loginUsernamePwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+          }
         }
       }
       response.subscribe(next => {
@@ -158,20 +162,20 @@ export class LoginComponent {
 
   getCode() {
     let hasEmailOrMobile = false;
-    if (this.loginContext === 'EMAIL') {
+    if (this.loginContext === 'EMAIL_CODE') {
       hasEmailOrMobile = this.validateEmail()
-    } else if (this.loginContext === 'MOBILE') {
+    } else if (this.loginContext === 'MOBILE_CODE') {
       hasEmailOrMobile = this.validateMobile()
     }
     if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
-      let payload: IPendingUser
-      if (this.loginContext === 'EMAIL') {
+      let payload: IVerificationCodeRequest
+      if (this.loginContext === 'EMAIL_CODE') {
         payload = { email: this.form.get('email').value }
       } else {
         payload = { mobileNumber: this.form.get('mobileNumber').value, countryCode: this.form.get('countryCode').value }
       }
-      this.httpProxy.activate(payload, this.codeChangeId).subscribe(next => {
+      this.httpProxy.getCode(payload, this.codeChangeId).subscribe(next => {
         this.openDialog('CODE_SEND_MSG');
       })
     }
@@ -186,7 +190,7 @@ export class LoginComponent {
     if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
       let payload: IForgetPasswordRequest
-      if (this.loginContext === 'EMAIL') {
+      if (this.loginContext === 'EMAIL_CODE') {
         payload = { email: this.forgetForm.get('email').value }
       } else {
         payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value }
@@ -229,11 +233,11 @@ export class LoginComponent {
   }
   handleTabChange(tabChangeEvent: MatTabChangeEvent) {
     if (tabChangeEvent.index === 0) {
-      this.loginContext = 'MOBILE'
+      this.loginContext = 'MOBILE_CODE'
     } else if (tabChangeEvent.index === 1) {
-      this.loginContext = 'EMAIL'
+      this.loginContext = 'EMAIL_CODE'
     } else if (tabChangeEvent.index === 2) {
-      this.loginContext = 'USERNAME'
+      this.loginContext = 'PWD'
     }
   }
   handleForgetTabChange(tabChangeEvent: MatTabChangeEvent) {
@@ -270,7 +274,7 @@ export class LoginComponent {
   }
 
   private validateForm(): boolean {
-    if (this.loginContext === 'EMAIL') {
+    if (this.loginContext === 'EMAIL_CODE') {
       const var3 = Validator.exist(this.form.get('email').value)
       this.emailErrorMsg = var3.errorMsg;
       this.form.get('email').setErrors(var3.errorMsg ? { wrongValue: true } : null);
@@ -279,7 +283,7 @@ export class LoginComponent {
       this.form.get('emailCode').setErrors(var4.errorMsg ? { wrongValue: true } : null);
       return !this.emailErrorMsg && !this.emailCodeErrorMsg
 
-    } else if (this.loginContext === 'MOBILE') {
+    } else if (this.loginContext === 'MOBILE_CODE') {
       const var3 = Validator.exist(this.form.get('mobileNumber').value)
       this.mobileErrorMsg = var3.errorMsg;
       this.form.get('mobileNumber').setErrors(var3.errorMsg ? { wrongValue: true } : null);
@@ -287,7 +291,7 @@ export class LoginComponent {
       this.mobileCodeErrorMsg = var4.errorMsg;
       this.form.get('mobileCode').setErrors(var4.errorMsg ? { wrongValue: true } : null);
       return !this.mobileErrorMsg && !this.mobileCodeErrorMsg
-    } else if (this.loginContext === 'USERNAME') {
+    } else if (this.loginContext === 'PWD') {
       const var3 = Validator.exist(this.form.get('pwdEmailOrUsername').value)
       const var2 = Validator.exist(this.form.get('pwdMobileNumber').value)
       if (var3.errorMsg && var2.errorMsg) {

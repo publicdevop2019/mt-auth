@@ -6,7 +6,7 @@ import static com.mt.access.infrastructure.JwtCurrentUserService.TENANT_IDS;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.client.representation.ClientOAuth2Representation;
-import com.mt.access.application.user.representation.UserSpringRepresentation;
+import com.mt.access.application.user.representation.UserTokenRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.client.ClientId;
 import com.mt.access.domain.model.permission.PermissionId;
@@ -62,7 +62,7 @@ public class TokenService {
 
     public JwtToken grant(Map<String, String> parameters,
                           ClientOAuth2Representation clientDetails,
-                          UserSpringRepresentation userDetails) {
+                          UserTokenRepresentation userDetails) {
         String scope = parameters.get("scope");
         if ("client_credentials".equalsIgnoreCase(parameters.get("grant_type"))
             ||
@@ -84,7 +84,7 @@ public class TokenService {
     }
 
     private JwtToken grantToken(ClientOAuth2Representation clientDetails,
-                                @Nullable UserSpringRepresentation userDetails,
+                                @Nullable UserTokenRepresentation userDetails,
                                 Set<String> scope) {
         final boolean isClient = Checker.isNull(userDetails);
         final boolean hasRefresh =
@@ -197,7 +197,7 @@ public class TokenService {
         AuthorizeInfo authorizeInfo = DomainRegistry.getAuthorizationCodeRepository()
             .remove(code);
         if (Checker.isNull(authorizeInfo)) {
-            throw new DefinedRuntimeException("invalid token params", "1089",
+            throw new DefinedRuntimeException("invalid params", "1089",
                 HttpResponseCode.BAD_REQUEST);
         }
         //check redirect url
