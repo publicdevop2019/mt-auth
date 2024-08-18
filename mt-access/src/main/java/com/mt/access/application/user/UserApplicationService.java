@@ -137,7 +137,8 @@ public class UserApplicationService {
                 UserId userId = DomainRegistry.getCurrentUserService().getUserId();
                 User user = DomainRegistry.getUserRepository().get(userId);
                 DomainRegistry.getUserService()
-                    .updatePassword(user, new CurrentPassword(command.getCurrentPwd()),
+                    .updatePassword(user, Checker.notNull(command.getCurrentPwd()) ?
+                            new CurrentPassword(command.getCurrentPwd()) : null,
                         new UserPassword(command.getPassword()), context);
                 return null;
             }, USER);

@@ -315,7 +315,7 @@ public class JdbcUserRepository implements UserRepository {
                 updated.getModifiedAt(),
                 updated.getModifiedBy(),
                 updated.getLocked(),
-                updated.getPassword().getPassword(),
+                Checker.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
                 Checker.isNull(updated.getPwdResetToken()) ? null :
                     updated.getPwdResetToken().getValue(),
                 Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
@@ -377,8 +377,11 @@ public class JdbcUserRepository implements UserRepository {
             List<User> list = new ArrayList<>();
             long currentId = -1L;
             User user;
-            UserPassword userPassword = new UserPassword();
-            userPassword.setPassword(rs.getString("password"));
+            UserPassword userPassword = null;
+            if (Checker.notNull(rs.getString("password"))) {
+                userPassword = new UserPassword();
+                userPassword.setPassword(rs.getString("password"));
+            }
             do {
                 long dbId = rs.getLong(Auditable.DB_ID);
                 if (currentId != dbId) {

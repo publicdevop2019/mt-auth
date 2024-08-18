@@ -7,6 +7,7 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
@@ -149,10 +150,16 @@ public class User extends Auditable {
     }
 
     public String getDisplayName() {
-        if (userName != null) {
+        if (Checker.notNull(userName)) {
             return userName.getValue();
         }
-        return email.getEmail();
+        if (Checker.notNull(email)) {
+            return email.getEmail();
+        }
+        if (Checker.notNull(mobile)) {
+            return mobile.value();
+        }
+        return null;
     }
 
     @Override

@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs';
 import { Utility } from 'src/app/misc/utility';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService, IUser } from 'src/app/services/http-proxy.service';
-import { IUpdatePwdCommand } from 'src/app/misc/interface';
+import { IOption, IUpdatePwdCommand } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { Validator } from 'src/app/misc/validator';
 import { FormGroup, FormControl } from '@angular/forms';
@@ -29,13 +29,20 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     language: new FormControl(''),
     email: new FormControl(''),
   });
-  currentUser: IUser;
   currentPwdErrorMsg: string;
   newPwdErrorMsg: string;
   confirmPwdErrorMsg: string;
   subs: Subscription = new Subscription();
   changeId = Utility.getChangeId()
   private hasSubmitted: boolean = false;
+  mobileNums: IOption[] = [
+    {
+      label: 'COUNTRY_CANADA', value: '1'
+    },
+    {
+      label: 'COUNTRY_CHINA', value: '86'
+    },
+  ]
   constructor(
     public authSvc: AuthService,
     private httpSvc: HttpProxyService,
@@ -59,7 +66,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.profileFg.get('avatar').setValue(undefined)
     } else {
       this.httpSvc.uploadAvatar(fileList.item(0)).subscribe(() => {
-        this.authSvc.avatarUpdated$.next()
+        this.deviceSvc.avatarUpdated$.next()
         this.httpSvc.getAvatar().subscribe(blob => {
           Utility.createImageFromBlob(blob, (reader) => {
             this.profileFg.get('avatar').setValue(reader.result)
@@ -70,37 +77,59 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     }
   }
   ngOnInit(): void {
-    this.authSvc.currentUser.subscribe(next => {
-      this.currentUser = next;
+    this.httpSvc.getMyProfile().subscribe(next => {
+      this.userInfo = next;
       this.httpSvc.getAvatar().subscribe(blob => {
         Utility.createImageFromBlob(blob, (reader) => {
           this.profileFg.get('avatar').setValue(reader.result)
         })
       })
-      this.userInfo = next;
       this.profileFg.patchValue({
         language: next.language,
         mobileNumber: next.mobileNumber,
-        mobileCountryCode: next.countryCode,
+        mobileCountryCode: next.countryCode || '86',
         username: next.username || '',
         email: next.email,
       })
       this.profileFg.get('language').valueChanges.subscribe(next => {
-        this.httpSvc.updateProfileLanguage(next).subscribe(_ => {
-          this.deviceSvc.notify(true)
-        }, () => {
-          this.deviceSvc.notify(false)
-        })
+        if (next !== this.userInfo.language) {
+          this.httpSvc.updateProfileLanguage(next).subscribe(_ => {
+            this.deviceSvc.notify(true)
+          }, () => {
+            this.deviceSvc.notify(false)
+          }, () => {
+            this.selfRefresh()
+          })
+        }
       });
     });
-
+  }
+  private refreshAll() {
+    this.deviceSvc.profileUpdated$.next()
+    this.selfRefresh()
+  }
+  private selfRefresh() {
+    this.httpSvc.getMyProfile().subscribe(next => {
+      this.userInfo = next;
+      this.profileFg.patchValue({
+        language: next.language,
+        mobileNumber: next.mobileNumber,
+        mobileCountryCode: next.countryCode || '86',
+        username: next.username || '',
+        email: next.email,
+      })
+    });
   }
   private validateForm() {
     const newPwd = this.updatePwdFg.get('pwd').value
     const currentPwd = this.updatePwdFg.get('currentPwd').value
     const confirmPwd = this.updatePwdFg.get('confirmPwd').value
     this.newPwdErrorMsg = Validator.exist(newPwd).errorMsg
-    this.currentPwdErrorMsg = Validator.exist(currentPwd).errorMsg
+    if (this.userInfo.hasPassword) {
+      this.currentPwdErrorMsg = Validator.exist(currentPwd).errorMsg
+    } else {
+      this.currentPwdErrorMsg = undefined;
+    }
     this.confirmPwdErrorMsg = Validator.same(newPwd, confirmPwd).errorMsg
     return !this.newPwdErrorMsg && !this.currentPwdErrorMsg && !this.confirmPwdErrorMsg
   }
@@ -109,7 +138,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     if (this.validateForm()) {
       const payload: IUpdatePwdCommand = {
         password: this.updatePwdFg.get('pwd').value,
-        currentPwd: this.updatePwdFg.get('currentPwd').value
+        currentPwd: this.updatePwdFg.get('currentPwd').value ? this.updatePwdFg.get('currentPwd').value : undefined
       }
       this.httpSvc.updateUserPwd(payload, this.changeId).subscribe(result => {
         this.deviceSvc.notify(result)
@@ -122,6 +151,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
   removeEmail() {
@@ -129,6 +160,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
   addPhone() {
@@ -136,6 +169,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
   removePhone() {
@@ -143,6 +178,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
   addUsername() {
@@ -150,6 +187,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
   removeUsername() {
@@ -157,6 +196,8 @@ export class MyProfileComponent implements OnInit, OnDestroy {
       this.deviceSvc.notify(true)
     }, () => {
       this.deviceSvc.notify(false)
+    }, () => {
+      this.refreshAll()
     })
   }
 }

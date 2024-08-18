@@ -3,7 +3,7 @@
 
     <mat-tab-group style="margin-top: 12px;">
         <mat-tab (click)="context='PROFILE_EDIT'" label="{{'PROFILE_GENERAL'|translate}}">
-            <form [formGroup]="profileFg">
+            <form [formGroup]="profileFg" *ngIf="userInfo">
                 <div
                     style="border-radius: 4px;padding:10px 16px;margin: 24px 0px;;display: flex; flex-direction: row; align-items: center; border-left: 0.5rem solid rgb(195, 47, 38);color: rgb(118, 28, 23);background-color: rgb(251, 238, 237);">
                     <mat-icon matPrefix>warning</mat-icon>
@@ -30,22 +30,36 @@
                                 </div>
                             </div>
                             <div style="display: flex; flex-direction: column; margin-right: 24px;">
-                                <div style="display: flex; flex-direction: column; margin-bottom: 24px;">
+                                <div *ngIf="userInfo.username"
+                                    style="display: flex; flex-direction: column; margin-bottom: 16px;">
                                     <div style="margin-bottom: 4px; color: rgb(104, 104, 104);">
                                         {{'USERNAME'|translate}}
                                     </div>
                                     <div style="display: flex; flex-direction: row;">
-                                        <div *ngIf="userInfo && userInfo.username" style="margin-right: 24px; ">{{userInfo.username}}</div>
-                                        <div *ngIf="userInfo"
-                                            style="display: flex; align-items: end;">
-                                            <button *ngIf="!userInfo.username" mat-raised-button color="primary"
-                                                style="height: 24px; line-height: 14px; font-size: 14px;"
-                                                (click)="addUsername()">{{'PROFILE_ADD'|translate}}</button>
+                                        <div style="margin-right: 24px; line-height: 24px; ">
+                                            {{userInfo.username}}
+                                        </div>
+                                        <div style="display: flex; align-items: end;">
                                             <button *ngIf="userInfo.username" mat-raised-button color="warn"
                                                 style="height: 24px; line-height: 14px; font-size: 14px;"
                                                 (click)="removeUsername()">{{'PROFILE_REMOVE'|translate}}</button>
                                         </div>
                                     </div>
+                                </div>
+                                <div *ngIf="!userInfo.username"
+                                    style="display: flex; flex-direction: column; margin-bottom: 12px;">
+                                    <ng-container *ngIf="!userInfo.username">
+                                        <div style="display: flex; flex-direction: row; align-items: baseline;">
+                                            <mat-form-field>
+                                                <mat-label>{{'USERNAME'| translate}}</mat-label>
+                                                <input matInput formControlName="username">
+                                            </mat-form-field>
+                                            <button *ngIf="!userInfo.username" mat-raised-button color="primary"
+                                                [disabled]="!profileFg.get('username').value"
+                                                style="height: 24px; line-height: 14px; font-size: 14px; margin-left: 16px;"
+                                                (click)="addUsername()">{{'PROFILE_ADD'|translate}}</button>
+                                        </div>
+                                    </ng-container>
                                 </div>
                                 <mat-form-field style="width: 100px;">
                                     <mat-label>{{'PREF_LANGUAGE'|translate}}</mat-label>
@@ -71,18 +85,22 @@
                         <div style="display: flex; flex-direction: row; align-items: center;">
                             <mat-icon matPrefix style="font-size: 36px; height: 36px; width: 36px; " color="primary"
                                 fontSet="material-icons-outlined">mail</mat-icon>
-                            <div style="display: flex; flex-direction: column; margin-left: 16px;">
+                            <div *ngIf="userInfo.email"
+                                style="display: flex; flex-direction: column; margin-left: 16px;">
                                 <div>{{'EMAIL'| translate}}</div>
-                                <div *ngIf="userInfo&&userInfo.email"
-                                    style="color: rgb(104, 104, 104); margin-top: 4px;">{{userInfo.email}}</div>
+                                <div style="color: rgb(104, 104, 104); margin-top: 4px;">{{userInfo.email}}</div>
                             </div>
+
+                            <mat-form-field *ngIf="!userInfo.email" style="margin-left: 16px;">
+                                <mat-label>{{'EMAIL'| translate}}</mat-label>
+                                <input matInput formControlName="email">
+                            </mat-form-field>
                         </div>
-                        <div *ngIf="userInfo">
-                            <button *ngIf="!userInfo.email" mat-raised-button color="primary"
-                                (click)="addEmail()">{{'PROFILE_ADD'|translate}}</button>
-                            <button *ngIf="userInfo.email" mat-raised-button color="warn"
-                                (click)="removeEmail()">{{'PROFILE_REMOVE'|translate}}</button>
-                        </div>
+                        <button *ngIf="!userInfo.email" mat-raised-button color="primary"
+                            [disabled]="!profileFg.get('email').value"
+                            (click)="addEmail()">{{'PROFILE_ADD'|translate}}</button>
+                        <button *ngIf="userInfo.email" mat-raised-button color="warn"
+                            (click)="removeEmail()">{{'PROFILE_REMOVE'|translate}}</button>
                     </div>
                     <mat-divider></mat-divider>
                     <div
@@ -90,7 +108,8 @@
                         <div style="display: flex; flex-direction: row; align-items: center;">
                             <mat-icon matPrefix style="font-size: 36px; height: 36px; width: 36px;" color="primary"
                                 fontSet="material-icons-outlined">smartphone</mat-icon>
-                            <div style="display: flex; flex-direction: column; margin-left: 16px;">
+                            <div *ngIf="userInfo.mobileNumber"
+                                style="display: flex; flex-direction: column; margin-left: 16px;">
                                 <div>{{'SMART_PHONE'| translate}}</div>
                                 <div *ngIf="userInfo && userInfo.countryCode"
                                     style="color: rgb(104, 104, 104); margin-top: 4px;">
@@ -98,13 +117,27 @@
                                     "+"+userInfo.countryCode +' '+userInfo.mobileNumber
                                     }}</div>
                             </div>
+                            <div *ngIf="!userInfo.mobileNumber"
+                                style="display: flex; flex-direction: row; margin-left: 16px;">
+                                <mat-form-field style="margin-right: 8px; width: 100px;">
+                                    <mat-label>{{'COUNTRY'|translate}}</mat-label>
+                                    <mat-select formControlName="mobileCountryCode">
+                                        <mat-option *ngFor="let e of mobileNums" [value]="e.value">
+                                            {{e.label|translate}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
+                                    <input matInput [type]="'text'" formControlName="mobileNumber">
+                                </mat-form-field>
+                            </div>
                         </div>
-                        <div *ngIf="userInfo">
-                            <button *ngIf="!userInfo.mobileNumber" mat-raised-button color="primary"
-                                (click)="addPhone()">{{'PROFILE_ADD'|translate}}</button>
-                            <button *ngIf="userInfo.mobileNumber" mat-raised-button color="warn"
-                                (click)="removePhone()">{{'PROFILE_REMOVE'|translate}}</button>
-                        </div>
+                        <button *ngIf="!userInfo.mobileNumber" mat-raised-button color="primary"
+                            [disabled]="!profileFg.get('mobileCountryCode').value || !profileFg.get('mobileNumber').value"
+                            (click)="addPhone()">{{'PROFILE_ADD'|translate}}</button>
+                        <button *ngIf="userInfo.mobileNumber" mat-raised-button color="warn"
+                            (click)="removePhone()">{{'PROFILE_REMOVE'|translate}}</button>
                     </div>
                 </mat-card>
                 <div style="font-weight: 400; font-size: 20px; margin: 36px 0px 12px 0px;">
@@ -112,24 +145,24 @@
                 </div>
                 <mat-card>
                     <form [formGroup]="updatePwdFg">
-                        <mat-form-field *ngIf="userInfo&&userInfo.hasPassword">
+                        <mat-form-field *ngIf="userInfo.hasPassword">
                             <mat-label>{{'ENTER_YOUR_CURRENT_PASSWORD'| translate}}<span
                                     class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="currentPwd">
-                            <div style="font-size: 12px; color: red;">{{currentPwdErrorMsg|translate}}</div>
+                            <input matInput formControlName="currentPwd" type="password">
                         </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{currentPwdErrorMsg|translate}}</div>
                         <mat-form-field>
                             <mat-label>{{'ENTER_YOUR_NEW_PASSWORD'| translate}}<span
                                     class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="pwd">
-                            <div style="font-size: 12px; color: red;">{{newPwdErrorMsg|translate}}</div>
+                            <input matInput formControlName="pwd"  type="password">
                         </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{newPwdErrorMsg|translate}}</div>
                         <mat-form-field>
                             <mat-label>{{'REENTER_YOUR_NEW_PASSWORD'| translate}}<span
                                     class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="confirmPwd">
-                            <div style="font-size: 12px; color: red;">{{confirmPwdErrorMsg|translate}}</div>
+                            <input matInput formControlName="confirmPwd"  type="password">
                         </mat-form-field>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{confirmPwdErrorMsg|translate}}</div>
                     </form>
                     <div style="display: flex;justify-content: center;">
                         <button mat-raised-button color="primary"
