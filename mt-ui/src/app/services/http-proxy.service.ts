@@ -351,7 +351,7 @@ export class HttpProxyService {
         return islogin ? new HttpHeaders().append('Authorization',
             'Basic ' + btoa(environment.loginClientId + ':' + environment.clientSecret)) :
             token ? new HttpHeaders().append('Authorization', 'Bearer ' + token) :
-                new HttpHeaders().append('Authorization', 'Basic ' + btoa(environment.registerClientId + ':' + environment.clientSecret));
+                new HttpHeaders().append('Authorization', 'Basic ' + btoa(environment.noneLoginClientId + ':' + environment.clientSecret));
     }
     private _getToken(res: ITokenResponse): string {
         return res.access_token;
