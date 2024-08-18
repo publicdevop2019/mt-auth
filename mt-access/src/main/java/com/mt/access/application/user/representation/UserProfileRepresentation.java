@@ -21,6 +21,7 @@ public class UserProfileRepresentation {
     private String mobileNumber;
     private String avatarLink;
     private String username;
+    private boolean hasPassword;
 
 
     public UserProfileRepresentation(User user,
@@ -46,5 +47,6 @@ public class UserProfileRepresentation {
             this.countryCode = user.getMobile().getCountryCode();
             this.mobileNumber = user.getMobile().getMobileNumber();
         }
+        this.hasPassword = Checker.notNull(user.getPassword());
     }
 }

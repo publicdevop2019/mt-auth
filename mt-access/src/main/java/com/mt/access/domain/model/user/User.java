@@ -12,7 +12,6 @@ import com.mt.common.domain.model.validate.Validator;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -60,21 +59,6 @@ public class User extends Auditable {
     private PasswordResetCode pwdResetToken;
     @Getter
     private MfaInfo mfaInfo;
-
-    private User(UserEmail userEmail, UserPassword password, UserId userId, UserMobile mobile) {
-        super();
-        setEmail(userEmail);
-        setPassword(password);
-        setUserId(userId);
-        setLocked(Boolean.FALSE);
-        setMobile(mobile);
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        long milli = Instant.now().toEpochMilli();
-        setCreatedAt(milli);
-        setCreatedBy(userId.getDomainId());
-        setModifiedAt(milli);
-        setModifiedBy(userId.getDomainId());
-    }
 
     private User(UserId userId, UserMobile mobile) {
         super();
@@ -164,11 +148,6 @@ public class User extends Auditable {
     private User() {
     }
 
-    public static User newUser(UserEmail userEmail, UserPassword password, UserId userId,
-                               UserMobile mobile) {
-        return new User(userEmail, password, userId, mobile);
-    }
-
     public String getDisplayName() {
         if (userName != null) {
             return userName.getValue();
@@ -199,27 +178,6 @@ public class User extends Auditable {
         context.append(new UserGetLocked(userId));
         user.setLocked(locked);
         return user;
-    }
-
-    public User update(UserMobile mobile,
-                       @Nullable UserName userName,
-                       @Nullable Language language) {
-        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
-        if (userName != null) {
-            if (update.userName != null && update.userName.getValue() != null
-                && !update.userName.equals(userName)) {
-                throw new DefinedRuntimeException("username can only be set once", "1063",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-            update.userName = userName;
-        }
-        if (language != null) {
-            update.language = language;
-        }
-        if (!update.mobile.equals(mobile)) {
-            update.mobile = mobile;
-        }
-        return update;
     }
 
     public User updateUserAvatar(UserAvatar userAvatar) {
@@ -257,4 +215,69 @@ public class User extends Auditable {
         setModifiedBy(userId.getDomainId());
     }
 
+    public User addUserName(UserName userName) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.userName = userName;
+        return update;
+    }
+
+    public void checkUserNameRemoval() {
+        if (email == null && mobile == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public void checkMobileRemoval() {
+        if (email == null && userName == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public void checkEmailRemoval() {
+        if (mobile == null && userName == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public User removeUserName() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.userName = null;
+        return update;
+    }
+
+    public User addMobile(UserMobile newMobile) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.mobile = newMobile;
+        return update;
+    }
+
+    public User removeMobile() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.mobile = null;
+        return update;
+    }
+
+    public User removeEmail() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.email = null;
+        return update;
+    }
+
+    public User addEmail(UserEmail userEmail) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.email = userEmail;
+        return update;
+    }
+
+    public User updateLanguage(Language language) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.language = language;
+        return update;
+    }
 }

@@ -91,6 +91,7 @@ public class JdbcUserRepository implements UserRepository {
         "u.username = ?, " +
         "u.country_code = ?, " +
         "u.mobile_number = ?, " +
+        "u.email = ?, " +
         "u.avatar_link = ?, " +
         "u.language = ?, " +
         "u.mfa_id = ?, " +
@@ -318,8 +319,9 @@ public class JdbcUserRepository implements UserRepository {
                 Checker.isNull(updated.getPwdResetToken()) ? null :
                     updated.getPwdResetToken().getValue(),
                 Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
-                updated.getMobile().getCountryCode(),
-                updated.getMobile().getMobileNumber(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
+                Checker.isNull(updated.getEmail()) ? null : updated.getEmail().getEmail(),
                 Checker.isNull(updated.getUserAvatar()) ? null : updated.getUserAvatar().getValue(),
                 Checker.isNull(updated.getLanguage()) ? null : updated.getLanguage().name(),
                 Checker.isNull(updated.getMfaInfo()) ? null :

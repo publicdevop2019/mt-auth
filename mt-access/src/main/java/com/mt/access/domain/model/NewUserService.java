@@ -24,36 +24,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class NewUserService {
-    //TODO remove
-    public UserId create(UserEmail email,
-                         UserPassword password,
-                         Code code,
-                         UserMobile mobile,
-                         UserId userId, TransactionContext context) {
-        Optional<VerificationCode> pendingUser = DomainRegistry.getVerificationCodeRepository()
-            .query(new RegistrationEmail(email.getEmail()));
-        UserRelation.initNewUser(new RoleId(AppConstant.MT_AUTH_USER_ROLE_ID), userId,
-            new ProjectId(AppConstant.MT_AUTH_PROJECT_ID));
-        if (pendingUser.isPresent()) {
-            if (pendingUser.get().getCode() == null
-                ||
-                !pendingUser.get().getCode().getValue()
-                    .equals(code.getValue())) {
-                throw new DefinedRuntimeException("code mismatch", "1025",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-            User user = User.newUser(email, password, userId, mobile);
-            DomainRegistry.getUserRepository().add(user);
-            context
-                .append(new NewUserRegistered(user.getUserId(), email));
-            return user.getUserId();
-        } else {
-
-            throw new DefinedRuntimeException("verification code not found, maybe not click send?",
-                "1026",
-                HttpResponseCode.BAD_REQUEST);
-        }
-    }
 
     public UserId create(UserMobile userMobile, Code code, UserId userId,
                          TransactionContext context) {

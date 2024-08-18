@@ -444,7 +444,7 @@ export const enUS = {
     "RESOLVE_CONFIRM_MSG": "Are you sure to mark it as resolved?",
     "RESOLVED": "Resolved",
     "RESOLVE_REASON": "Resolve reason",
-    "USER_ID": "UserId",
+    "USER_ID": "Id",
     "PAYMENT_SVC": "mt6-payment",
     "PROFILE_SVC": "mt2-user-profile",
     "ACCESS_SVC": "mt0-access",
@@ -626,4 +626,8 @@ export const enUS = {
     "UPDATE_TABLE_COLUMN": "Configuration",
     "SELECT_TO_CHANGE_TABLE_COLUMN": "Select to change displayed columns",
     "MY_ROLE_DASHBOARD": "Roles",
+    "EDIT_MY_PROFILE": "My Profile",
+    "PROFILE_GENERAL": "General",
+    "PROFILE_PWD": "Change password",
+    "MFA_TITLE": "Multi-Factor Authentication",
 }

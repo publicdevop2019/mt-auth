@@ -50,7 +50,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1059',explain:'不允许订阅非共享端口'},
     {code:'1060,1061',explain:'订阅请求查询：type值错误'},
     {code:'1062',explain:'系统账户无法锁定'},
-    {code:'1063',explain:'用户名无法重写'},
+    {code:'1063',explain:'Email、手机、用户名至少保留一项'},
     {code:'1064',explain:'密码验证：至少一个字符'},
     {code:'1065',explain:'密码验证：至少一个数字'},
     {code:'1066',explain:'密码验证：不允许空格'},
@@ -76,6 +76,7 @@ export class ErrorLookupComponent implements OnInit {
     {code:'1090',explain:'Refresh Token已过期'},
     {code:'1091',explain:'找不到客户端'},
     {code:'1092',explain:'endpoint重复'},
+    {code:'1093',explain:'mobile或email或username已经被占用'},
   ]
   public dataCommon: {code:string,explain:string}[]=[
     {code:'0000,0002,0003,0004,0006',explain:'MQ连接失败'},

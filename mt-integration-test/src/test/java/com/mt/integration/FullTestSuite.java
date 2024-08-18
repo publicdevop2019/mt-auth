@@ -6,7 +6,7 @@ import com.mt.integration.single.access.ClientCredentialsTest;
 import com.mt.integration.concurrent.ClientIdempotentTest;
 import com.mt.integration.single.access.PasswordFlowTest;
 import com.mt.integration.single.access.RefreshTokenTest;
-import com.mt.integration.single.access.UserTest;
+import com.mt.integration.single.access.OldUserTest;
 import com.mt.integration.single.access.mgmt.MgmtClientTest;
 import com.mt.integration.single.access.mgmt.MgmtEndpointTest;
 import com.mt.integration.single.access.mgmt.MgmtProjectTest;
@@ -39,7 +39,7 @@ import org.junit.platform.suite.api.Suite;
     ClientIdempotentTest.class,
     PasswordFlowTest.class,
     RefreshTokenTest.class,
-    UserTest.class,
+    OldUserTest.class,
     CorsTest.class,
     EndpointSecurityTest.class,
     GatewayFilterTest.class,

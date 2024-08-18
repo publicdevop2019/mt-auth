@@ -57,7 +57,7 @@ public class VerificationCodeApplicationService {
     public void checkCode(String email, String code) {
         if (!DomainRegistry.getVerificationCodeService()
             .checkCodeUsing(new RegistrationEmail(email), new Code(code))) {
-            throw new DefinedRuntimeException("wrong code", "1025",
+            throw new DefinedRuntimeException("code mismatch", "1025",
                 HttpResponseCode.BAD_REQUEST);
         }
     }
@@ -66,7 +66,7 @@ public class VerificationCodeApplicationService {
         if (!DomainRegistry.getVerificationCodeService()
             .checkCodeUsing(new RegistrationMobile(countryCode, mobileNumber),
                 new Code(code))) {
-            throw new DefinedRuntimeException("wrong code", "1025",
+            throw new DefinedRuntimeException("code mismatch", "1025",
                 HttpResponseCode.BAD_REQUEST);
         }
     }

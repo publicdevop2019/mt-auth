@@ -6,6 +6,9 @@
 /* dark mode */
 /* @import '~@angular/material/prebuilt-themes/pink-bluegrey.css'; */
 /* @import '~@angular/material/prebuilt-themes/purple-green.css'; */
+html{
+  font-size: 16px;
+}
 body {
   font-family: Roboto, Arial, sans-serif;
   margin: 0;

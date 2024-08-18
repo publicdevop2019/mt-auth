@@ -37,7 +37,7 @@ import org.springframework.util.ResourceUtils;
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class UserTest {
+public class OldUserTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);

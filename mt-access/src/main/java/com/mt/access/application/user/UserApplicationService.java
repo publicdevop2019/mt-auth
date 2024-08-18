@@ -3,16 +3,17 @@ package com.mt.access.application.user;
 import static com.mt.access.domain.model.audit.AuditActionName.MGMT_LOCK_USER;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_FORGET_PWD;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_RESET_PWD;
-import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PROFILE;
 import static com.mt.access.domain.model.audit.AuditActionName.USER_UPDATE_PWD;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UpdateUserCommand;
-import com.mt.access.application.user.command.UserCreateCommand;
+import com.mt.access.application.user.command.UserAddEmailCommand;
+import com.mt.access.application.user.command.UserAddMobileCommand;
+import com.mt.access.application.user.command.UserAddUserNameCommand;
 import com.mt.access.application.user.command.UserForgetPasswordCommand;
 import com.mt.access.application.user.command.UserResetPasswordCommand;
+import com.mt.access.application.user.command.UserUpdateLanguageCommand;
 import com.mt.access.application.user.command.UserUpdatePasswordCommand;
-import com.mt.access.application.user.command.UserUpdateProfileCommand;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
 import com.mt.access.application.user.representation.UserProfileRepresentation;
 import com.mt.access.application.user.representation.UserTokenRepresentation;
@@ -24,6 +25,7 @@ import com.mt.access.domain.model.image.ImageId;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.domain.model.project.ProjectId;
 import com.mt.access.domain.model.user.CurrentPassword;
+import com.mt.access.domain.model.user.Language;
 import com.mt.access.domain.model.user.LoginHistory;
 import com.mt.access.domain.model.user.LoginInfo;
 import com.mt.access.domain.model.user.LoginResult;
@@ -42,9 +44,12 @@ import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserSession;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
+import com.mt.common.domain.model.exception.DefinedRuntimeException;
+import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -123,24 +128,6 @@ public class UserApplicationService {
                 DomainRegistry.getUserRepository().update(user, user1);
                 return null;
             }, USER);
-    }
-
-    public String create(UserCreateCommand command, String changeId) {
-        UserId userId = new UserId();
-        return CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(changeId,
-                (context) -> {
-                    UserId userId1 = DomainRegistry.getNewUserService().create(
-                        new UserEmail(command.getEmail()),
-                        new UserPassword(command.getPassword()),
-                        new Code(command.getActivationCode()),
-                        new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                        userId, context
-                    );
-                    return userId1.getDomainId();
-                }, USER
-            );
-
     }
 
     @AuditLog(actionName = USER_UPDATE_PWD)
@@ -235,22 +222,6 @@ public class UserApplicationService {
                     .mfaMissing(mfaId1);
             }
         }
-    }
-
-
-    @AuditLog(actionName = USER_UPDATE_PROFILE)
-    public void updateProfile(UserUpdateProfileCommand command) {
-        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
-                User user = DomainRegistry.getUserRepository().get(userId);
-                User update = user.update(
-                    new UserMobile(command.getCountryCode(), command.getMobileNumber()),
-                    command.getUsername() != null ? new UserName(command.getUsername()) : null,
-                    command.getLanguage()
-                );
-                DomainRegistry.getUserRepository().update(user, update);
-            }
-        );
     }
 
     private void recordLoginInfo(String ipAddress, String agentInfo, UserId userId,
@@ -353,6 +324,128 @@ public class UserApplicationService {
                     );
                     return userId1.getDomainId();
                 }, USER
+            );
+    }
+
+    public void addUsername(UserAddUserNameCommand command, String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        UserName newUserName = new UserName(command.getUserName());
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.isNull(user.getUserName());
+        Optional<UserId> userId1 = DomainRegistry.getUserRepository().queryUserId(newUserName);
+        if (userId1.isPresent()) {
+            throw new DefinedRuntimeException("mobile, email, or username already used",
+                "1093",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.addUserName(newUserName);
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void deleteUsername(String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.notNull(user.getUserName());
+        user.checkUserNameRemoval();
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.removeUserName();
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void addMobile(UserAddMobileCommand command, String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        UserMobile newMobile = new UserMobile(command.getCountryCode(), command.getMobileNumber());
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.isNull(user.getMobile());
+        Optional<UserId> userId1 = DomainRegistry.getUserRepository().queryUserId(newMobile);
+        if (userId1.isPresent()) {
+            throw new DefinedRuntimeException("mobile, email, or username already used",
+                "1093",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.addMobile(newMobile);
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void deleteMobile(String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.notNull(user.getMobile());
+        user.checkMobileRemoval();
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.removeMobile();
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void addEmail(UserAddEmailCommand command, String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        UserEmail userEmail = new UserEmail(command.getEmail());
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.isNull(user.getEmail());
+        Optional<UserId> userId1 = DomainRegistry.getUserRepository().queryUserId(userEmail);
+        if (userId1.isPresent()) {
+            throw new DefinedRuntimeException("mobile, email, or username already used",
+                "1093",
+                HttpResponseCode.BAD_REQUEST);
+        }
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.addEmail(userEmail);
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void deleteEmail(String changeId) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        User user = DomainRegistry.getUserRepository().get(userId);
+        Validator.notNull(user.getEmail());
+        user.checkEmailRemoval();
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(changeId,
+                (context) -> {
+                    User newUser = user.removeEmail();
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                    return null;
+                }, USER
+            );
+    }
+
+    public void updateLanguage(UserUpdateLanguageCommand command) {
+        UserId userId = DomainRegistry.getCurrentUserService().getUserId();
+        Language language = Language.parse(command.getLanguage());
+        Validator.notNull(language);
+        User user = DomainRegistry.getUserRepository().get(userId);
+        CommonDomainRegistry.getTransactionService()
+            .transactionalEvent(
+                (context) -> {
+                    User newUser = user.updateLanguage(language);
+                    DomainRegistry.getUserRepository().update(user, newUser);
+                }
             );
     }
 }

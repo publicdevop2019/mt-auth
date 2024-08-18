@@ -35,12 +35,7 @@ export interface IUser {
     username: string
     language: string
     avatarLink: string
-}
-export interface IUpdateUser {
-    countryCode: string
-    mobileNumber: string
-    username?: string
-    language: string
+    hasPassword: boolean
 }
 @Injectable({
     providedIn: 'root'
@@ -118,9 +113,6 @@ export class HttpProxyService {
     getMyProfile() {
         return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
     }
-    updateMyProfile(profile: IUpdateUser) {
-        return this._httpClient.put<IUpdateUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile', profile);
-    }
     cancelSubRequest(id: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
@@ -150,7 +142,7 @@ export class HttpProxyService {
     retry(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/retry', null);
     }
-    uploadFile(file: File): Observable<string> {
+    uploadAvatar(file: File): Observable<string> {
         return new Observable<string>(e => {
             const formData: FormData = new FormData();
             formData.append('file', file, file.name);
@@ -409,79 +401,6 @@ export class HttpProxyService {
             return "?" + params.join('&')
         return ""
     }
-    private getUserStatusPatch(status: 'LOCK' | 'UNLOCK', ids: string[]): IPatch[] {
-        let re: IPatch[] = [];
-        ids.forEach(id => {
-            let var0: IPatch;
-            if (status === "LOCK") {
-                var0 = <IPatch>{ op: 'replace', path: "/" + id + '/locked', value: true }
-            } else {
-                var0 = <IPatch>{ op: 'replace', path: "/" + id + '/locked', value: false }
-            }
-            re.push(var0)
-        })
-        return re;
-    }
-    private getPatchPayload(fieldName: string, fieldValue: IEditEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = undefined;
-        if (fieldValue.original) {
-            type = 'replace'
-        } else {
-            type = 'add'
-        }
-        let startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchPayloadAtomicNum(id: string, fieldName: string, fieldValue: IEditEvent): IPatchCommand[] {
-        let re: IPatchCommand[] = [];
-        let type = undefined;
-
-        if (fieldValue.original >= fieldValue.next) {
-            type = 'diff'
-        } else {
-            type = 'sum'
-        }
-        let startAt = <IPatchCommand>{ op: type, path: "/" + id + "/" + fieldName, value: Math.abs(+fieldValue.next - +fieldValue.original), expect: 1 }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchListPayload(fieldName: string, fieldValue: IEditListEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = 'replace';
-        let startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next.map(e => e.value) }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchInputListPayload(fieldName: string, fieldValue: IEditInputListEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let startAt: IPatch;
-        if (fieldValue.original) {
-            startAt = <IPatch>{ op: 'replace', path: "/" + fieldName, value: fieldValue.next }
-        } else {
-            startAt = <IPatch>{ op: 'add', path: "/" + fieldName, value: fieldValue.next }
-        }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchBooleanPayload(fieldName: string, fieldValue: IEditBooleanEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = undefined;
-        let startAt: IPatch;
-        if (typeof fieldValue.original === 'boolean' && typeof fieldValue.original === 'boolean') {
-            type = 'replace'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        } else if (typeof fieldValue.original === 'boolean' && typeof fieldValue.original === 'undefined') {
-            type = 'remove'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName }
-        } else {
-            type = 'add'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        }
-        re.push(startAt)
-        return re;
-    }
     createEntity(entityRepo: string, entity: any, changeId: string, headers?: { [key: string]: string }): Observable<string> {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
@@ -576,6 +495,39 @@ export class HttpProxyService {
                 e.next(true)
             });
         });
+    };
+    updateProfileLanguage(language: string) {
+        return this._httpClient.put(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/language', { language: language });
+    };
+    addProfileEmail(email: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/email', { email: email }, { headers: headerConfig });
+    };
+    addProfileMobile(countryCode: string, mobileNumber:string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { countryCode: countryCode, mobileNumber: mobileNumber }, { headers: headerConfig });
+    };
+    addProfileUsername(username: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { userName: username }, { headers: headerConfig });
+    };
+    removeProfileEmail(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/email', { headers: headerConfig });
+    };
+    removeProfileMobile(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { headers: headerConfig });
+    };
+    removeProfileUsername(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/username', { headers: headerConfig });
     };
     getMgmtDashboardInfo() {
         return this._httpClient.get<IMgmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)
