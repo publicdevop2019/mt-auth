@@ -138,7 +138,7 @@ export interface IAuthUser {
 }
 export interface IProjectUser {
     id: string,
-    email?: string;
+    displayName?: string;
     projectId: string;
     roles: string[];
     roleDetails?: { id: string, name: string }[];

@@ -49,11 +49,11 @@ export class MyUsersComponent {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
-        email: 'EMAIL',
+        name: 'NAME',
         edit: 'EDIT',
       } : {
         id: 'ID',
-        email: 'EMAIL',
+        name: 'NAME',
       }
     })
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {

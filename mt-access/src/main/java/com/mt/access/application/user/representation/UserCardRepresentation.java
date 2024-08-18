@@ -7,14 +7,14 @@ import lombok.Data;
 public class UserCardRepresentation {
     private String id;
 
-    private String email;
+    private String displayName;
 
     private Boolean locked;
     private Long createdAt;
 
     public UserCardRepresentation(Object o) {
         User user = (User) o;
-        email = user.getEmail().getEmail();
+        displayName = user.getDisplayName();
         id = user.getUserId().getDomainId();
         locked = user.getLocked();
         this.createdAt = user.getCreatedAt();
