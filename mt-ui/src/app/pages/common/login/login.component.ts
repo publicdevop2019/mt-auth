@@ -147,10 +147,10 @@ export class LoginComponent {
         }
       }
       response.subscribe(next => {
-        if ((next as IMfaResponse).mfaId) {
+        if ((next as IMfaResponse).mfaId||(next as IMfaResponse).deliveryMethod) {
           this.authSvc.loginFormValue = this.form;
           this.authSvc.loginNextUrl = this.nextUrl;
-          this.authSvc.mfaId = (next as IMfaResponse).mfaId;
+          this.authSvc.mfaResponse = (next as IMfaResponse);
           this.route.navMfa({ queryParams: this.router.snapshot.queryParams });
         } else {
           this.httpProxy.currentUserAuthInfo = next as ITokenResponse;

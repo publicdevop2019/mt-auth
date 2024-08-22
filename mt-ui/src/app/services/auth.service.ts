@@ -6,6 +6,7 @@ import { map, shareReplay } from 'rxjs/operators';
 import { HttpProxyService, IUser } from './http-proxy.service';
 import { RouterWrapperService } from './router-wrapper';
 import { Logger } from '../misc/logger';
+import { IMfaResponse } from '../misc/interface';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ import { Logger } from '../misc/logger';
 export class AuthService implements CanActivateChild, CanActivate {
   public loginFormValue: FormGroup;
   public loginNextUrl: string;
-  public mfaId: string;
+  public mfaResponse: IMfaResponse;
   constructor(private router: RouterWrapperService, private httpProxy: HttpProxyService) { }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean {
     return this.defaultCanActivate(route)

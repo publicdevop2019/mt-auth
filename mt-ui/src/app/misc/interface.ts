@@ -222,6 +222,9 @@ export interface IAuditable {
 export interface IMfaResponse {
     mfaId: string;
     message: string;
+    partialMobile: string;
+    partialEmail: string;
+    deliveryMethod: boolean;
 }
 export interface ICheckSumResponse {
     hostValue: string

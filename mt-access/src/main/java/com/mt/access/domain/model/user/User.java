@@ -166,11 +166,18 @@ public class User extends Auditable {
     public void validate(ValidationNotificationHandler handler) {
     }
 
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, TransactionContext context) {
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserEmail email, TransactionContext context) {
         User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         user.pwdResetToken = pwdResetToken;
         context
-            .append(new UserPwdResetCodeUpdated(getUserId(), getEmail(), pwdResetToken));
+            .append(new UserPwdResetCodeUpdated(getUserId(), email, pwdResetToken));
+        return user;
+    }
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserMobile mobile, TransactionContext context) {
+        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        user.pwdResetToken = pwdResetToken;
+        context
+            .append(new UserPwdResetCodeUpdated(getUserId(), mobile, pwdResetToken));
         return user;
     }
 
@@ -286,5 +293,13 @@ public class User extends Auditable {
         User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         update.language = language;
         return update;
+    }
+
+    public boolean hasMultipleMfaOptions() {
+        return Checker.notNull(mobile) && Checker.notNull(email);
+    }
+
+    public boolean hasNoMfaOptions() {
+        return Checker.isNull(mobile) && Checker.isNull(email);
     }
 }

@@ -55,4 +55,10 @@ public class UserMobile implements Serializable {
     public String value() {
         return countryCode + " " + mobileNumber;
     }
+
+    public String getPartialValue() {
+        String head = mobileNumber.substring(0, 1);
+        String tail = mobileNumber.substring(mobileNumber.length() - 3);
+        return "+" + countryCode + " " + head + "***" + tail;
+    }
 }

@@ -2,6 +2,7 @@ package com.mt.access.domain.model.notification.event;
 
 import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
+import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import lombok.Getter;
@@ -32,5 +33,11 @@ public class SendSmsNotificationEvent extends DomainEvent {
         super(notification.getNotificationId());
         mobile = event.getCountryCode() + " " + event.getMobileNumber();
         code = event.getCode().toString();
+    }
+
+    public SendSmsNotificationEvent(UserPwdResetCodeUpdated event, Notification notification) {
+        super(notification.getNotificationId());
+        mobile = event.getCountryCode() + " " + event.getMobileNumber();
+        code = event.getCode();
     }
 }

@@ -64,4 +64,12 @@ public interface UserRepository {
     Optional<UserId> queryUserId(UserMobile userMobile);
 
     Optional<UserId> queryUserId(UserName username);
+
+    default User get(UserMobile mobile) {
+        User user = query(mobile).orElse(null);
+        Validator.notNull(user);
+        return user;
+    }
+
+    Optional<User> query(UserMobile mobile);
 }

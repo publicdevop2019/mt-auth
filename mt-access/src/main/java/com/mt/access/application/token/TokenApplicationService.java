@@ -39,6 +39,7 @@ import org.springframework.stereotype.Service;
 public class TokenApplicationService {
 
     private static final String MFA_REQUIRED = "mfa required";
+    private static final String SELECT_REQUIRED = "pls select deliver method";
 
     public ResponseEntity<?> grantToken(String clientId, String clientSecret,
                                         Map<String, String> parameters,
@@ -115,6 +116,7 @@ public class TokenApplicationService {
                     .userLoginCheck(clientIpAddress, agentInfo, finalUserInfo1.getId(),
                         parameters.get("mfa_code"),
                         parameters.get("mfa_id"),
+                        parameters.get("mfa_method"),
                         hasScope(scope) ? new ProjectId(scope) :
                             new ProjectId(AppConstant.MT_AUTH_PROJECT_ID)
                     )
@@ -126,9 +128,16 @@ public class TokenApplicationService {
                     return ResponseEntity.badRequest().build();
                 } else {
                     log.debug("asking mfa");
-                    HashMap<String, String> stringStringHashMap = new HashMap<>();
+                    HashMap<String, Object> stringStringHashMap = new HashMap<>();
                     stringStringHashMap.put("message", MFA_REQUIRED);
-                    stringStringHashMap.put("mfaId", loginResult.get().getMfaId().getValue());
+                    LoginResult loginResult1 = loginResult.get();
+                    stringStringHashMap.put("partialMobile", loginResult1.getPartialMobile());
+                    stringStringHashMap.put("partialEmail", loginResult1.getPartialEmail());
+                    if (loginResult1.isSelectRequired()) {
+                        stringStringHashMap.put("deliveryMethod", true);
+                    } else {
+                        stringStringHashMap.put("mfaId", loginResult1.getMfaId().getValue());
+                    }
                     return ResponseEntity.ok().body(stringStringHashMap);
                 }
             }

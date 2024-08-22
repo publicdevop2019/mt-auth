@@ -18,47 +18,71 @@ export class MfaComponent implements OnInit {
     mfaCode: new FormControl('', []),
   });
   mfaCodeErrorMsg: string
-  changeId: string = Utility.getChangeId()
+  changeId: string = Utility.getChangeId();
   constructor(
     public httpProxy: HttpProxyService,
     public authSvc: AuthService,
     private router: ActivatedRoute,
     private route: RouterWrapperService
-  ) { }
+  ) {
+    if (!authSvc.mfaResponse) {
+      this.route.navLogin({ queryParams: this.router.snapshot.queryParams });
+    }
+  }
 
   ngOnInit(): void {
+
   }
   confirm() {
     if (!this.mfaForm.get('mfaCode').value) {
       this.mfaCodeErrorMsg = 'REQUIRED';
       this.mfaForm.get('mfaCode').setErrors({ wrongValue: true });
     } else {
+
       if (this.authSvc.loginFormValue) {
-        const var1 = this.authSvc.mfaId;
-        const var2 = this.authSvc.loginNextUrl;
+        const code = this.mfaForm.get('mfaCode').value
+        const mfaId = this.authSvc.mfaResponse.mfaId;
+        const nextUrl = this.authSvc.loginNextUrl;
         let response: Observable<ITokenResponse | IMfaResponse>
         if (this.authSvc.loginFormValue.get('pwdMobileNumber').value) {
-          response = this.httpProxy.mfaLoginMobilePwd(this.authSvc.loginFormValue, this.mfaForm.get('mfaCode').value, var1, this.changeId)
+          response = this.httpProxy.mfaLoginMobilePwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
         } else {
           if ((this.authSvc.loginFormValue.get('pwdEmailOrUsername').value as string).includes("@")) {
-            response = this.httpProxy.mfaLoginEmailPwd(this.authSvc.loginFormValue, this.mfaForm.get('mfaCode').value, var1, this.changeId)
+            response = this.httpProxy.mfaLoginEmailPwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
           } else {
-            response = this.httpProxy.mfaLoginUsernamePwd(this.authSvc.loginFormValue, this.mfaForm.get('mfaCode').value, var1, this.changeId)
+            response = this.httpProxy.mfaLoginUsernamePwd(this.authSvc.loginFormValue, code, mfaId, this.changeId)
           }
         }
-
         response.subscribe(next => {
           this.httpProxy.currentUserAuthInfo = next as ITokenResponse;
           this.authSvc.loginFormValue = undefined;
-          this.authSvc.mfaId = undefined;
-          this.route.navTo(var2, { queryParams: this.router.snapshot.queryParams });
+          this.authSvc.mfaResponse = undefined;
+          this.route.navTo(nextUrl, { queryParams: this.router.snapshot.queryParams });
         })
       } else {
         this.route.navLogin({ queryParams: this.router.snapshot.queryParams });
       }
     }
   }
-  resend() {
-
+  sendByEmail() {
+    this.sendByCommon('email')
+  }
+  sendByMobile() {
+    this.sendByCommon('mobile')
+  }
+  private sendByCommon(value: string) {
+    let response: Observable<IMfaResponse>
+    if (this.authSvc.loginFormValue.get('pwdMobileNumber').value) {
+      response = this.httpProxy.mfaLoginMobilePwdMfaSelect(this.authSvc.loginFormValue, value, Utility.getChangeId())
+    } else {
+      if ((this.authSvc.loginFormValue.get('pwdEmailOrUsername').value as string).includes("@")) {
+        response = this.httpProxy.mfaLoginEmailPwdMfaSelect(this.authSvc.loginFormValue, value, Utility.getChangeId())
+      } else {
+        response = this.httpProxy.mfaLoginUsernamePwdMfaSelect(this.authSvc.loginFormValue, value, Utility.getChangeId())
+      }
+    }
+    response.subscribe(next => {
+      this.authSvc.mfaResponse = next;
+    })
   }
 }

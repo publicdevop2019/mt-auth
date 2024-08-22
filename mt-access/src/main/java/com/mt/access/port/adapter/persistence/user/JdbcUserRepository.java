@@ -78,6 +78,8 @@ public class JdbcUserRepository implements UserRepository {
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.domain_id = ?";
     public static final String QUERY_USER_BY_EMAIL =
         "SELECT * FROM user_ u WHERE u.email = ?";
+    public static final String QUERY_USER_BY_MOBILE =
+        "SELECT * FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
     private static final String GET_USER_ID_SQL_BY_MOBILE =
         "SELECT u.domain_id FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
     private static final String GET_USER_ID_SQL_BY_USER_NAME =
@@ -140,6 +142,17 @@ public class JdbcUserRepository implements UserRepository {
             .query(QUERY_USER_BY_EMAIL,
                 new RowMapper(),
                 email.getEmail()
+            );
+        return data.isEmpty() ? Optional.empty() : Optional.of(data.get(0));
+    }
+
+    @Override
+    public Optional<User> query(UserMobile mobile) {
+        List<User> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(QUERY_USER_BY_MOBILE,
+                new RowMapper(),
+                mobile.getCountryCode(),
+                mobile.getMobileNumber()
             );
         return data.isEmpty() ? Optional.empty() : Optional.of(data.get(0));
     }

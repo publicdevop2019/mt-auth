@@ -1,6 +1,7 @@
 package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
+import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.HashMap;
@@ -48,16 +49,25 @@ public class MfaService {
         return mfaInfo.validate(mfaCode, mfaId);
     }
 
-    public MfaId triggerMfa(UserId userId, TransactionContext context) {
-        User user1 = DomainRegistry.getUserRepository().get(userId);
+    public MfaId triggerDefaultMfa(User user, TransactionContext context) {
         MfaInfo mfaInfo = MfaInfo.create();
-        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, userId);
+        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
         context
-            .append(new UserMfaNotificationEvent(user1, mfaInfo));
+            .append(new UserMfaNotificationEvent(user, mfaInfo));
+        return mfaInfo.getId();
+    }
+
+    public MfaId triggerSelectedMfa(User user, TransactionContext context,
+                                    MfaDeliverMethod deliverMethod) {
+        MfaInfo mfaInfo = MfaInfo.create();
+        DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
+        context
+            .append(new UserMfaNotificationEvent(user, mfaInfo, deliverMethod));
         return mfaInfo.getId();
     }
 
     private <K, V extends Comparable<V>> Optional<Map.Entry<K, V>> mostFrequentIp(Map<K, V> map) {
         return map.entrySet().stream().max(Map.Entry.comparingByValue());
     }
+
 }

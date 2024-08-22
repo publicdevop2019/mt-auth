@@ -16,14 +16,14 @@ public class CoolDownService {
     /**
      * check if operation has cool down or not, throw exception if not.
      *
-     * @param domainId      domain id
+     * @param emailOrMobile      cool down key
      * @param operationType operation type
      */
-    public void hasCoolDown(String domainId, OperationType operationType) {
-        Validator.notNull(domainId);
+    public void hasCoolDown(String emailOrMobile, OperationType operationType) {
+        Validator.notNull(emailOrMobile);
         Optional<OperationCoolDown> coolDownInfo =
             DomainRegistry.getOperationCoolDownRepository()
-                .query(domainId, operationType);
+                .query(emailOrMobile, operationType);
         if (coolDownInfo.isPresent()) {
             OperationCoolDown coolDown = coolDownInfo.get();
             boolean cool = coolDown.hasCoolDown();
@@ -39,7 +39,7 @@ public class CoolDownService {
         } else {
             log.info("new operation");
             CommonDomainRegistry.getTransactionService().transactionalEvent((ignored) -> {
-                OperationCoolDown coolDown = new OperationCoolDown(domainId, operationType);
+                OperationCoolDown coolDown = new OperationCoolDown(emailOrMobile, operationType);
                 DomainRegistry.getOperationCoolDownRepository().add(coolDown);
             });
         }

@@ -42,6 +42,9 @@ import com.mt.access.domain.model.user.UserName;
 import com.mt.access.domain.model.user.UserPassword;
 import com.mt.access.domain.model.user.UserQuery;
 import com.mt.access.domain.model.user.UserSession;
+import com.mt.access.domain.model.user.event.MfaDeliverMethod;
+import com.mt.access.domain.model.verification_code.RegistrationEmail;
+import com.mt.access.domain.model.verification_code.RegistrationMobile;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -145,26 +148,57 @@ public class UserApplicationService {
     }
 
     public void forgetPassword(UserForgetPasswordCommand command, String changeId) {
+        String domainId;
+        if (Checker.notNull(command.getEmail())) {
+            RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
+            domainId = registrationEmail.getDomainId();
+        } else {
+            RegistrationMobile userMobile =
+                new RegistrationMobile(command.getCountryCode(), command.getMobileNumber());
+            domainId = userMobile.getDomainId();
+        }
         DomainRegistry.getAuditService()
-            .logExternalUserAction(log, command.getEmail(), USER_FORGET_PWD);
+            .logExternalUserAction(log, domainId, USER_FORGET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                DomainRegistry.getCoolDownService().hasCoolDown(command.getEmail(),
+                DomainRegistry.getCoolDownService().hasCoolDown(domainId,
                     OperationType.PWD_RESET);
-                DomainRegistry.getUserService()
-                    .forgetPassword(new UserEmail(command.getEmail()), context);
+                if (Checker.notNull(command.getEmail())) {
+                    DomainRegistry.getUserService()
+                        .forgetPassword(new UserEmail(command.getEmail()), context);
+                } else {
+                    DomainRegistry.getUserService()
+                        .forgetPassword(
+                            new UserMobile(command.getCountryCode(), command.getMobileNumber()),
+                            context);
+                }
                 return null;
             }, USER);
     }
 
     public void resetPassword(UserResetPasswordCommand command, String changeId) {
+        String domainId;
+        if (Checker.notNull(command.getEmail())) {
+            RegistrationEmail registrationEmail = new RegistrationEmail(command.getEmail());
+            domainId = registrationEmail.getDomainId();
+        } else {
+            RegistrationMobile userMobile =
+                new RegistrationMobile(command.getCountryCode(), command.getMobileNumber());
+            domainId = userMobile.getDomainId();
+        }
         DomainRegistry.getAuditService()
-            .logExternalUserAction(log, command.getEmail(), USER_RESET_PWD);
+            .logExternalUserAction(log, domainId, USER_RESET_PWD);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                DomainRegistry.getUserService().resetPassword(new UserEmail(command.getEmail()),
-                    new UserPassword(command.getNewPassword()),
-                    new PasswordResetCode(command.getToken()), context);
+                if (Checker.notNull(command.getEmail())) {
+                    DomainRegistry.getUserService()
+                        .resetPassword(new UserEmail(command.getEmail()), new UserPassword(command.getNewPassword()),
+                            new PasswordResetCode(command.getToken()), context);
+                } else {
+                    DomainRegistry.getUserService()
+                        .resetPassword(new UserMobile(command.getCountryCode(), command.getMobileNumber()), new UserPassword(command.getNewPassword()),
+                            new PasswordResetCode(command.getToken()), context);
+                }
                 return null;
             }, USER);
     }
@@ -194,9 +228,16 @@ public class UserApplicationService {
 
     public LoginResult userLoginCheck(String ipAddress, String agentInfo,
                                       String rawUserId, @Nullable String mfaCode,
-                                      @Nullable String mfaId, ProjectId loginProjectId) {
+                                      @Nullable String mfaId, @Nullable String mfaMethod,
+                                      ProjectId loginProjectId) {
         UserId userId = new UserId(rawUserId);
         log.debug("user id {}", userId.getDomainId());
+        User user1 = DomainRegistry.getUserRepository().get(userId);
+        if (user1.hasNoMfaOptions()) {
+            log.debug("mfa not found, record current login information");
+            recordLoginInfo(ipAddress, agentInfo, userId, loginProjectId);
+            return LoginResult.allow();
+        }
         boolean mfaRequired =
             DomainRegistry.getMfaService().isMfaRequired(userId, new UserSession(ipAddress));
         if (!mfaRequired) {
@@ -215,12 +256,30 @@ public class UserApplicationService {
                     return LoginResult.mfaMissMatch();
                 }
             } else {
-                log.debug("mfa required and need input by user");
-                MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
-                    .returnedTransactionalEvent(
-                        (context) -> DomainRegistry.getMfaService().triggerMfa(userId, context));
-                return LoginResult
-                    .mfaMissing(mfaId1);
+                MfaDeliverMethod deliverMethod = MfaDeliverMethod.parse(mfaMethod);
+                if (Checker.notNull(deliverMethod)) {
+                    log.debug("mfa required and user selected deliver method");
+                    MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
+                        .returnedTransactionalEvent(
+                            (context) -> DomainRegistry.getMfaService()
+                                .triggerSelectedMfa(user1, context, deliverMethod));
+                    return LoginResult
+                        .mfaMissingAfterSelect(mfaId1, deliverMethod, user1);
+                } else {
+                    log.debug("mfa required and need input by user");
+                    if (user1.hasMultipleMfaOptions()) {
+                        log.debug("asking user to pick mfa deliver method");
+                        return LoginResult
+                            .askUserSelect(user1);
+                    } else {
+                        MfaId mfaId1 = CommonDomainRegistry.getTransactionService()
+                            .returnedTransactionalEvent(
+                                (context) -> DomainRegistry.getMfaService()
+                                    .triggerDefaultMfa(user1, context));
+                        return LoginResult
+                            .mfaMissing(mfaId1, user1);
+                    }
+                }
             }
         }
     }

@@ -15,6 +15,7 @@ import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
 import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { M } from '@angular/cdk/keycodes';
 export interface IPatch {
     op: string,
     path: string,
@@ -307,6 +308,19 @@ export class HttpProxyService {
         formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
+    mfaLoginMobilePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', loginFG.get('pwdMobileNumber').value);
+        formData.append('country_code', loginFG.get('pwdCountryCode').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
     mfaLoginEmailPwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         let headers = this._getAuthHeader(true);
@@ -320,6 +334,18 @@ export class HttpProxyService {
         formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
+    mfaLoginEmailPwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
     mfaLoginUsernamePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
         let headers = this._getAuthHeader(true);
@@ -332,6 +358,18 @@ export class HttpProxyService {
         formData.append('mfa_code', code);
         formData.append('mfa_id', id);
         return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginUsernamePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
+        formData.append('username', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
     register(registerFG: IVerificationCodeRequest, changeId: string): Observable<any> {
         const formData = new FormData();

@@ -34,14 +34,33 @@ public class UserService {
     public void forgetPassword(UserEmail email, TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
         PasswordResetCode passwordResetToken = new PasswordResetCode();
-        User user1 = user.setPwdResetToken(passwordResetToken, context);
+        User user1 = user.setPwdResetToken(passwordResetToken, email, context);
         DomainRegistry.getUserRepository().update(user, user1);
 
+    }
+
+
+    public void forgetPassword(UserMobile mobile, TransactionContext context) {
+        User user = DomainRegistry.getUserRepository().get(mobile);
+        PasswordResetCode passwordResetToken = new PasswordResetCode();
+        User user1 = user.setPwdResetToken(passwordResetToken, mobile, context);
+        DomainRegistry.getUserRepository().update(user, user1);
     }
 
     public void resetPassword(UserEmail email, UserPassword newPassword, PasswordResetCode token,
                               TransactionContext context) {
         User user = DomainRegistry.getUserRepository().get(email);
+        updatePwd(newPassword, token, context, user);
+    }
+
+    public void resetPassword(UserMobile mobile, UserPassword newPassword, PasswordResetCode token,
+                              TransactionContext context) {
+        User user = DomainRegistry.getUserRepository().get(mobile);
+        updatePwd(newPassword, token, context, user);
+    }
+
+    private static void updatePwd(UserPassword newPassword, PasswordResetCode token,
+                                  TransactionContext context, User user) {
         if (user.getPwdResetToken() == null) {
             throw new DefinedRuntimeException("token not exist", "1003",
                 HttpResponseCode.BAD_REQUEST);
@@ -68,6 +87,5 @@ public class UserService {
         LoginHistory loginHistory = new LoginHistory(command, loginProjectId);
         DomainRegistry.getLoginHistoryRepository().add(loginHistory);
     }
-
 
 }

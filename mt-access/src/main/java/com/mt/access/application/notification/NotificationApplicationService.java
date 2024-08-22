@@ -10,15 +10,16 @@ import com.mt.access.domain.model.notification.NotificationType;
 import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
 import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
+import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
@@ -29,6 +30,7 @@ import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
 import com.mt.common.domain.model.restful.SumPagedRep;
+import com.mt.common.domain.model.validate.Checker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -119,26 +121,41 @@ public class NotificationApplicationService {
             .idempotent(event.getId().toString(), (context) -> {
                 Notification notification = new Notification(event);
                 DomainRegistry.getNotificationRepository().add(notification);
-                context
-                    .append(new SendSmsNotificationEvent(event, notification));
+                if (MfaDeliverMethod.MOBILE.equals(event.getDeliverMethod())) {
+                    context
+                        .append(new SendSmsNotificationEvent(event, notification));
+                } else {
+                    context
+                        .append(new SendEmailNotificationEvent(event, notification));
+                }
                 return null;
             }, NOTIFICATION);
     }
 
     public void handle(UserPwdResetCodeUpdated event) {
         Notification notification = new Notification(event);
-        SendEmailNotificationEvent sendEmailNotificationEvent =
-            new SendEmailNotificationEvent(event, notification);
-        sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
+        if (Checker.notNull(event.getEmail())) {
+            SendEmailNotificationEvent sendEmailNotificationEvent =
+                new SendEmailNotificationEvent(event, notification);
+            sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
+        } else {
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(event.getId().toString(), (context) -> {
+                    DomainRegistry.getNotificationRepository().add(notification);
+                    context
+                        .append(new SendSmsNotificationEvent(event, notification));
+                    return null;
+                }, NOTIFICATION);
+        }
     }
 
     public void handle(VerificationCodeUpdated event) {
         Notification notification = new Notification(event);
-        if(NotificationType.EMAIL.equals(notification.getType())){
+        if (NotificationType.EMAIL.equals(notification.getType())) {
             SendEmailNotificationEvent sendEmailNotificationEvent =
                 new SendEmailNotificationEvent(event, notification);
             sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
-        }else{
+        } else {
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(event.getId().toString(), (context) -> {
                     DomainRegistry.getNotificationRepository().add(notification);
