@@ -103,7 +103,7 @@ public class TenantAdminTest{
     @Test
     public void tenant_cannot_add_user_not_using_project_as_admin() {
         //create new user but not login to created project
-        User userObj = UserUtility.createUser();
+        User userObj = UserUtility.createEmailPwdUser();
         //add admin
         ResponseEntity<Void> exchange2 =
             AdminUtility.makeAdmin(tenantContext.getCreator(), tenantContext.getProject(), userObj);
@@ -114,7 +114,7 @@ public class TenantAdminTest{
     public void admin_validation_should_work() {
         //1. add admin with random string
         String login =
-            UserUtility.login(tenantContext.getCreator());
+            UserUtility.emailPwdLogin(tenantContext.getCreator());
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(login);
         HttpEntity<String> request =

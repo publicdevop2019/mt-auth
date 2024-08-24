@@ -5,7 +5,6 @@ import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
-import com.mt.helper.pojo.PendingUser;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.OAuth2Utility;
@@ -60,15 +59,15 @@ public class EndpointSecurityTest {
     }
 
     @Test
-    public void should_not_able_to_create_user_w_client_missing_right_role() {
-        User user = UserUtility.createRandomUserObj();
+    public void should_not_able_to_send_code_w_client_missing_right_role() {
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
+            .getClientCredentialToken(
                 AppConstant.CLIENT_ID_RIGHT_ROLE_NOT_SUFFICIENT_RESOURCE_ID,
                 AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         ResponseEntity<Void> pendingUser =
-            UserUtility.createPendingUser(user, value, new PendingUser());
+            UserUtility.sendVerifyCode(user, value);
         Assertions.assertEquals(HttpStatus.FORBIDDEN, pendingUser.getStatusCode());
     }
 }

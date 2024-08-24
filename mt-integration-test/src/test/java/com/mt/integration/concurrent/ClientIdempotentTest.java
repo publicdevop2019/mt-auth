@@ -54,7 +54,7 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_update_w_same_changeId_two_times() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
@@ -84,7 +84,7 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_delete_w_same_changeId_two_times() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
@@ -140,7 +140,7 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_update_w_same_changeId_two_times_concurrent() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
@@ -186,7 +186,7 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_delete_w_same_changeId_two_times_concurrent() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
             AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();

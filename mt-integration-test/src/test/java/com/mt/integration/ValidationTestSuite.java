@@ -1,15 +1,15 @@
 package com.mt.integration;
 
-import com.mt.integration.single.access.validation.TenantCacheValidationTest;
-import com.mt.integration.single.access.validation.TenantClientValidationTest;
-import com.mt.integration.single.access.validation.TenantCorsValidationTest;
-import com.mt.integration.single.access.validation.TenantEndpointValidationTest;
-import com.mt.integration.single.access.validation.TenantMarketValidationTest;
-import com.mt.integration.single.access.validation.TenantPermissionValidationTest;
-import com.mt.integration.single.access.validation.TenantProjectValidationTest;
-import com.mt.integration.single.access.validation.TenantRoleValidationTest;
-import com.mt.integration.single.access.validation.TenantUserValidationTest;
-import com.mt.integration.single.access.validation.UserValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantCacheValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantClientValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantCorsValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantEndpointValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantMarketValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantPermissionValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantProjectValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantRoleValidationTest;
+import com.mt.integration.single.access.tenant.validation.TenantUserValidationTest;
+import com.mt.integration.single.access.user.validation.UserValidationTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 

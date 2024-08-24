@@ -152,7 +152,12 @@ public class TokenApplicationService {
                 DomainRegistry.getTokenService().grant(parameters, finalClient, finalUserInfo);
             token.set(grant);
         });
-        return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
+        if (grantType.equals(TokenGrantType.PASSWORD)) {
+            return ResponseEntity.ok().header("Location", userInfo.getId())
+                .body(new JwtTokenRepresentation(token.get()));
+        } else {
+            return ResponseEntity.ok(new JwtTokenRepresentation(token.get()));
+        }
     }
 
     private TokenGrantContext checkPasswordGrant(String rawType, String mobileNumber,

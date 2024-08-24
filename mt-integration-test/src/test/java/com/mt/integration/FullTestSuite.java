@@ -1,12 +1,12 @@
 package com.mt.integration;
 
 import com.mt.integration.concurrent.GatewayFilterConcurrentTest;
-import com.mt.integration.single.access.AuthorizationCodeTest;
-import com.mt.integration.single.access.ClientCredentialsTest;
+import com.mt.integration.single.access.oauth2.AuthorizationCodeTest;
+import com.mt.integration.single.access.oauth2.ClientCredentialsTest;
 import com.mt.integration.concurrent.ClientIdempotentTest;
-import com.mt.integration.single.access.PasswordFlowTest;
-import com.mt.integration.single.access.RefreshTokenTest;
-import com.mt.integration.single.access.OldUserTest;
+import com.mt.integration.single.access.oauth2.PasswordFlowTest;
+import com.mt.integration.single.access.oauth2.RefreshTokenTest;
+import com.mt.integration.single.access.user.UserLoginTest;
 import com.mt.integration.single.access.mgmt.MgmtClientTest;
 import com.mt.integration.single.access.mgmt.MgmtEndpointTest;
 import com.mt.integration.single.access.mgmt.MgmtProjectTest;
@@ -39,7 +39,7 @@ import org.junit.platform.suite.api.Suite;
     ClientIdempotentTest.class,
     PasswordFlowTest.class,
     RefreshTokenTest.class,
-    OldUserTest.class,
+    UserLoginTest.class,
     CorsTest.class,
     EndpointSecurityTest.class,
     GatewayFilterTest.class,

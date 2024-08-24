@@ -19,5 +19,6 @@ public class User {
     private Object language;
     private String countryCode;
     private String username;
+    private String code;
     private List<String> roles;
 }

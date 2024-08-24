@@ -389,7 +389,7 @@ public class UserApplicationService {
 
     public void addUsername(UserAddUserNameCommand command, String changeId) {
         UserId userId = DomainRegistry.getCurrentUserService().getUserId();
-        UserName newUserName = new UserName(command.getUserName());
+        UserName newUserName = new UserName(command.getUsername());
         User user = DomainRegistry.getUserRepository().get(userId);
         Validator.isNull(user.getUserName());
         Optional<UserId> userId1 = DomainRegistry.getUserRepository().queryUserId(newUserName);

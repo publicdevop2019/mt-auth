@@ -8,7 +8,6 @@ import com.mt.helper.pojo.User;
 import com.mt.helper.utility.ConcurrentUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,15 +36,13 @@ public class SameUserLoginPerformanceTest {
         MDC.clear();
         MDC.put(RUN_ID, s);
         log.info("run id {}", s);
-        User user = UserUtility.createRandomUserObj();
         TestContext.init();
-        ResponseEntity<Void> pendingUser = UserUtility.register(user);
-        user.setId(HttpUtility.getId(pendingUser));
+        User user = UserUtility.createEmailPwdUser();
         Runnable runnable = () -> {
             TestContext.init();
             log.info("start of user login");
             ResponseEntity<DefaultOAuth2AccessToken> oAuth2PasswordToken = OAuth2Utility
-                .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                .getPasswordFlowEmailPwdToken(AppConstant.CLIENT_ID_LOGIN_ID,
                     AppConstant.COMMON_CLIENT_SECRET,
                     user.getEmail(),
                     user.getPassword());

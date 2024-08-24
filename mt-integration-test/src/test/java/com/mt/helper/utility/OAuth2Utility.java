@@ -25,17 +25,65 @@ public class OAuth2Utility {
      *
      * @param clientId     client id
      * @param clientSecret client secret
-     * @param username     login username
+     * @param email        login email
      * @param userPwd      login password
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2PasswordToken(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordFlowEmailPwdToken(
+        String clientId,
+        String clientSecret,
+        String email,
+        String userPwd
+    ) {
+        return getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret,
+            email,
+            userPwd);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordFlowEmailCodeToken(
+        String clientId,
+        String clientSecret,
+        String email,
+        String code
+    ) {
+        return getTokenWithUserEmailCode(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret,
+            email,
+            code);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordFlowMobileCodeToken(
+        String clientId,
+        String clientSecret,
+        String countryCode,
+        String mobileNumber,
+        String code
+    ) {
+        return getTokenWithUserMobileCode(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret,
+            countryCode, mobileNumber,
+            code);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordFlowUsernamePwdToken(
         String clientId,
         String clientSecret,
         String username,
-        String userPwd
+        String pwd
     ) {
-        return getOAuth2WithUser(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret, username, userPwd);
+        return getTokenWithUserUsernamePwd(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret,
+            username,
+            pwd);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordFlowMobilePwdToken(
+        String clientId,
+        String clientSecret,
+        String countryCode,
+        String mobileNumber,
+        String pwd
+    ) {
+        return getTokenWithUserMobilePwd(AppConstant.GRANT_TYPE_PASSWORD, clientId, clientSecret,
+            countryCode, mobileNumber,
+            pwd);
     }
 
     /**
@@ -51,9 +99,10 @@ public class OAuth2Utility {
         User user,
         TenantContext context
     ) {
-        return getOAuth2WithUser(AppConstant.GRANT_TYPE_PASSWORD, client.getId(), client.getClientSecret(),
-            user.getEmail(), user.getPassword(),
-            context.getProject().getId());
+        return getPasswordToken(AppConstant.GRANT_TYPE_PASSWORD, client.getId(),
+            client.getClientSecret(),
+            user.getEmail(), null, null, null, user.getPassword(), null,
+            context.getProject().getId(), AppConstant.LOGIN_TYPE_EMAIL_PWD);
     }
 
     /**
@@ -63,10 +112,11 @@ public class OAuth2Utility {
      * @param clientSecret client secret
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2ClientCredentialToken(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getClientCredentialToken(
         String clientId, String clientSecret
     ) {
-        return getOAuth2WithClient(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS, clientId, clientSecret);
+        return getToken(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS, clientId,
+            clientSecret);
     }
 
     /**
@@ -77,7 +127,7 @@ public class OAuth2Utility {
      * @param redirectUri redirect uri
      * @return code raw response
      */
-    public static ResponseEntity<String> getOAuth2AuthorizationCode(
+    public static ResponseEntity<String> getAuthorizationCode(
         String clientId,
         String bearerToken,
         String redirectUri
@@ -134,13 +184,14 @@ public class OAuth2Utility {
      * @param clientSecret client secret
      * @return token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2AuthorizationToken(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getAuthorizationToken(
         String code,
         String redirectUri,
         String clientId,
         String clientSecret
     ) {
-        return getOAuth2WithCode(AppConstant.GRANT_TYPE_AUTHORIZATION_CODE, code, redirectUri, clientId,
+        return getCode(AppConstant.GRANT_TYPE_AUTHORIZATION_CODE, code, redirectUri,
+            clientId,
             clientSecret);
     }
 
@@ -154,7 +205,7 @@ public class OAuth2Utility {
      * @param clientSecret client secret
      * @return token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithCode(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getCode(
         String grantType,
         String code,
         String redirectUri,
@@ -182,7 +233,7 @@ public class OAuth2Utility {
      * @param clientSecret client secret
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithClient(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getToken(
         String grantType, String clientId, String clientSecret
     ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -193,7 +244,8 @@ public class OAuth2Utility {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
-            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
+            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
+                DefaultOAuth2AccessToken.class);
     }
 
     /**
@@ -202,18 +254,67 @@ public class OAuth2Utility {
      * @param grantType    grant type
      * @param clientId     client id
      * @param clientSecret client secret
-     * @param username     login username
-     * @param userPwd      login password
+     * @param email        login username
+     * @param pwd          login password
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithUser(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserEmailPwd(
         String grantType,
         String clientId,
         String clientSecret,
-        String username,
-        String userPwd
+        String email,
+        String pwd
     ) {
-        return getOAuth2WithUser(grantType, clientId, clientSecret, username, userPwd, "not_used");
+        return getPasswordToken(grantType, clientId, clientSecret, email, null, null, null,
+            pwd, null, "not_used", AppConstant.LOGIN_TYPE_EMAIL_PWD);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserEmailCode(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String email,
+        String code
+    ) {
+        return getPasswordToken(grantType, clientId, clientSecret, email, null, null, null,
+            null, code, "not_used", AppConstant.LOGIN_TYPE_EMAIL_CODE);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserMobileCode(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String countryCode,
+        String mobileNumber,
+        String code
+    ) {
+        return getPasswordToken(grantType, clientId, clientSecret, null, countryCode, mobileNumber,
+            null,
+            null, code, "not_used", AppConstant.LOGIN_TYPE_MOBILE_CODE);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserUsernamePwd(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String username,
+        String pwd
+    ) {
+        return getPasswordToken(grantType, clientId, clientSecret, null, null, null, username,
+            pwd, null, "not_used", AppConstant.LOGIN_TYPE_USERNAME_PWD);
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserMobilePwd(
+        String grantType,
+        String clientId,
+        String clientSecret,
+        String countryCode,
+        String mobileNumber,
+        String pwd
+    ) {
+        return getPasswordToken(grantType, clientId, clientSecret, null, countryCode, mobileNumber,
+            null,
+            pwd, null, "not_used", AppConstant.LOGIN_TYPE_MOBILE_PWD);
     }
 
     /**
@@ -222,23 +323,38 @@ public class OAuth2Utility {
      * @param grantType    grant type
      * @param clientId     client id
      * @param clientSecret client secret
+     * @param email        login email
+     * @param countryCode  login country code
+     * @param mobileNumber login mobile number
      * @param username     login username
-     * @param userPwd      login password
+     * @param pwd          login password
+     * @param code         login code
      * @param tenantId     tenant project id
+     * @param type         mobile_w_pwd, email_w_pwd, username_w_pwd, email_w_code, mobile_w_code
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithUser(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getPasswordToken(
         String grantType,
         String clientId,
         String clientSecret,
+        String email,
+        String countryCode,
+        String mobileNumber,
         String username,
-        String userPwd,
-        String tenantId
+        String pwd,
+        String code,
+        String tenantId,
+        String type
     ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
         params.add("username", username);
-        params.add("password", userPwd);
+        params.add("email", email);
+        params.add("mobile_number", mobileNumber);
+        params.add("country_code", countryCode);
+        params.add("password", pwd);
+        params.add("code", code);
+        params.add("type", type);
         params.add("scope", tenantId);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
@@ -258,43 +374,48 @@ public class OAuth2Utility {
             return exchange;
         } else {
             String mfaId = (String) exchange.getBody().getAdditionalInformation().get("mfaId");
-            return getOAuth2WithUserMfa(grantType, clientId, clientSecret, username, userPwd,
-                mfaId, AppConstant.MFA_CODE);
+            return getTokenWithUserMfa(grantType, clientId, clientSecret, email, countryCode,
+                mobileNumber, username, pwd,
+                mfaId, AppConstant.MFA_CODE, type);
         }
     }
 
     /**
      * get oauth2 password response with mfa info.
      *
-     * @param grantType    grant type
-     * @param clientId     client id
-     * @param clientSecret client secret
-     * @param username     login username
-     * @param userPwd      login password
      * @return oauth2 token raw response
      */
-    public static ResponseEntity<DefaultOAuth2AccessToken> getOAuth2WithUserMfa(
+    public static ResponseEntity<DefaultOAuth2AccessToken> getTokenWithUserMfa(
         String grantType,
         String clientId,
         String clientSecret,
+        String email,
+        String countryCode,
+        String mobileNumber,
         String username,
-        String userPwd,
+        String pwd,
         String mfaId,
-        String mfaCode
+        String mfaCode,
+        String type
     ) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("grant_type", grantType);
         params.add("username", username);
-        params.add("password", userPwd);
+        params.add("email", email);
+        params.add("country_code", countryCode);
+        params.add("mobile_number", mobileNumber);
+        params.add("password", pwd);
         params.add("scope", "not_used");
         params.add("mfa_id", mfaId);
         params.add("mfa_code", mfaCode);
+        params.add("type", type);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth(clientId, clientSecret);
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
-            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
+            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
+                DefaultOAuth2AccessToken.class);
     }
 
     /**
@@ -326,8 +447,8 @@ public class OAuth2Utility {
     /**
      * get refresh token response
      *
-     * @param refreshToken refresh token
-     * @param client client
+     * @param refreshToken  refresh token
+     * @param client        client
      * @param tenantContext tenant context
      * @return oauth2 token
      */
@@ -336,7 +457,8 @@ public class OAuth2Utility {
         Client client,
         TenantContext tenantContext
     ) {
-        return getRefreshTokenResponse(refreshToken, client.getId(), client.getClientSecret(), tenantContext.getProject().getId());
+        return getRefreshTokenResponse(refreshToken, client.getId(), client.getClientSecret(),
+            tenantContext.getProject().getId());
     }
 
     /**
@@ -363,6 +485,7 @@ public class OAuth2Utility {
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
         return TestContext.getRestTemplate()
-            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request, DefaultOAuth2AccessToken.class);
+            .exchange(AppConstant.PROXY_URL_TOKEN, HttpMethod.POST, request,
+                DefaultOAuth2AccessToken.class);
     }
 }

@@ -1,4 +1,4 @@
-package com.mt.integration.single.access;
+package com.mt.integration.single.access.oauth2;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.mt.helper.AppConstant;

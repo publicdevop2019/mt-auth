@@ -1,4 +1,4 @@
-package com.mt.integration.single.access.validation;
+package com.mt.integration.single.access.tenant.validation;
 
 import com.mt.helper.TenantContext;
 import com.mt.helper.TestHelper;

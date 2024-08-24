@@ -35,8 +35,8 @@ public class PendingUserPerformanceTest {
         Runnable runnable = () -> {
             TestContext.init();
             log.info("start of creating user");
-            User user = UserUtility.createRandomUserObj();
-            ResponseEntity<Void> pendingUser = UserUtility.createPendingUser(user);
+            User user = UserUtility.randomEmailPwdUser();
+            ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
             if (!pendingUser.getStatusCode().is2xxSuccessful()) {
                 failCount.getAndIncrement();
             }

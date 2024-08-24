@@ -1,5 +1,6 @@
-package com.mt.integration.single.access.validation;
+package com.mt.integration.single.access.user.validation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
@@ -51,8 +52,8 @@ public class UserValidationTest{
     public void validation_create_avatar() throws FileNotFoundException {
         //created user
         String url = HttpUtility.getAccessUrl("/users" + "/profile/avatar");
-        User user = UserUtility.createUser();
-        String bearer = UserUtility.login(user);
+        User user = UserUtility.createEmailPwdUser();
+        String bearer = UserUtility.emailPwdLogin(user);
         //type
         File file = ResourceUtils.getFile("classpath:test-avatar.txt");
         HttpHeaders headers = new HttpHeaders();
@@ -92,33 +93,33 @@ public class UserValidationTest{
 
     @Test
     public void validation_pending_user_email() {
-        User user = UserUtility.createRandomUserObj();
-        ResponseEntity<Void> pendingUser = UserUtility.createPendingUser(user);
+        User user = UserUtility.randomEmailPwdUser();
+        ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.OK, pendingUser.getStatusCode());
         //blank
         user.setEmail(" ");
-        ResponseEntity<Void> response = UserUtility.createPendingUser(user);
+        ResponseEntity<Void> response = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //empty
         user.setEmail("");
-        ResponseEntity<Void> response1 = UserUtility.createPendingUser(user);
+        ResponseEntity<Void> response1 = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //max length
         user.setEmail(RandomUtility.randomStringWithNum() + RandomUtility.randomStringWithNum() +
             RandomUtility.randomEmail());
-        ResponseEntity<Void> response3 = UserUtility.createPendingUser(user);
+        ResponseEntity<Void> response3 = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //invalid format
         user.setEmail(RandomUtility.randomStringWithNum());
-        ResponseEntity<Void> response4 = UserUtility.createPendingUser(user);
+        ResponseEntity<Void> response4 = UserUtility.sendVerifyCode(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
     }
 
     @Test
     public void validation_update_user_profile_name() {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         String url = HttpUtility.getAccessUrl("/users" + "/profile");
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -164,9 +165,9 @@ public class UserValidationTest{
 
     @Test
     public void validation_update_user_profile_country_code() {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         String url = HttpUtility.getAccessUrl("/users" + "/profile");
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -209,9 +210,9 @@ public class UserValidationTest{
 
     @Test
     public void validation_update_user_profile_mobile() {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         String url = HttpUtility.getAccessUrl("/users" + "/profile");
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -254,9 +255,9 @@ public class UserValidationTest{
 
     @Test
     public void validation_update_user_profile_language() {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         String url = HttpUtility.getAccessUrl("/users" + "/profile");
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -294,51 +295,51 @@ public class UserValidationTest{
 
     @Test
     public void validation_create_user_email() {
-        User user = UserUtility.createRandomUserObj();
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.createPendingUser(user);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+        UserUtility.sendVerifyCode(user);
         //null
         user.setEmail(null);
         ResponseEntity<Void> response =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         user.setEmail(" ");
         ResponseEntity<Void> response1 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         user.setEmail("");
         ResponseEntity<Void> response2 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //max length
         user.setEmail(RandomUtility.randomStringWithNum() + RandomUtility.randomStringWithNum() +
             RandomUtility.randomEmail());
         ResponseEntity<Void> response4 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid format
         user.setEmail(RandomUtility.randomStringWithNum());
         ResponseEntity<Void> response5 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //mismatch from pending
         user.setEmail(RandomUtility.randomEmail());
         ResponseEntity<Void> response6 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
     @Test
     public void validation_create_user_activation_code() {
-        User user = UserUtility.createRandomUserObj();
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.createPendingUser(user);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+        UserUtility.sendVerifyCode(user);
         //null
         ResponseEntity<Void> response =
             UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(), null);
@@ -374,11 +375,11 @@ public class UserValidationTest{
 
     @Test
     public void validation_create_user_country_code() {
-        User user = UserUtility.createRandomUserObj();
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.createPendingUser(user);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+        UserUtility.sendVerifyCode(user);
         //null
         user.setCountryCode(null);
         user.setMobileNumber(null);
@@ -411,11 +412,11 @@ public class UserValidationTest{
 
     @Test
     public void validation_create_user_mobile() {
-        User user = UserUtility.createRandomUserObj();
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.createPendingUser(user);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+        UserUtility.sendVerifyCode(user);
         //null
         user.setCountryCode(null);
         user.setMobileNumber(null);
@@ -462,11 +463,11 @@ public class UserValidationTest{
 
     @Test
     public void validation_create_password() {
-        User user = UserUtility.createRandomUserObj();
+        User user = UserUtility.randomEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.createPendingUser(user);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+        UserUtility.sendVerifyCode(user);
         //null
         user.setPassword(null);
         ResponseEntity<Void> response =
@@ -513,15 +514,15 @@ public class UserValidationTest{
     @Test
     public void validation_forget_pwd_email() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(value);
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         //null
         forgetPasswordRequest.setEmail(null);
@@ -566,11 +567,11 @@ public class UserValidationTest{
     @Test
     public void validation_reset_pwd_email() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
@@ -633,11 +634,11 @@ public class UserValidationTest{
     @Test
     public void validation_reset_pwd_token() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
@@ -711,11 +712,11 @@ public class UserValidationTest{
     @Test
     public void validation_reset_pwd_password() {
         ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getOAuth2ClientCredentialToken(
-                AppConstant.CLIENT_ID_REGISTER_ID, AppConstant.COMMON_CLIENT_SECRET);
+            .getClientCredentialToken(
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
         String value = registerTokenResponse.getBody().getValue();
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
@@ -797,12 +798,12 @@ public class UserValidationTest{
     @Test
     public void validation_update_pwd_new_password() {
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());
         //login
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -859,12 +860,12 @@ public class UserValidationTest{
     @Test
     public void validation_update_pwd_current_password() {
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");
-        User user = UserUtility.createRandomUserObj();
-        UserUtility.register(user);
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());
         //login
-        String bearer = UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -916,5 +917,38 @@ public class UserValidationTest{
         ResponseEntity<Void> exchange8 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request8, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange8.getStatusCode());
+    }
+    @Test
+    public void should_not_able_to_create_user_with_invalid_email() {
+        User user =
+            UserUtility.createEmailPwdUser(UUID.randomUUID().toString(),RandomUtility.randomPassword());
+        ResponseEntity<Void> user1 = UserUtility.login(user);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, user1.getStatusCode());
+
+    }
+
+
+    @Test
+    public void cannot_update_user_password_without_current_pwd() throws JsonProcessingException {
+        User user = UserUtility.randomEmailPwdUser();
+        UserUtility.login(user);
+        //Location is not used in this case, root/admin/user can only update their password
+        String url = HttpUtility.getAccessUrl("/users" + "/pwd");
+        String newPassword = UUID.randomUUID().toString().replace("-", "");
+        //Login
+        ResponseEntity<DefaultOAuth2AccessToken> login =
+            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
+        String bearer = login.getBody().getValue();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBearerAuth(bearer);
+        user.setPassword(newPassword);
+        String s1 = TestContext.mapper.writeValueAsString(user);
+        HttpEntity<String> request = new HttpEntity<>(s1, headers);
+        ResponseEntity<Object> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Object.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 }

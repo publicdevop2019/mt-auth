@@ -1,4 +1,4 @@
-package com.mt.integration.single.access;
+package com.mt.integration.single.access.oauth2;
 
 import com.mt.helper.AppConstant;
 import com.mt.helper.TestHelper;
@@ -36,7 +36,7 @@ public class AuthorizationCodeTest {
     @Test
     public void get_authorize_code_after_pwd_login_for_user() {
         ResponseEntity<String> code = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String authorizationCode = OAuth2Utility.getAuthorizationCode(code);
         Assertions.assertNotNull(authorizationCode);
@@ -45,7 +45,7 @@ public class AuthorizationCodeTest {
     @Test
     public void authorize_token_has_permission() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtUser(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
 
@@ -54,7 +54,7 @@ public class AuthorizationCodeTest {
 
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken =
             OAuth2Utility
-                .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
+                .getAuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                     AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.OK, authorizationToken.getStatusCode());
         Assertions.assertNotNull(authorizationToken.getBody());
@@ -69,10 +69,10 @@ public class AuthorizationCodeTest {
     @Test
     public void use_wrong_authorize_code_after_user_grant_access() {
         ResponseEntity<String> code = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
-            .getOAuth2AuthorizationToken(UUID.randomUUID().toString(),
+            .getAuthorizationToken(UUID.randomUUID().toString(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
@@ -82,11 +82,11 @@ public class AuthorizationCodeTest {
     @Test
     public void client_use_wrong_redirect_url_during_authorization() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
-            .getOAuth2AuthorizationToken(code, UUID.randomUUID().toString(),
+            .getAuthorizationToken(code, UUID.randomUUID().toString(),
                 AppConstant.CLIENT_ID_OM_ID,
                 AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
@@ -96,11 +96,11 @@ public class AuthorizationCodeTest {
     @Test
     public void client_use_wrong_grant_type_during_authorization() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken =
-            OAuth2Utility.getOAuth2WithCode(
+            OAuth2Utility.getCode(
                 AppConstant.GRANT_TYPE_PASSWORD, code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_OM_ID, AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
@@ -110,11 +110,11 @@ public class AuthorizationCodeTest {
     @Test
     public void client_use_wrong_client_id_during_authorization() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
-            .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
+            .getAuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.COMMON_CLIENT_SECRET);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, authorizationToken.getStatusCode());
@@ -124,11 +124,11 @@ public class AuthorizationCodeTest {
     @Test
     public void client_use_wrong_client_id_w_credential_during_authorization() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(AppConstant.CLIENT_ID_OM_ID, UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         String code = OAuth2Utility.getAuthorizationCode(codeResp);
         ResponseEntity<DefaultOAuth2AccessToken> authorizationToken = OAuth2Utility
-            .getOAuth2AuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
+            .getAuthorizationToken(code, AppConstant.OBJECT_MARKET_REDIRECT_URI,
                 AppConstant.CLIENT_ID_LOGIN_ID,
                 UUID.randomUUID().toString());
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, authorizationToken.getStatusCode());
@@ -138,7 +138,7 @@ public class AuthorizationCodeTest {
     @Test
     public void wrong_client_id_passed_during_authorization_code_call() {
         ResponseEntity<String> codeResp = OAuth2Utility
-            .getOAuth2AuthorizationCode(UUID.randomUUID().toString(), UserUtility.getJwtAdmin(),
+            .getAuthorizationCode(UUID.randomUUID().toString(), UserUtility.getJwtAdmin(),
                 AppConstant.OBJECT_MARKET_REDIRECT_URI);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, codeResp.getStatusCode());
     }

@@ -1,4 +1,4 @@
-package com.mt.integration.single.access.validation;
+package com.mt.integration.single.access.tenant.validation;
 
 import com.mt.helper.TestHelper;
 import com.mt.helper.TestResultLoggerExtension;
@@ -38,7 +38,7 @@ public class TenantProjectValidationTest{
     @ParameterizedTest
     @ArgumentsSource(ProjectNameArgs.class)
     public void validation_create_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         Project randomProjectObj = ProjectUtility.createRandomProjectObj();
         randomProjectObj.setName(name);
         ResponseEntity<Void> response =
@@ -51,7 +51,7 @@ public class TenantProjectValidationTest{
     @ParameterizedTest
     @ArgumentsSource(ProjectNameArgs.class)
     public void validation_update_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(project, user);
@@ -67,7 +67,7 @@ public class TenantProjectValidationTest{
     @ParameterizedTest
     @ArgumentsSource(ProjectNameArgs.class)
     public void validation_patch_name(String name, HttpStatus httpStatus) {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         Project project = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =
             ProjectUtility.createTenantProject(project, user);

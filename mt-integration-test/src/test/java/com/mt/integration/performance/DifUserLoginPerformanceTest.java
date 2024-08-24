@@ -39,8 +39,8 @@ public class DifUserLoginPerformanceTest {
         List<User> users = new ArrayList<>();
         int numOfUser = 20;
         IntStream.range(0, numOfUser).forEach(i -> {
-            User user = UserUtility.createRandomUserObj();
-            ResponseEntity<Void> pendingUser = UserUtility.register(user);
+            User user = UserUtility.randomEmailPwdUser();
+            ResponseEntity<Void> pendingUser = UserUtility.login(user);
             String id = HttpUtility.getId(pendingUser);
             log.info("created user id {}", id);
             user.setId(id);
@@ -57,7 +57,7 @@ public class DifUserLoginPerformanceTest {
             User user = users.get(andIncrement);
 
             ResponseEntity<DefaultOAuth2AccessToken> response = OAuth2Utility
-                .getOAuth2PasswordToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                .getPasswordFlowEmailPwdToken(AppConstant.CLIENT_ID_LOGIN_ID,
                     AppConstant.COMMON_CLIENT_SECRET,
                     user.getEmail(),
                     user.getPassword());

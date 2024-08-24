@@ -550,7 +550,7 @@ export class HttpProxyService {
     addProfileUsername(username: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
-        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/username', { userName: username }, { headers: headerConfig });
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/username', { username: username }, { headers: headerConfig });
     };
     removeProfileEmail(changeId: string) {
         let headerConfig = new HttpHeaders();
