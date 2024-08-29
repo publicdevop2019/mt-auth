@@ -90,7 +90,7 @@ export class LoginComponent {
           this.form.get('pwdEmailOrUsername').setValue('admin@sample.com')
           this.form.get('pwd').setValue('Password1!')
         } else {
-          this.form.get('pwdEmailOrUsername').setValue('tenant@sample.com')
+          this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
           this.form.get('pwd').setValue('Password1!')
         }
         this.loginOrRegister()
