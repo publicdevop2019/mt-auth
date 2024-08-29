@@ -6,19 +6,17 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.Client;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.Notification;
-import com.mt.helper.pojo.ProjectAdmin;
 import com.mt.helper.pojo.SubscriptionReq;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.AdminUtility;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.MessageUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -29,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantMessageTest {
@@ -56,6 +55,7 @@ public class TenantMessageTest {
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void tenant_can_get_endpoint_expire_msg() throws InterruptedException {
         //create shared endpoint tenantA
@@ -74,11 +74,16 @@ public class TenantMessageTest {
         MarketUtility.approveSubReq(tenantContextA, subReqId);
         //wait for cache to expire
         Thread.sleep(5 * 1000);
+        //get count before expire
+        ResponseEntity<SumTotal<Notification>> beforeExpire =
+            MessageUtility.readMessages(tenantContextB.getCreator());
+        int beforeCount = beforeExpire.getBody().getData().size();
+        //do expire
         EndpointUtility.expireTenantEndpoint(tenantContextA, endpoint);
         Thread.sleep(5 * 1000);
-        ResponseEntity<SumTotal<Notification>> sumTotalResponseEntity =
+        ResponseEntity<SumTotal<Notification>> afterExpire =
             MessageUtility.readMessages(tenantContextB.getCreator());
-        Assertions.assertEquals(1, sumTotalResponseEntity.getBody().getData().size());
+        Assertions.assertEquals(beforeCount + 1, afterExpire.getBody().getData().size());
     }
 
     @Test

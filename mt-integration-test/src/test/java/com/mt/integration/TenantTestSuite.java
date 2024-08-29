@@ -1,5 +1,6 @@
 package com.mt.integration;
 
+import com.mt.integration.single.access.tenant.SubscriptionTest;
 import com.mt.integration.single.access.tenant.TenantAdminTest;
 import com.mt.integration.single.access.tenant.TenantCacheTest;
 import com.mt.integration.single.access.tenant.TenantClientTest;
@@ -11,6 +12,7 @@ import com.mt.integration.single.access.tenant.TenantPermissionTest;
 import com.mt.integration.single.access.tenant.TenantProjectTest;
 import com.mt.integration.single.access.tenant.TenantRoleTest;
 import com.mt.integration.single.access.tenant.TenantUserTest;
+import com.mt.integration.single.access.tenant.VersionTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
@@ -27,6 +29,8 @@ import org.junit.platform.suite.api.Suite;
     TenantProjectTest.class,
     TenantRoleTest.class,
     TenantUserTest.class,
+    SubscriptionTest.class,
+    VersionTest.class
 })
 public class TenantTestSuite {
 }

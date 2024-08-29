@@ -23,10 +23,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @Disabled
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class PendingUserPerformanceTest {
+public class SendVerificationCodePerformanceTest {
     @Test
-    public void create_pending_user() {
-        int numOfConcurrent = 10;
+    public void send_activation_code_pending_user() {
+        int numOfConcurrent = 20;
         AtomicInteger failCount = new AtomicInteger(0);
         String s = UUID.randomUUID().toString();
         MDC.clear();
@@ -34,13 +34,13 @@ public class PendingUserPerformanceTest {
         log.info("run id {}", s);
         Runnable runnable = () -> {
             TestContext.init();
-            log.info("start of creating user");
-            User user = UserUtility.randomEmailPwdUser();
-            ResponseEntity<Void> pendingUser = UserUtility.sendVerifyCode(user);
-            if (!pendingUser.getStatusCode().is2xxSuccessful()) {
+            log.info("start of send code to email");
+            User user = UserUtility.randomEmailOnlyUser();
+            ResponseEntity<Void> response = UserUtility.sendVerifyCode(user);
+            if (!response.getStatusCode().is2xxSuccessful()) {
                 failCount.getAndIncrement();
             }
-            log.info("end of creating user");
+            log.info("end of send code to email");
         };
         List<Runnable> runnableList = new ArrayList<>();
         IntStream.range(0, numOfConcurrent).forEach(e -> {

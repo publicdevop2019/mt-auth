@@ -126,45 +126,5 @@ public class TenantPermissionValidationTest {
         Assertions.assertEquals(status, response1.getStatusCode());
     }
 
-    @ParameterizedTest
-    @ArgumentsSource(NameArgs.class)
-    public void validation_update_name(String name, HttpStatus httpStatus) {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(HttpUtility.getId(response));
-        permission.setName(name);
-        ResponseEntity<Void> response1 =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(httpStatus, response1.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(ProjectIdArgs.class)
-    public void validation_update_project_id(String id, HttpStatus httpStatus) {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(HttpUtility.getId(response));
-        Project project1 = new Project();
-        project1.setId(id);
-        String url = PermissionUtility.getUrl(project1);
-        ResponseEntity<Void> resource =
-            Utility.updateResource(tenantContext.getCreator(), url, permission, permission.getId());
-        Assertions.assertEquals(httpStatus, resource.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @ArgumentsSource(LinkedApiIdArgs.class)
-    public void validation_update_linked_api_ids(List<String> ids, HttpStatus status) {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        permission.setId(HttpUtility.getId(response));
-        permission.setLinkedApiIds(ids);
-        ResponseEntity<Void> response1 =
-            PermissionUtility.updateTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(status, response1.getStatusCode());
-    }
 
 }

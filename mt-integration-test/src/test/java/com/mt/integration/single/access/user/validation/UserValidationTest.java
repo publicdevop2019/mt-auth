@@ -7,10 +7,10 @@ import com.mt.helper.TestResultLoggerExtension;
 import com.mt.helper.pojo.ForgetPasswordRequest;
 import com.mt.helper.pojo.User;
 import com.mt.helper.pojo.UserUpdatePwd;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.OAuth2Utility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.UserUtility;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -35,19 +35,22 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.ResourceUtils;
+
 @Tag("validation")
 
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
-public class UserValidationTest{
+public class UserValidationTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
     }
+
     @BeforeEach
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void validation_create_avatar() throws FileNotFoundException {
         //created user
@@ -116,9 +119,9 @@ public class UserValidationTest{
     }
 
     @Test
-    public void validation_update_user_profile_name() {
+    public void validation_update_user_profile_username() {
         User user = UserUtility.createEmailPwdUser();
-        String url = HttpUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile"+"/username");
         String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -127,46 +130,46 @@ public class UserValidationTest{
         user.setUsername(null);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
         //blank
         user.setUsername(" ");
         HttpEntity<User> request2 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request2, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request2, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //empty
         user.setUsername("");
         HttpEntity<User> request3 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange3 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request3, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request3, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange3.getStatusCode());
         //min length
         user.setUsername("1");
         HttpEntity<User> request4 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange4 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request4, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request4, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange4.getStatusCode());
         //max length
         user.setUsername(
             "0123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789");
         HttpEntity<User> request5 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange5 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request5, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
         //invalid char
         user.setUsername(
             "<0123456789");
         HttpEntity<User> request6 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange6 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request6, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request6, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange6.getStatusCode());
     }
 
     @Test
     public void validation_update_user_profile_country_code() {
         User user = UserUtility.createEmailPwdUser();
-        String url = HttpUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile"+"/mobile");
         String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -176,42 +179,42 @@ public class UserValidationTest{
         user.setMobileNumber(null);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
         //one of is null
         user.setCountryCode("1");
         user.setMobileNumber(null);
         HttpEntity<User> request2 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request2, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request2, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //empty
         user.setCountryCode("");
         user.setMobileNumber("1231231234");
         HttpEntity<User> request3 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange3 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request3, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request3, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange3.getStatusCode());
         //blank
         user.setCountryCode(" ");
         user.setMobileNumber("1231231234");
         HttpEntity<User> request4 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange4 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request4, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request4, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange4.getStatusCode());
         //invalid value
         user.setCountryCode("123123123");
         user.setMobileNumber("1231231234");
         HttpEntity<User> request5 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange5 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request5, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
     }
 
     @Test
     public void validation_update_user_profile_mobile() {
         User user = UserUtility.createEmailPwdUser();
-        String url = HttpUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile"+"/mobile");
         String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -221,42 +224,42 @@ public class UserValidationTest{
         user.setMobileNumber(null);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
         //one of is null
         user.setCountryCode(null);
         user.setMobileNumber("1231231234");
         HttpEntity<User> request2 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange2 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request2, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request2, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange2.getStatusCode());
         //empty
         user.setCountryCode("1");
         user.setMobileNumber("");
         HttpEntity<User> request3 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange3 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request3, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request3, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange3.getStatusCode());
         //blank
         user.setCountryCode("1");
         user.setMobileNumber(" ");
         HttpEntity<User> request4 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange4 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request4, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request4, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange4.getStatusCode());
         //invalid format
         user.setCountryCode("1");
         user.setMobileNumber("123");
         HttpEntity<User> request5 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange5 =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
+            TestContext.getRestTemplate().exchange(url, HttpMethod.POST, request5, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
     }
 
     @Test
     public void validation_update_user_profile_language() {
         User user = UserUtility.createEmailPwdUser();
-        String url = HttpUtility.getAccessUrl("/users" + "/profile");
+        String url = HttpUtility.getAccessUrl("/users" + "/profile"+"/language");
         String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
@@ -266,7 +269,7 @@ public class UserValidationTest{
         HttpEntity<User> request = new HttpEntity<>(user, headers);
         ResponseEntity<Void> exchange =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request, Void.class);
-        Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
         //empty
         user.setLanguage("");
         HttpEntity<User> request3 = new HttpEntity<>(user, headers);
@@ -285,12 +288,12 @@ public class UserValidationTest{
         ResponseEntity<Void> exchange5 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request5, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange5.getStatusCode());
-        //valid number value
+        //do not accept numeric enum value
         user.setLanguage(0);
         HttpEntity<User> request6 = new HttpEntity<>(user, headers);
         ResponseEntity<Void> request7 =
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request6, Void.class);
-        Assertions.assertEquals(HttpStatus.OK, request7.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, request7.getStatusCode());
     }
 
     @Test
@@ -326,203 +329,171 @@ public class UserValidationTest{
         ResponseEntity<Void> response5 =
             UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
-        //mismatch from pending
-        user.setEmail(RandomUtility.randomEmail());
-        ResponseEntity<Void> response6 =
-            UserUtility.sendVerifyCode(user, registerTokenResponse.getBody().getValue());
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
     @Test
-    public void validation_create_user_activation_code() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+    public void validation_login_verification_code() {
+        User user = UserUtility.randomMobileOnlyUser();
         UserUtility.sendVerifyCode(user);
         //null
-        ResponseEntity<Void> response =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(), null);
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.mobileCodeLogin(user, null);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
-        ResponseEntity<Void> response1 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(), " ");
+        ResponseEntity<DefaultOAuth2AccessToken> response1 =
+            UserUtility.mobileCodeLogin(user, " ");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
-        ResponseEntity<Void> response2 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(), "");
+        ResponseEntity<DefaultOAuth2AccessToken> response2 =
+            UserUtility.mobileCodeLogin(user, "");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //min length
-        ResponseEntity<Void> response3 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(), "1");
+        ResponseEntity<DefaultOAuth2AccessToken> response3 =
+            UserUtility.mobileCodeLogin(user, "1");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //max length
-        ResponseEntity<Void> response4 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(),
+        ResponseEntity<DefaultOAuth2AccessToken> response4 =
+            UserUtility.mobileCodeLogin(user,
                 "012345678901234567890123456789012345678901234567890123456789");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid value
-        ResponseEntity<Void> response5 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(),
-                "abcdef");
+        ResponseEntity<DefaultOAuth2AccessToken> response5 =
+            UserUtility.mobileCodeLogin(user, "abcdef");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //mismatch value
-        ResponseEntity<Void> response6 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue(),
-                "654322");
+        ResponseEntity<DefaultOAuth2AccessToken> response6 =
+            UserUtility.mobileCodeLogin(user, "654322");
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
     }
 
     @Test
-    public void validation_create_user_country_code() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+    public void validation_login_country_code() {
+        User user = UserUtility.randomMobileOnlyUser();
         UserUtility.sendVerifyCode(user);
         //null
         user.setCountryCode(null);
         user.setMobileNumber(null);
-        ResponseEntity<Void> response =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //one of null
         user.setCountryCode(null);
         user.setMobileNumber("1231231234");
-        ResponseEntity<Void> response0 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response0 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response0.getStatusCode());
         //blank
         user.setCountryCode(" ");
-        ResponseEntity<Void> response1 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response1 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         user.setCountryCode("");
-        ResponseEntity<Void> response2 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response2 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //invalid value
         user.setCountryCode("7788");
         user.setMobileNumber("1231231234");
-        ResponseEntity<Void> response3 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response3 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
     }
 
     @Test
-    public void validation_create_user_mobile() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
+    public void validation_login_mobile() {
+        User user = UserUtility.randomMobileOnlyUser();
         UserUtility.sendVerifyCode(user);
         //null
         user.setCountryCode(null);
         user.setMobileNumber(null);
-        ResponseEntity<Void> response =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //one of null
         user.setCountryCode("1");
         user.setMobileNumber(null);
-        ResponseEntity<Void> response0 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response0 = UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response0.getStatusCode());
         //blank
         user.setCountryCode("1");
         user.setMobileNumber(" ");
-        ResponseEntity<Void> response1 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response1 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response1.getStatusCode());
         //empty
         user.setCountryCode("1");
         user.setMobileNumber("");
-        ResponseEntity<Void> response2 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response2 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //min length
         user.setCountryCode("1");
         user.setMobileNumber("123");
-        ResponseEntity<Void> response3 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response3 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //max length
         user.setCountryCode("1");
         user.setMobileNumber("1231231234123123");
-        ResponseEntity<Void> response4 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response4 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //invalid format
         user.setCountryCode("1");
         user.setMobileNumber("abcabcabcd");
-        ResponseEntity<Void> response5 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response5 =
+            UserUtility.mobileCodeLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
     }
 
     @Test
     public void validation_create_password() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
-            .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
-        UserUtility.sendVerifyCode(user);
+        User user = UserUtility.randomUsernamePwdUser();
         //null
         user.setPassword(null);
-        ResponseEntity<Void> response =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         //blank
         user.setPassword(" ");
-        ResponseEntity<Void> response2 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response2 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response2.getStatusCode());
         //empty
         user.setPassword("");
-        ResponseEntity<Void> response3 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response3 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response3.getStatusCode());
         //min length
         user.setPassword("Pa1!");
-        ResponseEntity<Void> response4 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response4 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response4.getStatusCode());
         //max length
         user.setPassword("Password1!0123456789012345678901234567890123456789");
-        ResponseEntity<Void> response5 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response5 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response5.getStatusCode());
         //invalid format, missing number
         user.setPassword("Password!");
-        ResponseEntity<Void> response6 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response6 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response6.getStatusCode());
         //invalid format, missing letter
         user.setPassword("123123123!");
-        ResponseEntity<Void> response8 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response8 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response8.getStatusCode());
         //invalid format, missing special char
         user.setPassword("Password1");
-        ResponseEntity<Void> response9 =
-            UserUtility.enterActivationCode(user, registerTokenResponse.getBody().getValue());
+        ResponseEntity<DefaultOAuth2AccessToken> response9 = UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response9.getStatusCode());
     }
 
 
     @Test
     public void validation_forget_pwd_email() {
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+        String token = OAuth2Utility
             .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
-        String value = registerTokenResponse.getBody().getValue();
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET).getBody()
+            .getValue();
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(value);
+        headers.setBearerAuth(token);
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        UserUtility.emailPwdLogin(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         //null
         forgetPasswordRequest.setEmail(null);
@@ -566,17 +537,17 @@ public class UserValidationTest{
 
     @Test
     public void validation_reset_pwd_email() {
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+        String token = OAuth2Utility
             .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
-        String value = registerTokenResponse.getBody().getValue();
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET).getBody()
+            .getValue();
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        UserUtility.emailPwdLogin(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(value);
+        headers.setBearerAuth(token);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
@@ -589,7 +560,7 @@ public class UserValidationTest{
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         HttpHeaders header2 = new HttpHeaders();
         header2.setContentType(MediaType.APPLICATION_JSON);
-        header2.setBearerAuth(value);
+        header2.setBearerAuth(token);
 
         //null
         forgetPasswordRequest.setEmail(null);
@@ -633,17 +604,17 @@ public class UserValidationTest{
 
     @Test
     public void validation_reset_pwd_token() {
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+        String token = OAuth2Utility
             .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
-        String value = registerTokenResponse.getBody().getValue();
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET).getBody()
+            .getValue();
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        UserUtility.emailPwdLogin(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(value);
+        headers.setBearerAuth(token);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
@@ -656,7 +627,7 @@ public class UserValidationTest{
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         HttpHeaders header2 = new HttpHeaders();
         header2.setContentType(MediaType.APPLICATION_JSON);
-        header2.setBearerAuth(value);
+        header2.setBearerAuth(token);
 
         //null
         forgetPasswordRequest.setToken(null);
@@ -711,17 +682,17 @@ public class UserValidationTest{
 
     @Test
     public void validation_reset_pwd_password() {
-        ResponseEntity<DefaultOAuth2AccessToken> registerTokenResponse = OAuth2Utility
+        String token = OAuth2Utility
             .getClientCredentialToken(
-                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET);
-        String value = registerTokenResponse.getBody().getValue();
+                AppConstant.CLIENT_ID_NONE_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET).getBody()
+            .getValue();
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        UserUtility.emailPwdLogin(user);
         ForgetPasswordRequest forgetPasswordRequest = new ForgetPasswordRequest();
         forgetPasswordRequest.setEmail(user.getEmail());
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(value);
+        headers.setBearerAuth(token);
         HttpEntity<ForgetPasswordRequest> request =
             new HttpEntity<>(forgetPasswordRequest, headers);
         String url = HttpUtility.getAccessUrl("/users" + "/forgetPwd");
@@ -734,7 +705,7 @@ public class UserValidationTest{
             "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10));
         HttpHeaders header2 = new HttpHeaders();
         header2.setContentType(MediaType.APPLICATION_JSON);
-        header2.setBearerAuth(value);
+        header2.setBearerAuth(token);
 
         //null
         forgetPasswordRequest.setNewPassword(null);
@@ -799,11 +770,11 @@ public class UserValidationTest{
     public void validation_update_pwd_new_password() {
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
+
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());
         //login
-        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -861,11 +832,11 @@ public class UserValidationTest{
     public void validation_update_pwd_current_password() {
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
+        String bearer = UserUtility.emailPwdLogin(user);
+
         UserUpdatePwd updatePwd = new UserUpdatePwd();
         updatePwd.setCurrentPwd(user.getPassword());
         //login
-        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(bearer);
 
@@ -918,13 +889,13 @@ public class UserValidationTest{
             TestContext.getRestTemplate().exchange(url, HttpMethod.PUT, request8, Void.class);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange8.getStatusCode());
     }
+
     @Test
     public void should_not_able_to_create_user_with_invalid_email() {
-        User user =
-            UserUtility.createEmailPwdUser(UUID.randomUUID().toString(),RandomUtility.randomPassword());
-        ResponseEntity<Void> user1 = UserUtility.login(user);
+        ResponseEntity<DefaultOAuth2AccessToken> response =
+            UserUtility.emailPwdLogin(UUID.randomUUID().toString(), RandomUtility.randomPassword());
 
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, user1.getStatusCode());
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
 
     }
 
@@ -932,14 +903,10 @@ public class UserValidationTest{
     @Test
     public void cannot_update_user_password_without_current_pwd() throws JsonProcessingException {
         User user = UserUtility.randomEmailPwdUser();
-        UserUtility.login(user);
-        //Location is not used in this case, root/admin/user can only update their password
         String url = HttpUtility.getAccessUrl("/users" + "/pwd");
         String newPassword = UUID.randomUUID().toString().replace("-", "");
         //Login
-        ResponseEntity<DefaultOAuth2AccessToken> login =
-            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
-        String bearer = login.getBody().getValue();
+        String bearer = UserUtility.emailPwdLogin(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setBearerAuth(bearer);

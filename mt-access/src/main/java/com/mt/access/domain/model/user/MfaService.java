@@ -4,6 +4,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -40,6 +41,7 @@ public class MfaService {
 
     public boolean validateMfa(UserId userId, String mfaCode,
                                String mfaId) {
+        Validator.notNull(mfaId);
         MfaInfo mfaInfo = DomainRegistry.getUserRepository().getUserMfaInfo(userId);
         if (mfaInfo == null) {
             log.debug("mfa info not found");

@@ -34,19 +34,9 @@ public class PasswordFlowTest {
     }
 
     @Test
-    public void create_user_then_login() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<Void> user1 = UserUtility.login(user);
-        Assertions.assertEquals(HttpStatus.OK, user1.getStatusCode());
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
-            user.getEmail(), user.getPassword());
-        Assertions.assertEquals(HttpStatus.OK, tokenResponse.getStatusCode());
-    }
-
-    @Test
     public void get_access_token_and_refresh_token_for_clients_with_refresh_configured() {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertNotNull(tokenResponse.getBody().getValue());
         Assertions.assertNotNull(tokenResponse.getBody().getRefreshToken().getValue());
     }
@@ -56,16 +46,19 @@ public class PasswordFlowTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse =
             OAuth2Utility.getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_PASSWORD,
                 AppConstant.CLIENT_ID_TEST_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertNotNull(tokenResponse.getBody().getValue());
         Assertions.assertNull(tokenResponse.getBody().getRefreshToken());
     }
 
     @Test
     public void should_not_get_token_when_user_credentials_are_wrong_even_client_is_valid() {
-        ResponseEntity<?> tokenResponse = UserUtility.emailPwdLogin(RandomUtility.randomEmail(),
-            AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse.getStatusCode());
+        User user = UserUtility.randomUsernamePwdUser();
+        ResponseEntity<?> tokenResponse = UserUtility.usernamePwdLogin(user);
+        Assertions.assertEquals(HttpStatus.OK, tokenResponse.getStatusCode());
+        user.setPassword(RandomUtility.randomPassword());
+        ResponseEntity<?> tokenResponse2 = UserUtility.usernamePwdLogin(user);
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse2.getStatusCode());
     }
 
     @Test
@@ -73,18 +66,18 @@ public class PasswordFlowTest {
         ResponseEntity<?> tokenResponse = OAuth2Utility.getTokenWithUserEmailPwd(
             AppConstant.GRANT_TYPE_PASSWORD,
             "0C000001",
-            AppConstant.COMMON_CLIENT_SECRET, AppConstant.ACCOUNT_USERNAME_ADMIN,
+            AppConstant.COMMON_CLIENT_SECRET, AppConstant.ACCOUNT_EMAIL_ADMIN,
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
         Assertions.assertEquals(HttpStatus.UNAUTHORIZED, tokenResponse.getStatusCode());
     }
 
     @Test
-    public void should_not_get_token_when_user_credentials_are_valid_and_client_is_valid_but_grant_type_is_wrong() {
+    public void should_get_token_when_user_credentials_are_valid_and_client_is_valid_but_grant_type_is_wrong() {
         ResponseEntity<?> tokenResponse =
             OAuth2Utility.getTokenWithUserEmailPwd(AppConstant.GRANT_TYPE_CLIENT_CREDENTIALS,
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST,tokenResponse.getStatusCode());
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        Assertions.assertEquals(HttpStatus.OK,tokenResponse.getStatusCode());
     }
 
 

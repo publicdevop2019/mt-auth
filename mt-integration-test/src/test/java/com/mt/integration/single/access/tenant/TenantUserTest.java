@@ -67,7 +67,7 @@ public class TenantUserTest{
     public void tenant_cannot_find_user_not_using_project() {
         ResponseEntity<SumTotal<User>> sumTotalResponseEntity =
             UserUtility.readTenantUsersByQuery(tenantContext,
-                "query=emailLike:" + AppConstant.ACCOUNT_USERNAME_MALL_ADMIN);
+                "query=emailLike:" + AppConstant.ACCOUNT_EMAIL_MALL_ADMIN);
         Assertions.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
         Assertions.assertEquals(0, sumTotalResponseEntity.getBody().getData().size());
     }

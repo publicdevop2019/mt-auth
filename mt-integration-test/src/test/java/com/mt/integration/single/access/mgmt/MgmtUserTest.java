@@ -78,11 +78,12 @@ public class MgmtUserTest{
 
     @Test
     public void admin_can_lock_then_unlock_user() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<Void> createResp = UserUtility.login(user);
+        User user = UserUtility.randomUsernamePwdUser();
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.usernamePwdLogin(user);
+
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = Objects.requireNonNull(tokenResponse.getBody()).getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -90,14 +91,14 @@ public class MgmtUserTest{
         user.setLocked(true);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(createResp));
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(response));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 
         Assertions.assertEquals(HttpStatus.OK, exchange.getStatusCode());
         //login to verify account has been locked
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
+            UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, tokenResponse1.getStatusCode());
 
         user.setLocked(false);
@@ -109,7 +110,7 @@ public class MgmtUserTest{
         Assertions.assertEquals(HttpStatus.OK, exchange22.getStatusCode());
         //login to verify account has been unlocked
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse12 =
-            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
+            UserUtility.usernamePwdLogin(user);
         Assertions.assertEquals(HttpStatus.OK, tokenResponse12.getStatusCode());
     }
 
@@ -135,11 +136,11 @@ public class MgmtUserTest{
 
     @Test
     public void validation_mgmt_lock_user() {
-        User user = UserUtility.randomEmailPwdUser();
-        ResponseEntity<Void> createResp = UserUtility.login(user);
+        User user = UserUtility.randomUsernamePwdUser();
+        ResponseEntity<DefaultOAuth2AccessToken> response = UserUtility.usernamePwdLogin(user);
 
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = Objects.requireNonNull(tokenResponse.getBody()).getValue();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -147,7 +148,7 @@ public class MgmtUserTest{
         user.setLocked(null);
         user.setVersion(0);
         HttpEntity<User> request = new HttpEntity<>(user, headers);
-        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(createResp));
+        String url = HttpUtility.getAccessUrl(AppConstant.USER_MGMT + "/" + HttpUtility.getId(response));
         ResponseEntity<DefaultOAuth2AccessToken> exchange = TestContext.getRestTemplate()
             .exchange(url, HttpMethod.PUT, request, DefaultOAuth2AccessToken.class);
 

@@ -13,5 +13,6 @@ public class Permission {
     private String projectId;
     private Integer version;
     private List<String> linkedApiIds;
+    private List<String> linkedApiNames;
     private List<String> linkedApiPermissionIds;
 }

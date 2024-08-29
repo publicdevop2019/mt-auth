@@ -9,13 +9,11 @@ import com.mt.integration.single.access.tenant.validation.TenantPermissionValida
 import com.mt.integration.single.access.tenant.validation.TenantProjectValidationTest;
 import com.mt.integration.single.access.tenant.validation.TenantRoleValidationTest;
 import com.mt.integration.single.access.tenant.validation.TenantUserValidationTest;
-import com.mt.integration.single.access.user.validation.UserValidationTest;
 import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-    UserValidationTest.class,
     TenantCacheValidationTest.class,
     TenantClientValidationTest.class,
     TenantCorsValidationTest.class,
@@ -26,5 +24,5 @@ import org.junit.platform.suite.api.Suite;
     TenantRoleValidationTest.class,
     TenantUserValidationTest.class,
 })
-public class ValidationTestSuite {
+public class TenantValidationTestSuite {
 }

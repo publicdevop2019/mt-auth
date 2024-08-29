@@ -12,11 +12,11 @@ import com.mt.helper.pojo.SubscriptionReq;
 import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.User;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.MarketUtility;
 import com.mt.helper.utility.MessageUtility;
 import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.TestContext;
-import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.TestUtility;
 import com.mt.helper.utility.UserUtility;
 import java.util.List;
@@ -33,9 +33,10 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @Slf4j
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
-public class SubscriptionTest{
+public class SubscriptionTest {
     @BeforeAll
     public static void beforeAll() {
         TestHelper.beforeAll(log);
@@ -45,16 +46,17 @@ public class SubscriptionTest{
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     //public api shared
     @Test
     public void external_shared_none_auth_api_has_rate_limit_on_ip_and_lifecycle_mgmt()
         throws InterruptedException {
         //check current notifications for later verify
         User user = new User();
-        user.setEmail(AppConstant.ACCOUNT_USERNAME_MALL_ADMIN);
+        user.setEmail(AppConstant.ACCOUNT_EMAIL_MALL_ADMIN);
         user.setPassword(AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
         User adminUser = new User();
-        adminUser.setEmail(AppConstant.ACCOUNT_USERNAME_ADMIN);
+        adminUser.setEmail(AppConstant.ACCOUNT_EMAIL_ADMIN);
         adminUser.setPassword(AppConstant.ACCOUNT_PASSWORD_ADMIN);
         ResponseEntity<SumTotal<Notification>> oldNotifications =
             MessageUtility.readMessages(user);
@@ -106,14 +108,14 @@ public class SubscriptionTest{
         ResponseEntity<String> stringResponseEntity = EndpointUtility.expireEndpoint(endpointId);
         Assertions.assertEquals(HttpStatus.OK, stringResponseEntity.getStatusCode());
 
-        Thread.sleep(5*1000);//wait for notification send
+        Thread.sleep(5 * 1000);//wait for notification send
         ResponseEntity<SumTotal<Notification>> newNotification =
             MessageUtility.readMessages(user);
         Assertions.assertNotEquals(newNotification.getBody().getTotalItemCount(),
             oldNotifications.getBody().getTotalItemCount());
         List<Notification> data = newNotification.getBody().getData();
         Notification notification = data.get(data.size() - 1);
-        Assertions.assertEquals(notification.getTitle(), "SUBSCRIBER_ENDPOINT_EXPIRE");
+        Assertions.assertEquals("SUBSCRIBED_ENDPOINT_EXPIRE", notification.getTitle());
 
     }
 

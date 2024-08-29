@@ -39,6 +39,7 @@ public class UserUtility {
         return createEmailPwdUser(RandomUtility.randomEmail(),
             RandomUtility.randomStringWithNum());
     }
+
     public static User randomUsernamePwdUser() {
         return createUsernamePwdUser(RandomUtility.randomStringWithNum(),
             RandomUtility.randomPassword());
@@ -148,7 +149,16 @@ public class UserUtility {
         return OAuth2Utility
             .getPasswordFlowMobileCodeToken(AppConstant.CLIENT_ID_LOGIN_ID,
                 AppConstant.COMMON_CLIENT_SECRET,
-                user.getCountryCode(),user.getMobileNumber(), user.getCode()
+                user.getCountryCode(), user.getMobileNumber(), user.getCode()
+            );
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> mobileCodeLogin(User user, String code) {
+        user.setCode(code);
+        return OAuth2Utility
+            .getPasswordFlowMobileCodeToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                AppConstant.COMMON_CLIENT_SECRET,
+                user.getCountryCode(), user.getMobileNumber(), user.getCode()
             );
     }
 
@@ -159,6 +169,7 @@ public class UserUtility {
                 user.getUsername(), user.getPassword()
             );
     }
+
     public static ResponseEntity<DefaultOAuth2AccessToken> mobilePwdLogin(User user) {
         return OAuth2Utility
             .getPasswordFlowMobilePwdToken(AppConstant.CLIENT_ID_LOGIN_ID,
@@ -180,13 +191,13 @@ public class UserUtility {
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
-        return emailPwdLogin(AppConstant.ACCOUNT_USERNAME_ADMIN,
+        return emailPwdLogin(AppConstant.ACCOUNT_EMAIL_ADMIN,
             AppConstant.ACCOUNT_PASSWORD_ADMIN);
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordMallTenant() {
         return emailPwdLogin(
-            AppConstant.ACCOUNT_USERNAME_MALL_ADMIN, AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
+            AppConstant.ACCOUNT_EMAIL_MALL_ADMIN, AppConstant.ACCOUNT_PASSWORD_MALL_ADMIN);
     }
 
     public static String getJwtUser() {
@@ -197,7 +208,7 @@ public class UserUtility {
 
     public static String getJwtAdmin() {
         ResponseEntity<DefaultOAuth2AccessToken> login =
-            emailPwdLogin(AppConstant.ACCOUNT_USERNAME_ADMIN,
+            emailPwdLogin(AppConstant.ACCOUNT_EMAIL_ADMIN,
                 AppConstant.ACCOUNT_PASSWORD_ADMIN);
         if (!login.getStatusCode().is2xxSuccessful()) {
             log.info("jwt admin token failed with status {} body {}", login.getStatusCode().value(),
@@ -273,21 +284,6 @@ public class UserUtility {
         String accessUrl = getUrl(tenantContext.getProject());
         String url = HttpUtility.appendQuery(accessUrl, query);
         return Utility.readResource(tenantContext.getCreator(), url, reference);
-    }
-
-    //todo remove it
-    public static ResponseEntity<Void> login(User user) {
-        return null;
-    }
-
-    //todo remove it
-    public static ResponseEntity<Void> enterActivationCode(User user, String value) {
-        return null;
-    }
-
-    //todo remove it
-    public static ResponseEntity<Void> enterActivationCode(User user, String value, String s) {
-        return null;
     }
 
     public static User randomMobilePwdUser() {

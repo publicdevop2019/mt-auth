@@ -9,9 +9,9 @@ public class AppConstant {
     public static final String CLIENT_ID_RESOURCE_ID = "0C8AZTODP4I0";
     public static final String CLIENT_ID_TEST_ID = "0C8B00CSATJ6";
     public static final String COMMON_CLIENT_SECRET = "97b29ceb-c445-4178-bb95-84755f14cba6";
-    public static final String ACCOUNT_USERNAME_ADMIN = "admin@sample.com";
+    public static final String ACCOUNT_EMAIL_ADMIN = "admin@sample.com";
     public static final String ACCOUNT_PASSWORD_ADMIN = "Password1!";
-    public static final String ACCOUNT_USERNAME_MALL_ADMIN = "mall@sample.com";
+    public static final String ACCOUNT_EMAIL_MALL_ADMIN = "mall@sample.com";
     public static final String ACCOUNT_PASSWORD_MALL_ADMIN = "Password1!";
     public static final String ACCOUNT_USERNAME_USER = "user1@sample.com";
     public static final String ACCOUNT_PASSWORD_USER = "Password1!";
@@ -47,11 +47,8 @@ public class AppConstant {
     public static final String MFA_CODE = "654321";
     public static String PROXY_URL = "http://localhost:" + 8111;
     public static String ACCESS_URL = "http://localhost:" + 8080;
-    public static String TEST_URL = "http://localhost:" + 9999;
     public static final String CLIENT_MGMT_URL = PROXY_URL + SVC_NAME_AUTH + CLIENTS;
     public static String PROXY_URL_TOKEN = PROXY_URL + SVC_NAME_AUTH + "/oauth/token";
-    public static String ADMIN_USER_ID = "0R8G09BPEZGG";
-    public static String USER_USER_ID = "0R8G09CBKU0W";
     public static String MT_ACCESS_CORS_ID = "0O8G2WE71L35";
     public static String MT_ACCESS_CACHE_ID = "0X8G900BJFGG";
     public static String MT_ACCESS_PERMISSION_ID = "0Y8HM3TG2CJL";

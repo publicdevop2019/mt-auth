@@ -39,11 +39,8 @@ public class DifUserLoginPerformanceTest {
         List<User> users = new ArrayList<>();
         int numOfUser = 20;
         IntStream.range(0, numOfUser).forEach(i -> {
-            User user = UserUtility.randomEmailPwdUser();
-            ResponseEntity<Void> pendingUser = UserUtility.login(user);
-            String id = HttpUtility.getId(pendingUser);
-            log.info("created user id {}", id);
-            user.setId(id);
+            User user = UserUtility.createEmailPwdUser();
+            log.info("created user id {}", user.getId());
             users.add(user);
         });
         log.info("create user completed");

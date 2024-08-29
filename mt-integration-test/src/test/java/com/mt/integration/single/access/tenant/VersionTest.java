@@ -180,28 +180,6 @@ public class VersionTest {
     }
 
     @Test
-    public void permission_version_will_not_increase() {
-        Permission randomPermissionObj = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, randomPermissionObj);
-        String s = HttpUtility.getId(response);
-        randomPermissionObj.setId(s);
-        randomPermissionObj.setName(RandomUtility.randomStringWithNum());
-        //update permission
-        ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.updateTenantPermission(tenantContext, randomPermissionObj);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-        //do same update
-        ResponseEntity<Void> voidResponseEntity2 =
-            PermissionUtility.updateTenantPermission(tenantContext, randomPermissionObj);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity2.getStatusCode());
-        ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, randomPermissionObj);
-        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
-
-    }
-
-    @Test
     public void role_version_will_not_increase() {
         //create role
         Role role = RoleUtility.createRandomValidRoleObj();

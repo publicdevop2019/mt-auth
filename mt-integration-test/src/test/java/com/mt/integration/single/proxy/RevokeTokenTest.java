@@ -51,7 +51,7 @@ public class RevokeTokenTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
             OAuth2Utility.getPasswordFlowEmailPwdToken(
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer1 = tokenResponse1.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
@@ -87,7 +87,7 @@ public class RevokeTokenTest {
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
             OAuth2Utility.getPasswordFlowEmailPwdToken(
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);

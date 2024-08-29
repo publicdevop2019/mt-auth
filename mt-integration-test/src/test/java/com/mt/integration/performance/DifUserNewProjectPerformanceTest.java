@@ -39,11 +39,8 @@ public class DifUserNewProjectPerformanceTest {
         Runnable runnable = () -> {
             log.info("start of creating project");
             TestContext.init();
-            User user = UserUtility.randomEmailPwdUser();
-            ResponseEntity<Void> pendingUser = UserUtility.login(user);
-            String id = HttpUtility.getId(pendingUser);
-            log.info("created user id {}", id);
-            user.setId(id);
+            User user = UserUtility.createEmailPwdUser();
+            log.info("created user id {}", user.getId());
             String login = UserUtility.emailPwdLogin(user);
             log.info("login token {}", login);
             Project randomProjectObj = ProjectUtility.createRandomProjectObj();
