@@ -1,176 +1,243 @@
-<div class="body-container">
-    <div class="app-header">
-        <div class="app-name">{{'APP_NAME'|translate}}</div>
-        <div style="display: flex; justify-content: center; align-items: center;">
-            <div style="font-weight: 600; margin-right: 16px; margin-top: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                (click)="openDoc()">
-                <div>{{'APP_DOC'|translate}}</div><mat-icon
-                    style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
+<div style="margin: 8vh auto auto auto; display: flex; justify-content: center;" class="login-page">
+    <div
+        style="display: flex; flex-direction: column; background-color: #fff; padding: 40px 54px 16px 54px; border-radius: 8px; width: 348px;">
+        <div>
+            <img src="assets/imgs/site-logo.svg" style="width: 64px; height: 64px;">
+            <div *ngIf="context !== 'FORGET'" style="font-weight: 600; font-size: 24px; margin-bottom: 24px;">MT-AUTH
             </div>
-            <div style="font-weight: 600; margin-right: 16px; margin-top: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer;"
-                (click)="openSource()">
-                <div>{{'SOURCE_CODE_REPO'|translate}}</div><mat-icon
-                    style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
-            </div>
-            <div (click)="langSvc.toggleLang()"
-                style="cursor: pointer; text-align: right;margin-top: 8px;margin-right: 8px;">
-                {{'CURRENT_LANG' | translate}}</div>
         </div>
-    </div>
-    <div class="app-body">
-        <div class="app-msg-body">
-            <div style="font-size: 24px; margin-bottom: 16px;">{{'APP_DESCRIPTION_1'|translate}}</div>
-            <div class="app-msg">{{'APP_DESCRIPTION_2'|translate}}</div>
-        </div>
-        <ng-container *ngIf="context === 'LOGIN'">
-            <form [formGroup]="loginForm" class="page-form">
-                <div class="form-body mobile-view">
-                    <div class="login-msg">
-                        <div>{{'USER_LOGIN'|translate}}</div>
-                    </div>
-                    <div class="register-login-msg">
-                        <div>{{'NEW_USER_MSG_2'|translate}}</div>
-                        <a class="register-login-msg-link" (click)="context='REGISTER'">{{'REGISTER'| translate}}</a>
-                    </div>
-                    <div class="register-email">
-                        <mat-form-field style="flex: 1;">
-                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                            <input matInput formControlName="email" autocomplete="username" name="username">
-                            <mat-error>{{loginEmailErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <div class="register-email">
-                        <mat-form-field style="flex: 1;">
-                            <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}" [type]="'password'"
-                                formControlName="pwd" autocomplete="current-password">
-                            <mat-error>{{loginPwdErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                        <button mat-raised-button (click)="login()" style="margin-left: 8px;" color="primary">{{'LOGIN'|
-                            translate}}</button>
-                    </div>
-                    <div class="forget-pwd-msg">
-                        <a (click)="context='FORGET'" class="forget-pwd">{{'FORGET_PASSWORD'| translate}}</a>
-                    </div>
-                </div>
-            </form>
-        </ng-container>
-        <ng-container *ngIf="context === 'REGISTER'">
-            <form [formGroup]="registerForm" class="page-form">
-                <div class="form-body mobile-view">
-                    <div class="register-msg">
-                        {{'NEW_USER_MSG'|translate}}
-                    </div>
-                    <div class="register-login-msg">
-                        <div>{{'NEW_USER_MSG_1'|translate}}</div>
-                        <a class="register-login-msg-link" (click)="context='LOGIN'">{{'LOGIN'| translate}}</a>
-                    </div>
-                    <div class="register-email">
-                        <mat-form-field style="flex: 1;">
-                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                            <input matInput formControlName="email" name="email">
-                            <mat-error>{{registerEmailErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                        <button class="register-email-btn" mat-raised-button (click)="getCode()"
-                            color="primary">{{'GET_ACTIVATION_CODE'| translate}}</button>
-                    </div>
-                    <mat-form-field>
-                        <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
-                        <input matInput formControlName="activationCode">
-                        <mat-hint>{{'ACTIVATION_CODE_HINT'|translate}}</mat-hint>
-                        <mat-error>{{registerCodeErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
-                    <div style="display: flex; flex-direction: row;">
-                        <mat-form-field style="margin-right: 8px; width: 100px;">
-                            <mat-label>{{'COUNTRY_CODE'|translate}}</mat-label>
-                            <mat-select formControlName="countryCode">
-                                <mat-option *ngFor="let e of mobileNums" [value]="e.value">
-                                    {{e.label}}
-                                </mat-option>
-                            </mat-select>
-                            <mat-error>{{registerMobileCountryCodeErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                        <mat-form-field>
-                            <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
-                            <input matInput [type]="'text'" formControlName="mobileNumber">
-                            <mat-error>{{registerMobilePhoneNumErrorMsg | translate}}</mat-error>
-                        </mat-form-field>
-                    </div>
-                    <mat-form-field>
-                        <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
-                        <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;"
-                            autocomplete="username">
-                        <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="pwd" autocomplete="new-password">
-                        <mat-error>{{pwdErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput placeholder="{{'CONFIRM_YOUR_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="confirmPwd" autocomplete="new-password">
-                        <mat-error>{{registerConfirmPwdErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
+        <ng-container *ngIf="context !== 'FORGET'">
+            <form [formGroup]="form">
+                <mat-tab-group (selectedTabChange)="handleTabChange($event)" [selectedIndex]="selectedLoginIndex">
+                    <mat-tab (click)="loginContext='MOBILE_CODE'" label="{{'LOGIN_VIA_MOBILE_CODE'|translate}}">
+                        <div style="display: flex; flex-direction: column; margin-top: 24px;">
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="margin-right: 8px; width: 100px;">
+                                    <mat-label>{{'COUNTRY'|translate}}</mat-label>
+                                    <mat-select formControlName="countryCode">
+                                        <mat-option *ngFor="let e of mobileNums" [value]="e.value">
+                                            {{e.label|translate}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
+                                    <input matInput type="text" formControlName="mobileNumber">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                        fontSet="material-icons-outlined">smartphone</mat-icon>
+                                    <mat-error>{{mobileErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div
+                                style="display: flex; flex-direction: row; justify-content: space-between; margin-top: 8px;">
+                                <div style="margin-right: 16px; flex: 1;">
+                                    <mat-form-field>
+                                        <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
+                                        <input matInput formControlName="mobileCode">
+                                        <mat-icon matPrefix
+                                            style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                            fontSet="material-icons-outlined">pin</mat-icon>
+                                        <mat-hint>{{'ACTIVATION_CODE_HINT'|translate}}</mat-hint>
+                                        <mat-error>{{mobileCodeErrorMsg | translate}}</mat-error>
+                                    </mat-form-field>
+                                </div>
+                                <button style="height: 36px; width: auto;" mat-stroked-button (click)="getCode()"
+                                    color="secondary">
+                                    {{'GET_CODE'| translate}}
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab (click)="loginContext='EMAIL_CODE'" label="{{'LOGIN_VIA_EMAIL'|translate}}">
+                        <div style="display: flex; flex-direction: column; margin-top: 16px;">
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="flex: 1;">
+                                    <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
+                                    <input matInput formControlName="email" name="email">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                        fontSet="material-icons-outlined">mail</mat-icon>
+                                    <mat-error>{{emailErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div
+                                style="display: flex; flex-direction: row; justify-content: space-between; margin-top: 8px;">
+                                <div style="margin-right: 16px; flex: 1;">
+                                    <mat-form-field>
+                                        <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
+                                        <input matInput formControlName="emailCode">
+                                        <mat-icon matPrefix
+                                            style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                            fontSet="material-icons-outlined">pin</mat-icon>
+                                        <mat-hint>{{'ACTIVATION_CODE_HINT'|translate}}</mat-hint>
+                                        <mat-error>{{emailCodeErrorMsg | translate}}</mat-error>
+                                    </mat-form-field>
+                                </div>
+                                <button style="height: 36px; width: auto;" mat-stroked-button (click)="getCode()"
+                                    color="secondary">
+                                    {{'GET_CODE'| translate}}
+                                </button>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab label="{{'LOGIN_VIA_USERNAME_PASSWORD'|translate}}">
+                        <div style="display: flex; flex-direction: column; margin-top: 24px;">
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="margin-right: 8px; width: 100px;">
+                                    <mat-label>{{'COUNTRY'|translate}}</mat-label>
+                                    <mat-select formControlName="pwdCountryCode">
+                                        <mat-option *ngFor="let e of mobileNums" [value]="e.value">
+                                            {{e.label|translate}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
+                                    <input matInput type="text" formControlName="pwdMobileNumber">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                        fontSet="material-icons-outlined">smartphone</mat-icon>
+                                    <mat-error>{{usernameErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div style="font-size: 12px; font-weight: 500;color: rgba(0, 0, 0, .54); text-align: center; margin-top: 8px;">———— {{'LOGIN_OR' | translate}} ————</div>
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="flex: 1;">
+                                    <mat-label>{{'ENTER_YOUR_USERNAME' | translate}}</mat-label>
+                                    <input matInput formControlName="pwdEmailOrUsername" autocomplete="username" name="username">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                        fontSet="material-icons-outlined">account_circle</mat-icon>
+                                    <mat-error>{{usernameErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <div style="display: flex; flex-direction: row; margin-top: 8px;">
+                                <mat-form-field style="flex: 1;">
+                                    <input matInput placeholder="{{ 'ENTER_YOUR_PASSWORD'| translate}}"
+                                        [type]="hide ? 'password' : 'text'" formControlName="pwd"
+                                        autocomplete="current-password">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
+                                        fontSet="material-icons-outlined">lock</mat-icon>
+                                    <mat-icon matSuffix style="font-size: 24px; color: rgba(0, 0, 0, 0.54)"
+                                        (click)="togglePwd()" fontSet="material-icons-outlined">{{hide ?
+                                        'visibility_off' :
+                                        'visibility'}}</mat-icon>
+                                    <mat-error>{{pwdErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                            <ul style="font-size: 12px; padding-left: 16px;">
+                                <li>{{"PASSWORD_RULE_1"|translate}}</li>
+                                <li>{{"PASSWORD_RULE_2"|translate}}</li>
+                                <li>{{"PASSWORD_RULE_5"|translate}}</li>
+                                <li>{{"PASSWORD_RULE_3"|translate}}</li>
+                                <li>{{"PASSWORD_RULE_4"|translate}}</li>
+                            </ul>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
 
-                    <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
-                        <li>{{"PASSWORD_RULE_1"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_2"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_5"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_3"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_4"|translate}}</li>
-                    </ul>
-                    <button mat-raised-button (click)="register()" color="primary">{{'REGISTER'|
-                        translate}}</button>
+                <button mat-raised-button (click)="loginOrRegister()" style="width: 100%;; margin-top: 24px;"
+                    color="primary">{{'LOGIN_OR_REGISTER'|
+                    translate}}</button>
+                <div *ngIf="loginContext === 'PWD'" style="font-size: 14px; font-weight: 400; margin-top: 12px;">
+                    <a (click)="context='FORGET'" class="forget-pwd">{{'FORGET_PASSWORD'| translate}}</a>
                 </div>
             </form>
         </ng-container>
         <ng-container *ngIf="context === 'FORGET'">
-            <form [formGroup]="forgetForm" class="page-form">
-                <div class="form-body mobile-view">
-                    <div class="register-msg">
-                        {{'RESET_PWD'|translate}}
-                    </div>
-                    <div class="register-email">
-                        <mat-form-field style="flex: 1;">
-                            <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
-                            <input matInput formControlName="email" autocomplete="username" name="username">
-                            <mat-error>{{forgetEmailErrorMsg | translate}}</mat-error>
+            <form [formGroup]="forgetForm">
+                <div style="font-size: 24px; font-weight: 700;">
+                    {{'RESET_PWD'|translate}}
+                </div>
+                <mat-tab-group (selectedTabChange)="handleForgetTabChange($event)" style="margin-top: 12px;">
+                    <mat-tab (click)="forgetContext='MOBILE'" label="{{'RESET_VIA_MOBILE_CODE'|translate}}">
+                        <div style="display: flex; flex-direction: column; margin-top: 24px;">
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="margin-right: 8px; width: 100px;">
+                                    <mat-label>{{'COUNTRY'|translate}}</mat-label>
+                                    <mat-select formControlName="countryCode">
+                                        <mat-option *ngFor="let e of mobileNums" [value]="e.value">
+                                            {{e.label|translate}}
+                                        </mat-option>
+                                    </mat-select>
+                                </mat-form-field>
+                                <mat-form-field>
+                                    <mat-label>{{'MOBILE_NUMBER'|translate}}</mat-label>
+                                    <input matInput [type]="'text'" formControlName="mobileNumber">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54)"
+                                        fontSet="material-icons-outlined">smartphone</mat-icon>
+                                    <mat-error>{{forgetMobileErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </mat-tab>
+                    <mat-tab (click)="forgetContext='EMAIL'" label="{{'RESET_VIA_EMAIL'|translate}}">
+                        <div style="display: flex; flex-direction: column; margin-top: 16px;">
+                            <div style="display: flex; flex-direction: row;">
+                                <mat-form-field style="flex: 1;">
+                                    <mat-label>{{'ENTER_YOUR_EMAIL' | translate}}</mat-label>
+                                    <input matInput formControlName="email" name="email">
+                                    <mat-icon matPrefix
+                                        style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54)"
+                                        fontSet="material-icons-outlined">mail</mat-icon>
+                                    <mat-error>{{forgetEmailErrorMsg | translate}}</mat-error>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                    </mat-tab>
+                </mat-tab-group>
+                <div style="display: flex; flex-direction: row; justify-content: space-between;">
+                    <div style="margin-right: 16px; flex: 1;">
+                        <mat-form-field>
+                            <mat-label>{{'ACTIVATION_CODE'| translate}}</mat-label>
+                            <input matInput formControlName="token">
+                            <mat-icon matPrefix style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54)"
+                                fontSet="material-icons-outlined">pin</mat-icon>
+                            <mat-hint>{{'ENTER_PASSWORD_RESET_TOKEN_HINT'|translate}}</mat-hint>
+                            <mat-error>{{forgetCodeErrorMsg | translate}}</mat-error>
                         </mat-form-field>
-                        <button class="register-email-btn" mat-raised-button (click)="getToken()"
-                            color="primary">{{'GET_PASSWORD_RESET_TOKEN' | translate}}</button>
                     </div>
-                    <mat-form-field>
-                        <mat-label>{{'ENTER_PASSWORD_RESET_TOKEN'| translate}}</mat-label>
-                        <input matInput [type]="'text'" formControlName="token">
-                        <mat-hint>{{'ENTER_PASSWORD_RESET_TOKEN_HINT'|translate}}</mat-hint>
-                        <mat-error>{{forgetTokenErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
+                    <button style="height: 36px; width: auto;" mat-stroked-button (click)="getToken()"
+                        color="secondary">
+                        {{'GET_CODE'| translate}}
+                    </button>
+                </div>
 
-                    <mat-form-field>
-                        <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
-                        <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;"
-                            autocomplete="username">
-                        <input matInput placeholder="{{ 'ENTER_YOUR_NEW_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="pwd" autocomplete="new-password">
-                        <mat-error>{{forgetPwdErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
-                    <mat-form-field>
-                        <input matInput placeholder="{{'REENTER_YOUR_NEW_PASSWORD'| translate}}" [type]="'password'"
-                            formControlName="confirmPwd" autocomplete="new-password">
-                        <mat-error>{{forgetConfirmPwdErrorMsg | translate}}</mat-error>
-                    </mat-form-field>
-                    <ul *ngIf="showPasswordHint()" style="font-size: 12px; padding-left: 16px;">
-                        <li>{{"PASSWORD_RULE_1"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_2"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_5"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_3"|translate}}</li>
-                        <li>{{"PASSWORD_RULE_4"|translate}}</li>
-                    </ul>
-                    <button mat-raised-button (click)="changePassword()" color="primary">{{'CHANGE_PASSWORD'|
-                        translate}}</button>
-                    <div style="display: flex;justify-content: space-between;">
-                        <a (click)="context='LOGIN'" class="forget-pwd">{{'GO_BACK_TO_LOGIN'| translate}}</a>
-                    </div>
+                <mat-form-field>
+                    <!-- chrome password manager fix, chrome will try to put email into this user invisible field -->
+                    <input type="text" style="height: 0; width: 0; position: absolute; left: -1000px; top: -1000px;"
+                        autocomplete="username">
+                    <input matInput placeholder="{{ 'ENTER_YOUR_NEW_PASSWORD'| translate}}"
+                        [type]="hide ? 'password' : 'text'" formControlName="pwd" autocomplete="new-password">
+
+                    <mat-icon matSuffix style="font-size: 24px; color: rgba(0, 0, 0, 0.54)" (click)="togglePwd()"
+                        fontSet="material-icons-outlined">{{hide ? 'visibility_off' : 'visibility'}}</mat-icon>
+                    <mat-error>{{forgetPwdErrorMsg | translate}}</mat-error>
+                </mat-form-field>
+                <ul style="font-size: 12px; padding-left: 16px;">
+                    <li>{{"PASSWORD_RULE_1"|translate}}</li>
+                    <li>{{"PASSWORD_RULE_2"|translate}}</li>
+                    <li>{{"PASSWORD_RULE_5"|translate}}</li>
+                    <li>{{"PASSWORD_RULE_3"|translate}}</li>
+                    <li>{{"PASSWORD_RULE_4"|translate}}</li>
+                </ul>
+                <button mat-raised-button (click)="changePassword()" style="width: 100%;"
+                    color="primary">{{'CHANGE_PASSWORD'|
+                    translate}}</button>
+                <div style="display: flex;justify-content: space-between;">
+                    <a (click)="context='LOGIN'" class="forget-pwd">{{'GO_BACK_TO_LOGIN'| translate}}</a>
                 </div>
             </form>
         </ng-container>
-
+        <div style="display: flex; justify-content: center; margin-top: 48px; font-size: 14px;">
+            <div (click)="langSvc.toggleLang()"
+                style="cursor: pointer; text-align: right;display: flex; flex-direction: row; align-items: center;">
+                <mat-icon style="margin-right: 4px; height: 16px; width: 16px; font-size: 16px;">translate</mat-icon>
+                <div>{{'CURRENT_LANG' | translate}}</div>
+            </div>
+        </div>
     </div>
 </div>

@@ -7,10 +7,8 @@ import com.mt.access.domain.model.CurrentUserService;
 import com.mt.access.domain.model.EncryptionService;
 import com.mt.access.domain.model.EndpointValidationService;
 import com.mt.access.domain.model.NewUserService;
-import com.mt.access.domain.model.PendingUserValidationService;
 import com.mt.access.domain.model.PermissionCheckService;
 import com.mt.access.domain.model.RemoteProxyService;
-import com.mt.access.domain.model.UserValidationService;
 import com.mt.access.domain.model.activation_code.ActivationCodeService;
 import com.mt.access.domain.model.audit.AuditRecordRepository;
 import com.mt.access.domain.model.audit.AuditService;
@@ -28,8 +26,8 @@ import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
 import com.mt.access.domain.model.operation_cool_down.OperationCoolDownRepository;
-import com.mt.access.domain.model.pending_user.PendingUserRepository;
-import com.mt.access.domain.model.pending_user.PendingUserService;
+import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
+import com.mt.access.domain.model.verification_code.VerificationCodeService;
 import com.mt.access.domain.model.permission.PermissionRepository;
 import com.mt.access.domain.model.permission.PermissionService;
 import com.mt.access.domain.model.project.ProjectRepository;
@@ -69,7 +67,7 @@ public class DomainRegistry {
     @Getter
     private static UserRepository userRepository;
     @Getter
-    private static PendingUserRepository pendingUserRepository;
+    private static VerificationCodeRepository verificationCodeRepository;
     @Getter
     private static EndpointRepository endpointRepository;
     @Getter
@@ -79,7 +77,7 @@ public class DomainRegistry {
     @Getter
     private static CurrentUserService currentUserService;
     @Getter
-    private static PendingUserService pendingUserService;
+    private static VerificationCodeService verificationCodeService;
     @Getter
     private static UserService userService;
     @Getter
@@ -94,10 +92,6 @@ public class DomainRegistry {
     private static EndpointValidationService endpointValidationService;
     @Getter
     private static ClientValidationService clientValidationService;
-    @Getter
-    private static PendingUserValidationService pendingUserValidationService;
-    @Getter
-    private static UserValidationService userValidationService;
     @Getter
     private static TicketService ticketService;
     @Getter
@@ -381,17 +375,6 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setUserValidationService(UserValidationService userValidationService) {
-        DomainRegistry.userValidationService = userValidationService;
-    }
-
-    @Autowired
-    public void setPendingUserValidationService(
-        PendingUserValidationService pendingUserValidationService) {
-        DomainRegistry.pendingUserValidationService = pendingUserValidationService;
-    }
-
-    @Autowired
     public void setClientValidationService(ClientValidationService clientValidationService) {
         DomainRegistry.clientValidationService = clientValidationService;
     }
@@ -447,8 +430,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPendingUserRepo(PendingUserRepository pendingUserRepo) {
-        DomainRegistry.pendingUserRepository = pendingUserRepo;
+    public void setPendingUserRepo(VerificationCodeRepository pendingUserRepo) {
+        DomainRegistry.verificationCodeRepository = pendingUserRepo;
     }
 
     @Autowired
@@ -462,8 +445,8 @@ public class DomainRegistry {
     }
 
     @Autowired
-    public void setPendingUserService(PendingUserService pendingUserService) {
-        DomainRegistry.pendingUserService = pendingUserService;
+    public void setVerificationCodeService(VerificationCodeService verificationCodeService) {
+        DomainRegistry.verificationCodeService = verificationCodeService;
     }
 
 }

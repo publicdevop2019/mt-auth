@@ -164,21 +164,6 @@ public class TenantClientTest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, client3.getStatusCode());
     }
 
-    @Test
-    public void tenant_reserved_client_is_not_deletable() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
-        String bearer = tokenResponse.getBody().getValue();
-        String url =
-            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/0C8AZTODP4HT");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setBearerAuth(bearer);
-        HttpEntity<Void> request = new HttpEntity<>(headers);
-        ResponseEntity<Void> exchange =
-            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Void.class);
-
-        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
-    }
 
     @Test
     public void tenant_create_resource_client_and_client_which_access_it_then_delete_resource_client()
@@ -383,12 +368,12 @@ public class TenantClientTest {
 
     @Test
     public void tenant_create_frontend_client_for_single_sign_on() {
-        String login = UserUtility.login(tenantContext.getCreator());
+        String login = UserUtility.emailPwdLogin(tenantContext.getCreator());
         ResponseEntity<String> codeResponse =
             OAuth2Utility.authorizeLogin(tenantContext.getProject().getId(),
                 tenantContext.getLoginClient().getId(), login, AppConstant.TEST_REDIRECT_URL);
         ResponseEntity<DefaultOAuth2AccessToken> oAuth2AuthorizationToken =
-            OAuth2Utility.getOAuth2AuthorizationToken(
+            OAuth2Utility.getAuthorizationToken(
                 OAuth2Utility.getAuthorizationCode(codeResponse),
                 AppConstant.TEST_REDIRECT_URL, tenantContext.getLoginClient().getId(),
                 tenantContext.getLoginClient().getClientSecret());

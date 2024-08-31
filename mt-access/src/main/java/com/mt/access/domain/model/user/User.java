@@ -1,6 +1,5 @@
 package com.mt.access.domain.model.user;
 
-import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.UserGetLocked;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
@@ -8,13 +7,12 @@ import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
+import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.ValidationNotificationHandler;
 import com.mt.common.domain.model.validate.Validator;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Objects;
-import javax.annotation.Nullable;
 import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -63,21 +61,37 @@ public class User extends Auditable {
     @Getter
     private MfaInfo mfaInfo;
 
-    private User(UserEmail userEmail, UserPassword password, UserId userId, UserMobile mobile) {
+    private User(UserId userId, UserMobile mobile) {
         super();
-        setEmail(userEmail);
-        setPassword(password);
-        setUserId(userId);
-        setLocked(Boolean.FALSE);
         setMobile(mobile);
-        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
-        DomainRegistry.getUserValidationService()
-            .validate(this, new HttpValidationNotificationHandler());
-        long milli = Instant.now().toEpochMilli();
-        setCreatedAt(milli);
-        setCreatedBy(userId.getDomainId());
-        setModifiedAt(milli);
-        setModifiedBy(userId.getDomainId());
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserMobile mobile, UserPassword password) {
+        super();
+        setMobile(mobile);
+        setPassword(password);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserEmail email) {
+        super();
+        setEmail(email);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserEmail email, UserPassword password) {
+        super();
+        setEmail(email);
+        setPassword(password);
+        initNewUserParams(userId);
+    }
+
+    private User(UserId userId, UserName username, UserPassword password) {
+        super();
+        setUserName(username);
+        setPassword(password);
+        initNewUserParams(userId);
     }
 
     public static User fromDatabaseRow(Long id, Long createdAt, String createdBy, Long modifiedAt,
@@ -107,6 +121,26 @@ public class User extends Auditable {
         return user;
     }
 
+    public static User newUser(UserMobile mobile, UserId userId) {
+        return new User(userId, mobile);
+    }
+
+    public static User newUser(UserMobile mobile, UserPassword password, UserId userId) {
+        return new User(userId, mobile, password);
+    }
+
+    public static User newUser(UserEmail email, UserId userId) {
+        return new User(userId, email);
+    }
+
+    public static User newUser(UserEmail email, UserPassword password, UserId userId) {
+        return new User(userId, email, password);
+    }
+
+    public static User newUser(UserName username, UserPassword password, UserId userId) {
+        return new User(userId, username, password);
+    }
+
     private void setLocked(Boolean locked) {
         Validator.notNull(locked);
         this.locked = locked;
@@ -115,27 +149,35 @@ public class User extends Auditable {
     private User() {
     }
 
-    public static User newUser(UserEmail userEmail, UserPassword password, UserId userId,
-                               UserMobile mobile) {
-        return new User(userEmail, password, userId, mobile);
-    }
-
     public String getDisplayName() {
-        if (userName != null) {
+        if (Checker.notNull(userName)) {
             return userName.getValue();
         }
-        return email.getEmail();
+        if (Checker.notNull(email)) {
+            return email.getEmail();
+        }
+        if (Checker.notNull(mobile)) {
+            return mobile.value();
+        }
+        return null;
     }
 
     @Override
     public void validate(ValidationNotificationHandler handler) {
     }
 
-    public User setPwdResetToken(PasswordResetCode pwdResetToken, TransactionContext context) {
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserEmail email, TransactionContext context) {
         User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
         user.pwdResetToken = pwdResetToken;
         context
-            .append(new UserPwdResetCodeUpdated(getUserId(), getEmail(), pwdResetToken));
+            .append(new UserPwdResetCodeUpdated(getUserId(), email, pwdResetToken));
+        return user;
+    }
+    public User setPwdResetToken(PasswordResetCode pwdResetToken, UserMobile mobile, TransactionContext context) {
+        User user = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        user.pwdResetToken = pwdResetToken;
+        context
+            .append(new UserPwdResetCodeUpdated(getUserId(), mobile, pwdResetToken));
         return user;
     }
 
@@ -150,27 +192,6 @@ public class User extends Auditable {
         context.append(new UserGetLocked(userId));
         user.setLocked(locked);
         return user;
-    }
-
-    public User update(UserMobile mobile,
-                       @Nullable UserName userName,
-                       @Nullable Language language) {
-        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
-        if (userName != null) {
-            if (update.userName != null && update.userName.getValue() != null
-                && !update.userName.equals(userName)) {
-                throw new DefinedRuntimeException("username can only be set once", "1063",
-                    HttpResponseCode.BAD_REQUEST);
-            }
-            update.userName = userName;
-        }
-        if (language != null) {
-            update.language = language;
-        }
-        if (!update.mobile.equals(mobile)) {
-            update.mobile = mobile;
-        }
-        return update;
     }
 
     public User updateUserAvatar(UserAvatar userAvatar) {
@@ -195,5 +216,90 @@ public class User extends Auditable {
         User user = CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
         user.setPassword(password);
         return user;
+    }
+
+    private void initNewUserParams(UserId userId) {
+        setUserId(userId);
+        setLocked(Boolean.FALSE);
+        setId(CommonDomainRegistry.getUniqueIdGeneratorService().id());
+        long milli = Instant.now().toEpochMilli();
+        setCreatedAt(milli);
+        setCreatedBy(userId.getDomainId());
+        setModifiedAt(milli);
+        setModifiedBy(userId.getDomainId());
+    }
+
+    public User addUserName(UserName userName) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.userName = userName;
+        return update;
+    }
+
+    public void checkUserNameRemoval() {
+        if (email == null && mobile == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public void checkMobileRemoval() {
+        if (email == null && userName == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public void checkEmailRemoval() {
+        if (mobile == null && userName == null) {
+            throw new DefinedRuntimeException("email, mobile, username need to keep at least one",
+                "1063",
+                HttpResponseCode.BAD_REQUEST);
+        }
+    }
+
+    public User removeUserName() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.userName = null;
+        return update;
+    }
+
+    public User addMobile(UserMobile newMobile) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.mobile = newMobile;
+        return update;
+    }
+
+    public User removeMobile() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.mobile = null;
+        return update;
+    }
+
+    public User removeEmail() {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.email = null;
+        return update;
+    }
+
+    public User addEmail(UserEmail userEmail) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.email = userEmail;
+        return update;
+    }
+
+    public User updateLanguage(Language language) {
+        User update = CommonDomainRegistry.getCustomObjectSerializer().deepCopy(this, User.class);
+        update.language = language;
+        return update;
+    }
+
+    public boolean hasMultipleMfaOptions() {
+        return Checker.notNull(mobile) && Checker.notNull(email);
+    }
+
+    public boolean hasNoMfaOptions() {
+        return Checker.isNull(mobile) && Checker.isNull(email);
     }
 }

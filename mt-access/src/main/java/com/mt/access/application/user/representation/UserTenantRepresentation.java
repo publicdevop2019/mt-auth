@@ -16,14 +16,14 @@ import lombok.Getter;
 @Data
 public class UserTenantRepresentation {
     private final String id;
-    private final String email;
+    private final String displayName;
     private final Integer version;
     private Set<String> roles;
     private Set<RoleDetail> roleDetails;
 
     public UserTenantRepresentation(UserRelation userRelation, User user) {
         this.id = user.getUserId().getDomainId();
-        this.email = user.getEmail().getEmail();
+        this.displayName = user.getDisplayName();
         this.version = userRelation.getVersion();
         if (userRelation.getStandaloneRoles() != null
             && userRelation.getStandaloneRoles().size() > 0) {

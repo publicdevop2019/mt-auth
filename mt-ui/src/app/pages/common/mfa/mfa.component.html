@@ -1,19 +1,31 @@
-<div class="body-container ">
+<div class="body-container " *ngIf="authSvc.mfaResponse">
     <div style=" margin-top: 200px;">
-        <div style="margin-bottom: 24px; font-weight: 600;">{{'MFA_MSG_1'|translate}}</div>
-        <form [formGroup]="mfaForm" class="page-form">
-            <div class="form-body">
-                <mat-form-field>
-                    <mat-label>{{'MFA_CODE'| translate}}</mat-label>
-                    <input matInput formControlName="mfaCode">
-                    <mat-hint>{{'MFA_CODE_HINT'|translate}}</mat-hint>
-                    <mat-error>{{mfaCodeErrorMsg | translate}}</mat-error>
-                </mat-form-field>
-                <!-- <button mat-raised-button (click)="resend()" style="height: 36px; width: 150px; margin-left: 16px;"
-                    color="primary">{{'RESEND'|translate}}</button> -->
-            </div>
-            <button mat-raised-button (click)="confirm()" color="primary" style="width: 100%; margin-top: 16px;">{{'CONFIRM'|
-                translate}}</button>
-        </form>
+        <ng-container *ngIf="!authSvc.mfaResponse.deliveryMethod">
+            <div style="margin-bottom: 12px; font-weight: 600;">{{'MFA_MSG_1'|translate}}</div>
+            <div style="margin-bottom: 12px; font-size: 14px;"><span>{{'MFA_MSG_2'|translate}}</span><span>{{authSvc.mfaResponse.partialEmail ||
+                    authSvc.mfaResponse.partialMobile}}</span></div>
+            <form [formGroup]="mfaForm" class="page-form">
+                <div class="form-body">
+                    <mat-form-field>
+                        <mat-label>{{'MFA_CODE'| translate}}</mat-label>
+                        <input matInput formControlName="mfaCode">
+                        <mat-hint>{{'MFA_CODE_HINT'|translate}}</mat-hint>
+                        <mat-error>{{mfaCodeErrorMsg | translate}}</mat-error>
+                    </mat-form-field>
+                </div>
+                <button mat-raised-button (click)="confirm()" color="primary"
+                    style="width: 100%; margin-top: 16px;">{{'CONFIRM'|
+                    translate}}</button>
+            </form>
+        </ng-container>
+        <ng-container *ngIf="authSvc.mfaResponse.deliveryMethod">
+            <div style="margin-bottom: 24px; font-weight: 600; text-align: center;">{{'MFA_MSG_3'|translate}}</div>
+            <button mat-raised-button (click)="sendByEmail()" color="primary"
+                style="width: 100%; margin-top: 16px;"><span>{{'SEND_CODE_TO'|
+                    translate}}</span><span>{{authSvc.mfaResponse.partialEmail}}</span></button>
+            <button mat-raised-button (click)="sendByMobile()" color="primary"
+                style="width: 100%; margin-top: 16px;"><span>{{'SEND_CODE_TO'|
+                    translate}}</span><span>{{authSvc.mfaResponse.partialMobile}}</span></button>
+        </ng-container>
     </div>
 </div>

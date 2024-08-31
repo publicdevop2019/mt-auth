@@ -1,24 +1,22 @@
 .image-upload-card{
-    width: 96px;
+    width: 160px;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    margin-bottom: 8px;
     box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
     transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 4px;
 }
 .image-upload-empty-card{
-    width: 64px;
-    height: 64px;
+    width: 128px;
+    height: 128px;
     display: flex;
     flex-direction: row;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    margin-bottom: 8px;
     box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
     transition: box-shadow 280ms cubic-bezier(0.4, 0, 0.2, 1);
     border-radius: 4px;
@@ -29,6 +27,8 @@
     font-size: 32px;
 }
 .image-upload-image{
-    width: 64px;
-    height: 64px;
+    width: 128px;
+    height: 128px;
+    margin: 0px;
+
 }

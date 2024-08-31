@@ -12,6 +12,7 @@ import { Logger } from 'src/app/misc/logger';
 import { Utility } from 'src/app/misc/utility';
 import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification, MessageService } from 'src/app/services/message.service';
 import { ProjectService } from 'src/app/services/project.service';
@@ -217,6 +218,7 @@ export class NavBarComponent implements OnInit {
     public translate: TranslateService,
     public msgSvc: MessageService,
     public userMsgSvc: UserMessageService,
+    public deviceSvc: DeviceService,
     public dialog: MatDialog
   ) {
     this.mobileQuery = media.matchMedia('(max-width: 600px)');
@@ -272,12 +274,16 @@ export class NavBarComponent implements OnInit {
     this.userMsgSvc.connectToMonitor();
     this.userMsgSvc.pullUnAckMessage()
 
-    this.authSvc.currentUser.subscribe(next => {
-      this.name = next.username || next.email
+    this.httpProxySvc.getMyProfile().subscribe(next => {
+      this.name = next.username || next.email || next.mobileNumber
     })
-    this.sub = this.authSvc.avatarUpdated$.subscribe(() => {
+    this.deviceSvc.profileUpdated$.subscribe((() => {
+      this.getDisplayName()
+    }))
+    this.deviceSvc.avatarUpdated$.subscribe((() => {
       this.getAvatar()
-    })
+    }))
+    this.getDisplayName()
     this.getAvatar()
     this.switchProjectForm.get('viewTenantId').valueChanges.subscribe(next => {
       Logger.debug("next view tenant id {}", next)
@@ -298,6 +304,11 @@ export class NavBarComponent implements OnInit {
       Utility.createImageFromBlob(blob, (reader) => {
         this.avatar = reader.result
       })
+    })
+  }
+  getDisplayName() {
+    this.httpProxySvc.getMyProfile().subscribe(next => {
+      this.name = next.username || next.email || next.mobileNumber
     })
   }
   getPermissionId(name: string[]) {

@@ -6,6 +6,9 @@
 /* dark mode */
 /* @import '~@angular/material/prebuilt-themes/pink-bluegrey.css'; */
 /* @import '~@angular/material/prebuilt-themes/purple-green.css'; */
+html{
+  font-size: 16px;
+}
 body {
   font-family: Roboto, Arial, sans-serif;
   margin: 0;
@@ -157,9 +160,11 @@ th.mat-sort-header-sorted {
   color: #f44336;
   padding-left: 4px;
 }
-.text-disabled{
-  color: rgba(0,0,0,.54);
+
+.text-disabled {
+  color: rgba(0, 0, 0, .54);
 }
+
 .default-form-background {
   max-width: 960px;
   margin: 0px auto;
@@ -170,4 +175,26 @@ th.mat-sort-header-sorted {
   top: 0;
   left: 0;
   right: 0;
+}
+
+.login-page .mat-tab-label {
+  height: 36px;
+  padding: 0 0px;
+  cursor: pointer;
+  box-sizing: border-box;
+  opacity: .6;
+  min-width: auto;
+  text-align: center;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  white-space: nowrap;
+  position: relative;
+  margin-right: 24px;
+}
+.login-page .mat-form-field-flex {
+  display: inline-flex;
+  align-items: end;
+  box-sizing: border-box;
+  width: 100%;
 }

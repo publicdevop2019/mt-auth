@@ -5,5 +5,5 @@ package com.mt.access.domain.model.operation_cool_down;
  */
 public enum OperationType {
     PWD_RESET,
-    PENDING_USER_CODE;
+    VERIFICATION_CODE;
 }

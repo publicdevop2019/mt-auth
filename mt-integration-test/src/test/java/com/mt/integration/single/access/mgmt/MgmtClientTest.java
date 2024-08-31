@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 
@@ -91,5 +92,22 @@ public class MgmtClientTest{
         Assertions.assertEquals(HttpStatus.OK, exchange2.getStatusCode());
         log.info("body {}", exchange2.getBody());
         Assertions.assertNotNull(Objects.requireNonNull(exchange2.getBody()).getGrantTypeEnums());
+    }
+
+
+    @Test
+    public void admin_reserved_client_is_not_deletable() {
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        String bearer = tokenResponse.getBody().getValue();
+        String url =
+            HttpUtility.getAccessUrl(AppConstant.CLIENTS + "/0C8AZTODP4HT");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(bearer);
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+        ResponseEntity<Void> exchange =
+            TestContext.getRestTemplate().exchange(url, HttpMethod.DELETE, request, Void.class);
+
+        Assertions.assertEquals(HttpStatus.BAD_REQUEST, exchange.getStatusCode());
     }
 }

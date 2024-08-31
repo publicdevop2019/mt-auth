@@ -75,5 +75,8 @@ export class Utility {
     public static getUserResource(resourceName: string) {
         return Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, 'user', resourceName]);
     }
+    public static isLocalhost(){
+        return location.hostname.includes('localhost')
+    }
 
 }

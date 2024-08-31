@@ -90,16 +90,16 @@
                 <div style="font-size: 14px; color: #673ab7; line-height: 36px; font-weight: 700;">{{name}}</div>
             </div>
             <div>
-                <button mat-menu-item [routerLink]="'user/profile'">
-                    <mat-icon fontSet="material-icons-outlined">account_circle</mat-icon>
+                <button mat-menu-item [routerLink]="'user/profile'" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                    <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">account_circle</mat-icon>
                     <span> {{'MY_PROFILE'|translate}}</span>
                 </button>
-                <button mat-menu-item [routerLink]="'user/setting'">
-                    <mat-icon fontSet="material-icons-outlined">settings</mat-icon>
+                <button mat-menu-item [routerLink]="'user/setting'" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                    <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">settings</mat-icon>
                     <span> {{'SYSTEM_SETTINGS'|translate}}</span>
                 </button>
-                <button mat-menu-item (click)="doLogout()">
-                    <mat-icon fontSet="material-icons-outlined">exit_to_app</mat-icon>
+                <button mat-menu-item (click)="doLogout()" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                    <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">exit_to_app</mat-icon>
                     <span> {{'LOGOUT'|translate}}</span>
                 </button>
             </div>

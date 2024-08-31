@@ -47,4 +47,4 @@ db/
 **/temp
 
 #ignore specific directory
-mt-sample/nodejs/public
+# mt-sample/nodejs/public

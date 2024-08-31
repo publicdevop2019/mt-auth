@@ -45,22 +45,26 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private static final String MARK_USER_ACK_SQL =
         "UPDATE notification n SET n.ack = true where n.domain_id = ? AND n.user_id = ?";
     private static final String FIND_BY_DOMAIN_ID_SQL = "";
-    private static final String FIND_BY_USER_ID_SQL =
-        "SELECT * FROM notification n WHERE n.user_id = ? ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
-    private static final String COUNT_BY_USER_ID_SQL =
-        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ?";
+    private static final String FIND_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL =
+        "SELECT * FROM notification n WHERE n.user_id = ? AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+    private static final String COUNT_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL =
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ? AND n.type = 'BELL'";
     private static final String FIND_ALL_MGMT_SQL =
         "SELECT * FROM notification n WHERE n.user_id IS NULL ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
     private static final String COUNT_ALL_MGMT_SQL =
         "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL";
+    private static final String FIND_ALL_BELL_NOTIFICATION_MGMT_SQL =
+        "SELECT * FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+    private static final String COUNT_ALL_BELL_NOTIFICATION_MGMT_SQL =
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL'";
     private static final String FIND_UN_ACK_MGMT_SQL =
-        "SELECT * FROM notification n WHERE n.user_id IS NULL AND n.ack = false ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+        "SELECT * FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = false ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
     private static final String COUNT_UN_ACK_MGMT_SQL =
-        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.ack = false";
-    private static final String FIND_UN_ACK_BY_USER_ID_SQL =
-        "SELECT * FROM notification n WHERE n.user_id = ? AND n.ack = false ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
-    private static final String COUNT_UN_ACK_BY_USER_ID_SQL =
-        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ? AND n.ack = false ";
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = false";
+    private static final String FIND_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL =
+        "SELECT * FROM notification n WHERE n.user_id = ? AND n.ack = false AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+    private static final String COUNT_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL =
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ? AND n.ack = false AND n.type = 'BELL' ";
 
     @Override
     public void add(Notification notification) {
@@ -101,10 +105,15 @@ public class JdbcNotificationRepository implements NotificationRepository {
             }
             return findAllUserBellNotification(query);
         }
-        if (Checker.isTrue(query.getIsUnAck())) {
-            return findUnAckMgmtBellNotification(query);
+        if (Checker.isTrue(query.isBell())) {
+            if (Checker.isTrue(query.getIsUnAck())) {
+                return findUnAckMgmtBellNotification(query);
+            } else {
+                return findAllMgmtBellNotification(query);
+            }
+        } else {
+            return findAllMgmtNotification(query);
         }
-        return findAllMgmtBellNotification(query);
     }
 
     private SumPagedRep<Notification> findUnAckMgmtBellNotification(NotificationQuery query) {
@@ -125,6 +134,21 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private SumPagedRep<Notification> findAllMgmtBellNotification(NotificationQuery query) {
         List<Notification> data = CommonDomainRegistry.getJdbcTemplate()
             .query(
+                FIND_ALL_BELL_NOTIFICATION_MGMT_SQL,
+                new RowMapper(),
+                query.getPageConfig().getPageSize(),
+                query.getPageConfig().getOffset()
+            );
+        Long count = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                COUNT_ALL_BELL_NOTIFICATION_MGMT_SQL,
+                new DatabaseUtility.ExtractCount());
+        return new SumPagedRep<>(data, count);
+    }
+
+    private SumPagedRep<Notification> findAllMgmtNotification(NotificationQuery query) {
+        List<Notification> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(
                 FIND_ALL_MGMT_SQL,
                 new RowMapper(),
                 query.getPageConfig().getPageSize(),
@@ -140,7 +164,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private SumPagedRep<Notification> findUnAckUserBellNotification(NotificationQuery query) {
         List<Notification> data = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                FIND_UN_ACK_BY_USER_ID_SQL,
+                FIND_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL,
                 new RowMapper(),
                 query.getUserId().getDomainId(),
                 query.getPageConfig().getPageSize(),
@@ -148,7 +172,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
             );
         Long count = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                COUNT_UN_ACK_BY_USER_ID_SQL,
+                COUNT_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL,
                 new DatabaseUtility.ExtractCount(),
                 query.getUserId().getDomainId());
         return new SumPagedRep<>(data, count);
@@ -157,7 +181,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private SumPagedRep<Notification> findAllUserBellNotification(NotificationQuery query) {
         List<Notification> data = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                FIND_BY_USER_ID_SQL,
+                FIND_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL,
                 new RowMapper(),
                 query.getUserId().getDomainId(),
                 query.getPageConfig().getPageSize(),
@@ -165,7 +189,7 @@ public class JdbcNotificationRepository implements NotificationRepository {
             );
         Long count = CommonDomainRegistry.getJdbcTemplate()
             .query(
-                COUNT_BY_USER_ID_SQL,
+                COUNT_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL,
                 new DatabaseUtility.ExtractCount(),
                 query.getUserId().getDomainId());
         return new SumPagedRep<>(data, count);

@@ -1,10 +1,10 @@
 package com.mt.access.resource;
 
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
+import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.GrantType;
 import com.mt.access.infrastructure.HttpUtility;
 import java.util.Base64;
 import java.util.HashMap;
@@ -34,7 +34,8 @@ public class TokenResource {
         @RequestParam Map<String, String> parameters,
         HttpServletRequest servletRequest,
         @RequestHeader(name = "Authorization") String authorization,
-        @RequestHeader(name = "User-Agent") String agentInfo
+        @RequestHeader(name = "User-Agent") String agentInfo,
+        @RequestHeader(name = HTTP_HEADER_CHANGE_ID, required = false) String changeId
     ) {
         String basic = authorization.replace("Basic ", "");
         String decoded = new String(Base64.getDecoder().decode(basic));
@@ -54,7 +55,7 @@ public class TokenResource {
         String clientIpAddress = HttpUtility.getClientIpAddress(servletRequest);
         log.info("token acquire with ip {}", clientIpAddress);
         return ApplicationServiceRegistry.getTokenApplicationService()
-            .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress);
+            .grantToken(clientId, clientSecret, parameters, agentInfo, clientIpAddress, changeId);
     }
 
     /**

@@ -2,8 +2,6 @@ package com.mt.access.domain.model.notification;
 
 import com.mt.access.domain.model.CrossDomainValidationService;
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
-import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
-import com.mt.access.domain.model.pending_user.event.PendingUserCreated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
@@ -12,6 +10,8 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
@@ -21,6 +21,7 @@ import com.mt.common.domain.model.job.event.JobNotFoundEvent;
 import com.mt.common.domain.model.job.event.JobPausedEvent;
 import com.mt.common.domain.model.job.event.JobStarvingEvent;
 import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
+import com.mt.common.domain.model.validate.Checker;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 import lombok.AccessLevel;
@@ -68,7 +69,7 @@ public class Notification {
         timestamp = event.getTimestamp();
         title = NewUserRegistered.name;
         type = NotificationType.BELL;
-        descriptions.add(event.getEmail().getEmail());
+        descriptions.add(event.getRegisteredUsing());
     }
 
     public Notification(ProjectOnboardingComplete event) {
@@ -118,13 +119,17 @@ public class Notification {
         type = NotificationType.EMAIL;
     }
 
-    public Notification(PendingUserActivationCodeUpdated event) {
+    public Notification(VerificationCodeUpdated event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();
         timestamp = event.getTimestamp();
-        title = PendingUserActivationCodeUpdated.name;
-        type = NotificationType.EMAIL;
+        title = VerificationCodeUpdated.name;
+        if (Checker.isNull(event.getEmail())) {
+            type = NotificationType.SMS;
+        } else {
+            type = NotificationType.EMAIL;
+        }
     }
 
     public Notification(CrossDomainValidationFailureCheck event) {
@@ -200,7 +205,7 @@ public class Notification {
         type = NotificationType.BELL;
     }
 
-    public Notification(PendingUserCreated event) {
+    public Notification(VerificationCodeCreated event) {
         super();
         id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
         notificationId = new NotificationId();

@@ -7,6 +7,8 @@ import lombok.Data;
 public class UserResetPasswordCommand implements Serializable {
     private static final long serialVersionUID = 1;
     private String email;
+    private String countryCode;
+    private String mobileNumber;
 
     private String token;
 

@@ -11,11 +11,10 @@ import com.mt.helper.pojo.SumTotal;
 import com.mt.helper.pojo.UpdateType;
 import com.mt.helper.utility.ClientUtility;
 import com.mt.helper.utility.EndpointUtility;
+import com.mt.helper.utility.HttpUtility;
 import com.mt.helper.utility.PermissionUtility;
-import com.mt.helper.utility.RandomUtility;
 import com.mt.helper.utility.RoleUtility;
 import com.mt.helper.utility.TenantUtility;
-import com.mt.helper.utility.HttpUtility;
 import java.util.Collections;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +27,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class TenantPermissionTest {
@@ -77,6 +77,7 @@ public class TenantPermissionTest {
     public void beforeEach(TestInfo testInfo) {
         TestHelper.beforeEach(log, testInfo);
     }
+
     @Test
     public void tenant_can_create_permission() {
         Permission permission = PermissionUtility.createRandomPermissionObj();
@@ -84,23 +85,6 @@ public class TenantPermissionTest {
             PermissionUtility.createTenantPermission(tenantContext, permission);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
         Assertions.assertNotNull(HttpUtility.getId(response));
-    }
-
-    @Test
-    public void tenant_can_update_permission() {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        String s = HttpUtility.getId(response);
-        permission.setId(s);
-        permission.setName(RandomUtility.randomStringWithNum());
-        ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.updateTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-        ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
-
     }
 
     @Test
@@ -156,25 +140,27 @@ public class TenantPermissionTest {
             PermissionUtility.createTenantPermission(tenantContext, permission);
         String s = HttpUtility.getId(response);
         permission.setId(s);
-        ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
+        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =
+            PermissionUtility.readTenantPermission(tenantContext);
         //linked permission added
-        List<String> linkedApiPermissionIds =
-            permissionResponseEntity.getBody().getLinkedApiPermissionIds();
-        Assertions.assertEquals(1, linkedApiPermissionIds.size());
+
+        Assertions.assertEquals(1,
+            sumTotalResponseEntity.getBody().getData().stream()
+                .filter(e -> e.getId().equalsIgnoreCase(permission.getId())).findFirst().get()
+                .getLinkedApiNames().size());
 
         //delete endpoint
         ResponseEntity<Void> response1 =
             EndpointUtility.deleteTenantEndpoint(tenantContext, endpoint);
         //wait for cleanup
         Thread.sleep(5 * 1000);
+        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity2 =
+            PermissionUtility.readTenantPermission(tenantContext);
         //permission linked api permission should be cleanup
-        ResponseEntity<Permission> afterCleanup =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        //linked permission added
-        List<String> list =
-            afterCleanup.getBody().getLinkedApiPermissionIds();
-        Assertions.assertEquals(0, list.size());
+        Assertions.assertEquals(0,
+            sumTotalResponseEntity2.getBody().getData().stream()
+                .filter(e -> e.getId().equalsIgnoreCase(permission.getId())).findFirst().get()
+                .getLinkedApiNames().size());
     }
 
     @Test
@@ -205,50 +191,14 @@ public class TenantPermissionTest {
         Assertions.assertNotNull(HttpUtility.getId(response));
         String s = HttpUtility.getId(response);
         permission.setId(s);
-        ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
+
+        ResponseEntity<SumTotal<Permission>> sumTotalResponseEntity =
+            PermissionUtility.readTenantPermission(tenantContext);
+        Assertions.assertEquals(HttpStatus.OK, sumTotalResponseEntity.getStatusCode());
         Assertions.assertEquals(1,
-            permissionResponseEntity.getBody().getLinkedApiPermissionIds().size());
+            sumTotalResponseEntity.getBody().getData().stream()
+                .filter(e -> e.getId().equalsIgnoreCase(permission.getId())).findFirst().get()
+                .getLinkedApiNames().size());
 
     }
-
-    @Test
-    public void tenant_can_update_permission_with_linked_endpoint() {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        permission.setLinkedApiIds(Collections.singletonList(sharedEndpointObj.getId()));
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
-        Assertions.assertNotNull(HttpUtility.getId(response));
-        String s = HttpUtility.getId(response);
-        permission.setId(s);
-        permission.setLinkedApiIds(Collections.emptyList());
-        //update
-        ResponseEntity<Void> voidResponseEntity =
-            PermissionUtility.updateTenantPermission(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, voidResponseEntity.getStatusCode());
-
-        ResponseEntity<Permission> permissionResponseEntity =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, permissionResponseEntity.getStatusCode());
-        Assertions.assertEquals(0,
-            permissionResponseEntity.getBody().getLinkedApiPermissionIds().size());
-        Assertions.assertEquals(1, permissionResponseEntity.getBody().getVersion().intValue());
-    }
-
-    @Test
-    public void tenant_can_view_permission_detail() {
-        Permission permission = PermissionUtility.createRandomPermissionObj();
-        ResponseEntity<Void> response =
-            PermissionUtility.createTenantPermission(tenantContext, permission);
-        String s = HttpUtility.getId(response);
-        permission.setId(s);
-        ResponseEntity<Permission> response2 =
-            PermissionUtility.readTenantPermissionById(tenantContext, permission);
-        Assertions.assertEquals(HttpStatus.OK, response2.getStatusCode());
-        Assertions.assertEquals(0, response2.getBody().getVersion().intValue());
-
-    }
-
 }

@@ -49,9 +49,9 @@ public class RevokeTokenTest {
         String url2 = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/get/test";
         //before client get blacklisted, client is able to access auth server none token endpoint
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse1 =
-            OAuth2Utility.getOAuth2PasswordToken(
+            OAuth2Utility.getPasswordFlowEmailPwdToken(
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer1 = tokenResponse1.getBody().getValue();
         HttpHeaders headers1 = new HttpHeaders();
         headers1.setBearerAuth(bearer1);
@@ -85,9 +85,9 @@ public class RevokeTokenTest {
         //add thread sleep to prevent token get revoked and generate within a second
         Thread.sleep(1000);
         ResponseEntity<DefaultOAuth2AccessToken> tokenResponse3 =
-            OAuth2Utility.getOAuth2PasswordToken(
+            OAuth2Utility.getPasswordFlowEmailPwdToken(
                 AppConstant.CLIENT_ID_LOGIN_ID, AppConstant.COMMON_CLIENT_SECRET,
-                AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+                AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer3 = tokenResponse3.getBody().getValue();
         headers1.setBearerAuth(bearer3);
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
@@ -118,9 +118,9 @@ public class RevokeTokenTest {
     public void receive_request_blacklist_user_then_block_user_old_request()
         throws JsonProcessingException, InterruptedException {
         //create new user to avoid impact other tests
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         ResponseEntity<DefaultOAuth2AccessToken> pwdTokenResponse =
-            UserUtility.login(user.getEmail(), user.getPassword());
+            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
         String publicUrl = AppConstant.PROXY_URL + AppConstant.SVC_NAME_TEST + "/external/shared/no/auth";
         //user can log in & call test api & refresh token should work
         String bearer0 = pwdTokenResponse.getBody().getValue();
@@ -165,7 +165,7 @@ public class RevokeTokenTest {
         //add thread sleep to prevent token get revoked and generate within a second
         Thread.sleep(1000);
         ResponseEntity<DefaultOAuth2AccessToken> newToken =
-            UserUtility.login(user.getEmail(), user.getPassword());
+            UserUtility.emailPwdLogin(user.getEmail(), user.getPassword());
         headers1.setBearerAuth(newToken.getBody().getValue());
         HttpEntity<Object> hashMapHttpEntity3 = new HttpEntity<>(headers1);
         ResponseEntity<String> exchange3 = TestContext.getRestTemplate()

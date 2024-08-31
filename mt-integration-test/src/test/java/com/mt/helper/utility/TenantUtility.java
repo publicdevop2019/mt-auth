@@ -19,7 +19,7 @@ public class TenantUtility {
      */
     public static TenantContext initTenant() {
         TenantContext tenantContext = new TenantContext();
-        User tenant = UserUtility.createUser();
+        User tenant = UserUtility.createEmailPwdUser();
         log.info("created tenant {}", tenant.getEmail());
         tenantContext.setCreator(tenant);
         Project project = ProjectUtility.tenantCreateProject(tenant);

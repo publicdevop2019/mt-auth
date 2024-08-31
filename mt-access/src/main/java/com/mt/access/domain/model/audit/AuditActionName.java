@@ -26,7 +26,6 @@ public class AuditActionName {
     public static final String USER_UPDATE_PWD = "USER_UPDATE_PWD";
     public static final String USER_FORGET_PWD = "USER_FORGET_PWD";
     public static final String USER_RESET_PWD = "USER_RESET_PWD";
-    public static final String USER_UPDATE_PROFILE = "USER_UPDATE_PROFILE";
     public static final String ADD_TENANT_ADMIN = "ADD_TENANT_ADMIN";
     public static final String DELETE_TENANT_ADMIN = "DELETE_TENANT_ADMIN";
 }

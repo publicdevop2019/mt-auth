@@ -35,13 +35,10 @@ public class SameUserNewProjectPerformanceTest {
         MDC.clear();
         MDC.put(RUN_ID, s);
         log.info("run id {}", s);
-        User user = UserUtility.createRandomUserObj();
         TestContext.init();
-        ResponseEntity<Void> pendingUser = UserUtility.register(user);
-        String id = HttpUtility.getId(pendingUser);
-        log.info("user id {}", id);
-        user.setId(id);
-        String login = UserUtility.login(user);
+        User user = UserUtility.createEmailPwdUser();
+        log.info("created user id {}", user.getId());
+        String login = UserUtility.emailPwdLogin(user);
         log.info("login token {}", login);
         Runnable runnable = () -> {
             TestContext.init();

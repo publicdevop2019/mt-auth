@@ -2,8 +2,9 @@ package com.mt.access.domain.model.notification.event;
 
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
 import com.mt.access.domain.model.notification.Notification;
-import com.mt.access.domain.model.pending_user.event.PendingUserActivationCodeUpdated;
+import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,16 +42,28 @@ public class SendEmailNotificationEvent extends DomainEvent {
         subject = "Your password reset token";
     }
 
-    public SendEmailNotificationEvent(PendingUserActivationCodeUpdated event,
+    public SendEmailNotificationEvent(VerificationCodeUpdated event,
                                       Notification notification) {
         this(notification);
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("email", event.getEmail());
-        stringStringHashMap.put("activationCode", event.getCode());
+        stringStringHashMap.put("code", event.getCode());
         email = event.getEmail();
         params = stringStringHashMap;
-        templateUrl = "ActivationCodeTemplate.ftl";
-        subject = "Your activation code";
+        templateUrl = "VerificationCodeTemplate.ftl";
+        subject = "Your verification code";
+    }
+
+    public SendEmailNotificationEvent(UserMfaNotificationEvent event,
+                                      Notification notification) {
+        this(notification);
+        HashMap<String, String> stringStringHashMap = new HashMap<>();
+        stringStringHashMap.put("email", event.getEmail());
+        stringStringHashMap.put("code", event.getCode().getValue());
+        email = event.getEmail();
+        params = stringStringHashMap;
+        templateUrl = "VerificationCodeTemplate.ftl";
+        subject = "Your verification code";
     }
 
     public SendEmailNotificationEvent(CrossDomainValidationFailureCheck event,

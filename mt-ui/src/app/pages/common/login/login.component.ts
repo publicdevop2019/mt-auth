@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl, FormGroup } from '@angular/forms';
+import { EmailValidator, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -9,67 +9,61 @@ import { MsgBoxComponent } from 'src/app/components/msg-box/msg-box.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { LanguageService } from 'src/app/services/language.service';
-import { IForgetPasswordRequest, IMfaResponse, IOption, IPendingUser, ITokenResponse } from 'src/app/misc/interface';
+import { IForgetPasswordRequest, IMfaResponse, IOption, IVerificationCodeRequest, ITokenResponse } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Observable } from 'rxjs';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  context: 'REGISTER' | 'LOGIN' | 'FORGET' = this.hasLoginSuccessfully ? 'LOGIN' : 'REGISTER'
-  public get hasLoginSuccessfully() {
-    return localStorage.getItem('success_login') === 'true'
-  }
-  public set hasLoginSuccessfully(next: boolean) {
-    localStorage.setItem('success_login', next + '')
-  }
+  hide = true;
+  context: 'LOGIN' | 'FORGET' = 'LOGIN'
+  loginContext: 'EMAIL_CODE' | 'PWD' | 'MOBILE_CODE' = 'MOBILE_CODE';
+  selectedLoginIndex = 0;
+  forgetContext: 'EMAIL' | 'MOBILE' = 'MOBILE';
   nextUrl: string = '/' + RouterWrapperService.HOME_URL;
-
-  loginEmailErrorMsg: string = undefined;
-  loginPwdErrorMsg: string = undefined;
+  mobileErrorMsg: string = undefined;
+  mobileCodeErrorMsg: string = undefined;
+  emailCodeErrorMsg: string = undefined;
+  emailErrorMsg: string = undefined;
+  usernameErrorMsg: string = undefined;
+  pwdErrorMsg: string = undefined;
 
   forgetEmailErrorMsg: string = undefined;
-  forgetTokenErrorMsg: string = undefined;
+  forgetMobileErrorMsg: string = undefined;
+  forgetCodeErrorMsg: string = undefined;
   forgetPwdErrorMsg: string = undefined;
-  forgetConfirmPwdErrorMsg: string = undefined;
 
-  registerEmailErrorMsg: string = undefined;
-  registerCodeErrorMsg: string = undefined;
-  registerMobileCountryCodeErrorMsg: string = undefined;
-  registerMobilePhoneNumErrorMsg: string = undefined;
-  registerPwdErrorMsg: string = undefined;
-  registerConfirmPwdErrorMsg: string = undefined;
+  enableError: boolean = false;
+  enableForgetError: boolean = false;
 
-  enableResigerEmailError: boolean = false;
-  enableResigerOtherError: boolean = false;
-  enableForgetEmailError: boolean = false;
-  enableForgetOtherError: boolean = false;
-  enableLoginError: boolean = false;
-
-  activationCodeChangeId = Utility.getChangeId();
+  codeChangeId = Utility.getChangeId();
   registerChangeId = Utility.getChangeId();
   tokenChangeId = Utility.getChangeId();
   resetChangeId = Utility.getChangeId();
-  loginForm = new FormGroup({
-    email: new FormControl('', []),
-    pwd: new FormControl('', []),
-  });
-  registerForm = new FormGroup({
-    email: new FormControl('', []),
-    activationCode: new FormControl('', []),
-    countryCode: new FormControl('', []),
+  loginId = Utility.getChangeId();
+  form = new FormGroup({
+    countryCode: new FormControl('86', []),
     mobileNumber: new FormControl('', []),
+    mobileCode: new FormControl('', []),
+    email: new FormControl('', []),
+    emailCode: new FormControl('', []),
+    pwdEmailOrUsername: new FormControl('', []),
+    pwdMobileNumber: new FormControl('', []),
+    pwdCountryCode: new FormControl('86', []),
     pwd: new FormControl('', []),
-    confirmPwd: new FormControl('', []),
   });
   forgetForm = new FormGroup({
+    countryCode: new FormControl('86', []),
+    mobileNumber: new FormControl('', []),
     email: new FormControl('', []),
     token: new FormControl('', []),
     pwd: new FormControl('', []),
-    confirmPwd: new FormControl('', []),
   });
   constructor(
     public langSvc: LanguageService,
@@ -87,6 +81,20 @@ export class LoginComponent {
         /** get  authorize party info */
         this.nextUrl = '/' + RouterWrapperService.AUTHORIZE_URL;
       }
+      if (queryMaps.get('demo') !== null) {
+        Logger.debug('demo mode')
+        let demoAccount = queryMaps.get('demo')
+        this.loginContext = 'PWD';
+        this.selectedLoginIndex = 2;
+        if (demoAccount === 'admin') {
+          this.form.get('pwdEmailOrUsername').setValue('admin@sample.com')
+          this.form.get('pwd').setValue('Password1!')
+        } else {
+          this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
+          this.form.get('pwd').setValue('Password1!')
+        }
+        this.loginOrRegister()
+      }
     });
     if (localStorage.getItem('home_notification') !== 'true') {
 
@@ -98,50 +106,51 @@ export class LoginComponent {
       })
     }
 
-    this.loginForm.valueChanges.subscribe(() => {
-      if (this.enableLoginError) {
+    this.form.valueChanges.subscribe(() => {
+      if (this.enableError) {
         Logger.debug('checking login')
-        this.validateLogin();
-      }
-    })
-    this.registerForm.valueChanges.subscribe(() => {
-      if (this.enableResigerEmailError) {
-        Logger.debug('checking register email')
-        this.validateRegsiterEmail();
-      }
-      if (this.enableResigerOtherError) {
-        Logger.debug('checking register others')
-        this.validateRegsiterOthers();
+        this.validateForm();
       }
     })
     this.forgetForm.valueChanges.subscribe(() => {
-      if (this.enableForgetEmailError) {
-        Logger.debug('checking forget email')
-        this.validateForgetEmail();
-      }
-      if (this.enableForgetOtherError) {
-        Logger.debug('checking forget email')
-        this.validateForgetOthers();
+      if (this.enableForgetError) {
+        Logger.debug('checking forget')
+        this.validateForgetForm();
       }
     })
   }
   mobileNums: IOption[] = [
     {
-      label: '+1', value: '1'
+      label: 'COUNTRY_CANADA', value: '1'
     },
     {
-      label: '+86', value: '86'
+      label: 'COUNTRY_CHINA', value: '86'
     },
   ]
-  login() {
-    this.enableLoginError = true;
-    if (this.validateLogin()) {
-      this.httpProxy.login(this.loginForm.get('email').value, this.loginForm.get('pwd').value).subscribe(next => {
-        this.hasLoginSuccessfully = true;
-        if ((next as IMfaResponse).mfaId) {
-          this.authSvc.loginFormValue = this.loginForm;
+  loginOrRegister() {
+    this.enableError = true;
+    if (this.validateForm()) {
+      let response: Observable<ITokenResponse | IMfaResponse>;
+      if (this.loginContext === 'EMAIL_CODE') {
+        response = this.httpProxy.loginEmail(this.form.get('email').value, this.form.get('emailCode').value,this.loginId)
+      } else if (this.loginContext === 'MOBILE_CODE') {
+        response = this.httpProxy.loginMobile(this.form.get('mobileNumber').value, this.form.get('countryCode').value, this.form.get('mobileCode').value,this.loginId)
+      } else if (this.loginContext === 'PWD') {
+        if (this.form.get('pwdMobileNumber').value) {
+          response = this.httpProxy.loginMobilePwd(this.form.get('pwdMobileNumber').value, this.form.get('pwdCountryCode').value, this.form.get('pwd').value,this.loginId)
+        } else {
+          if ((this.form.get('pwdEmailOrUsername').value as string).includes("@")) {
+            response = this.httpProxy.loginEmailPwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+          } else {
+            response = this.httpProxy.loginUsernamePwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+          }
+        }
+      }
+      response.subscribe(next => {
+        if ((next as IMfaResponse).mfaId||(next as IMfaResponse).deliveryMethod) {
+          this.authSvc.loginFormValue = this.form;
           this.authSvc.loginNextUrl = this.nextUrl;
-          this.authSvc.mfaId = (next as IMfaResponse).mfaId;
+          this.authSvc.mfaResponse = (next as IMfaResponse);
           this.route.navMfa({ queryParams: this.router.snapshot.queryParams });
         } else {
           this.httpProxy.currentUserAuthInfo = next as ITokenResponse;
@@ -151,151 +160,162 @@ export class LoginComponent {
     }
   }
 
-  register() {
-    this.enableResigerEmailError = true;
-    this.enableResigerOtherError = true;
-    const var0 = this.validateRegsiterEmail()
-    const var1 = this.validateRegsiterOthers()
-    if (var0 && var1) {
-      const payload: IPendingUser = {
-        email: this.registerForm.get('email').value,
-        password: this.registerForm.get('pwd').value,
-        activationCode: this.registerForm.get('activationCode').value,
-        mobileNumber: this.registerForm.get('mobileNumber').value,
-        countryCode: this.registerForm.get('countryCode').value,
-      };
-      this.httpProxy.register(payload, this.registerChangeId).subscribe(next => {
-        this.context = 'LOGIN'
-        this.loginForm.get('email').setValue(this.registerForm.get('email').value)
-        this.loginForm.get('pwd').setValue(this.registerForm.get('pwd').value)
-        this.openDialog('REGISTER_SUCCESS_MSG');
-      })
-    }
-  }
-
-
-
   getCode() {
-    this.enableResigerEmailError = true;
-    if (this.validateRegsiterEmail()) {
+    let hasEmailOrMobile = false;
+    if (this.loginContext === 'EMAIL_CODE') {
+      hasEmailOrMobile = this.validateEmail()
+    } else if (this.loginContext === 'MOBILE_CODE') {
+      hasEmailOrMobile = this.validateMobile()
+    }
+    if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
-      const payload: IPendingUser = { email: this.registerForm.get('email').value }
-      this.httpProxy.activate(payload, this.activationCodeChangeId).subscribe(next => {
+      let payload: IVerificationCodeRequest
+      if (this.loginContext === 'EMAIL_CODE') {
+        payload = { email: this.form.get('email').value }
+      } else {
+        payload = { mobileNumber: this.form.get('mobileNumber').value, countryCode: this.form.get('countryCode').value }
+      }
+      this.httpProxy.getCode(payload, this.codeChangeId).subscribe(next => {
         this.openDialog('CODE_SEND_MSG');
       })
     }
   }
   getToken() {
-    this.enableForgetEmailError = true;
-    if (this.validateForgetEmail()) {
+    let hasEmailOrMobile = false;
+    if (this.forgetContext === 'EMAIL') {
+      hasEmailOrMobile = this.validateForgetEmail()
+    } else if (this.forgetContext === 'MOBILE') {
+      hasEmailOrMobile = this.validateForgetMobile()
+    }
+    if (hasEmailOrMobile) {
       this.httpProxy.currentUserAuthInfo = undefined;
-      const payload: IPendingUser = { email: this.forgetForm.get('email').value }
+      let payload: IForgetPasswordRequest
+      if (this.loginContext === 'EMAIL_CODE') {
+        payload = { email: this.forgetForm.get('email').value }
+      } else {
+        payload = { mobileNumber: this.forgetForm.get('mobileNumber').value, countryCode: this.forgetForm.get('countryCode').value }
+      }
+      this.httpProxy.currentUserAuthInfo = undefined;
       this.httpProxy.forgetPwd(payload, this.tokenChangeId).subscribe(next => {
         this.openDialog('TOKEN_SEND_MSG');
       })
     }
   }
   changePassword() {
-    this.enableForgetEmailError = true;
-    this.enableForgetOtherError = true;
-    const var0 = this.validateForgetEmail()
-    const var1 = this.validateForgetOthers()
-    if (var0 && var1) {
-      const payload: IForgetPasswordRequest = {
-        email: this.forgetForm.get('email').value,
-        token: this.forgetForm.get('token').value,
-        newPassword: this.forgetForm.get('pwd').value,
-      };
+    this.enableForgetError = true;
+    if (this.validateForget()) {
+      let payload: IForgetPasswordRequest;
+      if (this.forgetContext === 'EMAIL') {
+        payload = {
+          email: this.forgetForm.get('email').value,
+          token: this.forgetForm.get('token').value,
+          newPassword: this.forgetForm.get('pwd').value,
+        };
+      } else {
+        payload = {
+          mobileNumber: this.forgetForm.get('mobileNumber').value,
+          countryCode: this.forgetForm.get('countryCode').value,
+          token: this.forgetForm.get('token').value,
+          newPassword: this.forgetForm.get('pwd').value,
+        };
+      }
       this.httpProxy.resetPwd(payload, this.resetChangeId).subscribe(next => {
         this.context = 'LOGIN'
-        this.loginForm.get('email').setValue(this.forgetForm.get('email').value)
-        this.loginForm.get('pwd').setValue(this.forgetForm.get('pwd').value);
         this.openDialog('PASSWORD_UPDATE_SUCCESS_MSG');
       })
     }
   }
-  openDialog(msg: string): void {
+  private openDialog(msg: string): void {
     this.dialog.open(MsgBoxComponent, {
       width: '250px',
       data: msg
     });
   }
-  openDoc() {
-    window.open('./docs', '_blank').focus();
-  }
-  openSource() {
-    if (this.langSvc.currentLanguage() === 'zhHans') {
-      window.open('https://gitee.com/mirrors/MT-AUTH', '_blank').focus();
-    } else {
-      window.open('https://github.com/publicdevop2019/mt-auth', '_blank').focus();
+  handleTabChange(tabChangeEvent: MatTabChangeEvent) {
+    if (tabChangeEvent.index === 0) {
+      this.loginContext = 'MOBILE_CODE'
+    } else if (tabChangeEvent.index === 1) {
+      this.loginContext = 'EMAIL_CODE'
+    } else if (tabChangeEvent.index === 2) {
+      this.loginContext = 'PWD'
     }
   }
-  showPasswordHint() {
-    if (this.context === 'REGISTER') {
-      return !!this.registerForm.get('pwd').value
+  handleForgetTabChange(tabChangeEvent: MatTabChangeEvent) {
+    if (tabChangeEvent.index === 0) {
+      this.forgetContext = 'MOBILE'
+    } else if (tabChangeEvent.index === 1) {
+      this.forgetContext = 'EMAIL'
     }
-    if (this.context === 'FORGET') {
-      return !!this.forgetForm.get('pwd').value
+  }
+  togglePwd() {
+    this.hide = !this.hide;
+  }
+  private validateForget(): boolean {
+    let passEmailOrMobile = false;
+    if (this.forgetContext === 'EMAIL') {
+      const var3 = Validator.exist(this.forgetForm.get('email').value)
+      this.forgetEmailErrorMsg = var3.errorMsg;
+      this.forgetForm.get('email').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+      passEmailOrMobile = !this.forgetEmailErrorMsg
+    } else if (this.forgetContext === 'MOBILE') {
+      const var3 = Validator.exist(this.forgetForm.get('mobileNumber').value)
+      this.forgetMobileErrorMsg = var3.errorMsg;
+      this.forgetForm.get('mobileNumber').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+      passEmailOrMobile = !this.forgetMobileErrorMsg
     }
-    return false
-  }
-  private validateRegsiterOthers(): boolean {
-    const var0 = Validator.same(this.registerForm.get('confirmPwd').value, this.registerForm.get('pwd').value)
-    this.registerConfirmPwdErrorMsg = var0.errorMsg;
-    this.registerForm.get('confirmPwd').setErrors(var0.errorMsg ? { wrongValue: true } : null);
-
-    const var1 = Validator.exist(this.registerForm.get('countryCode').value)
-    this.registerMobileCountryCodeErrorMsg = var1.errorMsg;
-    this.registerForm.get('countryCode').setErrors(var1.errorMsg ? { wrongValue: true } : null);
-
-    const var2 = Validator.exist(this.registerForm.get('mobileNumber').value)
-    this.registerMobilePhoneNumErrorMsg = var2.errorMsg;
-    this.registerForm.get('mobileNumber').setErrors(var2.errorMsg ? { wrongValue: true } : null);
-
-    const var3 = Validator.exist(this.registerForm.get('activationCode').value)
-    this.registerCodeErrorMsg = var3.errorMsg;
-    this.registerForm.get('activationCode').setErrors(var3.errorMsg ? { wrongValue: true } : null);
-
-    const var4 = Validator.exist(this.registerForm.get('pwd').value)
-    this.registerPwdErrorMsg = var4.errorMsg;
-    this.registerForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
-    return !this.registerPwdErrorMsg && !this.registerCodeErrorMsg
-      && !this.registerMobilePhoneNumErrorMsg && !this.registerMobileCountryCodeErrorMsg
-      && !this.registerConfirmPwdErrorMsg
-  }
-  private validateForgetOthers(): boolean {
-    const var0 = Validator.same(this.forgetForm.get('confirmPwd').value, this.forgetForm.get('pwd').value)
-    this.forgetConfirmPwdErrorMsg = var0.errorMsg;
-    this.forgetForm.get('confirmPwd').setErrors(var0.errorMsg ? { wrongValue: true } : null);
-
     const var3 = Validator.exist(this.forgetForm.get('token').value)
-    this.forgetTokenErrorMsg = var3.errorMsg;
+    this.forgetCodeErrorMsg = var3.errorMsg;
     this.forgetForm.get('token').setErrors(var3.errorMsg ? { wrongValue: true } : null);
 
     const var4 = Validator.exist(this.forgetForm.get('pwd').value)
     this.forgetPwdErrorMsg = var4.errorMsg;
     this.forgetForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
-    return !this.forgetPwdErrorMsg && !this.forgetTokenErrorMsg && !this.forgetConfirmPwdErrorMsg
+    return !this.forgetPwdErrorMsg && !this.forgetCodeErrorMsg && passEmailOrMobile
   }
-  private validateLogin(): boolean {
-    const var3 = Validator.exist(this.loginForm.get('email').value)
-    this.loginEmailErrorMsg = var3.errorMsg;
-    this.loginForm.get('email').setErrors(var3.errorMsg ? { wrongValue: true } : null);
 
-    const var4 = Validator.exist(this.loginForm.get('pwd').value)
-    this.loginPwdErrorMsg = var4.errorMsg;
-    this.loginForm.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
-    return !this.loginPwdErrorMsg && !this.loginEmailErrorMsg
+  private validateForm(): boolean {
+    if (this.loginContext === 'EMAIL_CODE') {
+      const var3 = Validator.exist(this.form.get('email').value)
+      this.emailErrorMsg = var3.errorMsg;
+      this.form.get('email').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+      const var4 = Validator.exist(this.form.get('emailCode').value)
+      this.emailCodeErrorMsg = var4.errorMsg;
+      this.form.get('emailCode').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+      return !this.emailErrorMsg && !this.emailCodeErrorMsg
+
+    } else if (this.loginContext === 'MOBILE_CODE') {
+      const var3 = Validator.exist(this.form.get('mobileNumber').value)
+      this.mobileErrorMsg = var3.errorMsg;
+      this.form.get('mobileNumber').setErrors(var3.errorMsg ? { wrongValue: true } : null);
+      const var4 = Validator.exist(this.form.get('mobileCode').value)
+      this.mobileCodeErrorMsg = var4.errorMsg;
+      this.form.get('mobileCode').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+      return !this.mobileErrorMsg && !this.mobileCodeErrorMsg
+    } else if (this.loginContext === 'PWD') {
+      const var3 = Validator.exist(this.form.get('pwdEmailOrUsername').value)
+      const var2 = Validator.exist(this.form.get('pwdMobileNumber').value)
+      if (var3.errorMsg && var2.errorMsg) {
+        this.usernameErrorMsg = 'LOGIN_USERNAME_REQUIRED';
+      } else {
+        this.usernameErrorMsg = undefined;
+      }
+      this.form.get('pwdEmailOrUsername').setErrors(this.usernameErrorMsg ? { wrongValue: true } : null);
+      this.form.get('pwdMobileNumber').setErrors(this.usernameErrorMsg ? { wrongValue: true } : null);
+      const var4 = Validator.exist(this.form.get('pwd').value)
+      this.pwdErrorMsg = var4.errorMsg;
+      this.form.get('pwd').setErrors(var4.errorMsg ? { wrongValue: true } : null);
+      return !this.usernameErrorMsg && !this.pwdErrorMsg
+    }
+    return false
   }
-  private validateRegsiterEmail(): boolean {
-    const result = Validator.exist(this.registerForm.get('email').value)
-    this.registerEmailErrorMsg = result.errorMsg;
-    result.errorMsg ? this.registerForm.get('email').setErrors({ wrongValue: true })
-      : this.registerForm.get('email').setErrors(null)
-    Logger.trace('errors {}', this.registerForm.get('email').errors)
+  private validateEmail(): boolean {
+    const result = Validator.exist(this.form.get('email').value)
+    this.emailErrorMsg = result.errorMsg;
+    result.errorMsg ? this.form.get('email').setErrors({ wrongValue: true })
+      : this.form.get('email').setErrors(null)
+    Logger.trace('errors {}', this.form.get('email').errors)
     return !result.errorMsg
   }
-
   private validateForgetEmail(): boolean {
     const result = Validator.exist(this.forgetForm.get('email').value)
     this.forgetEmailErrorMsg = result.errorMsg;
@@ -304,4 +324,31 @@ export class LoginComponent {
     Logger.trace('errors {}', this.forgetForm.get('email').errors)
     return !result.errorMsg
   }
+  private validateForgetMobile(): boolean {
+    const result = Validator.exist(this.forgetForm.get('mobileNumber').value)
+    this.forgetMobileErrorMsg = result.errorMsg;
+    result.errorMsg ? this.forgetForm.get('mobileNumber').setErrors({ wrongValue: true })
+      : this.forgetForm.get('mobileNumber').setErrors(null)
+    Logger.trace('errors {}', this.forgetForm.get('mobileNumber').errors)
+    return !result.errorMsg
+  }
+
+  private validateMobile(): boolean {
+    const result = Validator.exist(this.form.get('mobileNumber').value)
+    this.mobileErrorMsg = result.errorMsg;
+    result.errorMsg ? this.form.get('mobileNumber').setErrors({ wrongValue: true })
+      : this.form.get('mobileNumber').setErrors(null)
+    Logger.trace('errors {}', this.form.get('mobileNumber').errors)
+    return !result.errorMsg
+  }
+
+  private validateForgetForm(): boolean {
+    const result = Validator.exist(this.forgetForm.get('email').value)
+    this.forgetEmailErrorMsg = result.errorMsg;
+    result.errorMsg ? this.forgetForm.get('email').setErrors({ wrongValue: true })
+      : this.forgetForm.get('email').setErrors(null)
+    Logger.trace('errors {}', this.forgetForm.get('email').errors)
+    return !result.errorMsg
+  }
+
 }

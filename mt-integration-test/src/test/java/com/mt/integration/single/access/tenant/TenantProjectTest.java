@@ -31,7 +31,7 @@ public class TenantProjectTest{
     }
     @Test
     public void tenant_can_create_project() throws InterruptedException {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         Project randomProjectObj = ProjectUtility.createRandomProjectObj();
         //get current project list
         ResponseEntity<SumTotal<Project>> exchange = ProjectUtility.readTenantProjects(user);
@@ -52,7 +52,7 @@ public class TenantProjectTest{
 
     @Test
     public void tenant_can_view_project_detail() throws InterruptedException {
-        User user = UserUtility.createUser();
+        User user = UserUtility.createEmailPwdUser();
         //create project
         Project randomProjectObj = ProjectUtility.createRandomProjectObj();
         ResponseEntity<Void> tenantProject =

@@ -128,6 +128,21 @@ public class RandomUtility {
     public static String randomEmail() {
         return RandomUtility.randomStringWithNum() + "@sample.com";
     }
+    public static String randomUsername() {
+        return RandomUtility.randomStringWithNum();
+    }
+    public static String randomMobileNumber() {
+        Random random = new Random();
+
+        int length = random.nextBoolean() ? 10 : 11;
+
+        long min = (long) Math.pow(10, length - 1);
+        long max = (long) Math.pow(10, length) - 1;
+
+        long randomNumber = min + ((long) (random.nextDouble() * (max - min)));
+
+        return String.valueOf(randomNumber) ;
+    }
 
     public static String randomPassword() {
         return "P1!" + UUID.randomUUID().toString().replaceAll("-", "").substring(0, 10);

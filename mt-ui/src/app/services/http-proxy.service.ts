@@ -14,7 +14,8 @@ import { IMgmtDashboardInfo } from '../pages/mgmt/dashboard/dashboard.component'
 import { IJob } from '../pages/mgmt/job/job.component';
 import { IRegistryInstance } from '../pages/mgmt/registry/registry.component';
 import { IProjectUiPermission } from './project.service';
-import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IPendingUser, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { IAuthorizeCode, IAuthorizeParty, IAutoApprove, ICheckSumResponse, IForgetPasswordRequest, IMfaResponse, IVerificationCodeRequest, ISumRep, ITokenResponse, IUpdatePwdCommand } from '../misc/interface';
+import { M } from '@angular/cdk/keycodes';
 export interface IPatch {
     op: string,
     path: string,
@@ -35,12 +36,7 @@ export interface IUser {
     username: string
     language: string
     avatarLink: string
-}
-export interface IUpdateUser {
-    countryCode: string
-    mobileNumber: string
-    username?: string
-    language: string
+    hasPassword: boolean
 }
 @Injectable({
     providedIn: 'root'
@@ -118,9 +114,6 @@ export class HttpProxyService {
     getMyProfile() {
         return this._httpClient.get<IUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile');
     }
-    updateMyProfile(profile: IUpdateUser) {
-        return this._httpClient.put<IUpdateUser>(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile', profile);
-    }
     cancelSubRequest(id: string, changeId: string) {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
@@ -150,7 +143,7 @@ export class HttpProxyService {
     retry(repo: string, id: string) {
         return this._httpClient.post(repo + "/" + id + '/retry', null);
     }
-    uploadFile(file: File): Observable<string> {
+    uploadAvatar(file: File): Observable<string> {
         return new Observable<string>(e => {
             const formData: FormData = new FormData();
             formData.append('file', file, file.name);
@@ -174,20 +167,24 @@ export class HttpProxyService {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._forgetPwd(this._getToken(token), fg, changeId)))
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) })
+            .pipe(switchMap(token => this._forgetPwd(this._getToken(token), fg, changeId)))
     };
     resetPwd(fg: IForgetPasswordRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) }).pipe(switchMap(token => this._resetPwd(this._getToken(token), fg, changeId)))
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(false) })
+            .pipe(switchMap(token => this._resetPwd(this._getToken(token), fg, changeId)))
     };
-    activate(payload: IPendingUser, changeId: string): Observable<any> {
+    getCode(payload: IVerificationCodeRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
         let headers = this._getAuthHeader(false);
-        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers }).pipe(switchMap(token => this._getActivationCode(this._getToken(token), payload, changeId)))
+        headers = headers.set('changeId', changeId)
+        return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers })
+            .pipe(switchMap(token => this._getCode(this._getToken(token), payload, changeId)))
     };
     autoApprove(projectId: string, clientId: string): Observable<boolean> {
         return new Observable<boolean>(e => {
@@ -240,25 +237,141 @@ export class HttpProxyService {
         formData.append('scope', 'not_used');
         return this._httpClient.post<ITokenResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) })
     }
-    login(email: string, pwd: string): Observable<ITokenResponse | IMfaResponse> {
+    loginMobilePwd(mobileNumber: string, countryCode: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
-        formData.append('username', email);
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', mobileNumber);
+        formData.append('country_code', countryCode);
         formData.append('password', pwd);
         formData.append('scope', 'not_used');
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    mfaLogin(loginFG: FormGroup, code: string, id: string): Observable<ITokenResponse | IMfaResponse> {
+    loginEmailPwd(email: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
         const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
         formData.append('grant_type', 'password');
-        formData.append('username', loginFG.get('email').value);
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', email);
+        formData.append('password', pwd);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    loginUsernamePwd(username: string, pwd: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
+        formData.append('username', username);
+        formData.append('password', pwd);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    loginEmail(email: string, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('email', email);
+        formData.append('type', 'email_w_code');
+        formData.append('code', code);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    loginMobile(mobileNumber: string, countryCode: string, code: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'mobile_w_code');
+        formData.append('mobile_number', mobileNumber);
+        formData.append('country_code', countryCode);
+        formData.append('code', code);
+        formData.append('scope', 'not_used');
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginMobilePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', loginFG.get('pwdMobileNumber').value);
+        formData.append('country_code', loginFG.get('pwdCountryCode').value);
         formData.append('password', loginFG.get('pwd').value);
         formData.append('scope', 'not_used');
         formData.append('mfa_code', code);
         formData.append('mfa_id', id);
-        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: this._getAuthHeader(true) });
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
     }
-    register(registerFG: IPendingUser, changeId: string): Observable<any> {
+    mfaLoginMobilePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'mobile_w_pwd');
+        formData.append('mobile_number', loginFG.get('pwdMobileNumber').value);
+        formData.append('country_code', loginFG.get('pwdCountryCode').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginEmailPwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginEmailPwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'email_w_pwd');
+        formData.append('email', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginUsernamePwd(loginFG: FormGroup, code: string, id: string, changeId: string): Observable<ITokenResponse | IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
+        formData.append('username', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_code', code);
+        formData.append('mfa_id', id);
+        return this._httpClient.post<ITokenResponse | IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    mfaLoginUsernamePwdMfaSelect(loginFG: FormGroup, method: string, changeId: string): Observable<IMfaResponse> {
+        const formData = new FormData();
+        let headers = this._getAuthHeader(true);
+        headers = headers.append("changeId", changeId)
+        formData.append('grant_type', 'password');
+        formData.append('type', 'username_w_pwd');
+        formData.append('username', loginFG.get('pwdEmailOrUsername').value);
+        formData.append('password', loginFG.get('pwd').value);
+        formData.append('scope', 'not_used');
+        formData.append('mfa_method', method);
+        return this._httpClient.post<IMfaResponse>(environment.serverUri + this.TOKEN_EP, formData, { headers: headers });
+    }
+    register(registerFG: IVerificationCodeRequest, changeId: string): Observable<any> {
         const formData = new FormData();
         formData.append('grant_type', 'client_credentials');
         formData.append('scope', 'not_used');
@@ -276,20 +389,20 @@ export class HttpProxyService {
         return islogin ? new HttpHeaders().append('Authorization',
             'Basic ' + btoa(environment.loginClientId + ':' + environment.clientSecret)) :
             token ? new HttpHeaders().append('Authorization', 'Bearer ' + token) :
-                new HttpHeaders().append('Authorization', 'Basic ' + btoa(environment.registerClientId + ':' + environment.clientSecret));
+                new HttpHeaders().append('Authorization', 'Basic ' + btoa(environment.noneLoginClientId + ':' + environment.clientSecret));
     }
     private _getToken(res: ITokenResponse): string {
         return res.access_token;
     }
-    private _createUser(token: string, registerFG: IPendingUser, changeId: string): Observable<any> {
+    private _createUser(token: string, registerFG: IVerificationCodeRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
         return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/users', registerFG, { headers: headers })
     }
-    private _getActivationCode(token: string, payload: IPendingUser, changeId: string): Observable<any> {
+    private _getCode(token: string, payload: IVerificationCodeRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
         headers = headers.append("changeId", changeId)
-        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/pending-users', payload, { headers: headers })
+        return this._httpClient.post<any>(environment.serverUri + this.AUTH_SVC_NAME + '/verification-code', payload, { headers: headers })
     }
     private _resetPwd(token: string, registerFG: IForgetPasswordRequest, changeId: string): Observable<any> {
         let headers = this._getAuthHeader(false, token);
@@ -325,79 +438,6 @@ export class HttpProxyService {
         if (params.length > 0)
             return "?" + params.join('&')
         return ""
-    }
-    private getUserStatusPatch(status: 'LOCK' | 'UNLOCK', ids: string[]): IPatch[] {
-        let re: IPatch[] = [];
-        ids.forEach(id => {
-            let var0: IPatch;
-            if (status === "LOCK") {
-                var0 = <IPatch>{ op: 'replace', path: "/" + id + '/locked', value: true }
-            } else {
-                var0 = <IPatch>{ op: 'replace', path: "/" + id + '/locked', value: false }
-            }
-            re.push(var0)
-        })
-        return re;
-    }
-    private getPatchPayload(fieldName: string, fieldValue: IEditEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = undefined;
-        if (fieldValue.original) {
-            type = 'replace'
-        } else {
-            type = 'add'
-        }
-        let startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchPayloadAtomicNum(id: string, fieldName: string, fieldValue: IEditEvent): IPatchCommand[] {
-        let re: IPatchCommand[] = [];
-        let type = undefined;
-
-        if (fieldValue.original >= fieldValue.next) {
-            type = 'diff'
-        } else {
-            type = 'sum'
-        }
-        let startAt = <IPatchCommand>{ op: type, path: "/" + id + "/" + fieldName, value: Math.abs(+fieldValue.next - +fieldValue.original), expect: 1 }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchListPayload(fieldName: string, fieldValue: IEditListEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = 'replace';
-        let startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next.map(e => e.value) }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchInputListPayload(fieldName: string, fieldValue: IEditInputListEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let startAt: IPatch;
-        if (fieldValue.original) {
-            startAt = <IPatch>{ op: 'replace', path: "/" + fieldName, value: fieldValue.next }
-        } else {
-            startAt = <IPatch>{ op: 'add', path: "/" + fieldName, value: fieldValue.next }
-        }
-        re.push(startAt)
-        return re;
-    }
-    private getPatchBooleanPayload(fieldName: string, fieldValue: IEditBooleanEvent): IPatch[] {
-        let re: IPatch[] = [];
-        let type = undefined;
-        let startAt: IPatch;
-        if (typeof fieldValue.original === 'boolean' && typeof fieldValue.original === 'boolean') {
-            type = 'replace'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        } else if (typeof fieldValue.original === 'boolean' && typeof fieldValue.original === 'undefined') {
-            type = 'remove'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName }
-        } else {
-            type = 'add'
-            startAt = <IPatch>{ op: type, path: "/" + fieldName, value: fieldValue.next }
-        }
-        re.push(startAt)
-        return re;
     }
     createEntity(entityRepo: string, entity: any, changeId: string, headers?: { [key: string]: string }): Observable<string> {
         let headerConfig = new HttpHeaders();
@@ -493,6 +533,39 @@ export class HttpProxyService {
                 e.next(true)
             });
         });
+    };
+    updateProfileLanguage(language: string) {
+        return this._httpClient.put(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/language', { language: language });
+    };
+    addProfileEmail(email: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/email', { email: email }, { headers: headerConfig });
+    };
+    addProfileMobile(countryCode: string, mobileNumber:string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { countryCode: countryCode, mobileNumber: mobileNumber }, { headers: headerConfig });
+    };
+    addProfileUsername(username: string, changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.post(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/username', { username: username }, { headers: headerConfig });
+    };
+    removeProfileEmail(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/email', { headers: headerConfig });
+    };
+    removeProfileMobile(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/mobile', { headers: headerConfig });
+    };
+    removeProfileUsername(changeId: string) {
+        let headerConfig = new HttpHeaders();
+        headerConfig = headerConfig.set('changeId', changeId)
+        return this._httpClient.delete(environment.serverUri + this.AUTH_SVC_NAME + '/users/profile/username', { headers: headerConfig });
     };
     getMgmtDashboardInfo() {
         return this._httpClient.get<IMgmtDashboardInfo>(environment.serverUri + `/auth-svc/mgmt/dashboard`)

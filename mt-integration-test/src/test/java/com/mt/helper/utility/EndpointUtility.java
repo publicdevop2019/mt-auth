@@ -4,9 +4,7 @@ import com.mt.helper.AppConstant;
 import com.mt.helper.TenantContext;
 import com.mt.helper.pojo.Endpoint;
 import com.mt.helper.pojo.PatchCommand;
-import com.mt.helper.pojo.Permission;
 import com.mt.helper.pojo.Project;
-import com.mt.helper.pojo.ProjectAdmin;
 import com.mt.helper.pojo.ProtectedEndpoint;
 import com.mt.helper.pojo.SumTotal;
 import org.springframework.core.ParameterizedTypeReference;
@@ -135,7 +133,7 @@ public class EndpointUtility {
     public static ResponseEntity<Void> expireTenantEndpoint(
         TenantContext tenantContext, Endpoint endpoint, String reason) {
         String bearer =
-            UserUtility.login(tenantContext.getCreator());
+            UserUtility.emailPwdLogin(tenantContext.getCreator());
         String accessUrl = HttpUtility.getAccessUrl(
             HttpUtility.combinePath(AppConstant.TENANT_PROJECTS_PREFIX,
                 tenantContext.getProject().getId(),

@@ -78,6 +78,12 @@ public class JdbcUserRepository implements UserRepository {
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.domain_id = ?";
     public static final String QUERY_USER_BY_EMAIL =
         "SELECT * FROM user_ u WHERE u.email = ?";
+    public static final String QUERY_USER_BY_MOBILE =
+        "SELECT * FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
+    private static final String GET_USER_ID_SQL_BY_MOBILE =
+        "SELECT u.domain_id FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
+    private static final String GET_USER_ID_SQL_BY_USER_NAME =
+        "SELECT u.domain_id FROM user_ u WHERE u.username = ?";
     private static final String UPDATE_SQL = "UPDATE user_ u SET " +
         "u.modified_at = ? ," +
         "u.modified_by = ?, " +
@@ -87,6 +93,7 @@ public class JdbcUserRepository implements UserRepository {
         "u.username = ?, " +
         "u.country_code = ?, " +
         "u.mobile_number = ?, " +
+        "u.email = ?, " +
         "u.avatar_link = ?, " +
         "u.language = ?, " +
         "u.mfa_id = ?, " +
@@ -140,6 +147,17 @@ public class JdbcUserRepository implements UserRepository {
     }
 
     @Override
+    public Optional<User> query(UserMobile mobile) {
+        List<User> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(QUERY_USER_BY_MOBILE,
+                new RowMapper(),
+                mobile.getCountryCode(),
+                mobile.getMobileNumber()
+            );
+        return data.isEmpty() ? Optional.empty() : Optional.of(data.get(0));
+    }
+
+    @Override
     public void add(User user) {
         CommonDomainRegistry.getJdbcTemplate()
             .update(INSERT_SQL,
@@ -149,14 +167,14 @@ public class JdbcUserRepository implements UserRepository {
                 user.getModifiedAt(),
                 user.getModifiedBy(),
                 0,
-                user.getEmail().getEmail(),
+                Checker.isNull(user.getEmail()) ? null : user.getEmail().getEmail(),
                 user.getLocked(),
-                user.getPassword().getPassword(),
+                Checker.isNull(user.getPassword()) ? null : user.getPassword().getPassword(),
                 Checker.isNull(user.getPwdResetToken()) ? null : user.getPwdResetToken().getValue(),
                 user.getUserId().getDomainId(),
                 Checker.isNull(user.getUserName()) ? null : user.getUserName().getValue(),
-                user.getMobile().getCountryCode(),
-                user.getMobile().getMobileNumber(),
+                Checker.isNull(user.getMobile()) ? null : user.getMobile().getCountryCode(),
+                Checker.isNull(user.getMobile()) ? null : user.getMobile().getMobileNumber(),
                 Checker.isNull(user.getUserAvatar()) ? null : user.getUserAvatar().getValue(),
                 Checker.isNull(user.getLanguage()) ? null : user.getLanguage().name(),
                 Checker.isNull(user.getMfaInfo()) ? null : user.getMfaInfo().getId().getValue(),
@@ -310,12 +328,13 @@ public class JdbcUserRepository implements UserRepository {
                 updated.getModifiedAt(),
                 updated.getModifiedBy(),
                 updated.getLocked(),
-                updated.getPassword().getPassword(),
+                Checker.isNull(updated.getPassword()) ? null : updated.getPassword().getPassword(),
                 Checker.isNull(updated.getPwdResetToken()) ? null :
                     updated.getPwdResetToken().getValue(),
                 Checker.isNull(updated.getUserName()) ? null : updated.getUserName().getValue(),
-                updated.getMobile().getCountryCode(),
-                updated.getMobile().getMobileNumber(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getCountryCode(),
+                Checker.isNull(updated.getMobile()) ? null : updated.getMobile().getMobileNumber(),
+                Checker.isNull(updated.getEmail()) ? null : updated.getEmail().getEmail(),
                 Checker.isNull(updated.getUserAvatar()) ? null : updated.getUserAvatar().getValue(),
                 Checker.isNull(updated.getLanguage()) ? null : updated.getLanguage().name(),
                 Checker.isNull(updated.getMfaInfo()) ? null :
@@ -329,6 +348,37 @@ public class JdbcUserRepository implements UserRepository {
         DatabaseUtility.checkUpdate(count);
     }
 
+    @Override
+    public Optional<UserId> queryUserId(UserMobile userMobile) {
+        UserId query = CommonDomainRegistry.getJdbcTemplate()
+            .query(GET_USER_ID_SQL_BY_MOBILE,
+                rs -> {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    return new UserId(rs.getString("domain_id"));
+                },
+                userMobile.getCountryCode(),
+                userMobile.getMobileNumber()
+            );
+        return Optional.ofNullable(query);
+    }
+
+    @Override
+    public Optional<UserId> queryUserId(UserName username) {
+        UserId query = CommonDomainRegistry.getJdbcTemplate()
+            .query(GET_USER_ID_SQL_BY_USER_NAME,
+                rs -> {
+                    if (!rs.next()) {
+                        return null;
+                    }
+                    return new UserId(rs.getString("domain_id"));
+                },
+                username.getValue()
+            );
+        return Optional.ofNullable(query);
+    }
+
     private static class RowMapper implements ResultSetExtractor<List<User>> {
 
         @Override
@@ -340,8 +390,11 @@ public class JdbcUserRepository implements UserRepository {
             List<User> list = new ArrayList<>();
             long currentId = -1L;
             User user;
-            UserPassword userPassword = new UserPassword();
-            userPassword.setPassword(rs.getString("password"));
+            UserPassword userPassword = null;
+            if (Checker.notNull(rs.getString("password"))) {
+                userPassword = new UserPassword();
+                userPassword.setPassword(rs.getString("password"));
+            }
             do {
                 long dbId = rs.getLong(Auditable.DB_ID);
                 if (currentId != dbId) {
@@ -352,7 +405,8 @@ public class JdbcUserRepository implements UserRepository {
                         DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
                         rs.getString(Auditable.DB_MODIFIED_BY),
                         DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        new UserEmail(rs.getString("email")),
+                        Checker.isNull(rs.getString("email")) ? null :
+                            new UserEmail(rs.getString("email")),
                         DatabaseUtility.getNullableBoolean(rs, "locked"),
                         userPassword,
                         Checker.isNull(rs.getString("pwd_reset_code")) ? null :
@@ -360,7 +414,11 @@ public class JdbcUserRepository implements UserRepository {
                         new UserId(rs.getString("domain_id")),
                         Checker.isNull(rs.getString("username")) ? null :
                             new UserName(rs.getString("username")),
-                        new UserMobile(rs.getString("country_code"), rs.getString("mobile_number")),
+                        Checker.notNull(rs.getString("country_code")) &&
+                            Checker.notNull(rs.getString("mobile_number"))
+                            ?
+                            new UserMobile(rs.getString("country_code"),
+                                rs.getString("mobile_number")) : null,
                         Checker.isNull(rs.getString("avatar_link")) ? null :
                             new UserAvatar(new ImageId(rs.getString("avatar_link"))),
                         Checker.notNull(rs.getString("language")) ?

@@ -29,7 +29,7 @@ export class UserComponent {
     return e
   }))
   public formGroup: FormGroup = new FormGroup({
-    email: new FormControl({ value: '', disabled: true }),
+    name: new FormControl({ value: '', disabled: true }),
   })
   constructor(
     public routerWrapper: RouterWrapperService,
@@ -50,7 +50,7 @@ export class UserComponent {
 
 
     this.httpSvc.readEntityById<IProjectUser>(this.url, this.userId).subscribe(next => {
-      this.formGroup.get('email').setValue(next.email);
+      this.formGroup.get('name').setValue(next.displayName);
       this.data = next;
       (next.roles || []).forEach(p => {
         if (!this.formGroup.get(p)) {

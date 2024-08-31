@@ -2,6 +2,9 @@ package com.mt.common.domain.model.exception;
 
 import lombok.Getter;
 
+/**
+ * known exceptions, should be documented and handled or unhandled on purpose
+ */
 @Getter
 public class DefinedRuntimeException extends RuntimeException {
     private final String errorCode;

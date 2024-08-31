@@ -138,7 +138,7 @@ export interface IAuthUser {
 }
 export interface IProjectUser {
     id: string,
-    email?: string;
+    displayName?: string;
     projectId: string;
     roles: string[];
     roleDetails?: { id: string, name: string }[];
@@ -148,15 +148,15 @@ export interface IProjectAdmin extends IIdBasedEntity {
     email: string;
     name: string;
 }
-export interface IPendingUser {
-    email: string;
-    password?: string;
-    activationCode?: string;
-    mobileNumber?: string;
+export interface IVerificationCodeRequest {
     countryCode?: string;
+    mobileNumber?: string;
+    email?: string;
 }
 export interface IForgetPasswordRequest {
-    email: string;
+    email?: string;
+    mobileNumber?: string;
+    countryCode?: string;
     token?: string;
     newPassword?: string;
 }
@@ -222,6 +222,9 @@ export interface IAuditable {
 export interface IMfaResponse {
     mfaId: string;
     message: string;
+    partialMobile: string;
+    partialEmail: string;
+    deliveryMethod: boolean;
 }
 export interface ICheckSumResponse {
     hostValue: string

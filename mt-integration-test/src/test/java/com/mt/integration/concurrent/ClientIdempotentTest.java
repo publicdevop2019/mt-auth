@@ -28,7 +28,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.oauth2.common.DefaultOAuth2AccessToken;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-@Disabled
+//@Disabled
 @ExtendWith({SpringExtension.class, TestResultLoggerExtension.class})
 @Slf4j
 public class ClientIdempotentTest{
@@ -54,8 +54,8 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_update_w_same_changeId_two_times() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
@@ -84,8 +84,8 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_delete_w_same_changeId_two_times() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
@@ -140,8 +140,8 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_update_w_same_changeId_two_times_concurrent() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);
         ResponseEntity<String> client1 = ClientUtility.createClient(oldClient, s);
@@ -186,8 +186,8 @@ public class ClientIdempotentTest{
 
     @Test
     public void create_client_then_delete_w_same_changeId_two_times_concurrent() {
-        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.login(
-            AppConstant.ACCOUNT_USERNAME_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
+        ResponseEntity<DefaultOAuth2AccessToken> tokenResponse = UserUtility.emailPwdLogin(
+            AppConstant.ACCOUNT_EMAIL_ADMIN, AppConstant.ACCOUNT_PASSWORD_ADMIN);
         String bearer = tokenResponse.getBody().getValue();
         String s = UUID.randomUUID().toString();
         Client oldClient = ClientUtility.getClientAsResource(AppConstant.CLIENT_ID_RESOURCE_ID);

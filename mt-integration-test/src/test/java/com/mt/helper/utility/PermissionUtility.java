@@ -33,20 +33,6 @@ public class PermissionUtility {
         return Utility.readResource(tenantContext.getCreator(), url, reference);
     }
 
-    public static ResponseEntity<Permission> readTenantPermissionById(
-        TenantContext tenantContext, Permission permission) {
-        String url = getUrl(tenantContext.getProject());
-        return Utility.readResource(tenantContext.getCreator(), url, permission.getId(),
-            Permission.class);
-    }
-
-    public static ResponseEntity<SumTotal<Permission>> readTenantPermissionWithQuery(
-        TenantContext tenantContext, String query) {
-        String accessUrl = getUrl(tenantContext.getProject());
-        String url = HttpUtility.appendQuery(accessUrl, query);
-        return Utility.readResource(tenantContext.getCreator(), url, reference);
-    }
-
     public static ResponseEntity<SumTotal<Permission>> readTenantPermissionShared(
         TenantContext tenantContext) {
         return readTenantPermissionShared(tenantContext.getProject(), tenantContext.getCreator());
