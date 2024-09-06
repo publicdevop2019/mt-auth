@@ -1,4 +1,4 @@
-<div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;" class="mobile-view-modal">
     <div style="font-size: 24px; font-weight: 500;">{{'CREATE_CLIENT'|translate}}</div>
     <button mat-button (click)="dismiss($event)">
         <mat-icon>close </mat-icon>
@@ -14,7 +14,7 @@
             class="mat-required">*</span></div>
     <mat-error style="font-size: 10px; margin-top: -4px;">{{typeErrorMsg | translate}}</mat-error>
     <mat-radio-group formControlName="type">
-        <div style="display: flex; flex-direction: row;">
+        <div style="display: flex; flex-direction: row; justify-content: center;">
             <mat-card
                 style="margin: 4px 8px 4px 0px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="createClientFormGroup.get('type').setValue('FRONTEND_APP')">

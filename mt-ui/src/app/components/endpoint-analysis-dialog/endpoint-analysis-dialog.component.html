@@ -1,5 +1,5 @@
 <mat-dialog-content>
-    <div  style="width: 400px;">
+    <div class="mobile-view-modal">
 
         <label style="font-weight: 700;" id="example-radio-group-label">{{'CHECK_REPORT'|translate}}</label>
         <mat-radio-group aria-label="Select an option" [formControl]="ctrl" class="example-radio-group">
@@ -12,7 +12,7 @@
             <mat-radio-button class="example-radio-button" value="ALL_TIME">{{'ALL_TIME'|translate}}</mat-radio-button>
         </mat-radio-group>
         <ng-container *ngIf="result">
-    
+
             <table mat-table [dataSource]="dataSource">
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef>{{'CRITERIA_KEY'|translate}}</th>
@@ -22,7 +22,7 @@
                     <th mat-header-cell *matHeaderCellDef> {{'CRITERIA_VALUE'|translate}}</th>
                     <td mat-cell *matCellDef="let row"> {{getValue(row.key)}} </td>
                 </ng-container>
-        
+
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
                 <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
             </table>

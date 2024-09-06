@@ -1,6 +1,5 @@
-<div style="margin: 8vh auto auto auto; display: flex; justify-content: center;" class="login-page">
-    <div
-        style="display: flex; flex-direction: column; background-color: #fff; padding: 40px 54px 16px 54px; border-radius: 8px; width: 348px;">
+<div class="login-page">
+    <div class="login-container">
         <div>
             <img src="assets/imgs/site-logo.svg" style="width: 64px; height: 64px;">
             <div *ngIf="context !== 'FORGET'" style="font-weight: 600; font-size: 24px; margin-bottom: 24px;">MT-AUTH
@@ -101,11 +100,14 @@
                                     <mat-error>{{usernameErrorMsg | translate}}</mat-error>
                                 </mat-form-field>
                             </div>
-                            <div style="font-size: 12px; font-weight: 500;color: rgba(0, 0, 0, .54); text-align: center; margin-top: 8px;">———— {{'LOGIN_OR' | translate}} ————</div>
+                            <div
+                                style="font-size: 12px; font-weight: 500;color: rgba(0, 0, 0, .54); text-align: center; margin-top: 8px;">
+                                ———— {{'LOGIN_OR' | translate}} ————</div>
                             <div style="display: flex; flex-direction: row;">
                                 <mat-form-field style="flex: 1;">
                                     <mat-label>{{'ENTER_YOUR_USERNAME' | translate}}</mat-label>
-                                    <input matInput formControlName="pwdEmailOrUsername" autocomplete="username" name="username">
+                                    <input matInput formControlName="pwdEmailOrUsername" autocomplete="username"
+                                        name="username">
                                     <mat-icon matPrefix
                                         style="margin-right: 4px; font-size: 24px; color: rgba(0, 0, 0, 0.54);"
                                         fontSet="material-icons-outlined">account_circle</mat-icon>

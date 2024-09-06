@@ -19,9 +19,9 @@
         </div>
         <mat-tab-group>
             <mat-tab label="{{'BASIC_CLIENT_SETTING'|translate}}">
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'BASIC_CLIENT_INFO'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'BASIC_CLIENT_INFO'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'ENTER_CLIENT_NAME'| translate}}<span class="mat-required">*</span></mat-label>
                             <input matInput formControlName="name">
@@ -44,9 +44,9 @@
                     </div>
                 </div>
                 <mat-divider></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'AUTH_PROPERTIES'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'AUTH_PROPERTIES'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'ENTER_REDIRECT_URI'| translate}}<span
                                     class="mat-required">*</span></mat-label>
@@ -61,10 +61,9 @@
                     </div>
                 </div>
                 <mat-divider *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'"></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;"
-                    *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
-                    <div>{{'ROUTE_PROPERTIES'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info" *ngIf="this.fg.get('frontOrBackApp').value === 'BACKEND_APP'">
+                    <div class="basic-info-title">{{'ROUTE_PROPERTIES'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'ENTER_PATH'| translate}}<span class="mat-required">*</span></mat-label>
                             <input matInput formControlName="path">
@@ -79,9 +78,9 @@
                     </div>
                 </div>
                 <mat-divider></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'TOKEN_PROPERTIES'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'TOKEN_PROPERTIES'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'ACCESS_TOKEN_VALIDITY_SECONDS'| translate}}<span
                                     class="mat-required">*</span></mat-label>
@@ -102,9 +101,9 @@
                     </div>
                 </div>
                 <mat-divider></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'ADVANCED_MODE'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'ADVANCED_MODE'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'SELECT_APP_TYPE_1'|translate}}</mat-label>
                             <mat-select formControlName="frontOrBackApp">
