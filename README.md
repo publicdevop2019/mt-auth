@@ -8,7 +8,7 @@
     <img src="https://img.shields.io/github/last-commit/publicdevop2019/mt-auth.svg?style=flat-square" />
 </p>
 <p align="center" >
-    <a href="https://www.letsauth.cloud/login">官方网站(www.letsauth.cloud)</a>
+    <a href="https://www.letsauth.cloud">官方网站(www.letsauth.cloud)</a>
 </p>
 
 # 特色
