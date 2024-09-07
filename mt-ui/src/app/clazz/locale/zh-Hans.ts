@@ -392,7 +392,6 @@ export const zhHans = {
     "DELIVERED": "已发送",
     "BELL": "站内信",
     "HANGING_TX_DETECTED": "检测到悬挂事件",
-    "PLS_ENTER_PROJECT_NAME": "请输入项目名称",
     "UNROUTABLE_MSG_EVENT": "事件无法路由",
     "CHECK_EVENT_FOR_DETAILS": "查看事件获取更多信息",
     "SUBSCRIBE": "订阅",
@@ -651,5 +650,5 @@ export const zhHans = {
     "MGMT_JOB_DOC_TITLE": "管理/任务 MT-AUTH",
     "MGMT_EP_DOC_TITLE": "管理/API配置 MT-AUTH",
     "MGMT_SUM_DOC_TITLE": "管理/概览 MT-AUTH",
-    "": "",
+    "ENTER_PROJECT_NAME": "项目名称",
 }

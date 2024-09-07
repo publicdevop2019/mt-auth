@@ -392,7 +392,6 @@ export const enUS = {
     "DELIVERED": "Delivered",
     "BELL": "Internal Notification",
     "HANGING_TX_DETECTED": "Hanging Transaction Detected",
-    "PLS_ENTER_PROJECT_NAME": "Please enter the project name",
     "UNROUTABLE_MSG_EVENT": "Event Cannot be Routed",
     "CHECK_EVENT_FOR_DETAILS": "Check the event for more information",
     "SUBSCRIBE": "Subscribe",
@@ -650,5 +649,6 @@ export const enUS = {
     "MGMT_USER_DOC_TITLE": "Management/User Records MT-AUTH",
     "MGMT_JOB_DOC_TITLE": "Management/Tasks MT-AUTH",
     "MGMT_EP_DOC_TITLE": "Management/API Setting MT-AUTH",
-    "MGMT_SUM_DOC_TITLE": "Management/Overview MT-AUTH"
+    "MGMT_SUM_DOC_TITLE": "Management/Overview MT-AUTH",
+    "ENTER_PROJECT_NAME": "Project name",
 }
