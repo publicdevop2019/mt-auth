@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 export interface IMgmtDashboardInfo {
   totalProjects: number;
@@ -15,7 +16,12 @@ export interface IMgmtDashboardInfo {
 })
 export class DashboardComponent implements OnInit {
   summary: IMgmtDashboardInfo;
-  constructor(public httpProxy: HttpProxyService) { }
+  constructor(
+    public httpProxy: HttpProxyService,
+    private deviceSvc: DeviceService
+  ) { 
+    this.deviceSvc.updateDocTitle('MGMT_SUM_DOC_TITLE')
+  }
 
   ngOnInit(): void {
     this.httpProxy.getMgmtDashboardInfo().subscribe((data) => {

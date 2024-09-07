@@ -10,7 +10,7 @@ import { map } from 'rxjs/operators';
 import { IOption } from 'src/app/misc/interface';
 import { Logger } from 'src/app/misc/logger';
 import { Utility } from 'src/app/misc/utility';
-import { NewProjectComponent } from 'src/app/pages/common/new-project/new-project.component';
+import { NewProjectComponent } from 'src/app/components/new-project/new-project.component';
 import { AuthService } from 'src/app/services/auth.service';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';

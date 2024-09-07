@@ -45,6 +45,7 @@ export class SummaryUserComponent {
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_USER_SUM_DOC_TITLE')
   }
   revokeUserToken(id: string) {
     this.httpSvc.revokeUserToken(id).subscribe(result => {

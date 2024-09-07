@@ -80,6 +80,7 @@ export class SummaryClientComponent {
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_CLIENT_SUM_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
   revokeClientToken(clientId: string) {

@@ -40,6 +40,7 @@ export class MyAdminComponent {
     public route: RouterWrapperService,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_ADMIN_DOC_TITLE')
     this.tableSource.loadPage(0)
     this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []

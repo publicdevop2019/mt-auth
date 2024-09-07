@@ -35,6 +35,7 @@ export class MyApprovalComponent {
     public deviceSvc: DeviceService,
     public dialog: MatDialog
   ) {
+    this.deviceSvc.updateDocTitle('MY_APPROVAL_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
   approve(id: string) {

@@ -49,6 +49,7 @@ export class MyProfileComponent implements OnInit, OnDestroy {
     private deviceSvc: DeviceService,
     private cdr: ChangeDetectorRef,
   ) {
+    this.deviceSvc.updateDocTitle('PROFILE_DOC_TITLE')
     this.updatePwdFg.valueChanges.subscribe(e => {
       if (this.hasSubmitted) {
         Logger.trace('checking update pwd form')

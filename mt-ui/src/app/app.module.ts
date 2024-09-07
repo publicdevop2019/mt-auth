@@ -63,7 +63,7 @@ import { ApiCenterComponent } from './pages/tenant/market/api-center/api-center.
 import { CacheControlComponent } from './pages/mgmt/proxy-check/proxy-check.component';
 import { LoginComponent } from './pages/common/login/login.component';
 import { MyProfileComponent } from './pages/common/my-profile/my-profile.component';
-import { NewProjectComponent } from './pages/common/new-project/new-project.component';
+import { NewProjectComponent } from './components/new-project/new-project.component';
 import { NotFoundComponent } from './pages/common/not-found/not-found.component';
 import { SettingComponent } from './pages/common/setting/setting.component';
 import { MyAdminComponent } from './pages/tenant/project/my-admin/my-admin.component';

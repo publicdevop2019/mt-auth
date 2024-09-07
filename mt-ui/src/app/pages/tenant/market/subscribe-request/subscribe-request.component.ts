@@ -42,6 +42,7 @@ export class SubscribeRequestComponent {
     public httpProxySvc: HttpProxyService,
     private deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('MY_SUB_REQ_DOC_TITLE')
     const configId = this.router.getSubRequestIdFromUrl();
     Logger.debug('config id get {}', configId)
     if (configId === 'template') {

@@ -5,6 +5,7 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { FormGroup, FormControl } from '@angular/forms';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'mgmt-app-endpoint',
   templateUrl: './endpoint.component.html',
@@ -46,7 +47,9 @@ export class MgmtEndpointComponent {
   constructor(
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_EP_DOC_TITLE')
     this.fg.disable()
     this.resume()
   }

@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { IMfaResponse, ITokenResponse } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { AuthService } from 'src/app/services/auth.service';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 
@@ -23,8 +25,10 @@ export class MfaComponent implements OnInit {
     public httpProxy: HttpProxyService,
     public authSvc: AuthService,
     private router: ActivatedRoute,
-    private route: RouterWrapperService
+    private route: RouterWrapperService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('MFA_DOC_TITLE')
     if (!authSvc.mfaResponse) {
       this.route.navLogin({ queryParams: this.router.snapshot.queryParams });
     }

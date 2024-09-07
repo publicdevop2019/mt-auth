@@ -10,6 +10,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { Utility } from 'src/app/misc/utility';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { take } from 'rxjs/operators';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-my-users',
   templateUrl: './my-users.component.html',
@@ -45,7 +46,9 @@ export class MyUsersComponent {
     public httpSvc: HttpProxyService,
     public projectSvc: ProjectService,
     public route: RouterWrapperService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_USER_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',

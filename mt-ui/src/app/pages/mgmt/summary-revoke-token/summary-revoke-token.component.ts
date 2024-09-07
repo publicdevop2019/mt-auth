@@ -4,6 +4,7 @@ import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.co
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { IRevokeToken } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 @Component({
   selector: 'app-summary-revoke-token',
@@ -27,7 +28,9 @@ export class SummaryRevokeTokenComponent {
   public tableSource: TableHelper<IRevokeToken> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
     private httpSvc: HttpProxyService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_REVOKE_TOKEN_DOC_TITLE')
   }
   doSearch(config: ISearchEvent) {
     this.tableSource = new TableHelper(this.tableSource.columnConfig, this.tableSource.pageSize, this.httpSvc, this.tableSource.url, config.value);

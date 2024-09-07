@@ -2,6 +2,7 @@ import { Component, OnDestroy } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { CustomHttpInterceptor } from 'src/app/services/interceptors/http.interceptor';
 import { TimeService } from 'src/app/services/time.service';
@@ -43,8 +44,10 @@ export class JobComponent implements OnDestroy {
     private interceptor: CustomHttpInterceptor,
     public httpProxy: HttpProxyService,
     private translate: TranslateService,
-    private timeSvc: TimeService
+    private timeSvc: TimeService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_JOB_DOC_TITLE')
     this.getStatus()
     this.intervalRef = setInterval(() => {
       this.getStatus()

@@ -4,6 +4,7 @@ import { ISearchConfig } from 'src/app/components/search/search.component';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { IProjectSimple } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 @Component({
@@ -33,7 +34,9 @@ export class SummaryProjectComponent {
   constructor(
     public router: RouterWrapperService,
     private httpSvc: HttpProxyService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_PROJECT_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
 }

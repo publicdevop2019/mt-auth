@@ -15,6 +15,13 @@ export class DeviceService {
     notify(result: boolean) {
         result ? this.openSnackbar('OPERATION_SUCCESS') : this.openSnackbar('OPERATION_FAILED');
     }
+    updateDocTitle(title: string) {
+        this.translate.get(title).subscribe(
+            next => {
+                document.title = next
+            }
+        )
+    }
     private openSnackbar(message: string) {
         this.translate.get(message).subscribe(next => {
             this._snackBar.open(next, 'OK', {

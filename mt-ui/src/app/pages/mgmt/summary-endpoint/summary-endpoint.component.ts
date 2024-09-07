@@ -6,6 +6,7 @@ import { APP_CONSTANT, CONST_HTTP_METHOD, RESOURCE_NAME } from 'src/app/misc/con
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-summary-endpoint',
   templateUrl: './summary-endpoint.component.html',
@@ -53,7 +54,9 @@ export class SummaryEndpointComponent{
   constructor(
     public httpSvc: HttpProxyService,
     public route: RouterWrapperService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_EP_SUM_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
   getOption(row: IEndpoint) {

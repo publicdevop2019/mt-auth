@@ -48,6 +48,7 @@ export class MyPermissionsComponent {
     public deviceSvc: DeviceService,
     public route: RouterWrapperService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_PERM_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'PERMISSION_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)

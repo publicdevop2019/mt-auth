@@ -7,6 +7,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { environment } from 'src/environments/environment';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
@@ -47,7 +48,9 @@ export class ApiCenterComponent {
   constructor(
     public httpSvc: HttpProxyService,
     public router: RouterWrapperService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('API_CENTER_DOC_TITLE')
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

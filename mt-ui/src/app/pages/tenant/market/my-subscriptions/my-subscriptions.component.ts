@@ -34,10 +34,11 @@ export class MySubscriptionsComponent {
   }
   public tableSource: TableHelper<IMySubscription> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
-    public device: DeviceService,
+    public deviceSvc: DeviceService,
     public translateSvc: TranslateService,
     public httpSvc: HttpProxyService,
   ) {
+    this.deviceSvc.updateDocTitle('MY_SUBS_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
   getReason(reason: string) {

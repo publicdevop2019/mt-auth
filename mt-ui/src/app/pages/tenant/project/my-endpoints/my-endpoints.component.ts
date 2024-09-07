@@ -49,6 +49,7 @@ export class MyApisComponent {
     public route: RouterWrapperService,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_EP_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)

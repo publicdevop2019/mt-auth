@@ -61,6 +61,7 @@ export class ClientComponent {
     public router: RouterWrapperService,
     public deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('CLIENT_DOC_TITLE')
     const clientId = this.router.getClientIdFromUrl();
     Logger.debug(clientId)
     if (clientId === 'template') {
