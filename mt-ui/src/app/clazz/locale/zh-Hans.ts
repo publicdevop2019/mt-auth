@@ -32,7 +32,6 @@ export const zhHans = {
     "ENTER_RESOURCE_ID": "选择所属应用",
     "ENTER_ENDPOINT": "请输入目标接口，例如：foo/bar",
     "SELECT_METHOD": "选择HTTP方式",
-    "ENTER_SECURITY_EXPRESSION": "请输入安全表达式",
     "ENTER_SCHEME": "请输入HTTP方式",
     "ENTER_HOST": "请输入主机地址",
     "ENTER_PORT_NUMBER": "请输入端口号",
