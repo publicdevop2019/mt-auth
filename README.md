@@ -23,7 +23,7 @@
 
 # 架构图
 
-![arthitecture](./doc/arthitecture/architecture.drawio.svg)
+![arthitecture](./docs/arthitecture/architecture.drawio.svg)
 
 # 技术栈
 
