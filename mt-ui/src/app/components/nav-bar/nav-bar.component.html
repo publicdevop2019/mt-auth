@@ -6,7 +6,7 @@
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
             <div style="border-left: 1px solid white; margin: 0px 16px 0px 8px; height: 24px;">&nbsp;</div>
-            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm" style="width: 160px;">
+            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm" class="project-switch">
                 <!-- switch project select -->
                 <mat-form-field>
                     <mat-select formControlName="viewTenantId">

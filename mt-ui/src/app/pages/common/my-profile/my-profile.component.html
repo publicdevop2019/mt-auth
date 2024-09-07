@@ -11,25 +11,25 @@
                     <span style="margin-left: 4px;">{{"MAF_MSG_BODY"|translate}}</span>
                 </div>
                 <mat-card style="padding:32px">
-                    <div style="display: flex; flex-direction: row;">
+                    <div class="profile">
                         <div style="display: flex; flex-direction: column;">
                             <app-image-upload [value]="profileFg.get('avatar').value"
                                 (upload)="handleFileUpload($event)"></app-image-upload>
                         </div>
-                        <div style="display: flex; flex-direction: row; margin-left: 36px;">
-                            <div style="display: flex; flex-direction: column; margin-right: 48px;">
+                        <div class="profile-basic">
+                            <div class="profile-id-create">
                                 <div style="display: flex; margin-bottom: 24px; flex-direction: column;">
                                     <div style="margin-bottom: 4px; color: rgb(104, 104, 104);">{{'USER_ID'|translate}}
                                     </div>
-                                    <div>{{currentUser?.id}}</div>
+                                    <div>{{userInfo?.id}}</div>
                                 </div>
                                 <div style="display: flex; flex-direction: column;">
                                     <div style="margin-bottom: 4px; color: rgb(104, 104, 104);">
                                         {{'CREATED_AT'|translate}}</div>
-                                    <div>{{currentUser?.createdAt|date:'M/d/yy, h:mm:ss a'}}</div>
+                                    <div>{{userInfo?.createdAt|date:'M/d/yy, h:mm:ss a'}}</div>
                                 </div>
                             </div>
-                            <div style="display: flex; flex-direction: column; margin-right: 24px;">
+                            <div class="profile-other">
                                 <div *ngIf="userInfo.username"
                                     style="display: flex; flex-direction: column; margin-bottom: 16px;">
                                     <div style="margin-bottom: 4px; color: rgb(104, 104, 104);">
@@ -133,7 +133,7 @@
                                 </mat-form-field>
                             </div>
                         </div>
-                        <button *ngIf="!userInfo.mobileNumber" mat-raised-button color="primary"
+                        <button *ngIf="!userInfo.mobileNumber" mat-raised-button color="primary" style="margin-left: 8px;"
                             [disabled]="!profileFg.get('mobileCountryCode').value || !profileFg.get('mobileNumber').value"
                             (click)="addPhone()">{{'PROFILE_ADD'|translate}}</button>
                         <button *ngIf="userInfo.mobileNumber" mat-raised-button color="warn"
@@ -150,19 +150,21 @@
                                     class="mat-required">*</span></mat-label>
                             <input matInput formControlName="currentPwd" type="password">
                         </mat-form-field>
-                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{currentPwdErrorMsg|translate}}</div>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{currentPwdErrorMsg|translate}}
+                        </div>
                         <mat-form-field>
                             <mat-label>{{'ENTER_YOUR_NEW_PASSWORD'| translate}}<span
                                     class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="pwd"  type="password">
+                            <input matInput formControlName="pwd" type="password">
                         </mat-form-field>
                         <div style="font-size: 12px; color: red; margin-top: -8px;">{{newPwdErrorMsg|translate}}</div>
                         <mat-form-field>
                             <mat-label>{{'REENTER_YOUR_NEW_PASSWORD'| translate}}<span
                                     class="mat-required">*</span></mat-label>
-                            <input matInput formControlName="confirmPwd"  type="password">
+                            <input matInput formControlName="confirmPwd" type="password">
                         </mat-form-field>
-                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{confirmPwdErrorMsg|translate}}</div>
+                        <div style="font-size: 12px; color: red; margin-top: -8px;">{{confirmPwdErrorMsg|translate}}
+                        </div>
                     </form>
                     <div style="display: flex;justify-content: center;">
                         <button mat-raised-button color="primary"

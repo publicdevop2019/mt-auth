@@ -14,9 +14,9 @@
             class="mat-required">*</span></div>
     <mat-error style="font-size: 10px; margin-top: -4px;">{{typeErrorMsg | translate}}</mat-error>
     <mat-radio-group formControlName="type">
-        <div style="display: flex; flex-direction: row; justify-content: center;">
+        <div style="display: flex; flex-direction: row; justify-content: center; overflow: auto;">
             <mat-card
-                style="margin: 4px 8px 4px 0px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 8px; width: 140px; min-height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="createClientFormGroup.get('type').setValue('FRONTEND_APP')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">javascript</mat-icon>
@@ -34,7 +34,7 @@
                 </div>
             </mat-card>
             <mat-card
-                style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 8px; width: 140px; min-height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="createClientFormGroup.get('type').setValue('BACKEND_APP')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">view_cozy</mat-icon>

@@ -38,3 +38,14 @@ h1.example-app-name {
   align-items: center;
   margin: 0px 8px;
 }
+
+@media only screen and (max-width: 600px) {
+  .project-switch{
+    width: 140px;
+  }
+}
+@media only screen and (min-width: 600px) {
+  .project-switch{
+    width: 160px;
+  }
+}
