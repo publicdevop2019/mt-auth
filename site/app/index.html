@@ -2,42 +2,120 @@
 <html>
 
 <head lang="zh-Hans">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VD006ERKY"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag("js", new Date()); gtag("config", "G-7VD006ERKY"); </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VD006ERKY"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag("js", new Date()); gtag("config", "G-7VD006ERKY"); </script>
     <style>
         body {
             font-family: Roboto, Arial, sans-serif;
             margin: 0;
         }
 
-        @media only screen and (max-width: 950px) {
-            .image-container {
-                display: none;
-            }
+        .btn {
+            width: 77px;
+            background-color: #673ab7;
+            border: #673ab7 2px solid;
+            color: #fff;
+            font-size: 18px;
+            padding: 4px 0px;
+            cursor: pointer;
+            border-radius: 6px;
+
+        }
+
+        .form-input {
+            height: 32px;
+            border: 1px solid #673ab7;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin-bottom: 12px;
+            margin-top: 4px;
         }
     </style>
     <meta charset="utf-8">
-    <title>MT-AUTH</title>
+    <title>演示 MT-AUTH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <meta name="theme-color" content="#673ab7">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var links = document.querySelectorAll('a');
-          links.forEach(function(link) {
-            link.addEventListener('click', function(event) {
-              event.preventDefault();
-              gtag('event', 'click', {
-                'event_category': 'link',
-                'event_label': link.href,
-                'value': 1
-              });
-              setTimeout(function() {
-                window.location.href = link.href;
-              }, 200);
-            });
-          });
+        function getToken(apiUrl, projectId, clientId, clientSecret, code) {
+            const myHeaders = new Headers();
+            myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + clientSecret));
+            const formData = new FormData();
+            formData.append('grant_type', 'authorization_code');
+            formData.append('code', code);
+            formData.append('scope', projectId);
+            formData.append('redirect_uri', 'https://www.letsauth.cloud/app');
+            const options = {
+                method: "POST",
+                headers: myHeaders,
+                body: formData
+            }
+            fetch(`${apiUrl}/auth-svc/oauth/token`, options).then((next) => {
+                next.json().then(resp => {
+                    document.getElementById('token-title').innerText = '登录成功!';
+                    document.getElementById('token').innerText = JSON.stringify(resp, undefined, 4);
+                    window.history.pushState({}, document.title, window.location.pathname);
+                })
+            })
+        }
+        if (location.search) {
+            const projectId = localStorage.getItem("sso-project-id")
+            const clientId = localStorage.getItem("sso-client-id")
+            const clientSecret = localStorage.getItem("sso-client-secret")
+            const apiUrl = localStorage.getItem("sso-api-url")
+            getToken(apiUrl, projectId, clientId, clientSecret, location.search.replace('?code=', ''))
+        }
+    </script>
+    <script>
+        const hostUrl = "https://www.letsauth.cloud/app";
+        document.addEventListener("load", (event) => {
+            console.dri("here")
+            if (location.search) {
+                const projectId = localStorage.getItem("sso-project-id")
+                const clientId = localStorage.getItem("sso-client-id")
+                const clientSecret = localStorage.getItem("sso-client-secret")
+                const apiUrl = localStorage.getItem("sso-api-url")
+                getToken(apiUrl, projectId, clientId, clientSecret, location.search.replace('?code=', ''))
+            }
         });
-      </script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var links = document.querySelectorAll('a');
+            links.forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    gtag('event', 'click', {
+                        'event_category': 'link',
+                        'event_label': link.href,
+                        'value': 1
+                    });
+                    setTimeout(function () {
+                        window.location.href = link.href;
+                    }, 200);
+                });
+            });
+        });
+        function save() {
+            const url = document.getElementById("sso-url").value;
+            const apiUrl = document.getElementById("sso-api-url").value;
+            const projectId = document.getElementById("sso-project-id").value;
+            const clientId = document.getElementById("sso-client-id").value;
+            const secret = document.getElementById("sso-client-secret").value;
+            localStorage.setItem("sso-url", url)
+            localStorage.setItem("sso-api-url", apiUrl)
+            localStorage.setItem("sso-project-id", projectId)
+            localStorage.setItem("sso-client-id", clientId)
+            localStorage.setItem("sso-client-secret", secret)
+        }
+        function authorizationLogin() {
+            const projectId = localStorage.getItem("sso-project-id")
+            const clientId = localStorage.getItem("sso-client-id")
+            const url = localStorage.getItem("sso-url")
+            location.replace(
+                `${url}/authorize?response_type=code&client_id=${clientId}&redirect_uri=${hostUrl}&state=login&project_id=${projectId}`
+            );
+        }
+
+    </script>
 </head>
 
 <body>
@@ -72,7 +150,8 @@
             </li>
             <div style="display: flex; margin: 8px 0px;">
                 <li style="display: flex;align-items: center;">
-                    <a style="text-decoration: none; margin: 0px 20px;" href="https://console.letsauth.cloud/docs/deploy">文档</a>
+                    <a style="text-decoration: none; margin: 0px 20px;"
+                        href="https://console.letsauth.cloud/docs/deploy">文档</a>
                 </li>
                 <li>
                     <a href="https://github.com/publicdevop2019/mt-auth"
@@ -106,9 +185,9 @@
             </div>
 
             <li style="display: flex; flex-direction: row; margin: 8px 0px;">
-                <a  href="./guides/index.html"
+                <a href="../guides/index.html"
                     style="width: 72px;background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
-                    <span>快速开始</span>
+                    <span>快速使用</span>
                 </a>
                 <a href="https://console.letsauth.cloud/login"
                     style="width: 77px;background-color: #673ab7; border: #673ab7 2px solid; color: #fff; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
@@ -118,33 +197,25 @@
         </ul>
         </div>
         <div style="border-bottom: 2px solid rgba(0, 0, 0, .1);"></div>
+        <div style="display: flex; justify-content: center; margin-top: 52px;">
+            <section style="display: flex; justify-content: center; flex-direction: column; width: 350px;">
+                <label for="sso-url">MT-AUTH 前端 URL</label>
+                <input class="form-input" type="text" id="sso-url" value="http://localhost:4300">
+                <label for="sso-api-url">MT-AUTH 后端 URL</label>
+                <input class="form-input" type="text" id="sso-api-url" value="http://localhost:8111">
+                <label for="sso-project-id">项目ID</label>
+                <input class="form-input" type="text" id="sso-project-id" value="0P8OMAHSU0W4">
+                <label for="sso-client-id">App ID</label>
+                <input class="form-input" type="text" id="sso-client-id" value="0C8OMAMM2QDC">
+                <label for="sso-client-secret">App Secret</label>
+                <input class="form-input" type="text" id="sso-client-secret"
+                    value="97b29ceb-c445-4178-bb95-84755f14cba6">
+                <button id="login-btn" class="btn" onclick="save();authorizationLogin()">登录</button>
+                <div id="token-title" style="margin-top: 16px;"></div>
+                <div id="token" style="margin-top: 4px;"></div>
+            </section>
+        </div>
     </nav>
-    <div style="display: flex; flex-direction: column;">
-        <h1 style="text-align: center; margin-top: 62px; margin-bottom: 0px; color: #00084d;">MT-AUTH</h1>
-        <h2
-            style="text-align: center; font-size: 72px; font-weight: 700; margin-top: 24px; margin-bottom: 0px;color: #673ab7;">
-            开源、多租户、用户、权限、API管理系统</h2>
-        <p style="text-align: center; margin-top: 10px;color: #00084d;">事件驱动 RBAC OAuth2.0 单点登录 多因素认证</p>
-        <div style="display: flex; justify-content: center; margin-top: 52px; flex-wrap: wrap;">
-            <a href="https://console.letsauth.cloud/login?demo=admin"
-                style="background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; margin-top: 16px; text-decoration: none;">
-                <span>体验模式 - 管理员</span>
-            </a>
-            <a href="https://console.letsauth.cloud/login?demo=tenant"
-                style="background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; margin-top: 16px; text-decoration: none;">
-                <span>体验模式 - 租户</span>
-            </a>
-            <a href="https://console.letsauth.cloud/login"
-                style="background-color: #673ab7; border: #673ab7 2px solid; color: #fff; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; width: 77px;  margin-top: 16px; text-decoration: none;">
-                <span>登录/注册</span>
-            </a>
-        </div>
-    </div>
-    <div style="display: flex; justify-content: center; margin-top: 90px;">
-        <div class="image-container">
-            <img src="./images/cover-small.jpg" alt="登录页面" width="950" height="562" style="border-radius: 6px;">
-        </div>
-    </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 

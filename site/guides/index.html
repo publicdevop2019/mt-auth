@@ -2,42 +2,52 @@
 <html>
 
 <head lang="zh-Hans">
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VD006ERKY"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag("js", new Date()); gtag("config", "G-7VD006ERKY"); </script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-7VD006ERKY"></script>
+    <script> window.dataLayer = window.dataLayer || []; function gtag() { dataLayer.push(arguments); } gtag("js", new Date()); gtag("config", "G-7VD006ERKY"); </script>
     <style>
         body {
             font-family: Roboto, Arial, sans-serif;
             margin: 0;
         }
 
-        @media only screen and (max-width: 950px) {
-            .image-container {
-                display: none;
-            }
+        .start-card {
+            background-color: #fff;
+            border: #c4c8d1 2px solid;
+            color: #000;
+            font-size: 18px;
+            padding: 12px 10px;
+            cursor: pointer;
+            border-radius: 6px;
+            margin-right: 32px;
+            margin-top: 16px;
+            display: flex;
+            text-decoration: none;
+            width: 200px;
         }
     </style>
     <meta charset="utf-8">
-    <title>MT-AUTH</title>
+    <title>快速开始 MT-AUTH</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <meta name="theme-color" content="#673ab7">
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-          var links = document.querySelectorAll('a');
-          links.forEach(function(link) {
-            link.addEventListener('click', function(event) {
-              event.preventDefault();
-              gtag('event', 'click', {
-                'event_category': 'link',
-                'event_label': link.href,
-                'value': 1
-              });
-              setTimeout(function() {
-                window.location.href = link.href;
-              }, 200);
+        document.addEventListener('DOMContentLoaded', function () {
+            var links = document.querySelectorAll('a');
+            links.forEach(function (link) {
+                link.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    gtag('event', 'click', {
+                        'event_category': 'link',
+                        'event_label': link.href,
+                        'value': 1
+                    });
+                    setTimeout(function () {
+                        window.location.href = link.href;
+                    }, 200);
+                });
             });
-          });
         });
-      </script>
+    </script>
 </head>
 
 <body>
@@ -72,7 +82,8 @@
             </li>
             <div style="display: flex; margin: 8px 0px;">
                 <li style="display: flex;align-items: center;">
-                    <a style="text-decoration: none; margin: 0px 20px;" href="https://console.letsauth.cloud/docs/deploy">文档</a>
+                    <a style="text-decoration: none; margin: 0px 20px;"
+                        href="https://console.letsauth.cloud/docs/deploy">文档</a>
                 </li>
                 <li>
                     <a href="https://github.com/publicdevop2019/mt-auth"
@@ -106,9 +117,9 @@
             </div>
 
             <li style="display: flex; flex-direction: row; margin: 8px 0px;">
-                <a  href="./guides/index.html"
-                    style="width: 72px;background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
-                    <span>快速开始</span>
+                <a href="https://www.letsauth.cloud"
+                    style="background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 24px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
+                    <span>首页</span>
                 </a>
                 <a href="https://console.letsauth.cloud/login"
                     style="width: 77px;background-color: #673ab7; border: #673ab7 2px solid; color: #fff; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; text-decoration: none;">
@@ -118,33 +129,33 @@
         </ul>
         </div>
         <div style="border-bottom: 2px solid rgba(0, 0, 0, .1);"></div>
+        <div style="display: flex; justify-content: center; flex-direction: column; margin: 52px auto auto 52px;">
+            <h2 style="font-size: 32px; margin-bottom: 12px;">快速开始</h2>
+            <li style="display: flex; flex-direction: row; margin: 8px 0px; flex-wrap: wrap;">
+                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-cloud.md"
+                    class="start-card">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700;">Cloud</div>
+                        <div style="font-size: 16px; margin-top: 4px;">官方云版本，简化开发</div>
+                    </div>
+                </a>
+                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-docker.md"
+                    class="start-card">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700;">Docker</div>
+                        <div style="font-size: 16px; margin-top: 4px;">在Docker上运行MT-AUT</div>
+                    </div>
+                </a>
+                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-zip.md"
+                    class="start-card">
+                    <div>
+                        <div style="font-size: 24px; font-weight: 700;">OpenJDK</div>
+                        <div style="font-size: 16px; margin-top: 4px;">在裸机上运行MT-AUTH</div>
+                    </div>
+                </a>
+            </li>
+        </div>
     </nav>
-    <div style="display: flex; flex-direction: column;">
-        <h1 style="text-align: center; margin-top: 62px; margin-bottom: 0px; color: #00084d;">MT-AUTH</h1>
-        <h2
-            style="text-align: center; font-size: 72px; font-weight: 700; margin-top: 24px; margin-bottom: 0px;color: #673ab7;">
-            开源、多租户、用户、权限、API管理系统</h2>
-        <p style="text-align: center; margin-top: 10px;color: #00084d;">事件驱动 RBAC OAuth2.0 单点登录 多因素认证</p>
-        <div style="display: flex; justify-content: center; margin-top: 52px; flex-wrap: wrap;">
-            <a href="https://console.letsauth.cloud/login?demo=admin"
-                style="background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; margin-top: 16px; text-decoration: none;">
-                <span>体验模式 - 管理员</span>
-            </a>
-            <a href="https://console.letsauth.cloud/login?demo=tenant"
-                style="background-color: #fff; border: #c4c8d1 2px solid; color: #000; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; margin-top: 16px; text-decoration: none;">
-                <span>体验模式 - 租户</span>
-            </a>
-            <a href="https://console.letsauth.cloud/login"
-                style="background-color: #673ab7; border: #673ab7 2px solid; color: #fff; font-size: 18px; padding: 12px 10px; cursor: pointer; border-radius: 6px; margin: 0px 4px; display: flex; width: 77px;  margin-top: 16px; text-decoration: none;">
-                <span>登录/注册</span>
-            </a>
-        </div>
-    </div>
-    <div style="display: flex; justify-content: center; margin-top: 90px;">
-        <div class="image-container">
-            <img src="./images/cover-small.jpg" alt="登录页面" width="950" height="562" style="border-radius: 6px;">
-        </div>
-    </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 
