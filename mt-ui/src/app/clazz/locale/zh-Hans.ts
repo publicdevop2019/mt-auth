@@ -108,7 +108,6 @@ export const zhHans = {
     "HTTP_PUT": "PUT",
     "HTTP_PATCH": "PATCH",
     "HTTP_DELETE": "DELETE",
-    "REFRESH": "刷新",
     "REFRESH_TOKEN": "refresh_token",
     "BATCH_LOCK": "批量锁定",
     "BATCH_UNLOCK": "批量解锁",

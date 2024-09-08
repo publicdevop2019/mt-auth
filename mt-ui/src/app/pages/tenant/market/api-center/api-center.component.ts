@@ -15,7 +15,6 @@ import { DeviceService } from 'src/app/services/device.service';
 })
 export class ApiCenterComponent {
   private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SHARED_ENDPOINTS])
-  public formId = "sharedEndpointTableColumnConfig";
   columnList = {
     name: 'NAME',
     type: 'TYPE',

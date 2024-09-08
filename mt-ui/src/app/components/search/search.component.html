@@ -78,9 +78,9 @@
                 <mat-radio-button value="0" style="margin-left: 12px;">{{'NO'|translate}}</mat-radio-button>
             </mat-radio-group>
         </div>
-        <button mat-raised-button color="accent" style="height: 36px; margin-left: 24px;"
+        <button mat-raised-button color="accent" class="mobile-search-button"
             (click)="doReset()">{{'RESET'|translate}}</button>
-        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
-            (click)="doRefresh()">{{'REFRESH'|translate}}</button>
+        <button mat-raised-button color="primary" class="mobile-search-button"
+            (click)="doRefresh()"><mat-icon>refresh</mat-icon></button>
     </div>
 </form>

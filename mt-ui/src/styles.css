@@ -228,6 +228,10 @@ th.mat-sort-header-sorted {
   .mobile-view-modal {
     min-width: 240px
   }
+  .mobile-search-button {
+    height: 36px;
+    margin-left: 8px !important;
+}
 }
 
 /* for large screen */
@@ -263,4 +267,9 @@ th.mat-sort-header-sorted {
   .mobile-view-modal {
     min-width: 400px
   }
+  .mobile-search-button {
+    height: 36px;
+    margin-left: 24px !important;
+
+}
 }
