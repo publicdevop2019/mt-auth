@@ -39,7 +39,7 @@ export class ClientComponent {
   resourceSize: number = 50
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
-    projectId: new FormControl(''),
+    projectId: new FormControl({ value: '', disabled: true }),
     path: new FormControl(''),
     externalUrl: new FormControl(''),
     clientSecret: new FormControl(''),

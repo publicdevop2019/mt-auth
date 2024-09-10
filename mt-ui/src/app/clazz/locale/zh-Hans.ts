@@ -650,4 +650,5 @@ export const zhHans = {
     "MGMT_EP_DOC_TITLE": "管理/API配置 MT-AUTH",
     "MGMT_SUM_DOC_TITLE": "管理/概览 MT-AUTH",
     "ENTER_PROJECT_NAME": "项目名称",
+    "BASIC_CLIENT_INFO_PROJECT_ID": "项目ID",
 }

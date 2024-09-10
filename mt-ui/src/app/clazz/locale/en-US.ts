@@ -650,4 +650,5 @@ export const enUS = {
     "MGMT_EP_DOC_TITLE": "Management/API Setting MT-AUTH",
     "MGMT_SUM_DOC_TITLE": "Management/Overview MT-AUTH",
     "ENTER_PROJECT_NAME": "Project name",
+    "BASIC_CLIENT_INFO_PROJECT_ID": "Project ID",
 }

@@ -24,6 +24,22 @@
             text-decoration: none;
             width: 200px;
         }
+
+        @media only screen and (min-width: 600px) {
+            .default-background {
+                max-width: 960px;
+                margin: 0px auto;
+                padding: 20px 24px 50px 24px;
+            }
+        }
+
+        @media only screen and (max-width: 600px) {
+            .default-background {
+                margin: 0px auto;
+                padding: 12px 0px 50px 0px;
+            }
+
+        }
     </style>
     <meta charset="utf-8">
     <title>快速开始 MT-AUTH</title>
@@ -129,31 +145,33 @@
         </ul>
         </div>
         <div style="border-bottom: 2px solid rgba(0, 0, 0, .1);"></div>
-        <div style="display: flex; justify-content: center; flex-direction: column; margin: 52px auto auto 52px;">
+        <div class="default-background">
+            <div style="display: flex; justify-content: center; flex-direction: column; margin: 52px auto auto 52px;">
             <h2 style="font-size: 32px; margin-bottom: 12px;">快速开始</h2>
-            <li style="display: flex; flex-direction: row; margin: 8px 0px; flex-wrap: wrap;">
-                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-cloud.md"
-                    class="start-card">
-                    <div>
-                        <div style="font-size: 24px; font-weight: 700;">Cloud</div>
-                        <div style="font-size: 16px; margin-top: 4px;">官方云版本，简化开发</div>
-                    </div>
-                </a>
-                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-docker.md"
-                    class="start-card">
-                    <div>
-                        <div style="font-size: 24px; font-weight: 700;">Docker</div>
-                        <div style="font-size: 16px; margin-top: 4px;">在Docker上运行MT-AUT</div>
-                    </div>
-                </a>
-                <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-zip.md"
-                    class="start-card">
-                    <div>
-                        <div style="font-size: 24px; font-weight: 700;">OpenJDK</div>
-                        <div style="font-size: 16px; margin-top: 4px;">在裸机上运行MT-AUTH</div>
-                    </div>
-                </a>
-            </li>
+                <li style="display: flex; flex-direction: row; margin: 8px 0px; flex-wrap: wrap;">
+                    <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-cloud.md"
+                        class="start-card">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700;">Cloud</div>
+                            <div style="font-size: 16px; margin-top: 4px;">官方云版本，简化开发</div>
+                        </div>
+                    </a>
+                    <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-docker.md"
+                        class="start-card">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700;">Docker</div>
+                            <div style="font-size: 16px; margin-top: 4px;">在Docker上运行MT-AUTH</div>
+                        </div>
+                    </a>
+                    <a href="https://github.com/publicdevop2019/mt-auth/tree/main/docs/guides/getting-started-zip.md"
+                        class="start-card">
+                        <div>
+                            <div style="font-size: 24px; font-weight: 700;">OpenJDK</div>
+                            <div style="font-size: 16px; margin-top: 4px;">在裸机上运行MT-AUTH</div>
+                        </div>
+                    </a>
+                </li>
+            </div>
         </div>
     </nav>
     <noscript>Please enable JavaScript to continue using this application.</noscript>

@@ -22,6 +22,11 @@
                 <div class="basic-info">
                     <div class="basic-info-title">{{'BASIC_CLIENT_INFO'|translate}}</div>
                     <div class="basic-info-content">
+                        <!-- for demo purpose only, so user can easly get project id -->
+                        <mat-form-field>
+                            <mat-label>{{'BASIC_CLIENT_INFO_PROJECT_ID'| translate}}</mat-label>
+                            <input matInput formControlName="projectId">
+                        </mat-form-field>
                         <mat-form-field>
                             <mat-label>{{'ENTER_CLIENT_NAME'| translate}}<span class="mat-required">*</span></mat-label>
                             <input matInput formControlName="name">
