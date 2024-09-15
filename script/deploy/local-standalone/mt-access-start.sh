@@ -1,5 +1,5 @@
 # ---- start of properties-----
-# instance id, every instance has one uniue id, max is 64
+# instance id, every instance has one unique id, max is 64
 INSTANCE_ID=
 # email which application send notification to
 ADMIN_EMAIL=
