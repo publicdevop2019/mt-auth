@@ -545,7 +545,7 @@ CREATE TABLE `job_detail` (
   `domain_id` varchar(255) NOT NULL,
   `minimum_idle_time_milli` bigint NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_domainId` (`domain_id`),
+  UNIQUE KEY `UK_domainId_202409151059` (`domain_id`),
   UNIQUE KEY `UK_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -626,7 +626,7 @@ CREATE TABLE `login_info` (
   `ip_address` varchar(255) NOT NULL,
   `agent` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_domainId` (`domain_id`)
+  UNIQUE KEY `UK_domainId_202409151058` (`domain_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -693,37 +693,6 @@ CREATE TABLE `opt_cool_down` (
 LOCK TABLES `opt_cool_down` WRITE;
 /*!40000 ALTER TABLE `opt_cool_down` DISABLE KEYS */;
 /*!40000 ALTER TABLE `opt_cool_down` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `organization`
---
-
-DROP TABLE IF EXISTS `organization`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `organization` (
-  `id` bigint NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `created_by` varchar(255) DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL,
-  `modified_by` varchar(255) DEFAULT NULL,
-  `version` int DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `domain_id` varchar(255) NOT NULL,
-  `project_id` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_9xan47a8d87y395189eaipit` (`domain_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `organization`
---
-
-LOCK TABLES `organization` WRITE;
-/*!40000 ALTER TABLE `organization` DISABLE KEYS */;
-/*!40000 ALTER TABLE `organization` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
