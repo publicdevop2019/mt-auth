@@ -96,13 +96,13 @@ public class JdbcDomainEventRepository implements DomainEventRepository {
             whereClause.add(byIds);
         }
         if (Checker.notNull(query.getSend())) {
-            whereClause.add(query.getSend() ? "se.send = true" : "se.send = false");
+            whereClause.add(query.getSend() ? "se.send = 1" : "se.send = 0");
         }
         if (Checker.notNull(query.getRoutable())) {
-            whereClause.add(query.getRoutable() ? "se.routable = true" : "se.routable = false");
+            whereClause.add(query.getRoutable() ? "se.routable = 1" : "se.routable = 0");
         }
         if (Checker.notNull(query.getRejected())) {
-            whereClause.add(query.getRejected() ? "se.rejected = true" : "se.rejected = false");
+            whereClause.add(query.getRejected() ? "se.rejected = 1" : "se.rejected = 0");
         }
         String join = String.join(" AND ", whereClause);
         String finalDataQuery;

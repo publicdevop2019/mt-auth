@@ -306,7 +306,7 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
                     "unable consume message with routing key " + routingKeyPrefix +
                         " and queue name " +
                         queueName, "0005",
-                    HttpResponseCode.NOT_HTTP);
+                    HttpResponseCode.NOT_HTTP, e);
             }
         });
 

@@ -50,7 +50,7 @@ public class JdbcJobRepository implements JobRepository {
     private static final String FIND_BY_DOMAIN_ID_SQL =
         "SELECT * FROM job_detail jd WHERE jd.domain_id = ?";
     private static final String NOTIFY_SQL =
-        "UPDATE job_detail jb SET jb.notified_admin = true WHERE jb.domain_id = ?";
+        "UPDATE job_detail jb SET jb.notified_admin = 1 WHERE jb.domain_id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM job_detail jd WHERE %s ORDER BY jd.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM job_detail jd WHERE %s";

@@ -79,10 +79,10 @@ public class JdbcEndpointRepository implements EndpointRepository {
             "WHERE e.project_id = ?";
     private static final String COUNT_PUBLIC_TOTAL_SQL =
         "SELECT COUNT(*) AS count FROM endpoint e " +
-            "WHERE e.secured = false AND e.external = true";
+            "WHERE e.secured = 0 AND e.external = 1";
     private static final String COUNT_SHARED_TOTAL_SQL =
         "SELECT COUNT(*) AS count FROM endpoint e " +
-            "WHERE e.shared = true";
+            "WHERE e.shared = 1";
     private static final String COUNT_TOTAL_SQL = "SELECT COUNT(*) AS count FROM endpoint";
     private static final String UPDATE_SQL = "UPDATE endpoint e SET " +
         "e.modified_at = ? ," +
@@ -233,15 +233,15 @@ public class JdbcEndpointRepository implements EndpointRepository {
         }
         if (Checker.notNull(query.getIsWebsocket())) {
             String websocket =
-                query.getIsWebsocket() ? "e.websocket = true" : "e.websocket = false";
+                query.getIsWebsocket() ? "e.websocket = 1" : "e.websocket = 0";
             whereClause.add(websocket);
         }
         if (Checker.notNull(query.getIsShared()) && query.getIsShared()) {
-            whereClause.add("((e.external = true AND e.secured = false) OR e.shared = true)");
+            whereClause.add("((e.external = 1 AND e.secured = 0) OR e.shared = 1)");
         }
         if (Checker.notNull(query.getIsSecured())) {
             String secured =
-                query.getIsSecured() ? "e.secured = true" : "e.secured = false";
+                query.getIsSecured() ? "e.secured = 1" : "e.secured = 0";
             whereClause.add(secured);
         }
 
