@@ -14,4 +14,4 @@ docker run -it --rm -v $APP_ROOT:/usr/src/temp -w /usr/src/temp/mt-ui node:14.15
 docker build -f ./script/demo/docker/Dockerfile . -t publicdevop2019/mt-auth:arm --no-cache
 # docker build -f ./script/demo/docker/Dockerfile . -t publicdevop2019/mt-auth:x86 --no-cache
 # docker login then run below
-# docker push publicdevop2019/mt-auth:latest
+# docker push publicdevop2019/mt-auth:arm|x86
