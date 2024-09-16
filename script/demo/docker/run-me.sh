@@ -10,7 +10,8 @@ docker run -it --rm -v $APP_ROOT:/usr/src/temp -v "$HOME/.m2":/root/.m2 -w /usr/
 docker run -it --rm -v $APP_ROOT:/usr/src/temp -v "$HOME/.m2":/root/.m2 -w /usr/src/temp/mt-proxy maven:3.6.3-jdk-11 mvn dependency:go-offline -B clean package
 # build ui
 docker run -it --rm -v $APP_ROOT:/usr/src/temp -w /usr/src/temp/mt-ui node:14.15.1-alpine3.12 sh -c "npm install -g npm@8.1.1; npm ci; npm run demo"
-# build docker image
-docker build -f ./script/demo/docker/Dockerfile . -t publicdevop2019/mt-auth:latest --no-cache
+# build docker image, build ARM and x86 separately
+docker build -f ./script/demo/docker/Dockerfile . -t publicdevop2019/mt-auth:arm --no-cache
+# docker build -f ./script/demo/docker/Dockerfile . -t publicdevop2019/mt-auth:x86 --no-cache
 # docker login then run below
 # docker push publicdevop2019/mt-auth:latest
