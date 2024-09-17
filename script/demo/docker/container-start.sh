@@ -23,7 +23,6 @@ PROXY_ARG="
 --spring.redis.host=localhost
 --spring.redis.port=6379
 --spring.rabbitmq.port=5672
---logging.level.com.mt=INFO
 "
 VM_ARGS="-Dlog4j2.contextSelector=org.apache.logging.log4j.core.async.AsyncLoggerContextSelector"
 # prepare h2 db data
@@ -35,6 +34,8 @@ redis-server &
 java -cp h2*.jar org.h2.tools.Server -tcpAllowOthers -webAllowOthers &
 java $VM_ARGS -jar Access.jar $ACCESS_ARGS &
 echo "sleeping start" &
-sleep 60
+# must sleep 150
+sleep 150
 echo "sleeping end" &
-java $VM_ARGS -jar Proxy.jar $PROXY_ARG
+java $VM_ARGS -jar Proxy.jar $PROXY_ARG &
+tail -f /dev/null
