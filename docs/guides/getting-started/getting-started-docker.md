@@ -5,10 +5,7 @@
 # 启动 MT-AUTH
 在terminal输入Docker命令已启动MT-AUTH
 ```shell
-# ARM
-docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:arm
-# x86
-docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:x86
+docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:latest
 ```
 MT-AUTH将会使用port 4300(前端)与8111(后端)
 
