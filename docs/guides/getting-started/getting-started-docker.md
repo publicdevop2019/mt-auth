@@ -3,11 +3,11 @@
 # 准备工作
 请确保Docker已安装并且可运行
 # 启动 MT-AUTH
-在terminal输入Docker命令已启动MT-AUTH
+在Terminal输入Docker命令来启动MT-AUTH
 ```shell
 docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:latest
 ```
-MT-AUTH将会使用port 4300(前端)与8111(后端)
+MT-AUTH将会使用port 4300
 
 # 登录
 打开MT-AUTH[登录页面](http://localhost:4300/login)
