@@ -104,10 +104,6 @@ import { AuthorizeComponent } from './pages/common/authorize/authorize.component
 import { RequirePermissionDirective } from './directive/require-permission.directive';
 import { JobComponent } from './pages/mgmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
-import { DocumentComponent } from './pages/document/document.component';
-import { DesignComponent } from './pages/document/design/design.component';
-import { LunchComponent } from './pages/document/deploy/deploy.component';
-import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
 import { SubscribeRequestComponent } from './pages/tenant/market/subscribe-request/subscribe-request.component';
 import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
@@ -118,7 +114,6 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
 import { EndpointAnalysisComponent } from './components/endpoint-analysis-dialog/endpoint-analysis-dialog.component';
 import { UserMessageComponent } from './pages/common/user-message/user-message.component';
-import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientCreateDialogComponent } from './components/client-create-dialog/client-create-dialog.component';
 import { EndpointCreateDialogComponent } from './components/endpoint-create-dialog/endpoint-create-dialog.component';
@@ -187,10 +182,6 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     RegistryComponent,
     JobComponent,
     MfaComponent,
-    DocumentComponent,
-    DesignComponent,
-    LunchComponent,
-    BuildComponent,
     SummaryNotificationComponent,
     SubscribeRequestComponent,
     MyRequestsComponent,
@@ -200,7 +191,6 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     EndpointComponent,
     EndpointAnalysisComponent,
     UserMessageComponent,
-    ErrorLookupComponent,
     DashboardComponent,
     ClientCreateDialogComponent,
     EndpointCreateDialogComponent,

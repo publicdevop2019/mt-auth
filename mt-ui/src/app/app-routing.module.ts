@@ -29,16 +29,11 @@ import { AuthService } from './services/auth.service';
 import { AuthorizeComponent } from './pages/common/authorize/authorize.component';
 import { JobComponent } from './pages/mgmt/job/job.component';
 import { MfaComponent } from './pages/common/mfa/mfa.component';
-import { DocumentComponent } from './pages/document/document.component';
-import { LunchComponent } from './pages/document/deploy/deploy.component';
-import { DesignComponent } from './pages/document/design/design.component';
-import { BuildComponent } from './pages/document/build/build.component';
 import { SummaryNotificationComponent } from './pages/mgmt/summary-notification/summary-notification.component';
 import { MySubscriptionsComponent } from './pages/tenant/market/my-subscriptions/my-subscriptions.component';
 import { MyRequestsComponent } from './pages/tenant/market/my-requests/my-requests.component';
 import { MyApprovalComponent } from './pages/tenant/market/my-approval/my-approval.component';
 import { UserMessageComponent } from './pages/common/user-message/user-message.component';
-import { ErrorLookupComponent } from './pages/document/error-lookup/error-lookup.component';
 import { DashboardComponent } from './pages/mgmt/dashboard/dashboard.component';
 import { ClientComponent } from './pages/tenant/project/client/client.component';
 import { EndpointComponent } from './pages/tenant/project/endpoint/endpoint.component';
@@ -54,24 +49,12 @@ import { MgmtClientComponent } from './pages/mgmt/client/client.component';
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'mfa', component: MfaComponent },
-  {
-    path: 'docs', component: DocumentComponent,
-    children: [
-      { path: '', redirectTo: 'deploy', pathMatch: 'full' },
-      { path: 'deploy', component: LunchComponent },
-      { path: 'design', component: DesignComponent },
-      { path: 'build', component: BuildComponent },
-      { path: 'error', component: ErrorLookupComponent },
-      { path: '**', component: LunchComponent }
-    ]
-  },
   { path: 'authorize', component: AuthorizeComponent, canActivate: [AuthService] },
   {
     path: '', component: NavBarComponent, canActivateChild: [AuthService],
     children: [
       { path: '', redirectTo: 'welcome', pathMatch: 'full' },
       { path: 'welcome', component: WelcomeComponent },
-      
       { path: 'mgmt/insights', component: DashboardComponent },
       { path: 'mgmt/projects', component: SummaryProjectComponent },
       { path: 'mgmt/registry', component: RegistryComponent },
