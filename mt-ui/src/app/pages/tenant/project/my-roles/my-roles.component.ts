@@ -49,6 +49,7 @@ export class MyRolesComponent {
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_ROLE_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'ROLE_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)

@@ -7,6 +7,7 @@ import { Utility } from 'src/app/misc/utility';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { FormGroup, FormControl } from '@angular/forms';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'mgmt-app-client',
@@ -37,7 +38,9 @@ export class MgmtClientComponent {
   constructor(
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_CLIENT_DOC_TITLE')
     this.fg.disable()
     this.doResume()
   }

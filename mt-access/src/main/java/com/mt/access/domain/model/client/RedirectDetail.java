@@ -23,12 +23,15 @@ public class RedirectDetail implements Serializable {
     public RedirectDetail(Set<String> redirectUrls, Boolean autoApprove) {
         setRedirectUrls(redirectUrls);
         setAutoApprove(autoApprove);
+
     }
-    public static RedirectDetail fromDatabaseRow(Boolean autoApprove){
+
+    public static RedirectDetail fromDatabaseRow(Boolean autoApprove) {
         RedirectDetail redirectDetail = new RedirectDetail();
         redirectDetail.setAutoApprove(autoApprove);
         return redirectDetail;
     }
+
     private void setAutoApprove(Boolean autoApprove) {
         Validator.notNull(autoApprove);
         this.autoApprove = autoApprove;
@@ -42,6 +45,8 @@ public class RedirectDetail implements Serializable {
             redirectUrls.stream().map(RedirectUrl::new).collect(Collectors.toSet());
         CommonUtility.updateCollection(this.redirectUrls, collect,
             () -> this.redirectUrls = collect);
+        //set to true so url will not be loaded again
+        urlLoaded = true;
     }
 
     public Set<RedirectUrl> getRedirectUrls(Client client) {

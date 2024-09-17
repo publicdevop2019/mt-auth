@@ -35,6 +35,7 @@ export class CorsComponent {
     public router: RouterWrapperService,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('CORS_DOC_TITLE')
     const configId = this.router.getCorsConfigIdFromUrl();
     if (configId === 'template') {
     } else {

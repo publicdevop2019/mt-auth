@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { IBellNotification } from 'src/app/services/message.service';
 
@@ -20,7 +21,9 @@ export class UserMessageComponent{
   public tableSource: TableHelper<IBellNotification> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   constructor(
     public httpSvc: HttpProxyService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('USER_MSG_DOC_TITLE')
     this.tableSource.loadPage(0);
   }
 }

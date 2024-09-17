@@ -52,6 +52,7 @@ export class CacheComponent {
     public deviceSvc: DeviceService,
     public router: RouterWrapperService,
   ) {
+    this.deviceSvc.updateDocTitle('CACHE_DOC_TITLE')
     const configId = this.router.getCacheConfigIdFromUrl();
     if (configId === 'template') {
     } else {

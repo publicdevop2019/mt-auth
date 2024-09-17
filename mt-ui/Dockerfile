@@ -4,7 +4,9 @@ WORKDIR /usr/src/app
 
 COPY . .
 
-RUN npm install
+RUN npm install -g npm@8.1.1
+
+RUN npm ci
 
 RUN npm run build
 

@@ -40,6 +40,7 @@ export class MyRequestsComponent {
     public router: RouterWrapperService,
     public httpSvc: HttpProxyService,
   ) {
+    this.deviceSvc.updateDocTitle('MY_REQ_DOC_TITLE')
     this.tableSource.loadPage(0)
   }
   cancel(id: string) {

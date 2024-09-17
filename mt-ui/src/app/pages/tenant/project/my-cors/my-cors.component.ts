@@ -33,6 +33,7 @@ export class MyCorsComponent{
     public httpSvc: HttpProxyService,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_CORS_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'API_MGMT').pipe(take(1)).subscribe(b => {
       if (b.result) {
         this.tableSource.loadPage(0)

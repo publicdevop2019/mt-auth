@@ -1,19 +1,71 @@
-.forget-pwd {
-  margin-top: 16px;
-  font: 16px;
-  color: #007EFF;
-  cursor: pointer;
+@media only screen and (max-width: 600px) {
+  .forget-pwd {
+    margin-top: 16px;
+    font: 16px;
+    color: #007EFF;
+    cursor: pointer;
+  }
+
+  .forget-pwd:hover {
+    cursor: pointer;
+  }
+
+  .login-msg {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .login-page {
+    display: flex;
+    justify-content: center;
+  }
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 24px;
+  }
 }
 
-.forget-pwd:hover {
-  cursor: pointer;
-}
+@media only screen and (min-width: 600px) {
+  .forget-pwd {
+    margin-top: 16px;
+    font: 16px;
+    color: #007EFF;
+    cursor: pointer;
+  }
 
-.login-msg {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  .forget-pwd:hover {
+    cursor: pointer;
+  }
+
+  .login-msg {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .login-page {
+    margin: 8vh auto auto auto;
+    display: flex;
+    justify-content: center;
+  }
+
+  .login-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 40px 54px 16px 54px;
+    border-radius: 8px;
+    width: 348px;
+  }
+
 }

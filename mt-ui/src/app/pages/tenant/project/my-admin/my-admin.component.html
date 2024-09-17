@@ -32,10 +32,10 @@
                 </mat-option>
             </mat-autocomplete>
         </mat-form-field>
-        <button mat-raised-button color="accent" style="height: 36px; margin-left: 24px;" [disabled]="newAdmins.length===0"
+        <button mat-raised-button color="accent" class="mobile-search-button" [disabled]="newAdmins.length===0"
             (click)="doAdd()">{{'ADD_TENANT_ADMIN'|translate}}</button>
-        <button mat-raised-button color="primary" style="height: 36px; margin-left: 24px;"
-            (click)="doRefresh()">{{'REFRESH'|translate}}</button>
+        <button mat-raised-button color="primary" class="mobile-search-button"
+            (click)="doRefresh()"><mat-icon>refresh</mat-icon></button>
     </div>
     <div >
         <div class="table-container">

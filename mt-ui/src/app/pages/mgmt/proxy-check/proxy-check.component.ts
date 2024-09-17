@@ -3,6 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableDataSource } from '@angular/material/table';
 import { TranslateService } from '@ngx-translate/core';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 @Component({
   selector: 'app-proxy-check',
@@ -13,7 +14,14 @@ export class CacheControlComponent{
   displayedColumns: string[] = ['instance', 'value', 'result'];
   private cacheChangeId = Utility.getChangeId();
   dataSource: MatTableDataSource<{ name: string; value: string }>;
-  constructor(protected httpProxySvc: HttpProxyService, private _snackBar: MatSnackBar, private translate: TranslateService) { }
+  constructor(
+    protected httpProxySvc: HttpProxyService, 
+    private _snackBar: MatSnackBar,
+     private translate: TranslateService,
+     private deviceSvc: DeviceService
+    ) { 
+      this.deviceSvc.updateDocTitle('MGMT_PROXY_DOC_TITLE')
+    }
   sendReloadRequest() {
     this.httpProxySvc.sendReloadRequest(this.cacheChangeId).subscribe(_ => {
       this.openSnackbar('CACHE_RELOAD_MSG_SENT')

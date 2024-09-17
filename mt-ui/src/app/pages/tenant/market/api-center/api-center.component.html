@@ -2,9 +2,6 @@
     <h2 class="flex-row-space-between">{{'API_CENTER' |translate}}</h2>
     <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs">
     </app-search>
-    <div style="display: flex;flex-direction: row;align-items: center;height: 56px;justify-content: end ">
-        <app-table-column-config [formId]="formId"></app-table-column-config>
-    </div>
     <div>
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
@@ -72,7 +69,7 @@
                     <td mat-cell *matCellDef="let row" class="table-icon">
                         <mat-icon *ngIf="row.shared" (click)="create(row.id)"
                             [color]="'primary'">subscriptions</mat-icon>
-                        <mat-icon *ngIf="!row.shared" [color]="'warn'">block</mat-icon>
+                        <mat-icon *ngIf="!row.shared" [color]="'warn'" style="cursor: not-allowed;">block</mat-icon>
                     </td>
                 </ng-container>
 

@@ -5,7 +5,6 @@
 export const environment = {
   production: false,
   mode: 'online' as 'online' | 'offline',
-  validation: 'on' as 'on' | 'off', //make payload validation always return true, note this will not disable all validations, only validator-helper is bypassed
   serverUri: 'http://localhost:4300/proxy',
   loginClientId: '0C8AZZ16LZB4',
   noneLoginClientId: '0C8B00098WLD',

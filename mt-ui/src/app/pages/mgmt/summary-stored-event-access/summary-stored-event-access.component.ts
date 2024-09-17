@@ -63,10 +63,11 @@ export class SummaryStoredEventAccessComponent {
   ];
   constructor(
     public router: RouterWrapperService,
-    public device: DeviceService,
+    public deviceSvc: DeviceService,
     private overlay: Overlay,
     private httpSvc: HttpProxyService,
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_STORED_EVENT_DOC_TITLE')
     Logger.trace(this.filter.value)
     this.filter.valueChanges.subscribe(next => {
       if (next === 'audit') {
@@ -82,7 +83,7 @@ export class SummaryStoredEventAccessComponent {
     })
   }
   launchOverlay(el: MatIcon, data: IStoredEvent) {
-    this.device.overlayData = data;
+    this.deviceSvc.overlayData = data;
     let config = new OverlayConfig();
     config.hasBackdrop = true;
     config.positionStrategy = this.overlay.position().global().centerVertically().centerHorizontally();
@@ -96,7 +97,7 @@ export class SummaryStoredEventAccessComponent {
   }
   doRetry(id: string) {
     this.httpSvc.retry(this.urlDefault, id).subscribe(()=>{
-      this.device.notify(true)
+      this.deviceSvc.notify(true)
     })
   }
   doSearch(config: ISearchEvent) {

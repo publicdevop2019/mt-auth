@@ -1,0 +1,6 @@
+
+@media only screen and (max-width: 600px) {
+    .mobile-view-name {
+      max-width: 50px;
+    }
+  }

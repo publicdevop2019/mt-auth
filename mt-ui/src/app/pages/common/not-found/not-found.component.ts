@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-not-found',
@@ -7,7 +8,11 @@ import { Component, OnInit } from '@angular/core';
 })
 export class NotFoundComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    public deviceSvc: DeviceService,
+  ) {
+    this.deviceSvc.updateDocTitle('NOT_FOUND_DOC_TITLE')
+   }
 
   ngOnInit(): void {
   }

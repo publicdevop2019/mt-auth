@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { EmailValidator, FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -15,6 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { Observable } from 'rxjs';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
@@ -72,10 +73,12 @@ export class LoginComponent {
     public dialog: MatDialog,
     private router: ActivatedRoute,
     public translate: TranslateService,
+    public deviceSvc: DeviceService,
     public authSvc: AuthService,
     private snackBar: MatSnackBar
   ) {
     this.httpProxy.refreshInprogress = false;
+    this.deviceSvc.updateDocTitle('LOGIN_DOC_TITLE')
     this.router.queryParamMap.subscribe(queryMaps => {
       if (queryMaps.get('redirect_uri') !== null) {
         /** get  authorize party info */
@@ -132,22 +135,22 @@ export class LoginComponent {
     if (this.validateForm()) {
       let response: Observable<ITokenResponse | IMfaResponse>;
       if (this.loginContext === 'EMAIL_CODE') {
-        response = this.httpProxy.loginEmail(this.form.get('email').value, this.form.get('emailCode').value,this.loginId)
+        response = this.httpProxy.loginEmail(this.form.get('email').value, this.form.get('emailCode').value, this.loginId)
       } else if (this.loginContext === 'MOBILE_CODE') {
-        response = this.httpProxy.loginMobile(this.form.get('mobileNumber').value, this.form.get('countryCode').value, this.form.get('mobileCode').value,this.loginId)
+        response = this.httpProxy.loginMobile(this.form.get('mobileNumber').value, this.form.get('countryCode').value, this.form.get('mobileCode').value, this.loginId)
       } else if (this.loginContext === 'PWD') {
         if (this.form.get('pwdMobileNumber').value) {
-          response = this.httpProxy.loginMobilePwd(this.form.get('pwdMobileNumber').value, this.form.get('pwdCountryCode').value, this.form.get('pwd').value,this.loginId)
+          response = this.httpProxy.loginMobilePwd(this.form.get('pwdMobileNumber').value, this.form.get('pwdCountryCode').value, this.form.get('pwd').value, this.loginId)
         } else {
           if ((this.form.get('pwdEmailOrUsername').value as string).includes("@")) {
-            response = this.httpProxy.loginEmailPwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+            response = this.httpProxy.loginEmailPwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value, this.loginId)
           } else {
-            response = this.httpProxy.loginUsernamePwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value,this.loginId)
+            response = this.httpProxy.loginUsernamePwd(this.form.get('pwdEmailOrUsername').value, this.form.get('pwd').value, this.loginId)
           }
         }
       }
       response.subscribe(next => {
-        if ((next as IMfaResponse).mfaId||(next as IMfaResponse).deliveryMethod) {
+        if ((next as IMfaResponse).mfaId || (next as IMfaResponse).deliveryMethod) {
           this.authSvc.loginFormValue = this.form;
           this.authSvc.loginNextUrl = this.nextUrl;
           this.authSvc.mfaResponse = (next as IMfaResponse);

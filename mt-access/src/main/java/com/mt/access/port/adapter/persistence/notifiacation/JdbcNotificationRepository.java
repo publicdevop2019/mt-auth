@@ -41,9 +41,9 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private static final String MARK_AS_DELIVERED =
         "UPDATE notification n SET n.status = 'DELIVERED' where n.domain_id = ?";
     private static final String MARK_ACK_SQL =
-        "UPDATE notification n SET n.ack = true where n.domain_id = ?";
+        "UPDATE notification n SET n.ack = 1 where n.domain_id = ?";
     private static final String MARK_USER_ACK_SQL =
-        "UPDATE notification n SET n.ack = true where n.domain_id = ? AND n.user_id = ?";
+        "UPDATE notification n SET n.ack = 1 where n.domain_id = ? AND n.user_id = ?";
     private static final String FIND_BY_DOMAIN_ID_SQL = "";
     private static final String FIND_ALL_BELL_NOTIFICATION_BY_USER_ID_SQL =
         "SELECT * FROM notification n WHERE n.user_id = ? AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
@@ -58,13 +58,13 @@ public class JdbcNotificationRepository implements NotificationRepository {
     private static final String COUNT_ALL_BELL_NOTIFICATION_MGMT_SQL =
         "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL'";
     private static final String FIND_UN_ACK_MGMT_SQL =
-        "SELECT * FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = false ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+        "SELECT * FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = 0 ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
     private static final String COUNT_UN_ACK_MGMT_SQL =
-        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = false";
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id IS NULL AND n.type = 'BELL' AND n.ack = 0";
     private static final String FIND_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL =
-        "SELECT * FROM notification n WHERE n.user_id = ? AND n.ack = false AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
+        "SELECT * FROM notification n WHERE n.user_id = ? AND n.ack = 0 AND n.type = 'BELL' ORDER BY n.timestamp DESC LIMIT ? OFFSET ?";
     private static final String COUNT_UN_ACK_BELL_NOTIFICATION_BY_USER_ID_SQL =
-        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ? AND n.ack = false AND n.type = 'BELL' ";
+        "SELECT COUNT(*) AS count FROM notification n WHERE n.user_id = ? AND n.ack = 0 AND n.type = 'BELL' ";
 
     @Override
     public void add(Notification notification) {

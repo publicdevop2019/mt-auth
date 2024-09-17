@@ -6,6 +6,7 @@ import { FormControl, FormGroup } from '@angular/forms';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-user',
   templateUrl: './mgmt-user.component.html',
@@ -29,7 +30,9 @@ export class MgmtUserComponent {
   constructor(
     public router: RouterWrapperService,
     public httpProxySvc: HttpProxyService,
+    private deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('MGMT_USER_DOC_TITLE')
     const endpointId = this.router.getMgmtEndpointIdFromUrl();
     this.httpProxySvc.readEntityById<IAuthUser>(this.url, endpointId).subscribe(next => {
       this.formGroup.get('id').setValue(next.id)

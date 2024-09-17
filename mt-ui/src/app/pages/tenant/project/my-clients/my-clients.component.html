@@ -1,6 +1,6 @@
 <div class="default-background">
     <div style="display: flex; justify-content: space-between; margin-top: 16px;">
-        <div>
+        <div style="flex: 1">
             <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
                 <!-- below is to align text -->
                 <span style="margin-left: -4px;">{{'CLIENT_DASHBOARD'|translate}}</span>
@@ -20,14 +20,14 @@
         *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'CLIENT_MGMT')) |async"
         style="margin-top: 16px;">
         <table mat-table [dataSource]="tableSource.dataSource">
-            <ng-container matColumnDef="name" sticky>
-                <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
-                <td mat-cell *matCellDef="let row">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['name']|translate}} </th>
+                <td mat-cell *matCellDef="let row" class="mobile-view-name">
                     {{row.name}}
                 </td>
             </ng-container>
             <ng-container matColumnDef="types">
-                <th mat-header-cell *matHeaderCellDef> {{columnList['types']|translate}} </th>
+                <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['types']|translate}} </th>
                 <td mat-cell *matCellDef="let row">
                     <mat-chip-list aria-label="chip list selection">
                         <mat-chip>
@@ -37,13 +37,13 @@
                 </td>
             </ng-container>
             <ng-container matColumnDef="edit">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['edit']|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['edit']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <mat-icon (click)="editClient(row.id)" [color]="'primary'">edit</mat-icon>
                 </td>
             </ng-container>
             <ng-container matColumnDef="delete">
-                <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                <th mat-header-cell *matHeaderCellDef class="table-icon">{{tableSource.columnConfig['delete']|translate}}</th>
                 <td mat-cell *matCellDef="let row" class="table-icon">
                     <mat-icon (click)="doDeleteById(row.id)" [color]="'warn'">delete_outline</mat-icon>
                 </td>

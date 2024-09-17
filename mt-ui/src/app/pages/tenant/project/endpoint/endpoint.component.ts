@@ -70,6 +70,7 @@ export class EndpointComponent {
     public router: RouterWrapperService,
     public deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('EP_DOC_TITLE')
     const endpointId = this.router.getEndpointIdFromUrl();
     if (endpointId === 'template') {
       if (this.router.getData() === undefined) {

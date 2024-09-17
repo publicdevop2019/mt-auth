@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { switchMap } from 'rxjs/operators';
 import { IAuthorizeParty } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-authorize',
@@ -12,7 +13,13 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 })
 export class AuthorizeComponent implements OnInit {
   public authorizeParty: IAuthorizeParty;
-  constructor(public httpProxy: HttpProxyService, private router: RouterWrapperService, private activeRoute: ActivatedRoute) {
+  constructor(
+    public httpProxy: HttpProxyService,
+    private router: RouterWrapperService,
+    public deviceSvc: DeviceService,
+    private activeRoute: ActivatedRoute
+  ) {
+    this.deviceSvc.updateDocTitle('AUTH_CODE_DOC_TITLE')
     this.activeRoute.queryParamMap.pipe(switchMap((queryMaps) => {
       this.authorizeParty = {
         response_type: queryMaps.get('response_type'),
@@ -21,7 +28,7 @@ export class AuthorizeComponent implements OnInit {
         redirect_uri: queryMaps.get('redirect_uri'),
         projectId: queryMaps.get('project_id'),
       }
-      return this.httpProxy.autoApprove(this.authorizeParty.projectId,this.authorizeParty.client_id)
+      return this.httpProxy.autoApprove(this.authorizeParty.projectId, this.authorizeParty.client_id)
     })).subscribe(next => {
       if (next)
         this.authorize();

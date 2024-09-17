@@ -1,4 +1,4 @@
-<div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;">
+<div style="display: flex; justify-content: space-between; align-items: center;margin-bottom: 16px;" class="mobile-view-modal">
     <div style="font-size: 24px; font-weight: 500;">{{'CREATE_ENDPOINT'|translate}}</div>
     <button mat-button (click)="dismiss($event)">
         <mat-icon>close </mat-icon>
@@ -13,10 +13,10 @@
     <div style="margin-bottom: 8px; margin-top: 4px;">{{'SELECT_APP_TYPE_1'|translate}}<span
             class="mat-required">*</span></div>
     <mat-error style="font-size: 10px; margin-top: -4px;">{{typeErrorMsg | translate}}</mat-error>
-    <mat-radio-group formControlName="type">
+    <mat-radio-group formControlName="type" style="display: block; overflow: auto;">
         <div style="display: flex; flex-direction: row;">
             <mat-card
-                style="margin: 4px 8px 4px 0px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 8px 4px 0px; min-width: 140px; max-width:140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="fg.get('type').setValue('PROTECTED_NONE_SHARED_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">verified_user</mat-icon>
@@ -34,7 +34,7 @@
                 </div>
             </mat-card>
             <mat-card
-                style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 0px 4px 8px; min-width: 140px; max-width:140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="fg.get('type').setValue('PROTECTED_SHARED_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">share</mat-icon>
@@ -52,7 +52,7 @@
                 </div>
             </mat-card>
             <mat-card
-                style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 0px 4px 8px; min-width: 140px; max-width:140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="fg.get('type').setValue('PUBLIC_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">lock_open</mat-icon>
@@ -70,7 +70,7 @@
                 </div>
             </mat-card>
             <mat-card
-                style="margin: 4px 0px 4px 8px; width: 140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
+                style="margin: 4px 0px 4px 8px; min-width: 140px; max-width:140px; height: 300px; display: flex; justify-content: center; flex-direction: column; cursor: pointer;"
                 (click)="fg.get('type').setValue('PRIVATE_API')">
                 <div style="display: flex; justify-content: center;">
                     <mat-icon style="height: 64px; width: 64px; font-size: 64px;" color="primary">visibility_off</mat-icon>

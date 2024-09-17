@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProjectService } from 'src/app/services/project.service';
-import { NewProjectComponent } from '../new-project/new-project.component';
+import { NewProjectComponent } from '../../../components/new-project/new-project.component';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
+import { DeviceService } from 'src/app/services/device.service';
 
 @Component({
   selector: 'app-welcome',
@@ -11,8 +12,14 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 })
 export class WelcomeComponent implements OnInit {
 
-  constructor(public projectSvc: ProjectService, 
-    public router: RouterWrapperService, public dialog: MatDialog) { }
+  constructor(
+    public projectSvc: ProjectService,
+    public router: RouterWrapperService,
+    public deviceSvc: DeviceService,
+    public dialog: MatDialog
+  ) {
+    this.deviceSvc.updateDocTitle('WELCOME_DOC_TITLE')
+  }
 
   ngOnInit(): void {
   }

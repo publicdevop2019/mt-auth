@@ -7,9 +7,9 @@
         </div>
     </div>
     <form [formGroup]="fg"
-        style="display: flex; flex-direction: row;align-items: center; justify-content: space-between;">
-        <div style="display: flex; flex: 1; margin-right: 36px;">
-            <div style="flex: 1;">
+        style="display: flex; flex-direction: row;align-items: center; justify-content: space-between; flex-wrap: wrap;">
+        <div class="mobile-view-wrapper">
+            <div style="width: 250px;  ">
                 <mat-form-field>
                     <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
                     <input matInput formControlName="name">
@@ -17,7 +17,7 @@
                 <div style="font-size: 12px; color: red; margin-top: -8px;">{{nameErrorMsg|translate}}
                 </div>
             </div>
-            <div style="margin: 0px 24px;flex: 1;">
+            <div style="width: 250px;  " class="mobile-view">
                 <mat-form-field>
                     <mat-label>{{'DESCRIPTION'| translate}}</mat-label>
                     <input matInput formControlName="description">
@@ -25,7 +25,7 @@
             </div>
 
             <app-paginated-select [fg]="fg" [label]="'SELECT_API'|translate" [key]="'apiId'" multiple="true"
-                [loadElements]="getEndpoints()" style="flex: 1;">
+                [loadElements]="getEndpoints()" style="width: 250px;  ">
             </app-paginated-select>
         </div>
         <button mat-raised-button color="primary"

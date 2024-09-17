@@ -363,7 +363,7 @@ public class JdbcClientRepository implements ClientRepository {
         }
         if (Checker.notNull(query.getResourceFlag())) {
             String accessible =
-                query.getResourceFlag() ? "c.accessible_ = true" : "c.accessible_ = false";
+                query.getResourceFlag() ? "c.accessible_ = 1" : "c.accessible_ = 0";
             whereClause.add(accessible);
         }
         if (Checker.notNull(query.getName())) {

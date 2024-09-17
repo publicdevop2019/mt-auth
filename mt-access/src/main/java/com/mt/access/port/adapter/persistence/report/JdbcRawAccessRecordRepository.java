@@ -34,11 +34,11 @@ public class JdbcRawAccessRecordRepository implements RawAccessRecordRepository 
         ") VALUES " +
         "(?,?,?,?,?,?,?,?,?)";
     private static final String FIND_BY_UUID_SQL = "SELECT * FROM raw_access_record rar " +
-        "WHERE rar.uuid in (%s) AND rar.is_response = true";
+        "WHERE rar.uuid in (%s) AND rar.is_response = 1";
     private static final String FIND_BUCKET_SQL = "SELECT * FROM raw_access_record rar " +
-        "WHERE rar.id > ? AND rar.is_request = true ORDER BY rar.id ASC LIMIT 100";
+        "WHERE rar.id > ? AND rar.is_request = 1 ORDER BY rar.id ASC LIMIT 100";
     private static final String UPDATE_SQL = "UPDATE raw_access_record rar " +
-        "SET rar.processed = true WHERE rar.id IN (%s)";
+        "SET rar.processed = 1 WHERE rar.id IN (%s)";
 
     @Override
     public Set<RawAccessRecord> getBucketRequestRecordSinceId(Long id) {

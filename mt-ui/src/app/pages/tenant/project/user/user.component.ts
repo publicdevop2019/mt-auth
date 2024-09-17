@@ -37,6 +37,7 @@ export class UserComponent {
     public deviceSvc: DeviceService,
     public cdr: ChangeDetectorRef
   ) {
+    this.deviceSvc.updateDocTitle('USER_DOC_TITLE')
     this.loadRoot = this.httpSvc.readEntityByQuery<IRole>(this.roleUrl, 0, 1000, "parentId:null,types:PROJECT.USER").pipe(map(e => {
       e.data.forEach(ee => {
         if (ee.roleType === 'PROJECT') {

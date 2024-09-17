@@ -56,6 +56,7 @@ export class RoleComponent implements OnDestroy {
     public dialog: MatDialog,
     public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('ROLE_DOC_TITLE')
     this.httpProxySvc.readEntityById<IRole>(this.roleUrl, this.router.getRoleIdFromUrl()).subscribe(next => {
       this.data = next
       this.fg.get('name').setValue(this.data.name)

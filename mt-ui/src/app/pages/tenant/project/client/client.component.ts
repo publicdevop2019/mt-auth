@@ -39,7 +39,7 @@ export class ClientComponent {
   resourceSize: number = 50
   fg = new FormGroup({
     id: new FormControl({ value: '', disabled: true }),
-    projectId: new FormControl(''),
+    projectId: new FormControl({ value: '', disabled: true }),
     path: new FormControl(''),
     externalUrl: new FormControl(''),
     clientSecret: new FormControl(''),
@@ -61,6 +61,7 @@ export class ClientComponent {
     public router: RouterWrapperService,
     public deviceSvc: DeviceService
   ) {
+    this.deviceSvc.updateDocTitle('CLIENT_DOC_TITLE')
     const clientId = this.router.getClientIdFromUrl();
     Logger.debug(clientId)
     if (clientId === 'template') {

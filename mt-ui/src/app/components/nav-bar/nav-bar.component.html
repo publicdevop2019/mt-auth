@@ -6,7 +6,7 @@
                 <mat-icon>{{snav.opened?'menu_open':'menu'}}</mat-icon>
             </button>
             <div style="border-left: 1px solid white; margin: 0px 16px 0px 8px; height: 24px;">&nbsp;</div>
-            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm" style="width: 160px;">
+            <div *ngIf="projectSvc.viewProject" [formGroup]="switchProjectForm" class="project-switch">
                 <!-- switch project select -->
                 <mat-form-field>
                     <mat-select formControlName="viewTenantId">
@@ -17,7 +17,23 @@
                 </mat-form-field>
             </div>
         </div>
-        <div style="display: flex; align-items: center;">
+        <div style="display: flex; align-items: center;" *ngIf="mobileQuery.matches">
+            <button mat-button class="avatar-wrapper" [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
+                <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
+                    matBadgeSize="small" matBadgeColor="accent">notifications_none
+                </mat-icon>
+            </button>
+            <button *ngIf="hasAuth()" class="avatar-wrapper" mat-button [matMenuTriggerFor]="mgmtMenu"
+                (click)="msgSvc.clone()">
+                <mat-icon matBadge="{{bellCount(msgSvc.latestMessage)}}" matBadgeOverlap="false" matBadgeSize="small"
+                    matBadgeColor="warn">notifications_none
+                </mat-icon>
+            </button>
+            <button mat-icon-button [matMenuTriggerFor]="account">
+                <mat-icon>more_vert</mat-icon>
+            </button>
+        </div>
+        <div style="display: flex; align-items: center;" *ngIf="!mobileQuery.matches">
             <button mat-button (click)="openDoc()" style="display: flex;">
                 <div
                     style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center;">
@@ -90,15 +106,23 @@
                 <div style="font-size: 14px; color: #673ab7; line-height: 36px; font-weight: 700;">{{name}}</div>
             </div>
             <div>
-                <button mat-menu-item [routerLink]="'user/profile'" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                <button mat-menu-item [routerLink]="'user/profile'"
+                    style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
                     <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">account_circle</mat-icon>
                     <span> {{'MY_PROFILE'|translate}}</span>
                 </button>
-                <button mat-menu-item [routerLink]="'user/setting'" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                <button mat-menu-item [routerLink]="'user/setting'"
+                    style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
                     <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">settings</mat-icon>
                     <span> {{'SYSTEM_SETTINGS'|translate}}</span>
                 </button>
-                <button mat-menu-item (click)="doLogout()" style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                <button mat-menu-item (click)="openDoc()"  *ngIf="mobileQuery.matches"
+                    style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
+                    <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">open_in_new</mat-icon>
+                    <span> {{'APP_DOC'|translate}}</span>
+                </button>
+                <button mat-menu-item (click)="doLogout()"
+                    style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
                     <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">exit_to_app</mat-icon>
                     <span> {{'LOGOUT'|translate}}</span>
                 </button>
@@ -172,8 +196,7 @@
                         {{'MY_CLIENTS'| translate}}
                     </mat-list-item>
                     <mat-expansion-panel (opened)="openedHandler('ep_nav')" (closed)="closedHander('ep_nav')"
-                        [expanded]="navExpand('ep_nav')"
-                        *appRequireP="getPermissionId(epPermissions) | async">
+                        [expanded]="navExpand('ep_nav')" *appRequireP="getPermissionId(epPermissions) | async">
                         <mat-expansion-panel-header style="padding-left: 16px;">
                             <mat-panel-title style="align-items: center;">
                                 <mat-icon fontSet="material-icons-outlined">api</mat-icon>
@@ -181,16 +204,19 @@
                             </mat-panel-title>
                         </mat-expansion-panel-header>
                         <mat-nav-list style="padding-top: 0px;">
-                            <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/endpoints'"
+                            <mat-list-item mat-list-item
+                                [routerLink]="'projects/'+projectSvc.viewProject.id+'/endpoints'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
                                 {{'MY_API'| translate}}
                             </mat-list-item>
-                            <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/cors-configs'"
+                            <mat-list-item mat-list-item
+                                [routerLink]="'projects/'+projectSvc.viewProject.id+'/cors-configs'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                                 *appRequireP="getPermissionId(corsPermissions) | async">
                                 {{'MY_CORS'| translate}}
                             </mat-list-item>
-                            <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/cache-configs'"
+                            <mat-list-item mat-list-item
+                                [routerLink]="'projects/'+projectSvc.viewProject.id+'/cache-configs'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;"
                                 *appRequireP="getPermissionId(cachePermissions) | async">
                                 {{'MY_CACHE'| translate}}
@@ -198,8 +224,7 @@
                         </mat-nav-list>
                     </mat-expansion-panel>
                     <mat-expansion-panel (opened)="openedHandler('p_nav')" (closed)="closedHander('p_nav')"
-                        [expanded]="navExpand('p_nav')"
-                        *appRequireP="getPermissionId(epPermissions) | async">
+                        [expanded]="navExpand('p_nav')" *appRequireP="getPermissionId(epPermissions) | async">
                         <mat-expansion-panel-header style="padding-left: 16px;">
                             <mat-panel-title style="align-items: center;">
                                 <mat-icon fontSet="material-icons-outlined">policy</mat-icon>
@@ -207,7 +232,8 @@
                             </mat-panel-title>
                         </mat-expansion-panel-header>
                         <mat-nav-list style="padding-top: 0px;">
-                            <mat-list-item mat-list-item [routerLink]="'projects/'+projectSvc.viewProject.id+'/permissions'"
+                            <mat-list-item mat-list-item
+                                [routerLink]="'projects/'+projectSvc.viewProject.id+'/permissions'"
                                 routerLinkActive="nav-active" [preserveFragment]="true" style="font-size: 14px;">
                                 {{'MY_PERMISSION_MENU'| translate}}
                             </mat-list-item>
@@ -237,8 +263,8 @@
             <!-- end of tenant nav list -->
         </mat-sidenav>
 
-        <mat-sidenav-content [style.padding-left.px]="mobileQuery.matches ? 15 : 30"
-            [style.padding-right.px]="mobileQuery.matches ? 15 : 30">
+        <mat-sidenav-content [style.padding-left.px]="mobileQuery.matches ? 16 : 30"
+            [style.padding-right.px]="mobileQuery.matches ? 16 : 30">
             <router-outlet></router-outlet>
         </mat-sidenav-content>
     </mat-sidenav-container>

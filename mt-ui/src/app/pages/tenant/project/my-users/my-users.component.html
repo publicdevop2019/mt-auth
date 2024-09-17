@@ -15,7 +15,7 @@
         *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'USER_MGMT')) |async">
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
-                <ng-container matColumnDef="id" sticky>
+                <ng-container matColumnDef="id">
                     <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['id']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-copy-field [inputValue]="row.id"></app-copy-field>

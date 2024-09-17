@@ -1,0 +1,36 @@
+<div class="mobile-view-modal">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <div style="font-size: 24px; font-weight: 700;">{{'REGISTER_MY_PROJECT'|translate}}</div>
+        <button mat-button (click)="dismiss($event)">
+            <mat-icon>close </mat-icon>
+        </button>
+    </div>
+    <div>
+        <form [formGroup]="fg">
+            <mat-form-field>
+                <mat-label>{{'ENTER_PROJECT_NAME'| translate}}</mat-label>
+                <input matInput formControlName="projectName" required>
+                <mat-error>{{nameErrorMsg | translate}}</mat-error>
+            </mat-form-field>
+            <div style="display: flex; justify-content: end; margin: 16px 0px;">
+                <button mat-raised-button [disabled]="createLoading" (click)="dismiss($event)" style="margin-right: 16px;">{{'CANCEL'|translate}}</button>
+                <button mat-raised-button color="primary" [disabled]="createLoading"
+                    (click)="create()">{{'CREATE'|translate}}</button>
+            </div>
+        </form>
+    </div>
+    <ng-container *ngIf="createLoading">
+        <div style="display: flex;flex-direction: column;align-items: center;">
+            <mat-spinner></mat-spinner>
+            <div style="font-size: 16px;margin-top: 16px;">{{'CREATING_PROJECT'| translate}}</div>
+        </div>
+    </ng-container>
+    <mat-card *ngIf="showNotes" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>{{'NEW_PROJECT_NOTE'|translate}}</div>
+        <button mat-button (click)="doLogout()" color="primary">{{'DISMISS'|translate}}</button>
+    </mat-card>
+    <mat-card *ngIf="systemError" style="display: flex; align-items: center;">
+        <mat-icon style="padding-right:8px;" [color]="'warn'">error</mat-icon>
+        <div>{{'NEW_PROJECT_ERROR_NOTE'|translate}}</div>
+    </mat-card>
+</div>

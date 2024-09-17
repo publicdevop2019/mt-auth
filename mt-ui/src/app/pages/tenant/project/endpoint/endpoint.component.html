@@ -18,14 +18,15 @@
         </div>
         <mat-tab-group>
             <mat-tab label="{{'BASIC_ENDPOINT_SETTING'|translate}}">
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'BASIC_CLIENT_INFO'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'BASIC_CLIENT_INFO'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
                             <input matInput formControlName="name">
                         </mat-form-field>
-                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px;">{{nameErrorMsg|translate}}</div>
+                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px;">
+                            {{nameErrorMsg|translate}}</div>
                         <mat-form-field>
                             <mat-label>{{'ENTER_RESOURCE_ID'|translate}}<span class="mat-required">*</span></mat-label>
                             <mat-select formControlName="resourceId">
@@ -34,7 +35,8 @@
                                 </mat-option>
                             </mat-select>
                         </mat-form-field>
-                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px">{{resourceIdErrorMsg|translate}}
+                        <div style="font-size: 12px; color: red; margin-top: -8px; margin-bottom: 8px">
+                            {{resourceIdErrorMsg|translate}}
                         </div>
                         <div style="margin-bottom: 12px;">
                             <label>{{'IS_WEBSOCKET'|translate}}<span class="mat-required">*</span></label>
@@ -83,9 +85,9 @@
                     </div>
                 </div>
                 <mat-divider></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'SECURITY_EP_INFO'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'SECURITY_EP_INFO'|translate}}</div>
+                    <div class="basic-info-content">
                         <div style="margin-bottom: 8px;">
                             <mat-checkbox formControlName="csrf">
                                 {{'CSRF_ENABLED'|translate}}
@@ -108,9 +110,9 @@
                     </div>
                 </div>
                 <mat-divider></mat-divider>
-                <div style="display: flex; flex-direction: row; justify-content: space-between; margin: 36px 0px;">
-                    <div>{{'PERFORMANCE_EP_INFO'|translate}}</div>
-                    <div style="width: 536px;">
+                <div class="basic-info">
+                    <div class="basic-info-title">{{'PERFORMANCE_EP_INFO'|translate}}</div>
+                    <div class="basic-info-content">
                         <mat-form-field>
                             <mat-label>{{'SELECT_CACHE_PROFILE'|translate}}</mat-label>
                             <mat-select formControlName="cacheProfile">

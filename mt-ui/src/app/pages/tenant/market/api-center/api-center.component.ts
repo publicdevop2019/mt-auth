@@ -7,6 +7,7 @@ import { TableHelper } from 'src/app/clazz/table-helper';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { environment } from 'src/environments/environment';
 import { Utility } from 'src/app/misc/utility';
+import { DeviceService } from 'src/app/services/device.service';
 @Component({
   selector: 'app-api-center',
   templateUrl: './api-center.component.html',
@@ -14,7 +15,6 @@ import { Utility } from 'src/app/misc/utility';
 })
 export class ApiCenterComponent {
   private url = Utility.getUrl([environment.serverUri, APP_CONSTANT.MT_AUTH_ACCESS_PATH, RESOURCE_NAME.SHARED_ENDPOINTS])
-  public formId = "sharedEndpointTableColumnConfig";
   columnList = {
     name: 'NAME',
     type: 'TYPE',
@@ -47,7 +47,9 @@ export class ApiCenterComponent {
   constructor(
     public httpSvc: HttpProxyService,
     public router: RouterWrapperService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('API_CENTER_DOC_TITLE')
   }
   getOption(value: string, options: IOption[]) {
     return options.find(e => e.value == value)

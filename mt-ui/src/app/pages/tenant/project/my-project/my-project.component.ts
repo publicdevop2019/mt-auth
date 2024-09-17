@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IProjectDashboard } from 'src/app/misc/interface';
+import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
@@ -24,7 +25,9 @@ export class MyProjectComponent implements OnDestroy {
     private projectSvc: ProjectService,
     public httpProxySvc: HttpProxyService,
     public router: RouterWrapperService,
+    public deviceSvc: DeviceService,
   ) {
+    this.deviceSvc.updateDocTitle('TENANT_PROJECT_DOC_TITLE')
     this.projectSvc.getMyProject(this.router.getProjectIdFromUrl()).subscribe(next => {
       this.data = next;
     })
