@@ -27,9 +27,10 @@
     node app.js 
     ```
 4. 打开 [演示NodeJs应用](http://localhost:3000)
+
 ## Spring Boot后端演示项目
 ### 准备工作
-1. 将mt-sample/spring-boot打包并部署在任意服务器，注：服务器需可以外部访问
+1. 将mt-sample/spring-boot打包并部署在您的服务器上
 2. 记下调用地址，例如http://127.0.0.1:8080
 3. 登录演示账户demo@sample.com
 4. 左侧导航栏点击->演示项目->应用
