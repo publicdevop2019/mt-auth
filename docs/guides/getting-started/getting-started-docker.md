@@ -3,11 +3,11 @@
 # 准备工作
 请确保Docker已安装并且可运行
 # 启动 MT-AUTH
-在terminal输入Docker命令已启动MT-AUTH
+在Terminal输入Docker命令来启动MT-AUTH
 ```shell
 docker run -dt --rm --name mt-auth -p 4300:4300 publicdevop2019/mt-auth:latest
 ```
-MT-AUTH将会使用port 4300(前端)与8111(后端)
+MT-AUTH将会使用port 4300
 
 # 登录
 打开MT-AUTH[登录页面](http://localhost:4300/login)
@@ -41,7 +41,7 @@ MT-AUTH将会使用port 4300(前端)与8111(后端)
 # 创建应用
 将您的应用添加到MT-AUTH中来实现用户单点登录
 
-1. 打开 [登录页面](http://localhost:4300/login)
+1. 打开 [控制台](http://localhost:4300)
 2. 在上方导航栏中选择您所创建的项目
 3. 在左侧导航栏中选择"自建应用"
 4. 输入应用名称，选择"单页Web应用"

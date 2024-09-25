@@ -34,13 +34,6 @@
             </button>
         </div>
         <div style="display: flex; align-items: center;" *ngIf="!mobileQuery.matches">
-            <button mat-button (click)="openDoc()" style="display: flex;">
-                <div
-                    style="font-weight: 600; margin-top: 0px; display: flex; align-items: center; justify-content: center;">
-                    <div style="font-size: 16px;">{{'APP_DOC'|translate}}</div>
-                    <mat-icon style="padding-left:4px;font-size: 16px; width: 16px;height: 16px;">open_in_new</mat-icon>
-                </div>
-            </button>
             <button mat-button class="avatar-wrapper" [matMenuTriggerFor]="userMenu" (click)="userMsgSvc.clone()">
                 <mat-icon matBadge="{{bellCount(userMsgSvc.latestMessage)}}" matBadgeOverlap="false"
                     matBadgeSize="small" matBadgeColor="accent">notifications_none
@@ -115,11 +108,6 @@
                     style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
                     <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">settings</mat-icon>
                     <span> {{'SYSTEM_SETTINGS'|translate}}</span>
-                </button>
-                <button mat-menu-item (click)="openDoc()"  *ngIf="mobileQuery.matches"
-                    style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">
-                    <mat-icon fontSet="material-icons-outlined" style="margin-right: 4px;">open_in_new</mat-icon>
-                    <span> {{'APP_DOC'|translate}}</span>
                 </button>
                 <button mat-menu-item (click)="doLogout()"
                     style="display: flex; align-items: center; flex-direction: row; padding-left: 6px;">

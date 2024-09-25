@@ -86,16 +86,10 @@ export class LoginComponent {
       }
       if (queryMaps.get('demo') !== null) {
         Logger.debug('demo mode')
-        let demoAccount = queryMaps.get('demo')
         this.loginContext = 'PWD';
         this.selectedLoginIndex = 2;
-        if (demoAccount === 'admin') {
-          this.form.get('pwdEmailOrUsername').setValue('admin@sample.com')
-          this.form.get('pwd').setValue('Password1!')
-        } else {
-          this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
-          this.form.get('pwd').setValue('Password1!')
-        }
+        this.form.get('pwdEmailOrUsername').setValue('demo@sample.com')
+        this.form.get('pwd').setValue('Password1!')
         this.loginOrRegister()
       }
     });

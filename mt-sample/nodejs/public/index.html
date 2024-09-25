@@ -13,7 +13,7 @@
         const commonSecret = "97b29ceb-c445-4178-bb95-84755f14cba6";
         // const apiUrlPrefix = "http://localhost:8111"
         // const authorizeServerUrlPrefix = "http://localhost:4300";
-        const authorizeServerUrlPrefix = "https://www.letsauth.cloud";
+        const authorizeServerUrlPrefix = "https://console.letsauth.cloud";
         const apiUrlPrefix = "https://api.letsauth.cloud"
         let mfaRequired = false;
         addEventListener("load", (event) => {
@@ -81,6 +81,7 @@
             myHeaders.append("Authorization", 'Basic ' + btoa(clientId + ':' + commonSecret));
             const formData = new FormData();
             formData.append('grant_type', 'password');
+            formData.append('type', 'username_w_pwd');
             formData.append('username', document.getElementById('username').value);
             formData.append('password', document.getElementById('password').value);
             if (mfaRequired) {
@@ -123,7 +124,7 @@
                 <button onclick="authorizationLogin(projectId,authorizeClientId)">登录</button>
             </div>
         </div>
-        <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
+        <!-- <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
             <div>
                 <h2>3. 用户输入账号密码登录获取演示项目权限 OAuth2模式:Password</h2>
                 <div>
@@ -143,7 +144,7 @@
                     <button onclick="getPasswordToken(projectId,passwordClientId)">登录</button>
                 </div>
             </div>
-        </div>
+        </div> -->
         <div style="border-top: 2px solid black; padding: 24px; margin-top: 24px;">
             <h2>Token 值</h2>
             <div id="token"></div>
