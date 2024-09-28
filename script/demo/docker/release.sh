@@ -1,11 +1,11 @@
+#[note] enter username and password for docker hub
 docker login
-#[optional] run below to use different builder
-#[optional] docker buildx create --name my-builder
-#[optional] docker buildx use my-builder
-APP_ROOT=~/mt-auth
-# APP_ROOT=~/Documents/Apps/Public/mt-auth
-cd $APP_ROOT
+#[note] run below to use different builder
+docker buildx create --name my-builder
+docker buildx use my-builder
 #[note] build access and proxy jar
+APP_ROOT=~/mt-auth
+cd $APP_ROOT
 #[note] update POM to include h2
 sed -i.bak 's|<!-- h2_placeholder -->|<dependency><groupId>com.h2database</groupId><artifactId>h2</artifactId><version>2.3.232</version><scope>runtime</scope></dependency>|' ./mt-access/pom.xml
 rm ./mt-access/pom.xml.bak
