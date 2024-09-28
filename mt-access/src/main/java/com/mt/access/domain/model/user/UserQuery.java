@@ -18,10 +18,14 @@ import lombok.ToString;
 @Getter
 @ToString
 public class UserQuery extends QueryCriteria {
-    public static final String EMAIL = "email";
-    public static final String ID = "id";
-    public static final String PROJECT_IDS = "projectIds";
-    private Set<String> userEmails;
+    private static final String EMAIL = "email";
+    private static final String MOBILE = "mobile";
+    private static final String USERNAME = "username";
+    private static final String ID = "id";
+    private static final String PROJECT_IDS = "projectIds";
+    private Set<String> userEmailKeys;
+    private Set<String> userMobileKeys;
+    private Set<String> usernameKeys;
     private Set<UserId> userIds;
     private Set<ProjectId> projectIds;
     private UserSort userSort;
@@ -49,9 +53,15 @@ public class UserQuery extends QueryCriteria {
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap = QueryUtility.parseQuery(queryParam,
-            EMAIL, ID, PROJECT_IDS);
+            EMAIL, MOBILE, USERNAME, ID, PROJECT_IDS);
         Optional.ofNullable(stringStringMap.get(EMAIL)).ifPresent(e -> {
-            userEmails = new HashSet<>(List.of(e.split("\\.")));
+            userEmailKeys = new HashSet<>(List.of(e.split("\\.")));
+        });
+        Optional.ofNullable(stringStringMap.get(MOBILE)).ifPresent(e -> {
+            userMobileKeys = new HashSet<>(List.of(e.split("\\.")));
+        });
+        Optional.ofNullable(stringStringMap.get(USERNAME)).ifPresent(e -> {
+            usernameKeys = new HashSet<>(List.of(e.split("\\.")));
         });
         Optional.ofNullable(stringStringMap.get(PROJECT_IDS)).ifPresent(e -> {
             projectIds =

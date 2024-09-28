@@ -1,43 +1,55 @@
 <div class="default-background">
     <div style="display: flex; justify-content: space-between; margin-top: 16px;">
         <div>
-            <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;"> {{'MY_ADMIN_DASHBOARD'|translate}}</div>
+            <div style="font-size: 32px; margin: 8px 0px 16px 0px; font-weight: 700; line-height: 32px;">
+                {{'MY_ADMIN_DASHBOARD'|translate}}</div>
             <div style="margin: 0px 0px 16px 0px; color: #545968; font-size: 14px;">{{'ADMIN_SUB'|translate}}</div>
         </div>
     </div>
     <div style="display: flex;flex-direction: row;align-items: center;height: 56px; justify-content:space-between;">
-        <mat-form-field style="flex: 1;">
-            <mat-label>{{'ENTER_USER_EMAIL' | translate}}</mat-label>
-            <mat-chip-list #chipList aria-label="chip list selection">
-                <mat-chip *ngFor="let e of newAdmins" [selectable]="true" [removable]="true" (removed)="remove(e)">
-                    <ng-container>
-                        {{e.label|translate}}
+        <div style="display: flex; flex-direction: row; flex: 1; align-items: flex-end;">
+            <mat-form-field style="width: 150px; margin-right: 12px;">
+                <mat-label>{{'SELECT_A_SEARCH_TYPE'|translate}}</mat-label>
+                <mat-select [formControl]="searchKey">
+                    <ng-container *ngFor="let e of searchConfigs">
+                        <mat-option [value]="e.searchValue">{{e.searchLabel|translate}}</mat-option>
                     </ng-container>
-                    <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
-                </mat-chip>
-                <input matInput [value]="email.value" (input)="updateEmail($event)" [matAutocomplete]="auto"
-                    [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
-            </mat-chip-list>
-            <mat-autocomplete #auto="matAutocomplete">
-                <mat-option *ngFor="let e of options" [value]="e.value" (click)="onAutoCompleteClickHandler(e)">
-                    {{e.label}}
-                </mat-option>
-                <mat-option *ngIf="!allLoaded && !loading ">
-                    <div #ghostRef>
-                        <button mat-menu-item>
-                            <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="40">
-                            </mat-progress-spinner>
-                        </button>
-                    </div>
-                </mat-option>
-            </mat-autocomplete>
-        </mat-form-field>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field style="flex: 1;">
+                <mat-label>{{'ENTER_SEARCH_VALUE' | translate}}</mat-label>
+                <mat-chip-list #chipList aria-label="chip list selection">
+                    <mat-chip *ngFor="let e of newAdmins" [selectable]="true" [removable]="true" (removed)="remove(e)">
+                        <ng-container>
+                            {{e.label|translate}}
+                        </ng-container>
+                        <mat-icon matChipRemove *ngIf="true">cancel</mat-icon>
+                    </mat-chip>
+                    <input matInput [value]="searchValue.value" (input)="updateSearchValue($event)"
+                        [matAutocomplete]="auto" [matChipInputFor]="chipList"
+                        [matChipInputSeparatorKeyCodes]="separatorKeysCodes">
+                </mat-chip-list>
+                <mat-autocomplete #auto="matAutocomplete">
+                    <mat-option *ngFor="let e of options" [value]="e.value" (click)="onAutoCompleteClickHandler(e)">
+                        {{e.label}}
+                    </mat-option>
+                    <mat-option *ngIf="!allLoaded && !loading ">
+                        <div #ghostRef>
+                            <button mat-menu-item>
+                                <mat-progress-spinner [color]="'primary'" [mode]="'indeterminate'" [diameter]="40">
+                                </mat-progress-spinner>
+                            </button>
+                        </div>
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+        </div>
         <button mat-raised-button color="accent" class="mobile-search-button" [disabled]="newAdmins.length===0"
             (click)="doAdd()">{{'ADD_TENANT_ADMIN'|translate}}</button>
         <button mat-raised-button color="primary" class="mobile-search-button"
             (click)="doRefresh()"><mat-icon>refresh</mat-icon></button>
     </div>
-    <div >
+    <div>
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
                 <ng-container matColumnDef="id">
@@ -46,35 +58,36 @@
                         <app-copy-field [inputValue]="row.id"></app-copy-field>
                     </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="email">
                     <th mat-header-cell *matHeaderCellDef> {{columnList['email']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-copy-field [inputValue]="row.email"></app-copy-field>
                     </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="name" sticky>
                     <th mat-header-cell *matHeaderCellDef> {{columnList['name']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <app-copy-field [inputValue]="row.name"></app-copy-field>
                     </td>
                 </ng-container>
-    
+
                 <ng-container matColumnDef="delete">
                     <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
                     <td mat-cell *matCellDef="let row" class="table-icon">
                         <mat-icon (click)="delete(row.id)" [color]="'warn'">delete_outline</mat-icon>
                     </td>
                 </ng-container>
-    
+
                 <tr mat-header-row *matHeaderRowDef="tableSource.displayedColumns(); sticky: true"></tr>
                 <tr mat-row *matRowDef="let row; columns: tableSource.displayedColumns();"></tr>
             </table>
         </div>
-    
-        <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount" [pageIndex]="tableSource.pageNum"
-            [pageSize]="tableSource.pageSize" (page)="tableSource.loadPage($event.pageIndex)">
+
+        <mat-paginator [showFirstLastButtons]="true" [length]="tableSource.totoalItemCount"
+            [pageIndex]="tableSource.pageNum" [pageSize]="tableSource.pageSize"
+            (page)="tableSource.loadPage($event.pageIndex)">
         </mat-paginator>
     </div>
 </div>

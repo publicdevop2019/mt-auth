@@ -36,10 +36,17 @@ export class MyUsersComponent {
     {
       searchLabel: 'EMAIL',
       searchValue: 'email',
-      type: 'text',
-      multiple: {
-        delimiter: '.'
-      }
+      type: 'text'
+    },
+    {
+      searchLabel: 'MOBILE_NUMBER',
+      searchValue: 'mobile',
+      type: 'text'
+    },
+    {
+      searchLabel: 'USERNAME',
+      searchValue: 'username',
+      type: 'text'
     },
   ]
   constructor(
@@ -52,11 +59,11 @@ export class MyUsersComponent {
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
         id: 'ID',
-        name: 'NAME',
+        name: 'DISPLAY_NAME',
         edit: 'EDIT',
       } : {
         id: 'ID',
-        name: 'NAME',
+        name: 'DISPLAY_NAME',
       }
     })
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
