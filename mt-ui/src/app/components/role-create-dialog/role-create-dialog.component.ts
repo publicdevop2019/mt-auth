@@ -13,7 +13,7 @@ export class RoleCreateDialogComponent {
   allowError: boolean = false;
   nameErrorMsg: string = undefined;
   fg = new FormGroup({
-    name: new FormControl('我的角色' + Utility.getRandomString().substring(0, 3), []),
+    name: new FormControl('MyRole_' + Utility.getRandomString().substring(0, 3), []),
     description: new FormControl('', []),
   });
   constructor(

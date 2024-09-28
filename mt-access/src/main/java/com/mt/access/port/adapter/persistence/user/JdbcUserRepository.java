@@ -190,11 +190,29 @@ public class JdbcUserRepository implements UserRepository {
             String byDomainIds = String.format("u.domain_id IN (%s)", inClause);
             whereClause.add(byDomainIds);
         }
-        if (Checker.notNullOrEmpty(query.getUserEmails())) {
+        if (Checker.notNullOrEmpty(query.getUserEmailKeys())) {
             List<String> orClause = new ArrayList<>();
-            query.getUserEmails().forEach(e -> {
+            query.getUserEmailKeys().forEach(e -> {
                 String email = "u.email LIKE ?";
                 orClause.add(email);
+            });
+            String join = String.join(" OR ", orClause);
+            whereClause.add(join);
+        }
+        if (Checker.notNullOrEmpty(query.getUserMobileKeys())) {
+            List<String> orClause = new ArrayList<>();
+            query.getUserMobileKeys().forEach(e -> {
+                String mobile = "u.mobile_number LIKE ?";
+                orClause.add(mobile);
+            });
+            String join = String.join(" OR ", orClause);
+            whereClause.add(join);
+        }
+        if (Checker.notNullOrEmpty(query.getUsernameKeys())) {
+            List<String> orClause = new ArrayList<>();
+            query.getUsernameKeys().forEach(e -> {
+                String username = "u.username LIKE ?";
+                orClause.add(username);
             });
             String join = String.join(" OR ", orClause);
             whereClause.add(join);
@@ -214,9 +232,17 @@ public class JdbcUserRepository implements UserRepository {
             args.addAll(
                 query.getUserIds().stream().map(DomainId::getDomainId).collect(Collectors.toSet()));
         }
-        if (Checker.notNull(query.getUserEmails())) {
+        if (Checker.notNull(query.getUserEmailKeys())) {
             args.addAll(
-                query.getUserEmails());
+                query.getUserEmailKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
+        }
+        if (Checker.notNull(query.getUserMobileKeys())) {
+            args.addAll(
+                query.getUserMobileKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
+        }
+        if (Checker.notNull(query.getUsernameKeys())) {
+            args.addAll(
+                query.getUsernameKeys().stream().map(e -> e + "%").collect(Collectors.toSet()));
         }
         Long count;
         if (args.isEmpty()) {

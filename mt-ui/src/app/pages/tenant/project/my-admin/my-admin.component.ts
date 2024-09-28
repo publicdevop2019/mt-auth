@@ -2,10 +2,11 @@ import { COMMA, ENTER } from '@angular/cdk/keycodes';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatMenuTrigger } from '@angular/material/menu';
+import { combineLatest } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { TableHelper } from 'src/app/clazz/table-helper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
-import { IOption, IProjectAdmin } from 'src/app/misc/interface';
+import { IOption, IProjectAdmin, IProjectUser } from 'src/app/misc/interface';
 import { Utility } from 'src/app/misc/utility';
 import { DeviceService } from 'src/app/services/device.service';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
@@ -19,13 +20,29 @@ import { RouterWrapperService } from 'src/app/services/router-wrapper';
 export class MyAdminComponent {
   private projectId = this.route.getProjectIdFromUrl()
   private adminUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.ADMINS)
-  email = new FormControl('', []);
+  private tenantUserUrl = Utility.getProjectResource(this.projectId, RESOURCE_NAME.USERS)
+  searchValue = new FormControl('', []);
+  searchKey = new FormControl('', []);
   columnList: any = {
     id: 'ID',
     name: 'NAME',
     email: 'EMAIL',
     delete: 'DELETE',
   };
+  searchConfigs: { searchLabel: string, searchValue: string }[] = [
+    {
+      searchLabel: 'EMAIL',
+      searchValue: 'email',
+    },
+    {
+      searchLabel: 'MOBILE_NUMBER',
+      searchValue: 'mobile',
+    },
+    {
+      searchLabel: 'USERNAME',
+      searchValue: 'username',
+    },
+  ]
   private searchPageNumber = 0;
   private searchPageSize = 10;
   loading: boolean = false;
@@ -42,20 +59,20 @@ export class MyAdminComponent {
   ) {
     this.deviceSvc.updateDocTitle('TENANT_ADMIN_DOC_TITLE')
     this.tableSource.loadPage(0)
-    this.email.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
+    this.searchValue.valueChanges.pipe(debounceTime(1000)).subscribe((next) => {
       this.options = []
       this.searchPageNumber = 0;
       this.allLoaded = false;
-      this.searchAdmin(next)
+      this.searchAdminCandidate(next)
     });
   }
-  private searchAdmin(email: string) {
+  private searchAdminCandidate(searchValue: string) {
     this.loading = true;
-    this.httpSvc.readEntityByQuery<IProjectAdmin>(this.adminUrl, this.searchPageNumber, this.searchPageSize, email ? ('emailLike:' + email) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
+    this.httpSvc.readEntityByQuery<IProjectUser>(this.tenantUserUrl, this.searchPageNumber, this.searchPageSize, searchValue ? (this.searchKey.value + ':' + searchValue) : undefined, undefined, undefined, { 'loading': false }).subscribe((result) => {
       this.loading = false;
       const temp = result.data.map(e => {
         return <IOption>{
-          label: e.email,
+          label: e.displayName,
           value: e.id
         }
       });
@@ -71,8 +88,8 @@ export class MyAdminComponent {
   doRefresh() {
     this.tableSource.refresh()
   }
-  updateEmail(event: InputEvent) {
-    this.email.setValue((event.target as any).value)
+  updateSearchValue(event: InputEvent) {
+    this.searchValue.setValue((event.target as any).value)
   }
   ref: ElementRef;
   @ViewChild('ghostRef') set ghostRef(ghostRef: ElementRef) {
@@ -87,7 +104,7 @@ export class MyAdminComponent {
   private observer = new IntersectionObserver((entries, self) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
-        this.searchAdmin(this.email.value)
+        this.searchAdminCandidate(this.searchValue.value)
       }
     });
   }, this._visibilityConfig);

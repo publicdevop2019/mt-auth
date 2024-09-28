@@ -493,7 +493,7 @@ export const zhHans = {
     "TOTOAL_ROLE_CREATED": "角色总数",
     "TOTOAL_PERMISSION_CREATED": "权限总数",
     "MY_ADMIN_DASHBOARD": "管理员",
-    "ENTER_USER_EMAIL": "请输入Email",
+    "ENTER_SEARCH_VALUE": "请输入值",
     "ADD_TENANT_ADMIN": "添加",
     "UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION": "UserRelation数据未清除",
     "ADMIN_MGMT": "管理管理员",
@@ -647,4 +647,6 @@ export const zhHans = {
     "MGMT_SUM_DOC_TITLE": "管理/概览 MT-AUTH",
     "ENTER_PROJECT_NAME": "项目名称",
     "BASIC_CLIENT_INFO_PROJECT_ID": "项目ID",
+    "DISPLAY_NAME": "展示名称",
+    "CREATE_ROLE": "创建角色",
 }

@@ -22,9 +22,15 @@ import lombok.ToString;
 public class UserRelationQuery extends QueryCriteria {
     private static final String USER_ID = "userId";
     private static final String PROJECT_ID = "projectIds";
-    private static final String EMAIL_LIKE = "emailLike";
+    private static final String EMAIL = "email";
+    private static final String MOBILE = "mobile";
+    private static final String USERNAME = "username";
     @Getter
-    private String emailLike;
+    private String email;
+    @Getter
+    private String mobileNumber;
+    @Getter
+    private String username;
     @Getter
     private Set<UserId> userIds;
     @Getter
@@ -36,13 +42,15 @@ public class UserRelationQuery extends QueryCriteria {
     }
 
     public UserRelationQuery(String queryParam, String pageParam, String config) {
-        Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, USER_ID, PROJECT_ID, EMAIL_LIKE);
-        Optional.ofNullable(stringStringMap.get(USER_ID)).ifPresent(e -> userIds =
+        Map<String, String> queryMap =
+            QueryUtility.parseQuery(queryParam, USER_ID, PROJECT_ID, EMAIL, MOBILE, USERNAME);
+        Optional.ofNullable(queryMap.get(USER_ID)).ifPresent(e -> userIds =
             Arrays.stream(e.split("\\.")).map(UserId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(PROJECT_ID)).ifPresent(e -> projectIds =
+        Optional.ofNullable(queryMap.get(PROJECT_ID)).ifPresent(e -> projectIds =
             Arrays.stream(e.split("\\.")).map(ProjectId::new).collect(Collectors.toSet()));
-        Optional.ofNullable(stringStringMap.get(EMAIL_LIKE)).ifPresent(e -> emailLike = e);
+        Optional.ofNullable(queryMap.get(EMAIL)).ifPresent(e -> email = e);
+        Optional.ofNullable(queryMap.get(MOBILE)).ifPresent(e -> mobileNumber = e);
+        Optional.ofNullable(queryMap.get(USERNAME)).ifPresent(e -> username = e);
         setPageConfig(PageConfig.limited(pageParam, 1000));
         setQueryConfig(new QueryConfig(config));
     }

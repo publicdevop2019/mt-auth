@@ -99,10 +99,36 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
             ") AS temp " +
             "LEFT JOIN user_relation_role_map m1 ON m1.id = temp.id " +
             "LEFT JOIN user_relation_tenant_map m2 ON m2.id = temp.id ";
+    private static final String FIND_MOBILE_LIKE_SQL =
+        "SELECT temp.*, m1.role, m2.tenant " +
+            "FROM (" +
+            "SELECT ur.* FROM user_relation ur " +
+            "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
+            "WHERE u.mobile_number LIKE ? AND ur.project_id = ? ORDER BY ur.id ASC LIMIT ? OFFSET ? " +
+            ") AS temp " +
+            "LEFT JOIN user_relation_role_map m1 ON m1.id = temp.id " +
+            "LEFT JOIN user_relation_tenant_map m2 ON m2.id = temp.id ";
+    private static final String FIND_USERNAME_LIKE_SQL =
+        "SELECT temp.*, m1.role, m2.tenant " +
+            "FROM (" +
+            "SELECT ur.* FROM user_relation ur " +
+            "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
+            "WHERE u.username LIKE ? AND ur.project_id = ? ORDER BY ur.id ASC LIMIT ? OFFSET ? " +
+            ") AS temp " +
+            "LEFT JOIN user_relation_role_map m1 ON m1.id = temp.id " +
+            "LEFT JOIN user_relation_tenant_map m2 ON m2.id = temp.id ";
     private static final String COUNT_EMAIL_LIKE_SQL =
         "SELECT COUNT(*) AS count FROM user_relation ur " +
             "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
             "WHERE u.email LIKE ? AND ur.project_id = ?";
+    private static final String COUNT_MOBILE_LIKE_SQL =
+        "SELECT COUNT(*) AS count FROM user_relation ur " +
+            "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
+            "WHERE u.mobile_number LIKE ? AND ur.project_id = ?";
+    private static final String COUNT_USERNAME_LIKE_SQL =
+        "SELECT COUNT(*) AS count FROM user_relation ur " +
+            "LEFT JOIN user_ u ON ur.user_id = u.domain_id " +
+            "WHERE u.username LIKE ? AND ur.project_id = ?";
     private static final String FIND_BY_ROLE_SQL =
         "SELECT temp.*, m1.role, m2.tenant FROM" +
             "(SELECT ur.* FROM user_relation_role_map mt LEFT JOIN user_relation ur ON mt.id = ur.id " +
@@ -177,8 +203,14 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
 
     @Override
     public SumPagedRep<UserRelation> query(UserRelationQuery query) {
-        if (query.getEmailLike() != null) {
+        if (query.getEmail() != null) {
             return searchUserByEmailLike(query);
+        }
+        if (query.getMobileNumber() != null) {
+            return searchUserByMobileNumberLike(query);
+        }
+        if (query.getUsername() != null) {
+            return searchUserByUsernameLike(query);
         }
         if (query.getRoleId() != null) {
             return getUserRelationWithRole(query);
@@ -472,7 +504,7 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
     private SumPagedRep<UserRelation> searchUserByEmailLike(UserRelationQuery query) {
         String projectId = query.getProjectIds().stream().findFirst().get().getDomainId();
         List<Object> args = new ArrayList<>();
-        args.add("%" + query.getEmailLike() + "%");
+        args.add(query.getEmail() + "%");
         args.add(projectId);
         args.add(query.getPageConfig().getPageSize());
         args.add(query.getPageConfig().getOffset());
@@ -486,7 +518,53 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
             .query(
                 COUNT_EMAIL_LIKE_SQL,
                 new DatabaseUtility.ExtractCount(),
-                "%" + query.getEmailLike() + "%",
+                query.getEmail() + "%",
+                projectId
+            );
+        return new SumPagedRep<>(data, count);
+    }
+
+    private SumPagedRep<UserRelation> searchUserByMobileNumberLike(UserRelationQuery query) {
+        String projectId = query.getProjectIds().stream().findFirst().get().getDomainId();
+        List<Object> args = new ArrayList<>();
+        args.add(query.getMobileNumber() + "%");
+        args.add(projectId);
+        args.add(query.getPageConfig().getPageSize());
+        args.add(query.getPageConfig().getOffset());
+        List<UserRelation> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                FIND_MOBILE_LIKE_SQL,
+                new RowMapper(),
+                args.toArray()
+            );
+        Long count = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                COUNT_MOBILE_LIKE_SQL,
+                new DatabaseUtility.ExtractCount(),
+                query.getMobileNumber() + "%",
+                projectId
+            );
+        return new SumPagedRep<>(data, count);
+    }
+
+    private SumPagedRep<UserRelation> searchUserByUsernameLike(UserRelationQuery query) {
+        String projectId = query.getProjectIds().stream().findFirst().get().getDomainId();
+        List<Object> args = new ArrayList<>();
+        args.add(query.getUsername() + "%");
+        args.add(projectId);
+        args.add(query.getPageConfig().getPageSize());
+        args.add(query.getPageConfig().getOffset());
+        List<UserRelation> data = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                FIND_USERNAME_LIKE_SQL,
+                new RowMapper(),
+                args.toArray()
+            );
+        Long count = CommonDomainRegistry.getJdbcTemplate()
+            .query(
+                COUNT_USERNAME_LIKE_SQL,
+                new DatabaseUtility.ExtractCount(),
+                query.getUsername() + "%",
                 projectId
             );
         return new SumPagedRep<>(data, count);

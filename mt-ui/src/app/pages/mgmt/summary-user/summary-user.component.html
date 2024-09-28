@@ -13,9 +13,9 @@
                     </td>
                 </ng-container>
 
-                <ng-container matColumnDef="email">
-                    <th mat-header-cell *matHeaderCellDef> {{columnList['email']|translate}} </th>
-                    <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.email"></app-copy-field> </td>
+                <ng-container matColumnDef="displayName">
+                    <th mat-header-cell *matHeaderCellDef> {{columnList['displayName']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.displayName"></app-copy-field> </td>
                 </ng-container>
 
                 <ng-container matColumnDef="createdAt">

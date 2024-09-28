@@ -14,7 +14,7 @@ import { DeviceService } from 'src/app/services/device.service';
 export class SummaryUserComponent {
   columnList = {
     id: 'ID',
-    email: 'EMAIL',
+    displayName: 'DISPLAY_NAME',
     locked: 'LOCKED',
     createdAt: 'CREATE_AT',
     edit: 'EDIT',
@@ -34,6 +34,22 @@ export class SummaryUserComponent {
     {
       searchLabel: 'EMAIL',
       searchValue: 'email',
+      type: 'text',
+      multiple: {
+        delimiter: '.'
+      }
+    },
+    {
+      searchLabel: 'MOBILE_NUMBER',
+      searchValue: 'mobile',
+      type: 'text',
+      multiple: {
+        delimiter: '.'
+      }
+    },
+    {
+      searchLabel: 'USERNAME',
+      searchValue: 'username',
       type: 'text',
       multiple: {
         delimiter: '.'

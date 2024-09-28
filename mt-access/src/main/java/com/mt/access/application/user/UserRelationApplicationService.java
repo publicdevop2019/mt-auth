@@ -94,15 +94,19 @@ public class UserRelationApplicationService {
         ProjectId tenantProjectId = new ProjectId(projectId);
         DomainRegistry.getPermissionCheckService().canAccess(tenantProjectId, ADMIN_MGMT);
         RoleId tenantAdminRoleId = getTenantAdminRoleId(tenantProjectId);
-        SumPagedRep<UserRelation> byQuery = DomainRegistry.getUserRelationRepository()
+        SumPagedRep<UserRelation> mappedUserRelation = DomainRegistry.getUserRelationRepository()
             .query(UserRelationQuery.findTenantAdmin(tenantAdminRoleId, pageConfig));
-        Set<UserId> collect =
-            byQuery.getData().stream().map(UserRelation::getUserId).collect(Collectors.toSet());
-        SumPagedRep<User> userSumPagedRep =
-            DomainRegistry.getUserRepository().query(new UserQuery(collect));
+        Set<UserId> ids =
+            mappedUserRelation.getData().stream().map(UserRelation::getUserId)
+                .collect(Collectors.toSet());
+        Set<User> userSumPagedRep =
+            QueryUtility.getAllByQuery(e -> DomainRegistry.getUserRepository().query(e),
+                new UserQuery(ids));
         SumPagedRep<ProjectAdminRepresentation> rep =
-            new SumPagedRep<>(userSumPagedRep, ProjectAdminRepresentation::new);
-        rep.setTotalItemCount(byQuery.getTotalItemCount());
+            new SumPagedRep<>();
+        rep.setData(userSumPagedRep.stream().map(ProjectAdminRepresentation::new)
+            .collect(Collectors.toList()));
+        rep.setTotalItemCount(mappedUserRelation.getTotalItemCount());
         return rep;
     }
 
