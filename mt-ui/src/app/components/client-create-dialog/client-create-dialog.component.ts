@@ -15,7 +15,7 @@ export class ClientCreateDialogComponent {
   nameErrorMsg: string = undefined;
   typeErrorMsg: string = undefined;
   createClientFormGroup = new FormGroup({
-    name: new FormControl('我的应用' + Utility.getRandomString().substring(0,3), []),
+    name: new FormControl('MyApp_' + Utility.getRandomString().substring(0,3), []),
     type: new FormControl('BACKEND_APP', []),
   });
   constructor(
