@@ -62,6 +62,7 @@ export class SummaryUserComponent {
     public route: RouterWrapperService,
   ) {
     this.deviceSvc.updateDocTitle('MGMT_USER_SUM_DOC_TITLE')
+    this.tableSource.loadPage(0)
   }
   revokeUserToken(id: string) {
     this.httpSvc.revokeUserToken(id).subscribe(result => {

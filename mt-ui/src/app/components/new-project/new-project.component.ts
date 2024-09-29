@@ -24,7 +24,7 @@ export class NewProjectComponent {
   public systemError: boolean = false;
   private count: number = 1;
   fg = new FormGroup({
-    projectName: new FormControl('MyPorject_' + Utility.getRandomString().substring(0, 3), []),
+    projectName: new FormControl('MyProject_' + Utility.getRandomString().substring(0, 3), []),
   });
   constructor(
     public dialogRef: MatDialogRef<NewProjectComponent>,

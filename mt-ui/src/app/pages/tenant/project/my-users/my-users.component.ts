@@ -1,9 +1,8 @@
 import { Component } from '@angular/core';
-import { ISearchConfig, ISearchEvent } from 'src/app/components/search/search.component';
+import { ISearchEvent } from 'src/app/components/search/search.component';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
 import { ProjectService } from 'src/app/services/project.service';
-import { UserComponent } from '../user/user.component';
-import { IOption, IProjectUser } from 'src/app/misc/interface';
+import { IOption, IProjectSimpleUser } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { PermissionHelper } from 'src/app/clazz/permission-helper';
 import { TableHelper } from 'src/app/clazz/table-helper';
@@ -20,35 +19,8 @@ export class MyUsersComponent {
   columnList: any = {};
   public projectId = this.route.getProjectIdFromUrl()
   private url = Utility.getProjectResource(this.projectId, RESOURCE_NAME.USERS)
-  public tableSource: TableHelper<IProjectUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
+  public tableSource: TableHelper<IProjectSimpleUser> = new TableHelper(this.columnList, 10, this.httpSvc, this.url);
   public permissionHelper: PermissionHelper = new PermissionHelper(this.projectSvc.permissionDetail)
-  sheetComponent = UserComponent;
-  public roleList: IOption[] = [];
-  searchConfigs: ISearchConfig[] = [
-    {
-      searchLabel: 'ID',
-      searchValue: 'id',
-      type: 'text',
-      multiple: {
-        delimiter: '.'
-      }
-    },
-    {
-      searchLabel: 'EMAIL',
-      searchValue: 'email',
-      type: 'text'
-    },
-    {
-      searchLabel: 'MOBILE_NUMBER',
-      searchValue: 'mobile',
-      type: 'text'
-    },
-    {
-      searchLabel: 'USERNAME',
-      searchValue: 'username',
-      type: 'text'
-    },
-  ]
   constructor(
     public httpSvc: HttpProxyService,
     public projectSvc: ProjectService,
@@ -58,12 +30,14 @@ export class MyUsersComponent {
     this.deviceSvc.updateDocTitle('TENANT_USER_DOC_TITLE')
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {
       this.tableSource.columnConfig = b.result ? {
-        id: 'ID',
-        name: 'DISPLAY_NAME',
+        email: 'EMAIL',
+        mobile: 'MOBILE_NUMBER',
+        username: 'USERNAME',
         edit: 'EDIT',
       } : {
-        id: 'ID',
-        name: 'DISPLAY_NAME',
+        email: 'EMAIL',
+        mobile: 'MOBILE_NUMBER',
+        username: 'USERNAME',
       }
     })
     this.permissionHelper.canDo(this.projectId, httpSvc.currentUserAuthInfo.permissionIds, 'USER_MGMT').pipe(take(1)).subscribe(b => {

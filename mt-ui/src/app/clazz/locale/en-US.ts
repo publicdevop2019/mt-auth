@@ -649,4 +649,6 @@ export const enUS = {
     "BASIC_CLIENT_INFO_PROJECT_ID": "Project ID",
     "DISPLAY_NAME": "Display Name",
     "CREATE_ROLE": "Create Role",
+    "SEARCH_USERS": "Search for users",
+    "SELECT_USER_SEARCH_TYPE": "Search by",
 }

@@ -121,6 +121,7 @@ import { PaginatedSelectComponent } from './components/paginated-select/paginate
 import { RoleCreateDialogComponent } from './components/role-create-dialog/role-create-dialog.component';
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
+import { SearchNewComponent } from './components/user-search/user-search.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -198,6 +199,7 @@ import { ImageUploadComponent } from './components/image-upload/image-upload.com
     RoleCreateDialogComponent,
     AddPermissionDialogComponent,
     ImageUploadComponent,
+    SearchNewComponent,
   ],
   imports: [
     BrowserAnimationsModule,

@@ -649,4 +649,6 @@ export const zhHans = {
     "BASIC_CLIENT_INFO_PROJECT_ID": "项目ID",
     "DISPLAY_NAME": "展示名称",
     "CREATE_ROLE": "创建角色",
+    "SEARCH_USERS": "查询用户",
+    "SELECT_USER_SEARCH_TYPE": "类别",
 }

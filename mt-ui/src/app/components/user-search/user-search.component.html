@@ -1,0 +1,16 @@
+<form [formGroup]="fg" style="display: flex; flex-direction: row; align-items:flex-start; flex-wrap: wrap; margin-bottom: 12px;">
+    <mat-form-field style="flex: 1; min-width: 150px;">
+        <mat-label>{{'SEARCH_USERS'|translate}}</mat-label>
+        <input matInput type="text" formControlName="searchValue">
+    </mat-form-field>
+    <mat-form-field style="width: 150px; margin-left: 16px;">
+        <mat-label>{{'SELECT_USER_SEARCH_TYPE'|translate}}</mat-label>
+        <mat-select formControlName="searchKey">
+            <ng-container *ngFor="let e of searchConfigs">
+                <mat-option [value]="e.searchValue">{{e.searchLabel|translate}}</mat-option>
+            </ng-container>
+        </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="accent" class="mobile-search-button"
+        (click)="reset()">{{'RESET'|translate}}</button>
+</form>

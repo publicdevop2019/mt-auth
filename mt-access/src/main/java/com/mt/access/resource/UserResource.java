@@ -14,6 +14,7 @@ import com.mt.access.application.user.command.UserUpdatePasswordCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
+import com.mt.access.application.user.representation.UserTenantCardRepresentation;
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.User;
@@ -74,7 +75,7 @@ public class UserResource {
     }
 
     @GetMapping(path = "projects/{projectId}/users")
-    public ResponseEntity<SumPagedRep<UserCardRepresentation>> tenantQuery(
+    public ResponseEntity<SumPagedRep<UserTenantCardRepresentation>> tenantQuery(
         @PathVariable String projectId,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestParam(value = HTTP_PARAM_QUERY, required = false) String queryParam,
@@ -85,7 +86,7 @@ public class UserResource {
         queryParam = Utility.updateProjectIds(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
-        return ResponseEntity.ok(new SumPagedRep<>(users, UserCardRepresentation::new));
+        return ResponseEntity.ok(new SumPagedRep<>(users, UserTenantCardRepresentation::new));
     }
 
     @GetMapping(path = "projects/{projectId}/users/{id}")

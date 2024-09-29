@@ -9,22 +9,27 @@
         </div>
     </div>
 
-    <app-search (search)="doSearch($event)" [searchConfigs]="searchConfigs" [emitEvent]="false">
-    </app-search>
+    <app-user-search (search)="doSearch($event)">
+    </app-user-search>
     <ng-container
         *ngIf="permissionHelper.extractResult(permissionHelper.canDo(projectId, httpSvc.currentUserAuthInfo.permissionIds,'USER_MGMT')) |async">
         <div class="table-container">
             <table mat-table [dataSource]="tableSource.dataSource">
-                <ng-container matColumnDef="id">
-                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['id']|translate}} </th>
-                    <td mat-cell *matCellDef="let row">
-                        <app-copy-field [inputValue]="row.id"></app-copy-field>
-                    </td>
-                </ng-container>
-
                 <ng-container matColumnDef="name">
                     <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['name']|translate}} </th>
                     <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.displayName"></app-copy-field> </td>
+                </ng-container>
+                <ng-container matColumnDef="email">
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['email']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.email"></app-copy-field> </td>
+                </ng-container>
+                <ng-container matColumnDef="mobile">
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['mobile']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.mobile"></app-copy-field> </td>
+                </ng-container>
+                <ng-container matColumnDef="username">
+                    <th mat-header-cell *matHeaderCellDef> {{tableSource.columnConfig['username']|translate}} </th>
+                    <td mat-cell *matCellDef="let row"> <app-copy-field [inputValue]="row.username"></app-copy-field> </td>
                 </ng-container>
 
                 <ng-container matColumnDef="edit">
