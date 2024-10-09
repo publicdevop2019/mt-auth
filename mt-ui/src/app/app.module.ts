@@ -122,6 +122,7 @@ import { RoleCreateDialogComponent } from './components/role-create-dialog/role-
 import { AddPermissionDialogComponent } from './components/add-permission-dialog/add-permission-dialog.component';
 import { ImageUploadComponent } from './components/image-upload/image-upload.component';
 import { SearchNewComponent } from './components/user-search/user-search.component';
+import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-dialog.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -200,6 +201,7 @@ import { SearchNewComponent } from './components/user-search/user-search.compone
     AddPermissionDialogComponent,
     ImageUploadComponent,
     SearchNewComponent,
+    AddRoleDialogComponent,
   ],
   imports: [
     BrowserAnimationsModule,

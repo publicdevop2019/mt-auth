@@ -1,20 +1,56 @@
 <div class="default-form-background">
-    <button (click)="routerWrapper.navProjectUserDashboard()" mat-button
+    <button (click)="router.navProjectUserDashboard()" mat-button
         style="padding-left: 8px; margin-bottom: 12px; margin-left: -8px;">
         <mat-icon>arrow_back_ios</mat-icon> <span style="font-size: 16px;">{{'BACK'|translate}}</span>
     </button>
-    <mat-form-field  [formGroup]="formGroup">
-        <mat-label>{{'NAME'| translate}}</mat-label>
-        <input matInput formControlName="name" readonly>
-    </mat-form-field>
-    <h4 style="margin-bottom: 4px;">{{'SELECT_ROLES'|translate}}</h4>
-    <mat-chip-list>
-        <mat-chip *ngFor="let e of roles()" [removable]="true">
-            {{parseId(e)|translate}}
-            <mat-icon matChipRemove (click)="removeRole(e)">cancel</mat-icon>
-        </mat-chip>
-    </mat-chip-list>
-    <app-dynamic-tree [loadRoot]="loadRoot" [loadChildren]="loadChildren" [fg]="formGroup"></app-dynamic-tree>
-    <button mat-raised-button color="primary" style="margin-bottom: 20px;margin-top: 20px;"
-        (click)="update()">{{'UPDATE'|translate}}</button>
+    <div style="font-size: 24px; margin: 16px 0px;">{{fg.get('name').value}}</div>
+    <mat-tab-group mat-align-tabs="start" dynamicHeight>
+        <mat-tab label="{{'BASIC_INFO'|translate}}" [formGroup]="fg">
+            <div style="margin-top: 32px; width: 536px;">
+                <mat-form-field>
+                    <mat-label>{{'NAME'| translate}}<span class="mat-required">*</span></mat-label>
+                    <input matInput formControlName="name">
+                </mat-form-field>
+            </div>
+        </mat-tab>
+        <mat-tab label="{{'TAB_ROLES'|translate}}">
+            <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 24px;">
+                <div style="margin: 32px 0px 16px 0px; display: flex; align-items: center;">
+                     <mat-icon [color]="'primary'" style="margin-right: 4px;">info
+                    </mat-icon>
+                    <div>{{"USER_ROLE_NOTE"|translate}}</div>
+                </div>
+                <div>
+                    <button mat-raised-button style="width: 100px;" color="primary" class="app-btn"
+                        (click)="addRole()">{{'ADD_USER_ROLE'|translate}}</button>
+                </div>
+            </div>
+            <div class="table-container">
+                <table mat-table [dataSource]="dataSource">
+                    <ng-container matColumnDef="name">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{columnList['name']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.name}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="type">
+                        <th mat-header-cell *matHeaderCellDef>
+                            {{columnList['type']|translate}} </th>
+                        <td mat-cell *matCellDef="let row">
+                            {{row.type | translate}}
+                        </td>
+                    </ng-container>
+                    <ng-container matColumnDef="delete">
+                        <th mat-header-cell *matHeaderCellDef class="table-icon">{{columnList['delete']|translate}}</th>
+                        <td mat-cell *matCellDef="let row" class="table-icon">
+                            <mat-icon (click)="removeRole(row)" [color]="'warn'">delete_outline</mat-icon>
+                        </td>
+                    </ng-container>
+                    <tr mat-header-row *matHeaderRowDef="displayedColumns(); sticky: true"></tr>
+                    <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+                </table>
+            </div>
+        </mat-tab>
+    </mat-tab-group>
 </div>
