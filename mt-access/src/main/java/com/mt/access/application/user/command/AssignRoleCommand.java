@@ -1,11 +1,11 @@
 package com.mt.access.application.user.command;
 
-import java.util.Set;
+import java.util.LinkedHashSet;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UpdateUserRelationCommand {
-    private Set<String> roles;
+public class AssignRoleCommand {
+    private LinkedHashSet<String> roleIds;
 }

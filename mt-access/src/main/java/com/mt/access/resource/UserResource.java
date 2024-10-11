@@ -8,9 +8,7 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.user.command.UpdateUserCommand;
-import com.mt.access.application.user.command.UpdateUserRelationCommand;
-import com.mt.access.application.user.command.UserResetPasswordCommand;
-import com.mt.access.application.user.command.UserUpdatePasswordCommand;
+import com.mt.access.application.user.command.AssignRoleCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;
@@ -103,25 +101,48 @@ public class UserResource {
     }
 
     /**
-     * update user role for project.
+     * assign role to user for project.
      *
      * @param projectId project id
      * @param id        user id
      * @param jwt       jwt
-     * @param command   update command
+     * @param command   assign command
      * @return http response 200
      */
-    @PutMapping(path = "projects/{projectId}/users/{id}")
-    public ResponseEntity<Void> tenantUpdate(
+    @PostMapping(path = "projects/{projectId}/users/{id}/roles")
+    public ResponseEntity<Void> tenantRoleAssign(
         @PathVariable String projectId,
         @PathVariable String id,
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
         @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId,
-        @RequestBody UpdateUserRelationCommand command
+        @RequestBody AssignRoleCommand command
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
         ApplicationServiceRegistry.getUserRelationApplicationService()
-            .tenantUpdate(projectId, id, command, changeId);
+            .tenantRoleAssign(projectId, id, command, changeId);
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * remove role from user for project.
+     *
+     * @param projectId project id
+     * @param id        user id
+     * @param jwt       jwt
+     * @param roleId    roleId
+     * @return http response 200
+     */
+    @DeleteMapping(path = "projects/{projectId}/users/{id}/roles/{roleId}")
+    public ResponseEntity<Void> tenantRoleRemove(
+        @PathVariable String projectId,
+        @PathVariable String id,
+        @PathVariable String roleId,
+        @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt,
+        @RequestHeader(HTTP_HEADER_CHANGE_ID) String changeId
+    ) {
+        DomainRegistry.getCurrentUserService().setUser(jwt);
+        ApplicationServiceRegistry.getUserRelationApplicationService()
+            .tenantRoleRemove(projectId, id, roleId, changeId);
         return ResponseEntity.ok().build();
     }
 

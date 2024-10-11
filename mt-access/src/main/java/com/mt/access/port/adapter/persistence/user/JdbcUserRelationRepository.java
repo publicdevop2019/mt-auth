@@ -485,10 +485,10 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
                     list.add(userRelation);
                     currentId = dbId;
                 }
-                Set<RoleId> linkedApiPermissionIds = userRelation.getStandaloneRoles();
+                Set<RoleId> roles = userRelation.getStandaloneRoles();
                 String roleId = rs.getString("role");
                 if (Checker.notNull(roleId)) {
-                    linkedApiPermissionIds.add(new RoleId(roleId));
+                    roles.add(new RoleId(roleId));
                 }
                 Set<ProjectId> commonPermissionIds = userRelation.getTenantIds();
                 String projectId = rs.getString("tenant");

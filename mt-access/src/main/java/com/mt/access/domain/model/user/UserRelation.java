@@ -10,16 +10,14 @@ import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
-import com.mt.common.domain.model.exception.DefinedRuntimeException;
-import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import com.mt.common.domain.model.validate.Checker;
 import com.mt.common.domain.model.validate.Validator;
 import com.mt.common.infrastructure.CommonUtility;
-import com.mt.common.infrastructure.HttpValidationNotificationHandler;
 import java.time.Instant;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -36,15 +34,15 @@ import lombok.extern.slf4j.Slf4j;
 public class UserRelation extends Auditable {
     private UserId userId;
     private ProjectId projectId;
-
-    private Set<RoleId> standaloneRoles = new HashSet<>();
+    //use LinkedHashSet to keep order
+    private Set<RoleId> standaloneRoles = new LinkedHashSet<>();
 
     private Set<ProjectId> tenantIds = new HashSet<>();
 
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId, ProjectId tenantId) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.standaloneRoles = new HashSet<>();
+        this.standaloneRoles = new LinkedHashSet<>();
         this.standaloneRoles.add(roleId);
         this.tenantIds = new HashSet<>();
         this.tenantIds.add(tenantId);
@@ -55,7 +53,7 @@ public class UserRelation extends Auditable {
     public UserRelation(RoleId roleId, UserId creator, ProjectId projectId) {
         super();
         this.id = CommonDomainRegistry.getUniqueIdGeneratorService().id();
-        this.standaloneRoles = new HashSet<>();
+        this.standaloneRoles = new LinkedHashSet<>();
         this.standaloneRoles.add(roleId);
         this.userId = creator;
         this.projectId = projectId;
@@ -71,11 +69,11 @@ public class UserRelation extends Auditable {
                                          TransactionContext context) {
         log.debug("start of onboarding new project");
         //to mt-auth
-        Optional<UserRelation> byUserIdAndProjectId = DomainRegistry.getUserRelationRepository()
+        Optional<UserRelation> userRelation = DomainRegistry.getUserRelationRepository()
             .query(creator, authProjectId);
         UserRelation rootRelation;
-        if (byUserIdAndProjectId.isPresent()) {
-            rootRelation = byUserIdAndProjectId.get();
+        if (userRelation.isPresent()) {
+            rootRelation = userRelation.get();
             UserRelation updated = rootRelation.updateTenantAndRole(tenantId, adminRoleId);
             DomainRegistry.getUserRelationRepository().update(rootRelation, updated);
         } else {
@@ -127,16 +125,7 @@ public class UserRelation extends Auditable {
         }
         CommonUtility.updateCollection(this.standaloneRoles, roleIds,
             () -> this.standaloneRoles = roleIds);
-        //TODO move this logic to custom validator
-        if (Checker.notNull(roleIds)) {
-            Set<Role> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                    new RoleQuery(roleIds));
-            if (roleIds.size() != allByQuery.size()) {
-                HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
-                handler.handleError("not able to find all roles");
-            }
-        }
+        UserRelationValidator.validateAllAssignedRoles(roleIds);
     }
 
     private void setTenantIds(Set<ProjectId> tenantIds) {
@@ -175,37 +164,35 @@ public class UserRelation extends Auditable {
         return update;
     }
 
-    public UserRelation tenantUpdate(Set<String> roles) {
+    public UserRelation assignRole(Set<String> rawRoleIds) {
         UserRelation update =
             CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        //TODO move to validator
-        Validator.notNull(roles);
-        Validator.notEmpty(roles);
-        Set<RoleId> roleIds =
-            roles.stream().map(RoleId::new).collect(Collectors.toSet());
-        Set<Role> roleSet = QueryUtility
-            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
-                new RoleQuery(roleIds));
-        Set<ProjectId> projectIds =
-            roleSet.stream().map(Role::getProjectId).collect(Collectors.toSet());
-        if (projectIds.size() != 1 ||
-            !projectIds.stream().findFirst().get().equals(this.projectId)) {
-            throw new DefinedRuntimeException("role project id should be same", "1087",
-                HttpResponseCode.BAD_REQUEST);
-        }
         //remove default user so mt-auth will not be miss added to tenant list
-        Set<Role> removeDefaultUser = roleSet.stream().filter(
-                e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(
-                    e.getRoleId().getDomainId()))
-            .collect(Collectors.toSet());
-        Set<ProjectId> collect1 =
-            removeDefaultUser.stream().map(Role::getTenantId).filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        Set<RoleId> newRoleIds =
+            rawRoleIds.stream().filter(e -> !AppConstant.MT_AUTH_DEFAULT_USER_ROLE.equals(e))
+                .map(RoleId::new).collect(Collectors.toCollection(LinkedHashSet::new));
+        Set<RoleId> existingRoleIds = update.getStandaloneRoles();
+        newRoleIds.addAll(existingRoleIds);
+        update.setStandaloneRoles(newRoleIds);
+        return update;
+    }
+
+    public UserRelation removeRole(RoleId roleId) {
+        UserRelation update =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        Set<RoleId> existingRoleIds = update.getStandaloneRoles();
+        Set<RoleId> newRoleIds =
+            existingRoleIds.stream().filter(e -> !e.equals(roleId)).collect(Collectors.toSet());
+        update.setStandaloneRoles(newRoleIds);
+
         //update tenant list based on role selected
-        update.setStandaloneRoles(
-            roles.stream().map(RoleId::new)
-                .collect(Collectors.toSet()));
-        if (collect1.isEmpty()) {
+        Set<Role> newRoles = QueryUtility
+            .getAllByQuery(e -> DomainRegistry.getRoleRepository().query(e),
+                new RoleQuery(newRoleIds));
+        Set<ProjectId> projectIds =
+            newRoles.stream().map(Role::getTenantId).filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (projectIds.isEmpty()) {
             update.setTenantIds(null);
         }
         return update;

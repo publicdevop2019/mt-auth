@@ -389,7 +389,7 @@ export class HttpProxyService {
         let headerConfig = new HttpHeaders();
         headerConfig = headerConfig.set('changeId', changeId)
         return new Observable<boolean>(e => {
-            this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/users/${userId}/roles/assign`, { roleIds: roleIds }, { headers: headerConfig }).subscribe(next => {
+            this._httpClient.post(environment.serverUri + `/auth-svc/projects/${projectId}/users/${userId}/roles`, { roleIds: roleIds }, { headers: headerConfig }).subscribe(next => {
                 e.next(true)
             });
         });

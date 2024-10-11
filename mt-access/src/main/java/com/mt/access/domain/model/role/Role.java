@@ -105,6 +105,7 @@ public class Role extends Auditable {
         role.setProjectId(projectId);
         role.setRoleId(roleId);
         role.setName(Role.PROJECT_ADMIN);
+        role.setDescription(tenantId.getDomainId());
         role.setType(RoleType.USER);
         role.setSystemCreate(true);
         role.setParentId(parentId);
