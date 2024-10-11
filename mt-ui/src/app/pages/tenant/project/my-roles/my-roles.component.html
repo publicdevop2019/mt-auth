@@ -34,7 +34,7 @@
                         {{columnList['name']|translate}} </th>
                     <td mat-cell *matCellDef="let row">
                         <ng-container *ngIf="row.systemCreate">
-                            {{row.name |translate}}
+                            {{row.name}}
                         </ng-container>
                         <app-editable-field *ngIf="row.roleType==='USER' && !row.systemCreate" [inputValue]="row.name"
                             [readOnly]="true">
