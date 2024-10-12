@@ -1,13 +1,10 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { map, tap } from 'rxjs/operators';
 import { Utility } from 'src/app/misc/utility';
-import { INode } from 'src/app/components/dynamic-tree/dynamic-tree.component';
 import { IProjectUser } from 'src/app/misc/interface';
 import { RouterWrapperService } from 'src/app/services/router-wrapper';
 import { RESOURCE_NAME } from 'src/app/misc/constant';
 import { HttpProxyService } from 'src/app/services/http-proxy.service';
-import { IRole } from '../my-roles/my-roles.component';
 import { DeviceService } from 'src/app/services/device.service';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';

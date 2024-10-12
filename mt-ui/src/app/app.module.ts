@@ -40,8 +40,6 @@ import { CustomLoader } from './clazz/locale/custom-loader';
 import { BackButtonComponent } from './components/back-button/back-button.component';
 import { CardNotificationComponent } from './components/card-notification/card-notification.component';
 import { CopyFieldComponent } from './components/copy-field/copy-field.component';
-import { DynamicNodeComponent } from './components/dynamic-tree/dynamic-node/dynamic-node.component';
-import { DynamicTreeComponent } from './components/dynamic-tree/dynamic-tree.component';
 import { EditableBooleanComponent } from './components/editable-boolean/editable-boolean.component';
 import { EditableFieldComponent } from './components/editable-field/editable-field.component';
 import { EditableInputMultiComponent } from './components/editable-input-multi/editable-input-multi.component';
@@ -152,8 +150,6 @@ import { AddRoleDialogComponent } from './components/add-role-dialog/add-role-di
     EditablePageSelectMultiComponent,
     CacheControlComponent,
     MessageCenterComponent,
-    DynamicTreeComponent,
-    DynamicNodeComponent,
     TreeNodeDirective,
     RequirePermissionDirective,
     CardNotificationComponent,
