@@ -733,36 +733,6 @@ INSERT INTO `permission` VALUES (861812326137929,1689492851003,'NOT_HTTP',168949
 UNLOCK TABLES;
 
 --
--- Table structure for table `position`
---
-
-DROP TABLE IF EXISTS `position`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `position` (
-  `id` bigint NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `created_by` varchar(255) DEFAULT NULL,
-  `modified_at` datetime DEFAULT NULL,
-  `modified_by` varchar(255) DEFAULT NULL,
-  `version` int DEFAULT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `domain_id` varchar(255) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `UK_p1hq19frkx7qlt9rr1sp1ftbp` (`domain_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `position`
---
-
-LOCK TABLES `position` WRITE;
-/*!40000 ALTER TABLE `position` DISABLE KEYS */;
-/*!40000 ALTER TABLE `position` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
 -- Table structure for table `project`
 --
 
