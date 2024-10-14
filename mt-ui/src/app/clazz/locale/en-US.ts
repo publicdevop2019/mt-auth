@@ -219,7 +219,6 @@ export const enUS = {
     "ENDPOINT_COLLECTION_MODIFIED": "API Setting Modified",
     "ENDPOINT_RELOAD_REQUESTED": "Reload API Setting",
     "VERIFICATION_CODE_UPDATED": "Code Updated Successfully",
-    "VERIFICATION_CODE_CREATED": "Code Created Successfully",
     "REVOKE_TOKEN_CREATED": "Revoke Token Created",
     "SYSTEM_ROLE_DELETED": "System Role Deleted",
     "USER_AUTHORITY_CHANGED": "User Authority Changed",

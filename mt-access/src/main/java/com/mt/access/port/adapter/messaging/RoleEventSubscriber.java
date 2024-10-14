@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class RoleDomainEventSubscriber {
+public class RoleEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {

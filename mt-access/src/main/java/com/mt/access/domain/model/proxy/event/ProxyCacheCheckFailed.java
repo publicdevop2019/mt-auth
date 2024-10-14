@@ -5,7 +5,7 @@ import com.mt.common.domain.model.domain_event.AnyDomainId;
 import com.mt.common.domain.model.domain_event.DomainEvent;
 
 @AuditEvent
-public class ProxyCacheCheckFailedEvent extends DomainEvent {
+public class ProxyCacheCheckFailed extends DomainEvent {
     public static final String PROXY_CACHE_CHECK_FAILED_EVENT = "proxy_cache_check_failed_event";
     public static final String name = "PROXY_CACHE_CHECK_FAILED_EVENT";
 
@@ -14,7 +14,7 @@ public class ProxyCacheCheckFailedEvent extends DomainEvent {
         setName(name);
     }
 
-    public ProxyCacheCheckFailedEvent() {
+    public ProxyCacheCheckFailed() {
         super(new AnyDomainId());
     }
 }

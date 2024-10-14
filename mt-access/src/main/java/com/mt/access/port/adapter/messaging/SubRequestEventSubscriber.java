@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class SubRequestDomainEventSubscriber {
+public class SubRequestEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {

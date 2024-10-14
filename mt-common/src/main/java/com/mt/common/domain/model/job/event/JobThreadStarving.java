@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class JobThreadStarvingEvent extends DomainEvent {
+public class JobThreadStarving extends DomainEvent {
     public static final String JOB_THREAD_STARVING = "job_thread_starving";
     public static final String name = "JOB_THREAD_STARVING";
     private Long instanceId;
@@ -19,7 +19,7 @@ public class JobThreadStarvingEvent extends DomainEvent {
         setName(name);
     }
 
-    public JobThreadStarvingEvent(JobDetail jobDetail, long instanceId) {
+    public JobThreadStarving(JobDetail jobDetail, long instanceId) {
         super(jobDetail.getJobId());
         this.instanceId = instanceId;
         this.jobName = jobDetail.getName();

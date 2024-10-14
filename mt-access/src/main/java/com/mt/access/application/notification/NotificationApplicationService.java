@@ -7,28 +7,27 @@ import com.mt.access.domain.model.notification.Notification;
 import com.mt.access.domain.model.notification.NotificationId;
 import com.mt.access.domain.model.notification.NotificationQuery;
 import com.mt.access.domain.model.notification.NotificationType;
-import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
-import com.mt.access.domain.model.notification.event.SendEmailNotificationEvent;
-import com.mt.access.domain.model.notification.event.SendSmsNotificationEvent;
-import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailedEvent;
+import com.mt.access.domain.model.notification.event.SendBellNotification;
+import com.mt.access.domain.model.notification.event.SendEmailNotification;
+import com.mt.access.domain.model.notification.event.SendSmsNotification;
+import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
-import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpireEvent;
+import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
 import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
-import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
+import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
-import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceived;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceived;
 import com.mt.common.domain.model.idempotent.event.HangingTxDetected;
-import com.mt.common.domain.model.job.event.JobNotFoundEvent;
-import com.mt.common.domain.model.job.event.JobPausedEvent;
-import com.mt.common.domain.model.job.event.JobStarvingEvent;
-import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
+import com.mt.common.domain.model.job.event.JobNotFound;
+import com.mt.common.domain.model.job.event.JobPaused;
+import com.mt.common.domain.model.job.event.JobStarving;
+import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Checker;
 import lombok.extern.slf4j.Slf4j;
@@ -89,97 +88,13 @@ public class NotificationApplicationService {
         });
     }
 
-    public void handle(HangingTxDetected event) {
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(NewUserRegistered event) {
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(ProjectOnboardingComplete event) {
-        log.info("handle new project onboarding complete event, project id {}",
-            event.getDomainId().getDomainId());
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(ProxyCacheCheckFailedEvent event) {
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(CrossDomainValidationService.ValidationFailedEvent event) {
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(UserMfaNotificationEvent event) {
-        CommonApplicationServiceRegistry.getIdempotentService()
-            .idempotent(event.getId().toString(), (context) -> {
-                Notification notification = new Notification(event);
-                DomainRegistry.getNotificationRepository().add(notification);
-                if (MfaDeliverMethod.MOBILE.equals(event.getDeliverMethod())) {
-                    context
-                        .append(new SendSmsNotificationEvent(event, notification));
-                } else {
-                    context
-                        .append(new SendEmailNotificationEvent(event, notification));
-                }
-                return null;
-            }, NOTIFICATION);
-    }
-
-    public void handle(UserPwdResetCodeUpdated event) {
-        Notification notification = new Notification(event);
-        if (Checker.notNull(event.getEmail())) {
-            SendEmailNotificationEvent sendEmailNotificationEvent =
-                new SendEmailNotificationEvent(event, notification);
-            sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
-        } else {
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(event.getId().toString(), (context) -> {
-                    DomainRegistry.getNotificationRepository().add(notification);
-                    context
-                        .append(new SendSmsNotificationEvent(event, notification));
-                    return null;
-                }, NOTIFICATION);
-        }
-    }
-
-    public void handle(VerificationCodeUpdated event) {
-        Notification notification = new Notification(event);
-        if (NotificationType.EMAIL.equals(notification.getType())) {
-            SendEmailNotificationEvent sendEmailNotificationEvent =
-                new SendEmailNotificationEvent(event, notification);
-            sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
-        } else {
-            CommonApplicationServiceRegistry.getIdempotentService()
-                .idempotent(event.getId().toString(), (context) -> {
-                    DomainRegistry.getNotificationRepository().add(notification);
-                    context
-                        .append(new SendSmsNotificationEvent(event, notification));
-                    return null;
-                }, NOTIFICATION);
-        }
-    }
-
-    public void handle(CrossDomainValidationFailureCheck event) {
-        Notification notification = new Notification(event);
-        SendEmailNotificationEvent sendEmailNotificationEvent =
-            new SendEmailNotificationEvent(event, notification);
-        sendEmailNotification(event.getId(), notification, sendEmailNotificationEvent);
-    }
-
     /**
      * send bell notification to stored ws session
      * idempotent is for each instance
      *
      * @param event send bell notification event
      */
-    public void handle(SendBellNotificationEvent event) {
+    public void handle(SendBellNotification event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 log.debug("sending bell notifications with {}, id {}", event.getTitle(),
@@ -204,7 +119,7 @@ public class NotificationApplicationService {
      *
      * @param event send bell notification event
      */
-    public void handle(SendSmsNotificationEvent event) {
+    public void handle(SendSmsNotification event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getSmsNotificationService()
@@ -221,7 +136,7 @@ public class NotificationApplicationService {
      *
      * @param event send email notification event
      */
-    public void handle(SendEmailNotificationEvent event) {
+    public void handle(SendEmailNotification event) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(event.getId().toString(), (context) -> {
                 DomainRegistry.getEmailNotificationService()
@@ -233,9 +148,94 @@ public class NotificationApplicationService {
             }, NOTIFICATION);
     }
 
-    public void handle(UnrountableMsgReceivedEvent event) {
+    public void handle(HangingTxDetected event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
+    }
+
+    public void handle(NewUserRegistered event) {
+        Notification notification = new Notification(event);
+        storeBellNotification(event.getId().toString(), notification);
+    }
+
+    public void handle(ProjectOnboardingComplete event) {
+        log.info("handle new project onboarding complete event, project id {}",
+            event.getDomainId().getDomainId());
+        Notification notification = new Notification(event);
+        storeBellNotification(event.getId().toString(), notification);
+    }
+
+    public void handle(ProxyCacheCheckFailed event) {
+        Notification notification = new Notification(event);
+        storeBellNotification(event.getId().toString(), notification);
+    }
+
+    public void handle(CrossDomainValidationService.ValidationFailed event) {
+        Notification notification = new Notification(event);
+        storeBellNotification(event.getId().toString(), notification);
+    }
+
+    public void handle(UserMfaNotification event) {
+        CommonApplicationServiceRegistry.getIdempotentService()
+            .idempotent(event.getId().toString(), (context) -> {
+                Notification notification = new Notification(event);
+                DomainRegistry.getNotificationRepository().add(notification);
+                if (MfaDeliverMethod.MOBILE.equals(event.getDeliverMethod())) {
+                    context
+                        .append(new SendSmsNotification(event, notification));
+                } else {
+                    context
+                        .append(new SendEmailNotification(event, notification));
+                }
+                return null;
+            }, NOTIFICATION);
+    }
+
+    public void handle(UserPwdResetCodeUpdated event) {
+        Notification notification = new Notification(event);
+        if (Checker.notNull(event.getEmail())) {
+            SendEmailNotification sendEmailNotification =
+                new SendEmailNotification(event, notification);
+            storeEmailNotification(event.getId(), notification, sendEmailNotification);
+        } else {
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(event.getId().toString(), (context) -> {
+                    DomainRegistry.getNotificationRepository().add(notification);
+                    context
+                        .append(new SendSmsNotification(event, notification));
+                    return null;
+                }, NOTIFICATION);
+        }
+    }
+
+    public void handle(VerificationCodeUpdated event) {
+        Notification notification = new Notification(event);
+        if (NotificationType.EMAIL.equals(notification.getType())) {
+            SendEmailNotification sendEmailNotification =
+                new SendEmailNotification(event, notification);
+            storeEmailNotification(event.getId(), notification, sendEmailNotification);
+        } else {
+            CommonApplicationServiceRegistry.getIdempotentService()
+                .idempotent(event.getId().toString(), (context) -> {
+                    DomainRegistry.getNotificationRepository().add(notification);
+                    context
+                        .append(new SendSmsNotification(event, notification));
+                    return null;
+                }, NOTIFICATION);
+        }
+    }
+
+    public void handle(CrossDomainValidationFailureCheck event) {
+        Notification notification = new Notification(event);
+        SendEmailNotification sendEmailNotification =
+            new SendEmailNotification(event, notification);
+        storeEmailNotification(event.getId(), notification, sendEmailNotification);
+    }
+
+
+    public void handle(UnrountableMsgReceived event) {
+        Notification notification = new Notification(event);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
     /**
@@ -243,69 +243,64 @@ public class NotificationApplicationService {
      *
      * @param event SubscriberEndpointExpireEvent
      */
-    public void handle(SubscribedEndpointExpireEvent event) {
+    public void handle(SubscribedEndpointExpired event) {
         event.getDomainIds().forEach(userId -> {
             Notification notification = new Notification(event, userId);
-            storeSendBellNotification(event.getId() + "_" + userId.getDomainId(),
+            storeBellNotification(event.getId() + "_" + userId.getDomainId(),
                 notification);
         });
     }
 
-    public void handle(JobPausedEvent event) {
+    public void handle(JobPaused event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
-    public void handle(JobNotFoundEvent event) {
+    public void handle(JobNotFound event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
-    public void handle(JobThreadStarvingEvent event) {
+    public void handle(JobThreadStarving event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
-    public void handle(JobStarvingEvent event) {
+    public void handle(JobStarving event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
-    public void handle(VerificationCodeCreated event) {
-        Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
-    }
-
-    public void handle(RejectedMsgReceivedEvent event) {
-        if (!event.getSourceName().equalsIgnoreCase(SendBellNotificationEvent.name)) {
+    public void handle(RejectedMsgReceived event) {
+        if (!event.getSourceName().equalsIgnoreCase(SendBellNotification.name)) {
             //avoid infinite loop when send bell notification got rejected
             Notification notification = new Notification(event);
-            storeSendBellNotification(event.getId().toString(), notification);
+            storeBellNotification(event.getId().toString(), notification);
         }
     }
 
     public void handle(RawAccessRecordProcessingWarning event) {
         Notification notification = new Notification(event);
-        storeSendBellNotification(event.getId().toString(), notification);
+        storeBellNotification(event.getId().toString(), notification);
     }
 
-    private void storeSendBellNotification(String uniqueId, Notification notification) {
+    private void storeBellNotification(String uniqueId, Notification notification) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(uniqueId, (context) -> {
                 DomainRegistry.getNotificationRepository().add(notification);
                 context
-                    .append(new SendBellNotificationEvent(notification));
+                    .append(new SendBellNotification(notification));
                 return null;
             }, NOTIFICATION);
     }
 
-    private void sendEmailNotification(Long id, Notification notification,
-                                       SendEmailNotificationEvent sendEmailNotificationEvent) {
+    private void storeEmailNotification(Long id, Notification notification,
+                                        SendEmailNotification sendEmailNotification) {
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(id.toString(), (context) -> {
                 DomainRegistry.getNotificationRepository().add(notification);
                 context
-                    .append(sendEmailNotificationEvent);
+                    .append(sendEmailNotification);
                 return null;
             }, NOTIFICATION);
     }

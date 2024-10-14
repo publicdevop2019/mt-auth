@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class EndpointDomainEventSubscriber {
+public class EndpointEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener1() {
         ListenerHelper.listen(new ClientDeleted(),

@@ -3,7 +3,6 @@ package com.mt.access.domain.model.verification_code;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.activation_code.Code;
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeCreated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
@@ -26,8 +25,6 @@ public class VerificationCodeService {
             VerificationCode code1 = new VerificationCode(email, code);
             DomainRegistry.getVerificationCodeRepository().add(clientId, code1);
             context
-                .append(new VerificationCodeCreated(email));
-            context
                 .append(new VerificationCodeUpdated(email, code));
             return code1.getDomainId();
         } else {
@@ -45,8 +42,6 @@ public class VerificationCodeService {
         if (query.isEmpty()) {
             VerificationCode code1 = new VerificationCode(mobile, code);
             DomainRegistry.getVerificationCodeRepository().add(clientId, code1);
-            context
-                .append(new VerificationCodeCreated(mobile));
             context
                 .append(new VerificationCodeUpdated(mobile, code));
             return code1.getDomainId();

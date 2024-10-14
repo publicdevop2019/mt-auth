@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class JobNotFoundEvent extends DomainEvent {
+public class JobNotFound extends DomainEvent {
     public static final String JOB_NOT_FOUND = "job_not_found";
     public static final String name = "JOB_NOT_FOUND";
 
@@ -19,7 +19,7 @@ public class JobNotFoundEvent extends DomainEvent {
 
     private String jobName;
 
-    public JobNotFoundEvent(String jobName) {
+    public JobNotFound(String jobName) {
         super(new AnyDomainId());
         this.jobName = jobName;
     }

@@ -124,8 +124,8 @@ public class CrossDomainValidationService {
             Set<UserId> missing =
                 userIds.stream().filter(userId -> !userIds2.contains(userId)).limit(5)
                     .collect(Collectors.toSet());
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION");
+            ValidationFailed event =
+                new ValidationFailed("UNABLE_TO_FIND_ALL_USER_FOR_USER_RELATION");
             event.addMessage(convertDomainIds(missing));
             context.append(event);
         }
@@ -147,8 +147,8 @@ public class CrossDomainValidationService {
             Set<PermissionId> missing =
                 collect.stream().filter(e -> !permissionIds.contains(e)).limit(5)
                     .collect(Collectors.toSet());
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("UNABLE_TO_FIND_ALL_PERMISSION_FOR_ROLE");
+            ValidationFailed event =
+                new ValidationFailed("UNABLE_TO_FIND_ALL_PERMISSION_FOR_ROLE");
             event.addMessage(convertDomainIds(missing));
             context.append(event);
             return false;
@@ -167,8 +167,8 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getPermissionRepository().query(e),
                 PermissionQuery.internalQuery(usedPIds));
         if (storedP.size() != usedPIds.size()) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ENDPOINT_PERMISSION_CAN_BE_FOUND_IN_PERMISSION");
+            ValidationFailed event =
+                new ValidationFailed("ENDPOINT_PERMISSION_CAN_BE_FOUND_IN_PERMISSION");
             Set<PermissionId> storedPIds =
                 storedP.stream().map(Permission::getPermissionId).collect(Collectors.toSet());
             Set<PermissionId> missing =
@@ -185,8 +185,8 @@ public class CrossDomainValidationService {
                 new EndpointQuery(permissionLinkedEpId));
         if (permissionLinkedEpId.size() != endpoints.size()) {
 
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT");
+            ValidationFailed event =
+                new ValidationFailed("EACH_API_PERMISSION_NEEDS_MAPPED_TO_ONE_ENDPOINT");
             Set<EndpointId> foundEpIds =
                 endpoints.stream().map(Endpoint::getEndpointId).collect(Collectors.toSet());
             Set<EndpointId> missing =
@@ -197,8 +197,8 @@ public class CrossDomainValidationService {
             return false;
         }
         if (endpoints.stream().anyMatch(e -> !e.getSecured())) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ENDPOINT_HAS_PERMISSION_MUST_BE_SECURED");
+            ValidationFailed event =
+                new ValidationFailed("ENDPOINT_HAS_PERMISSION_MUST_BE_SECURED");
             Set<EndpointId> missing =
                 endpoints.stream().filter(e -> !e.getSecured()).map(Endpoint::getEndpointId)
                     .limit(5)
@@ -227,8 +227,8 @@ public class CrossDomainValidationService {
                 new ProjectQuery(usedProjectIds));
         if (currentProjects.size() != usedProjectIds.size()) {
 
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("MAPPED_USER_RELATION_HAS_VALID_PROJECT_ID");
+            ValidationFailed event =
+                new ValidationFailed("MAPPED_USER_RELATION_HAS_VALID_PROJECT_ID");
             Set<ProjectId> stored =
                 currentProjects.stream().map(Project::getProjectId).collect(Collectors.toSet());
             Set<ProjectId> missing =
@@ -248,8 +248,8 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(usedProjectIds));
         if (currentProjects.size() != usedProjectIds.size()) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("PROJECT_ID_IN_ROLE_MUST_BE_VALID");
+            ValidationFailed event =
+                new ValidationFailed("PROJECT_ID_IN_ROLE_MUST_BE_VALID");
             context
                 .append(event);
             Set<ProjectId> stored =
@@ -276,8 +276,8 @@ public class CrossDomainValidationService {
             return first.isEmpty() || first2.isEmpty();
         }).limit(5).collect(Collectors.toSet());
         if (!missing.isEmpty()) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("PROJECT_MUST_HAVE_RELATED_ROLE_CREATED");
+            ValidationFailed event =
+                new ValidationFailed("PROJECT_MUST_HAVE_RELATED_ROLE_CREATED");
             event.addMessage(convertDomainIds(missing));
             context.append(event);
             return false;
@@ -293,8 +293,8 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getCorsProfileRepository().query(e),
                 CorsProfileQuery.internalQuery(usedCorsIds));
         if (storedCors.size() != usedCorsIds.size()) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CORS_PROFILE");
+            ValidationFailed event =
+                new ValidationFailed("ENDPOINTS_MUST_HAVE_VALID_CORS_PROFILE");
             Set<CorsProfileId> stored =
                 storedCors.stream().map(CorsProfile::getCorsId).collect(Collectors.toSet());
             Set<CorsProfileId> missing =
@@ -319,8 +319,8 @@ public class CrossDomainValidationService {
             Set<ClientId> missing =
                 clientsStored.stream().filter(e -> !roleNames.contains(e.getDomainId())).limit(5)
                     .collect(Collectors.toSet());
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("CLIENT_MUST_HAVE_RELATED_ROLE");
+            ValidationFailed event =
+                new ValidationFailed("CLIENT_MUST_HAVE_RELATED_ROLE");
             event.addMessage(convertDomainIds(missing));
             context.append(event);
             return false;
@@ -331,8 +331,8 @@ public class CrossDomainValidationService {
             Set<String> collect =
                 roleNames.stream().filter(e -> !clientIds.contains(e)).limit(5)
                     .collect(Collectors.toSet());
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ROLE_MUST_HAVE_RELATED_CLIENT");
+            ValidationFailed event =
+                new ValidationFailed("ROLE_MUST_HAVE_RELATED_CLIENT");
             event.addMessage(convertToReadable(collect));
             context.append(event);
             return false;
@@ -348,8 +348,8 @@ public class CrossDomainValidationService {
             .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
                 new ProjectQuery(usedProjectIds));
         if (storedProjects.size() != usedProjectIds.size()) {
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ALL_CLIENTS_MUST_HAVE_VALID_PROJECT_ID");
+            ValidationFailed event =
+                new ValidationFailed("ALL_CLIENTS_MUST_HAVE_VALID_PROJECT_ID");
             Set<ProjectId> storedProjectIds =
                 storedProjects.stream().map(Project::getProjectId).collect(Collectors.toSet());
             Set<ProjectId> missing =
@@ -372,8 +372,8 @@ public class CrossDomainValidationService {
         if (storedClients.size() != usedClientIds.size()) {
             Set<ClientId> storedClientIds =
                 storedClients.stream().map(Client::getClientId).collect(Collectors.toSet());
-            ValidationFailedEvent event =
-                new ValidationFailedEvent("ALL_ENDPOINTS_MUST_HAVE_VALID_CLIENT_ID");
+            ValidationFailed event =
+                new ValidationFailed("ALL_ENDPOINTS_MUST_HAVE_VALID_CLIENT_ID");
             context
                 .append(event);
             Set<String> missing =
@@ -395,7 +395,7 @@ public class CrossDomainValidationService {
                 CacheProfileQuery.internalQuery(cacheProfileIds));
         if (allByQuery.size() != cacheProfileIds.size()) {
             context
-                .append(new ValidationFailedEvent("ENDPOINTS_MUST_HAVE_VALID_CACHE_PROFILE"));
+                .append(new ValidationFailed("ENDPOINTS_MUST_HAVE_VALID_CACHE_PROFILE"));
             return false;
         }
         return true;
@@ -403,7 +403,7 @@ public class CrossDomainValidationService {
 
     @NoArgsConstructor
     @Getter
-    public static class ValidationFailedEvent extends DomainEvent {
+    public static class ValidationFailed extends DomainEvent {
         public static final String SYSTEM_VALIDATION_FAILED = "system_validation_failed";
         public static final String name = "SYSTEM_VALIDATION_FAILED";
         private List<String> message;
@@ -413,7 +413,7 @@ public class CrossDomainValidationService {
             setTopic(SYSTEM_VALIDATION_FAILED);
         }
 
-        public ValidationFailedEvent(String message) {
+        public ValidationFailed(String message) {
             super(new AnyDomainId());
             log.debug("creating event for {}", message);
             this.message = new ArrayList<>();

@@ -219,7 +219,6 @@ export const zhHans = {
     "ENDPOINT_COLLECTION_MODIFIED": "API配置改动",
     "ENDPOINT_RELOAD_REQUESTED": "重新载入代理API配置",
     "VERIFICATION_CODE_UPDATED": "验证码更新成功",
-    "VERIFICATION_CODE_CREATED": "验证码创建成功",
     "REVOKE_TOKEN_CREATED": "创建回收令牌",
     "SYSTEM_ROLE_DELETED": "角色删除",
     "USER_AUTHORITY_CHANGED": "用户权限变更",

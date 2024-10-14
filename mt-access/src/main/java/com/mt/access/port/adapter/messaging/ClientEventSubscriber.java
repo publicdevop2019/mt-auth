@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class ClientDomainEventSubscriber {
+public class ClientEventSubscriber {
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {
         ListenerHelper.listen(new ClientAsResourceDeleted(),

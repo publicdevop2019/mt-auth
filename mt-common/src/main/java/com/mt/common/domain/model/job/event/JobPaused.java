@@ -5,7 +5,7 @@ import com.mt.common.domain.model.job.JobDetail;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-public class JobPausedEvent extends DomainEvent {
+public class JobPaused extends DomainEvent {
     public static final String JOB_PAUSED = "job_paused";
     public static final String name = "JOB_PAUSED";
     {
@@ -13,7 +13,7 @@ public class JobPausedEvent extends DomainEvent {
         setName(name);
 
     }
-    public JobPausedEvent(JobDetail job) {
+    public JobPaused(JobDetail job) {
        super(job.getJobId());
     }
 }

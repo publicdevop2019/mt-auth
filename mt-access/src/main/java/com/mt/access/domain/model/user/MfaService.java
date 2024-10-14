@@ -2,7 +2,7 @@ package com.mt.access.domain.model.user;
 
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.event.MfaDeliverMethod;
-import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
+import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.HashMap;
@@ -55,7 +55,7 @@ public class MfaService {
         MfaInfo mfaInfo = MfaInfo.create();
         DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
         context
-            .append(new UserMfaNotificationEvent(user, mfaInfo));
+            .append(new UserMfaNotification(user, mfaInfo));
         return mfaInfo.getId();
     }
 
@@ -64,7 +64,7 @@ public class MfaService {
         MfaInfo mfaInfo = MfaInfo.create();
         DomainRegistry.getUserRepository().updateMfaInfo(mfaInfo, user.getUserId());
         context
-            .append(new UserMfaNotificationEvent(user, mfaInfo, deliverMethod));
+            .append(new UserMfaNotification(user, mfaInfo, deliverMethod));
         return mfaInfo.getId();
     }
 

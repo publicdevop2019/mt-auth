@@ -1,7 +1,7 @@
 package com.mt.access.application.notification.representation;
 
 import com.mt.access.domain.model.notification.Notification;
-import com.mt.access.domain.model.notification.event.SendBellNotificationEvent;
+import com.mt.access.domain.model.notification.event.SendBellNotification;
 import java.util.Set;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +14,7 @@ public class BellNotificationRepresentation {
     private String id;
     private Set<String> descriptions;
 
-    public BellNotificationRepresentation(SendBellNotificationEvent notification) {
+    public BellNotificationRepresentation(SendBellNotification notification) {
         date = notification.getTimestamp();
         id = notification.getDomainId().getDomainId();
         descriptions = notification.getDescriptions();

@@ -10,9 +10,9 @@ import com.mt.common.domain.model.job.DistributedJobService;
 import com.mt.common.domain.model.job.JobDetail;
 import com.mt.common.domain.model.job.JobId;
 import com.mt.common.domain.model.job.JobType;
-import com.mt.common.domain.model.job.event.JobNotFoundEvent;
-import com.mt.common.domain.model.job.event.JobStarvingEvent;
-import com.mt.common.domain.model.job.event.JobThreadStarvingEvent;
+import com.mt.common.domain.model.job.event.JobNotFound;
+import com.mt.common.domain.model.job.event.JobStarving;
+import com.mt.common.domain.model.job.event.JobThreadStarving;
 import com.mt.common.domain.model.local_transaction.TransactionContext;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -72,7 +72,7 @@ public class RedisDistributedJobService implements DistributedJobService {
                 log.error("job {} not found", jobName);
                 CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                     context
-                        .append(new JobNotFoundEvent(jobName));
+                        .append(new JobNotFound(jobName));
                 });
                 return;
             }
@@ -225,8 +225,8 @@ public class RedisDistributedJobService implements DistributedJobService {
                 log.info("creating {} JobStarvingEvent", jobName);
                 CommonDomainRegistry.getTransactionService()
                     .transactionalEvent((context) -> {
-                        JobStarvingEvent starvingEvent =
-                            new JobStarvingEvent(job);
+                        JobStarving starvingEvent =
+                            new JobStarving(job);
                         context
                             .append(starvingEvent);
                         CommonDomainRegistry.getJobRepository()
@@ -244,8 +244,8 @@ public class RedisDistributedJobService implements DistributedJobService {
                     log.warn(
                         "job {} thread unable to acquire lock multiple times",
                         jobName);
-                    JobThreadStarvingEvent starvingEvent =
-                        new JobThreadStarvingEvent(job, instanceId);
+                    JobThreadStarving starvingEvent =
+                        new JobThreadStarving(job, instanceId);
                     context
                         .append(starvingEvent);
                 });

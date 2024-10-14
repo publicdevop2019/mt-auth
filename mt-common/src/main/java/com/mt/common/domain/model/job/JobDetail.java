@@ -3,7 +3,7 @@ package com.mt.common.domain.model.job;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.domain_event.DomainEvent;
-import com.mt.common.domain.model.job.event.JobPausedEvent;
+import com.mt.common.domain.model.job.event.JobPaused;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -114,7 +114,7 @@ public class JobDetail extends Auditable implements Serializable {
         CommonDomainRegistry.getJobRepository().update(this, jobDetail);
         if (jobDetail.isPaused() && !getNotifiedAdmin()) {
             log.warn("notify admin about job paused");
-            return new JobPausedEvent(this);
+            return new JobPaused(this);
         }
         return null;
     }

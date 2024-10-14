@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class PermissionDomainEventSubscriber {
+public class PermissionEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener0() {

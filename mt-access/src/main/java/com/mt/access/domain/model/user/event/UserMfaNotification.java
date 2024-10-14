@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserMfaNotificationEvent extends DomainEvent {
+public class UserMfaNotification extends DomainEvent {
 
     public static final String USER_MFA_NOTIFICATION = "user_mfa_notification";
     public static final String name = "USER_MFA_NOTIFICATION";
@@ -25,7 +25,7 @@ public class UserMfaNotificationEvent extends DomainEvent {
         setName(name);
     }
 
-    public UserMfaNotificationEvent(User user, MfaInfo mfaInfo) {
+    public UserMfaNotification(User user, MfaInfo mfaInfo) {
         super(user.getUserId());
         code = mfaInfo.getCode();
         if (Checker.notNull(user.getEmail())) {
@@ -37,7 +37,7 @@ public class UserMfaNotificationEvent extends DomainEvent {
         }
     }
 
-    public UserMfaNotificationEvent(User user, MfaInfo mfaInfo, MfaDeliverMethod method) {
+    public UserMfaNotification(User user, MfaInfo mfaInfo, MfaDeliverMethod method) {
         super(user.getUserId());
         code = mfaInfo.getCode();
         if (MfaDeliverMethod.EMAIL.equals(method)) {

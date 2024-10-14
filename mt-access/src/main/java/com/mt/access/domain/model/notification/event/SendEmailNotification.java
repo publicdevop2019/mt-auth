@@ -2,7 +2,7 @@ package com.mt.access.domain.model.notification.event;
 
 import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValidationFailureCheck;
 import com.mt.access.domain.model.notification.Notification;
-import com.mt.access.domain.model.user.event.UserMfaNotificationEvent;
+import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
 import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.model.domain_event.DomainEvent;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class SendEmailNotificationEvent extends DomainEvent {
+public class SendEmailNotification extends DomainEvent {
     public static final String SEND_EMAIL_NOTIFICATION_EVENT =
         "send_email_notification_event";
     public static final String name = "SEND_EMAIL_NOTIFICATION_EVENT";
@@ -27,11 +27,11 @@ public class SendEmailNotificationEvent extends DomainEvent {
         setName(name);
     }
 
-    private SendEmailNotificationEvent(Notification notification) {
+    private SendEmailNotification(Notification notification) {
         super(notification.getNotificationId());
     }
 
-    public SendEmailNotificationEvent(UserPwdResetCodeUpdated event, Notification notification) {
+    public SendEmailNotification(UserPwdResetCodeUpdated event, Notification notification) {
         this(notification);
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("email", event.getEmail());
@@ -42,8 +42,8 @@ public class SendEmailNotificationEvent extends DomainEvent {
         subject = "Your password reset token";
     }
 
-    public SendEmailNotificationEvent(VerificationCodeUpdated event,
-                                      Notification notification) {
+    public SendEmailNotification(VerificationCodeUpdated event,
+                                 Notification notification) {
         this(notification);
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("email", event.getEmail());
@@ -54,8 +54,8 @@ public class SendEmailNotificationEvent extends DomainEvent {
         subject = "Your verification code";
     }
 
-    public SendEmailNotificationEvent(UserMfaNotificationEvent event,
-                                      Notification notification) {
+    public SendEmailNotification(UserMfaNotification event,
+                                 Notification notification) {
         this(notification);
         HashMap<String, String> stringStringHashMap = new HashMap<>();
         stringStringHashMap.put("email", event.getEmail());
@@ -66,8 +66,8 @@ public class SendEmailNotificationEvent extends DomainEvent {
         subject = "Your verification code";
     }
 
-    public SendEmailNotificationEvent(CrossDomainValidationFailureCheck event,
-                                      Notification notification) {
+    public SendEmailNotification(CrossDomainValidationFailureCheck event,
+                                 Notification notification) {
         this(notification);
         email = event.getEmail();
         templateUrl = "AdminNotification.ftl";

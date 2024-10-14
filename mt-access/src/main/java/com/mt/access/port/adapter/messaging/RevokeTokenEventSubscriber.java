@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class RevokeTokenDomainEventSubscriber {
+public class RevokeTokenEventSubscriber {
 
     @EventListener(ApplicationReadyEvent.class)
     private void listener2() {

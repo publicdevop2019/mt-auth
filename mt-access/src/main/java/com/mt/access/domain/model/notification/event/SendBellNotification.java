@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class SendBellNotificationEvent extends DomainEvent {
+public class SendBellNotification extends DomainEvent {
     public static final String SEND_BELL_NOTIFICATION_EVENT =
         "send_bell_notification_event";
     public static final String name = "SEND_BELL_NOTIFICATION_EVENT";
@@ -27,7 +27,7 @@ public class SendBellNotificationEvent extends DomainEvent {
 
     }
 
-    public SendBellNotificationEvent(Notification notification) {
+    public SendBellNotification(Notification notification) {
         super(notification.getNotificationId());
         date = notification.getTimestamp();
         this.descriptions = notification.getDescriptions();

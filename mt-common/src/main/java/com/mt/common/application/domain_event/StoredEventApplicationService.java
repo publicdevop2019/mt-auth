@@ -4,14 +4,13 @@ import com.mt.common.application.CommonApplicationServiceRegistry;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.domain_event.StoredEvent;
 import com.mt.common.domain.model.domain_event.StoredEventQuery;
-import com.mt.common.domain.model.domain_event.event.RejectedMsgReceivedEvent;
-import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceivedEvent;
+import com.mt.common.domain.model.domain_event.event.RejectedMsgReceived;
+import com.mt.common.domain.model.domain_event.event.UnrountableMsgReceived;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import java.time.Instant;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -48,7 +47,7 @@ public class StoredEventApplicationService {
             CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(String.valueOf(id), (context) -> {
                         context
-                            .append(new UnrountableMsgReceivedEvent(event));
+                            .append(new UnrountableMsgReceived(event));
                         StoredEvent byId =
                             CommonDomainRegistry.getDomainEventRepository().getById(event.getId());
                         byId.markAsUnroutable();
@@ -73,7 +72,7 @@ public class StoredEventApplicationService {
         if (id != null) {
             CommonDomainRegistry.getTransactionService().transactionalEvent((context) -> {
                 context
-                    .append(new RejectedMsgReceivedEvent(event));
+                    .append(new RejectedMsgReceived(event));
                 StoredEvent first = CommonDomainRegistry.getDomainEventRepository()
                     .getById(event.getId());
                 first.markAsRejected();
