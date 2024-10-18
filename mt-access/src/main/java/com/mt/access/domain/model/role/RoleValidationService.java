@@ -27,7 +27,7 @@ public class RoleValidationService {
                          ValidationNotificationHandler handler) {
         //skip validation for system create to boost performance
         if (Checker.isFalse(role.getSystemCreate())) {
-            parentIdMustBeSameProject(newProjectOrClient, role);
+            checkParentId(newProjectOrClient, role);
             permissionMustBeSameProject(role, handler);
             checkPermission(role.getApiPermissionIds(), PermissionType.API);
             checkPermission(role.getCommonPermissionIds(), PermissionType.COMMON);
@@ -94,13 +94,16 @@ public class RoleValidationService {
         }
     }
 
-    private void parentIdMustBeSameProject(boolean newProjectOrClient, Role role) {
+    private void checkParentId(boolean newProjectOrClient, Role role) {
         if (role.getParentId() != null && !newProjectOrClient) {
             Role parentRole = DomainRegistry.getRoleRepository().get(role.getParentId());
             log.debug("comparing parent role {}, project id is {} and role {}, project id is {}",
                 parentRole.getRoleId(), parentRole.getProjectId(), role.getRoleId(),
                 role.getProjectId());
+            //must be same project
             Validator.equals(parentRole.getProjectId(), role.getProjectId());
+            //must be user type
+            Validator.equals(parentRole.getType(), RoleType.USER);
         }
     }
 

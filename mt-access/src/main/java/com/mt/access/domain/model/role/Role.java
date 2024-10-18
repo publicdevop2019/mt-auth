@@ -198,10 +198,11 @@ public class Role extends Auditable {
                 apiPermissionIds = linkedApiPermission;
             }
         }
+        HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
         role.setApiPermissionIds(false, apiPermissionIds);
-        new RoleValidator(new HttpValidationNotificationHandler(), role).validate();
+        new RoleValidator(handler, role).validate();
         DomainRegistry.getRoleValidationService()
-            .validate(false, role, new HttpValidationNotificationHandler());
+            .validate(false, role, handler);
         long milli = Instant.now().toEpochMilli();
         role.setCreatedAt(milli);
         role.setCreatedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
@@ -311,9 +312,10 @@ public class Role extends Auditable {
             update.setCommonPermissionIds(false,
                 CommonUtility.map(command.getCommonPermissionIds(), PermissionId::new));
         }
-        new RoleValidator(new HttpValidationNotificationHandler(), update).validate();
+        HttpValidationNotificationHandler handler = new HttpValidationNotificationHandler();
+        new RoleValidator(handler, update).validate();
         DomainRegistry.getRoleValidationService()
-            .validate(false, update, new HttpValidationNotificationHandler());
+            .validate(false, update, handler);
         update.setModifiedAt(Instant.now().toEpochMilli());
         update.setModifiedBy(DomainRegistry.getCurrentUserService().getUserId().getDomainId());
         return update;
@@ -430,7 +432,7 @@ public class Role extends Auditable {
     }
 
     public Set<PermissionId> getApiPermissionIds() {
-        if(isCreate){
+        if (isCreate) {
             return apiPermissionIds;
         }
         if (Checker.isFalse(this.apiPermissionIdsLoaded)) {
@@ -441,7 +443,7 @@ public class Role extends Auditable {
     }
 
     public Set<PermissionId> getExternalPermissionIds() {
-        if(isCreate){
+        if (isCreate) {
             return externalPermissionIds;
         }
         if (Checker.isFalse(this.extPermissionIdsLoaded)) {
@@ -452,7 +454,7 @@ public class Role extends Auditable {
     }
 
     public Set<PermissionId> getCommonPermissionIds() {
-        if(isCreate){
+        if (isCreate) {
             return commonPermissionIds;
         }
         if (Checker.isFalse(this.commonPermissionIdsLoaded)) {

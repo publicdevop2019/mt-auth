@@ -29,7 +29,6 @@ import com.mt.access.domain.model.role.RoleType;
 import com.mt.access.domain.model.user.UserId;
 import com.mt.access.infrastructure.AppConstant;
 import com.mt.common.application.CommonApplicationServiceRegistry;
-import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.distributed_lock.SagaDistLockV2;
 import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
@@ -55,48 +54,45 @@ public class RoleApplicationService {
 
     public SumPagedRep<RoleCardRepresentation> query(String queryParam, String pageParam,
                                                      String skipCount) {
-                RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
-                DomainRegistry.getPermissionCheckService()
-                    .canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
-                SumPagedRep<Role> query = DomainRegistry.getRoleRepository().query(roleQuery);
-                SumPagedRep<RoleCardRepresentation> roleCardRepresentationSumPagedRep =
-                    new SumPagedRep<>(query, RoleCardRepresentation::new);
-                updateName(roleCardRepresentationSumPagedRep);
-                return roleCardRepresentationSumPagedRep;
+        RoleQuery roleQuery = new RoleQuery(queryParam, pageParam, skipCount);
+        DomainRegistry.getPermissionCheckService()
+            .canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
+        SumPagedRep<Role> query = DomainRegistry.getRoleRepository().query(roleQuery);
+        SumPagedRep<RoleCardRepresentation> roleCardRepresentationSumPagedRep =
+            new SumPagedRep<>(query, RoleCardRepresentation::new);
+        updateName(roleCardRepresentationSumPagedRep);
+        return roleCardRepresentationSumPagedRep;
     }
 
     public RoleRepresentation query(String projectId, String id) {
-                ProjectId projectId1 = new ProjectId(projectId);
-                DomainRegistry.getPermissionCheckService().canAccess(projectId1, ROLE_MGMT);
-                Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
-                return new RoleRepresentation(role);
+        ProjectId projectId1 = new ProjectId(projectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId1, ROLE_MGMT);
+        Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
+        return new RoleRepresentation(role);
     }
 
 
     @AuditLog(actionName = UPDATE_TENANT_ROLE)
     public void tenantUpdate(String id, RoleUpdateCommand command, String changeId) {
         RoleId roleId = new RoleId(id);
-        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(command.getProjectId()));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
+        ProjectId projectId = new ProjectId(command.getProjectId());
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()
             .idempotent(changeId, (context) -> {
-                Optional<Role> first =
-                    DomainRegistry.getRoleRepository().query(roleQuery).findFirst();
-                first.ifPresent(e -> {
-                    Role replace = e.replace(command, context);
-                    DomainRegistry.getRoleRepository().update(e, replace);
-                });
+                Role role = DomainRegistry.getRoleRepository().get(projectId, roleId);
+                Role replace = role.replace(command, context);
+                DomainRegistry.getRoleRepository().update(role, replace);
                 return null;
             }, ROLE);
     }
 
     @AuditLog(actionName = DELETE_TENANT_ROLE)
-    public void tenantRemove(String projectId, String id, String changeId) {
+    public void tenantRemove(String rawProjectId, String id, String changeId) {
         RoleId roleId = new RoleId(id);
-        RoleQuery roleQuery = new RoleQuery(roleId, new ProjectId(projectId));
-        DomainRegistry.getPermissionCheckService().canAccess(roleQuery.getProjectIds(), ROLE_MGMT);
+        ProjectId projectId = new ProjectId(rawProjectId);
+        DomainRegistry.getPermissionCheckService().canAccess(projectId, ROLE_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService().idempotent(changeId, (context) -> {
-            Role role = DomainRegistry.getRoleRepository().get(roleId);
+            Role role = DomainRegistry.getRoleRepository().get(projectId, roleId);
             role.remove();
             DomainRegistry.getAuditService()
                 .storeAuditAction(DELETE_TENANT_ROLE,
@@ -228,7 +224,7 @@ public class RoleApplicationService {
             }, (cmd) -> null, ROLE);
     }
 
-    public static SumPagedRep<RoleCardRepresentation> updateName(
+    private static void updateName(
         SumPagedRep<RoleCardRepresentation> response) {
         List<RoleCardRepresentation> data = response.getData();
         Set<ProjectId> collect =
@@ -274,6 +270,5 @@ public class RoleApplicationService {
                 }
             });
         }
-        return response;
     }
 }
