@@ -143,6 +143,15 @@ public class UserUtility {
             );
     }
 
+    public static ResponseEntity<DefaultOAuth2AccessToken> emailCodeLogin(User user, String code) {
+        user.setCode(code);
+        return OAuth2Utility
+            .getPasswordFlowEmailCodeToken(AppConstant.CLIENT_ID_LOGIN_ID,
+                AppConstant.COMMON_CLIENT_SECRET,
+                user.getEmail(), user.getCode()
+            );
+    }
+
     public static ResponseEntity<DefaultOAuth2AccessToken> mobileCodeLogin(User user) {
         sendVerifyCode(user);
         user.setCode("123456");
@@ -188,6 +197,10 @@ public class UserUtility {
                 oAuth2PasswordToken.getStatusCode().value());
         }
         return token;
+    }
+
+    public static ResponseEntity<DefaultOAuth2AccessToken> emailPwdLoginRaw(User user) {
+        return emailPwdLogin(user.getEmail(), user.getPassword());
     }
 
     public static ResponseEntity<DefaultOAuth2AccessToken> getJwtPasswordAdmin() {
