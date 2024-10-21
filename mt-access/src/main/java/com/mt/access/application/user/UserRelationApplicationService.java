@@ -28,6 +28,7 @@ import com.mt.common.domain.model.exception.DefinedRuntimeException;
 import com.mt.common.domain.model.exception.HttpResponseCode;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.restful.query.QueryUtility;
+import com.mt.common.domain.model.validate.Validator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -134,6 +135,8 @@ public class UserRelationApplicationService {
 
     public void tenantRoleAssign(String rawProjectId, String userId, AssignRoleCommand command,
                                  String changeId) {
+        Validator.notNull(command.getRoleIds());
+        Validator.notEmpty(command.getRoleIds());
         ProjectId projectId = new ProjectId(rawProjectId);
         DomainRegistry.getPermissionCheckService().canAccess(projectId, USER_MGMT);
         CommonApplicationServiceRegistry.getIdempotentService()

@@ -21,4 +21,11 @@ public class User {
     private String username;
     private String code;
     private List<String> roles;
+    private List<RoleDetail> roleDetails;
+
+    @Data
+    public static class RoleDetail {
+        private String name;
+        private String id;
+    }
 }

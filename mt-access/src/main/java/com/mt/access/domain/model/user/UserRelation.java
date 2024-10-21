@@ -125,7 +125,7 @@ public class UserRelation extends Auditable {
         }
         CommonUtility.updateCollection(this.standaloneRoles, roleIds,
             () -> this.standaloneRoles = roleIds);
-        UserRelationValidator.validateAllAssignedRoles(roleIds);
+        UserRelationValidator.validateAllAssignedRoles(roleIds, this);
     }
 
     private void setTenantIds(Set<ProjectId> tenantIds) {
