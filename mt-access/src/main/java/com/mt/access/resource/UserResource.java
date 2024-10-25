@@ -16,7 +16,7 @@ import com.mt.access.application.user.representation.UserTenantCardRepresentatio
 import com.mt.access.application.user.representation.UserTenantRepresentation;
 import com.mt.access.domain.DomainRegistry;
 import com.mt.access.domain.model.user.User;
-import com.mt.access.infrastructure.Utility;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -81,7 +81,7 @@ public class UserResource {
         @RequestParam(value = HTTP_PARAM_SKIP_COUNT, required = false) String config
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectIds(queryParam, projectId);
+        queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<User> users = ApplicationServiceRegistry.getUserRelationApplicationService()
             .tenantUsers(queryParam, pageParam, config);
         return ResponseEntity.ok(new SumPagedRep<>(users, UserTenantCardRepresentation::new));

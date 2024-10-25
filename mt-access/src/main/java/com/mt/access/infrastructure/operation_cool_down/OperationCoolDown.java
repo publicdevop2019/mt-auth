@@ -1,5 +1,6 @@
-package com.mt.access.domain.model.operation_cool_down;
+package com.mt.access.infrastructure.operation_cool_down;
 
+import com.mt.access.domain.model.operation_cool_down.OperationType;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -12,15 +13,15 @@ import lombok.Setter;
 @NoArgsConstructor
 @Setter(AccessLevel.PRIVATE)
 public class OperationCoolDown {
-    @Setter(AccessLevel.PRIVATE)
-    @Getter
-    private Integer version;
 
     /**
      * person who execute this operation, can be email or user id.
+     * primary key
      */
     private String executor;
-
+    /**
+     * primary key
+     */
     private OperationType operationType;
 
     private Long lastOperateAt;
@@ -38,10 +39,9 @@ public class OperationCoolDown {
         setLastOperateAt(Instant.now().toEpochMilli());
     }
 
-    public static OperationCoolDown fromDatabaseRow(Integer version, OperationType optType,
+    public static OperationCoolDown fromDatabaseRow(OperationType optType,
                                                     String executor, Long lastOptAt) {
         OperationCoolDown coolDown = new OperationCoolDown();
-        coolDown.setVersion(version);
         coolDown.setOperationType(optType);
         coolDown.setExecutor(executor);
         coolDown.setLastOperateAt(lastOptAt);
@@ -49,11 +49,9 @@ public class OperationCoolDown {
     }
 
     /**
-     * operation has 1 minute cool down.
-     *
-     * @return boolean if cool down or not
+     * check if operation has cool down or not.
      */
     public boolean hasCoolDown() {
-        return Instant.now().toEpochMilli() > lastOperateAt + 60 * 1000;
+        return Instant.now().toEpochMilli() > lastOperateAt + operationType.coolDownMilli;
     }
 }

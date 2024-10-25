@@ -6,21 +6,18 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;
 import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
-import com.github.fge.jsonpatch.JsonPatch;
 import com.mt.access.application.ApplicationServiceRegistry;
 import com.mt.access.application.role.command.RoleCreateCommand;
 import com.mt.access.application.role.command.RoleUpdateCommand;
 import com.mt.access.application.role.representation.RoleCardRepresentation;
 import com.mt.access.application.role.representation.RoleRepresentation;
 import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.role.Role;
-import com.mt.access.infrastructure.Utility;
+import com.mt.access.infrastructure.HttpUtility;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -58,7 +55,7 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        queryParam = Utility.updateProjectIds(queryParam, projectId);
+        queryParam = HttpUtility.updateProjectIds(queryParam, projectId);
         SumPagedRep<RoleCardRepresentation> query =
             ApplicationServiceRegistry.getRoleApplicationService()
                 .query(queryParam, pageParam, skipCount);

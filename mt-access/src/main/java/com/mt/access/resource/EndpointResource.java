@@ -1,6 +1,6 @@
 package com.mt.access.resource;
 
-import static com.mt.access.infrastructure.Utility.updateProjectIds;
+import static com.mt.access.infrastructure.HttpUtility.updateProjectIds;
 import static com.mt.common.CommonConstant.HTTP_HEADER_AUTHORIZATION;
 import static com.mt.common.CommonConstant.HTTP_HEADER_CHANGE_ID;
 import static com.mt.common.CommonConstant.HTTP_PARAM_PAGE;

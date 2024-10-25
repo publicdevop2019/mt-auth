@@ -1,5 +1,6 @@
-package com.mt.access.domain.model.operation_cool_down;
+package com.mt.access.infrastructure.operation_cool_down;
 
+import com.mt.access.domain.model.operation_cool_down.OperationType;
 import java.util.Optional;
 
 public interface OperationCoolDownRepository {

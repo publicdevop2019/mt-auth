@@ -25,7 +25,7 @@ import com.mt.access.domain.model.notification.NotificationRepository;
 import com.mt.access.domain.model.notification.SmsNotificationService;
 import com.mt.access.domain.model.notification.WsPushNotificationService;
 import com.mt.access.domain.model.operation_cool_down.CoolDownService;
-import com.mt.access.domain.model.operation_cool_down.OperationCoolDownRepository;
+import com.mt.access.infrastructure.operation_cool_down.OperationCoolDownRepository;
 import com.mt.access.domain.model.verification_code.VerificationCodeRepository;
 import com.mt.access.domain.model.verification_code.VerificationCodeService;
 import com.mt.access.domain.model.permission.PermissionRepository;

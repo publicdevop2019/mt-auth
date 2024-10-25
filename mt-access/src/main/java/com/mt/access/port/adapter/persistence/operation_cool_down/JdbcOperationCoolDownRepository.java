@@ -1,7 +1,7 @@
 package com.mt.access.port.adapter.persistence.operation_cool_down;
 
-import com.mt.access.domain.model.operation_cool_down.OperationCoolDown;
-import com.mt.access.domain.model.operation_cool_down.OperationCoolDownRepository;
+import com.mt.access.infrastructure.operation_cool_down.OperationCoolDown;
+import com.mt.access.infrastructure.operation_cool_down.OperationCoolDownRepository;
 import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.audit.Auditable;
@@ -23,13 +23,12 @@ public class JdbcOperationCoolDownRepository implements OperationCoolDownReposit
     private static final String FIND_BY_EXECUTOR_OPERATION_TYPE_SQL =
         "SELECT * FROM opt_cool_down AS ocd WHERE ocd.executor = ? AND ocd.opt_type = ?";
     private static final String INSERT_SQL = "INSERT INTO opt_cool_down (" +
-        "version, " +
         "opt_type, " +
         "executor, " +
         "last_opt_at" +
         ") VALUES(?, ?, ?, ?)";
     private static final String UPDATE_SQL =
-        "UPDATE opt_cool_down AS ocd SET ocd.last_opt_at = ? WHERE ocd.executor = ? " +
+        "UPDATE opt_cool_down AS t SET ocd.last_opt_at = ? WHERE ocd.executor = ? " +
             "AND ocd.opt_type = ? AND ocd.last_opt_at = ?";
 
     @Override
@@ -48,7 +47,6 @@ public class JdbcOperationCoolDownRepository implements OperationCoolDownReposit
     public void add(OperationCoolDown coolDown) {
         CommonDomainRegistry.getJdbcTemplate()
             .update(INSERT_SQL,
-                0,
                 coolDown.getOperationType().name(),
                 coolDown.getExecutor(),
                 coolDown.getLastOperateAt()
@@ -82,7 +80,6 @@ public class JdbcOperationCoolDownRepository implements OperationCoolDownReposit
                 String dbId = rs.getString("executor") + rs.getString("opt_type");
                 if (!currentId.equals(dbId)) {
                     result = OperationCoolDown.fromDatabaseRow(
-                        DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
                         OperationType.valueOf(rs.getString("opt_type")),
                         rs.getString("executor"),
                         DatabaseUtility.getNullableLong(rs, "last_opt_at")
