@@ -10,14 +10,13 @@ import lombok.NoArgsConstructor;
 public class JobNotFound extends DomainEvent {
     public static final String JOB_NOT_FOUND = "job_not_found";
     public static final String name = "JOB_NOT_FOUND";
+    private String jobName;
 
     {
 
         setTopic(JOB_NOT_FOUND);
         setName(name);
     }
-
-    private String jobName;
 
     public JobNotFound(String jobName) {
         super(new AnyDomainId());

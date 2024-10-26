@@ -50,6 +50,18 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class RabbitMqEventStreamService implements SagaEventStreamService {
+    public static final Map<Thread, Channel> pubChannel = new HashMap<>();
+    public static final Map<Thread, Channel> subChannel = new HashMap<>();
+    private static final HashSet<String> reservedQueue = new HashSet<>();
+
+    static {
+        reservedQueue.add(QUEUE_NAME_ALT);
+        reservedQueue.add(QUEUE_NAME_REJECT);
+        reservedQueue.add(QUEUE_NAME_DELAY);
+    }
+
+    private final Connection connectionPub;
+    private final Connection connectionSub;
     @Autowired
     @Qualifier("event-sub")
     private ThreadPoolExecutor eventSubExecutor;
@@ -59,21 +71,10 @@ public class RabbitMqEventStreamService implements SagaEventStreamService {
     @Autowired
     @Qualifier("event-pub")
     private ThreadPoolExecutor eventPubExecutor;
-    public static final Map<Thread, Channel> pubChannel = new HashMap<>();
-    public static final Map<Thread, Channel> subChannel = new HashMap<>();
-    private final Connection connectionPub;
-    private final Connection connectionSub;
     private Map<Thread, ConcurrentNavigableMap<Long, StoredEvent>> pendingConfirms =
         new HashMap<>();
     private Map<Thread, ConcurrentNavigableMap<Long, Long>> pendingConfirmsStartAt =
         new HashMap<>();
-    private static final HashSet<String> reservedQueue = new HashSet<>();
-
-    static {
-        reservedQueue.add(QUEUE_NAME_ALT);
-        reservedQueue.add(QUEUE_NAME_REJECT);
-        reservedQueue.add(QUEUE_NAME_DELAY);
-    }
 
     public RabbitMqEventStreamService(
         @Value("${mt.common.url.message-queue}") final String url,

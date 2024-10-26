@@ -11,13 +11,15 @@ public class JobStarving extends DomainEvent {
     public static final String JOB_STARVING = "job_starving";
     public static final String name = "JOB_STARVING";
     private String jobName;
+
     {
 
         setTopic(JOB_STARVING);
         setName(name);
     }
+
     public JobStarving(JobDetail jobDetail) {
         super(jobDetail.getJobId());
-        jobName=jobDetail.getName();
+        jobName = jobDetail.getName();
     }
 }

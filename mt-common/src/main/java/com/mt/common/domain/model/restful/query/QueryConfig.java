@@ -5,19 +5,10 @@ import javax.annotation.Nullable;
 public class QueryConfig {
     private final String rawValue;
 
-    public static QueryConfig skipCount() {
-
-        return new QueryConfig("sc:1");
-    }
-
-    public static QueryConfig countRequired() {
-
-        return new QueryConfig();
-    }
-
     /**
      * create QueryConfig,
      * count total if input is null
+     *
      * @param configParam config string
      */
     public QueryConfig(@Nullable String configParam) {
@@ -26,6 +17,16 @@ public class QueryConfig {
 
     private QueryConfig() {
         rawValue = null;
+    }
+
+    public static QueryConfig skipCount() {
+
+        return new QueryConfig("sc:1");
+    }
+
+    public static QueryConfig countRequired() {
+
+        return new QueryConfig();
     }
 
     public boolean count() {

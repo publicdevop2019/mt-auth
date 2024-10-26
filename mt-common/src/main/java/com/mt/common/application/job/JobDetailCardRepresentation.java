@@ -7,14 +7,14 @@ import lombok.Getter;
 public class JobDetailCardRepresentation {
     private final String name;
     private final Integer maxLockAcquireFailureAllowed;
-    private String lastStatus;
-    private String id;
     private final String type;
     private final Integer failureCount;
     private final String failureReason;
     private final Integer failureAllowed;
     private final Long minimumIdleTimeAllowed;
     private final Boolean notifiedAdmin;
+    private String lastStatus;
+    private String id;
     private Long lastExecution;
 
     public JobDetailCardRepresentation(JobDetail j) {

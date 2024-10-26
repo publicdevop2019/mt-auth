@@ -2,8 +2,6 @@ package com.mt.common.application.idempotent;
 
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.idempotent.ChangeRecord;
-import com.mt.common.domain.model.idempotent.ChangeRecordQuery;
-import com.mt.common.domain.model.restful.SumPagedRep;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,7 +17,8 @@ public class ChangeRecordApplicationService {
         ChangeRecord emptyBackwardChange = ChangeRecord.create(changeId, aggregate);
         emptyBackwardChange.setEmptyOpt(Boolean.TRUE);
         //create empty forward change for concurrent safe
-        ChangeRecord emptyForwardChange = ChangeRecord.create(ChangeRecord.getForwardChangeId(changeId), aggregate);
+        ChangeRecord emptyForwardChange =
+            ChangeRecord.create(ChangeRecord.getForwardChangeId(changeId), aggregate);
         emptyForwardChange.setEmptyOpt(Boolean.TRUE);
         CommonDomainRegistry.getChangeRecordRepository().add(emptyBackwardChange);
         CommonDomainRegistry.getChangeRecordRepository().add(emptyForwardChange);

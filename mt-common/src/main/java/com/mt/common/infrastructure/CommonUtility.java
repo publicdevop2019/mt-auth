@@ -21,14 +21,15 @@ public class CommonUtility {
             rawIds.stream().map(fn).collect(
                 Collectors.toSet());
     }
+
     /**
      * update DB collection without trigger unnecessary sql update
      * in case of null and empty collection
      *
-     * @param source source collection, if null
-     * @param updateTo target collection
+     * @param source       source collection, if null
+     * @param updateTo     target collection
      * @param ifSourceNull invoke if source is null
-     * @param <T>    type of collection
+     * @param <T>          type of collection
      */
     public static <T> void updateCollection(@Nullable Collection<T> source,
                                             @Nullable Collection<T> updateTo,
@@ -80,12 +81,13 @@ public class CommonUtility {
             }
         }
     }
+
     /**
      * check if update DB collection required
      *
-     * @param source source collection
+     * @param source   source collection
      * @param updateTo target collection
-     * @param <T>    type of collection
+     * @param <T>      type of collection
      * @return if update required
      */
     public static <T> boolean collectionWillChange(@Nullable Collection<T> source,
@@ -126,7 +128,7 @@ public class CommonUtility {
                         return true;
                     } else {
                         if (!updateTo.equals(source)) {
-                           return true;
+                            return true;
                         } else {
                             return false;
                         }

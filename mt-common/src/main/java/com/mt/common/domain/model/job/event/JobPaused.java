@@ -8,12 +8,14 @@ import lombok.NoArgsConstructor;
 public class JobPaused extends DomainEvent {
     public static final String JOB_PAUSED = "job_paused";
     public static final String name = "JOB_PAUSED";
+
     {
         setTopic(JOB_PAUSED);
         setName(name);
 
     }
+
     public JobPaused(JobDetail job) {
-       super(job.getJobId());
+        super(job.getJobId());
     }
 }

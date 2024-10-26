@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StoredEventResource {
     /**
      * retry a stored event
+     *
      * @param id stored event id
      * @return void
      */

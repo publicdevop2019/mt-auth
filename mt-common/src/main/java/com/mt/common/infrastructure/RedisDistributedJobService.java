@@ -30,6 +30,12 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class RedisDistributedJobService implements DistributedJobService {
+    private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
+        new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Boolean> jobInstanceNotificationMap =
+        new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Integer> jobIgnoreCount =
+        new ConcurrentHashMap<>();
     @Autowired
     @Qualifier("job")
     private ThreadPoolExecutor taskExecutor;
@@ -37,12 +43,83 @@ public class RedisDistributedJobService implements DistributedJobService {
     private RedissonClient redissonClient;
     @Value("${mt.common.instance-id}")
     private Long instanceId;
-    private final ConcurrentHashMap<String, Integer> jobInstanceFailureCountMap =
-        new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Boolean> jobInstanceNotificationMap =
-        new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, Integer> jobIgnoreCount =
-        new ConcurrentHashMap<>();
+
+    private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,
+                                   JobDetail job) {
+        if (transactional) {
+            transactionalJobWrapper(jobFn, job);
+        } else {
+            boolean jobSuccess = false;
+            try {
+                jobFn.accept(null);
+                jobSuccess = true;
+            } catch (Exception ex) {
+                log.error("job {} execute fail, updating status", job.getName(), ex);
+            }
+            //update instance job status
+            boolean finalJobSuccess = jobSuccess;
+            CommonDomainRegistry.getTransactionService()
+                .transactionalEvent((context) -> {
+                    updateJobStatus(finalJobSuccess, job, context);
+                });
+        }
+    }
+
+    private static void transactionalJobWrapper(Consumer<TransactionContext> jobFn,
+                                                JobDetail job) {
+        CommonDomainRegistry.getTransactionService()
+            .transactionalEvent((context) -> {
+                boolean jobSuccess = false;
+                try {
+                    jobFn.accept(context);
+                    jobSuccess = true;
+                } catch (Exception ex) {
+                    log.error("job {} execute fail, updating status", job.getName(), ex);
+                }
+                updateJobStatus(jobSuccess, job, context);
+            });
+    }
+
+    private static void updateJobStatus(boolean finalJobSuccess, JobDetail current,
+                                        TransactionContext context) {
+        if (finalJobSuccess) {
+            JobDetail updated = current.executeSuccess();
+            CommonDomainRegistry.getJobRepository().update(current, updated);
+        } else {
+            DomainEvent domainEvent = current.handleJobExecutionException();
+            if (domainEvent == null) {
+                return;
+            }
+            current.setNotifiedAdmin(true);
+            context
+                .append(domainEvent);
+        }
+
+    }
+
+    private static String getJobLockKey(String jobName) {
+        return jobName + "_sync_scheduler_dist_lock";
+    }
+
+    private static void checkJobStarving(String jobName, JobDetail job) {
+        //check if job was executed in time, otherwise send notification
+        if (job.notifyJobStarving()) {
+            log.warn("job {} exceed max idle time, last execution time {}",
+                jobName, job.getLastExecution());
+            if (!job.getNotifiedAdmin()) {
+                log.info("creating {} JobStarvingEvent", jobName);
+                CommonDomainRegistry.getTransactionService()
+                    .transactionalEvent((context) -> {
+                        JobStarving starvingEvent =
+                            new JobStarving(job);
+                        context
+                            .append(starvingEvent);
+                        CommonDomainRegistry.getJobRepository()
+                            .notifyAdmin(job.getJobId());
+                    });
+            }
+        }
+    }
 
     /**
      * execute job which do not write to database, e.g. sending data to MQ
@@ -110,7 +187,6 @@ public class RedisDistributedJobService implements DistributedJobService {
         });
     }
 
-
     @Override
     public void resetLock(String jobName) {
         log.trace("resetting job {}", jobName);
@@ -122,42 +198,6 @@ public class RedisDistributedJobService implements DistributedJobService {
         } else {
             log.warn("job {} is already unlocked, nothing will happen", jobName);
         }
-    }
-
-    private static void jobWrapper(Consumer<TransactionContext> jobFn, boolean transactional,
-                                   JobDetail job) {
-        if (transactional) {
-            transactionalJobWrapper(jobFn, job);
-        } else {
-            boolean jobSuccess = false;
-            try {
-                jobFn.accept(null);
-                jobSuccess = true;
-            } catch (Exception ex) {
-                log.error("job {} execute fail, updating status", job.getName(), ex);
-            }
-            //update instance job status
-            boolean finalJobSuccess = jobSuccess;
-            CommonDomainRegistry.getTransactionService()
-                .transactionalEvent((context) -> {
-                    updateJobStatus(finalJobSuccess, job, context);
-                });
-        }
-    }
-
-    private static void transactionalJobWrapper(Consumer<TransactionContext> jobFn,
-                                                JobDetail job) {
-        CommonDomainRegistry.getTransactionService()
-            .transactionalEvent((context) -> {
-                boolean jobSuccess = false;
-                try {
-                    jobFn.accept(context);
-                    jobSuccess = true;
-                } catch (Exception ex) {
-                    log.error("job {} execute fail, updating status", job.getName(), ex);
-                }
-                updateJobStatus(jobSuccess, job, context);
-            });
     }
 
     /**
@@ -193,47 +233,6 @@ public class RedisDistributedJobService implements DistributedJobService {
             log.trace("ignore {} job due to lock is busy", jobName);
         }
         return false;
-    }
-
-    private static void updateJobStatus(boolean finalJobSuccess, JobDetail current,
-                                        TransactionContext context) {
-        if (finalJobSuccess) {
-            JobDetail updated = current.executeSuccess();
-            CommonDomainRegistry.getJobRepository().update(current, updated);
-        } else {
-            DomainEvent domainEvent = current.handleJobExecutionException();
-            if (domainEvent == null) {
-                return;
-            }
-            current.setNotifiedAdmin(true);
-            context
-                .append(domainEvent);
-        }
-
-    }
-
-    private static String getJobLockKey(String jobName) {
-        return jobName + "_sync_scheduler_dist_lock";
-    }
-
-    private static void checkJobStarving(String jobName, JobDetail job) {
-        //check if job was executed in time, otherwise send notification
-        if (job.notifyJobStarving()) {
-            log.warn("job {} exceed max idle time, last execution time {}",
-                jobName, job.getLastExecution());
-            if (!job.getNotifiedAdmin()) {
-                log.info("creating {} JobStarvingEvent", jobName);
-                CommonDomainRegistry.getTransactionService()
-                    .transactionalEvent((context) -> {
-                        JobStarving starvingEvent =
-                            new JobStarving(job);
-                        context
-                            .append(starvingEvent);
-                        CommonDomainRegistry.getJobRepository()
-                            .notifyAdmin(job.getJobId());
-                    });
-            }
-        }
     }
 
     private void checkThreadStarving(String jobName, JobDetail job, Integer failureCountOrDefault) {
