@@ -16,7 +16,7 @@ public class ProjectAdminRepresentation {
         if (Checker.notNull(user.getEmail())) {
             this.email = user.getEmail().getPartialValue();
         }
-        if (Checker.notNull(user.getEmail())) {
+        if (Checker.notNull(user.getMobile())) {
             this.mobile = user.getMobile().getPartialValue();
         }
         if (Checker.notNull(user.getUserName())) {

@@ -10,9 +10,9 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
-    UserProfileValidationTest.class,
     UserForgetPwdValidationTest.class,
-    UserLoginValidationTest.class
+    UserLoginValidationTest.class,
+    UserProfileValidationTest.class,
 })
 public class UserValidationTestSuite {
 }

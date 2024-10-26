@@ -5,13 +5,14 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
+    MgmtTestSuite.class,
+    MiscTestSuite.class,
+    OAuth2TestSuite.class,
+    ProxyTestSuite.class,
     TenantTestSuite.class,
     TenantValidationTestSuite.class,
-    MgmtTestSuite.class,
-    OAuth2TestSuite.class,
     UserTestSuite.class,
-    ProxyTestSuite.class,
-    MiscTestSuite.class,
+    UserValidationTestSuite.class,
 })
 public class FullTestSuite {
 }

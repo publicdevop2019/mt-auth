@@ -18,6 +18,7 @@ import org.junit.platform.suite.api.Suite;
 
 @Suite
 @SelectClasses({
+    SubscriptionTest.class,
     TenantAdminTest.class,
     TenantCacheTest.class,
     TenantClientTest.class,
@@ -29,7 +30,6 @@ import org.junit.platform.suite.api.Suite;
     TenantProjectTest.class,
     TenantRoleTest.class,
     TenantUserTest.class,
-    SubscriptionTest.class,
     VersionTest.class
 })
 public class TenantTestSuite {

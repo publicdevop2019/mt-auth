@@ -678,7 +678,6 @@ DROP TABLE IF EXISTS `opt_cool_down`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `opt_cool_down` (
-  `version` int NOT NULL,
   `opt_type` varchar(255) NOT NULL,
   `executor` varchar(255) NOT NULL,
   `last_opt_at` bigint NOT NULL,
