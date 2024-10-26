@@ -6,7 +6,6 @@ import com.mt.access.domain.model.role.RoleId;
 import com.mt.access.domain.model.role.RoleQuery;
 import com.mt.access.domain.model.user.User;
 import com.mt.access.domain.model.user.UserRelation;
-import com.mt.common.domain.model.domain_event.DomainId;
 import com.mt.common.domain.model.restful.query.QueryUtility;
 import java.util.LinkedHashSet;
 import java.util.Set;

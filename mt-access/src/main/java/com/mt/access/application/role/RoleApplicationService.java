@@ -48,6 +48,54 @@ import org.springframework.stereotype.Service;
 public class RoleApplicationService {
     private static final String ROLE = "Role";
 
+    private static void updateName(
+        SumPagedRep<RoleCardRepresentation> response) {
+        List<RoleCardRepresentation> data = response.getData();
+        Set<ProjectId> collect =
+            data.stream().filter(e -> e.getRoleType().equals(RoleType.PROJECT)).flatMap(e -> {
+                if (e.getTenantId() != null) {
+                    return Stream.of(new ProjectId(e.getName()), new ProjectId(e.getTenantId()));
+                }
+                return Stream.of(new ProjectId(e.getName()));
+            }).collect(Collectors.toSet());
+        Set<ProjectId> collect2 =
+            data.stream().filter(e -> e.getTenantId() != null)
+                .map(e -> new ProjectId(e.getTenantId()))
+                .collect(Collectors.toSet());
+        collect.addAll(collect2);
+        if (collect.size() > 0) {
+            Set<Project> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
+                    new ProjectQuery(collect));
+            data.forEach(e -> {
+                if (e.getRoleType().equals(RoleType.PROJECT)) {
+                    allByQuery.stream()
+                        .filter(ee -> ee.getProjectId().getDomainId().equals(e.getName()))
+                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
+                }
+                if (e.getTenantId() != null) {
+                    allByQuery.stream()
+                        .filter(ee2 -> ee2.getProjectId().getDomainId().equals(e.getTenantId()))
+                        .findFirst().ifPresent(eee -> e.setTenantId(eee.getName()));
+                }
+            });
+        }
+        Set<ClientId> collect1 = data.stream().filter(e -> e.getRoleType().equals(RoleType.CLIENT))
+            .map(e -> new ClientId(e.getName())).collect(Collectors.toSet());
+        if (collect1.size() > 0) {
+            Set<Client> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect1));
+            data.forEach(e -> {
+                if (e.getRoleType().equals(RoleType.CLIENT)) {
+                    allByQuery2.stream()
+                        .filter(ee -> ee.getClientId().getDomainId().equals(e.getName()))
+                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
+                }
+            });
+        }
+    }
+
     public SumPagedRep<Role> query(RoleQuery roleQuery) {
         return DomainRegistry.getRoleRepository().query(roleQuery);
     }
@@ -70,7 +118,6 @@ public class RoleApplicationService {
         Role role = DomainRegistry.getRoleRepository().get(projectId1, new RoleId(id));
         return new RoleRepresentation(role);
     }
-
 
     @AuditLog(actionName = UPDATE_TENANT_ROLE)
     public void tenantUpdate(String id, RoleUpdateCommand command, String changeId) {
@@ -200,7 +247,6 @@ public class RoleApplicationService {
             }, (cmd) -> null, ROLE);
     }
 
-
     /**
      * clean up role after client delete,
      * use saga lock to make sure event get consumed correctly.
@@ -222,53 +268,5 @@ public class RoleApplicationService {
                 allByQuery.forEach(e -> DomainRegistry.getRoleRepository().remove(e));
                 return null;
             }, (cmd) -> null, ROLE);
-    }
-
-    private static void updateName(
-        SumPagedRep<RoleCardRepresentation> response) {
-        List<RoleCardRepresentation> data = response.getData();
-        Set<ProjectId> collect =
-            data.stream().filter(e -> e.getRoleType().equals(RoleType.PROJECT)).flatMap(e -> {
-                if (e.getTenantId() != null) {
-                    return Stream.of(new ProjectId(e.getName()), new ProjectId(e.getTenantId()));
-                }
-                return Stream.of(new ProjectId(e.getName()));
-            }).collect(Collectors.toSet());
-        Set<ProjectId> collect2 =
-            data.stream().filter(e -> e.getTenantId() != null)
-                .map(e -> new ProjectId(e.getTenantId()))
-                .collect(Collectors.toSet());
-        collect.addAll(collect2);
-        if (collect.size() > 0) {
-            Set<Project> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
-                    new ProjectQuery(collect));
-            data.forEach(e -> {
-                if (e.getRoleType().equals(RoleType.PROJECT)) {
-                    allByQuery.stream()
-                        .filter(ee -> ee.getProjectId().getDomainId().equals(e.getName()))
-                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
-                }
-                if (e.getTenantId() != null) {
-                    allByQuery.stream()
-                        .filter(ee2 -> ee2.getProjectId().getDomainId().equals(e.getTenantId()))
-                        .findFirst().ifPresent(eee -> e.setTenantId(eee.getName()));
-                }
-            });
-        }
-        Set<ClientId> collect1 = data.stream().filter(e -> e.getRoleType().equals(RoleType.CLIENT))
-            .map(e -> new ClientId(e.getName())).collect(Collectors.toSet());
-        if (collect1.size() > 0) {
-            Set<Client> allByQuery2 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect1));
-            data.forEach(e -> {
-                if (e.getRoleType().equals(RoleType.CLIENT)) {
-                    allByQuery2.stream()
-                        .filter(ee -> ee.getClientId().getDomainId().equals(e.getName()))
-                        .findFirst().ifPresent(ee -> e.setName(ee.getName()));
-                }
-            });
-        }
     }
 }

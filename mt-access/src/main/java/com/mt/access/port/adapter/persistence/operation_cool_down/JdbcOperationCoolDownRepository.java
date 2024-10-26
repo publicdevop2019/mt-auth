@@ -1,10 +1,9 @@
 package com.mt.access.port.adapter.persistence.operation_cool_down;
 
+import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.access.infrastructure.operation_cool_down.OperationCoolDown;
 import com.mt.access.infrastructure.operation_cool_down.OperationCoolDownRepository;
-import com.mt.access.domain.model.operation_cool_down.OperationType;
 import com.mt.common.domain.CommonDomainRegistry;
-import com.mt.common.domain.model.audit.Auditable;
 import com.mt.common.domain.model.sql.DatabaseUtility;
 import java.sql.ResultSet;
 import java.sql.SQLException;

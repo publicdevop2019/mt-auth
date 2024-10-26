@@ -55,7 +55,7 @@ public class CorsProfileResource {
         queryParam = updateProjectIds(queryParam, projectId);
         SumPagedRep<CorsProfileRepresentation> corsProfile =
             ApplicationServiceRegistry.getCorsProfileApplicationService()
-                .tenantQuery(projectId,queryParam, pageParam, config);
+                .tenantQuery(projectId, queryParam, pageParam, config);
         return ResponseEntity.ok(corsProfile);
     }
 

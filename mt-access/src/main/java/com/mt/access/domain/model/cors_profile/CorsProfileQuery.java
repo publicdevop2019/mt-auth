@@ -23,18 +23,6 @@ public class CorsProfileQuery extends QueryCriteria {
     private Set<CorsProfileId> ids;
     private ProjectId projectId;
 
-    public static CorsProfileQuery internalQuery(Set<CorsProfileId> ids) {
-        return new CorsProfileQuery(ids);
-    }
-
-    public static CorsProfileQuery tenantQuery(String queryParam, String pageParam, String config) {
-        return new CorsProfileQuery(queryParam, pageParam, config);
-    }
-
-    public static CorsProfileQuery tenantQuery(ProjectId projectId, CorsProfileId corsProfileId) {
-        return new CorsProfileQuery(projectId,corsProfileId);
-    }
-
     private CorsProfileQuery(Set<CorsProfileId> collect1) {
         this.ids = collect1;
         setPageConfig(PageConfig.defaultConfig());
@@ -55,10 +43,22 @@ public class CorsProfileQuery extends QueryCriteria {
         setQueryConfig(QueryConfig.skipCount());
     }
 
+    public static CorsProfileQuery internalQuery(Set<CorsProfileId> ids) {
+        return new CorsProfileQuery(ids);
+    }
+
+    public static CorsProfileQuery tenantQuery(String queryParam, String pageParam, String config) {
+        return new CorsProfileQuery(queryParam, pageParam, config);
+    }
+
+    public static CorsProfileQuery tenantQuery(ProjectId projectId, CorsProfileId corsProfileId) {
+        return new CorsProfileQuery(projectId, corsProfileId);
+    }
 
     private void updateQueryParam(String queryParam) {
         Map<String, String> stringStringMap =
-            QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS, AppConstant.QUERY_ID);
+            QueryUtility.parseQuery(queryParam, AppConstant.QUERY_PROJECT_IDS,
+                AppConstant.QUERY_ID);
         Optional.ofNullable(stringStringMap.get(AppConstant.QUERY_PROJECT_IDS))
             .ifPresent(e -> projectId = new ProjectId(e));
         Optional.ofNullable(stringStringMap.get(ID)).ifPresent(e ->

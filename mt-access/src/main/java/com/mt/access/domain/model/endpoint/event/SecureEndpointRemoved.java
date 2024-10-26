@@ -23,6 +23,6 @@ public class SecureEndpointRemoved extends DomainEvent {
     public SecureEndpointRemoved(Endpoint endpoint) {
         super(endpoint.getEndpointId());
         this.permissionId = endpoint.getPermissionId();
-        this.changeId = endpoint.getPermissionId().getDomainId()+"_cancel";
+        this.changeId = endpoint.getPermissionId().getDomainId() + "_cancel";
     }
 }

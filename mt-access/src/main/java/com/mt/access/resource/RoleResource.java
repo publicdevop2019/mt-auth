@@ -96,7 +96,8 @@ public class RoleResource {
         @RequestHeader(HTTP_HEADER_AUTHORIZATION) String jwt
     ) {
         DomainRegistry.getCurrentUserService().setUser(jwt);
-        ApplicationServiceRegistry.getRoleApplicationService().tenantRemove(projectId, id, changeId);
+        ApplicationServiceRegistry.getRoleApplicationService()
+            .tenantRemove(projectId, id, changeId);
         return ResponseEntity.ok().build();
     }
 }

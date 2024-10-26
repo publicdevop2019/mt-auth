@@ -38,6 +38,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcUserRepository implements UserRepository {
 
+    public static final String UPDATE_MFA_SQL =
+        "UPDATE user_ u SET u.mfa_id  = ?, u.mfa_code = ? WHERE u.domain_id = ?";
+    public static final String QUERY_USER_BY_EMAIL =
+        "SELECT * FROM user_ u WHERE u.email = ?";
+    public static final String QUERY_USER_BY_MOBILE =
+        "SELECT * FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
     private static final String GET_MFA_SQL =
         "SELECT u.mfa_id, u.mfa_code FROM user_ u WHERE u.domain_id = ?";
     private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM user_ u " +
@@ -47,8 +53,6 @@ public class JdbcUserRepository implements UserRepository {
     private static final String COUNT_TOTAL = "SELECT COUNT(*) AS count FROM user_";
     private static final String GET_USER_ID_SQL =
         "SELECT u.domain_id FROM user_ u WHERE u.email = ?";
-    public static final String UPDATE_MFA_SQL =
-        "UPDATE user_ u SET u.mfa_id  = ?, u.mfa_code = ? WHERE u.domain_id = ?";
     private static final String GET_USER_IDS_SQL = "SELECT u.domain_id FROM user_ u";
     private static final String INSERT_SQL = "INSERT INTO user_ " +
         "(" +
@@ -76,10 +80,6 @@ public class JdbcUserRepository implements UserRepository {
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.email = ?";
     private static final String QUERY_LOGIN_USER_BY_ID_SQL =
         "SELECT u.domain_id, u.password, u.locked FROM user_ u WHERE u.domain_id = ?";
-    public static final String QUERY_USER_BY_EMAIL =
-        "SELECT * FROM user_ u WHERE u.email = ?";
-    public static final String QUERY_USER_BY_MOBILE =
-        "SELECT * FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
     private static final String GET_USER_ID_SQL_BY_MOBILE =
         "SELECT u.domain_id FROM user_ u WHERE u.country_code = ? AND u.mobile_number = ?";
     private static final String GET_USER_ID_SQL_BY_USER_NAME =

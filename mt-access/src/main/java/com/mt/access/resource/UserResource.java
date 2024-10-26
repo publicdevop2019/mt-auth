@@ -7,8 +7,8 @@ import static com.mt.common.CommonConstant.HTTP_PARAM_QUERY;
 import static com.mt.common.CommonConstant.HTTP_PARAM_SKIP_COUNT;
 
 import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.application.user.command.UpdateUserCommand;
 import com.mt.access.application.user.command.AssignRoleCommand;
+import com.mt.access.application.user.command.UpdateUserCommand;
 import com.mt.access.application.user.representation.ProjectAdminRepresentation;
 import com.mt.access.application.user.representation.UserCardRepresentation;
 import com.mt.access.application.user.representation.UserMgmtRepresentation;

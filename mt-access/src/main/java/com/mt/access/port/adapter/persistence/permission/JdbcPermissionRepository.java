@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.springframework.dao.DataAccessException;
@@ -72,7 +71,8 @@ public class JdbcPermissionRepository implements PermissionRepository {
     private static final String DELETE_BY_ID_SQL = "DELETE FROM permission p WHERE p.id = ?";
     private static final String FIND_ALL_ENDPOINT_ID_USED =
         "SELECT DISTINCT p.name FROM permission p WHERE p.type='API'";
-    private static final String DYNAMIC_COUNT_QUERY_SQL = "SELECT COUNT(*) AS count FROM permission p WHERE %s";
+    private static final String DYNAMIC_COUNT_QUERY_SQL =
+        "SELECT COUNT(*) AS count FROM permission p WHERE %s";
     private static final String DYNAMIC_DATA_QUERY_SQL =
         "SELECT temp.*, lpm.domain_id AS lp_id FROM " +
             "(SELECT * FROM permission p WHERE %s ORDER BY p.id ASC LIMIT ? OFFSET ?) " +

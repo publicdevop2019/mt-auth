@@ -90,7 +90,7 @@ public class RevokeTokenEventSubscriber {
                 MqHelper.handlerOf(AppInfo.MT_ACCESS_APP_ID + "_token", CLIENT_DELETED),
                 ClientDeleted.class,
                 (event) -> ApplicationServiceRegistry.getRevokeTokenApplicationService()
-                    .handle(event),1, CLIENT_DELETED);
+                    .handle(event), 1, CLIENT_DELETED);
     }
 
     @EventListener(ApplicationReadyEvent.class)

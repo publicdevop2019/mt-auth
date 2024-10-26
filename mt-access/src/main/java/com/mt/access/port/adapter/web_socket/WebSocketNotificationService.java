@@ -39,6 +39,6 @@ public class WebSocketNotificationService implements WsPushNotificationService {
                 mgmtWsHandler.broadcastToAll("_renew");
                 userWsHandler.broadcastToAll("_renew");
                 log.trace("end of renewing all ws connects");
-            }, false,0);
+            }, false, 0);
     }
 }

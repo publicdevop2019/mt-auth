@@ -35,7 +35,7 @@ public class NotificationUserWsHandler extends AbstractNotificationWsHandler {
     public void notifyUser(UserId userId, String message) {
         log.trace("send notification to user {}", userId);
         WebSocketSession socketSession = userSessionMap.get(userId);
-        if(socketSession==null){
+        if (socketSession == null) {
             log.trace("user session not found, ignore operation");
             return;
         }

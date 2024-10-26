@@ -24,25 +24,30 @@ public class HttpUtility {
     private RestTemplate restTemplate;
     @Autowired
     private EurekaClient eurekaClient;
+
     public String resolveAccessPath() {
         if (eurekaClient.getApplication(AppConstant.MT_ACCESS_ID) != null) {
             log.debug("update property value with resolve access path");
-            return eurekaClient.getApplication(AppConstant.MT_ACCESS_ID).getInstances().get(0).getHomePageUrl();
+            return eurekaClient.getApplication(AppConstant.MT_ACCESS_ID).getInstances().get(0)
+                .getHomePageUrl();
         } else {
             log.error("unable to resolve due to service is not ready");
             throw new IllegalStateException(
                 "unable to resolve due to service is not ready");
         }
     }
+
     /**
      * load all paginated data
+     *
      * @param urlWithoutPagination url
-     * @param pageSize page size
-     * @param allowEmpty allow empty result
-     * @param <T> type T
+     * @param pageSize             page size
+     * @param allowEmpty           allow empty result
+     * @param <T>                  type T
      * @return unique <T> set
      */
-    public <T> Set<T> loadAllData(String urlWithoutPagination, int pageSize, boolean allowEmpty,ParameterizedTypeReference<SumPagedRep<T>> parameterizedTypeReference) {
+    public <T> Set<T> loadAllData(String urlWithoutPagination, int pageSize, boolean allowEmpty,
+                                  ParameterizedTypeReference<SumPagedRep<T>> parameterizedTypeReference) {
         Set<T> data;
         ResponseEntity<SumPagedRep<T>> exchange = getRestTemplate()
             .exchange(urlWithoutPagination + "?page=size:" + pageSize + ",num:0", HttpMethod.GET,

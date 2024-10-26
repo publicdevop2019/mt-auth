@@ -1,13 +1,8 @@
 package com.mt.access.application.registry;
 
-import com.mt.access.application.ApplicationServiceRegistry;
-import com.mt.access.domain.model.client.Client;
-import com.mt.access.domain.model.client.ClientId;
 import com.netflix.appinfo.InstanceInfo;
 import com.netflix.discovery.shared.Application;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data

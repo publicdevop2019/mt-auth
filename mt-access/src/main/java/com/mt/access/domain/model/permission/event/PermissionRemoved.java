@@ -9,6 +9,7 @@ public class PermissionRemoved extends DomainEvent {
 
     public static final String PROJECT_PERMISSION_REMOVED = "project_permission_removed";
     public static final String name = "PROJECT_PERMISSION_REMOVED";
+
     {
         setTopic(PROJECT_PERMISSION_REMOVED);
         setName(name);

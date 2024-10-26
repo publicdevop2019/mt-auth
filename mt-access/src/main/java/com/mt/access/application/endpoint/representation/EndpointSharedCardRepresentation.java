@@ -1,18 +1,8 @@
 package com.mt.access.application.endpoint.representation;
 
-import com.mt.access.domain.DomainRegistry;
-import com.mt.access.domain.model.client.Client;
 import com.mt.access.domain.model.client.ClientId;
-import com.mt.access.domain.model.client.ClientQuery;
 import com.mt.access.domain.model.endpoint.Endpoint;
-import com.mt.access.domain.model.project.Project;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.project.ProjectQuery;
-import com.mt.common.domain.model.restful.query.QueryUtility;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.Data;
 
 @Data

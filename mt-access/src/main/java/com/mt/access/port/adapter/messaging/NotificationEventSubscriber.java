@@ -8,7 +8,6 @@ import com.mt.access.domain.model.cross_domain_validation.event.CrossDomainValid
 import com.mt.access.domain.model.notification.event.SendBellNotification;
 import com.mt.access.domain.model.notification.event.SendEmailNotification;
 import com.mt.access.domain.model.notification.event.SendSmsNotification;
-import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.access.domain.model.proxy.event.ProxyCacheCheckFailed;
 import com.mt.access.domain.model.report.event.RawAccessRecordProcessingWarning;
 import com.mt.access.domain.model.sub_request.event.SubscribedEndpointExpired;
@@ -16,6 +15,7 @@ import com.mt.access.domain.model.user.event.NewUserRegistered;
 import com.mt.access.domain.model.user.event.ProjectOnboardingComplete;
 import com.mt.access.domain.model.user.event.UserMfaNotification;
 import com.mt.access.domain.model.user.event.UserPwdResetCodeUpdated;
+import com.mt.access.domain.model.verification_code.event.VerificationCodeUpdated;
 import com.mt.common.domain.CommonDomainRegistry;
 import com.mt.common.domain.model.constant.AppInfo;
 import com.mt.common.domain.model.domain_event.event.RejectedMsgReceived;

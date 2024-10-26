@@ -27,8 +27,9 @@ public class VerificationCodeApplicationService {
             return CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId,
                     (context) -> {
-                        DomainRegistry.getCoolDownService().hasCoolDown(registrationEmail.getDomainId(),
-                            OperationType.VERIFICATION_CODE);
+                        DomainRegistry.getCoolDownService()
+                            .hasCoolDown(registrationEmail.getDomainId(),
+                                OperationType.VERIFICATION_CODE);
                         DomainId orUpdatePendingUser =
                             DomainRegistry.getVerificationCodeService()
                                 .createOrUpdate(command.getClientId(), registrationEmail,
@@ -42,8 +43,9 @@ public class VerificationCodeApplicationService {
             return CommonApplicationServiceRegistry.getIdempotentService()
                 .idempotent(changeId,
                     (context) -> {
-                        DomainRegistry.getCoolDownService().hasCoolDown(registrationMobile.getDomainId(),
-                            OperationType.VERIFICATION_CODE);
+                        DomainRegistry.getCoolDownService()
+                            .hasCoolDown(registrationMobile.getDomainId(),
+                                OperationType.VERIFICATION_CODE);
                         DomainId orUpdatePendingUser =
                             DomainRegistry.getVerificationCodeService()
                                 .createOrUpdate(command.getClientId(), registrationMobile,

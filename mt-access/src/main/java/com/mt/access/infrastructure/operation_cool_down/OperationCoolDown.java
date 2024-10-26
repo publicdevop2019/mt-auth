@@ -4,7 +4,6 @@ import com.mt.access.domain.model.operation_cool_down.OperationType;
 import java.time.Instant;
 import lombok.AccessLevel;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 

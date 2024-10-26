@@ -4,6 +4,7 @@ import com.mt.access.domain.DomainRegistry;
 import com.mt.common.domain.model.validate.Validator;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+
 @EqualsAndHashCode
 public class Code {
     @Getter

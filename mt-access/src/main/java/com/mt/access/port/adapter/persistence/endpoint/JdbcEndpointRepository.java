@@ -63,7 +63,8 @@ public class JdbcEndpointRepository implements EndpointRepository {
         "DELETE FROM endpoint e WHERE e.id IN (%s)";
     private static final String FIND_BY_DOMAIN_ID_SQL =
         "SELECT * FROM endpoint e WHERE e.domain_id = ?";
-    private static final String DYNAMIC_DATA_QUERY_SQL = "SELECT * FROM endpoint e WHERE %s ORDER BY e.id ASC LIMIT ? OFFSET ?";
+    private static final String DYNAMIC_DATA_QUERY_SQL =
+        "SELECT * FROM endpoint e WHERE %s ORDER BY e.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
         "SELECT COUNT(*) AS count FROM endpoint e WHERE %s";
     private static final String CHECK_DUPLICATE_SQL =
@@ -123,8 +124,10 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 update.getModifiedAt(),
                 update.getModifiedBy(),
                 update.getVersion() + 1,
-                Checker.isNull(update.getCacheProfileId()) ? null : update.getCacheProfileId().getDomainId(),
-                Checker.isNull(update.getCorsProfileId()) ? null : update.getCorsProfileId().getDomainId(),
+                Checker.isNull(update.getCacheProfileId()) ? null :
+                    update.getCacheProfileId().getDomainId(),
+                Checker.isNull(update.getCorsProfileId()) ? null :
+                    update.getCorsProfileId().getDomainId(),
                 update.getCsrfEnabled(),
                 update.getDescription(),
                 update.getEndpointId().getDomainId(),
@@ -151,9 +154,11 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 endpoint.getModifiedAt(),
                 endpoint.getModifiedBy(),
                 0,
-                Checker.isNull(endpoint.getCacheProfileId()) ? null : endpoint.getCacheProfileId().getDomainId(),
+                Checker.isNull(endpoint.getCacheProfileId()) ? null :
+                    endpoint.getCacheProfileId().getDomainId(),
                 endpoint.getClientId().getDomainId(),
-                Checker.isNull(endpoint.getCorsProfileId()) ? null : endpoint.getCorsProfileId().getDomainId(),
+                Checker.isNull(endpoint.getCorsProfileId()) ? null :
+                    endpoint.getCorsProfileId().getDomainId(),
                 endpoint.getCsrfEnabled(),
                 endpoint.getDescription(),
                 endpoint.getEndpointId().getDomainId(),
@@ -161,7 +166,8 @@ public class JdbcEndpointRepository implements EndpointRepository {
                 endpoint.getMethod(),
                 endpoint.getName(),
                 endpoint.getPath(),
-                Checker.isNull(endpoint.getPermissionId()) ? null : endpoint.getPermissionId().getDomainId(),
+                Checker.isNull(endpoint.getPermissionId()) ? null :
+                    endpoint.getPermissionId().getDomainId(),
                 endpoint.getProjectId().getDomainId(),
                 endpoint.getSecured(),
                 endpoint.getShared(),

@@ -38,7 +38,6 @@ import lombok.extern.slf4j.Slf4j;
 @Getter
 @EqualsAndHashCode(callSuper = true)
 public class Role extends Auditable {
-    private boolean isCreate = false;
     public static final String PROJECT_USER = "PROJECT_USER";
     public static final String PROJECT_ADMIN = "PROJECT_ADMIN";
     public static final String CLIENT_ROOT = "CLIENT_ROOT";
@@ -50,6 +49,7 @@ public class Role extends Auditable {
         reservedName.add(CLIENT_ROOT);
     }
 
+    private boolean isCreate = false;
     private String name;
 
     private String description;

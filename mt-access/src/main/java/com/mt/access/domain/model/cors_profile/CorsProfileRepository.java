@@ -5,7 +5,8 @@ import com.mt.common.domain.model.validate.Validator;
 
 public interface CorsProfileRepository {
     CorsProfile query(CorsProfileId id);
-    default CorsProfile get(CorsProfileId id){
+
+    default CorsProfile get(CorsProfileId id) {
         CorsProfile corsProfile = query(id);
         Validator.notNull(corsProfile);
         return corsProfile;

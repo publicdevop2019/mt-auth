@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @ConditionalOnProperty(
-    value="mt.feature.sms.type",
+    value = "mt.feature.sms.type",
     havingValue = "noop",
     matchIfMissing = true)
 public class NoOpSmsNotificationService implements SmsNotificationService {

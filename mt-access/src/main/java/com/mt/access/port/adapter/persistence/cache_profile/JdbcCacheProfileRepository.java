@@ -69,7 +69,8 @@ public class JdbcCacheProfileRepository implements CacheProfileRepository {
     private static final String BATCH_DELETE_CACHE_CONTROL_MAP_SQL =
         "DELETE FROM cache_control_map ccm WHERE ccm.id = ? AND ccm.cache_control IN (%s)";
 
-    private static final String DELETE_CACHE_PROFILE_BY_ID_SQL = "DELETE FROM cache_profile cp WHERE cp.id = ?";
+    private static final String DELETE_CACHE_PROFILE_BY_ID_SQL =
+        "DELETE FROM cache_profile cp WHERE cp.id = ?";
     private static final String DELETE_CACHE_CONTROL_MAP_BY_ID_SQL =
         "DELETE FROM cache_control_map ccm WHERE ccm.id = ?";
 

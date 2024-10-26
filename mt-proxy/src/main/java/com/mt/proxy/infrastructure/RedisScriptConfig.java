@@ -1,6 +1,5 @@
 package com.mt.proxy.infrastructure;
 
-import com.mt.proxy.domain.rate_limit.RateLimitResult;
 import java.io.IOException;
 import java.util.List;
 import org.springframework.context.annotation.Bean;

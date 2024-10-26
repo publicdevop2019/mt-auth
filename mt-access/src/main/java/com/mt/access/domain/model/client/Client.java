@@ -42,8 +42,6 @@ import org.apache.commons.lang.ObjectUtils;
 @EqualsAndHashCode(callSuper = true)
 @NoArgsConstructor
 public class Client extends Auditable {
-    @Getter
-    private boolean isCreate = false;
     private static final String MT_ACCESS_ID = "0C8AZTODP4HT";
     private static final String MT_PROXY_ID = "0C8AZYTQ5W5C";
     private static final String MT_UI_REGISTER_ID_ = "0C8B00098WLD";
@@ -59,6 +57,8 @@ public class Client extends Auditable {
         reservedClientIds.add(new ClientId(MT_UI_LOGIN_ID));
     }
 
+    @Getter
+    private boolean isCreate = false;
     private Set<ClientId> resources = new LinkedHashSet<>();
 
     private Set<ClientId> externalResources = new LinkedHashSet<>();

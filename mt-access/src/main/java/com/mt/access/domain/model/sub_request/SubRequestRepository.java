@@ -2,7 +2,6 @@ package com.mt.access.domain.model.sub_request;
 
 import com.mt.access.domain.model.endpoint.EndpointId;
 import com.mt.access.domain.model.project.ProjectId;
-import com.mt.access.domain.model.user.UserId;
 import com.mt.common.domain.model.restful.SumPagedRep;
 import com.mt.common.domain.model.validate.Validator;
 import java.util.Set;

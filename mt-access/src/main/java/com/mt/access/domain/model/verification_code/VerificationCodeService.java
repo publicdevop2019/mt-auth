@@ -35,8 +35,8 @@ public class VerificationCodeService {
     }
 
     public DomainId createOrUpdate(ClientId clientId,
-                                            RegistrationMobile mobile, Code code,
-                                            TransactionContext context) {
+                                   RegistrationMobile mobile, Code code,
+                                   TransactionContext context) {
         Optional<VerificationCode> query =
             DomainRegistry.getVerificationCodeRepository().query(mobile);
         if (query.isEmpty()) {

@@ -17,11 +17,12 @@ public interface PermissionRepository {
 
     void remove(Permission e);
 
-    default Permission get(PermissionId id){
+    default Permission get(PermissionId id) {
         Permission permission = query(id);
         Validator.notNull(permission);
         return permission;
     }
+
     Permission query(PermissionId id);
 
     Set<EndpointId> allApiPermissionLinkedEpId();

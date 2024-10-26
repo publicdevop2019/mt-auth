@@ -29,7 +29,8 @@ public class HttpUtility {
 
     /**
      * add project id as part of query string
-     * @param original query string to be appended
+     *
+     * @param original  query string to be appended
      * @param projectId project id
      * @return combined query string
      */

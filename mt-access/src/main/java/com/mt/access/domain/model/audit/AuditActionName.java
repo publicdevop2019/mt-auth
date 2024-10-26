@@ -1,4 +1,5 @@
 package com.mt.access.domain.model.audit;
+
 public class AuditActionName {
     public static final String DELETE_TENANT_CLIENT = "DELETE_TENANT_CLIENT";
     public static final String CREATE_TENANT_CLIENT = "CREATE_TENANT_CLIENT";

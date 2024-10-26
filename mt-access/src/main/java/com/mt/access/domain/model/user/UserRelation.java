@@ -89,14 +89,6 @@ public class UserRelation extends Auditable {
         log.debug("end of onboarding new project");
     }
 
-    private UserRelation updateTenantAndRole(ProjectId tenantId, RoleId adminRoleId) {
-        UserRelation updated =
-            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
-        updated.tenantIds.add(tenantId);
-        updated.standaloneRoles.add(adminRoleId);
-        return updated;
-    }
-
     public static UserRelation initNewUser(RoleId userRoleId, UserId creator,
                                            ProjectId authProjectId) {
         UserRelation userRelation2 = new UserRelation(userRoleId, creator, authProjectId);
@@ -117,6 +109,14 @@ public class UserRelation extends Auditable {
         userRelation.projectId = projectId;
         userRelation.userId = userId;
         return userRelation;
+    }
+
+    private UserRelation updateTenantAndRole(ProjectId tenantId, RoleId adminRoleId) {
+        UserRelation updated =
+            CommonDomainRegistry.getCustomObjectSerializer().nativeDeepCopy(this);
+        updated.tenantIds.add(tenantId);
+        updated.standaloneRoles.add(adminRoleId);
+        return updated;
     }
 
     private void setStandaloneRoles(Set<RoleId> roleIds) {

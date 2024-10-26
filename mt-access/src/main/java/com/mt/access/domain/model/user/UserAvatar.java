@@ -5,7 +5,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class UserAvatar  implements Serializable {
+public class UserAvatar implements Serializable {
     private String value;
 
     private UserAvatar() {

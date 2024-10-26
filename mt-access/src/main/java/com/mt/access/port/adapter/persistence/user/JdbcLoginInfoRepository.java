@@ -28,7 +28,8 @@ public class JdbcLoginInfoRepository implements LoginInfoRepository {
         "agent" +
         ") VALUES" +
         "(?,?,?,?,?)";
-    private static final String FIND_BY_DOMAIN_ID_SQL = "SELECT * FROM login_info li WHERE li.domain_id = ?";
+    private static final String FIND_BY_DOMAIN_ID_SQL =
+        "SELECT * FROM login_info li WHERE li.domain_id = ?";
 
     @Override
     public Optional<LoginInfo> query(UserId userId) {

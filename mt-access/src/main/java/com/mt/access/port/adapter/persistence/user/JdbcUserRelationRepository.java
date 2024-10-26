@@ -458,49 +458,6 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
             });
     }
 
-    private static class RowMapper implements ResultSetExtractor<List<UserRelation>> {
-
-        @Override
-        public List<UserRelation> extractData(ResultSet rs)
-            throws SQLException, DataAccessException {
-            if (!rs.next()) {
-                return Collections.emptyList();
-            }
-            List<UserRelation> list = new ArrayList<>();
-            long currentId = -1L;
-            UserRelation userRelation = null;
-            do {
-                long dbId = rs.getLong(Auditable.DB_ID);
-                if (currentId != dbId) {
-                    userRelation = UserRelation.fromDatabaseRow(
-                        DatabaseUtility.getNullableLong(rs, Auditable.DB_ID),
-                        DatabaseUtility.getNullableLong(rs, Auditable.DB_CREATED_AT),
-                        rs.getString(Auditable.DB_CREATED_BY),
-                        DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
-                        rs.getString(Auditable.DB_MODIFIED_BY),
-                        DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
-                        new ProjectId(rs.getString("project_id")),
-                        new UserId(rs.getString("user_id"))
-                    );
-                    list.add(userRelation);
-                    currentId = dbId;
-                }
-                Set<RoleId> roles = userRelation.getStandaloneRoles();
-                String roleId = rs.getString("role");
-                if (Checker.notNull(roleId)) {
-                    roles.add(new RoleId(roleId));
-                }
-                Set<ProjectId> commonPermissionIds = userRelation.getTenantIds();
-                String projectId = rs.getString("tenant");
-                if (Checker.notNull(projectId)) {
-                    commonPermissionIds.add(new ProjectId(projectId));
-                }
-            } while (rs.next());
-            return list;
-        }
-    }
-
-
     private SumPagedRep<UserRelation> searchUserByEmailLike(UserRelationQuery query) {
         String projectId = query.getProjectIds().stream().findFirst().get().getDomainId();
         List<Object> args = new ArrayList<>();
@@ -591,5 +548,47 @@ public class JdbcUserRelationRepository implements UserRelationRepository {
                 MT_AUTH_PROJECT_ID
             );
         return new SumPagedRep<>(data, count);
+    }
+
+    private static class RowMapper implements ResultSetExtractor<List<UserRelation>> {
+
+        @Override
+        public List<UserRelation> extractData(ResultSet rs)
+            throws SQLException, DataAccessException {
+            if (!rs.next()) {
+                return Collections.emptyList();
+            }
+            List<UserRelation> list = new ArrayList<>();
+            long currentId = -1L;
+            UserRelation userRelation = null;
+            do {
+                long dbId = rs.getLong(Auditable.DB_ID);
+                if (currentId != dbId) {
+                    userRelation = UserRelation.fromDatabaseRow(
+                        DatabaseUtility.getNullableLong(rs, Auditable.DB_ID),
+                        DatabaseUtility.getNullableLong(rs, Auditable.DB_CREATED_AT),
+                        rs.getString(Auditable.DB_CREATED_BY),
+                        DatabaseUtility.getNullableLong(rs, Auditable.DB_MODIFIED_AT),
+                        rs.getString(Auditable.DB_MODIFIED_BY),
+                        DatabaseUtility.getNullableInteger(rs, Auditable.DB_VERSION),
+                        new ProjectId(rs.getString("project_id")),
+                        new UserId(rs.getString("user_id"))
+                    );
+                    list.add(userRelation);
+                    currentId = dbId;
+                }
+                Set<RoleId> roles = userRelation.getStandaloneRoles();
+                String roleId = rs.getString("role");
+                if (Checker.notNull(roleId)) {
+                    roles.add(new RoleId(roleId));
+                }
+                Set<ProjectId> commonPermissionIds = userRelation.getTenantIds();
+                String projectId = rs.getString("tenant");
+                if (Checker.notNull(projectId)) {
+                    commonPermissionIds.add(new ProjectId(projectId));
+                }
+            } while (rs.next());
+            return list;
+        }
     }
 }

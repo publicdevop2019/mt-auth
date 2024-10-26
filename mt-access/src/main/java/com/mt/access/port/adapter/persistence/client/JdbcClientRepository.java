@@ -34,6 +34,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class JdbcClientRepository implements ClientRepository {
 
+    public static final String RESOURCE_SQL =
+        "SELECT c.* FROM resources_map mt LEFT JOIN client c ON mt.id = c.id WHERE mt.domain_id IN (%s)";
     private static final String DYNAMIC_DATA_QUERY_SQL =
         "SELECT * FROM client c WHERE %s ORDER BY c.id ASC LIMIT ? OFFSET ?";
     private static final String DYNAMIC_COUNT_QUERY_SQL =
@@ -132,8 +134,6 @@ public class JdbcClientRepository implements ClientRepository {
         "SELECT COUNT(*) AS count FROM client c WHERE c.project_id = ?";
     private static final String COUNT_RESOURCE_SQL =
         "SELECT COUNT(DISTINCT rm.id) AS count FROM resources_map rm LEFT JOIN client c ON rm.id = c.id WHERE rm.domain_id IN (%s)";
-    public static final String RESOURCE_SQL =
-        "SELECT c.* FROM resources_map mt LEFT JOIN client c ON mt.id = c.id WHERE mt.domain_id IN (%s)";
     private static final String FIND_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +
         "FROM resources_map m WHERE m.id = ?";
     private static final String FIND_EXT_RESOURCE_IDS_BY_ID_SQL = "SELECT m.domain_id " +

@@ -58,6 +58,57 @@ public class EndpointApplicationService {
     @Value("${mt.feature.proxy-reload}")
     private Boolean reloadOnAppStart;
 
+    private static SumPagedRep<EndpointCardRepresentation> updateDetail(
+        SumPagedRep<Endpoint> rep2) {
+        SumPagedRep<EndpointCardRepresentation> rep =
+            new SumPagedRep<>(rep2, EndpointCardRepresentation::new);
+        Set<ClientId> collect =
+            rep.getData().stream().map(e -> new ClientId(e.getResourceId()))
+                .collect(Collectors.toSet());
+        if (!collect.isEmpty()) {
+            Set<Client> allByIds = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            rep.getData().forEach(e -> allByIds.stream()
+                .filter(ee -> ee.getClientId().getDomainId().equals(e.getResourceId())).findFirst()
+                .ifPresent(ee -> {
+                    e.setResourceName(ee.getName());
+                }));
+        }
+        return rep;
+    }
+
+    private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
+        if (!original.isEmpty()) {
+            Set<ClientId> collect =
+                original.stream().map(EndpointSharedCardRepresentation::getClientId)
+                    .collect(Collectors.toSet());
+            Set<ProjectId> collect2 =
+                original.stream().map(EndpointSharedCardRepresentation::getOriginalProjectId)
+                    .collect(Collectors.toSet());
+            Set<Client> allByQuery = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
+                    new ClientQuery(collect));
+            Set<Project> allByQuery2 = QueryUtility
+                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
+                    new ProjectQuery(collect2));
+            original.forEach(e -> {
+                Optional<Client> first =
+                    allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId()))
+                        .findFirst();
+                first.ifPresent(ee -> {
+                    String path = ee.getPath();
+                    e.setPath("/" + path + "/" + e.getPath());
+                });
+                Optional<Project> first2 = allByQuery2.stream()
+                    .filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
+                first2.ifPresent(ee -> {
+                    e.setProjectName(ee.getName());
+                });
+            });
+        }
+    }
+
     /**
      * send app started event with a delay of 60s to wait for registry complete.
      */
@@ -108,26 +159,6 @@ public class EndpointApplicationService {
         return updateDetail(rep2);
     }
 
-    private static SumPagedRep<EndpointCardRepresentation> updateDetail(
-        SumPagedRep<Endpoint> rep2) {
-        SumPagedRep<EndpointCardRepresentation> rep =
-            new SumPagedRep<>(rep2, EndpointCardRepresentation::new);
-        Set<ClientId> collect =
-            rep.getData().stream().map(e -> new ClientId(e.getResourceId()))
-                .collect(Collectors.toSet());
-        if (!collect.isEmpty()) {
-            Set<Client> allByIds = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect));
-            rep.getData().forEach(e -> allByIds.stream()
-                .filter(ee -> ee.getClientId().getDomainId().equals(e.getResourceId())).findFirst()
-                .ifPresent(ee -> {
-                    e.setResourceName(ee.getName());
-                }));
-        }
-        return rep;
-    }
-
     public SumPagedRep<EndpointSharedCardRepresentation> marketQuery(String queryParam,
                                                                      String pageParam,
                                                                      String config) {
@@ -150,37 +181,6 @@ public class EndpointApplicationService {
         SumPagedRep<Endpoint> query =
             DomainRegistry.getEndpointRepository().query(endpointQuery);
         return new SumPagedRep<>(query, EndpointProtectedRepresentation::new);
-    }
-
-    private static void updateDetail(List<EndpointSharedCardRepresentation> original) {
-        if (!original.isEmpty()) {
-            Set<ClientId> collect =
-                original.stream().map(EndpointSharedCardRepresentation::getClientId)
-                    .collect(Collectors.toSet());
-            Set<ProjectId> collect2 =
-                original.stream().map(EndpointSharedCardRepresentation::getOriginalProjectId)
-                    .collect(Collectors.toSet());
-            Set<Client> allByQuery = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getClientRepository().query(e),
-                    new ClientQuery(collect));
-            Set<Project> allByQuery2 = QueryUtility
-                .getAllByQuery(e -> DomainRegistry.getProjectRepository().query(e),
-                    new ProjectQuery(collect2));
-            original.forEach(e -> {
-                Optional<Client> first =
-                    allByQuery.stream().filter(ee -> ee.getClientId().equals(e.getClientId()))
-                        .findFirst();
-                first.ifPresent(ee -> {
-                    String path = ee.getPath();
-                    e.setPath("/" + path + "/" + e.getPath());
-                });
-                Optional<Project> first2 = allByQuery2.stream()
-                    .filter(ee -> ee.getProjectId().equals(e.getOriginalProjectId())).findFirst();
-                first2.ifPresent(ee -> {
-                    e.setProjectName(ee.getName());
-                });
-            });
-        }
     }
 
     public SumPagedRep<EndpointCardRepresentation> mgmtQuery(String queryParam, String pageParam,
